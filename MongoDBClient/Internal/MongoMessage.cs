@@ -65,12 +65,10 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter writer = new BinaryWriter(stream);
             long start = stream.Position;
 
-            writer.Write(0); // will be backpatched
-            writer.Write(requestID);
-            writer.Write(0); // responseTo
-            writer.Write((int) opCode);
+            WriteMessageHeaderTo(writer);
             WriteBodyTo(writer);
 
+            // backpatch MessageLength
             writer.Flush();
             long end = stream.Position;
             long messageLength = end - start;
@@ -82,6 +80,17 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region protected methods
+        protected void ReadMessageHeaderFrom(
+            BinaryReader reader
+        ) {
+            messageLength = reader.ReadInt32();
+            requestID = reader.ReadInt32();
+            responseTo = reader.ReadInt32();
+            if ((RequestOpCode) reader.ReadInt32() != opCode) {
+                throw new MongoException("Message header opcode was not the expected one");
+            }
+        }
+
         protected abstract void WriteBodyTo(
             BinaryWriter writer
         );
@@ -96,6 +105,17 @@ namespace MongoDB.MongoDBClient.Internal {
             }
             writer.Write(utf8Bytes);
             writer.Write((byte) 0);
+        }
+        #endregion
+
+        #region private methods
+        private void WriteMessageHeaderTo(
+            BinaryWriter writer
+        ) {
+            writer.Write(0); // messageLength will be backpatched later
+            writer.Write(requestID);
+            writer.Write(0); // responseTo not used in messages sent by client
+            writer.Write((int) opCode);
         }
         #endregion
     }

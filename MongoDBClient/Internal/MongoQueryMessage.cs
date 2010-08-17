@@ -36,8 +36,7 @@ namespace MongoDB.MongoDBClient.Internal {
         internal MongoQueryMessage(
             MongoDatabase database,
             MongoCollection collection
-        )
-            : base(RequestOpCode.Query) {
+        ) : base(RequestOpCode.Query) {
             fullCollectionName = database.Name + "." + collection.Name;
         }
         #endregion
@@ -64,12 +63,7 @@ namespace MongoDB.MongoDBClient.Internal {
         }
 
         public BsonDocument Query {
-            get {
-                if (query == null) {
-                    query = new BsonDocument();
-                }
-                return query;
-            }
+            get { return query ?? (query = new BsonDocument()); }
             set { query = value; }
         }
 
@@ -91,7 +85,6 @@ namespace MongoDB.MongoDBClient.Internal {
             BsonWriter bsonWriter = BsonBinaryWriter.Create(writer);
             Query.WriteTo(bsonWriter);
             if (fieldSelector != null) {
-                bsonWriter.Reset();
                 fieldSelector.WriteTo(bsonWriter);
             }
         }

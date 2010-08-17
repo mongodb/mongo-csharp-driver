@@ -23,6 +23,7 @@ using System.Text;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoConnection : IDisposable {
         #region private fields
+        private bool disposed = false;
         private string host;
         private int port;
         private TcpClient tcpClient;
@@ -42,20 +43,62 @@ namespace MongoDB.MongoDBClient.Internal {
 
         #region public methods
         public void Dispose() {
+            if (!disposed) {
+                try {
+                    // note: TcpClient.Close doesn't close the NetworkStream!?
+                    NetworkStream networkStream = tcpClient.GetStream();
+                    if (networkStream != null) {
+                        networkStream.Close();
+                    }
+                    tcpClient.Close();
+                    ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
+                } catch { } // ignore exceptions
+                tcpClient = null;
+                disposed = true;
+            }
         }
 
         internal MongoReplyMessage ReceiveMessage() {
-            NetworkStream networkStream = tcpClient.GetStream();
-            return MongoReplyMessage.ReadFrom(networkStream);
+            if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
+            byte[] bytes = ReadReply();
+            MongoReplyMessage reply = new MongoReplyMessage();
+            reply.ReadFrom(bytes);
+            return reply;
         }
 
         internal void SendMessage(
             MongoMessage message
         ) {
-            MemoryStream memoryStream = new MemoryStream();
+            if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
+            MemoryStream memoryStream = new MemoryStream(); // write to MemoryStream first because NetworkStream can't Seek
             message.WriteTo(memoryStream);
-            byte[] bytes = memoryStream.ToArray();
-            tcpClient.GetStream().Write(bytes, 0, bytes.Length);
+            NetworkStream networkStream = tcpClient.GetStream();
+            networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
+        }
+        #endregion
+
+        #region private methods
+        private byte[] ReadReply() {
+            NetworkStream networkStream = tcpClient.GetStream();
+            byte[] messageLengthBytes = new byte[4];
+            networkStream.Read(messageLengthBytes, 0, 4);
+            BinaryReader reader = new BinaryReader(new MemoryStream(messageLengthBytes));
+            int messageLength = reader.ReadInt32();
+
+            // create reply buffer and copy message length bytes to it
+            byte[] reply = new byte[messageLength];
+            Array.Copy(messageLengthBytes, reply, 4);
+
+            // keep reading until entire reply has been received
+            int offset = 4;
+            int remaining = messageLength - 4;
+            while (remaining > 0) {
+                int bytesRead = networkStream.Read(reply, offset, remaining);
+                offset += bytesRead;
+                remaining -= bytesRead;
+            }
+
+            return reply;
         }
         #endregion
     }

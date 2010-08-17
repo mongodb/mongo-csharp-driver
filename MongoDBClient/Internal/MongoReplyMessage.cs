@@ -64,49 +64,38 @@ namespace MongoDB.MongoDBClient.Internal {
         }
         #endregion
 
-        #region public static methods
-        internal static MongoReplyMessage ReadFrom(
+        #region public methods
+        internal void ReadFrom(
+            BinaryReader reader
+        ) {
+            long start = reader.BaseStream.Position;
+
+            ReadMessageHeaderFrom(reader);
+            responseFlags = (ResponseFlags) reader.ReadInt32();
+            cursorID = reader.ReadInt64();
+            startingFrom = reader.ReadInt32();
+            numberReturned = reader.ReadInt32();
+            documents = new List<BsonDocument>();
+
+            BsonReader bsonReader = new BsonReader(reader);
+            while (reader.BaseStream.Position - start < MessageLength) {
+                BsonDocument document = BsonDocument.ReadFrom(bsonReader);
+                documents.Add(document);
+            }
+        }
+
+        internal void ReadFrom(
+            byte[] bytes
+        ) {
+            MemoryStream memoryStream = new MemoryStream(bytes);
+            ReadFrom(memoryStream);
+        }
+
+        internal void ReadFrom(
             Stream stream
         ) {
             BinaryReader reader = new BinaryReader(stream);
-
-            // TODO: can we process the NetworkStream directly?
-            int messageLength = reader.ReadInt32();
-            int bufferLength = messageLength - 4;
-            byte[] bytes = new byte[bufferLength];
-            int index = 0;
-            int count = bufferLength;
-            while (count > 0) {
-                int bytesRead = reader.Read(bytes, index, count);
-                index += bytesRead;
-                count -= bytesRead;
-            }
-
-            MemoryStream memoryStream = new MemoryStream(bytes);
-            reader = new BinaryReader(memoryStream);
-
-            MongoReplyMessage reply = new MongoReplyMessage();
-            reply.RequestID = reader.ReadInt32();
-            reply.ResponseTo = reader.ReadInt32();
-            reply.OpCode = (RequestOpCode) reader.ReadInt32();
-            if (reply.OpCode != RequestOpCode.Reply) {
-                throw new MongoException("Invalid reply from server");
-            }
-
-            reply.ResponseFlags = (ResponseFlags) reader.ReadInt32();
-            reply.CursorID = reader.ReadInt64();
-            reply.StartingFrom = reader.ReadInt32();
-            reply.NumberReturned = reader.ReadInt32();
-            reply.Documents = new List<BsonDocument>();
-
-            BsonReader bsonReader = new BsonReader(reader);
-            while (memoryStream.Position < bufferLength) {
-                bsonReader.Reset();
-                BsonDocument document = BsonDocument.ReadFrom(bsonReader);
-                reply.Documents.Add(document);
-            }
-
-            return reply;
+            ReadFrom(reader);
         }
         #endregion
 

@@ -54,10 +54,7 @@ namespace MongoDB.MongoDBClient {
             MongoConnection connection = MongoConnectionPool.AcquireConnection(client.Host, client.Port);
             try {
                 MongoQueryMessage query = new MongoQueryMessage(database, this);
-                query.NumberToSkip = 0;
-                query.NumberToReturn = 100;
                 connection.SendMessage(query);
-
                 MongoReplyMessage reply = connection.ReceiveMessage();
                 MongoConnectionPool.ReleaseConnection(connection);
                 if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
