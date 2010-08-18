@@ -58,10 +58,10 @@ namespace MongoDB.MongoDBClient.Internal {
             }
         }
 
-        internal MongoReplyMessage ReceiveMessage() {
+        internal MongoReplyMessage<T> ReceiveMessage<T>() where T : class, new() {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
-            byte[] bytes = ReadReply();
-            MongoReplyMessage reply = new MongoReplyMessage();
+            var bytes = ReadReply();
+            var reply = new MongoReplyMessage<T>();
             reply.ReadFrom(bytes);
             return reply;
         }

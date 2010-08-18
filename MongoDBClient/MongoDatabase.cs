@@ -58,14 +58,26 @@ namespace MongoDB.MongoDBClient {
 
         #region public methods
         public MongoCollection GetCollection(
-            string name
-        ) {
+           string name
+       ) {
             MongoCollection collection;
             if (!collections.TryGetValue(name, out collection)) {
                 collection = new MongoCollection(this, name);
                 collections[name] = collection;
             }
             return collection;
+        }
+
+        public MongoCollection<T> GetCollection<T>(
+            string name
+        ) where T : class, new() {
+            MongoCollection collection;
+            string key = string.Format("{0}<{1}>", name, typeof(T).FullName);
+            if (!collections.TryGetValue(key, out collection)) {
+                collection = new MongoCollection<T>(this, name);
+                collections[name] = collection;
+            }
+            return (MongoCollection<T>) collection;
         }
         #endregion
     }

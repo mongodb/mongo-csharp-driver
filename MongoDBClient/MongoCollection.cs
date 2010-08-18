@@ -23,13 +23,13 @@ using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
     public class MongoCollection {
-        #region private fields
-        private MongoDatabase database;
-        private string name;
+        #region protected fields
+        protected MongoDatabase database;
+        protected string name;
         #endregion
 
         #region constructors
-        internal MongoCollection(
+        public MongoCollection(
             MongoDatabase database,
             string name
         ) {
@@ -49,22 +49,41 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
-        public IEnumerable<BsonDocument> Find() {
-            MongoClient client = database.Client;
-            MongoConnection connection = MongoConnectionPool.AcquireConnection(client.Host, client.Port);
+        public IEnumerable<T> FindAll<T>() where T : class, new() {
+            MongoReplyMessage<T> reply;
+            var client = database.Client;
+            var connection = MongoConnectionPool.AcquireConnection(client.Host, client.Port);
             try {
-                MongoQueryMessage query = new MongoQueryMessage(database, this);
-                connection.SendMessage(query);
-                MongoReplyMessage reply = connection.ReceiveMessage();
+                var message = new MongoQueryMessage(database, this);
+                connection.SendMessage(message);
+                reply = connection.ReceiveMessage<T>();
                 MongoConnectionPool.ReleaseConnection(connection);
-                if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
-                    throw new MongoException("Query failure");
-                }
-                return reply.Documents;
             } catch {
                 try { connection.Dispose(); } catch { } // ignore exceptions
                 throw;
             }
+
+            if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
+                throw new MongoException("Query failure");
+            }
+            return reply.Documents;
+        }
+        #endregion
+    }
+
+    public class MongoCollection<T> : MongoCollection where T : class, new() {
+        #region constructors
+        public MongoCollection(
+            MongoDatabase database,
+            string name
+        )
+            : base(database, name) {
+        }
+        #endregion
+
+        #region public methods
+        public IEnumerable<T> FindAll() {
+            return FindAll<T>();
         }
         #endregion
     }
