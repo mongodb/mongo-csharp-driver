@@ -58,7 +58,7 @@ namespace MongoDB.MongoDBClient.Internal {
             }
         }
 
-        internal MongoReplyMessage<T> ReceiveMessage<T>() where T : class, new() {
+        internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
             var bytes = ReadReply();
             var reply = new MongoReplyMessage<T>();

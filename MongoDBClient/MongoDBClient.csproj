@@ -60,6 +60,7 @@
     <Compile Include="Internal\ResponseFlags.cs" />
     <Compile Include="MongoCollection.cs" />
     <Compile Include="MongoClient.cs" />
+    <Compile Include="MongoCursor.cs" />
     <Compile Include="MongoDatabase.cs" />
     <Compile Include="MongoException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

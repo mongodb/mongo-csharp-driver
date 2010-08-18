@@ -27,7 +27,7 @@ namespace MongoDB.MongoDBClientTest {
             using (var client = new MongoClient()) {
                 var database = client.GetDatabase("test");
                 var collection = database.GetCollection<BsonDocument>("library");
-                foreach (var document in collection.FindAll()) {
+                foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
                     Console.WriteLine(document.ToString());
                 }
             }

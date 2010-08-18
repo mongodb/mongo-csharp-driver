@@ -43,35 +43,23 @@ namespace MongoDB.MongoDBClient {
             get { return database; }
         }
 
+        public string FullName {
+            get { return database.Name + "." + name; }
+        }
+
         public string Name {
             get { return name; }
         }
         #endregion
 
         #region public methods
-        public IEnumerable<T> FindAll<T>() where T : class, new() {
-            MongoReplyMessage<T> reply;
-            var client = database.Client;
-            var connection = MongoConnectionPool.AcquireConnection(client.Host, client.Port);
-            try {
-                var message = new MongoQueryMessage(database, this);
-                connection.SendMessage(message);
-                reply = connection.ReceiveMessage<T>();
-                MongoConnectionPool.ReleaseConnection(connection);
-            } catch {
-                try { connection.Dispose(); } catch { } // ignore exceptions
-                throw;
-            }
-
-            if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
-                throw new MongoException("Query failure");
-            }
-            return reply.Documents;
+        public MongoCursor<T> FindAll<T>() where T : new() {
+            return new MongoCursor<T>(this, null);
         }
         #endregion
     }
 
-    public class MongoCollection<T> : MongoCollection where T : class, new() {
+    public class MongoCollection<T> : MongoCollection where T : new() {
         #region constructors
         public MongoCollection(
             MongoDatabase database,
@@ -82,7 +70,7 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
-        public IEnumerable<T> FindAll() {
+        public MongoCursor<T> FindAll() {
             return FindAll<T>();
         }
         #endregion

@@ -22,7 +22,7 @@ using System.Text;
 using MongoDB.BsonLibrary;
 
 namespace MongoDB.MongoDBClient.Internal {
-    internal class MongoReplyMessage<T> : MongoMessage where T : class, new() {
+    internal class MongoReplyMessage<T> : MongoMessage where T : new() {
         #region private fields
         private ResponseFlags responseFlags;
         private long cursorID;

@@ -70,7 +70,7 @@ namespace MongoDB.MongoDBClient {
 
         public MongoCollection<T> GetCollection<T>(
             string name
-        ) where T : class, new() {
+        ) where T : new() {
             MongoCollection collection;
             string key = string.Format("{0}<{1}>", name, typeof(T).FullName);
             if (!collections.TryGetValue(key, out collection)) {

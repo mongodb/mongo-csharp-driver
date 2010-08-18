@@ -22,31 +22,21 @@ using System.Text;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoGetMoreMessage : MongoMessage {
         #region private fields
-        private string fullCollectionName;
+        private MongoCollection collection;
         private int numberToReturn;
         private long cursorID;
         #endregion
 
         #region constructors
-        internal MongoGetMoreMessage()
+        internal MongoGetMoreMessage(
+            MongoCollection collection,
+            int numberToReturn,
+            long cursorID
+        )
             : base(RequestOpCode.GetMore) {
-        }
-        #endregion
-
-        #region public properties
-        public string FullCollectionName {
-            get { return fullCollectionName; }
-            set { fullCollectionName = value; }
-        }
-
-        public int NumberToReturn {
-            get { return numberToReturn; }
-            set { numberToReturn = value; }
-        }
-
-        public long CursorID {
-            get { return cursorID; }
-            set { cursorID = value; }
+            this.collection = collection;
+            this.numberToReturn = numberToReturn;
+            this.cursorID = cursorID;
         }
         #endregion
 
@@ -54,7 +44,10 @@ namespace MongoDB.MongoDBClient.Internal {
         protected override void WriteBodyTo(
             BinaryWriter writer
         ) {
-            throw new NotImplementedException();
+            writer.Write((int) 0); // reserved
+            WriteCString(writer, collection.FullName); // fullCollectionName
+            writer.Write(numberToReturn);
+            writer.Write(cursorID);
         }
         #endregion
     }

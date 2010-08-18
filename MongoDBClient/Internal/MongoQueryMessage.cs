@@ -24,8 +24,8 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoQueryMessage : MongoMessage {
         #region private fields
+        private MongoCollection collection;
         private QueryFlags flags;
-        private string fullCollectionName;
         private int numberToSkip;
         private int numberToReturn;
         private BsonDocument query;
@@ -34,56 +34,37 @@ namespace MongoDB.MongoDBClient.Internal {
 
         #region constructors
         internal MongoQueryMessage(
-            MongoDatabase database,
-            MongoCollection collection
-        ) : base(RequestOpCode.Query) {
-            fullCollectionName = database.Name + "." + collection.Name;
+            MongoCollection collection,
+            int numberToSkip,
+            int numberToReturn,
+            BsonDocument query,
+            BsonDocument fieldSelector
+        ) : 
+            base(RequestOpCode.Query) {
+            this.collection = collection;
+            this.numberToSkip = numberToSkip;
+            this.numberToReturn = numberToReturn;
+            this.query = query;
+            this.fieldSelector = fieldSelector;
         }
         #endregion
-
-        #region internal properties
-        public QueryFlags Flags {
-            get { return flags; }
-            set { flags = value; }
-        }
-
-        public string FullCollectionName {
-            get { return fullCollectionName; }
-            set { fullCollectionName = value; }
-        }
-
-        public int NumberToSkip {
-            get { return numberToSkip; }
-            set { numberToSkip = value; }
-        }
-
-        public int NumberToReturn {
-            get { return numberToReturn; }
-            set { numberToReturn = value; }
-        }
-
-        public BsonDocument Query {
-            get { return query ?? (query = new BsonDocument()); }
-            set { query = value; }
-        }
-
-        public BsonDocument FieldSelector {
-            get { return fieldSelector; }
-            set { fieldSelector = value; }
-        }
-       #endregion
 
         #region protected methods
         protected override void WriteBodyTo(
             BinaryWriter writer
         ) {
             writer.Write((int) flags);
-            WriteCString(writer, fullCollectionName);
+            WriteCString(writer, collection.FullName);
             writer.Write(numberToSkip);
             writer.Write(numberToReturn);
 
             BsonWriter bsonWriter = BsonBinaryWriter.Create(writer);
-            Query.WriteTo(bsonWriter);
+            if (query == null) {
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteEndDocument();
+            } else {
+                query.WriteTo(bsonWriter);
+            }
             if (fieldSelector != null) {
                 fieldSelector.WriteTo(bsonWriter);
             }
