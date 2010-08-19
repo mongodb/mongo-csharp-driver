@@ -52,8 +52,8 @@ namespace MongoDB.MongoDBClient {
         public IEnumerator<T> GetEnumerator() {
             // hold connection until all documents have been enumerated
             // TODO: what if enumeration is abandoned before reaching the end?
-            var client = collection.Database.Client;
-            var connection = MongoConnectionPool.AcquireConnection(client.Host, client.Port);
+            var server = collection.Database.Server;
+            var connection = MongoConnectionPool.AcquireConnection(server.Host, server.Port);
 
             MongoReplyMessage<T> reply = null;
             do {

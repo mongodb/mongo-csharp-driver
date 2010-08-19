@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.MongoDBClient {
-    public class MongoClient : IDisposable {
+    public class MongoServer : IDisposable {
         #region private fields
         private string host;
         private int port;
@@ -27,11 +27,11 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region constructors
-        public MongoClient() :
+        public MongoServer() :
             this("localhost", 27017) {
         }
 
-        public MongoClient(
+        public MongoServer(
             string host,
             int port
         ) {

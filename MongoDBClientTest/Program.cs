@@ -24,8 +24,8 @@ using MongoDB.MongoDBClient;
 namespace MongoDB.MongoDBClientTest {
     public static class Program {
         public static void Main(string[] args) {
-            using (var client = new MongoClient()) {
-                var database = client.GetDatabase("test");
+            using (var server = new MongoServer()) {
+                var database = server.GetDatabase("test");
                 var collection = database.GetCollection<BsonDocument>("library");
                 foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
                     Console.WriteLine(document.ToString());

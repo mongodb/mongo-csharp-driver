@@ -59,7 +59,7 @@
     <Compile Include="Internal\RequestOpCode.cs" />
     <Compile Include="Internal\ResponseFlags.cs" />
     <Compile Include="MongoCollection.cs" />
-    <Compile Include="MongoClient.cs" />
+    <Compile Include="MongoServer.cs" />
     <Compile Include="MongoConnectionStringBuilder.cs" />
     <Compile Include="MongoCursor.cs" />
     <Compile Include="MongoDatabase.cs" />

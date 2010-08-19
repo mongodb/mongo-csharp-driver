@@ -21,24 +21,24 @@ using System.Text;
 namespace MongoDB.MongoDBClient {
     public class MongoDatabase {
         #region private fields
-        private MongoClient client;
+        private MongoServer server;
         private string name;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
         #endregion
 
         #region constructors
         internal MongoDatabase(
-            MongoClient client,
+            MongoServer server,
             string name
         ) {
-            this.client = client;
+            this.server = server;
             this.name = name;
         }
         #endregion
 
         #region public properties
-        public MongoClient Client {
-            get { return client; }
+        public MongoServer Server {
+            get { return server; }
         }
         #endregion
 
