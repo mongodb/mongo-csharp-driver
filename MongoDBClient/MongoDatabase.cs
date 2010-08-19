@@ -28,26 +28,31 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region constructors
-        public MongoDatabase(
-            string connectionString
-        ) {
-            MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            MongoConnectionStringBuilder servercsb = new MongoConnectionStringBuilder {
-                Servers = csb.Servers
-            };
-            this.server = new MongoServer(servercsb);
-            this.name = csb.Database;
-            if (csb.Username != null && csb.Password != null) {
-                defaultCredentials = new MongoCredentials(csb.Username, csb.Password);
-            }
-        }
-
         internal MongoDatabase(
             MongoServer server,
             string name
         ) {
             this.server = server;
             this.name = name;
+        }
+        #endregion
+
+        #region factory methods
+        public static MongoDatabase FromConnectionString(
+            MongoConnectionStringBuilder csb
+        ) {
+            if (csb.Database == null) {
+                throw new ArgumentException("Connection string must have database name");
+            }
+            MongoServer server = MongoServer.FromConnectionString(csb);
+            return server.GetDatabase(csb.Database);
+        }
+
+        public static MongoDatabase FromConnectionString(
+            string connectionString
+        ) {
+            MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
+            return FromConnectionString(csb);
         }
         #endregion
 

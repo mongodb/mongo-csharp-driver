@@ -28,9 +28,9 @@ namespace MongoDB.MongoDBClient.Tests {
         public void TestL() {
             string connectionString = "mongodb://localhost";
             MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(1, csb.Servers.Count);
-            Assert.AreEqual("localhost", csb.Servers[0].Host);
-            Assert.AreEqual(27017, csb.Servers[0].Port);
+            Assert.AreEqual(1, csb.Addresses.Count);
+            Assert.AreEqual("localhost", csb.Addresses[0].Host);
+            Assert.AreEqual(27017, csb.Addresses[0].Port);
             Assert.IsNull(csb.Database);
             Assert.IsNull(csb.Username);
             Assert.IsNull(csb.Password);
@@ -41,9 +41,9 @@ namespace MongoDB.MongoDBClient.Tests {
         public void TestH() {
             string connectionString = "mongodb://mongo.xyz.com";
             MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(1, csb.Servers.Count);
-            Assert.AreEqual("mongo.xyz.com", csb.Servers[0].Host);
-            Assert.AreEqual(27017, csb.Servers[0].Port);
+            Assert.AreEqual(1, csb.Addresses.Count);
+            Assert.AreEqual("mongo.xyz.com", csb.Addresses[0].Host);
+            Assert.AreEqual(27017, csb.Addresses[0].Port);
             Assert.IsNull(csb.Database);
             Assert.IsNull(csb.Username);
             Assert.IsNull(csb.Password);
@@ -54,9 +54,9 @@ namespace MongoDB.MongoDBClient.Tests {
         public void TestHP() {
             string connectionString = "mongodb://mongo.xyz.com:12345";
             MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(1, csb.Servers.Count);
-            Assert.AreEqual("mongo.xyz.com", csb.Servers[0].Host);
-            Assert.AreEqual(12345, csb.Servers[0].Port);
+            Assert.AreEqual(1, csb.Addresses.Count);
+            Assert.AreEqual("mongo.xyz.com", csb.Addresses[0].Host);
+            Assert.AreEqual(12345, csb.Addresses[0].Port);
             Assert.IsNull(csb.Database);
             Assert.IsNull(csb.Username);
             Assert.IsNull(csb.Password);
@@ -67,11 +67,11 @@ namespace MongoDB.MongoDBClient.Tests {
         public void TestH1H2() {
             string connectionString = "mongodb://mongo1.xyz.com,mongo2.xyz.com";
             MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(2, csb.Servers.Count);
-            Assert.AreEqual("mongo1.xyz.com", csb.Servers[0].Host);
-            Assert.AreEqual(27017, csb.Servers[0].Port);
-            Assert.AreEqual("mongo2.xyz.com", csb.Servers[1].Host);
-            Assert.AreEqual(27017, csb.Servers[1].Port);
+            Assert.AreEqual(2, csb.Addresses.Count);
+            Assert.AreEqual("mongo1.xyz.com", csb.Addresses[0].Host);
+            Assert.AreEqual(27017, csb.Addresses[0].Port);
+            Assert.AreEqual("mongo2.xyz.com", csb.Addresses[1].Host);
+            Assert.AreEqual(27017, csb.Addresses[1].Port);
             Assert.IsNull(csb.Database);
             Assert.IsNull(csb.Username);
             Assert.IsNull(csb.Password);
@@ -82,11 +82,11 @@ namespace MongoDB.MongoDBClient.Tests {
         public void TestH1P1H2P2() {
             string connectionString = "mongodb://mongo1.xyz.com:12345,mongo2.xyz.com:23456";
             MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(2, csb.Servers.Count);
-            Assert.AreEqual("mongo1.xyz.com", csb.Servers[0].Host);
-            Assert.AreEqual(12345, csb.Servers[0].Port);
-            Assert.AreEqual("mongo2.xyz.com", csb.Servers[1].Host);
-            Assert.AreEqual(23456, csb.Servers[1].Port);
+            Assert.AreEqual(2, csb.Addresses.Count);
+            Assert.AreEqual("mongo1.xyz.com", csb.Addresses[0].Host);
+            Assert.AreEqual(12345, csb.Addresses[0].Port);
+            Assert.AreEqual("mongo2.xyz.com", csb.Addresses[1].Host);
+            Assert.AreEqual(23456, csb.Addresses[1].Port);
             Assert.IsNull(csb.Database);
             Assert.IsNull(csb.Username);
             Assert.IsNull(csb.Password);
@@ -97,9 +97,9 @@ namespace MongoDB.MongoDBClient.Tests {
         public void TestUPLD() {
             string connectionString = "mongodb://userx:pwd@localhost/dbname";
             MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(1, csb.Servers.Count);
-            Assert.AreEqual("localhost", csb.Servers[0].Host);
-            Assert.AreEqual(27017, csb.Servers[0].Port);
+            Assert.AreEqual(1, csb.Addresses.Count);
+            Assert.AreEqual("localhost", csb.Addresses[0].Host);
+            Assert.AreEqual(27017, csb.Addresses[0].Port);
             Assert.AreEqual("dbname", csb.Database);
             Assert.AreEqual("userx", csb.Username);
             Assert.AreEqual("pwd", csb.Password);
@@ -110,11 +110,11 @@ namespace MongoDB.MongoDBClient.Tests {
         public void TestUPH1H2D() {
             string connectionString = "mongodb://userx:pwd@mongo1.xyz.com,mongo2.xyz.com/dbname";
             MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(2, csb.Servers.Count);
-            Assert.AreEqual("mongo1.xyz.com", csb.Servers[0].Host);
-            Assert.AreEqual(27017, csb.Servers[0].Port);
-            Assert.AreEqual("mongo2.xyz.com", csb.Servers[1].Host);
-            Assert.AreEqual(27017, csb.Servers[1].Port);
+            Assert.AreEqual(2, csb.Addresses.Count);
+            Assert.AreEqual("mongo1.xyz.com", csb.Addresses[0].Host);
+            Assert.AreEqual(27017, csb.Addresses[0].Port);
+            Assert.AreEqual("mongo2.xyz.com", csb.Addresses[1].Host);
+            Assert.AreEqual(27017, csb.Addresses[1].Port);
             Assert.AreEqual("dbname", csb.Database);
             Assert.AreEqual("userx", csb.Username);
             Assert.AreEqual("pwd", csb.Password);
@@ -125,11 +125,11 @@ namespace MongoDB.MongoDBClient.Tests {
         public void TestUPH1P1H2P2D() {
             string connectionString = "mongodb://userx:pwd@mongo1.xyz.com:12345,mongo2.xyz.com:23456/dbname";
             MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(2, csb.Servers.Count);
-            Assert.AreEqual("mongo1.xyz.com", csb.Servers[0].Host);
-            Assert.AreEqual(12345, csb.Servers[0].Port);
-            Assert.AreEqual("mongo2.xyz.com", csb.Servers[1].Host);
-            Assert.AreEqual(23456, csb.Servers[1].Port);
+            Assert.AreEqual(2, csb.Addresses.Count);
+            Assert.AreEqual("mongo1.xyz.com", csb.Addresses[0].Host);
+            Assert.AreEqual(12345, csb.Addresses[0].Port);
+            Assert.AreEqual("mongo2.xyz.com", csb.Addresses[1].Host);
+            Assert.AreEqual(23456, csb.Addresses[1].Port);
             Assert.AreEqual("dbname", csb.Database);
             Assert.AreEqual("userx", csb.Username);
             Assert.AreEqual("pwd", csb.Password);

@@ -22,7 +22,7 @@ using System.Text.RegularExpressions;
 namespace MongoDB.MongoDBClient {
     public class MongoConnectionStringBuilder {
         #region private fields
-        private List<MongoServerAddress> servers = new List<MongoServerAddress>();
+        private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
         private string database;
         private string username;
         private string password;
@@ -45,9 +45,9 @@ namespace MongoDB.MongoDBClient {
             set { Parse(value); }
         }
 
-        public List<MongoServerAddress> Servers {
-            get { return servers; }
-            set { servers = value; }
+        public List<MongoServerAddress> Addresses {
+            get { return addresses; }
+            set { addresses = value; }
         }
 
         public string Database {
@@ -79,25 +79,25 @@ namespace MongoDB.MongoDBClient {
             if (match.Success) {
                 string username = match.Groups["username"].Value;
                 string password = match.Groups["password"].Value;
-                string addresses = match.Groups["addresses"].Value;
+                string addressStrings = match.Groups["addresses"].Value;
                 string database = match.Groups["database"].Value;
-                List<MongoServerAddress> servers = new List<MongoServerAddress>();
-                foreach (string address in addresses.Split(',')) {
-                    match = Regex.Match(address, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
+                List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+                foreach (string addressString in addressStrings.Split(',')) {
+                    match = Regex.Match(addressString, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
                     if (match.Success) {
                         string host = match.Groups["host"].Value;
                         string port = match.Groups["port"].Value;
-                        MongoServerAddress server = new MongoServerAddress(
+                        MongoServerAddress address = new MongoServerAddress(
                             host,
                             port == "" ? 27017 : int.Parse(port)
                         );
-                        servers.Add(server);
+                        addresses.Add(address);
                     } else {
                         throw new ArgumentException("Invalid connection string");
                     }
                 }
 
-                this.servers = servers;
+                this.addresses = addresses;
                 this.database = database != "" ? database : null;
                 this.username = username != "" ? username : null;
                 this.password = password != "" ? password : null;
@@ -116,12 +116,12 @@ namespace MongoDB.MongoDBClient {
                 sb.Append("@");
             }
             bool first = true;
-            foreach (MongoServerAddress server in servers) {
+            foreach (MongoServerAddress address in addresses) {
                 if (!first) { sb.Append(","); }
-                sb.Append(server.Host);
-                if (server.Port != 27017) {
+                sb.Append(address.Host);
+                if (address.Port != 27017) {
                     sb.Append(":");
-                    sb.Append(server.Port);
+                    sb.Append(address.Port);
                 }
                 first = false;
             }

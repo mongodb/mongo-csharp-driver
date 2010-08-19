@@ -20,33 +20,62 @@ using System.Text;
 
 namespace MongoDB.MongoDBClient {
     public class MongoServer {
+        #region private static fields
+        private static List<MongoServer> servers = new List<MongoServer>();
+        #endregion
+
         #region private fields
         private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         #endregion
 
         #region constructors
-        public MongoServer(
-            string connectionString
-        )
-            : this(new MongoConnectionStringBuilder(connectionString)) {
+        private MongoServer(
+            List<MongoServerAddress> addresses
+        ) {
+            this.addresses = addresses;
+        }
+        #endregion
+
+        #region factory methods
+        public static MongoServer FromAddresses(
+            List<MongoServerAddress> addresses
+        ) {
+            foreach (MongoServer server in servers) {
+                if (server.Addresses.SequenceEqual(addresses)) {
+                    return server;
+                }
+            }
+
+            MongoServer newServer = new MongoServer(addresses);
+            servers.Add(newServer);
+            return newServer;
         }
 
-        public MongoServer(
+        public static MongoServer FromConnectionString(
             MongoConnectionStringBuilder csb
         ) {
-            addresses = csb.Servers;
-            if (csb.Database != null) {
-                MongoDatabase database = new MongoDatabase(this, csb.Database);
-                if (csb.Username != null && csb.Password != null) {
-                    database.DefaultCredentials = new MongoCredentials(csb.Username, csb.Password);
-                }
-                databases[database.Name] = database;
+            MongoServer server = FromAddresses(csb.Addresses);
+            if (csb.Username != null && csb.Password != null) {
+                MongoDatabase database = server.GetDatabase(csb.Database);
+                database.DefaultCredentials = new MongoCredentials(csb.Username, csb.Password);
             }
+            return server;
+        }
+
+        public static MongoServer FromConnectionString(
+            string connectionString
+        ) {
+            var csb = new MongoConnectionStringBuilder(connectionString);
+            return FromConnectionString(csb);
         }
         #endregion
 
         #region public properties
+        public IEnumerable<MongoServerAddress> Addresses {
+            get { return addresses; }
+        }
+
         public string Host {
             get { return addresses[0].Host; }
         }

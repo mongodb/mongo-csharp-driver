@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.MongoDBClient {
-    public class MongoServerAddress {
+    public class MongoServerAddress : IEquatable<MongoServerAddress> {
         #region private fields
         private string host;
         private int port;
@@ -52,6 +52,56 @@ namespace MongoDB.MongoDBClient {
         }
         #endregion
 
-        // TODO: implement GetHashcode, Equals, etc...
+        #region public operators
+        public static bool operator ==(
+            MongoServerAddress lhs,
+            MongoServerAddress rhs
+        ) {
+            if (object.ReferenceEquals(lhs, rhs)) { return true; } // both null or same object
+            if (object.ReferenceEquals(lhs, null) || object.ReferenceEquals(rhs, null)) { return false; }
+            if (lhs.GetType() != rhs.GetType()) { return false; }
+            return lhs.host == rhs.host && lhs.port == rhs.port;
+        }
+
+        public static bool operator !=(
+            MongoServerAddress lhs,
+            MongoServerAddress rhs
+        ) {
+            return !(lhs == rhs);
+        }
+        #endregion
+
+        #region public static methods
+        public static bool Equals(
+            MongoServerAddress lhs,
+            MongoServerAddress rhs
+        ) {
+            return lhs == rhs;
+        }
+        #endregion
+
+        #region public methods
+        public bool Equals(
+            MongoServerAddress rhs
+        ) {
+            return this == rhs;
+        }
+
+        public override bool Equals(object obj) {
+            return this == obj as MongoServerAddress; // works even if obj is null or of a different type
+        }
+
+        public override int GetHashCode() {
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + host.GetHashCode();
+            hash = 37 * hash + port.GetHashCode();
+            return hash;
+        }
+
+        public override string ToString() {
+            return string.Format("{0}:{1}", host, port);
+        }
+        #endregion
     }
 }
