@@ -23,10 +23,25 @@ namespace MongoDB.MongoDBClient {
         #region private fields
         private MongoServer server;
         private string name;
+        private MongoCredentials defaultCredentials;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
         #endregion
 
         #region constructors
+        public MongoDatabase(
+            string connectionString
+        ) {
+            MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
+            MongoConnectionStringBuilder servercsb = new MongoConnectionStringBuilder {
+                Servers = csb.Servers
+            };
+            this.server = new MongoServer(servercsb);
+            this.name = csb.Database;
+            if (csb.Username != null && csb.Password != null) {
+                defaultCredentials = new MongoCredentials(csb.Username, csb.Password);
+            }
+        }
+
         internal MongoDatabase(
             MongoServer server,
             string name
@@ -39,6 +54,11 @@ namespace MongoDB.MongoDBClient {
         #region public properties
         public MongoServer Server {
             get { return server; }
+        }
+
+        public MongoCredentials DefaultCredentials {
+            get { return defaultCredentials; }
+            set { defaultCredentials = value; }
         }
         #endregion
 

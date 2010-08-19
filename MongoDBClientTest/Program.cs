@@ -24,8 +24,31 @@ using MongoDB.MongoDBClient;
 namespace MongoDB.MongoDBClientTest {
     public static class Program {
         public static void Main(string[] args) {
-            using (var server = new MongoServer()) {
+            // test connection string pointing to server
+            {
+                string connectionString = "mongodb://localhost";
+                var server = new MongoServer(connectionString);
                 var database = server.GetDatabase("test");
+                var collection = database.GetCollection<BsonDocument>("library");
+                foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
+                    Console.WriteLine(document.ToString());
+                }
+            }
+
+            // test connection string pointing to database
+            {
+                string connectionString = "mongodb://localhost/test";
+                var database = new MongoDatabase(connectionString);
+                var collection = database.GetCollection<BsonDocument>("library");
+                foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
+                    Console.WriteLine(document.ToString());
+                }
+            }
+
+            // test connection string pointing to database with default credentials
+            {
+                string connectionString = "mongodb://john:secret@localhost/authtest";
+                var database = new MongoDatabase(connectionString);
                 var collection = database.GetCollection<BsonDocument>("library");
                 foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
                     Console.WriteLine(document.ToString());

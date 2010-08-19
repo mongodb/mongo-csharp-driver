@@ -54,6 +54,12 @@ namespace MongoDB.MongoDBClient {
 
         #region public methods
         public MongoCursor<T> FindAll<T>() where T : new() {
+            return FindAll<T>(database.DefaultCredentials);
+        }
+
+        public MongoCursor<T> FindAll<T>(
+            MongoCredentials credentials
+        ) where T : new() {
             return new MongoCursor<T>(this, null);
         }
         #endregion
@@ -72,6 +78,12 @@ namespace MongoDB.MongoDBClient {
         #region public methods
         public MongoCursor<T> FindAll() {
             return FindAll<T>();
+        }
+
+        public MongoCursor<T> FindAll(
+            MongoCredentials credentials
+        ) {
+            return FindAll<T>(credentials);
         }
         #endregion
     }

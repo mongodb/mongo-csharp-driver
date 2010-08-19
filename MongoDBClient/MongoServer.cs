@@ -19,36 +19,40 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.MongoDBClient {
-    public class MongoServer : IDisposable {
+    public class MongoServer {
         #region private fields
-        private string host;
-        private int port;
+        private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         #endregion
 
         #region constructors
-        public MongoServer() :
-            this("localhost", 27017) {
+        public MongoServer(
+            string connectionString
+        )
+            : this(new MongoConnectionStringBuilder(connectionString)) {
         }
 
         public MongoServer(
-            string host,
-            int port
+            MongoConnectionStringBuilder csb
         ) {
-            this.host = host;
-            this.port = port;
+            addresses = csb.Servers;
+            if (csb.Database != null) {
+                MongoDatabase database = new MongoDatabase(this, csb.Database);
+                if (csb.Username != null && csb.Password != null) {
+                    database.DefaultCredentials = new MongoCredentials(csb.Username, csb.Password);
+                }
+                databases[database.Name] = database;
+            }
         }
         #endregion
 
         #region public properties
         public string Host {
-            get { return host; }
-            set { host = value; }
+            get { return addresses[0].Host; }
         }
 
         public int Port {
-            get { return port; }
-            set { port = value; }
+            get { return addresses[0].Port; }
         }
         #endregion
 
@@ -61,9 +65,6 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
-        public void Dispose() {
-        }
-
         public MongoDatabase GetDatabase(
             string name
         ) {

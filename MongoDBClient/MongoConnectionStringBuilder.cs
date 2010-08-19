@@ -47,6 +47,7 @@ namespace MongoDB.MongoDBClient {
 
         public List<MongoServerAddress> Servers {
             get { return servers; }
+            set { servers = value; }
         }
 
         public string Database {
