@@ -1,4 +1,19 @@
-﻿using System;
+﻿/* Copyright 2010 10gen Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -56,9 +71,9 @@ namespace MongoDB.MongoDBClient {
         ) {
             const string pattern =
                 @"^mongodb://" +
-                @"((?<username>.+?):(?<password>.+?)@)?" +
-                @"(?<addresses>.+?(:\d+)?(,.+?(:\d+)?)*)" +
-                @"(/(?<database>.+))?";
+                @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
+                @"(?<addresses>[^:,/]+(:\d+)?(,[^:,/]+(:\d+)?)*)" +
+                @"(/(?<database>.+))?$";
             Match match = Regex.Match(connectionString, pattern);
             if (match.Success) {
                 string username = match.Groups["username"].Value;
@@ -67,7 +82,7 @@ namespace MongoDB.MongoDBClient {
                 string database = match.Groups["database"].Value;
                 List<MongoServerAddress> servers = new List<MongoServerAddress>();
                 foreach (string address in addresses.Split(',')) {
-                    match = Regex.Match(address, @"^(?<host>.+?)(:(?<port>\d+))?$");
+                    match = Regex.Match(address, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
                     if (match.Success) {
                         string host = match.Groups["host"].Value;
                         string port = match.Groups["port"].Value;
