@@ -60,9 +60,11 @@
     <Compile Include="Internal\ResponseFlags.cs" />
     <Compile Include="MongoCollection.cs" />
     <Compile Include="MongoClient.cs" />
+    <Compile Include="MongoConnectionStringBuilder.cs" />
     <Compile Include="MongoCursor.cs" />
     <Compile Include="MongoDatabase.cs" />
     <Compile Include="MongoException.cs" />
+    <Compile Include="MongoServerAddress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
