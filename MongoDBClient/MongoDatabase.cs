@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MongoDB.MongoDBClient.Internal;
+
 namespace MongoDB.MongoDBClient {
     public class MongoDatabase {
         #region private fields
@@ -39,20 +41,43 @@ namespace MongoDB.MongoDBClient {
 
         #region factory methods
         public static MongoDatabase FromConnectionString(
-            MongoConnectionStringBuilder csb
-        ) {
-            if (csb.Database == null) {
-                throw new ArgumentException("Connection string must have database name");
-            }
-            MongoServer server = MongoServer.FromConnectionString(csb);
-            return server.GetDatabase(csb.Database);
-        }
-
-        public static MongoDatabase FromConnectionString(
             string connectionString
         ) {
-            MongoConnectionStringBuilder csb = new MongoConnectionStringBuilder(connectionString);
-            return FromConnectionString(csb);
+            if (connectionString.StartsWith("mongodb://")) {
+                MongoUrl url = new MongoUrl(connectionString);
+                return FromMongoUrl(url);
+            } else {
+                MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
+                return FromMongoConnectionStringBuilder(builder);
+            }
+        }
+
+        internal static MongoDatabase FromMongoConnectionSettings(
+            IMongoConnectionSettings settings
+        ) {
+            if (settings.Database == null) {
+                throw new ArgumentException("Connection string must have database name");
+            }
+            MongoServer server = MongoServer.FromMongoConnectionSettings(settings);
+            return server.GetDatabase(settings.Database);
+        }
+
+        public static MongoDatabase FromMongoConnectionStringBuilder(
+            MongoConnectionStringBuilder builder
+        ) {
+            return FromMongoConnectionSettings(builder);
+        }
+
+        public static MongoDatabase FromMongoUrl(
+            MongoUrl url
+        ) {
+            return FromMongoConnectionSettings(url);
+        }
+
+        public static MongoDatabase FromUri(
+            Uri uri
+        ) {
+            return FromMongoUrl(new MongoUrl(uri.ToString()));
         }
         #endregion
 

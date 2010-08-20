@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MongoDB.MongoDBClient.Internal;
+
 namespace MongoDB.MongoDBClient {
     public class MongoServer {
         #region private static fields
@@ -53,21 +55,44 @@ namespace MongoDB.MongoDBClient {
         }
 
         public static MongoServer FromConnectionString(
-            MongoConnectionStringBuilder csb
+            string connectionString
         ) {
-            MongoServer server = FromAddresses(csb.Addresses);
-            if (csb.Username != null && csb.Password != null) {
-                MongoDatabase database = server.GetDatabase(csb.Database);
-                database.DefaultCredentials = new MongoCredentials(csb.Username, csb.Password);
+            if (connectionString.StartsWith("mongodb://")) {
+                var url = new MongoUrl(connectionString);
+                return FromMongoUrl(url);
+            } else {
+                MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
+                return FromMongoConnectionStringBuilder(builder);
+            }
+        }
+
+        internal static MongoServer FromMongoConnectionSettings(
+           IMongoConnectionSettings settings
+       ) {
+            MongoServer server = FromAddresses(settings.Addresses);
+            if (settings.Username != null && settings.Password != null) {
+                MongoDatabase database = server.GetDatabase(settings.Database);
+                database.DefaultCredentials = new MongoCredentials(settings.Username, settings.Password);
             }
             return server;
         }
 
-        public static MongoServer FromConnectionString(
-            string connectionString
+        public static MongoServer FromMongoConnectionStringBuilder(
+            MongoConnectionStringBuilder builder
         ) {
-            var csb = new MongoConnectionStringBuilder(connectionString);
-            return FromConnectionString(csb);
+            return FromMongoConnectionSettings(builder);
+        }
+
+        public static MongoServer FromMongoUrl(
+            MongoUrl url
+        ) {
+            return FromMongoConnectionSettings(url);
+        }
+
+        public static MongoServer FromUri(
+            Uri uri
+        ) {
+            return FromMongoUrl(new MongoUrl(uri.ToString()));
         }
         #endregion
 

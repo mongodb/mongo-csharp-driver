@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MongoDB.MongoDBClient {
     public class MongoServerAddress : IEquatable<MongoServerAddress> {
@@ -39,6 +40,23 @@ namespace MongoDB.MongoDBClient {
         ) {
             this.host = host;
             this.port = port;
+        }
+        #endregion
+
+        #region factory methods
+        public static MongoServerAddress Parse(
+            string value
+        ) {
+            Match match = Regex.Match(value, @"^(?<host>[^:]+)(:(?<port>\d+)?$");
+            if (match.Success) {
+                string host = match.Groups["host"].Value;
+                string portString = match.Groups["port"].Value;
+                int port = (portString == null) ? 27017 : int.Parse(portString);
+                return new MongoServerAddress(host, port);
+                
+            } else {
+                throw new FormatException("Invalid server address");
+            }
         }
         #endregion
 
