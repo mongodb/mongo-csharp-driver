@@ -26,8 +26,8 @@ namespace MongoDB.MongoDBClient.Internal {
         #region private fields
         private MongoCollection collection;
         private QueryFlags flags;
-        private int numberToSkip;
-        private int numberToReturn;
+        private int skip;
+        private int batchSize;
         private BsonDocument query;
         private BsonDocument fieldSelector;
         #endregion
@@ -35,15 +35,15 @@ namespace MongoDB.MongoDBClient.Internal {
         #region constructors
         internal MongoQueryMessage(
             MongoCollection collection,
-            int numberToSkip,
-            int numberToReturn,
+            int skip,
+            int batchSize,
             BsonDocument query,
             BsonDocument fieldSelector
         ) : 
             base(RequestOpCode.Query) {
             this.collection = collection;
-            this.numberToSkip = numberToSkip;
-            this.numberToReturn = numberToReturn;
+            this.skip = skip;
+            this.batchSize = batchSize;
             this.query = query;
             this.fieldSelector = fieldSelector;
         }
@@ -55,8 +55,8 @@ namespace MongoDB.MongoDBClient.Internal {
         ) {
             writer.Write((int) flags);
             WriteCString(writer, collection.FullName);
-            writer.Write(numberToSkip);
-            writer.Write(numberToReturn);
+            writer.Write(skip);
+            writer.Write(batchSize);
 
             BsonWriter bsonWriter = BsonBinaryWriter.Create(writer);
             if (query == null) {

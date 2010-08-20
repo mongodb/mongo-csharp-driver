@@ -26,10 +26,12 @@ namespace MongoDB.MongoDBClient {
     public class MongoCursor<T> : IEnumerable<T> where T : new() {
         #region private fields
         private MongoCollection collection;
-        private int numberToSkip;
-        private int numberToReturn;
+        private int skip;
+        private int batchSize; // number of documents to return in each reply
+        private int limit; // number of documents to return (enforced by cursor)
         private BsonDocument query;
         private BsonDocument fieldSelector;
+        private bool frozen; // TODO; freeze cursor once execution begins
         #endregion
 
         #region constructors
@@ -49,6 +51,13 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
+        public MongoCursor<T> Batch(
+            int batchSize
+        ) {
+            this.batchSize = batchSize;
+            return this;
+        }
+
         public IEnumerator<T> GetEnumerator() {
             // hold connection until all documents have been enumerated
             // TODO: what if enumeration is abandoned before reaching the end?
@@ -76,16 +85,16 @@ namespace MongoDB.MongoDBClient {
         }
 
         public MongoCursor<T> Limit(
-            int numberToReturn
+            int limit
         ) {
-            this.numberToReturn = numberToReturn;
+            this.limit = limit;
             return this;
         }
 
         public MongoCursor<T> Skip(
-            int numberToSkip
+            int skip
         ) {
-            this.numberToSkip = numberToSkip;
+            this.skip = skip;
             return this;
         }
         #endregion
@@ -94,7 +103,7 @@ namespace MongoDB.MongoDBClient {
         private MongoReplyMessage<T> ExecuteQuery(
             MongoConnection connection
         ) {
-            var message = new MongoQueryMessage(collection, numberToSkip, numberToReturn, query, fieldSelector);
+            var message = new MongoQueryMessage(collection, skip, batchSize, query, fieldSelector);
             connection.SendMessage(message);
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
@@ -111,7 +120,7 @@ namespace MongoDB.MongoDBClient {
             MongoConnection connection,
             long cursorID
         ) {
-            var message = new MongoGetMoreMessage(collection, numberToReturn, cursorID);
+            var message = new MongoGetMoreMessage(collection, batchSize, cursorID);
             connection.SendMessage(message);
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {

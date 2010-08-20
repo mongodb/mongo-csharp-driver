@@ -66,8 +66,8 @@ namespace MongoDB.MongoDBClient {
 
         // a synonym for Server
         public string Servers {
-            get { return (string) this["Server"]; }
-            set { this["Server"] = value; }
+            get { return Server; }
+            set { Server = value; }
         }
 
         public string Database {

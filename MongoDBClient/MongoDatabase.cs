@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
@@ -107,9 +108,70 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
+        public void AddUser(
+            string username,
+            string password
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public bool CollectionExists(
+            string name
+        ) {
+            return GetCollectionNames().Contains(name);
+        }
+
+        public void CreateCollection(
+            string name,
+            BsonDocument options
+        ) {
+            throw new NotImplementedException();
+        }
+           
+        public void Drop() {
+            throw new NotImplementedException();
+        }
+
+        public void DropCollection(
+            string name
+        ) {
+            MongoCollection collection = GetCollection(name);
+            collection.Drop();
+        }
+
+        public object Eval(
+            string code,
+            params object[] args
+        ) {
+            BsonDocument command = new BsonDocument {
+                { "$eval", code },
+                { "args", args }
+            };
+            MongoCommandResult result = Execute(command);
+
+            if (result.OK) {
+                return result.Document["retval"];
+            } else {
+                string message = string.Format("Eval failed: {0}", result.ErrorMessage);
+                throw new MongoException(message);
+            }
+        }
+
+        public MongoCommandResult Execute(
+            BsonDocument command
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public MongoCommandResult Execute(
+            string command
+        ) {
+            return Execute(new BsonDocument(command, 1));
+        }
+
         public MongoCollection GetCollection(
            string name
-       ) {
+        ) {
             MongoCollection collection;
             if (!collections.TryGetValue(name, out collection)) {
                 collection = new MongoCollection(this, name);
@@ -128,6 +190,26 @@ namespace MongoDB.MongoDBClient {
                 collections[name] = collection;
             }
             return (MongoCollection<T>) collection;
+        }
+
+        public List<string> GetCollectionNames() {
+            throw new NotImplementedException();
+        }
+
+        public MongoCommandResult GetStats() {
+            return Execute("dbstats");
+        }
+
+        public void RequestDone() {
+            throw new NotImplementedException();
+        }
+
+        public void RequestStart() {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString() {
+            return name;
         }
         #endregion
     }

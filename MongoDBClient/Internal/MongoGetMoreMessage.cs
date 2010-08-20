@@ -23,19 +23,19 @@ namespace MongoDB.MongoDBClient.Internal {
     internal class MongoGetMoreMessage : MongoMessage {
         #region private fields
         private MongoCollection collection;
-        private int numberToReturn;
+        private int batchSize;
         private long cursorID;
         #endregion
 
         #region constructors
         internal MongoGetMoreMessage(
             MongoCollection collection,
-            int numberToReturn,
+            int batchSize,
             long cursorID
         )
             : base(RequestOpCode.GetMore) {
             this.collection = collection;
-            this.numberToReturn = numberToReturn;
+            this.batchSize = batchSize;
             this.cursorID = cursorID;
         }
         #endregion
@@ -46,7 +46,7 @@ namespace MongoDB.MongoDBClient.Internal {
         ) {
             writer.Write((int) 0); // reserved
             WriteCString(writer, collection.FullName); // fullCollectionName
-            writer.Write(numberToReturn);
+            writer.Write(batchSize);
             writer.Write(cursorID);
         }
         #endregion

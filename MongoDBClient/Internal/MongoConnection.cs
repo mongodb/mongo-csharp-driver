@@ -27,6 +27,7 @@ namespace MongoDB.MongoDBClient.Internal {
         private string host;
         private int port;
         private TcpClient tcpClient;
+        private int messageCounter;
         #endregion
 
         #region constructors
@@ -38,6 +39,12 @@ namespace MongoDB.MongoDBClient.Internal {
             this.port = port;
 
             tcpClient = new TcpClient(host, port);
+        }
+        #endregion
+
+        #region public properties
+        public int MessageCounter {
+            get { return messageCounter; }
         }
         #endregion
 
@@ -58,9 +65,15 @@ namespace MongoDB.MongoDBClient.Internal {
             }
         }
 
+        public MongoCommandResult GetLastError(
+            MongoDatabase database
+        ) {
+            throw new NotImplementedException();
+        }
+
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
-            var bytes = ReadReply();
+            var bytes = ReadMessageBytes();
             var reply = new MongoReplyMessage<T>();
             reply.ReadFrom(bytes);
             return reply;
@@ -74,11 +87,22 @@ namespace MongoDB.MongoDBClient.Internal {
             message.WriteTo(memoryStream);
             NetworkStream networkStream = tcpClient.GetStream();
             networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
+            messageCounter++;
+        }
+
+        public MongoCommandResult TryGetLastError(
+            MongoDatabase database,
+            int originalMessageCounter
+        ) {
+            if (messageCounter != originalMessageCounter) {
+                throw new MongoException("Too late to call GetLastError");
+            }
+            return GetLastError(database);
         }
         #endregion
 
         #region private methods
-        private byte[] ReadReply() {
+        private byte[] ReadMessageBytes() {
             NetworkStream networkStream = tcpClient.GetStream();
             byte[] messageLengthBytes = new byte[4];
             networkStream.Read(messageLengthBytes, 0, 4);

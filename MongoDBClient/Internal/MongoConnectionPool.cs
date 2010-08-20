@@ -20,6 +20,7 @@ using System.Text;
 
 namespace MongoDB.MongoDBClient.Internal {
     internal static class MongoConnectionPool {
+        // TODO: implement a real connection pool
         #region public static methods
         public static MongoConnection AcquireConnection(
             string host,

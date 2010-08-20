@@ -119,6 +119,13 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
+        public void DropDatabase(
+            string name
+        ) {
+            MongoDatabase database = GetDatabase(name);
+            database.Drop();
+        }
+
         public MongoDatabase GetDatabase(
             string name
         ) {
@@ -128,6 +135,10 @@ namespace MongoDB.MongoDBClient {
                 databases[name] = database;
             }
             return database;
+        }
+
+        public List<string> GetDatabaseNames() {
+            throw new NotImplementedException();
         }
         #endregion
     }

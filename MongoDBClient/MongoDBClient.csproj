@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Internal\IMongoConnectionSettings.cs" />
+    <Compile Include="MongoCommandResult.cs" />
     <Compile Include="Internal\MongoConnection.cs" />
     <Compile Include="Internal\MongoConnectionPool.cs" />
     <Compile Include="Internal\MongoGetMoreMessage.cs" />
@@ -64,12 +65,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MongoCredentials.cs" />
+    <Compile Include="MongoMapReduceResult.cs" />
     <Compile Include="MongoServer.cs" />
     <Compile Include="MongoCursor.cs" />
     <Compile Include="MongoDatabase.cs" />
     <Compile Include="MongoException.cs" />
     <Compile Include="MongoServerAddress.cs" />
     <Compile Include="MongoUrl.cs" />
+    <Compile Include="MongoWriteResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
