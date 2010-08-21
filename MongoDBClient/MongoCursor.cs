@@ -103,7 +103,18 @@ namespace MongoDB.MongoDBClient {
         private MongoReplyMessage<T> ExecuteQuery(
             MongoConnection connection
         ) {
-            var message = new MongoQueryMessage(collection, skip, batchSize, query, fieldSelector);
+            int numberToReturn;
+            if (batchSize == 0) {
+                numberToReturn = limit;
+            } else if (limit == 0) {
+                numberToReturn = batchSize;
+            } else if (batchSize < limit) {
+                numberToReturn = batchSize;
+            } else {
+                numberToReturn = limit;
+            }
+
+            var message = new MongoQueryMessage(collection, skip, numberToReturn, query, fieldSelector);
             connection.SendMessage(message);
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
