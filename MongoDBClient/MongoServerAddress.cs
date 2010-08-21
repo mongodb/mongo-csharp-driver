@@ -47,11 +47,11 @@ namespace MongoDB.MongoDBClient {
         public static MongoServerAddress Parse(
             string value
         ) {
-            Match match = Regex.Match(value, @"^(?<host>[^:]+)(:(?<port>\d+)?$");
+            Match match = Regex.Match(value, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
             if (match.Success) {
                 string host = match.Groups["host"].Value;
                 string portString = match.Groups["port"].Value;
-                int port = (portString == null) ? 27017 : int.Parse(portString);
+                int port = (portString == "") ? 27017 : int.Parse(portString);
                 return new MongoServerAddress(host, port);
                 
             } else {

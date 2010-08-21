@@ -27,6 +27,7 @@ using MongoDB.MongoDBClient;
 namespace MongoDB.MongoDBClientTest {
     public static class Program {
         public static void Main(string[] args) {
+#if false
             // test connection string pointing to server
             {
                 string connectionString = "mongodb://localhost";
@@ -37,7 +38,9 @@ namespace MongoDB.MongoDBClientTest {
                     Console.WriteLine(document.ToString());
                 }
             }
+#endif
 
+#if false
             // test connection string pointing to database
             {
                 string connectionString = "mongodb://localhost/test";
@@ -47,7 +50,9 @@ namespace MongoDB.MongoDBClientTest {
                     Console.WriteLine(document.ToString());
                 }
             }
+#endif
 
+#if false
             // test connection string pointing to database with default credentials
             {
                 string connectionString = "mongodb://john:secret@localhost/test";
@@ -57,6 +62,20 @@ namespace MongoDB.MongoDBClientTest {
                     Console.WriteLine(document.ToString());
                 }
             }
+#endif
+
+#if true
+            var connectionString = "server=localhost;database=test";
+            var server = MongoServer.FromConnectionString(connectionString);
+            foreach (string name in server.GetDatabaseNames()) {
+                Console.WriteLine(name);
+            }
+
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            foreach (string name in database.GetCollectionNames()) {
+                Console.WriteLine(name);
+            }
+#endif
         }
     }
 }

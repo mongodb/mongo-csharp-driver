@@ -27,8 +27,9 @@ namespace MongoDB.MongoDBClient {
         #region constructors
         public MongoConnectionStringBuilder(
             string connectionString
-        ) {
-            throw new NotImplementedException();
+        )
+            : base() {
+            ConnectionString = connectionString;
         }
         #endregion
 
@@ -60,7 +61,7 @@ namespace MongoDB.MongoDBClient {
         }
 
         public string Server {
-            get { return (string) this["Server"]; }
+            get { return GetItem("Server"); }
             set { this["Server"] = value; }
         }
 
@@ -71,17 +72,17 @@ namespace MongoDB.MongoDBClient {
         }
 
         public string Database {
-            get { return (string) this["Database"]; }
+            get { return GetItem("Database"); }
             set { this["Database"] = value; }
         }
 
         public string Username {
-            get { return (string) this["Username"]; }
+            get { return GetItem("Username"); }
             set { this["Username"] = value; }
         }
 
         public string Password {
-            get { return (string) this["Password"]; }
+            get { return GetItem("Password"); }
             set { this["Password"] = value; }
         }
         #endregion
@@ -101,6 +102,18 @@ namespace MongoDB.MongoDBClient {
                 default: throw new ArgumentException("Invalid key");
             }
             base.Add(key, value);
+        }
+        #endregion
+
+        #region private methods
+        private string GetItem(
+            string name
+        ) {
+            if (ContainsKey(name)) {
+                return (string) this[name];
+            } else {
+                return null;
+            }
         }
         #endregion
     }

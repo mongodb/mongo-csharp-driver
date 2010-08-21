@@ -73,10 +73,6 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        public void Drop() {
-            throw new NotImplementedException();
-        }
-
         public void DropIndex(
             BsonDocument keys
         ) {

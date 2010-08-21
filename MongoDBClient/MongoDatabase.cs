@@ -128,15 +128,10 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
            
-        public void Drop() {
-            throw new NotImplementedException();
-        }
-
         public void DropCollection(
             string name
         ) {
-            MongoCollection collection = GetCollection(name);
-            collection.Drop();
+            throw new NotImplementedException();
         }
 
         public object Eval(
@@ -147,7 +142,7 @@ namespace MongoDB.MongoDBClient {
                 { "$eval", code },
                 { "args", args }
             };
-            MongoCommandResult result = Execute(command);
+            MongoCommandResult result = RunCommand(command);
 
             if (result.OK) {
                 return result.Document["retval"];
@@ -155,18 +150,6 @@ namespace MongoDB.MongoDBClient {
                 string message = string.Format("Eval failed: {0}", result.ErrorMessage);
                 throw new MongoException(message);
             }
-        }
-
-        public MongoCommandResult Execute(
-            BsonDocument command
-        ) {
-            throw new NotImplementedException();
-        }
-
-        public MongoCommandResult Execute(
-            string command
-        ) {
-            return Execute(new BsonDocument(command, 1));
         }
 
         public MongoCollection GetCollection(
@@ -193,11 +176,21 @@ namespace MongoDB.MongoDBClient {
         }
 
         public List<string> GetCollectionNames() {
-            throw new NotImplementedException();
+            List<string> collectionNames = new List<string>();
+            MongoCollection namespaces = GetCollection("system.namespaces");
+            var prefix = name + ".";
+            foreach (BsonDocument ns in namespaces.FindAll<BsonDocument>()) {
+                string collectionName = (string) ns["name"];
+                if (!collectionName.StartsWith(prefix)) { continue; }
+                if (collectionName.Contains('$')) { continue; }
+                collectionNames.Add(collectionName);
+            }
+            collectionNames.Sort();
+            return collectionNames;
         }
 
         public MongoCommandResult GetStats() {
-            return Execute("dbstats");
+            return RunCommand("dbstats");
         }
 
         public void RequestDone() {
@@ -206,6 +199,20 @@ namespace MongoDB.MongoDBClient {
 
         public void RequestStart() {
             throw new NotImplementedException();
+        }
+
+        public MongoCommandResult RunCommand(
+            BsonDocument command
+        ) {
+            MongoCollection commandCollection = GetCollection("$cmd");
+            BsonDocument document = commandCollection.FindOne<BsonDocument>(command);
+            return new MongoCommandResult(document);
+        }
+
+        public MongoCommandResult RunCommand(
+            string command
+        ) {
+            return RunCommand(new BsonDocument { { command, true } });
         }
 
         public override string ToString() {

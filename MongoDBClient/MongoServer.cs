@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
@@ -122,8 +123,7 @@ namespace MongoDB.MongoDBClient {
         public void DropDatabase(
             string name
         ) {
-            MongoDatabase database = GetDatabase(name);
-            database.Drop();
+            throw new NotImplementedException();
         }
 
         public MongoDatabase GetDatabase(
@@ -138,7 +138,16 @@ namespace MongoDB.MongoDBClient {
         }
 
         public List<string> GetDatabaseNames() {
-            throw new NotImplementedException();
+            var databaseNames = new List<string>();
+            var adminDatabase = GetDatabase("admin");
+            var result = adminDatabase.RunCommand("listDatabases");
+            var databases = (BsonDocument) result.Document["databases"];
+            foreach (BsonElement database in databases) {
+                string databaseName = (string) ((BsonDocument) database.Value)["name"];
+                databaseNames.Add(databaseName);
+            }
+            databaseNames.Sort();
+            return databaseNames;
         }
         #endregion
     }
