@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
@@ -11,7 +12,7 @@ namespace MongoDB.MongoDBClient {
         private MongoDatabase database;
         private MongoConnection connection;
         private int messageCounter;
-        private MongoCommandResult lastError;
+        private BsonDocument lastError;
         #endregion
 
         #region constructors
@@ -25,14 +26,14 @@ namespace MongoDB.MongoDBClient {
         }
 
         public MongoWriteResult(
-            MongoCommandResult lastError
+            BsonDocument lastError
         ) {
             this.lastError = lastError;
         }
         #endregion
 
         #region public methods
-        public MongoCommandResult GetLastError() {
+        public BsonDocument GetLastError() {
             if (lastError != null) {
                 return lastError;
             }

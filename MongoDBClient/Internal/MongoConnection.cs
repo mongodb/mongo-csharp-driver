@@ -20,6 +20,8 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
+using MongoDB.BsonLibrary;
+
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoConnection : IDisposable {
         #region private fields
@@ -65,7 +67,7 @@ namespace MongoDB.MongoDBClient.Internal {
             }
         }
 
-        public MongoCommandResult GetLastError(
+        public BsonDocument GetLastError(
             MongoDatabase database
         ) {
             throw new NotImplementedException();
@@ -90,7 +92,7 @@ namespace MongoDB.MongoDBClient.Internal {
             messageCounter++;
         }
 
-        public MongoCommandResult TryGetLastError(
+        public BsonDocument TryGetLastError(
             MongoDatabase database,
             int originalMessageCounter
         ) {

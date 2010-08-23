@@ -65,7 +65,7 @@ namespace MongoDB.MongoDBClient {
                 { "query", query ?? new BsonDocument() }
             };
             var result = database.RunCommand(command);
-            return (int) result.Document.GetDouble("n");
+            return (int) result.GetDouble("n");
         }
 
         public void CreateIndex(
@@ -128,7 +128,7 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        public MongoCommandResult GetStats() {
+        public BsonDocument GetStats() {
             throw new NotImplementedException();
         }
 

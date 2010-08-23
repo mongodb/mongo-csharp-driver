@@ -123,7 +123,11 @@ namespace MongoDB.MongoDBClient {
         public void DropDatabase(
             string name
         ) {
-            throw new NotImplementedException();
+            MongoDatabase database = GetDatabase(name);
+            var command = new BsonDocument {
+                { "dropDatabase", 1 }
+            };
+            database.RunCommand(command);
         }
 
         public MongoDatabase GetDatabase(
@@ -141,7 +145,7 @@ namespace MongoDB.MongoDBClient {
             var databaseNames = new List<string>();
             var adminDatabase = GetDatabase("admin");
             var result = adminDatabase.RunCommand("listDatabases");
-            var databases = (BsonDocument) result.Document["databases"];
+            var databases = (BsonDocument) result["databases"];
             foreach (BsonElement database in databases) {
                 string databaseName = (string) ((BsonDocument) database.Value)["name"];
                 databaseNames.Add(databaseName);

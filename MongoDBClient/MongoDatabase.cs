@@ -131,7 +131,10 @@ namespace MongoDB.MongoDBClient {
         public void DropCollection(
             string name
         ) {
-            throw new NotImplementedException();
+            BsonDocument command = new BsonDocument {
+                { "drop", name }
+            };
+            RunCommand(command);
         }
 
         public object Eval(
@@ -142,14 +145,8 @@ namespace MongoDB.MongoDBClient {
                 { "$eval", code },
                 { "args", args }
             };
-            MongoCommandResult result = RunCommand(command);
-
-            if (result.OK) {
-                return result.Document["retval"];
-            } else {
-                string message = string.Format("Eval failed: {0}", result.ErrorMessage);
-                throw new MongoException(message);
-            }
+            var result = RunCommand(command);
+            return result["retval"];
         }
 
         public MongoCollection GetCollection(
@@ -189,7 +186,7 @@ namespace MongoDB.MongoDBClient {
             return collectionNames;
         }
 
-        public MongoCommandResult GetStats() {
+        public BsonDocument GetStats() {
             return RunCommand("dbstats");
         }
 
@@ -201,18 +198,37 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        public MongoCommandResult RunCommand(
+        public BsonDocument RunCommand(
             BsonDocument command
         ) {
             MongoCollection commandCollection = GetCollection("$cmd");
-            BsonDocument document = commandCollection.FindOne<BsonDocument>(command);
-            return new MongoCommandResult(document);
+            BsonDocument result = commandCollection.FindOne<BsonDocument>(command);
+
+            object ok = result["ok"];
+            if (ok == null) {
+                throw new MongoException("ok element is missing");
+            }
+            if (
+                ok is bool && !((bool) ok) ||
+                ok is int && (int) ok != 1 ||
+                ok is double && (double) ok != 1.0
+            ) {
+                string commandName = (string) command.GetElement(0).Name;
+                string errorMessage = (string) result["errmsg"] ?? "Unknown error";
+                string message = string.Format("Command {0} failed ({1})", commandName, errorMessage);
+                throw new MongoException(message);
+            }
+
+            return result;
         }
 
-        public MongoCommandResult RunCommand(
-            string command
+        public BsonDocument RunCommand(
+            string commandName
         ) {
-            return RunCommand(new BsonDocument { { command, true } });
+            BsonDocument command = new BsonDocument {
+                { commandName, true }
+            };
+            return RunCommand(command);
         }
 
         public override string ToString() {

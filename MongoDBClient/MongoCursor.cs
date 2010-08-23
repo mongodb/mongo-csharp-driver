@@ -31,7 +31,7 @@ namespace MongoDB.MongoDBClient {
         private int limit; // number of documents to return (enforced by cursor)
         private BsonDocument query;
         private BsonDocument fieldSelector;
-        private bool frozen; // TODO; freeze cursor once execution begins
+        private bool frozen; // TODO: freeze cursor once execution begins
         #endregion
 
         #region constructors
@@ -59,14 +59,14 @@ namespace MongoDB.MongoDBClient {
         }
 
         public int Count() {
-            var command = new BsonDocument(
-                new BsonElement("count", collection.Name),
-                new BsonElement("query", query ?? new BsonDocument()),
-                (limit != 0) ? new BsonElement("limit", limit) : null,
-                (skip != 0) ? new BsonElement("skip", skip) : null
-            );
+            var command = new BsonDocument {
+                { "count", collection.Name },
+                { "query", query ?? new BsonDocument() },
+                { limit != 0, "limit", limit },
+                { skip != 0, "skip", skip }
+            };
             var result = collection.Database.RunCommand(command);
-            return (int) result.Document.GetDouble("n");
+            return (int) result.GetDouble("n");
         }
 
         public IEnumerator<T> GetEnumerator() {
@@ -76,6 +76,8 @@ namespace MongoDB.MongoDBClient {
             var connection = MongoConnectionPool.AcquireConnection(server.Host, server.Port);
 
             MongoReplyMessage<T> reply = null;
+            int count = 0;
+            int limit = (this.limit > 0) ? this.limit : -this.limit;
             do {
                 try {
                     if (reply == null) {
@@ -89,8 +91,12 @@ namespace MongoDB.MongoDBClient {
                 }
                 foreach (var document in reply.Documents) {
                     yield return document;
+                    count++;
+                    if (count == limit) {
+                        break;
+                    }
                 }
-            } while (reply.CursorID > 0);
+            } while ((count != limit) && reply.CursorID > 0);
 
             MongoConnectionPool.ReleaseConnection(connection);
         }
