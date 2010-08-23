@@ -64,7 +64,7 @@ namespace MongoDB.MongoDBClientTest {
             }
 #endif
 
-#if true
+#if false
             var connectionString = "server=localhost;database=test";
             var server = MongoServer.FromConnectionString(connectionString);
             foreach (string name in server.GetDatabaseNames()) {
@@ -75,6 +75,18 @@ namespace MongoDB.MongoDBClientTest {
             foreach (string name in database.GetCollectionNames()) {
                 Console.WriteLine(name);
             }
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection<BsonDocument>("library");
+            int count;
+            //count = collection.Count();
+            //count = collection.Count(new BsonDocument { { "author" , "Hemmingway" } });
+            //count = collection.FindAll().Count();
+            //count = collection.Find(new BsonDocument { { "author" , "Hemmingway" } }).Count();
+            count = collection.FindAll().Skip(2).Count();
 #endif
         }
     }

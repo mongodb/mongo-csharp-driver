@@ -58,6 +58,17 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
+        public int Count() {
+            var command = new BsonDocument(
+                new BsonElement("count", collection.Name),
+                new BsonElement("query", query ?? new BsonDocument()),
+                (limit != 0) ? new BsonElement("limit", limit) : null,
+                (skip != 0) ? new BsonElement("skip", skip) : null
+            );
+            var result = collection.Database.RunCommand(command);
+            return (int) result.Document.GetDouble("n");
+        }
+
         public IEnumerator<T> GetEnumerator() {
             // hold connection until all documents have been enumerated
             // TODO: what if enumeration is abandoned before reaching the end?

@@ -53,6 +53,21 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
+        public int Count() {
+            return Count(null);
+        }
+
+        public int Count(
+            BsonDocument query
+        ) {
+            BsonDocument command = new BsonDocument {
+                { "count", name },
+                { "query", query ?? new BsonDocument() }
+            };
+            var result = database.RunCommand(command);
+            return (int) result.Document.GetDouble("n");
+        }
+
         public void CreateIndex(
             BsonDocument keys,
             BsonDocument options
@@ -107,16 +122,6 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query
         ) where T : new() {
             return new MongoCursor<T>(this, query).Limit(1).FirstOrDefault();
-        }
-
-        public int GetCount() {
-            return GetCount(null);
-        }
-
-        public int GetCount(
-            BsonDocument query
-        ) {
-            throw new NotImplementedException();
         }
 
         public List<BsonDocument> GetIndexInfo() {
