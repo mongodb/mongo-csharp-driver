@@ -40,13 +40,13 @@ namespace MongoDB.MongoDBClientTest {
             }
 #endif
 
-#if false
+#if true
             // test connection string pointing to database
             {
                 string connectionString = "mongodb://localhost/test";
                 var database = MongoDatabase.FromConnectionString(connectionString);
                 var collection = database.GetCollection<BsonDocument>("library");
-                foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
+                foreach (var document in collection.FindAll()) {
                     Console.WriteLine(document.ToString());
                 }
             }
@@ -64,7 +64,7 @@ namespace MongoDB.MongoDBClientTest {
             }
 #endif
 
-#if true
+#if false
             var connectionString = "server=localhost;database=test";
             var server = MongoServer.FromConnectionString(connectionString);
             foreach (string name in server.GetDatabaseNames()) {
@@ -72,8 +72,6 @@ namespace MongoDB.MongoDBClientTest {
             }
 
             var database = MongoDatabase.FromConnectionString(connectionString);
-            //database.DropCollection("libary");
-            //database.DropCollection("robert.music");
             foreach (string name in database.GetCollectionNames()) {
                 Console.WriteLine(name);
             }

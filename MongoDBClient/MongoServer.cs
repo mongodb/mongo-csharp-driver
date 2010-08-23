@@ -33,7 +33,7 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region constructors
-        private MongoServer(
+        public MongoServer(
             List<MongoServerAddress> addresses
         ) {
             this.addresses = addresses;
@@ -71,10 +71,6 @@ namespace MongoDB.MongoDBClient {
            IMongoConnectionSettings settings
        ) {
             MongoServer server = FromAddresses(settings.Addresses);
-            if (settings.Username != null && settings.Password != null) {
-                MongoDatabase database = server.GetDatabase(settings.Database);
-                database.DefaultCredentials = new MongoCredentials(settings.Username, settings.Password);
-            }
             return server;
         }
 
@@ -133,9 +129,27 @@ namespace MongoDB.MongoDBClient {
         public MongoDatabase GetDatabase(
             string name
         ) {
+            return GetDatabase(name, null);
+        }
+
+        public MongoDatabase GetDatabase(
+            string name,
+            MongoCredentials credentials
+        ) {
+            string key;
+            if (credentials == null) {
+                key = name;
+            } else {
+                key = string.Format("{0}[{1}]", name, credentials);
+            }
+
             MongoDatabase database;
-            if (!databases.TryGetValue(name, out database)) {
-                database = new MongoDatabase(this, name);
+            if (!databases.TryGetValue(key, out database)) {
+                if (credentials == null) {
+                    database = new MongoDatabase(this, name);
+                } else {
+                    database = new MongoDatabase(this, name, credentials);
+                }
                 databases[name] = database;
             }
             return database;

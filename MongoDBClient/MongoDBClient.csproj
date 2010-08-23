@@ -50,7 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Internal\IMongoConnectionSettings.cs" />
-    <Compile Include="MongoCommandResult.cs" />
     <Compile Include="Internal\MongoConnection.cs" />
     <Compile Include="Internal\MongoConnectionPool.cs" />
     <Compile Include="Internal\MongoGetMoreMessage.cs" />

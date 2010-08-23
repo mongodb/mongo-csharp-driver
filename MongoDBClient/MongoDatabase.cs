@@ -26,17 +26,27 @@ namespace MongoDB.MongoDBClient {
         #region private fields
         private MongoServer server;
         private string name;
-        private MongoCredentials defaultCredentials;
+        private MongoCredentials credentials;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
         #endregion
 
         #region constructors
-        internal MongoDatabase(
+        public MongoDatabase(
             MongoServer server,
             string name
         ) {
             this.server = server;
             this.name = name;
+        }
+
+        public MongoDatabase(
+            MongoServer server,
+            string name,
+            MongoCredentials credentials
+        ) {
+            this.server = server;
+            this.name = name;
+            this.credentials = credentials;
         }
         #endregion
 
@@ -87,9 +97,12 @@ namespace MongoDB.MongoDBClient {
             get { return server; }
         }
 
-        public MongoCredentials DefaultCredentials {
-            get { return defaultCredentials; }
-            set { defaultCredentials = value; }
+        public string Name {
+            get { return name; }
+        }
+
+        public MongoCredentials Credentials {
+            get { return credentials; }
         }
         #endregion
 
@@ -101,16 +114,9 @@ namespace MongoDB.MongoDBClient {
         }
         #endregion
 
-        #region public properties
-        public string Name {
-            get { return name; }
-        }
-        #endregion
-
         #region public methods
         public void AddUser(
-            string username,
-            string password
+            MongoCredentials credentials
         ) {
             throw new NotImplementedException();
         }
