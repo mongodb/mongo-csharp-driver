@@ -250,9 +250,7 @@ namespace MongoDB.MongoDBClient {
             int direction
         ) {
             if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
-            var orderBy = new BsonDocument {
-                { key, direction }
-            };
+            var orderBy = new BsonDocument(key, direction);
             return Sort(orderBy);
         }
         #endregion

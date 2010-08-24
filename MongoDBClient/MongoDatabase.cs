@@ -36,7 +36,7 @@ namespace MongoDB.MongoDBClient {
             MongoServer server,
             string name
         ) {
-            ValidateName(name);
+            ValidateDatabaseName(name);
             this.server = server;
             this.name = name;
             this.safeMode = server.SafeMode;
@@ -47,7 +47,7 @@ namespace MongoDB.MongoDBClient {
             string name,
             MongoCredentials credentials
         ) {
-            ValidateName(name);
+            ValidateDatabaseName(name);
             this.server = server;
             this.name = name;
             this.credentials = credentials;
@@ -128,7 +128,13 @@ namespace MongoDB.MongoDBClient {
         public void AddUser(
             MongoCredentials credentials
         ) {
-            throw new NotImplementedException();
+            var users = GetCollection("system.users");
+            var user = users.FindOne<BsonDocument>(new BsonDocument("user", credentials.Username));
+            if (user == null) {
+                user = new BsonDocument("user", credentials.Username);
+            }
+            user["pwd"] = Mongo.Hash(credentials.Username + ":mongo:" + credentials.Password);
+            users.Save(user);
         }
 
         public bool CollectionExists(
@@ -137,11 +143,16 @@ namespace MongoDB.MongoDBClient {
             return GetCollectionNames().Contains(collectionName);
         }
 
-        public void CreateCollection(
+        public MongoCollection CreateCollection(
             string collectionName,
             BsonDocument options
         ) {
-            throw new NotImplementedException();
+            if (options != null) {
+                BsonDocument command = new BsonDocument("create", collectionName);
+                command.Add(options);
+                RunCommand(command);
+            }
+            return GetCollection(collectionName);
         }
 
         public BsonDocument CurrentOp() {
@@ -151,9 +162,7 @@ namespace MongoDB.MongoDBClient {
         public void DropCollection(
             string collectionName
         ) {
-            BsonDocument command = new BsonDocument {
-                { "drop", collectionName }
-            };
+            BsonDocument command = new BsonDocument("drop", collectionName);
             RunCommand(command);
         }
 
@@ -226,7 +235,8 @@ namespace MongoDB.MongoDBClient {
         public void RemoveUser(
             string username
         ) {
-            throw new NotImplementedException();
+            MongoCollection users = GetCollection("system.users");
+            users.Remove(new BsonDocument("user", username));
         }
 
         public void RequestDone() {
@@ -266,9 +276,7 @@ namespace MongoDB.MongoDBClient {
         public BsonDocument RunCommand(
             string commandName
         ) {
-            BsonDocument command = new BsonDocument {
-                { commandName, true }
-            };
+            BsonDocument command = new BsonDocument(commandName, true);
             return RunCommand(command);
         }
 
@@ -280,11 +288,11 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region private methods
-        private void ValidateName(
+        private void ValidateDatabaseName(
             string name
         ) {
             if (name == null) {
-                throw new NotImplementedException();
+                throw new ArgumentNullException("name");
             }
             if (
                 name == "" ||

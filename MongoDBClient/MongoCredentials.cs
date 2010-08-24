@@ -31,6 +31,7 @@ namespace MongoDB.MongoDBClient {
             string username,
             string password
         ) {
+            ValidatePassword(password);
             if (username.EndsWith("(admin)")) {
                 this.username = username.Substring(0, username.Length - 7);
                 this.password = password;
@@ -117,6 +118,19 @@ namespace MongoDB.MongoDBClient {
 
         public override string ToString() {
             return string.Format("{0}{1}:{2}", username, admin ? "(admin)" : "", password);
+        }
+        #endregion
+
+        #region private methods
+        private void ValidatePassword(
+            string password
+        ) {
+            if (password == null) {
+                throw new ArgumentNullException("password");
+            }
+            if (((IEnumerable<char>) password).Any(c => (int) c >= 128)) {
+                throw new MongoException("Password must contain only ASCII characters");
+            }
         }
         #endregion
     }

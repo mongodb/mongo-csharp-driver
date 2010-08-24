@@ -35,7 +35,7 @@ namespace MongoDB.MongoDBClient {
             MongoDatabase database,
             string name
         ) {
-            ValidateName(name);
+            ValidateCollectionName(name);
             this.database = database;
             this.name = name;
             this.safeMode = database.SafeMode;
@@ -141,9 +141,7 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Find<T>(
             string where
         ) where T : new() {
-            BsonDocument query = new BsonDocument {
-                { "$where", new BsonJavaScriptCode(where) }
-            };
+            BsonDocument query = new BsonDocument("$where", new BsonJavaScriptCode(where));
             return new MongoCursor<T>(this, query);
         }
 
@@ -151,9 +149,7 @@ namespace MongoDB.MongoDBClient {
             string where,
             BsonDocument fields
         ) where T : new() {
-            BsonDocument query = new BsonDocument {
-                { "$where", new BsonJavaScriptCode(where) }
-            };
+            BsonDocument query = new BsonDocument("$where", new BsonJavaScriptCode(where));
             return new MongoCursor<T>(this, query, fields);
         }
 
@@ -197,9 +193,7 @@ namespace MongoDB.MongoDBClient {
         public T FindOne<T>(
             string where
         ) where T : new() {
-            BsonDocument query = new BsonDocument {
-                { "$where", new BsonJavaScriptCode(where) }
-            };
+            BsonDocument query = new BsonDocument("$where", new BsonJavaScriptCode(where));
             using (var cursor = new MongoCursor<T>(this, query).Limit(1)) {
                 return cursor.FirstOrDefault();
             }
@@ -209,9 +203,7 @@ namespace MongoDB.MongoDBClient {
             string where,
             BsonDocument fields
         ) where T : new() {
-            BsonDocument query = new BsonDocument {
-                { "$where", new BsonJavaScriptCode(where) }
-            };
+            BsonDocument query = new BsonDocument("$where", new BsonJavaScriptCode(where));
             using (var cursor = new MongoCursor<T>(this, query, fields).Limit(1)) {
                 return cursor.FirstOrDefault();
             }
@@ -391,7 +383,7 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region private methods
-        private void ValidateName(
+        private void ValidateCollectionName(
             string name
         ) {
             if (name == null) {

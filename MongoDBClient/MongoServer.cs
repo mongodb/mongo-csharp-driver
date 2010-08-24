@@ -146,9 +146,7 @@ namespace MongoDB.MongoDBClient {
             string databaseName
         ) {
             MongoDatabase database = GetDatabase(databaseName);
-            var command = new BsonDocument {
-                { "dropDatabase", 1 }
-            };
+            var command = new BsonDocument("dropDatabase", 1);
             database.RunCommand(command);
         }
 
