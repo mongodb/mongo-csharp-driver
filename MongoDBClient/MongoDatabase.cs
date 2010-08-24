@@ -27,6 +27,7 @@ namespace MongoDB.MongoDBClient {
         private MongoServer server;
         private string name;
         private MongoCredentials credentials;
+        private bool safeMode;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
         #endregion
 
@@ -37,6 +38,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             this.server = server;
             this.name = name;
+            this.safeMode = server.SafeMode;
         }
 
         public MongoDatabase(
@@ -47,6 +49,7 @@ namespace MongoDB.MongoDBClient {
             this.server = server;
             this.name = name;
             this.credentials = credentials;
+            this.safeMode = server.SafeMode;
         }
         #endregion
 
@@ -104,13 +107,18 @@ namespace MongoDB.MongoDBClient {
         public MongoCredentials Credentials {
             get { return credentials; }
         }
+
+        public bool SafeMode {
+            get { return safeMode; }
+            set { safeMode = value; }
+        }
         #endregion
 
         #region public indexers
         public MongoCollection this[
-            string name
+            string collectionName
         ] {
-            get { return GetCollection(name); }
+            get { return GetCollection(collectionName); }
         }
         #endregion
 
@@ -122,23 +130,27 @@ namespace MongoDB.MongoDBClient {
         }
 
         public bool CollectionExists(
-            string name
+            string collectionName
         ) {
-            return GetCollectionNames().Contains(name);
+            return GetCollectionNames().Contains(collectionName);
         }
 
         public void CreateCollection(
-            string name,
+            string collectionName,
             BsonDocument options
         ) {
             throw new NotImplementedException();
         }
+
+        public BsonDocument CurrentOp() {
+            throw new NotImplementedException();
+        }
            
         public void DropCollection(
-            string name
+            string collectionName
         ) {
             BsonDocument command = new BsonDocument {
-                { "drop", name }
+                { "drop", collectionName }
             };
             RunCommand(command);
         }
@@ -156,24 +168,24 @@ namespace MongoDB.MongoDBClient {
         }
 
         public MongoCollection GetCollection(
-           string name
+           string collectionName
         ) {
             MongoCollection collection;
-            if (!collections.TryGetValue(name, out collection)) {
-                collection = new MongoCollection(this, name);
-                collections[name] = collection;
+            if (!collections.TryGetValue(collectionName, out collection)) {
+                collection = new MongoCollection(this, collectionName);
+                collections[collectionName] = collection;
             }
             return collection;
         }
 
         public MongoCollection<T> GetCollection<T>(
-            string name
+            string collectionName
         ) where T : new() {
             MongoCollection collection;
-            string key = string.Format("{0}<{1}>", name, typeof(T).FullName);
+            string key = string.Format("{0}<{1}>", collectionName, typeof(T).FullName);
             if (!collections.TryGetValue(key, out collection)) {
-                collection = new MongoCollection<T>(this, name);
-                collections[name] = collection;
+                collection = new MongoCollection<T>(this, collectionName);
+                collections[collectionName] = collection;
             }
             return (MongoCollection<T>) collection;
         }
@@ -192,8 +204,27 @@ namespace MongoDB.MongoDBClient {
             return collectionNames;
         }
 
+        // TODO: mongo shell has GetLastError at the database level?
+        // TODO: mongo shell has GetPrevError at the database level?
+        // TODO: mongo shell has GetProfilingLevel at the database level?
+        // TODO: mongo shell has GetReplicationInfo at the database level?
+
+        public MongoDatabase GetSisterDatabase(
+            string databaseName
+        ) {
+            return server.GetDatabase(databaseName);
+        }
+
         public BsonDocument GetStats() {
             return RunCommand("dbstats");
+        }
+
+        // TODO: mongo shell has IsMaster at database level?
+
+        public void RemoveUser(
+            string username
+        ) {
+            throw new NotImplementedException();
         }
 
         public void RequestDone() {
@@ -203,6 +234,8 @@ namespace MongoDB.MongoDBClient {
         public void RequestStart() {
             throw new NotImplementedException();
         }
+
+        // TODO: mongo shell has ResetError at the database level
 
         public BsonDocument RunCommand(
             BsonDocument command
@@ -236,6 +269,8 @@ namespace MongoDB.MongoDBClient {
             };
             return RunCommand(command);
         }
+
+        // TODO: 
 
         public override string ToString() {
             return name;

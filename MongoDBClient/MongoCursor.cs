@@ -23,14 +23,19 @@ using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
-    public class MongoCursor<T> : IEnumerable<T> where T : new() {
+    public class MongoCursor<T> : IDisposable, IEnumerable<T> where T : new() {
         #region private fields
+        private bool disposed = false;
         private MongoCollection collection;
-        private int skip;
-        private int batchSize; // number of documents to return in each reply
-        private int limit; // number of documents to return (enforced by cursor)
         private BsonDocument query;
-        private BsonDocument fieldSelector;
+        private BsonDocument fields;
+        private BsonDocument orderBy;
+        private bool snapshot;
+        private QueryFlags flags;
+        private int skip;
+        private int limit; // number of documents to return (enforced by cursor)
+        private int batchSize; // number of documents to return in each reply
+        private bool explain;
         private bool frozen; // TODO: freeze cursor once execution begins
         #endregion
 
@@ -42,9 +47,23 @@ namespace MongoDB.MongoDBClient {
             this.collection = collection;
             this.query = query;
         }
+
+        public MongoCursor(
+            MongoCollection collection,
+            BsonDocument query,
+            BsonDocument fields
+        ) {
+            this.collection = collection;
+            this.query = query;
+            this.fields = fields;
+        }
         #endregion
 
         #region public properties
+        public MongoCollection Collection {
+            get { return collection; }
+        }
+
         //public IEnumerable<T> Documents {
         //    get { return GetEnumerator(); }
         //}
@@ -54,22 +73,59 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Batch(
             int batchSize
         ) {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             this.batchSize = batchSize;
             return this;
         }
 
         public int Count() {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             var command = new BsonDocument {
                 { "count", collection.Name },
                 { "query", query ?? new BsonDocument() },
-                { limit != 0, "limit", limit },
-                { skip != 0, "skip", skip }
             };
             var result = collection.Database.RunCommand(command);
             return (int) result.GetDouble("n");
         }
 
+        public void Dispose() {
+            if (!disposed) {
+                // TODO: implement Dispose
+                disposed = true;
+            }
+        }
+
+        // not a property because it requires at least one round trip to the server
+        public IEnumerable<T> Documents() {
+            throw new NotImplementedException();
+        }
+
+        // TODO: verbose argument?
+        public BsonDocument Explain() {
+            explain = true;
+            throw new NotImplementedException();
+        }
+
+
+        public MongoCursor<T> Fields(
+            BsonDocument fields
+        ) {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            this.fields = fields;
+            return this;
+        }
+
+        public MongoCursor<T> Flags(
+            QueryFlags flags
+        ) {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            this.flags = flags;
+            return this;
+        }
+
         public IEnumerator<T> GetEnumerator() {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+
             // hold connection until all documents have been enumerated
             // TODO: what if enumeration is abandoned before reaching the end?
             var server = collection.Database.Server;
@@ -101,17 +157,73 @@ namespace MongoDB.MongoDBClient {
             MongoConnectionPool.ReleaseConnection(connection);
         }
 
+        public MongoCursor<T> Hint(
+            BsonDocument hint
+        ) {
+            throw new NotImplementedException();
+        }
+
         public MongoCursor<T> Limit(
             int limit
         ) {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             this.limit = limit;
             return this;
+        }
+
+        public int Size() {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            var command = new BsonDocument {
+                { "count", collection.Name },
+                { "query", query ?? new BsonDocument() },
+                { limit != 0, "limit", limit },
+                { skip != 0, "skip", skip }
+            };
+            var result = collection.Database.RunCommand(command);
+            return (int) result.GetDouble("n");
+        }
+
+        public MongoCursor<T> ShowDiskLoc() {
+            throw new NotImplementedException();
         }
 
         public MongoCursor<T> Skip(
             int skip
         ) {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             this.skip = skip;
+            return this;
+        }
+
+        public MongoCursor<T> Snapshot() {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            this.snapshot = true;
+            return this;
+        }
+
+        public MongoCursor<T> Sort(
+            BsonDocument orderBy
+        ) {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            this.orderBy = orderBy;
+            return this;
+        }
+
+        public MongoCursor<T> Sort(
+            string key
+        ) {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            return Sort(key, 1);
+        }
+
+        public MongoCursor<T> Sort(
+            string key,
+            int direction
+        ) {
+            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            orderBy = new BsonDocument {
+                { key, direction }
+            };
             return this;
         }
         #endregion
@@ -131,7 +243,7 @@ namespace MongoDB.MongoDBClient {
                 numberToReturn = limit;
             }
 
-            var message = new MongoQueryMessage(collection, skip, numberToReturn, query, fieldSelector);
+            var message = new MongoQueryMessage(collection, skip, numberToReturn, query, fields);
             connection.SendMessage(message);
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {

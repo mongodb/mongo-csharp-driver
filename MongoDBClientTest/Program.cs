@@ -67,13 +67,13 @@ namespace MongoDB.MongoDBClientTest {
 #if false
             var connectionString = "server=localhost;database=test";
             var server = MongoServer.FromConnectionString(connectionString);
-            foreach (string name in server.GetDatabaseNames()) {
-                Console.WriteLine(name);
+            foreach (string databaseName in server.GetDatabaseNames()) {
+                Console.WriteLine(databaseName);
             }
 
             var database = MongoDatabase.FromConnectionString(connectionString);
-            foreach (string name in database.GetCollectionNames()) {
-                Console.WriteLine(name);
+            foreach (string collectionName in database.GetCollectionNames()) {
+                Console.WriteLine(collectionName);
             }
 #endif
 

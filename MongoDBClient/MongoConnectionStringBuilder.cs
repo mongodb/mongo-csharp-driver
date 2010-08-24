@@ -107,10 +107,10 @@ namespace MongoDB.MongoDBClient {
 
         #region private methods
         private string GetItem(
-            string name
+            string key
         ) {
-            if (ContainsKey(name)) {
-                return (string) this[name];
+            if (ContainsKey(key)) {
+                return (string) this[key];
             } else {
                 return null;
             }

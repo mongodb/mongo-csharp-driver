@@ -29,6 +29,8 @@ namespace MongoDB.MongoDBClient {
 
         #region private fields
         private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+        private bool safeMode;
+        private bool slaveOK;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         #endregion
 
@@ -105,21 +107,45 @@ namespace MongoDB.MongoDBClient {
         public int Port {
             get { return addresses[0].Port; }
         }
+
+        public bool SafeMode {
+            get { return safeMode; }
+            set { safeMode = value; }
+        }
+
+        public bool SlaveOK {
+            get { return slaveOK; }
+            set { slaveOK = value; }
+        }
         #endregion
 
         #region public indexers
         public MongoDatabase this[
-            string name
+            string databaseName
         ] {
-            get { return GetDatabase(name); }
+            get { return GetDatabase(databaseName); }
         }
         #endregion
 
         #region public methods
-        public void DropDatabase(
-            string name
+        public void CloneDatabase(
+            string fromHost
         ) {
-            MongoDatabase database = GetDatabase(name);
+            throw new NotImplementedException();
+        }
+
+        // TODO: fromHost parameter?
+        public void CopyDatabase(
+            string from,
+            string to
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public void DropDatabase(
+            string databaseName
+        ) {
+            MongoDatabase database = GetDatabase(databaseName);
             var command = new BsonDocument {
                 { "dropDatabase", 1 }
             };
@@ -127,30 +153,30 @@ namespace MongoDB.MongoDBClient {
         }
 
         public MongoDatabase GetDatabase(
-            string name
+            string databaseName
         ) {
-            return GetDatabase(name, null);
+            return GetDatabase(databaseName, null);
         }
 
         public MongoDatabase GetDatabase(
-            string name,
+            string databaseName,
             MongoCredentials credentials
         ) {
             string key;
             if (credentials == null) {
-                key = name;
+                key = databaseName;
             } else {
-                key = string.Format("{0}[{1}]", name, credentials);
+                key = string.Format("{0}[{1}]", databaseName, credentials);
             }
 
             MongoDatabase database;
             if (!databases.TryGetValue(key, out database)) {
                 if (credentials == null) {
-                    database = new MongoDatabase(this, name);
+                    database = new MongoDatabase(this, databaseName);
                 } else {
-                    database = new MongoDatabase(this, name, credentials);
+                    database = new MongoDatabase(this, databaseName, credentials);
                 }
-                databases[name] = database;
+                databases[databaseName] = database;
             }
             return database;
         }

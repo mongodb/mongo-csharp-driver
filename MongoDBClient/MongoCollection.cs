@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,6 +27,7 @@ namespace MongoDB.MongoDBClient {
         #region protected fields
         protected MongoDatabase database;
         protected string name;
+        protected bool safeMode;
         #endregion
 
         #region constructors
@@ -35,6 +37,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             this.database = database;
             this.name = name;
+            this.safeMode = database.SafeMode;
         }
         #endregion
 
@@ -49,6 +52,11 @@ namespace MongoDB.MongoDBClient {
 
         public string Name {
             get { return name; }
+        }
+
+        public bool SafeMode {
+            get { return safeMode; }
+            set { safeMode = value; }
         }
         #endregion
 
@@ -75,6 +83,11 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
+        // TODO: any arguments?
+        public long DataSize() {
+            throw new NotImplementedException();
+        }
+
         public List<BsonDocument> Distinct(
             BsonDocument keys
         ) {
@@ -95,7 +108,7 @@ namespace MongoDB.MongoDBClient {
         }
 
         public void DropIndex(
-            string name
+            string indexName
         ) {
             throw new NotImplementedException();
         }
@@ -104,26 +117,106 @@ namespace MongoDB.MongoDBClient {
             DropIndex("*");
         }
 
+        public void EnsureIndex(
+            BsonDocument keys,
+            BsonDocument options
+        ) {
+            throw new NotImplementedException();
+        }
+
         public MongoCursor<T> Find<T>(
             BsonDocument query
         ) where T : new() {
             return new MongoCursor<T>(this, query);
         }
 
+        public MongoCursor<T> Find<T>(
+            BsonDocument query,
+            BsonDocument fields
+        ) where T : new() {
+            return new MongoCursor<T>(this, query, fields);
+        }
+
+        public MongoCursor<T> Find<T>(
+            string where
+        ) where T : new() {
+            BsonDocument query = new BsonDocument {
+                { "$where", new BsonJavaScriptCode(where) }
+            };
+            return new MongoCursor<T>(this, query);
+        }
+
+        public MongoCursor<T> Find<T>(
+            string where,
+            BsonDocument fields
+        ) where T : new() {
+            BsonDocument query = new BsonDocument {
+                { "$where", new BsonJavaScriptCode(where) }
+            };
+            return new MongoCursor<T>(this, query, fields);
+        }
+
         public MongoCursor<T> FindAll<T>() where T : new() {
             return new MongoCursor<T>(this, null);
         }
 
+        public MongoCursor<T> FindAll<T>(
+            BsonDocument fields
+        ) where T : new() {
+            return new MongoCursor<T>(this, null, fields);
+        }
+
+        public void FindAndModify() {
+            throw new NotImplementedException();
+        }
+
         public T FindOne<T>() where T : new() {
-            return new MongoCursor<T>(this, null).Limit(1).FirstOrDefault();
+            using (var cursor = new MongoCursor<T>(this, null).Limit(1)) {
+                return cursor.FirstOrDefault();
+            }
         }
 
         public T FindOne<T>(
             BsonDocument query
         ) where T : new() {
-            return new MongoCursor<T>(this, query).Limit(1).FirstOrDefault();
+            using (var cursor = new MongoCursor<T>(this, query).Limit(1)) {
+                return cursor.FirstOrDefault();
+            }
         }
 
+        public T FindOne<T>(
+            BsonDocument query,
+            BsonDocument fields
+        ) where T : new() {
+            using (var cursor = new MongoCursor<T>(this, query, fields).Limit(1)) {
+                return cursor.FirstOrDefault();
+            }
+        }
+
+        public T FindOne<T>(
+            string where
+        ) where T : new() {
+            BsonDocument query = new BsonDocument {
+                { "$where", new BsonJavaScriptCode(where) }
+            };
+            using (var cursor = new MongoCursor<T>(this, query).Limit(1)) {
+                return cursor.FirstOrDefault();
+            }
+        }
+
+        public T FindOne<T>(
+            string where,
+            BsonDocument fields
+        ) where T : new() {
+            BsonDocument query = new BsonDocument {
+                { "$where", new BsonJavaScriptCode(where) }
+            };
+            using (var cursor = new MongoCursor<T>(this, query, fields).Limit(1)) {
+                return cursor.FirstOrDefault();
+            }
+        }
+
+        // TODO: same as mongo shell's getIndexes?
         public List<BsonDocument> GetIndexInfo() {
             throw new NotImplementedException();
         }
@@ -132,6 +225,7 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
+        // TODO: order of arguments is different in mongo shell!
         public T Group<T>(
             BsonDocument keys,
             BsonDocument condition,
@@ -144,19 +238,41 @@ namespace MongoDB.MongoDBClient {
         public MongoWriteResult Insert<T>(
             IEnumerable<T> documents
         ) {
+            return Insert(documents, safeMode);
+        }
+
+        public MongoWriteResult Insert<T>(
+            IEnumerable<T> documents,
+            bool safeMode
+        ) {
             throw new NotImplementedException();
         }
 
         public MongoWriteResult Insert<T>(
             params T[] documents
         ) {
-            throw new NotImplementedException();
+            return Insert((IEnumerable<T>) documents, safeMode);
+        }
+
+        public MongoWriteResult Insert<T>(
+            T document,
+            bool safeMode
+        ) {
+            return Insert((IEnumerable<T>) new T[] { document }, safeMode);
+        }
+
+        public MongoWriteResult Insert<T>(
+            T[] documents,
+            bool safeMode
+        ) {
+            return Insert((IEnumerable<T>) documents, safeMode);
         }
 
         public bool IsCapped() {
             throw new NotImplementedException();
         }
 
+        // TODO: order of arguments is different in mongo shell
         public MongoMapReduceResult MapReduce(
             BsonDocument query,
             string map,
@@ -166,14 +282,26 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
+        public void ReIndex() {
+            throw new NotImplementedException();
+        }
+
         public MongoWriteResult Remove(
             BsonDocument query
+        ) {
+            return Remove(query, safeMode);
+        }
+
+        public MongoWriteResult Remove(
+           BsonDocument query,
+           bool safeMode
         ) {
             throw new NotImplementedException();
         }
 
+        // TODO: what is dropTarget parameter in mongo shell?
         public void Rename(
-            string name
+            string newCollectionName
         ) {
             throw new NotImplementedException();
         }
@@ -181,10 +309,29 @@ namespace MongoDB.MongoDBClient {
         public MongoWriteResult Save<T>(
             T document
         ) {
+            return Save<T>(document, safeMode);
+        }
+
+        public MongoWriteResult Save<T>(
+            T document,
+            bool safeMode
+        ) {
             throw new NotImplementedException();
         }
 
-        public override string  ToString() {
+        public long StorageSize() {
+            throw new NotImplementedException();
+        }
+
+        public long TotalIndexSize() {
+            throw new NotImplementedException();
+        }
+
+        public long TotalSize() {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString() {
  	         return FullName;
         }
 
@@ -192,7 +339,15 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query,
             T update
         ) {
-            return Update<T>(query, update, false, false);
+            return Update<T>(query, update, false, false, safeMode);
+        }
+
+        public MongoWriteResult Update<T>(
+            BsonDocument query,
+            T update,
+            bool safeMode
+        ) {
+            return Update<T>(query, update, false, false, safeMode);
         }
 
         public MongoWriteResult Update<T>(
@@ -201,6 +356,16 @@ namespace MongoDB.MongoDBClient {
             bool upsert,
             bool multi
         ) {
+            return Update<T>(query, update, upsert, multi, safeMode);
+        }
+
+        public MongoWriteResult Update<T>(
+            BsonDocument query,
+            T update,
+            bool upsert,
+            bool multi,
+            bool safeMode
+        ) {
             throw new NotImplementedException();
         }
 
@@ -208,7 +373,19 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query,
             T update
         ) {
-            return Update<T>(query, update, false, true);
+            return Update<T>(query, update, false, true, safeMode);
+        }
+
+        public MongoWriteResult UpdateMulti<T>(
+            BsonDocument query,
+            T update,
+            bool safeMode
+        ) {
+            return Update<T>(query, update, false, true, safeMode);
+        }
+
+        public void Validate() {
+            throw new NotImplementedException();
         }
         #endregion
     }
