@@ -46,7 +46,7 @@ namespace MongoDB.MongoDBClientTest {
                 string connectionString = "mongodb://localhost/test";
                 var database = MongoDatabase.FromConnectionString(connectionString);
                 var collection = database.GetCollection<BsonDocument>("library");
-                foreach (var document in collection.FindAll()) {
+                foreach (var document in collection.FindAll().Snapshot()) {
                     Console.WriteLine(document.ToString());
                 }
             }

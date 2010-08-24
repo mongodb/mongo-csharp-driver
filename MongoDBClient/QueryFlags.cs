@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.MongoDBClient.Internal {
+namespace MongoDB.MongoDBClient {
     [Flags]
     public enum QueryFlags {
         TailableCursor = 1,

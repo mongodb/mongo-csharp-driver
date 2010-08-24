@@ -35,6 +35,7 @@ namespace MongoDB.MongoDBClient {
             MongoDatabase database,
             string name
         ) {
+            ValidateName(name);
             this.database = database;
             this.name = name;
             this.safeMode = database.SafeMode;
@@ -388,6 +389,22 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
         #endregion
+
+        #region private methods
+        private void ValidateName(
+            string name
+        ) {
+            if (name == null) {
+                throw new ArgumentNullException("name");
+            }
+            if (
+                name == "" ||
+                name.Contains('\0')
+            ) {
+                throw new MongoException("Invalid collection name");
+            }
+        }
+        #endregion
     }
 
     public class MongoCollection<T> : MongoCollection where T : new() {
@@ -407,8 +424,34 @@ namespace MongoDB.MongoDBClient {
             return Find<T>(query);
         }
 
+        public MongoCursor<T> Find(
+            BsonDocument query,
+            BsonDocument fields
+        ) {
+            return Find<T>(query, fields);
+        }
+
+        public MongoCursor<T> Find(
+            string where
+        ) {
+            return Find<T>(where);
+        }
+
+        public MongoCursor<T> Find(
+            string where,
+            BsonDocument fields
+        ) {
+            return Find<T>(where, fields);
+        }
+
         public MongoCursor<T> FindAll() {
             return FindAll<T>();
+        }
+
+        public MongoCursor<T> FindAll(
+            BsonDocument fields
+        ) {
+            return FindAll<T>(fields);
         }
 
         public T FindOne() {
@@ -421,45 +464,24 @@ namespace MongoDB.MongoDBClient {
             return FindOne<T>(query);
         }
 
-        public MongoWriteResult Insert(
-            IEnumerable<T> documents
-        ) {
-            return Insert<T>(documents);
-        }
-
-        public MongoWriteResult Insert(
-            params T[] documents
-        ) {
-            return Insert<T>(documents);
-        }
-
-        public MongoWriteResult Save(
-            T document
-        ) {
-            return Save<T>(document);
-        }
-
-        public MongoWriteResult Update(
+        public T FindOne(
             BsonDocument query,
-            T update
+            BsonDocument fields
         ) {
-            return Update<T>(query, update, false, false);
+            return FindOne<T>(query, fields);
         }
 
-        public MongoWriteResult Update(
-            BsonDocument query,
-            T update,
-            bool upsert,
-            bool multi
+        public T FindOne(
+            string where
         ) {
-            return Update<T>(query, update, upsert, multi);
+            return FindOne<T>(where);
         }
 
-        public MongoWriteResult UpdateMulti(
-            BsonDocument query,
-            T update
+        public T FindOne(
+            string where,
+            BsonDocument fields
         ) {
-            return Update<T>(query, update, false, true);
+            return FindOne<T>(where, fields);
         }
         #endregion
     }

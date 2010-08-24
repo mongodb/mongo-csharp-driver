@@ -35,6 +35,7 @@ namespace MongoDB.MongoDBClient.Internal {
         #region constructors
         internal MongoQueryMessage(
             MongoCollection collection,
+            QueryFlags flags,
             int skip,
             int batchSize,
             BsonDocument query,
@@ -42,6 +43,7 @@ namespace MongoDB.MongoDBClient.Internal {
         ) : 
             base(RequestOpCode.Query) {
             this.collection = collection;
+            this.flags = flags;
             this.skip = skip;
             this.batchSize = batchSize;
             this.query = query;

@@ -56,7 +56,7 @@
     <Compile Include="Internal\MongoMessage.cs" />
     <Compile Include="Internal\MongoQueryMessage.cs" />
     <Compile Include="Internal\MongoReplyMessage.cs" />
-    <Compile Include="Internal\QueryFlags.cs" />
+    <Compile Include="QueryFlags.cs" />
     <Compile Include="Internal\RequestOpCode.cs" />
     <Compile Include="Internal\ResponseFlags.cs" />
     <Compile Include="MongoCollection.cs" />

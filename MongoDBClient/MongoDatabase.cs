@@ -36,6 +36,7 @@ namespace MongoDB.MongoDBClient {
             MongoServer server,
             string name
         ) {
+            ValidateName(name);
             this.server = server;
             this.name = name;
             this.safeMode = server.SafeMode;
@@ -46,6 +47,7 @@ namespace MongoDB.MongoDBClient {
             string name,
             MongoCredentials credentials
         ) {
+            ValidateName(name);
             this.server = server;
             this.name = name;
             this.credentials = credentials;
@@ -274,6 +276,24 @@ namespace MongoDB.MongoDBClient {
 
         public override string ToString() {
             return name;
+        }
+        #endregion
+
+        #region private methods
+        private void ValidateName(
+            string name
+        ) {
+            if (name == null) {
+                throw new NotImplementedException();
+            }
+            if (
+                name == "" ||
+                name.IndexOfAny(new char[] { '\0', ' ', '.', '$', '/', '\\' }) != -1 ||
+                name != name.ToLower() ||
+                Encoding.UTF8.GetBytes(name).Length > 64
+            ) {
+                throw new MongoException("Invalid database name");
+            }
         }
         #endregion
     }
