@@ -21,61 +21,36 @@ using System.Text;
 
 namespace MongoDB.MongoDBClient.Internal {
     public abstract class MongoMessage {
-        #region private fields
-        private int messageLength;
-        private int requestID;
-        private int responseTo;
-        private RequestOpCode opCode;
+        #region protected fields
+        protected int messageLength;
+        protected int requestId;
+        protected int responseTo;
+        protected MessageOpcode opcode;
         #endregion
 
         #region constructors
         protected MongoMessage(
-            RequestOpCode opCode
+            MessageOpcode opcode
         ) {
-            this.opCode = opCode;
+            this.opcode = opcode;
         }
         #endregion
 
         #region public properties
         public int MessageLength {
             get { return messageLength; }
-            set { messageLength = value; }
         }
 
-        public int RequestID {
-            get { return requestID; }
-            set { requestID = value; }
+        public int RequestId {
+            get { return requestId; }
         }
 
         public int ResponseTo {
             get { return responseTo; }
-            set { responseTo = value; }
         }
 
-        public RequestOpCode OpCode {
-            get { return opCode; }
-            set { opCode = value; }
-        }
-        #endregion
-
-        #region public methods
-        public void WriteTo(
-            Stream stream
-        ) {
-            BinaryWriter writer = new BinaryWriter(stream);
-            long start = stream.Position;
-
-            WriteMessageHeaderTo(writer);
-            WriteBodyTo(writer);
-
-            // backpatch MessageLength
-            writer.Flush();
-            long end = stream.Position;
-            long messageLength = end - start;
-            stream.Seek(start, SeekOrigin.Begin);
-            writer.Write((int) messageLength);
-            writer.Flush();
-            stream.Seek(end, SeekOrigin.Begin);
+        public MessageOpcode Opcode {
+            get { return opcode; }
         }
         #endregion
 
@@ -84,38 +59,20 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryReader reader
         ) {
             messageLength = reader.ReadInt32();
-            requestID = reader.ReadInt32();
+            requestId = reader.ReadInt32();
             responseTo = reader.ReadInt32();
-            if ((RequestOpCode) reader.ReadInt32() != opCode) {
+            if ((MessageOpcode) reader.ReadInt32() != opcode) {
                 throw new MongoException("Message header opcode was not the expected one");
             }
         }
 
-        protected abstract void WriteBodyTo(
-            BinaryWriter writer
-        );
-
-        protected void WriteCString(
-            BinaryWriter writer,
-            string value
-        ) {
-            byte[] utf8Bytes = Encoding.UTF8.GetBytes(value);
-            if (utf8Bytes.Contains((byte) 0)) {
-                throw new MongoException("A cstring cannot contain 0x00");
-            }
-            writer.Write(utf8Bytes);
-            writer.Write((byte) 0);
-        }
-        #endregion
-
-        #region private methods
-        private void WriteMessageHeaderTo(
+        protected void WriteMessageHeaderTo(
             BinaryWriter writer
         ) {
             writer.Write(0); // messageLength will be backpatched later
-            writer.Write(requestID);
-            writer.Write(0); // responseTo not used in messages sent by client
-            writer.Write((int) opCode);
+            writer.Write(requestId);
+            writer.Write(0); // responseTo not used in requests sent by client
+            writer.Write((int) opcode);
         }
         #endregion
     }

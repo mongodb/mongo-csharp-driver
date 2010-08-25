@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -28,6 +29,7 @@ namespace MongoDB.MongoDBClient {
         private MongoDatabase database;
         private string name;
         private bool safeMode;
+        private bool assignObjectIdsOnInsert = true;
         private HashSet<string> indexCache = new HashSet<string>();
         #endregion
 
@@ -59,6 +61,11 @@ namespace MongoDB.MongoDBClient {
         public bool SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
+        }
+
+        public bool AssignObjectIdsOnInsert {
+            get { return assignObjectIdsOnInsert; }
+            set { assignObjectIdsOnInsert = value; }
         }
         #endregion
 
@@ -343,7 +350,24 @@ namespace MongoDB.MongoDBClient {
             IEnumerable<T> documents,
             bool safeMode
         ) {
-            throw new NotImplementedException();
+            if (assignObjectIdsOnInsert) {
+                if (typeof(T) == typeof(BsonDocument)) {
+                    AssignObjectIds((IEnumerable<BsonDocument>) documents);
+                }
+            }
+
+            var message = new MongoInsertMessage(this);
+            foreach (var document in documents) {
+                message.AddDocument(document);
+                if (message.MessageLength > Mongo.MaxMessageLength) {
+                    byte[] bsonDocument = message.RemoveLastDocument();
+                    SendInsertMessage(message, safeMode);
+                    message.Reset(bsonDocument);
+                }
+            }
+
+            SendInsertMessage(message, safeMode);
+            return null; // TODO: return what?
         }
 
         public MongoWriteResult Insert<T>(
@@ -492,6 +516,16 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region private methods
+        private void AssignObjectIds(
+            IEnumerable<BsonDocument> documents
+        ) {
+            foreach (var document in documents) {
+                if (!document.ContainsElement("_id")) {
+                    // TODO: assign ObjectId
+                }
+            }
+        }
+
         private string GetIndexName(
             BsonDocument keys
         ) {
@@ -527,6 +561,21 @@ namespace MongoDB.MongoDBClient {
                 sb.Append("_1");
             }
             return sb.ToString();
+        }
+
+        private void SendInsertMessage(
+            MongoInsertMessage insertMessage,
+            bool safeMode
+        ) {
+            if (safeMode) {
+                insertMessage.AddGetLastError();
+            }
+
+            MongoConnection connection = database.GetConnection();
+            connection.SendMessage(insertMessage);
+            if (safeMode) {
+                connection.CheckLastError();
+            }
         }
 
         private void ValidateCollectionName(

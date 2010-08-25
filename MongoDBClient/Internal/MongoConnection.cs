@@ -41,6 +41,9 @@ namespace MongoDB.MongoDBClient.Internal {
             this.port = port;
 
             tcpClient = new TcpClient(host, port);
+            tcpClient.NoDelay = true; // turn off Nagle
+            tcpClient.ReceiveBufferSize = Mongo.TcpReceiveBufferSize; // default 4MB
+            tcpClient.SendBufferSize = Mongo.TcpSendBufferSize; // default 4MB
         }
         #endregion
 
@@ -51,6 +54,16 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region public methods
+        public void CheckLastError() {
+            var replyMessage = ReceiveMessage<BsonDocument>();
+            var reply = replyMessage.Documents[0];
+            if (!reply.GetBoolean("ok")) {
+                object err = reply["err"];
+                string message = string.Format("SafeMode detected an error: {0}", (err != null && err.GetType() == typeof(string)) ? (string) err : "Unknown error");
+                throw new MongoException(message);
+            }
+        }
+
         public void Dispose() {
             if (!disposed) {
                 try {
@@ -76,18 +89,16 @@ namespace MongoDB.MongoDBClient.Internal {
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
             var bytes = ReadMessageBytes();
-            var reply = new MongoReplyMessage<T>();
-            reply.ReadFrom(bytes);
+            var reply = new MongoReplyMessage<T>(bytes);
             return reply;
         }
 
         internal void SendMessage(
-            MongoMessage message
+            MongoRequestMessage message
         ) {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
-            MemoryStream memoryStream = new MemoryStream(); // write to MemoryStream first because NetworkStream can't Seek
-            message.WriteTo(memoryStream);
             NetworkStream networkStream = tcpClient.GetStream();
+            MemoryStream memoryStream = message.MemoryStream;
             networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
             messageCounter++;
         }

@@ -23,10 +23,11 @@ namespace MongoDB.MongoDBClient.Internal {
         // TODO: implement a real connection pool
         #region public static methods
         public static MongoConnection AcquireConnection(
-            string host,
-            int port
+            MongoDatabase database
         ) {
-            return new MongoConnection(host, port);
+            MongoServer server = database.Server;
+            MongoServerAddress address = server.Addresses.FirstOrDefault();
+            return new MongoConnection(address.Host, address.Port);
         }
 
         public static void ReleaseConnection(

@@ -21,6 +21,7 @@ using System.Text;
 namespace MongoDB.MongoDBClient {
     [Flags]
     public enum QueryFlags {
+        None = 0,
         TailableCursor = 1,
         SlaveOK = 2,
         NoCursorTimeout = 8,

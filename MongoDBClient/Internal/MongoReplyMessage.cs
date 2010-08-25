@@ -25,15 +25,18 @@ namespace MongoDB.MongoDBClient.Internal {
     internal class MongoReplyMessage<T> : MongoMessage where T : new() {
         #region private fields
         private ResponseFlags responseFlags;
-        private long cursorID;
+        private long cursorId;
         private int startingFrom;
         private int numberReturned;
         private List<T> documents;
         #endregion
 
         #region constructors
-        public MongoReplyMessage()
-            : base(RequestOpCode.Reply) {
+        public MongoReplyMessage(
+            byte[] bytes
+        )
+            : base(MessageOpcode.Reply) {
+            ReadFrom(bytes);
         }
         #endregion
 
@@ -43,9 +46,9 @@ namespace MongoDB.MongoDBClient.Internal {
             set { responseFlags = value; }
         }
 
-        public long CursorID {
-            get { return cursorID; }
-            set { cursorID = value; }
+        public long CursorId {
+            get { return cursorId; }
+            set { cursorId = value; }
         }
 
         public int StartingFrom {
@@ -65,14 +68,19 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region public methods
+        #endregion
+
+        #region private methods
         internal void ReadFrom(
-            BinaryReader reader
+            byte[] bytes
         ) {
+            MemoryStream memoryStream = new MemoryStream(bytes);
+            BinaryReader reader = new BinaryReader(memoryStream);
             long start = reader.BaseStream.Position;
 
             ReadMessageHeaderFrom(reader);
             responseFlags = (ResponseFlags) reader.ReadInt32();
-            cursorID = reader.ReadInt64();
+            cursorId = reader.ReadInt64();
             startingFrom = reader.ReadInt32();
             numberReturned = reader.ReadInt32();
             documents = new List<T>();
@@ -83,28 +91,6 @@ namespace MongoDB.MongoDBClient.Internal {
                 T document = (T) serializer.ReadObject(bsonReader);
                 documents.Add(document);
             }
-        }
-
-        internal void ReadFrom(
-            byte[] bytes
-        ) {
-            MemoryStream memoryStream = new MemoryStream(bytes);
-            ReadFrom(memoryStream);
-        }
-
-        internal void ReadFrom(
-            Stream stream
-        ) {
-            BinaryReader reader = new BinaryReader(stream);
-            ReadFrom(reader);
-        }
-        #endregion
-
-        #region protected methods
-        protected override void WriteBodyTo(
-            BinaryWriter writer
-        ) {
-            throw new NotImplementedException();
         }
         #endregion
     }

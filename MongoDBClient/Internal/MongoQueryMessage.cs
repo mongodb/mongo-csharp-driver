@@ -22,9 +22,8 @@ using System.Text;
 using MongoDB.BsonLibrary;
 
 namespace MongoDB.MongoDBClient.Internal {
-    internal class MongoQueryMessage : MongoMessage {
+    internal class MongoQueryMessage : MongoRequestMessage {
         #region private fields
-        private MongoCollection collection;
         private QueryFlags flags;
         private int skip;
         private int batchSize;
@@ -39,15 +38,16 @@ namespace MongoDB.MongoDBClient.Internal {
             int skip,
             int batchSize,
             BsonDocument query,
-            BsonDocument fieldSelector
-        ) : 
-            base(RequestOpCode.Query) {
-            this.collection = collection;
+            BsonDocument fieldSelector,
+            MemoryStream stream
+        ) :
+            base(MessageOpcode.Query, collection, stream) {
             this.flags = flags;
             this.skip = skip;
             this.batchSize = batchSize;
             this.query = query;
             this.fieldSelector = fieldSelector;
+            WriteMessageToMemoryStream(); // must be called ONLY after message is fully constructed
         }
         #endregion
 

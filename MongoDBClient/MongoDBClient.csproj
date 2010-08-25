@@ -53,12 +53,14 @@
     <Compile Include="Internal\MongoConnection.cs" />
     <Compile Include="Internal\MongoConnectionPool.cs" />
     <Compile Include="Internal\MongoGetMoreMessage.cs" />
+    <Compile Include="Internal\MongoInsertMessage.cs" />
     <Compile Include="Internal\MongoMessage.cs" />
+    <Compile Include="Internal\MongoRequestMessage.cs" />
     <Compile Include="Internal\MongoQueryMessage.cs" />
     <Compile Include="Internal\MongoReplyMessage.cs" />
     <Compile Include="Mongo.cs" />
     <Compile Include="QueryFlags.cs" />
-    <Compile Include="Internal\RequestOpCode.cs" />
+    <Compile Include="Internal\MessageOpcode.cs" />
     <Compile Include="Internal\ResponseFlags.cs" />
     <Compile Include="MongoCollection.cs" />
     <Compile Include="MongoConnectionStringBuilder.cs">

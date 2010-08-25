@@ -19,24 +19,43 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.MongoDBClient.Internal {
-    internal class MongoGetMoreMessage : MongoRequestMessage {
-        #region private fields
-        private int batchSize;
-        private long cursorId;
-        #endregion
+using MongoDB.BsonLibrary;
 
+namespace MongoDB.MongoDBClient.Internal {
+    internal class MongoInsertMessage : MongoRequestMessage {
         #region constructors
-        internal MongoGetMoreMessage(
-            MongoCollection collection,
-            int batchSize,
-            long cursorId
+        internal MongoInsertMessage(
+            MongoCollection collection
         )
             : base(MessageOpcode.GetMore, collection) {
-            this.collection = collection;
-            this.batchSize = batchSize;
-            this.cursorId = cursorId;
             WriteMessageToMemoryStream(); // must be called ONLY after message is fully constructed
+        }
+        #endregion
+
+        #region public properties
+        public MemoryStream Stream {
+            get { return stream; }
+        }
+        #endregion
+
+        #region public methods
+        public void AddDocument<T>(
+            T document
+        ) {
+            var serializer = new BsonSerializer(typeof(T));
+            var bsonWriter = BsonWriter.Create(writer);
+            serializer.WriteObject(bsonWriter, document);
+            BackpatchMessageLength(writer, start);
+        }
+
+        public byte[] RemoveLastDocument() {
+            throw new NotImplementedException();
+        }
+
+        public void Reset(
+            byte[] document
+        ) {
+            throw new NotImplementedException();
         }
         #endregion
 
@@ -45,9 +64,8 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter writer
         ) {
             writer.Write((int) 0); // reserved
-            WriteCString(writer, collection.FullName); // fullCollectionName
-            writer.Write(batchSize);
-            writer.Write(cursorId);
+            writer.Write(collection.FullName);
+            // documents to be added later
         }
         #endregion
     }

@@ -177,8 +177,7 @@ namespace MongoDB.MongoDBClient {
 
             // hold connection until all documents have been enumerated
             // TODO: what if enumeration is abandoned before reaching the end?
-            var server = collection.Database.Server;
-            var connection = MongoConnectionPool.AcquireConnection(server.Host, server.Port);
+            var connection = collection.Database.GetConnection();
 
             MongoReplyMessage<T> reply = null;
             int count = 0;
@@ -188,7 +187,7 @@ namespace MongoDB.MongoDBClient {
                     if (reply == null) {
                         reply = ExecuteQuery(connection);
                     } else {
-                        reply = GetMore(connection, reply.CursorID);
+                        reply = GetMore(connection, reply.CursorId);
                     }
                 } catch {
                     try { connection.Dispose(); } catch { } // ignore exceptions
@@ -201,9 +200,9 @@ namespace MongoDB.MongoDBClient {
                         break;
                     }
                 }
-            } while ((count != limit) && reply.CursorID > 0);
+            } while ((count != limit) && reply.CursorId > 0);
 
-            MongoConnectionPool.ReleaseConnection(connection);
+            collection.Database.ReleaseConnection(connection);
         }
 
         public MongoCursor<T> Hint(
@@ -312,7 +311,7 @@ namespace MongoDB.MongoDBClient {
                 numberToReturn = limit;
             }
 
-            var message = new MongoQueryMessage(collection, flags, skip, numberToReturn, WrapQuery(), fields);
+            var message = new MongoQueryMessage(collection, flags, skip, numberToReturn, WrapQuery(), fields, null);
             connection.SendMessage(message);
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
@@ -327,9 +326,9 @@ namespace MongoDB.MongoDBClient {
 
         private MongoReplyMessage<T> GetMore(
             MongoConnection connection,
-            long cursorID
+            long cursorId
         ) {
-            var message = new MongoGetMoreMessage(collection, batchSize, cursorID);
+            var message = new MongoGetMoreMessage(collection, batchSize, cursorId);
             connection.SendMessage(message);
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {

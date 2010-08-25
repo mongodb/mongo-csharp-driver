@@ -89,7 +89,7 @@ namespace MongoDB.MongoDBClientTest {
             count = collection.FindAll().Skip(2).Count();
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://localhost/test";
             var database = MongoDatabase.FromConnectionString(connectionString);
             var collection = database.GetCollection<BsonDocument>("library");
@@ -100,6 +100,17 @@ namespace MongoDB.MongoDBClientTest {
                 IndentChars = "    "
             };
             Console.WriteLine(explanation.ToString(jsonSettings));
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection<BsonDocument>("library");
+            var document = new BsonDocument {
+                { "author" , "Tom Clancy" },
+                { "title", "Inside the CIA" }
+            };
+            collection.Insert(document, true); // safeMode
 #endif
         }
     }

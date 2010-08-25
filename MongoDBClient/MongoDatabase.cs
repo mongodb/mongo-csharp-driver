@@ -287,6 +287,18 @@ namespace MongoDB.MongoDBClient {
         }
         #endregion
 
+        #region internal methods
+        internal MongoConnection GetConnection() {
+            return MongoConnectionPool.AcquireConnection(this);
+        }
+
+        internal void ReleaseConnection(
+            MongoConnection connection
+        ) {
+            MongoConnectionPool.ReleaseConnection(connection);
+        }
+        #endregion
+
         #region private methods
         private void ValidateDatabaseName(
             string name

@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.MongoDBClient.Internal {
-    public enum RequestOpCode {
+    public enum MessageOpcode {
         Reply = 1,
         Message = 1000,
         Update = 2001,
