@@ -28,7 +28,7 @@ namespace MongoDB.MongoDBClient {
         private bool disposed = false;
         private MongoCollection collection;
         private BsonDocument query;
-        private BsonDocument wrappedQuery = new BsonDocument();
+        private BsonDocument options;
         private BsonDocument fields;
         private QueryFlags flags;
         private int skip;
@@ -73,7 +73,8 @@ namespace MongoDB.MongoDBClient {
             object value
         ) {
             if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
-            wrappedQuery[name] = value;
+            if (options == null) { options = new BsonDocument(); }
+            options[name] = value;
             return this;
         }
 
@@ -83,6 +84,20 @@ namespace MongoDB.MongoDBClient {
             if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             this.batchSize = batchSize;
             return this;
+        }
+
+        public MongoCursor<TNew> Clone<TNew>() where TNew : new() {
+            var clone = new MongoCursor<TNew>(collection, query, fields);
+            if (options != null) {
+                foreach (var option in options) {
+                    clone.AddOption(option.Name, option.Value);
+                }
+            }
+            clone.flags = flags;
+            clone.skip = skip;
+            clone.limit = limit;
+            clone.batchSize = batchSize;
+            return clone;
         }
 
         public int Count() {
@@ -107,12 +122,39 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        // TODO: verbose argument?
         public BsonDocument Explain() {
-            wrappedQuery["$explain"] = true;
-            throw new NotImplementedException();
+            return Explain(false);
         }
 
+        public BsonDocument Explain(
+            bool verbose
+        ) {
+            using (var clone = this.Clone<BsonDocument>()) {
+                clone.AddOption("$explain", true);
+                clone.limit = -clone.limit;
+                var enumerator = clone.GetEnumerator();
+                enumerator.MoveNext();
+                var explanation = enumerator.Current;
+                if (!verbose) {
+                    explanation.RemoveElement("allPlans");
+                    explanation.RemoveElement("oldPlan");
+                    if (explanation.ContainsElement("shards")) {
+                        var shards = explanation["shards"];
+                        if (shards is BsonArray) {
+                            foreach (BsonDocument shard in ((BsonArray) shards).Values) {
+                                shard.RemoveElement("allPlans");
+                                shard.RemoveElement("oldPlan");
+                            }
+                        } else {
+                            BsonDocument shard = (BsonDocument) shards;
+                            shard.RemoveElement("allPlans");
+                            shard.RemoveElement("oldPlan");
+                        }
+                    }
+                }
+                return explanation;
+            }
+        }
 
         public MongoCursor<T> Fields(
             BsonDocument fields
@@ -167,7 +209,7 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Hint(
             BsonDocument hint
         ) {
-            wrappedQuery["$hint"] = hint;
+            AddOption("$hint", hint);
             return this;
         }
 
@@ -182,21 +224,21 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Max(
            BsonDocument max
        ) {
-            wrappedQuery["$max"] = max;
+            AddOption("$max", max);
             return this;
         }
 
         public MongoCursor<T> MaxScan(
             int maxScan
         ) {
-            wrappedQuery["$maxscan"] = maxScan;
+            AddOption("$maxscan", maxScan);
             return this;
         }
 
         public MongoCursor<T> Min(
            BsonDocument min
        ) {
-            wrappedQuery["$min"] = min;
+            AddOption("$min", min);
             return this;
         }
 
@@ -226,7 +268,7 @@ namespace MongoDB.MongoDBClient {
 
         public MongoCursor<T> Snapshot() {
             if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
-            wrappedQuery["$snapshot"] = true;
+            AddOption("$snapshot", true);
             return this;
         }
 
@@ -234,7 +276,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument orderBy
         ) {
             if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
-            wrappedQuery["$orderby"] = orderBy;
+            AddOption("$orderby", orderBy);
             return this;
         }
 
@@ -270,7 +312,7 @@ namespace MongoDB.MongoDBClient {
                 numberToReturn = limit;
             }
 
-            var message = new MongoQueryMessage(collection, flags, skip, numberToReturn, WrappedQuery(), fields);
+            var message = new MongoQueryMessage(collection, flags, skip, numberToReturn, WrapQuery(), fields);
             connection.SendMessage(message);
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
@@ -296,23 +338,16 @@ namespace MongoDB.MongoDBClient {
             return reply;
         }
 
-        private BsonDocument WrappedQuery() {
-            if (wrappedQuery.Elements.Count() == 0) {
+        private BsonDocument WrapQuery() {
+            if (options == null) {
                 return query;
             }
 
-            if (query == null) { query = new BsonDocument(); }
-            if (query.ContainsElement("$query")) {
-                // it's already wrapped, just copy over the options
-                // note that options in wrappedQuery overwrite existing options in query
-                foreach (var element in wrappedQuery) {
-                    query[element.Name] = element.Value;
-                }
-                return query;
-            } else {
-                wrappedQuery["$query"] = query;
-                return wrappedQuery;
-            }
+            var wrappedQuery = new BsonDocument {
+                { "$query", query ?? new BsonDocument() },
+                { options.Elements }
+            };
+            return wrappedQuery;
         }
         #endregion
     }

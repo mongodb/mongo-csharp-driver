@@ -40,7 +40,7 @@ namespace MongoDB.MongoDBClientTest {
             }
 #endif
 
-#if true
+#if false
             // test connection string pointing to database
             {
                 string connectionString = "mongodb://localhost/test";
@@ -87,6 +87,19 @@ namespace MongoDB.MongoDBClientTest {
             //count = collection.FindAll().Count();
             //count = collection.Find(new BsonDocument { { "author" , "Hemmingway" } }).Count();
             count = collection.FindAll().Skip(2).Count();
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection<BsonDocument>("library");
+            var cursor = collection.FindAll();
+            var explanation = cursor.Explain(false);
+            BsonJsonWriterSettings jsonSettings = new BsonJsonWriterSettings {
+                Indent = true,
+                IndentChars = "    "
+            };
+            Console.WriteLine(explanation.ToString(jsonSettings));
 #endif
         }
     }
