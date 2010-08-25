@@ -24,10 +24,11 @@ using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
     public class MongoCollection {
-        #region protected fields
-        protected MongoDatabase database;
-        protected string name;
-        protected bool safeMode;
+        #region private fields
+        private MongoDatabase database;
+        private string name;
+        private bool safeMode;
+        private HashSet<string> indexCache = new HashSet<string>();
         #endregion
 
         #region constructors
@@ -78,10 +79,59 @@ namespace MongoDB.MongoDBClient {
         }
 
         public void CreateIndex(
+            BsonDocument keys
+        ) {
+            BsonDocument options = null;
+            CreateIndex(keys, options);
+        }
+
+        public void CreateIndex(
             BsonDocument keys,
             BsonDocument options
         ) {
-            throw new NotImplementedException();
+            var indexes = database.GetCollection("system.indexes");
+            var indexName = ((options != null) ? options.GetString("name") : null) ?? GetIndexName(keys);
+            var index = new BsonDocument {
+                { "name", indexName },
+                { "ns", FullName },
+                { "key", keys }
+            };
+            if (options != null) {
+                foreach (var element in options) {
+                    index[element.Name] = element.Value;
+                }
+            }
+            indexes.Insert(index, true);
+            indexCache.Add(indexName);
+        }
+
+        public void CreateIndex(
+            BsonDocument keys,
+            string indexName
+        ) {
+            CreateIndex(keys, indexName, false);
+        }
+
+        public void CreateIndex(
+            BsonDocument keys,
+            string indexName,
+            bool unique
+        ) {
+            BsonDocument options = new BsonDocument {
+                { "name", indexName },
+                { unique, "unique", true }
+            };
+            CreateIndex(keys, options);
+        }
+
+        public void CreateIndex(
+            params string[] keyNames
+        ) {
+            BsonDocument keys = new BsonDocument();
+            foreach (string keyName in keyNames) {
+                keys.Add(keyName, 1);
+            }
+            CreateIndex(keys);
         }
 
         // TODO: any arguments?
@@ -102,27 +152,80 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
+        public void DropAllIndexes() {
+            DropIndex("*");
+        }
+
         public void DropIndex(
             BsonDocument keys
         ) {
-            throw new NotImplementedException();
+            string indexName = GetIndexName(keys);
+            DropIndex(indexName);
+        }
+
+        public void DropIndex(
+            params string[] keyNames
+        ) {
+            string indexName = GetIndexName(keyNames);
+            DropIndex(indexName);
         }
 
         public void DropIndex(
             string indexName
         ) {
-            throw new NotImplementedException();
+            var command = new BsonDocument {
+                { "deleteIndexes", FullName },
+                { "index", indexName }
+            };
+            database.RunCommand(command);
+            ResetIndexCache(); // TODO: what if RunCommand throws an exception
         }
 
-        public void DropIndexes() {
-            DropIndex("*");
+        public void EnsureIndex(
+            BsonDocument keys
+        ) {
+            string indexName = GetIndexName(keys);
+            if (!indexCache.Contains(indexName)) {
+                CreateIndex(keys, indexName);
+            }
+        }
+
+        public void EnsureIndex(
+           BsonDocument keys,
+           BsonDocument options
+        ) {
+            string indexName = GetIndexName(keys);
+            if (!indexCache.Contains(indexName)) {
+                CreateIndex(keys, options);
+            }
         }
 
         public void EnsureIndex(
             BsonDocument keys,
-            BsonDocument options
+            string indexName
         ) {
-            throw new NotImplementedException();
+            if (!indexCache.Contains(indexName)) {
+                CreateIndex(keys, indexName);
+            }
+        }
+
+        public void EnsureIndex(
+           BsonDocument keys,
+           string indexName,
+           bool unique
+        ) {
+            if (!indexCache.Contains(indexName)) {
+                CreateIndex(keys, indexName, unique);
+            }
+        }
+
+        public void EnsureIndex(
+            params string[] keyNames
+        ) {
+            string indexName = GetIndexName(keyNames);
+            if (!indexCache.Contains(indexName)) {
+                CreateIndex(keyNames);
+            }
         }
 
         public MongoCursor<T> Find<T>(
@@ -209,9 +312,11 @@ namespace MongoDB.MongoDBClient {
             }
         }
 
-        // TODO: same as mongo shell's getIndexes?
-        public List<BsonDocument> GetIndexInfo() {
-            throw new NotImplementedException();
+        public List<BsonDocument> GetIndexes() {
+            var indexes = database.GetCollection("system.indexes");
+            var query = new BsonDocument("ns", FullName);
+            var info = new List<BsonDocument>(indexes.Find<BsonDocument>(query));
+            return info;
         }
 
         public BsonDocument GetStats() {
@@ -299,6 +404,10 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
+        public void ResetIndexCache() {
+            indexCache.Clear();
+        }
+
         public MongoWriteResult Save<T>(
             T document
         ) {
@@ -383,6 +492,43 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region private methods
+        private string GetIndexName(
+            BsonDocument keys
+        ) {
+            StringBuilder sb = new StringBuilder();
+            foreach (var element in keys) {
+                string name = element.Name;
+                object value = element.Value;
+                if (sb.Length > 0) {
+                    sb.Append("_");
+                }
+                sb.Append(name);
+                if (
+                    value.GetType() == typeof(int) ||
+                    value.GetType() == typeof(long) ||
+                    value.GetType() == typeof(double) ||
+                    value.GetType() == typeof(string)
+                ) {
+                    sb.Append(value.ToString().Replace(' ', '_'));
+                }
+            }
+            return sb.ToString();
+        }
+
+        private string GetIndexName(
+            string[] keyNames
+        ) {
+            StringBuilder sb = new StringBuilder();
+            foreach (string name in keyNames) {
+                if (sb.Length > 0) {
+                    sb.Append("_");
+                }
+                sb.Append(name);
+                sb.Append("_1");
+            }
+            return sb.ToString();
+        }
+
         private void ValidateCollectionName(
             string name
         ) {
@@ -391,7 +537,8 @@ namespace MongoDB.MongoDBClient {
             }
             if (
                 name == "" ||
-                name.Contains('\0')
+                name.Contains('\0') ||
+                Encoding.UTF8.GetBytes(name).Length > 121
             ) {
                 throw new MongoException("Invalid collection name");
             }
