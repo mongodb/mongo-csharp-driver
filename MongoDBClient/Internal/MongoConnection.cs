@@ -96,7 +96,7 @@ namespace MongoDB.MongoDBClient.Internal {
             SendMessage(message, false);
         }
 
-        internal void SendMessage(
+        internal BsonDocument SendMessage(
             MongoRequestMessage message,
             bool safeMode
         ) {
@@ -107,18 +107,19 @@ namespace MongoDB.MongoDBClient.Internal {
                 var commandCollection = database.GetCollection("$cmd");
                 var command = new BsonDocument("getLastError", 1);
                 var getLastErrorMessage = new MongoQueryMessage(commandCollection, QueryFlags.None, 0, 1, command, null);
-                getLastErrorMessage.WriteTo(memoryStream);
+                getLastErrorMessage.WriteTo(memoryStream); // piggy back on network transmission for message
             }
 
             NetworkStream networkStream = tcpClient.GetStream();
             networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
             messageCounter++;
 
+            BsonDocument lastError = null;
             if (safeMode) {
                 var replyMessage = ReceiveMessage<BsonDocument>();
-                var result = replyMessage.Documents[0];
+                lastError = replyMessage.Documents[0];
 
-                object ok = result["ok"];
+                object ok = lastError["ok"];
                 if (ok == null) {
                     throw new MongoException("ok element is missing");
                 }
@@ -127,17 +128,19 @@ namespace MongoDB.MongoDBClient.Internal {
                     ok is int && (int) ok != 1 ||
                     ok is double && (double) ok != 1.0
                 ) {
-                    string errmsg = (string) result["errmsg"];
+                    string errmsg = (string) lastError["errmsg"];
                     string errorMessage = string.Format("Safemode detected an error ({0})", errmsg);
                     throw new MongoException(errorMessage);
                 }
 
-                string err = result["err"] as string;
+                string err = lastError["err"] as string;
                 if (!string.IsNullOrEmpty(err)) {
                     string errorMessage = string.Format("Safemode detected an error ({0})", err);
                     throw new MongoException(errorMessage);
                 }
             }
+
+            return lastError;
         }
 
         public BsonDocument TryGetLastError(

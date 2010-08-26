@@ -177,7 +177,7 @@ namespace MongoDB.MongoDBClient {
 
             // hold connection until all documents have been enumerated
             // TODO: what if enumeration is abandoned before reaching the end?
-            var connection = collection.Database.GetConnection();
+            var connection = collection.Database.AcquireConnection();
 
             MongoReplyMessage<T> reply = null;
             int count = 0;

@@ -47,13 +47,13 @@ namespace MongoDB.MongoDBClient.Internal {
             }
 
             var serializer = new BsonSerializer(typeof(T));
-            var binaryWriter = new BinaryWriter(memoryStream);
             var bsonWriter = BsonWriter.Create(binaryWriter);
             serializer.WriteObject(bsonWriter, document);
 
             BackpatchMessageLength(binaryWriter);
         }
 
+        // assumes AddDocument has been called at least once
         public byte[] RemoveLastDocument() {
             var lastDocumentLength = (int) (memoryStream.Position - lastDocumentStart);
             var lastDocument = new byte[lastDocumentLength];
@@ -62,12 +62,12 @@ namespace MongoDB.MongoDBClient.Internal {
             memoryStream.SetLength(lastDocumentStart);
             memoryStream.Position = lastDocumentStart;
 
-            BinaryWriter binaryWriter = new BinaryWriter(memoryStream);
             BackpatchMessageLength(binaryWriter);
 
             return lastDocument;
         }
 
+        // assumes RemoveLastDocument was called first
         public void Reset(
             byte[] lastDocument
         ) {
@@ -77,7 +77,6 @@ namespace MongoDB.MongoDBClient.Internal {
 
             memoryStream.Write(lastDocument, 0, lastDocument.Length);
 
-            var binaryWriter = new BinaryWriter(memoryStream);
             BackpatchMessageLength(binaryWriter);
         }
         #endregion

@@ -26,6 +26,7 @@ namespace MongoDB.MongoDBClient.Internal {
         #region protected fields
         protected MongoCollection collection; // null if subclass is not a collection related message (e.g. KillCursors)
         protected MemoryStream memoryStream; // null until WriteTo has been called
+        protected BinaryWriter binaryWriter;
         protected long messageStart; // start position in stream for backpatching messageLength
         #endregion
 
@@ -53,7 +54,7 @@ namespace MongoDB.MongoDBClient.Internal {
         ) {
             this.memoryStream = memoryStream;
             messageStart = memoryStream.Position;
-            var binaryWriter = new BinaryWriter(memoryStream);
+            binaryWriter = new BinaryWriter(memoryStream);
             WriteMessageHeaderTo(binaryWriter);
             WriteBodyTo(binaryWriter);
             BackpatchMessageLength(binaryWriter);

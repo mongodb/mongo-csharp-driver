@@ -340,13 +340,13 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        public MongoWriteResult Insert<T>(
+        public BsonDocument Insert<T>(
             IEnumerable<T> documents
         ) {
             return Insert(documents, safeMode);
         }
 
-        public MongoWriteResult Insert<T>(
+        public BsonDocument Insert<T>(
             IEnumerable<T> documents,
             bool safeMode
         ) {
@@ -356,38 +356,53 @@ namespace MongoDB.MongoDBClient {
                 }
             }
 
-            MongoConnection connection = database.GetConnection();
-            var message = new MongoInsertMessage(this);
+            BsonArray batches = null;
+            if (safeMode) {
+                batches = new BsonArray();
+            }
 
+            MongoConnection connection = database.AcquireConnection();
+            var message = new MongoInsertMessage(this);
             foreach (var document in documents) {
                 message.AddDocument(document);
                 if (message.MessageLength > Mongo.MaxMessageLength) {
                     byte[] lastDocument = message.RemoveLastDocument();
-                    connection.SendMessage(message, safeMode);
+                    var intermediateError = connection.SendMessage(message, safeMode);
+                    if (safeMode) { batches.Add(intermediateError); }
                     message.Reset(lastDocument);
                 }
             }
-            connection.SendMessage(message, safeMode);
+
+            var lastError = connection.SendMessage(message, safeMode);
+            if (safeMode) { batches.Add(lastError); }
 
             database.ReleaseConnection(connection);
 
-            return null; // TODO: return what?
+            if (safeMode) {
+                if (batches.Count() == 1) {
+                    return (BsonDocument) batches[0];
+                } else {
+                    return new BsonDocument("batches", batches);
+                }
+            } else {
+                return null;
+            }
         }
 
-        public MongoWriteResult Insert<T>(
+        public BsonDocument Insert<T>(
             params T[] documents
         ) {
             return Insert((IEnumerable<T>) documents, safeMode);
         }
 
-        public MongoWriteResult Insert<T>(
+        public BsonDocument Insert<T>(
             T document,
             bool safeMode
         ) {
             return Insert((IEnumerable<T>) new T[] { document }, safeMode);
         }
 
-        public MongoWriteResult Insert<T>(
+        public BsonDocument Insert<T>(
             T[] documents,
             bool safeMode
         ) {
@@ -412,13 +427,13 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        public MongoWriteResult Remove(
+        public BsonDocument Remove(
             BsonDocument query
         ) {
             return Remove(query, safeMode);
         }
 
-        public MongoWriteResult Remove(
+        public BsonDocument Remove(
            BsonDocument query,
            bool safeMode
         ) {
@@ -436,13 +451,13 @@ namespace MongoDB.MongoDBClient {
             indexCache.Clear();
         }
 
-        public MongoWriteResult Save<T>(
+        public BsonDocument Save<T>(
             T document
         ) {
             return Save<T>(document, safeMode);
         }
 
-        public MongoWriteResult Save<T>(
+        public BsonDocument Save<T>(
             T document,
             bool safeMode
         ) {
@@ -465,14 +480,14 @@ namespace MongoDB.MongoDBClient {
  	         return FullName;
         }
 
-        public MongoWriteResult Update<T>(
+        public BsonDocument Update<T>(
             BsonDocument query,
             T update
         ) {
             return Update<T>(query, update, false, false, safeMode);
         }
 
-        public MongoWriteResult Update<T>(
+        public BsonDocument Update<T>(
             BsonDocument query,
             T update,
             bool safeMode
@@ -480,7 +495,7 @@ namespace MongoDB.MongoDBClient {
             return Update<T>(query, update, false, false, safeMode);
         }
 
-        public MongoWriteResult Update<T>(
+        public BsonDocument Update<T>(
             BsonDocument query,
             T update,
             bool upsert,
@@ -489,7 +504,7 @@ namespace MongoDB.MongoDBClient {
             return Update<T>(query, update, upsert, multi, safeMode);
         }
 
-        public MongoWriteResult Update<T>(
+        public BsonDocument Update<T>(
             BsonDocument query,
             T update,
             bool upsert,
@@ -499,14 +514,14 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        public MongoWriteResult UpdateMulti<T>(
+        public BsonDocument UpdateMulti<T>(
             BsonDocument query,
             T update
         ) {
             return Update<T>(query, update, false, true, safeMode);
         }
 
-        public MongoWriteResult UpdateMulti<T>(
+        public BsonDocument UpdateMulti<T>(
             BsonDocument query,
             T update,
             bool safeMode

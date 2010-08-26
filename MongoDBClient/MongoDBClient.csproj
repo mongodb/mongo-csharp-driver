@@ -74,7 +74,6 @@
     <Compile Include="MongoException.cs" />
     <Compile Include="MongoServerAddress.cs" />
     <Compile Include="MongoUrl.cs" />
-    <Compile Include="MongoWriteResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

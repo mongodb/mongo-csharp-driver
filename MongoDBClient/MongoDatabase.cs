@@ -28,6 +28,8 @@ namespace MongoDB.MongoDBClient {
         private string name;
         private MongoCredentials credentials;
         private bool safeMode;
+        private bool useDedicatedConnection;
+        private MongoConnection dedicatedConnection;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
         #endregion
 
@@ -113,6 +115,14 @@ namespace MongoDB.MongoDBClient {
         public bool SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
+        }
+
+        public bool UseDedicatedConnection {
+            get { return useDedicatedConnection; }
+            set {
+                useDedicatedConnection = value;
+                if (!useDedicatedConnection) { ReleaseDedicatedConnection(); }
+            }
         }
         #endregion
 
@@ -232,6 +242,13 @@ namespace MongoDB.MongoDBClient {
 
         // TODO: mongo shell has IsMaster at database level?
 
+        public void ReleaseDedicatedConnection() {
+            if (dedicatedConnection != null) {
+                MongoConnectionPool.ReleaseConnection(dedicatedConnection);
+                dedicatedConnection = null;
+            }
+        }
+
         public void RemoveUser(
             string username
         ) {
@@ -288,14 +305,23 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region internal methods
-        internal MongoConnection GetConnection() {
-            return MongoConnectionPool.AcquireConnection(this);
+        internal MongoConnection AcquireConnection() {
+            if (useDedicatedConnection) {
+                if (dedicatedConnection == null) {
+                    dedicatedConnection = MongoConnectionPool.AcquireConnection(this);
+                }
+                return dedicatedConnection;
+            } else {
+                return MongoConnectionPool.AcquireConnection(this);
+            }
         }
 
         internal void ReleaseConnection(
             MongoConnection connection
         ) {
-            MongoConnectionPool.ReleaseConnection(connection);
+            if (!useDedicatedConnection) {
+                MongoConnectionPool.ReleaseConnection(connection);
+            }
         }
         #endregion
 
