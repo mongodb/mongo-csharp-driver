@@ -29,20 +29,23 @@ namespace MongoDB.MongoDBClient.Internal {
         public static MongoConnection AcquireConnection(
             MongoDatabase database
         ) {
+            MongoConnection connection;
             if (pool == null) {
                 MongoServer server = database.Server;
                 MongoServerAddress address = server.Addresses.FirstOrDefault();
-                return new MongoConnection(address.Host, address.Port);
+                connection = new MongoConnection(address.Host, address.Port);
             } else {
-                var connection = pool;
+                connection = pool;
                 pool = null;
-                return connection;
             }
+            connection.Database = database;
+            return connection;
         }
 
         public static void ReleaseConnection(
             MongoConnection connection
         ) {
+            connection.Database = null;
             pool = connection;
         }
         #endregion

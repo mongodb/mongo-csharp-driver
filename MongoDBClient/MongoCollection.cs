@@ -357,17 +357,17 @@ namespace MongoDB.MongoDBClient {
             }
 
             MongoConnection connection = database.GetConnection();
-
             var message = new MongoInsertMessage(this);
+
             foreach (var document in documents) {
                 message.AddDocument(document);
                 if (message.MessageLength > Mongo.MaxMessageLength) {
                     byte[] bsonDocument = message.RemoveLastDocument();
-                    SendInsertMessage(connection, message, safeMode);
+                    connection.SendMessage(message, safeMode);
                     message.Reset(bsonDocument);
                 }
             }
-            SendInsertMessage(connection, message, safeMode);
+            connection.SendMessage(message, safeMode);
 
             database.ReleaseConnection(connection);
 
@@ -565,21 +565,6 @@ namespace MongoDB.MongoDBClient {
                 sb.Append("_1");
             }
             return sb.ToString();
-        }
-
-        private void SendInsertMessage(
-            MongoConnection connection,
-            MongoInsertMessage insertMessage,
-            bool safeMode
-        ) {
-            if (safeMode) {
-                insertMessage.AddGetLastError();
-            }
-
-            connection.SendMessage(insertMessage);
-            if (safeMode) {
-                connection.CheckLastError();
-            }
         }
 
         private void ValidateCollectionName(

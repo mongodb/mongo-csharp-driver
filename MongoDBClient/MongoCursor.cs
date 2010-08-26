@@ -311,7 +311,7 @@ namespace MongoDB.MongoDBClient {
                 numberToReturn = limit;
             }
 
-            var message = new MongoQueryMessage(collection, flags, skip, numberToReturn, WrapQuery(), fields, null);
+            var message = new MongoQueryMessage(collection, flags, skip, numberToReturn, WrapQuery(), fields);
             connection.SendMessage(message);
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {

@@ -67,12 +67,12 @@ namespace MongoDB.MongoDBClient.Internal {
         }
 
         protected void WriteMessageHeaderTo(
-            BinaryWriter writer
+            BinaryWriter binaryWriter
         ) {
-            writer.Write(0); // messageLength will be backpatched later
-            writer.Write(requestId);
-            writer.Write(0); // responseTo not used in requests sent by client
-            writer.Write((int) opcode);
+            binaryWriter.Write(0); // messageLength will be backpatched later
+            binaryWriter.Write(requestId);
+            binaryWriter.Write(0); // responseTo not used in requests sent by client
+            binaryWriter.Write((int) opcode);
         }
         #endregion
     }

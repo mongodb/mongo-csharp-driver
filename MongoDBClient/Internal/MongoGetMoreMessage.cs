@@ -22,32 +22,31 @@ using System.Text;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoGetMoreMessage : MongoRequestMessage {
         #region private fields
-        private int batchSize;
+        private int numberToReturn;
         private long cursorId;
         #endregion
 
         #region constructors
         internal MongoGetMoreMessage(
             MongoCollection collection,
-            int batchSize,
+            int numberToReturn,
             long cursorId
         )
             : base(MessageOpcode.GetMore, collection) {
             this.collection = collection;
-            this.batchSize = batchSize;
+            this.numberToReturn = numberToReturn;
             this.cursorId = cursorId;
-            WriteMessageToMemoryStream(); // must be called ONLY after message is fully constructed
         }
         #endregion
 
         #region protected methods
         protected override void WriteBodyTo(
-            BinaryWriter writer
+            BinaryWriter binaryWriter
         ) {
-            writer.Write((int) 0); // reserved
-            WriteCString(writer, collection.FullName); // fullCollectionName
-            writer.Write(batchSize);
-            writer.Write(cursorId);
+            binaryWriter.Write((int) 0); // reserved
+            WriteCStringTo(binaryWriter, collection.FullName); // fullCollectionName
+            binaryWriter.Write(numberToReturn);
+            binaryWriter.Write(cursorId);
         }
         #endregion
     }

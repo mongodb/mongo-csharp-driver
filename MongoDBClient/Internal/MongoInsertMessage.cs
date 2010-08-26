@@ -28,13 +28,6 @@ namespace MongoDB.MongoDBClient.Internal {
             MongoCollection collection
         )
             : base(MessageOpcode.Insert, collection) {
-            WriteMessageToMemoryStream(); // must be called ONLY after message is fully constructed
-        }
-        #endregion
-
-        #region public properties
-        public MemoryStream Stream {
-            get { return stream; }
         }
         #endregion
 
@@ -42,10 +35,14 @@ namespace MongoDB.MongoDBClient.Internal {
         public void AddDocument<T>(
             T document
         ) {
+            var memoryStream = AsMemoryStream();
+            var binaryWriter = new BinaryWriter(memoryStream);
+            var bsonWriter = BsonWriter.Create(binaryWriter);
+
             var serializer = new BsonSerializer(typeof(T));
-            var bsonWriter = BsonWriter.Create(writer);
             serializer.WriteObject(bsonWriter, document);
-            BackpatchMessageLength(writer, start);
+
+            BackpatchMessageLength(binaryWriter);
         }
 
         public byte[] RemoveLastDocument() {
@@ -61,11 +58,11 @@ namespace MongoDB.MongoDBClient.Internal {
 
         #region protected methods
         protected override void WriteBodyTo(
-            BinaryWriter writer
+            BinaryWriter binaryWriter
         ) {
-            writer.Write((int) 0); // reserved
-            WriteCString(writer, collection.FullName);
-            // documents to be added later
+            binaryWriter.Write((int) 0); // reserved
+            WriteCStringTo(binaryWriter, collection.FullName);
+            // documents to be added later by calling AddDocument
         }
         #endregion
     }

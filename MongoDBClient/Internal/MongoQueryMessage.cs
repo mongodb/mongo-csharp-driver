@@ -25,50 +25,48 @@ namespace MongoDB.MongoDBClient.Internal {
     internal class MongoQueryMessage : MongoRequestMessage {
         #region private fields
         private QueryFlags flags;
-        private int skip;
-        private int batchSize;
+        private int numberToSkip;
+        private int numberToReturn;
         private BsonDocument query;
-        private BsonDocument fieldSelector;
+        private BsonDocument fields;
         #endregion
 
         #region constructors
         internal MongoQueryMessage(
             MongoCollection collection,
             QueryFlags flags,
-            int skip,
-            int batchSize,
+            int numberToSkip,
+            int numberToReturn,
             BsonDocument query,
-            BsonDocument fieldSelector,
-            MemoryStream stream
+            BsonDocument fields
         ) :
-            base(MessageOpcode.Query, collection, stream) {
+            base(MessageOpcode.Query, collection) {
             this.flags = flags;
-            this.skip = skip;
-            this.batchSize = batchSize;
+            this.numberToSkip = numberToSkip;
+            this.numberToReturn = numberToReturn;
             this.query = query;
-            this.fieldSelector = fieldSelector;
-            WriteMessageToMemoryStream(); // must be called ONLY after message is fully constructed
+            this.fields = fields;
         }
         #endregion
 
         #region protected methods
         protected override void WriteBodyTo(
-            BinaryWriter writer
+            BinaryWriter binaryWriter
         ) {
-            writer.Write((int) flags);
-            WriteCString(writer, collection.FullName);
-            writer.Write(skip);
-            writer.Write(batchSize);
+            binaryWriter.Write((int) flags);
+            WriteCStringTo(binaryWriter, collection.FullName);
+            binaryWriter.Write(numberToSkip);
+            binaryWriter.Write(numberToReturn);
 
-            BsonWriter bsonWriter = BsonBinaryWriter.Create(writer);
+            BsonWriter bsonWriter = BsonBinaryWriter.Create(binaryWriter);
             if (query == null) {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
             } else {
                 query.WriteTo(bsonWriter);
             }
-            if (fieldSelector != null) {
-                fieldSelector.WriteTo(bsonWriter);
+            if (fields != null) {
+                fields.WriteTo(bsonWriter);
             }
         }
         #endregion

@@ -30,6 +30,7 @@ namespace MongoDB.MongoDBClient.Internal {
         private int port;
         private TcpClient tcpClient;
         private int messageCounter;
+        private MongoDatabase database; // this is constantly changing as pooled connection is reused
         #endregion
 
         #region constructors
@@ -48,23 +49,17 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region public properties
+        public MongoDatabase Database {
+            get { return database; }
+            internal set { database = value; }
+        }
+
         public int MessageCounter {
             get { return messageCounter; }
         }
         #endregion
 
         #region public methods
-        public void CheckLastError() {
-            var replyMessage = ReceiveMessage<BsonDocument>();
-            var reply = replyMessage.Documents[0];
-            // TODO: "ok" is sometimes a boolean
-            if (reply.GetDouble("ok") != 1.0) {
-                object err = reply["err"];
-                string message = string.Format("SafeMode detected an error: {0}", (err != null && err.GetType() == typeof(string)) ? (string) err : "Unknown error");
-                throw new MongoException(message);
-            }
-        }
-
         public void Dispose() {
             if (!disposed) {
                 try {
@@ -97,11 +92,45 @@ namespace MongoDB.MongoDBClient.Internal {
         internal void SendMessage(
             MongoRequestMessage message
         ) {
+            SendMessage(message, false);
+        }
+
+        internal void SendMessage(
+            MongoRequestMessage message,
+            bool safeMode
+        ) {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
+            MemoryStream memoryStream = message.AsMemoryStream();
+
+            if (safeMode) {
+                var commandCollection = database.GetCollection("$cmd");
+                var command = new BsonDocument("getLastError", 1);
+                var getLastErrorMessage = new MongoQueryMessage(commandCollection, QueryFlags.None, 0, 1, command, null);
+                getLastErrorMessage.WriteTo(memoryStream);
+            }
+
             NetworkStream networkStream = tcpClient.GetStream();
-            MemoryStream memoryStream = message.MemoryStream;
             networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
             messageCounter++;
+
+            if (safeMode) {
+                var replyMessage = ReceiveMessage<BsonDocument>();
+                var result = replyMessage.Documents[0];
+
+                object ok = result["ok"];
+                if (ok == null) {
+                    throw new MongoException("ok element is missing");
+                }
+                if (
+                    ok is bool && !((bool) ok) ||
+                    ok is int && (int) ok != 1 ||
+                    ok is double && (double) ok != 1.0
+                ) {
+                    string err = (string) result["err"] ?? (string) result["errmsg"] ?? "Unknown error";
+                    string errorMessage = string.Format("Safemode detected an error ({0})", err);
+                    throw new MongoException(errorMessage);
+                }
+            }
         }
 
         public BsonDocument TryGetLastError(
