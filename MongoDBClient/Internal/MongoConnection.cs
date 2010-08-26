@@ -85,7 +85,8 @@ namespace MongoDB.MongoDBClient.Internal {
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
             var bytes = ReadMessageBytes();
-            var reply = new MongoReplyMessage<T>(bytes);
+            var reply = new MongoReplyMessage<T>();
+            reply.ReadFrom(bytes);
             return reply;
         }
 
@@ -126,7 +127,13 @@ namespace MongoDB.MongoDBClient.Internal {
                     ok is int && (int) ok != 1 ||
                     ok is double && (double) ok != 1.0
                 ) {
-                    string err = (string) result["err"] ?? (string) result["errmsg"] ?? "Unknown error";
+                    string errmsg = (string) result["errmsg"];
+                    string errorMessage = string.Format("Safemode detected an error ({0})", errmsg);
+                    throw new MongoException(errorMessage);
+                }
+
+                string err = result["err"] as string;
+                if (!string.IsNullOrEmpty(err)) {
                     string errorMessage = string.Format("Safemode detected an error ({0})", err);
                     throw new MongoException(errorMessage);
                 }
@@ -149,8 +156,8 @@ namespace MongoDB.MongoDBClient.Internal {
             NetworkStream networkStream = tcpClient.GetStream();
             byte[] messageLengthBytes = new byte[4];
             networkStream.Read(messageLengthBytes, 0, 4);
-            BinaryReader reader = new BinaryReader(new MemoryStream(messageLengthBytes));
-            int messageLength = reader.ReadInt32();
+            BinaryReader binaryReader = new BinaryReader(new MemoryStream(messageLengthBytes));
+            int messageLength = binaryReader.ReadInt32();
 
             // create reply buffer and copy message length bytes to it
             byte[] reply = new byte[messageLength];

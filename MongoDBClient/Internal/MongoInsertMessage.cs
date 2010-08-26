@@ -23,6 +23,11 @@ using MongoDB.BsonLibrary;
 
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoInsertMessage : MongoRequestMessage {
+        #region private fields
+        private long firstDocumentStart;
+        private long lastDocumentStart;
+        #endregion
+
         #region constructors
         internal MongoInsertMessage(
             MongoCollection collection
@@ -36,23 +41,44 @@ namespace MongoDB.MongoDBClient.Internal {
             T document
         ) {
             var memoryStream = AsMemoryStream();
-            var binaryWriter = new BinaryWriter(memoryStream);
-            var bsonWriter = BsonWriter.Create(binaryWriter);
+            lastDocumentStart = memoryStream.Position;
+            if (firstDocumentStart == 0) {
+                firstDocumentStart = lastDocumentStart;
+            }
 
             var serializer = new BsonSerializer(typeof(T));
+            var binaryWriter = new BinaryWriter(memoryStream);
+            var bsonWriter = BsonWriter.Create(binaryWriter);
             serializer.WriteObject(bsonWriter, document);
 
             BackpatchMessageLength(binaryWriter);
         }
 
         public byte[] RemoveLastDocument() {
-            throw new NotImplementedException();
+            var lastDocumentLength = (int) (memoryStream.Position - lastDocumentStart);
+            var lastDocument = new byte[lastDocumentLength];
+            memoryStream.Position = lastDocumentStart;
+            memoryStream.Read(lastDocument, 0, lastDocumentLength);
+            memoryStream.SetLength(lastDocumentStart);
+            memoryStream.Position = lastDocumentStart;
+
+            BinaryWriter binaryWriter = new BinaryWriter(memoryStream);
+            BackpatchMessageLength(binaryWriter);
+
+            return lastDocument;
         }
 
         public void Reset(
-            byte[] document
+            byte[] lastDocument
         ) {
-            throw new NotImplementedException();
+            memoryStream.SetLength(firstDocumentStart);
+            memoryStream.Position = firstDocumentStart;
+            lastDocumentStart = firstDocumentStart;
+
+            memoryStream.Write(lastDocument, 0, lastDocument.Length);
+
+            var binaryWriter = new BinaryWriter(memoryStream);
+            BackpatchMessageLength(binaryWriter);
         }
         #endregion
 

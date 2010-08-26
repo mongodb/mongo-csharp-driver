@@ -32,11 +32,8 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region constructors
-        public MongoReplyMessage(
-            byte[] bytes
-        )
+        public MongoReplyMessage()
             : base(MessageOpcode.Reply) {
-            ReadFrom(bytes);
         }
         #endregion
 
@@ -68,26 +65,23 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region public methods
-        #endregion
-
-        #region private methods
-        internal void ReadFrom(
+        public void ReadFrom(
             byte[] bytes
         ) {
             MemoryStream memoryStream = new MemoryStream(bytes);
-            BinaryReader reader = new BinaryReader(memoryStream);
-            long start = reader.BaseStream.Position;
+            BinaryReader binaryReader = new BinaryReader(memoryStream);
+            long messageStart = binaryReader.BaseStream.Position;
 
-            ReadMessageHeaderFrom(reader);
-            responseFlags = (ResponseFlags) reader.ReadInt32();
-            cursorId = reader.ReadInt64();
-            startingFrom = reader.ReadInt32();
-            numberReturned = reader.ReadInt32();
+            ReadMessageHeaderFrom(binaryReader);
+            responseFlags = (ResponseFlags) binaryReader.ReadInt32();
+            cursorId = binaryReader.ReadInt64();
+            startingFrom = binaryReader.ReadInt32();
+            numberReturned = binaryReader.ReadInt32();
             documents = new List<T>();
 
-            BsonReader bsonReader = new BsonReader(reader);
+            BsonReader bsonReader = new BsonReader(binaryReader);
             BsonSerializer serializer = new BsonSerializer(typeof(T));
-            while (reader.BaseStream.Position - start < MessageLength) {
+            while (binaryReader.BaseStream.Position - messageStart < messageLength) {
                 T document = (T) serializer.ReadObject(bsonReader);
                 documents.Add(document);
             }

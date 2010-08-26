@@ -362,9 +362,9 @@ namespace MongoDB.MongoDBClient {
             foreach (var document in documents) {
                 message.AddDocument(document);
                 if (message.MessageLength > Mongo.MaxMessageLength) {
-                    byte[] bsonDocument = message.RemoveLastDocument();
+                    byte[] lastDocument = message.RemoveLastDocument();
                     connection.SendMessage(message, safeMode);
-                    message.Reset(bsonDocument);
+                    message.Reset(lastDocument);
                 }
             }
             connection.SendMessage(message, safeMode);

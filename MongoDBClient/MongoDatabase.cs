@@ -265,9 +265,9 @@ namespace MongoDB.MongoDBClient {
                 ok is double && (double) ok != 1.0
             ) {
                 string commandName = (string) command.GetElement(0).Name;
-                string errorMessage = (string) result["err"] ?? (string) result["errmsg"] ?? "Unknown error";
-                string message = string.Format("Command {0} failed ({1})", commandName, errorMessage);
-                throw new MongoException(message);
+                string errmsg = (string) result["errmsg"];
+                string errorMessage = string.Format("{0} failed ({1})", commandName, errmsg);
+                throw new MongoException(errorMessage);
             }
 
             return result;

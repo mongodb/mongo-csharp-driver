@@ -56,12 +56,12 @@ namespace MongoDB.MongoDBClient.Internal {
 
         #region protected methods
         protected void ReadMessageHeaderFrom(
-            BinaryReader reader
+            BinaryReader binaryReader
         ) {
-            messageLength = reader.ReadInt32();
-            requestId = reader.ReadInt32();
-            responseTo = reader.ReadInt32();
-            if ((MessageOpcode) reader.ReadInt32() != opcode) {
+            messageLength = binaryReader.ReadInt32();
+            requestId = binaryReader.ReadInt32();
+            responseTo = binaryReader.ReadInt32();
+            if ((MessageOpcode) binaryReader.ReadInt32() != opcode) {
                 throw new MongoException("Message header opcode was not the expected one");
             }
         }
