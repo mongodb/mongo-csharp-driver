@@ -356,17 +356,21 @@ namespace MongoDB.MongoDBClient {
                 }
             }
 
+            MongoConnection connection = database.GetConnection();
+
             var message = new MongoInsertMessage(this);
             foreach (var document in documents) {
                 message.AddDocument(document);
                 if (message.MessageLength > Mongo.MaxMessageLength) {
                     byte[] bsonDocument = message.RemoveLastDocument();
-                    SendInsertMessage(message, safeMode);
+                    SendInsertMessage(connection, message, safeMode);
                     message.Reset(bsonDocument);
                 }
             }
+            SendInsertMessage(connection, message, safeMode);
 
-            SendInsertMessage(message, safeMode);
+            database.ReleaseConnection(connection);
+
             return null; // TODO: return what?
         }
 
@@ -564,6 +568,7 @@ namespace MongoDB.MongoDBClient {
         }
 
         private void SendInsertMessage(
+            MongoConnection connection,
             MongoInsertMessage insertMessage,
             bool safeMode
         ) {
@@ -571,7 +576,6 @@ namespace MongoDB.MongoDBClient {
                 insertMessage.AddGetLastError();
             }
 
-            MongoConnection connection = database.GetConnection();
             connection.SendMessage(insertMessage);
             if (safeMode) {
                 connection.CheckLastError();

@@ -57,7 +57,8 @@ namespace MongoDB.MongoDBClient.Internal {
         public void CheckLastError() {
             var replyMessage = ReceiveMessage<BsonDocument>();
             var reply = replyMessage.Documents[0];
-            if (!reply.GetBoolean("ok")) {
+            // TODO: "ok" is sometimes a boolean
+            if (reply.GetDouble("ok") != 1.0) {
                 object err = reply["err"];
                 string message = string.Format("SafeMode detected an error: {0}", (err != null && err.GetType() == typeof(string)) ? (string) err : "Unknown error");
                 throw new MongoException(message);

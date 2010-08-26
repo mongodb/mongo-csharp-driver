@@ -107,10 +107,12 @@ namespace MongoDB.MongoDBClientTest {
             var database = MongoDatabase.FromConnectionString(connectionString);
             var collection = database.GetCollection<BsonDocument>("library");
             var document = new BsonDocument {
+                { "_id", "1234567" },
                 { "author" , "Tom Clancy" },
                 { "title", "Inside the CIA" }
             };
             collection.Insert(document, true); // safeMode
+            // var lastError = database.RunCommand("getLastError");
 #endif
         }
     }

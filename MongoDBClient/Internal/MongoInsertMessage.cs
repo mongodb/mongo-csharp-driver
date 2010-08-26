@@ -27,7 +27,7 @@ namespace MongoDB.MongoDBClient.Internal {
         internal MongoInsertMessage(
             MongoCollection collection
         )
-            : base(MessageOpcode.GetMore, collection) {
+            : base(MessageOpcode.Insert, collection) {
             WriteMessageToMemoryStream(); // must be called ONLY after message is fully constructed
         }
         #endregion
@@ -64,7 +64,7 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter writer
         ) {
             writer.Write((int) 0); // reserved
-            writer.Write(collection.FullName);
+            WriteCString(writer, collection.FullName);
             // documents to be added later
         }
         #endregion

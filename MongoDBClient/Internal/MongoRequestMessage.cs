@@ -44,10 +44,11 @@ namespace MongoDB.MongoDBClient.Internal {
             MemoryStream stream
         )
             : base(opcode) {
+            if (stream == null) { stream = new MemoryStream(); }
             this.collection = collection;
-            this.stream = stream ?? new MemoryStream();
+            this.stream = stream;
             this.writer = new BinaryWriter(stream);
-            this.start = this.stream.Position;
+            this.start = stream.Position;
         }
         #endregion
 
