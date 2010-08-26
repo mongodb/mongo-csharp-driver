@@ -124,10 +124,21 @@ namespace MongoDB.MongoDBClientTest {
             var result = database.CurrentOp();
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://localhost/test";
             var server = MongoServer.FromConnectionString(connectionString);
             var result = server.RenameCollection("test.library", "test.books");
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection("books");
+            var result = collection.Update(
+                new BsonDocument("author", "Dick"), // query
+                new BsonDocument("$set", new BsonDocument("author", "Harry")),
+                true // safeMode
+            );
 #endif
         }
     }

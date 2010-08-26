@@ -444,17 +444,27 @@ namespace MongoDB.MongoDBClient {
             indexCache.Clear();
         }
 
-        public BsonDocument Save<T>(
-            T document
+        public BsonDocument Save(
+            BsonDocument document
         ) {
-            return Save<T>(document, safeMode);
+            return Save(document, safeMode);
         }
 
-        public BsonDocument Save<T>(
-            T document,
+        // only works with BsonDocuments for now
+        // reason: how do we find the _id value for an arbitrary class?
+        public BsonDocument Save(
+            BsonDocument document,
             bool safeMode
         ) {
-            throw new NotImplementedException();
+            object id = document["_id"];
+            if (id == null) {
+                id = BsonObjectId.GenerateNewId();
+                document["_id"] = id;
+                return Insert(document, safeMode);
+            } else {
+                var query = new BsonDocument("_id", id);
+                return Update(query, document, true, false, safeMode);
+            }
         }
 
         public long StorageSize() {
@@ -473,53 +483,62 @@ namespace MongoDB.MongoDBClient {
  	         return FullName;
         }
 
-        public BsonDocument Update<T>(
+        public BsonDocument Update<U>(
             BsonDocument query,
-            T update
-        ) {
-            return Update<T>(query, update, false, false, safeMode);
+            U update
+        ) where U : new() {
+            return Update<U>(query, update, false, false, safeMode);
         }
 
-        public BsonDocument Update<T>(
+        public BsonDocument Update<U>(
             BsonDocument query,
-            T update,
+            U update,
             bool safeMode
-        ) {
-            return Update<T>(query, update, false, false, safeMode);
+        ) where U : new() {
+            return Update<U>(query, update, false, false, safeMode);
         }
 
-        public BsonDocument Update<T>(
+        public BsonDocument Update<U>(
             BsonDocument query,
-            T update,
+            U update,
             bool upsert,
             bool multi
-        ) {
-            return Update<T>(query, update, upsert, multi, safeMode);
+        ) where U : new() {
+            return Update<U>(query, update, upsert, multi, safeMode);
         }
 
-        public BsonDocument Update<T>(
+        public BsonDocument Update<U>(
             BsonDocument query,
-            T update,
+            U update,
             bool upsert,
             bool multi,
             bool safeMode
-        ) {
-            throw new NotImplementedException();
+        ) where U : new() {
+            UpdateFlags flags = UpdateFlags.None;
+            if (upsert) { flags |= UpdateFlags.Upsert; }
+            if (multi) { flags |= UpdateFlags.Multi; }
+            var message = new MongoUpdateMessage<U>(this, flags, query, update);
+
+            var connection = database.AcquireConnection();
+            var lastError = connection.SendMessage(message, safeMode);
+            database.ReleaseConnection(connection);
+
+            return lastError;
         }
 
-        public BsonDocument UpdateMulti<T>(
+        public BsonDocument UpdateMulti<U>(
             BsonDocument query,
-            T update
-        ) {
-            return Update<T>(query, update, false, true, safeMode);
+            U update
+        ) where U : new() {
+            return Update<U>(query, update, false, true, safeMode);
         }
 
-        public BsonDocument UpdateMulti<T>(
+        public BsonDocument UpdateMulti<U>(
             BsonDocument query,
-            T update,
+            U update,
             bool safeMode
-        ) {
-            return Update<T>(query, update, false, true, safeMode);
+        ) where U : new() {
+            return Update<U>(query, update, false, true, safeMode);
         }
 
         public void Validate() {
