@@ -102,7 +102,7 @@ namespace MongoDB.MongoDBClientTest {
             Console.WriteLine(explanation.ToString(jsonSettings));
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://localhost/test";
             var database = MongoDatabase.FromConnectionString(connectionString);
             var collection = database.GetCollection<BsonDocument>("library");
@@ -113,9 +113,21 @@ namespace MongoDB.MongoDBClientTest {
             };
 
             database.UseDedicatedConnection = true;
-            var result = collection.Insert(document, true); // safeMode
-            var lastError = database.RunCommand("getLastError");
+            var result = collection.Insert(document, false); // safeMode
+            var lastError = database.GetLastError();
             database.ReleaseDedicatedConnection();
+#endif
+
+#if false
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var result = database.CurrentOp();
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost/test";
+            var server = MongoServer.FromConnectionString(connectionString);
+            var result = server.RenameCollection("test.library", "test.books");
 #endif
         }
     }

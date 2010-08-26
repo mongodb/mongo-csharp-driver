@@ -440,13 +440,6 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        // TODO: what is dropTarget parameter in mongo shell?
-        public void Rename(
-            string newCollectionName
-        ) {
-            throw new NotImplementedException();
-        }
-
         public void ResetIndexCache() {
             indexCache.Clear();
         }

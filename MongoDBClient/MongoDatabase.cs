@@ -100,21 +100,25 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public properties
-        public MongoServer Server {
-            get { return server; }
-        }
-
-        public string Name {
-            get { return name; }
+        public MongoCollection CommandCollection {
+            get { return GetCollection("$cmd"); }
         }
 
         public MongoCredentials Credentials {
             get { return credentials; }
         }
 
+        public string Name {
+            get { return name; }
+        }
+
         public bool SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
+        }
+
+        public MongoServer Server {
+            get { return server; }
         }
 
         public bool UseDedicatedConnection {
@@ -166,7 +170,8 @@ namespace MongoDB.MongoDBClient {
         }
 
         public BsonDocument CurrentOp() {
-            throw new NotImplementedException();
+            var collection = GetCollection("$cmd.sys.inprog");
+            return collection.FindOne<BsonDocument>();
         }
            
         public void DropCollection(
@@ -225,7 +230,14 @@ namespace MongoDB.MongoDBClient {
             return collectionNames;
         }
 
-        // TODO: mongo shell has GetLastError at the database level?
+        // requires UseDedicatedConnection == true to return accurate results
+        public BsonDocument GetLastError() {
+            if (!useDedicatedConnection) {
+                throw new MongoException("GetLastError can only be called if UseDedicatedConnection is true");
+            }
+            return RunCommand("getLastError");
+        }
+
         // TODO: mongo shell has GetPrevError at the database level?
         // TODO: mongo shell has GetProfilingLevel at the database level?
         // TODO: mongo shell has GetReplicationInfo at the database level?
@@ -256,21 +268,12 @@ namespace MongoDB.MongoDBClient {
             users.Remove(new BsonDocument("user", username));
         }
 
-        public void RequestDone() {
-            throw new NotImplementedException();
-        }
-
-        public void RequestStart() {
-            throw new NotImplementedException();
-        }
-
         // TODO: mongo shell has ResetError at the database level
 
         public BsonDocument RunCommand(
             BsonDocument command
         ) {
-            MongoCollection commandCollection = GetCollection("$cmd");
-            BsonDocument result = commandCollection.FindOne<BsonDocument>(command);
+            BsonDocument result = CommandCollection.FindOne<BsonDocument>(command);
 
             object ok = result["ok"];
             if (ok == null) {

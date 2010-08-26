@@ -76,12 +76,6 @@ namespace MongoDB.MongoDBClient.Internal {
             }
         }
 
-        public BsonDocument GetLastError(
-            MongoDatabase database
-        ) {
-            throw new NotImplementedException();
-        }
-
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
             var bytes = ReadMessageBytes();
@@ -104,9 +98,8 @@ namespace MongoDB.MongoDBClient.Internal {
             MemoryStream memoryStream = message.AsMemoryStream();
 
             if (safeMode) {
-                var commandCollection = database.GetCollection("$cmd");
                 var command = new BsonDocument("getLastError", 1);
-                var getLastErrorMessage = new MongoQueryMessage(commandCollection, QueryFlags.None, 0, 1, command, null);
+                var getLastErrorMessage = new MongoQueryMessage(database.CommandCollection, QueryFlags.None, 0, 1, command, null);
                 getLastErrorMessage.WriteTo(memoryStream); // piggy back on network transmission for message
             }
 
@@ -141,16 +134,6 @@ namespace MongoDB.MongoDBClient.Internal {
             }
 
             return lastError;
-        }
-
-        public BsonDocument TryGetLastError(
-            MongoDatabase database,
-            int originalMessageCounter
-        ) {
-            if (messageCounter != originalMessageCounter) {
-                throw new MongoException("Too late to call GetLastError");
-            }
-            return GetLastError(database);
         }
         #endregion
 

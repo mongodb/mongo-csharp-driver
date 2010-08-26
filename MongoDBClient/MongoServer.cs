@@ -32,6 +32,7 @@ namespace MongoDB.MongoDBClient {
         private bool safeMode;
         private bool slaveOK;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
+        private MongoCredentials adminCredentials;
         #endregion
 
         #region constructors
@@ -98,6 +99,15 @@ namespace MongoDB.MongoDBClient {
         #region public properties
         public IEnumerable<MongoServerAddress> Addresses {
             get { return addresses; }
+        }
+
+        public MongoCredentials AdminCredentials {
+            get { return adminCredentials; }
+            set { adminCredentials = value; }
+        }
+
+        public MongoDatabase AdminDatabase {
+            get { return GetDatabase("admin", adminCredentials); }
         }
 
         public string Host {
@@ -181,8 +191,7 @@ namespace MongoDB.MongoDBClient {
 
         public List<string> GetDatabaseNames() {
             var databaseNames = new List<string>();
-            var adminDatabase = GetDatabase("admin");
-            var result = adminDatabase.RunCommand("listDatabases");
+            var result = AdminDatabase.RunCommand("listDatabases");
             var databases = (BsonDocument) result["databases"];
             foreach (BsonElement database in databases) {
                 string databaseName = (string) ((BsonDocument) database.Value)["name"];
@@ -190,6 +199,17 @@ namespace MongoDB.MongoDBClient {
             }
             databaseNames.Sort();
             return databaseNames;
+        }
+
+        public BsonDocument RenameCollection(
+            string oldCollectionName,
+            string newCollectionName
+        ) {
+            var command = new BsonDocument {
+                { "renameCollection", oldCollectionName },
+                { "to", newCollectionName }
+            };
+            return AdminDatabase.RunCommand(command);
         }
         #endregion
     }
