@@ -130,7 +130,7 @@ namespace MongoDB.MongoDBClientTest {
             var result = server.RenameCollection("test.library", "test.books");
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://localhost/test";
             var database = MongoDatabase.FromConnectionString(connectionString);
             var collection = database.GetCollection("books");
@@ -139,6 +139,22 @@ namespace MongoDB.MongoDBClientTest {
                 new BsonDocument("$set", new BsonDocument("author", "Harry")),
                 true // safeMode
             );
+#endif
+
+#if false
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection("books");
+            var result = collection.Distinct("author");
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection("books");
+            var query = new BsonDocument("author", "Tom Clancy");
+            var result1 = collection.Remove(query, RemoveFlags.Single, true);
+            var result2 = collection.Remove(query, true);
 #endif
         }
     }

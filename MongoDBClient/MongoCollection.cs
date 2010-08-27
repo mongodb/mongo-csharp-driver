@@ -146,17 +146,25 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        public List<BsonDocument> Distinct(
-            BsonDocument keys
+        public IEnumerable<object> Distinct(
+            string key
         ) {
-            return Distinct(keys, null);
+            return Distinct(key, null);
         }
 
-        public List<BsonDocument> Distinct(
-            BsonDocument keys,
+        public IEnumerable<object> Distinct(
+            string key,
             BsonDocument query
         ) {
-            throw new NotImplementedException();
+            var command = new BsonDocument {
+                { "distinct", name },
+                { "key", key },
+                { "query", query ?? new BsonDocument() }
+            };
+            var result = database.RunCommand(command);
+
+            var values = (BsonArray) result["values"];
+            return values.Elements.Select(e => e.Value);
         }
 
         public void DropAllIndexes() {
@@ -430,14 +438,50 @@ namespace MongoDB.MongoDBClient {
         public BsonDocument Remove(
             BsonDocument query
         ) {
-            return Remove(query, safeMode);
+            return Remove(query, RemoveFlags.None, safeMode);
+        }
+
+        public BsonDocument Remove(
+            BsonDocument query,
+            bool safeMode
+        ) {
+            return Remove(query, RemoveFlags.None, safeMode);
+        }
+
+        public BsonDocument Remove(
+            BsonDocument query,
+            RemoveFlags flags
+        ) {
+            return Remove(query, flags, safeMode);
         }
 
         public BsonDocument Remove(
            BsonDocument query,
+           RemoveFlags flags,
            bool safeMode
         ) {
-            throw new NotImplementedException();
+            // special case for query on _id
+            if (query != null && query.Count == 1 && query.GetElement(0).Name == "_id" && query[0] is BsonObjectId) {
+                flags |= RemoveFlags.Single;
+            }
+
+            var message = new MongoDeleteMessage(this, flags, query);
+
+            var connection = database.AcquireConnection();
+            var lastError = connection.SendMessage(message, safeMode);
+            database.ReleaseConnection(connection);
+
+            return lastError;
+        }
+
+        public BsonDocument RemoveAll() {
+            return Remove(null, RemoveFlags.None, safeMode);
+        }
+
+        public BsonDocument RemoveAll(
+           bool safeMode
+        ) {
+            return Remove(null, RemoveFlags.None, safeMode);
         }
 
         public void ResetIndexCache() {
@@ -459,11 +503,11 @@ namespace MongoDB.MongoDBClient {
             object id = document["_id"];
             if (id == null) {
                 id = BsonObjectId.GenerateNewId();
-                document["_id"] = id;
+                document["_id"] = id; // TODO: do we need to make sure it's the first element?
                 return Insert(document, safeMode);
             } else {
                 var query = new BsonDocument("_id", id);
-                return Update(query, document, true, false, safeMode);
+                return Update(query, document, UpdateFlags.Upsert, safeMode);
             }
         }
 
@@ -487,7 +531,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query,
             U update
         ) where U : new() {
-            return Update<U>(query, update, false, false, safeMode);
+            return Update<U>(query, update, UpdateFlags.None, safeMode);
         }
 
         public BsonDocument Update<U>(
@@ -495,28 +539,23 @@ namespace MongoDB.MongoDBClient {
             U update,
             bool safeMode
         ) where U : new() {
-            return Update<U>(query, update, false, false, safeMode);
+            return Update<U>(query, update, UpdateFlags.None, safeMode);
         }
 
         public BsonDocument Update<U>(
             BsonDocument query,
             U update,
-            bool upsert,
-            bool multi
+            UpdateFlags flags
         ) where U : new() {
-            return Update<U>(query, update, upsert, multi, safeMode);
+            return Update<U>(query, update, flags, safeMode);
         }
 
         public BsonDocument Update<U>(
             BsonDocument query,
             U update,
-            bool upsert,
-            bool multi,
+            UpdateFlags flags,
             bool safeMode
         ) where U : new() {
-            UpdateFlags flags = UpdateFlags.None;
-            if (upsert) { flags |= UpdateFlags.Upsert; }
-            if (multi) { flags |= UpdateFlags.Multi; }
             var message = new MongoUpdateMessage<U>(this, flags, query, update);
 
             var connection = database.AcquireConnection();
@@ -524,21 +563,6 @@ namespace MongoDB.MongoDBClient {
             database.ReleaseConnection(connection);
 
             return lastError;
-        }
-
-        public BsonDocument UpdateMulti<U>(
-            BsonDocument query,
-            U update
-        ) where U : new() {
-            return Update<U>(query, update, false, true, safeMode);
-        }
-
-        public BsonDocument UpdateMulti<U>(
-            BsonDocument query,
-            U update,
-            bool safeMode
-        ) where U : new() {
-            return Update<U>(query, update, false, true, safeMode);
         }
 
         public void Validate() {
@@ -552,7 +576,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             foreach (var document in documents) {
                 if (!document.ContainsElement("_id")) {
-                    // TODO: assign ObjectId
+                    document["_id"] = BsonObjectId.GenerateNewId();
                 }
             }
         }
