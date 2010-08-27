@@ -173,7 +173,7 @@ namespace MongoDB.MongoDBClientTest {
             );
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://localhost/test";
             var database = MongoDatabase.FromConnectionString(connectionString);
             var collection = database.GetCollection("books");
@@ -187,6 +187,16 @@ namespace MongoDB.MongoDBClientTest {
                 ), // reduce
                 null // finalize
             );
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection("books");
+            var map = "function() { for (var key in this) { emit(key, {count: 1}); } }";
+            var reduce = "function(key, emits) { total = 0; for (var i in emits) { total += emits[i].count; } return {count: total}; }";
+            var mapReduceResult = collection.MapReduce(map, reduce);
+            var results = mapReduceResult.GetResults<BsonDocument>().ToArray();
 #endif
         }
     }

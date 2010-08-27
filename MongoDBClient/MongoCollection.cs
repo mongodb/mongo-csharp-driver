@@ -529,14 +529,54 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        // TODO: order of arguments is different in mongo shell
         public MongoMapReduceResult MapReduce(
             BsonDocument query,
-            string map,
-            string reduce,
-            string outputCollection
+            BsonJavaScript map,
+            BsonJavaScript reduce
         ) {
-            throw new NotImplementedException();
+            return MapReduce(query, map, reduce, null, null);
+        }
+
+        public MongoMapReduceResult MapReduce(
+            BsonDocument query,
+            BsonJavaScript map,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize
+        ) {
+            return MapReduce(query, map, reduce, finalize, null);
+        }
+
+        public MongoMapReduceResult MapReduce(
+            BsonDocument query,
+            BsonJavaScript map,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize,
+            BsonDocument options
+        ) {
+            var command = new BsonDocument {
+                { "mapreduce", name },
+                { "query", query },
+                { "map", map },
+                { "reduce", reduce },
+                options
+            };
+            var commandResult = database.RunCommand(command);
+            return new MongoMapReduceResult(database, commandResult);
+        }
+
+        public MongoMapReduceResult MapReduce(
+            BsonJavaScript map,
+            BsonJavaScript reduce
+        ) {
+            return MapReduce(null, map, reduce, null, null);
+        }
+
+        public MongoMapReduceResult MapReduce(
+            BsonJavaScript map,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize
+        ) {
+            return MapReduce(null, map, reduce, finalize, null);
         }
 
         public void ReIndex() {
