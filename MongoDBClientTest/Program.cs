@@ -148,13 +148,45 @@ namespace MongoDB.MongoDBClientTest {
             var result = collection.Distinct("author");
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://localhost/test";
             var database = MongoDatabase.FromConnectionString(connectionString);
             var collection = database.GetCollection("books");
             var query = new BsonDocument("author", "Tom Clancy");
             var result1 = collection.Remove(query, RemoveFlags.Single, true);
             var result2 = collection.Remove(query, true);
+#endif
+
+#if false
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection("books");
+            //var result = collection.FindAndModify(
+            //    new BsonDocument("author", "Hemmingway Jr."), // query
+            //    null, // sort
+            //    new BsonDocument("$set", new BsonDocument("author", "Hemmingway Sr.")), // update
+            //    true // returnNew
+            //);
+            var result = collection.FindAndRemove(
+                new BsonDocument("author", "Hemmingway Sr."), // query
+                null // sort
+            );
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost/test";
+            var database = MongoDatabase.FromConnectionString(connectionString);
+            var collection = database.GetCollection("books");
+            var result = collection.Group(
+                new BsonDocument("author", new BsonDocument("$gt", "H")), // query
+                new BsonDocument("author", 1), // keys
+                new BsonDocument("total", 0), // initial
+                new BsonJavaScriptWithScope(
+                    "function(doc, prev) { prev.total += 1; }", // code
+                    new BsonDocument("xyz", 10) // scope (btw: scope doesn't seem to work with group)
+                ), // reduce
+                null // finalize
+            );
 #endif
         }
     }

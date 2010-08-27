@@ -159,7 +159,7 @@ namespace MongoDB.MongoDBClient {
             var command = new BsonDocument {
                 { "distinct", name },
                 { "key", key },
-                { "query", query ?? new BsonDocument() }
+                { "query", query }
             };
             var result = database.RunCommand(command);
 
@@ -257,17 +257,17 @@ namespace MongoDB.MongoDBClient {
         }
 
         public MongoCursor<T> Find<T>(
-            string where
+            BsonJavaScript where
         ) where T : new() {
-            BsonDocument query = new BsonDocument("$where", new BsonJavaScriptCode(where));
+            BsonDocument query = new BsonDocument("$where", where);
             return new MongoCursor<T>(this, query);
         }
 
         public MongoCursor<T> Find<T>(
-            string where,
+            BsonJavaScript where,
             BsonDocument fields
         ) where T : new() {
-            BsonDocument query = new BsonDocument("$where", new BsonJavaScriptCode(where));
+            BsonDocument query = new BsonDocument("$where", where);
             return new MongoCursor<T>(this, query, fields);
         }
 
@@ -281,8 +281,54 @@ namespace MongoDB.MongoDBClient {
             return new MongoCursor<T>(this, null, fields);
         }
 
-        public void FindAndModify() {
-            throw new NotImplementedException();
+        public BsonDocument FindAndModify(
+            BsonDocument query,
+            BsonDocument sort,
+            BsonDocument update
+        ) {
+            return FindAndModify(query, sort, update, null, false);
+        }
+
+        public BsonDocument FindAndModify(
+            BsonDocument query,
+            BsonDocument sort,
+            BsonDocument update,
+            bool returnNew
+        ) {
+            return FindAndModify(query, sort, update, null, returnNew);
+        }
+
+        public BsonDocument FindAndModify(
+            BsonDocument query,
+            BsonDocument sort,
+            BsonDocument update,
+            BsonDocument fields,
+            bool returnNew
+        ) {
+            var command = new BsonDocument {
+                { "findAndModify", name },
+                { "query", query },
+                { "sort", sort },
+                { "update", update },
+                { "fields", fields },
+                { returnNew, "new", true }
+            };
+            var result = database.RunCommand(command);
+            return result.GetEmbeddedDocument("value");
+        }
+
+        public BsonDocument FindAndRemove(
+            BsonDocument query,
+            BsonDocument sort
+        ) {
+            var command = new BsonDocument {
+                { "findAndModify", name },
+                { "query", query },
+                { "sort", sort },
+                { "remove", true }
+            };
+            var result = database.RunCommand(command);
+            return result.GetEmbeddedDocument("value");
         }
 
         public T FindOne<T>() where T : new() {
@@ -309,19 +355,19 @@ namespace MongoDB.MongoDBClient {
         }
 
         public T FindOne<T>(
-            string where
+            BsonJavaScript where
         ) where T : new() {
-            BsonDocument query = new BsonDocument("$where", new BsonJavaScriptCode(where));
+            BsonDocument query = new BsonDocument("$where", where);
             using (var cursor = new MongoCursor<T>(this, query).Limit(1)) {
                 return cursor.FirstOrDefault();
             }
         }
 
         public T FindOne<T>(
-            string where,
+            BsonJavaScript where,
             BsonDocument fields
         ) where T : new() {
-            BsonDocument query = new BsonDocument("$where", new BsonJavaScriptCode(where));
+            BsonDocument query = new BsonDocument("$where", where);
             using (var cursor = new MongoCursor<T>(this, query, fields).Limit(1)) {
                 return cursor.FirstOrDefault();
             }
@@ -338,14 +384,76 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
-        // TODO: order of arguments is different in mongo shell!
-        public T Group<T>(
+        public IEnumerable<BsonDocument> Group(
             BsonDocument keys,
-            BsonDocument condition,
             BsonDocument initial,
-            string reduce
+            BsonJavaScript reduce
         ) {
-            throw new NotImplementedException();
+            return Group(null, keys, initial, reduce, null);
+        }
+
+        public IEnumerable<BsonDocument> Group(
+            BsonDocument query,
+            BsonDocument keys,
+            BsonDocument initial,
+            BsonJavaScript reduce
+        ) {
+            return Group(query, keys, initial, reduce, null);
+        }
+
+        public IEnumerable<BsonDocument> Group(
+            BsonDocument query,
+            BsonDocument keys,
+            BsonDocument initial,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize
+        ) {
+            var command = new BsonDocument {
+                { "group",
+                    new BsonDocument {
+                        { "ns", name },
+                        { "cond", query },
+                        { "key", keys },
+                        { "initial", initial },
+                        { "$reduce", reduce },
+                        { "finalize", finalize }
+                    }
+                }
+            };
+            var result = database.RunCommand(command);
+            return ((BsonArray) result["retval"]).Values.Cast<BsonDocument>();
+        }
+
+        public IEnumerable<BsonDocument> Group(
+            BsonDocument query,
+            BsonJavaScript keyf,
+            BsonDocument initial,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize
+        ) {
+            var command = new BsonDocument {
+                { "group",
+                    new BsonDocument {
+                        { "ns", name },
+                        { "cond", query },
+                        { "$keyf", keyf },
+                        { "initial", initial },
+                        { "$reduce", reduce },
+                        { "finalize", finalize }
+                    }
+                }
+            };
+            var result = database.RunCommand(command);
+            return ((BsonArray) result["retval"]).Values.Cast<BsonDocument>();
+        }
+
+        public IEnumerable<BsonDocument> Group(
+            string key,
+            BsonDocument initial,
+            BsonJavaScript reduce
+        ) {
+            var keys = new BsonDocument(key, 1);
+            return Group(null, keys, initial, reduce, null);
         }
 
         public BsonDocument Insert<T>(
