@@ -141,9 +141,8 @@ namespace MongoDB.MongoDBClient {
             CreateIndex(keys);
         }
 
-        // TODO: any arguments?
-        public long DataSize() {
-            throw new NotImplementedException();
+        public int DataSize() {
+            return Stats().GetInt32("size");
         }
 
         public IEnumerable<object> Distinct(
@@ -378,10 +377,6 @@ namespace MongoDB.MongoDBClient {
             var query = new BsonDocument("ns", FullName);
             var info = new List<BsonDocument>(indexes.Find<BsonDocument>(query));
             return info;
-        }
-
-        public BsonDocument GetStats() {
-            throw new NotImplementedException();
         }
 
         public IEnumerable<BsonDocument> Group(
@@ -659,16 +654,29 @@ namespace MongoDB.MongoDBClient {
             }
         }
 
-        public long StorageSize() {
-            throw new NotImplementedException();
+        public BsonDocument Stats() {
+            var command = new BsonDocument("collstats", name);
+            return database.RunCommand(command);
         }
 
-        public long TotalIndexSize() {
-            throw new NotImplementedException();
+        public int StorageSize() {
+            return Stats().GetInt32("storageSize");
         }
 
-        public long TotalSize() {
-            throw new NotImplementedException();
+        public int TotalIndexSize() {
+            return Stats().GetInt32("totalIndexSize");
+        }
+
+        public int TotalSize() {
+            var totalSize = StorageSize();
+            var indexes = GetIndexes();
+            foreach (var index in indexes) {
+                var indexName = index.GetString("name");
+                var indexCollectionName = string.Format("{0}.${1}", name, indexName);
+                var indexCollection = database.GetCollection(indexCollectionName);
+                totalSize += indexCollection.DataSize();
+            }
+            return totalSize;
         }
 
         public override string ToString() {
@@ -713,8 +721,9 @@ namespace MongoDB.MongoDBClient {
             return lastError;
         }
 
-        public void Validate() {
-            throw new NotImplementedException();
+        public BsonDocument Validate() {
+            var command = new BsonDocument("validate", name);
+            return database.RunCommand(command);
         }
         #endregion
 
