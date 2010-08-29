@@ -256,7 +256,7 @@ namespace MongoDB.MongoDBClient {
 
         public void ReleaseDedicatedConnection() {
             if (dedicatedConnection != null) {
-                MongoConnectionPool.ReleaseConnection(dedicatedConnection);
+                server.ConnectionPool.ReleaseConnection(dedicatedConnection);
                 dedicatedConnection = null;
             }
         }
@@ -311,11 +311,11 @@ namespace MongoDB.MongoDBClient {
         internal MongoConnection AcquireConnection() {
             if (useDedicatedConnection) {
                 if (dedicatedConnection == null) {
-                    dedicatedConnection = MongoConnectionPool.AcquireConnection(this);
+                    dedicatedConnection = server.ConnectionPool.AcquireConnection(this);
                 }
                 return dedicatedConnection;
             } else {
-                return MongoConnectionPool.AcquireConnection(this);
+                return server.ConnectionPool.AcquireConnection(this);
             }
         }
 
@@ -323,7 +323,7 @@ namespace MongoDB.MongoDBClient {
             MongoConnection connection
         ) {
             if (!useDedicatedConnection) {
-                MongoConnectionPool.ReleaseConnection(connection);
+                server.ConnectionPool.ReleaseConnection(connection);
             }
         }
         #endregion

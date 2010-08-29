@@ -35,7 +35,7 @@ namespace MongoDB.MongoDBClientTest {
                 var database = server.GetDatabase("test");
                 var collection = database.GetCollection<BsonDocument>("library");
                 foreach (var document in collection.FindAll().Skip(1).Limit(1)) {
-                    Console.WriteLine(document.ToString());
+                    Console.WriteLine(document.ToJson());
                 }
             }
 #endif
@@ -47,7 +47,7 @@ namespace MongoDB.MongoDBClientTest {
                 var database = MongoDatabase.FromConnectionString(connectionString);
                 var collection = database.GetCollection<BsonDocument>("library");
                 foreach (var document in collection.FindAll().Snapshot()) {
-                    Console.WriteLine(document.ToString());
+                    Console.WriteLine(document.ToJson());
                 }
             }
 #endif
@@ -59,7 +59,7 @@ namespace MongoDB.MongoDBClientTest {
                 var database = MongoDatabase.FromConnectionString(connectionString);
                 var collection = database.GetCollection<BsonDocument>("library");
                 foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
-                    Console.WriteLine(document.ToString());
+                    Console.WriteLine(document.ToJson());
                 }
             }
 #endif
@@ -99,7 +99,7 @@ namespace MongoDB.MongoDBClientTest {
                 Indent = true,
                 IndentChars = "    "
             };
-            Console.WriteLine(explanation.ToString(jsonSettings));
+            Console.WriteLine(explanation.ToJson(jsonSettings));
 #endif
 
 #if false
@@ -204,13 +204,13 @@ namespace MongoDB.MongoDBClientTest {
             var database = MongoDatabase.FromConnectionString(connectionString);
             var collection = database.GetCollection("books");
             //var stats = collection.Stats();
-            //Console.WriteLine(stats.ToString(new BsonJsonWriterSettings { Indent = true }));
+            //Console.WriteLine(stats.ToJson(new BsonJsonWriterSettings { Indent = true }));
             //long dataSize = collection.DataSize();
             //long storageSize = collection.StorageSize();
             //long totalIndexSize = collection.TotalIndexSize();
             // long totalSize = collection.TotalSize();
             var result = collection.Validate();
-            Console.WriteLine(result.ToString(new BsonJsonWriterSettings { Indent = true }));
+            Console.WriteLine(result.ToJson(new BsonJsonWriterSettings { Indent = true }));
 #endif
         }
     }

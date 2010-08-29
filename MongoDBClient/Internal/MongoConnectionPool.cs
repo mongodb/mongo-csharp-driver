@@ -19,14 +19,29 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.MongoDBClient.Internal {
-    internal static class MongoConnectionPool {
+    internal class MongoConnectionPool {
         // TODO: implement a real connection pool
-        #region private static fields
-        private static MongoConnection pool = null;
+        #region private fields
+        private MongoServer server;
+        private MongoConnection pool = null;
         #endregion
 
-        #region public static methods
-        public static MongoConnection AcquireConnection(
+        #region constructors
+        public MongoConnectionPool(
+            MongoServer server
+        ) {
+            this.server = server;
+        }
+        #endregion
+
+        #region public properties
+        public MongoServer Server {
+            get { return server; }
+        }
+        #endregion
+
+        #region public methods
+        public MongoConnection AcquireConnection(
             MongoDatabase database
         ) {
             MongoConnection connection;
@@ -42,7 +57,7 @@ namespace MongoDB.MongoDBClient.Internal {
             return connection;
         }
 
-        public static void ReleaseConnection(
+        public void ReleaseConnection(
             MongoConnection connection
         ) {
             connection.Database = null;

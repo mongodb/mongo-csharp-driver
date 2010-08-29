@@ -32,6 +32,7 @@ namespace MongoDB.MongoDBClient {
         private bool safeMode;
         private bool slaveOK;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
+        private MongoConnectionPool connectionPool;
         private MongoCredentials adminCredentials;
         #endregion
 
@@ -40,6 +41,7 @@ namespace MongoDB.MongoDBClient {
             List<MongoServerAddress> addresses
         ) {
             this.addresses = addresses;
+            this.connectionPool = new MongoConnectionPool(this);
         }
         #endregion
 
@@ -126,6 +128,12 @@ namespace MongoDB.MongoDBClient {
         public bool SlaveOK {
             get { return slaveOK; }
             set { slaveOK = value; }
+        }
+        #endregion
+
+        #region internal properties
+        internal MongoConnectionPool ConnectionPool {
+            get { return connectionPool; }
         }
         #endregion
 
