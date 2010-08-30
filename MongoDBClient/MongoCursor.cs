@@ -141,7 +141,7 @@ namespace MongoDB.MongoDBClient {
                     if (explanation.ContainsElement("shards")) {
                         var shards = explanation["shards"];
                         if (shards is BsonArray) {
-                            foreach (BsonDocument shard in ((BsonArray) shards).Values) {
+                            foreach (BsonDocument shard in (BsonArray) shards) {
                                 shard.RemoveElement("allPlans");
                                 shard.RemoveElement("oldPlan");
                             }

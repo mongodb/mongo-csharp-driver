@@ -162,8 +162,7 @@ namespace MongoDB.MongoDBClient {
             };
             var result = database.RunCommand(command);
 
-            var values = (BsonArray) result["values"];
-            return values.Elements.Select(e => e.Value);
+            return (BsonArray) result["values"];
         }
 
         public void DropAllIndexes() {
@@ -416,7 +415,7 @@ namespace MongoDB.MongoDBClient {
                 }
             };
             var result = database.RunCommand(command);
-            return ((BsonArray) result["retval"]).Values.Cast<BsonDocument>();
+            return ((BsonArray) result["retval"]).Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group(
@@ -439,7 +438,7 @@ namespace MongoDB.MongoDBClient {
                 }
             };
             var result = database.RunCommand(command);
-            return ((BsonArray) result["retval"]).Values.Cast<BsonDocument>();
+            return ((BsonArray) result["retval"]).Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group(

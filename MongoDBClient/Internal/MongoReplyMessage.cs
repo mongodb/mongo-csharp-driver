@@ -79,7 +79,7 @@ namespace MongoDB.MongoDBClient.Internal {
             numberReturned = binaryReader.ReadInt32();
             documents = new List<T>();
 
-            BsonReader bsonReader = new BsonReader(binaryReader);
+            BsonReader bsonReader = BsonReader.Create(binaryReader);
             BsonSerializer serializer = new BsonSerializer(typeof(T));
             while (binaryReader.BaseStream.Position - messageStart < messageLength) {
                 T document = (T) serializer.ReadObject(bsonReader);
