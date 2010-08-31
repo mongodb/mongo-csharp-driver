@@ -26,9 +26,9 @@ namespace MongoDB.MongoDBClient {
 
         #region private fields
         private string chunksCollectionName = "fs.chunks";
-        private string collectionName = "fs";
         private int defaultChunkSize = 256 * 1024; // 256KB
         private string filesCollectionName = "fs.files";
+        private string root = "fs";
         private bool safeMode = true;
         #endregion
 
@@ -48,15 +48,6 @@ namespace MongoDB.MongoDBClient {
             get { return chunksCollectionName; }
         }
 
-        public string CollectionName {
-            get { return collectionName; }
-            set {
-                collectionName = value;
-                filesCollectionName = value + ".files";
-                chunksCollectionName = value + ".chunks";
-            }
-        }
-
         public int DefaultChunkSize {
             get { return defaultChunkSize; }
             set { defaultChunkSize = value; }
@@ -64,6 +55,15 @@ namespace MongoDB.MongoDBClient {
 
         public string FilesCollectionName {
             get { return filesCollectionName; }
+        }
+
+        public string Root {
+            get { return root; }
+            set {
+                root = value;
+                filesCollectionName = value + ".files";
+                chunksCollectionName = value + ".chunks";
+            }
         }
 
         public bool SafeMode {
@@ -76,7 +76,7 @@ namespace MongoDB.MongoDBClient {
         public MongoGridFSSettings Clone() {
             return new MongoGridFSSettings {
                 DefaultChunkSize = defaultChunkSize,
-                CollectionName = collectionName
+                Root = root
             };
         }
         #endregion

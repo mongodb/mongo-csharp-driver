@@ -64,6 +64,7 @@
     <Compile Include="MongoGridFS.cs" />
     <Compile Include="MongoGridFSFileInfo.cs" />
     <Compile Include="MongoGridFSSettings.cs" />
+    <Compile Include="MongoGridFSStream.cs" />
     <Compile Include="QueryFlags.cs" />
     <Compile Include="Internal\MessageOpcode.cs" />
     <Compile Include="Internal\ResponseFlags.cs" />

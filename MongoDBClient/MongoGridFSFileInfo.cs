@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -24,6 +25,7 @@ namespace MongoDB.MongoDBClient {
     // this class is patterned after .NET's FileInfo
     public class MongoGridFSFileInfo {
         #region private fields
+        private MongoGridFS gridFS;
         private int chunkSize;
         private BsonObjectId id;
         private int length;
@@ -34,50 +36,142 @@ namespace MongoDB.MongoDBClient {
 
         #region constructors
         public MongoGridFSFileInfo(
-            BsonDocument fileInfo
+            MongoGridFS gridFS,
+            BsonDocument fileInfoDocument
         ) {
-            chunkSize = fileInfo.GetInt32("chunkSize");
-            id = fileInfo.GetObjectId("_id");
-            length = fileInfo.GetInt32("length");
-            md5 = fileInfo.GetString("md5");
-            name = fileInfo.GetString("filename");
-            uploadDate = fileInfo.GetDateTime("uploadDate");
+            this.gridFS = gridFS;
+            chunkSize = fileInfoDocument.GetInt32("chunkSize");
+            id = fileInfoDocument.GetObjectId("_id");
+            length = fileInfoDocument.GetInt32("length");
+            md5 = fileInfoDocument.GetString("md5");
+            name = fileInfoDocument.GetString("filename");
+            uploadDate = fileInfoDocument.GetDateTime("uploadDate");
+        }
+
+        public MongoGridFSFileInfo(
+            MongoGridFS gridFS,
+            string remoteFileName
+        ) {
+            this.gridFS = gridFS;
+            this.chunkSize = gridFS.Settings.DefaultChunkSize;
+            this.id = BsonObjectId.GenerateNewId();
+            this.name = remoteFileName;
+        }
+
+        public MongoGridFSFileInfo(
+            MongoGridFS gridFS,
+            string remoteFileName,
+            int chunkSize
+        ) {
+            this.gridFS = gridFS;
+            this.chunkSize = chunkSize;
+            this.id = BsonObjectId.GenerateNewId();
+            this.name = remoteFileName;
         }
         #endregion
 
         #region public properties
         public int ChunkSize {
             get { return chunkSize; }
-            set { chunkSize = value; }
+        }
+
+        public MongoGridFS GridFS {
+            get { return gridFS; }
         }
 
         public BsonObjectId Id {
             get { return id; }
-            set { id = value; }
         }
 
         public int Length {
             get { return length; }
-            set { length = value; }
         }
 
         public string MD5 {
             get { return md5; }
-            set { md5 = value; }
         }
 
         public string Name {
             get { return name; }
-            set { name = value; }
         }
 
         public DateTime UploadDate {
             get { return uploadDate; }
-            set { uploadDate = value; }
         }
         #endregion
 
         #region public methods
+        public StreamWriter AppendText() {
+            Stream stream = Open(FileMode.Append, FileAccess.Write);
+            return new StreamWriter(stream, Encoding.UTF8);
+        }
+
+        public MongoGridFSFileInfo CopyTo(
+            string destFileName
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public MongoGridFSFileInfo CopyTo(
+            string destFileName,
+            bool overwrite
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public MongoGridFSStream Create() {
+            throw new NotImplementedException();
+        }
+
+        public StreamWriter CreateText() {
+            Stream stream = Open(FileMode.Create, FileAccess.Write);
+            return new StreamWriter(stream, Encoding.UTF8);
+        }
+
+        public void Delete() {
+            gridFS.Delete(id);
+        }
+
+        public void MoveTo(
+            string destFileName
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public MongoGridFSStream Open(
+            FileMode fileMode
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public MongoGridFSStream Open(
+            FileMode fileMode,
+            FileAccess fileAccess
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public MongoGridFSStream OpenRead() {
+            return Open(FileMode.Open, FileAccess.Read);
+        }
+
+        public MongoGridFSStream OpenWrite() {
+            return Open(FileMode.OpenOrCreate, FileAccess.Write);
+        }
+
+        public void Refresh() {
+            var refreshed = gridFS.FindOne(id);
+            if (refreshed == null) {
+                string errorMessage = string.Format("GridFS file no longer exists: {0}", id);
+                throw new MongoException(errorMessage);
+            }
+
+            this.chunkSize = refreshed.chunkSize;
+            this.length = refreshed.length;
+            this.md5 = refreshed.md5;
+            this.name = refreshed.name;
+            this.uploadDate = refreshed.uploadDate;
+        }
         #endregion
     }
 }

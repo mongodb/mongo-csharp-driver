@@ -29,7 +29,7 @@ namespace MongoDBGridFSTest {
             var connectionString = "mongodb://localhost/gridfstest";
             var database = MongoDatabase.FromConnectionString(connectionString);
             gridFS = database.GridFS;
-            gridFS.Settings.CollectionName = "uploads";
+            gridFS.Settings.Root = "uploads";
             gridFS.Settings.SafeMode = false;
 
             int iterations = 1;
