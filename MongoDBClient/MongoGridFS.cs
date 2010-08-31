@@ -79,26 +79,37 @@ namespace MongoDB.MongoDBClient {
             Stream stream,
             BsonDocument query
         ) {
-            var files = Find(query);
-            if (files.Count == 0) {
+            Download(stream, query, -1); // most recent version
+        }
+
+        public void Download(
+            Stream stream,
+            BsonDocument query,
+            int version
+        ) {
+            var fileInfo = FindOne(query, version);
+            if (fileInfo == null) {
                 string errorMessage = string.Format("GridFS file not found: {0}", query);
                 throw new MongoException(errorMessage);
-            } else if (files.Count > 1) {
-                string errorMessage = string.Format("Multiple GridFS files found: {0}", query);
-                throw new MongoException(errorMessage);
             }
-            var file = files[0];
 
+            Download(stream, fileInfo);
+        }
+
+        public void Download(
+            Stream stream,
+            MongoGridFSFileInfo fileInfo
+        ) {
             var chunks = database.GetCollection(settings.ChunksCollectionName);
-            var numberOfChunks = (file.Length + file.ChunkSize - 1) / file.ChunkSize;
+            var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
             for (int n = 0; n < numberOfChunks; n++) {
-                var chunkQuery = new BsonDocument {
-                    { "files_id", file.Id },
+                var query = new BsonDocument {
+                    { "files_id", fileInfo.Id },
                     { "n", n }
                 };
-                var chunk = chunks.FindOne<BsonDocument>(chunkQuery);
+                var chunk = chunks.FindOne<BsonDocument>(query);
                 if (chunk == null) {
-                    string errorMessage = string.Format("Chunk {0} missing for: {1}", n, query);
+                    string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
                     throw new MongoException(errorMessage);
                 }
                 var data = chunk.GetBinaryData("data");
@@ -110,22 +121,54 @@ namespace MongoDB.MongoDBClient {
             Stream stream,
             string remoteFileName
         ) {
+            Download(stream, remoteFileName, -1); // most recent version
+        }
+
+        public void Download(
+            Stream stream,
+            string remoteFileName,
+            int version
+        ) {
             var query = new BsonDocument("filename", remoteFileName);
-            Download(stream, query);
+            Download(stream, query, version);
         }
 
         public void Download(
             string fileName
         ) {
-            Download(fileName, fileName);
+            Download(fileName, -1); // most recent version
+        }
+
+        public void Download(
+            string fileName,
+            int version
+        ) {
+            Download(fileName, fileName, version); // same local and remote file names
         }
 
         public void Download(
             string localFileName,
             BsonDocument query
         ) {
+            Download(localFileName, query, -1); // most recent version
+        }
+
+        public void Download(
+            string localFileName,
+            BsonDocument query,
+            int version
+        ) {
             using (Stream stream = File.Create(localFileName)) {
-                Download(stream, query);
+                Download(stream, query, version);
+            }
+        }
+
+        public void Download(
+            string localFileName,
+            MongoGridFSFileInfo fileInfo
+        ) {
+            using (Stream stream = File.Create(localFileName)) {
+                Download(stream, fileInfo);
             }
         }
 
@@ -133,8 +176,16 @@ namespace MongoDB.MongoDBClient {
             string localFileName,
             string remoteFileName
         ) {
+            Download(localFileName, remoteFileName, -1); // most recent version
+        }
+
+        public void Download(
+            string localFileName,
+            string remoteFileName,
+            int version
+        ) {
             using (Stream stream = File.Create(localFileName)) {
-                Download(stream, remoteFileName);
+                Download(stream, remoteFileName, version);
             }
         }
 
@@ -166,8 +217,22 @@ namespace MongoDB.MongoDBClient {
         public MongoGridFSFileInfo FindOne(
             BsonDocument query
         ) {
+            return FindOne(query, -1); // most recent version
+        }
+
+        public MongoGridFSFileInfo FindOne(
+            BsonDocument query,
+            int version // 1 is oldest, -1 is newest, 0 is no sort
+        ) {
             var files = database.GetCollection(settings.FilesCollectionName);
-            var fileInfo = files.FindOne<BsonDocument>(query);
+            BsonDocument fileInfo; // = files.FindOne<BsonDocument>(query);
+            if (version > 0) {
+                fileInfo = files.Find<BsonDocument>(query).Sort("uploadDate").Skip(version - 1).Limit(1).FirstOrDefault();
+            } else if (version < 0) {
+                fileInfo = files.Find<BsonDocument>(query).Sort(new BsonDocument("uploadDate", -1)).Skip(-version - 1).Limit(1).FirstOrDefault();
+            } else {
+                fileInfo = files.FindOne<BsonDocument>(query);
+            }
             return new MongoGridFSFileInfo(fileInfo);
         }
 
@@ -176,6 +241,20 @@ namespace MongoDB.MongoDBClient {
         ) {
             var query = new BsonDocument("_id", objectId);
             return FindOne(query);
+        }
+
+        public MongoGridFSFileInfo FindOne(
+            string remoteFileName
+        ) {
+            return FindOne(remoteFileName, -1); // most recent version
+        }
+
+        public MongoGridFSFileInfo FindOne(
+            string remoteFileName,
+            int version
+        ) {
+            var query = new BsonDocument("filename", remoteFileName);
+            return FindOne(query, version);
         }
 
         public MongoGridFSFileInfo Upload(
