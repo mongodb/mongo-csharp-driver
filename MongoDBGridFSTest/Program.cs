@@ -30,7 +30,8 @@ namespace MongoDBGridFSTest {
             var database = MongoDatabase.FromConnectionString(connectionString);
             gridFS = database.GridFS;
             gridFS.Settings.CollectionName = "uploads";
-            int iterations = 10;
+            gridFS.Settings.SafeMode = false;
+            int iterations = 400;
             DateTime start = DateTime.UtcNow;
             for (int i = 0; i < iterations; i++) {
                 gridFS.Delete("06 Headstrong.mp3");

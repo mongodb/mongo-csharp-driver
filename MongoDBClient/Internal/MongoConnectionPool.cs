@@ -23,7 +23,7 @@ namespace MongoDB.MongoDBClient.Internal {
         // TODO: implement a real connection pool
         #region private fields
         private MongoServer server;
-        private MongoConnection pool = null;
+        private List<MongoConnection> pool = new List<MongoConnection>();
         #endregion
 
         #region constructors
@@ -45,13 +45,13 @@ namespace MongoDB.MongoDBClient.Internal {
             MongoDatabase database
         ) {
             MongoConnection connection;
-            if (pool == null) {
+            if (pool.Count == 0) {
                 MongoServer server = database.Server;
                 MongoServerAddress address = server.Addresses.FirstOrDefault();
                 connection = new MongoConnection(address.Host, address.Port);
             } else {
-                connection = pool;
-                pool = null;
+                connection = pool[0];
+                pool.RemoveAt(0);
             }
             connection.Database = database;
             return connection;
@@ -61,7 +61,7 @@ namespace MongoDB.MongoDBClient.Internal {
             MongoConnection connection
         ) {
             connection.Database = null;
-            pool = connection;
+            pool.Add(connection);
         }
         #endregion
     }

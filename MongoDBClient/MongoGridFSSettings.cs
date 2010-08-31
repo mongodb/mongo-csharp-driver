@@ -27,6 +27,7 @@ namespace MongoDB.MongoDBClient {
         #region private fields
         private string collectionName = "fs";
         private int defaultChunkSize = 256 * 1024; // 256KB
+        private bool safeMode = true;
         #endregion
 
         #region constructors
@@ -49,6 +50,11 @@ namespace MongoDB.MongoDBClient {
         public int DefaultChunkSize {
             get { return defaultChunkSize; }
             set { defaultChunkSize = value; }
+        }
+
+        public bool SafeMode {
+            get { return safeMode; }
+            set { safeMode = value; }
         }
         #endregion
 

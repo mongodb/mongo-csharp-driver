@@ -55,9 +55,9 @@ namespace MongoDB.MongoDBClient {
             var fileIds = files.Find<BsonDocument>(query).Select(f => f.GetObjectId("_id"));
             foreach (var fileId in fileIds) {
                 var fileQuery = new BsonDocument("_id", fileId);
-                files.Remove(fileQuery, true);
+                files.Remove(fileQuery, settings.SafeMode);
                 var chunksQuery = new BsonDocument("files_id", fileId);
-                chunks.Remove(chunksQuery, true);
+                chunks.Remove(chunksQuery, settings.SafeMode);
             }
         }
 
@@ -160,7 +160,7 @@ namespace MongoDB.MongoDBClient {
                     { "data", new BsonBinaryData(data) },
                     { "files_id", files_id }
                 };
-                chunks.Insert(chunk, true);
+                chunks.Insert(chunk, settings.SafeMode);
 
                 if (bytesRead < chunkSize) {
                     break;
@@ -182,7 +182,7 @@ namespace MongoDB.MongoDBClient {
                 { "uploadDate", DateTime.UtcNow },
                 { "md5", md5 }
             };
-            files.Insert(fileInfo, true);
+            files.Insert(fileInfo, settings.SafeMode);
 
             return FindOne(files_id);
         }

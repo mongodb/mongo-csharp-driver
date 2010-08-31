@@ -35,6 +35,7 @@ namespace MongoDB.MongoDBClient {
         private int limit; // number of documents to return (enforced by cursor)
         private int batchSize; // number of documents to return in each reply
         private bool frozen; // TODO: freeze cursor once execution begins
+        private MongoConnection connection;
         #endregion
 
         #region constructors
@@ -112,7 +113,10 @@ namespace MongoDB.MongoDBClient {
 
         public void Dispose() {
             if (!disposed) {
-                // TODO: implement Dispose
+                if (connection != null) {
+                    collection.Database.ReleaseConnection(connection);
+                    connection = null;
+                }
                 disposed = true;
             }
         }
@@ -177,7 +181,7 @@ namespace MongoDB.MongoDBClient {
 
             // hold connection until all documents have been enumerated
             // TODO: what if enumeration is abandoned before reaching the end?
-            var connection = collection.Database.AcquireConnection();
+            connection = collection.Database.AcquireConnection();
 
             MongoReplyMessage<T> reply = null;
             int count = 0;
@@ -188,6 +192,10 @@ namespace MongoDB.MongoDBClient {
                         reply = ExecuteQuery(connection);
                     } else {
                         reply = GetMore(connection, reply.CursorId);
+                    }
+                    if (reply.CursorId == 0) {
+                        collection.Database.ReleaseConnection(connection);
+                        connection = null;
                     }
                 } catch {
                     try { connection.Dispose(); } catch { } // ignore exceptions
@@ -201,8 +209,6 @@ namespace MongoDB.MongoDBClient {
                     }
                 }
             } while ((count != limit) && reply.CursorId > 0);
-
-            collection.Database.ReleaseConnection(connection);
         }
 
         public MongoCursor<T> Hint(
