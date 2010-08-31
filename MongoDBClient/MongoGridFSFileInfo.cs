@@ -25,6 +25,7 @@ namespace MongoDB.MongoDBClient {
     public class MongoGridFSFileInfo {
         #region private fields
         private int chunkSize;
+        private BsonObjectId id;
         private int length;
         private string md5;
         private string name;
@@ -36,6 +37,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument fileInfo
         ) {
             chunkSize = fileInfo.GetInt32("chunkSize");
+            id = fileInfo.GetObjectId("_id");
             length = fileInfo.GetInt32("length");
             md5 = fileInfo.GetString("md5");
             name = fileInfo.GetString("filename");
@@ -47,6 +49,11 @@ namespace MongoDB.MongoDBClient {
         public int ChunkSize {
             get { return chunkSize; }
             set { chunkSize = value; }
+        }
+
+        public BsonObjectId Id {
+            get { return id; }
+            set { id = value; }
         }
 
         public int Length {

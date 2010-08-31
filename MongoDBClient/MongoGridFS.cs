@@ -49,8 +49,8 @@ namespace MongoDB.MongoDBClient {
         public void Delete(
             BsonDocument query
         ) {
-            var files = database.GetCollection(settings.CollectionName + ".files");
-            var chunks = database.GetCollection(settings.CollectionName + ".chunks");
+            var files = database.GetCollection(settings.FilesCollectionName);
+            var chunks = database.GetCollection(settings.ChunksCollectionName);
 
             var fileIds = files.Find<BsonDocument>(query).Select(f => f.GetObjectId("_id"));
             foreach (var fileId in fileIds) {
@@ -62,10 +62,56 @@ namespace MongoDB.MongoDBClient {
         }
 
         public void Delete(
+            BsonObjectId id
+        ) {
+            var query = new BsonDocument("_id", id);
+            Delete(query);
+        }
+
+        public void Delete(
             string remoteFileName
         ) {
             var query = new BsonDocument("filename", remoteFileName);
             Delete(query);
+        }
+
+        public void Download(
+            Stream stream,
+            BsonDocument query
+        ) {
+            var files = Find(query);
+            if (files.Count == 0) {
+                string errorMessage = string.Format("GridFS file not found: {0}", query);
+                throw new MongoException(errorMessage);
+            } else if (files.Count > 1) {
+                string errorMessage = string.Format("Multiple GridFS files found: {0}", query);
+                throw new MongoException(errorMessage);
+            }
+            var file = files[0];
+
+            var chunks = database.GetCollection(settings.ChunksCollectionName);
+            var numberOfChunks = (file.Length + file.ChunkSize - 1) / file.ChunkSize;
+            for (int n = 0; n < numberOfChunks; n++) {
+                var chunkQuery = new BsonDocument {
+                    { "files_id", file.Id },
+                    { "n", n }
+                };
+                var chunk = chunks.FindOne<BsonDocument>(chunkQuery);
+                if (chunk == null) {
+                    string errorMessage = string.Format("Chunk {0} missing for: {1}", n, query);
+                    throw new MongoException(errorMessage);
+                }
+                var data = chunk.GetBinaryData("data");
+                stream.Write(data.Bytes, 0, data.Bytes.Length);
+            }
+        }
+
+        public void Download(
+            Stream stream,
+            string remoteFileName
+        ) {
+            var query = new BsonDocument("filename", remoteFileName);
+            Download(stream, query);
         }
 
         public void Download(
@@ -76,16 +122,20 @@ namespace MongoDB.MongoDBClient {
 
         public void Download(
             string localFileName,
-            BsonDocument remoteFileQuery
+            BsonDocument query
         ) {
-            throw new NotImplementedException();
+            using (Stream stream = File.Create(localFileName)) {
+                Download(stream, query);
+            }
         }
 
         public void Download(
             string localFileName,
             string remoteFileName
         ) {
-            throw new NotImplementedException();
+            using (Stream stream = File.Create(localFileName)) {
+                Download(stream, remoteFileName);
+            }
         }
 
         public List<MongoGridFSFileInfo> Find() {
@@ -96,7 +146,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query
         ) {
             var fileInfos = new List<MongoGridFSFileInfo>();
-            var files = database.GetCollection(settings.CollectionName + ".files");
+            var files = database.GetCollection(settings.FilesCollectionName);
             using (var cursor = files.Find<BsonDocument>(query)) {
                 foreach (var file in cursor) {
                     var fileInfo = new MongoGridFSFileInfo(file);
@@ -116,7 +166,7 @@ namespace MongoDB.MongoDBClient {
         public MongoGridFSFileInfo FindOne(
             BsonDocument query
         ) {
-            var files = database.GetCollection(settings.CollectionName + ".files");
+            var files = database.GetCollection(settings.FilesCollectionName);
             var fileInfo = files.FindOne<BsonDocument>(query);
             return new MongoGridFSFileInfo(fileInfo);
         }
@@ -132,8 +182,8 @@ namespace MongoDB.MongoDBClient {
             Stream stream,
             string remoteFileName
         ) {
-            MongoCollection files = database.GetCollection(settings.CollectionName + ".files");
-            MongoCollection chunks = database.GetCollection(settings.CollectionName + ".chunks");
+            MongoCollection files = database.GetCollection(settings.FilesCollectionName);
+            MongoCollection chunks = database.GetCollection(settings.ChunksCollectionName);
             chunks.EnsureIndex("files_id", "n");
 
             BsonObjectId files_id = BsonObjectId.GenerateNewId();
@@ -197,8 +247,9 @@ namespace MongoDB.MongoDBClient {
             string localFileName,
             string remoteFileName
         ) {
-            Stream stream = File.OpenRead(localFileName);
-            return Upload(stream, remoteFileName);
+            using (Stream stream = File.OpenRead(localFileName)) {
+                return Upload(stream, remoteFileName);
+            }
         }
         #endregion
     }

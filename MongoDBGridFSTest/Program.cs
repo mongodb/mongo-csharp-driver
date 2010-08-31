@@ -31,16 +31,29 @@ namespace MongoDBGridFSTest {
             gridFS = database.GridFS;
             gridFS.Settings.CollectionName = "uploads";
             gridFS.Settings.SafeMode = false;
-            int iterations = 400;
+
+            int iterations = 1;
             DateTime start = DateTime.UtcNow;
             for (int i = 0; i < iterations; i++) {
                 gridFS.Delete("06 Headstrong.mp3");
                 var fileInfo = gridFS.Upload("06 Headstrong.mp3");
+                // gridFS.Delete(fileInfo.Id);
             }
             DateTime end = DateTime.UtcNow;
             TimeSpan duration = end - start;
             double fps = iterations / duration.TotalSeconds;
-            Console.WriteLine("Uploading {0} files per second", fps);
+            Console.WriteLine("Uploaded {0} files per second", fps);
+
+            iterations = 400;
+            start = DateTime.UtcNow;
+            for (int i = 0; i < iterations; i++) {
+                gridFS.Download("06 Headstrong.mp3");
+            }
+            end = DateTime.UtcNow;
+            duration = end - start;
+            fps = iterations / duration.TotalSeconds;
+            Console.WriteLine("Downloaded {0} files per second", fps);
+
             ListFiles();
         }
 

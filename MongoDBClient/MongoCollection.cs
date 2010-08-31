@@ -472,6 +472,7 @@ namespace MongoDB.MongoDBClient {
             }
 
             MongoConnection connection = database.AcquireConnection();
+
             var message = new MongoInsertMessage(this);
             foreach (var document in documents) {
                 message.AddDocument(document);

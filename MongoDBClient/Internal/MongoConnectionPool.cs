@@ -60,8 +60,12 @@ namespace MongoDB.MongoDBClient.Internal {
         public void ReleaseConnection(
             MongoConnection connection
         ) {
-            connection.Database = null;
-            pool.Add(connection);
+            if (pool.Count < 10) {
+                connection.Database = null;
+                pool.Add(connection);
+            } else {
+                connection.Dispose();
+            }
         }
         #endregion
     }
