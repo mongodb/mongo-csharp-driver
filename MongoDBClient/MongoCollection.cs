@@ -28,7 +28,7 @@ namespace MongoDB.MongoDBClient {
         #region private fields
         private MongoDatabase database;
         private string name;
-        private bool safeMode;
+        private SafeMode safeMode;
         private bool assignObjectIdsOnInsert = true;
         private HashSet<string> indexCache = new HashSet<string>();
         #endregion
@@ -58,7 +58,7 @@ namespace MongoDB.MongoDBClient {
             get { return name; }
         }
 
-        public bool SafeMode {
+        public SafeMode SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
         }
@@ -108,7 +108,7 @@ namespace MongoDB.MongoDBClient {
                     index[element.Name] = element.Value;
                 }
             }
-            indexes.Insert(index, true);
+            indexes.Insert(index, SafeMode.True);
             indexCache.Add(indexName);
         }
 
@@ -458,7 +458,7 @@ namespace MongoDB.MongoDBClient {
 
         public BsonDocument Insert<T>(
             IEnumerable<T> documents,
-            bool safeMode
+            SafeMode safeMode
         ) {
             if (assignObjectIdsOnInsert) {
                 if (typeof(T) == typeof(BsonDocument)) {
@@ -467,7 +467,7 @@ namespace MongoDB.MongoDBClient {
             }
 
             BsonArray batches = null;
-            if (safeMode) {
+            if (safeMode.Enabled) {
                 batches = new BsonArray();
             }
 
@@ -479,17 +479,17 @@ namespace MongoDB.MongoDBClient {
                 if (message.MessageLength > Mongo.MaxMessageLength) {
                     byte[] lastDocument = message.RemoveLastDocument();
                     var intermediateError = connection.SendMessage(message, safeMode);
-                    if (safeMode) { batches.Add(intermediateError); }
+                    if (safeMode.Enabled) { batches.Add(intermediateError); }
                     message.Reset(lastDocument);
                 }
             }
 
             var lastError = connection.SendMessage(message, safeMode);
-            if (safeMode) { batches.Add(lastError); }
+            if (safeMode.Enabled) { batches.Add(lastError); }
 
             database.ReleaseConnection(connection);
 
-            if (safeMode) {
+            if (safeMode.Enabled) {
                 if (batches.Count() == 1) {
                     return (BsonDocument) batches[0];
                 } else {
@@ -508,14 +508,14 @@ namespace MongoDB.MongoDBClient {
 
         public BsonDocument Insert<T>(
             T document,
-            bool safeMode
+            SafeMode safeMode
         ) {
             return Insert((IEnumerable<T>) new T[] { document }, safeMode);
         }
 
         public BsonDocument Insert<T>(
             T[] documents,
-            bool safeMode
+            SafeMode safeMode
         ) {
             return Insert((IEnumerable<T>) documents, safeMode);
         }
@@ -586,7 +586,7 @@ namespace MongoDB.MongoDBClient {
 
         public BsonDocument Remove(
             BsonDocument query,
-            bool safeMode
+            SafeMode safeMode
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
@@ -601,7 +601,7 @@ namespace MongoDB.MongoDBClient {
         public BsonDocument Remove(
            BsonDocument query,
            RemoveFlags flags,
-           bool safeMode
+           SafeMode safeMode
         ) {
             // special case for query on _id
             if (query != null && query.Count == 1 && query.GetElement(0).Name == "_id" && query[0] is BsonObjectId) {
@@ -622,7 +622,7 @@ namespace MongoDB.MongoDBClient {
         }
 
         public BsonDocument RemoveAll(
-           bool safeMode
+           SafeMode safeMode
         ) {
             return Remove(null, RemoveFlags.None, safeMode);
         }
@@ -641,7 +641,7 @@ namespace MongoDB.MongoDBClient {
         // reason: how do we find the _id value for an arbitrary class?
         public BsonDocument Save(
             BsonDocument document,
-            bool safeMode
+            SafeMode safeMode
         ) {
             object id = document["_id"];
             if (id == null) {
@@ -693,7 +693,7 @@ namespace MongoDB.MongoDBClient {
         public BsonDocument Update<U>(
             BsonDocument query,
             U update,
-            bool safeMode
+            SafeMode safeMode
         ) where U : new() {
             return Update<U>(query, update, UpdateFlags.None, safeMode);
         }
@@ -710,7 +710,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query,
             U update,
             UpdateFlags flags,
-            bool safeMode
+            SafeMode safeMode
         ) where U : new() {
             var message = new MongoUpdateMessage<U>(this, flags, query, update);
 

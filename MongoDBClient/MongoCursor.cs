@@ -318,7 +318,7 @@ namespace MongoDB.MongoDBClient {
             }
 
             var message = new MongoQueryMessage(collection, flags, skip, numberToReturn, WrapQuery(), fields);
-            connection.SendMessage(message);
+            connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
                 throw new MongoException("Query failure");
@@ -335,7 +335,7 @@ namespace MongoDB.MongoDBClient {
             long cursorId
         ) {
             var message = new MongoGetMoreMessage(collection, batchSize, cursorId);
-            connection.SendMessage(message);
+            connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
                 throw new MongoException("Query failure");

@@ -82,6 +82,7 @@
     <Compile Include="MongoUrl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoveFlags.cs" />
+    <Compile Include="SafeMode.cs" />
     <Compile Include="UpdateFlags.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

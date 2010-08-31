@@ -27,7 +27,7 @@ namespace MongoDB.MongoDBClient {
         private MongoServer server;
         private string name;
         private MongoCredentials credentials;
-        private bool safeMode;
+        private SafeMode safeMode;
         private bool useDedicatedConnection;
         private MongoConnection dedicatedConnection;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
@@ -122,7 +122,7 @@ namespace MongoDB.MongoDBClient {
             get { return name; }
         }
 
-        public bool SafeMode {
+        public SafeMode SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
         }

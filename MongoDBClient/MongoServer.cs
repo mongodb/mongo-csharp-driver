@@ -29,7 +29,7 @@ namespace MongoDB.MongoDBClient {
 
         #region private fields
         private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
-        private bool safeMode;
+        private SafeMode safeMode = SafeMode.False;
         private bool slaveOK;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         private MongoConnectionPool connectionPool;
@@ -120,7 +120,7 @@ namespace MongoDB.MongoDBClient {
             get { return addresses[0].Port; }
         }
 
-        public bool SafeMode {
+        public SafeMode SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
         }

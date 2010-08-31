@@ -84,21 +84,19 @@ namespace MongoDB.MongoDBClient.Internal {
             return reply;
         }
 
-        internal void SendMessage(
-            MongoRequestMessage message
-        ) {
-            SendMessage(message, false);
-        }
-
         internal BsonDocument SendMessage(
             MongoRequestMessage message,
-            bool safeMode
+            SafeMode safeMode
         ) {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
             MemoryStream memoryStream = message.AsMemoryStream();
 
-            if (safeMode) {
-                var command = new BsonDocument("getLastError", 1);
+            if (safeMode.Enabled) {
+                var command = new BsonDocument {
+                    { "getLastError", 1 },
+                    { safeMode.Replications > 1, "w", safeMode.Replications },
+                    { safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero, "wtimeout", (int) safeMode.Timeout.TotalMilliseconds }
+                };
                 var getLastErrorMessage = new MongoQueryMessage(database.CommandCollection, QueryFlags.None, 0, 1, command, null);
                 getLastErrorMessage.WriteTo(memoryStream); // piggy back on network transmission for message
             }
@@ -108,7 +106,7 @@ namespace MongoDB.MongoDBClient.Internal {
             messageCounter++;
 
             BsonDocument lastError = null;
-            if (safeMode) {
+            if (safeMode.Enabled) {
                 var replyMessage = ReceiveMessage<BsonDocument>();
                 lastError = replyMessage.Documents[0];
 

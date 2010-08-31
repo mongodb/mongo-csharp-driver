@@ -259,7 +259,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query,
             int version // 1 is oldest, -1 is newest, 0 is no sort
         ) {
-            BsonDocument fileInfoDocument; // = files.FindOne<BsonDocument>(query);
+            BsonDocument fileInfoDocument;
             if (version > 0) {
                 fileInfoDocument = FilesCollection.Find<BsonDocument>(query).Sort("uploadDate").Skip(version - 1).Limit(1).FirstOrDefault();
             } else if (version < 0) {
