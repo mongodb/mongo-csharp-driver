@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDBClientTest", "MongoD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDBClientTests", "MongoDBClientTests\MongoDBClientTests.csproj", "{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDBGridFSTest", "MongoDBGridFSTest\MongoDBGridFSTest.csproj", "{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MongoDB.MongoDBClient</RootNamespace>
-    <AssemblyName>MongoClient</AssemblyName>
+    <RootNamespace>MongoDBGridFSTest</RootNamespace>
+    <AssemblyName>MongoDBGridFSTest</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -49,39 +49,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Internal\IMongoConnectionSettings.cs" />
-    <Compile Include="Internal\MongoConnection.cs" />
-    <Compile Include="Internal\MongoConnectionPool.cs" />
-    <Compile Include="Internal\MongoDeleteMessage.cs" />
-    <Compile Include="Internal\MongoGetMoreMessage.cs" />
-    <Compile Include="Internal\MongoInsertMessage.cs" />
-    <Compile Include="Internal\MongoMessage.cs" />
-    <Compile Include="Internal\MongoRequestMessage.cs" />
-    <Compile Include="Internal\MongoQueryMessage.cs" />
-    <Compile Include="Internal\MongoReplyMessage.cs" />
-    <Compile Include="Internal\MongoUpdateMessage.cs" />
-    <Compile Include="Mongo.cs" />
-    <Compile Include="MongoGridFS.cs" />
-    <Compile Include="MongoGridFSFileInfo.cs" />
-    <Compile Include="MongoGridFSSettings.cs" />
-    <Compile Include="QueryFlags.cs" />
-    <Compile Include="Internal\MessageOpcode.cs" />
-    <Compile Include="Internal\ResponseFlags.cs" />
-    <Compile Include="MongoCollection.cs" />
-    <Compile Include="MongoConnectionStringBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MongoCredentials.cs" />
-    <Compile Include="MongoMapReduceResult.cs" />
-    <Compile Include="MongoServer.cs" />
-    <Compile Include="MongoCursor.cs" />
-    <Compile Include="MongoDatabase.cs" />
-    <Compile Include="MongoException.cs" />
-    <Compile Include="MongoServerAddress.cs" />
-    <Compile Include="MongoUrl.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoveFlags.cs" />
-    <Compile Include="UpdateFlags.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MongoDBClient\MongoDBClient.csproj">
+      <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>
+      <Name>MongoDBClient</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

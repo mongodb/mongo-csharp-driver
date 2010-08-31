@@ -31,6 +31,7 @@ namespace MongoDB.MongoDBClient {
         private bool useDedicatedConnection;
         private MongoConnection dedicatedConnection;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
+        private MongoGridFS gridFS;
         #endregion
 
         #region constructors
@@ -108,6 +109,15 @@ namespace MongoDB.MongoDBClient {
             get { return credentials; }
         }
 
+        public MongoGridFS GridFS {
+            get {
+                if (gridFS == null) {
+                    gridFS = new MongoGridFS(this, MongoGridFSSettings.Defaults.Clone());
+                }
+                return gridFS;
+            }
+        }
+
         public string Name {
             get { return name; }
         }
@@ -173,7 +183,7 @@ namespace MongoDB.MongoDBClient {
             var collection = GetCollection("$cmd.sys.inprog");
             return collection.FindOne<BsonDocument>();
         }
-           
+
         public void DropCollection(
             string collectionName
         ) {
@@ -299,8 +309,6 @@ namespace MongoDB.MongoDBClient {
             BsonDocument command = new BsonDocument(commandName, true);
             return RunCommand(command);
         }
-
-        // TODO: 
 
         public override string ToString() {
             return name;
