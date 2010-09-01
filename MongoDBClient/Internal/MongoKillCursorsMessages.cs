@@ -20,21 +20,24 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.MongoDBClient.Internal {
-    internal class MongoGetMoreMessage : MongoRequestMessage {
+    internal class MongoKillCursorsMessage : MongoRequestMessage {
         #region private fields
-        private int numberToReturn;
-        private long cursorId;
+        private IList<long> cursorIds;
         #endregion
 
         #region constructors
-        internal MongoGetMoreMessage(
-            MongoCollection collection,
-            int numberToReturn,
+        internal MongoKillCursorsMessage(
+            IList<long> cursorIds
+        )
+            : base(MessageOpcode.KillCursors, null) {
+            this.cursorIds = cursorIds;
+        }
+
+        internal MongoKillCursorsMessage(
             long cursorId
         )
-            : base(MessageOpcode.GetMore, collection) {
-            this.numberToReturn = numberToReturn;
-            this.cursorId = cursorId;
+            : base(MessageOpcode.KillCursors, null) {
+            this.cursorIds = new List<long> { cursorId };
         }
         #endregion
 
@@ -43,9 +46,10 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter binaryWriter
         ) {
             binaryWriter.Write((int) 0); // reserved
-            WriteCStringTo(binaryWriter, collection.FullName); // fullCollectionName
-            binaryWriter.Write(numberToReturn);
-            binaryWriter.Write(cursorId);
+            binaryWriter.Write(cursorIds.Count);
+            foreach (long cursorId in cursorIds) {
+                binaryWriter.Write(cursorId);
+            }
         }
         #endregion
     }

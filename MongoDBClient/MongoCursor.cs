@@ -36,6 +36,7 @@ namespace MongoDB.MongoDBClient {
         private int batchSize; // number of documents to return in each reply
         private bool frozen; // TODO: freeze cursor once execution begins
         private MongoConnection connection;
+        private long openCursorId;
         #endregion
 
         #region constructors
@@ -114,6 +115,10 @@ namespace MongoDB.MongoDBClient {
         public void Dispose() {
             if (!disposed) {
                 if (connection != null) {
+                    if (openCursorId != 0) {
+                        var message = new MongoKillCursorsMessage(openCursorId);
+                        connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                    }
                     collection.Database.ReleaseConnection(connection);
                     connection = null;
                 }
@@ -193,8 +198,10 @@ namespace MongoDB.MongoDBClient {
                     } else {
                         reply = GetMore(connection, reply.CursorId);
                     }
-                    if (reply.CursorId == 0) {
-                        collection.Database.ReleaseConnection(connection);
+
+                    openCursorId = reply.CursorId;
+                    if (openCursorId == 0) {
+                        collection.Database.ReleaseConnection(connection); // release the connection as soon as possible
                         connection = null;
                     }
                 } catch {
