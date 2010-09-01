@@ -23,7 +23,7 @@ using System.Text.RegularExpressions;
 using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
-    public class MongoConnectionStringBuilder : DbConnectionStringBuilder, IMongoConnectionSettings {
+    public class MongoConnectionStringBuilder : DbConnectionStringBuilder {
         #region constructors
         public MongoConnectionStringBuilder(
             string connectionString
@@ -71,7 +71,7 @@ namespace MongoDB.MongoDBClient {
             set { Server = value; }
         }
 
-        public string Database {
+        public string DatabaseName {
             get { return GetItem("Database"); }
             set { this["Database"] = value; }
         }
@@ -102,6 +102,15 @@ namespace MongoDB.MongoDBClient {
                 default: throw new ArgumentException("Invalid key");
             }
             base.Add(key, value);
+        }
+
+        public MongoConnectionSettings ToConnectionSettings() {
+            return new MongoConnectionSettings {
+                Addresses = Addresses,
+                DatabaseName = DatabaseName,
+                Username = Username,
+                Password = Password
+            };
         }
         #endregion
 

@@ -22,10 +22,10 @@ using System.Text.RegularExpressions;
 using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
-    public class MongoUrl : IMongoConnectionSettings {
+    public class MongoUrl {
         #region private fields
         private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
-        private string database;
+        private string databaseName;
         private string username;
         private string password;
         #endregion
@@ -47,9 +47,9 @@ namespace MongoDB.MongoDBClient {
             set { addresses = value; }
         }
 
-        public string Database {
-            get { return database; }
-            set { database = value; }
+        public string DatabaseName {
+            get { return databaseName; }
+            set { databaseName = value; }
         }
 
         public string Username {
@@ -77,7 +77,7 @@ namespace MongoDB.MongoDBClient {
                 string username = match.Groups["username"].Value;
                 string password = match.Groups["password"].Value;
                 string addressStrings = match.Groups["addresses"].Value;
-                string database = match.Groups["database"].Value;
+                string databaseName = match.Groups["database"].Value;
                 List<MongoServerAddress> addresses = new List<MongoServerAddress>();
                 foreach (string addressString in addressStrings.Split(',')) {
                     match = Regex.Match(addressString, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
@@ -95,12 +95,21 @@ namespace MongoDB.MongoDBClient {
                 }
 
                 this.addresses = addresses;
-                this.database = database != "" ? database : null;
+                this.databaseName = databaseName != "" ? databaseName : null;
                 this.username = username != "" ? username : null;
                 this.password = password != "" ? password : null;
             } else {
                 throw new ArgumentException("Invalid connection string");
             }
+        }
+
+        public MongoConnectionSettings ToConnectionSettings() {
+            return new MongoConnectionSettings {
+                Addresses = addresses,
+                DatabaseName = databaseName,
+                Username = username,
+                Password = password
+            };
         }
 
         public override string ToString() {
@@ -122,9 +131,9 @@ namespace MongoDB.MongoDBClient {
                 }
                 first = false;
             }
-            if (database != null) {
+            if (databaseName != null) {
                 sb.Append("/");
-                sb.Append(database);
+                sb.Append(databaseName);
             }
             return sb.ToString();
         }

@@ -60,15 +60,25 @@ namespace MongoDB.MongoDBClient {
 
         #region factory methods
         public static MongoDatabase Create(
+            MongoConnectionSettings settings
+        ) {
+            if (settings.DatabaseName == null) {
+                throw new ArgumentException("Connection string must have database name");
+            }
+            MongoServer server = MongoServer.Create(settings);
+            return server.GetDatabase(settings.DatabaseName);
+        }
+
+        public static MongoDatabase Create(
             MongoConnectionStringBuilder builder
         ) {
-            return InternalCreate(builder);
+            return Create(builder.ToConnectionSettings());
         }
 
         public static MongoDatabase Create(
             MongoUrl url
         ) {
-            return InternalCreate(url);
+            return Create(url.ToConnectionSettings());
         }
 
         public static MongoDatabase Create(
@@ -87,16 +97,6 @@ namespace MongoDB.MongoDBClient {
             Uri uri
         ) {
             return Create(new MongoUrl(uri.ToString()));
-        }
-
-        internal static MongoDatabase InternalCreate(
-            IMongoConnectionSettings settings
-        ) {
-            if (settings.Database == null) {
-                throw new ArgumentException("Connection string must have database name");
-            }
-            MongoServer server = MongoServer.Create(settings);
-            return server.GetDatabase(settings.Database);
         }
         #endregion
 

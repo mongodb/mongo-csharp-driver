@@ -31,7 +31,7 @@ namespace MongoDB.MongoDBClient.Tests {
             Assert.AreEqual(1, url.Addresses.Count);
             Assert.AreEqual("localhost", url.Addresses[0].Host);
             Assert.AreEqual(27017, url.Addresses[0].Port);
-            Assert.IsNull(url.Database);
+            Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
             Assert.AreEqual(urlString, url.ToString());
@@ -44,7 +44,7 @@ namespace MongoDB.MongoDBClient.Tests {
             Assert.AreEqual(1, url.Addresses.Count);
             Assert.AreEqual("mongo.xyz.com", url.Addresses[0].Host);
             Assert.AreEqual(27017, url.Addresses[0].Port);
-            Assert.IsNull(url.Database);
+            Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
             Assert.AreEqual(urlString, url.ToString());
@@ -57,7 +57,7 @@ namespace MongoDB.MongoDBClient.Tests {
             Assert.AreEqual(1, url.Addresses.Count);
             Assert.AreEqual("mongo.xyz.com", url.Addresses[0].Host);
             Assert.AreEqual(12345, url.Addresses[0].Port);
-            Assert.IsNull(url.Database);
+            Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
             Assert.AreEqual(urlString, url.ToString());
@@ -72,7 +72,7 @@ namespace MongoDB.MongoDBClient.Tests {
             Assert.AreEqual(27017, url.Addresses[0].Port);
             Assert.AreEqual("mongo2.xyz.com", url.Addresses[1].Host);
             Assert.AreEqual(27017, url.Addresses[1].Port);
-            Assert.IsNull(url.Database);
+            Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
             Assert.AreEqual(urlString, url.ToString());
@@ -87,7 +87,7 @@ namespace MongoDB.MongoDBClient.Tests {
             Assert.AreEqual(12345, url.Addresses[0].Port);
             Assert.AreEqual("mongo2.xyz.com", url.Addresses[1].Host);
             Assert.AreEqual(23456, url.Addresses[1].Port);
-            Assert.IsNull(url.Database);
+            Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
             Assert.AreEqual(urlString, url.ToString());
@@ -100,7 +100,7 @@ namespace MongoDB.MongoDBClient.Tests {
             Assert.AreEqual(1, url.Addresses.Count);
             Assert.AreEqual("localhost", url.Addresses[0].Host);
             Assert.AreEqual(27017, url.Addresses[0].Port);
-            Assert.AreEqual("dbname", url.Database);
+            Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual("userx", url.Username);
             Assert.AreEqual("pwd", url.Password);
             Assert.AreEqual(urlString, url.ToString());
@@ -115,7 +115,7 @@ namespace MongoDB.MongoDBClient.Tests {
             Assert.AreEqual(27017, url.Addresses[0].Port);
             Assert.AreEqual("mongo2.xyz.com", url.Addresses[1].Host);
             Assert.AreEqual(27017, url.Addresses[1].Port);
-            Assert.AreEqual("dbname", url.Database);
+            Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual("userx", url.Username);
             Assert.AreEqual("pwd", url.Password);
             Assert.AreEqual(urlString, url.ToString());
@@ -130,7 +130,7 @@ namespace MongoDB.MongoDBClient.Tests {
             Assert.AreEqual(12345, url.Addresses[0].Port);
             Assert.AreEqual("mongo2.xyz.com", url.Addresses[1].Host);
             Assert.AreEqual(23456, url.Addresses[1].Port);
-            Assert.AreEqual("dbname", url.Database);
+            Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual("userx", url.Username);
             Assert.AreEqual("pwd", url.Password);
             Assert.AreEqual(urlString, url.ToString());

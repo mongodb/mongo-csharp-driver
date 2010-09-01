@@ -38,31 +38,24 @@ namespace MongoDB.MongoDBClient {
 
         #region constructors
         public MongoServer(
-            List<MongoServerAddress> addresses
+            MongoConnectionSettings settings
         ) {
-            this.addresses = addresses;
+            this.addresses = settings.Addresses;
             this.connectionPool = new MongoConnectionPool(this);
         }
         #endregion
 
         #region factory methods
-        internal static MongoServer Create(
-           IMongoConnectionSettings settings
-       ) {
-            MongoServer server = Create(settings.Addresses);
-            return server;
-        }
-
         public static MongoServer Create(
-            List<MongoServerAddress> addresses
+            MongoConnectionSettings settings
         ) {
             foreach (MongoServer server in servers) {
-                if (server.Addresses.SequenceEqual(addresses)) {
+                if (server.Addresses.SequenceEqual(settings.Addresses)) {
                     return server;
                 }
             }
 
-            MongoServer newServer = new MongoServer(addresses);
+            MongoServer newServer = new MongoServer(settings);
             servers.Add(newServer);
             return newServer;
         }
@@ -70,7 +63,7 @@ namespace MongoDB.MongoDBClient {
         public static MongoServer Create(
             MongoConnectionStringBuilder builder
         ) {
-            return Create(builder);
+            return Create(builder.ToConnectionSettings());
         }
 
         public static MongoServer Create(
