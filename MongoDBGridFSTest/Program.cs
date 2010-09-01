@@ -26,8 +26,9 @@ namespace MongoDBGridFSTest {
         private static MongoGridFS gridFS;
 
         public static void Main(string[] args) {
-            var connectionString = "mongodb://localhost/gridfstest";
-            var database = MongoDatabase.Create(connectionString);
+            var connectionString = "mongodb://127.0.0.1";
+            var server = MongoServer.Create(connectionString);
+            var database = server.GetDatabase("gridfstest");
             gridFS = database.GridFS;
             gridFS.Settings.Root = "uploads";
             gridFS.SafeMode = SafeMode.True;

@@ -250,6 +250,13 @@ namespace MongoDB.MongoDBClient {
         }
 
         public List<MongoGridFSFileInfo> Find(
+            BsonObjectId id
+        ) {
+            var query = new BsonDocument("_id", id);
+            return Find(query);
+        }
+
+        public List<MongoGridFSFileInfo> Find(
             string fileName
         ) {
             var query = new BsonDocument("filename", fileName);

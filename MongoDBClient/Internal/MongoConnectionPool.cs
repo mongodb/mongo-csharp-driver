@@ -63,8 +63,8 @@ namespace MongoDB.MongoDBClient.Internal {
         internal void ReleaseConnection(
             MongoConnection connection
         ) {
+            connection.Database = null;
             if (pool.Count < 10) {
-                connection.Database = null;
                 pool.Add(connection);
             } else {
                 connection.Dispose();

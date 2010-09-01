@@ -434,7 +434,7 @@ namespace MongoDB.MongoDBClient {
                         { "initial", initial },
                         { "$reduce", reduce },
                         { "finalize", finalize }
-                    }
+                    } 
                 }
             };
             var result = database.RunCommand(command);
@@ -733,7 +733,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             foreach (var document in documents) {
                 if (!document.ContainsElement("_id")) {
-                    document["_id"] = BsonObjectId.GenerateNewId();
+                    document.Add("_id", BsonObjectId.GenerateNewId());
                 }
             }
         }

@@ -30,7 +30,7 @@ namespace MongoDB.MongoDBClient {
         #region private fields
         private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
         private SafeMode safeMode = SafeMode.False;
-        private bool slaveOK;
+        private bool slaveOk;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         private MongoConnectionPool connectionPool;
         private MongoCredentials adminCredentials;
@@ -69,7 +69,7 @@ namespace MongoDB.MongoDBClient {
         public static MongoServer Create(
             MongoUrl url
         ) {
-            return Create(url);
+            return Create(url.ToConnectionSettings());
         }
 
         public static MongoServer Create(
@@ -118,9 +118,9 @@ namespace MongoDB.MongoDBClient {
             set { safeMode = value; }
         }
 
-        public bool SlaveOK {
-            get { return slaveOK; }
-            set { slaveOK = value; }
+        public bool SlaveOk {
+            get { return slaveOk; }
+            set { slaveOk = value; }
         }
         #endregion
 

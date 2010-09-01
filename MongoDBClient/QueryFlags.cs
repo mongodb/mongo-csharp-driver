@@ -23,7 +23,7 @@ namespace MongoDB.MongoDBClient {
     public enum QueryFlags {
         None = 0,
         TailableCursor = 1,
-        SlaveOK = 2,
+        SlaveOk = 2,
         NoCursorTimeout = 8,
         AwaitData = 16,
         Exhaust = 32

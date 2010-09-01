@@ -71,7 +71,7 @@ namespace MongoDB.MongoDBClient {
                 @"^mongodb://" +
                 @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
                 @"(?<addresses>[^:,/]+(:\d+)?(,[^:,/]+(:\d+)?)*)" +
-                @"(/(?<database>.+))?$";
+                @"(/(?<database>.+)?)?$";
             Match match = Regex.Match(urlString, pattern);
             if (match.Success) {
                 string username = match.Groups["username"].Value;

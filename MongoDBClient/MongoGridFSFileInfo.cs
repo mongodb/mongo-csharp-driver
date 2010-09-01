@@ -46,11 +46,8 @@ namespace MongoDB.MongoDBClient {
         public MongoGridFSFileInfo(
             MongoGridFS gridFS,
             string remoteFileName
-        ) {
-            this.gridFS = gridFS;
-            this.chunkSize = gridFS.Settings.DefaultChunkSize;
-            this.id = BsonObjectId.GenerateNewId();
-            this.name = remoteFileName;
+        ) 
+            : this(gridFS, remoteFileName, gridFS.Settings.DefaultChunkSize) {
         }
 
         public MongoGridFSFileInfo(

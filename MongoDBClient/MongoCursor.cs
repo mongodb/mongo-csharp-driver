@@ -28,8 +28,8 @@ namespace MongoDB.MongoDBClient {
         private bool disposed = false;
         private MongoCollection collection;
         private BsonDocument query;
-        private BsonDocument options;
         private BsonDocument fields;
+        private BsonDocument options;
         private QueryFlags flags;
         private int skip;
         private int limit; // number of documents to return (enforced by cursor)
@@ -115,12 +115,7 @@ namespace MongoDB.MongoDBClient {
         public void Dispose() {
             if (!disposed) {
                 if (connection != null) {
-                    if (openCursorId != 0) {
-                        var message = new MongoKillCursorsMessage(openCursorId);
-                        connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
-                    }
-                    collection.Database.ReleaseConnection(connection);
-                    connection = null;
+                    ReleaseConnection();
                 }
                 disposed = true;
             }
@@ -201,8 +196,7 @@ namespace MongoDB.MongoDBClient {
 
                     openCursorId = reply.CursorId;
                     if (openCursorId == 0) {
-                        collection.Database.ReleaseConnection(connection); // release the connection as soon as possible
-                        connection = null;
+                        ReleaseConnection(); // release the connection as soon as possible
                     }
                 } catch {
                     try { connection.Dispose(); } catch { } // ignore exceptions
@@ -210,12 +204,20 @@ namespace MongoDB.MongoDBClient {
                 }
                 foreach (var document in reply.Documents) {
                     yield return document;
+                    if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+
                     count++;
                     if (count == limit) {
                         break;
                     }
                 }
             } while ((count != limit) && reply.CursorId > 0);
+
+            // if we exit the do/while loop early because the limit was reached
+            // it's possible that we might not have released the connection yet
+            if (connection != null) {
+                ReleaseConnection();
+            }
         }
 
         public MongoCursor<T> Hint(
@@ -348,6 +350,15 @@ namespace MongoDB.MongoDBClient {
                 throw new MongoException("Query failure");
             }
             return reply;
+        }
+
+        private void ReleaseConnection() {
+            if (openCursorId != 0) {
+                var message = new MongoKillCursorsMessage(openCursorId);
+                connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+            }
+            collection.Database.ReleaseConnection(connection);
+            connection = null;
         }
 
         private BsonDocument WrapQuery() {

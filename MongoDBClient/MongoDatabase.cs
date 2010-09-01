@@ -38,11 +38,8 @@ namespace MongoDB.MongoDBClient {
         public MongoDatabase(
             MongoServer server,
             string name
-        ) {
-            ValidateDatabaseName(name);
-            this.server = server;
-            this.name = name;
-            this.safeMode = server.SafeMode;
+        )
+            : this(server, name, null) {
         }
 
         public MongoDatabase(
@@ -204,7 +201,7 @@ namespace MongoDB.MongoDBClient {
         }
 
         public MongoCollection GetCollection(
-           string collectionName
+            string collectionName
         ) {
             MongoCollection collection;
             if (!collections.TryGetValue(collectionName, out collection)) {
