@@ -20,7 +20,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.MongoDBClient.Internal {
-    public abstract class MongoMessage {
+    internal abstract class MongoMessage {
         #region protected fields
         protected int messageLength;
         protected int requestId;
@@ -36,20 +36,20 @@ namespace MongoDB.MongoDBClient.Internal {
         }
         #endregion
 
-        #region public properties
-        public int MessageLength {
+        #region internal properties
+        internal int MessageLength {
             get { return messageLength; }
         }
 
-        public int RequestId {
+        internal int RequestId {
             get { return requestId; }
         }
 
-        public int ResponseTo {
+        internal int ResponseTo {
             get { return responseTo; }
         }
 
-        public MessageOpcode Opcode {
+        internal MessageOpcode Opcode {
             get { return opcode; }
         }
         #endregion

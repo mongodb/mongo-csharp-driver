@@ -24,8 +24,8 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoInsertMessage : MongoRequestMessage {
         #region private fields
-        private long firstDocumentStart;
-        private long lastDocumentStart;
+        private long firstDocumentStartPosition;
+        private long lastDocumentStartPosition;
         #endregion
 
         #region constructors
@@ -36,47 +36,44 @@ namespace MongoDB.MongoDBClient.Internal {
         }
         #endregion
 
-        #region public methods
-        public void AddDocument<T>(
+        #region internal methods
+        internal void AddDocument<T>(
             T document
         ) {
-            var memoryStream = AsMemoryStream();
-            lastDocumentStart = memoryStream.Position;
-            if (firstDocumentStart == 0) {
-                firstDocumentStart = lastDocumentStart;
+            if (memoryStream == null) {
+                // create a base message with no documents added yet
+                WriteTo(new MemoryStream()); // assigns values to inherited memoryStream and binaryWriter fields
+                firstDocumentStartPosition = memoryStream.Position;
             }
 
+            lastDocumentStartPosition = memoryStream.Position;
             var serializer = new BsonSerializer(typeof(T));
             var bsonWriter = BsonWriter.Create(binaryWriter);
             serializer.WriteObject(bsonWriter, document);
-
             BackpatchMessageLength(binaryWriter);
         }
 
-        // assumes AddDocument has been called at least once
-        public byte[] RemoveLastDocument() {
-            var lastDocumentLength = (int) (memoryStream.Position - lastDocumentStart);
+        internal byte[] RemoveLastDocument() {
+            var lastDocumentLength = (int) (memoryStream.Position - lastDocumentStartPosition);
             var lastDocument = new byte[lastDocumentLength];
-            memoryStream.Position = lastDocumentStart;
+            memoryStream.Position = lastDocumentStartPosition;
             memoryStream.Read(lastDocument, 0, lastDocumentLength);
-            memoryStream.SetLength(lastDocumentStart);
-            memoryStream.Position = lastDocumentStart;
 
+            memoryStream.Position = lastDocumentStartPosition;
+            memoryStream.SetLength(lastDocumentStartPosition);
             BackpatchMessageLength(binaryWriter);
 
             return lastDocument;
         }
 
-        // assumes RemoveLastDocument was called first
-        public void Reset(
-            byte[] lastDocument
+        internal void Reset(
+            byte[] bsonDocument // as returned by RemoveLastDocument
         ) {
-            memoryStream.SetLength(firstDocumentStart);
-            memoryStream.Position = firstDocumentStart;
-            lastDocumentStart = firstDocumentStart;
+            memoryStream.Position = firstDocumentStartPosition;
+            memoryStream.SetLength(firstDocumentStartPosition);
 
-            memoryStream.Write(lastDocument, 0, lastDocument.Length);
-
+            lastDocumentStartPosition = memoryStream.Position;
+            memoryStream.Write(bsonDocument, 0, bsonDocument.Length);
             BackpatchMessageLength(binaryWriter);
         }
         #endregion

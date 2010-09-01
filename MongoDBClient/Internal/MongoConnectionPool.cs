@@ -27,26 +27,29 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region constructors
-        public MongoConnectionPool(
+        internal MongoConnectionPool(
             MongoServer server
         ) {
             this.server = server;
         }
         #endregion
 
-        #region public properties
-        public MongoServer Server {
+        #region internal properties
+        internal MongoServer Server {
             get { return server; }
         }
         #endregion
 
-        #region public methods
-        public MongoConnection AcquireConnection(
+        #region internal methods
+        internal MongoConnection AcquireConnection(
             MongoDatabase database
         ) {
+            if (!object.ReferenceEquals(database.Server, server)) {
+                throw new MongoException("This connection pool is for a different server");
+            }
+
             MongoConnection connection;
             if (pool.Count == 0) {
-                MongoServer server = database.Server;
                 MongoServerAddress address = server.Addresses.FirstOrDefault();
                 connection = new MongoConnection(address.Host, address.Port);
             } else {
@@ -57,7 +60,7 @@ namespace MongoDB.MongoDBClient.Internal {
             return connection;
         }
 
-        public void ReleaseConnection(
+        internal void ReleaseConnection(
             MongoConnection connection
         ) {
             if (pool.Count < 10) {

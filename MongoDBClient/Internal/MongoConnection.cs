@@ -48,18 +48,19 @@ namespace MongoDB.MongoDBClient.Internal {
         }
         #endregion
 
-        #region public properties
-        public MongoDatabase Database {
+        #region internal properties
+        internal MongoDatabase Database {
             get { return database; }
-            internal set { database = value; }
+            set { database = value; }
         }
 
-        public int MessageCounter {
+        internal int MessageCounter {
             get { return messageCounter; }
         }
         #endregion
 
         #region public methods
+        // Dispose has to be public in order to implement IDisposable
         public void Dispose() {
             if (!disposed) {
                 try {
@@ -75,7 +76,9 @@ namespace MongoDB.MongoDBClient.Internal {
                 disposed = true;
             }
         }
+        #endregion
 
+        #region internal methods
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
             var bytes = ReadMessageBytes();
@@ -89,7 +92,7 @@ namespace MongoDB.MongoDBClient.Internal {
             SafeMode safeMode
         ) {
             if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
-            MemoryStream memoryStream = message.AsMemoryStream();
+            MemoryStream memoryStream = message.GetMemoryStream();
 
             if (safeMode.Enabled) {
                 var command = new BsonDocument {
@@ -110,15 +113,10 @@ namespace MongoDB.MongoDBClient.Internal {
                 var replyMessage = ReceiveMessage<BsonDocument>();
                 lastError = replyMessage.Documents[0];
 
-                object ok = lastError["ok"];
-                if (ok == null) {
+                if (!lastError.ContainsElement("ok")) {
                     throw new MongoException("ok element is missing");
                 }
-                if (
-                    ok is bool && !((bool) ok) ||
-                    ok is int && (int) ok != 1 ||
-                    ok is double && (double) ok != 1.0
-                ) {
+                if (!lastError.GetAsBoolean("ok")) {
                     string errmsg = (string) lastError["errmsg"];
                     string errorMessage = string.Format("Safemode detected an error ({0})", errmsg);
                     throw new MongoException(errorMessage);
@@ -145,7 +143,7 @@ namespace MongoDB.MongoDBClient.Internal {
 
             // create reply buffer and copy message length bytes to it
             byte[] reply = new byte[messageLength];
-            Array.Copy(messageLengthBytes, reply, 4);
+            Buffer.BlockCopy(messageLengthBytes, 0, reply, 0, 4);
 
             // keep reading until entire reply has been received
             int offset = 4;

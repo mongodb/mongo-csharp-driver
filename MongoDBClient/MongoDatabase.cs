@@ -285,15 +285,10 @@ namespace MongoDB.MongoDBClient {
         ) {
             BsonDocument result = CommandCollection.FindOne<BsonDocument>(command);
 
-            object ok = result["ok"];
-            if (ok == null) {
+            if (!result.ContainsElement("ok")) {
                 throw new MongoException("ok element is missing");
             }
-            if (
-                ok is bool && !((bool) ok) ||
-                ok is int && (int) ok != 1 ||
-                ok is double && (double) ok != 1.0
-            ) {
+            if (!result.GetAsBoolean("ok")) {
                 string commandName = (string) command.GetElement(0).Name;
                 string errmsg = (string) result["errmsg"];
                 string errorMessage = string.Format("{0} failed ({1})", commandName, errmsg);

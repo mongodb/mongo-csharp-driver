@@ -22,12 +22,12 @@ using System.Text;
 using MongoDB.BsonLibrary;
 
 namespace MongoDB.MongoDBClient.Internal {
-    public abstract class MongoRequestMessage : MongoMessage {
+    internal abstract class MongoRequestMessage : MongoMessage {
         #region protected fields
         protected MongoCollection collection; // null if subclass is not a collection related message (e.g. KillCursors)
-        protected MemoryStream memoryStream; // null until WriteTo has been called
-        protected BinaryWriter binaryWriter;
-        protected long messageStart; // start position in stream for backpatching messageLength
+        protected MemoryStream memoryStream; // null unless WriteTo has been called
+        protected BinaryWriter binaryWriter; // null unless WriteTo has been called
+        protected long messageStartPosition; // start position in stream for backpatching messageLength
         #endregion
 
         #region constructors
@@ -40,21 +40,21 @@ namespace MongoDB.MongoDBClient.Internal {
         }
         #endregion
 
-        #region public methods
-        public MemoryStream AsMemoryStream() {
+        #region internal methods
+        internal MemoryStream GetMemoryStream() {
             if (memoryStream == null) {
-                memoryStream = new MemoryStream();
-                WriteTo(memoryStream);
+                WriteTo(new MemoryStream());
             }
             return memoryStream;
         }
 
-        public void WriteTo(
+        internal void WriteTo(
             MemoryStream memoryStream
         ) {
             this.memoryStream = memoryStream;
-            messageStart = memoryStream.Position;
-            binaryWriter = new BinaryWriter(memoryStream);
+            this.binaryWriter = new BinaryWriter(memoryStream);
+
+            messageStartPosition = memoryStream.Position;
             WriteMessageHeaderTo(binaryWriter);
             WriteBodyTo(binaryWriter);
             BackpatchMessageLength(binaryWriter);
@@ -66,8 +66,8 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter binaryWriter
         ) {
             long currentPosition = binaryWriter.BaseStream.Position;
-            messageLength = (int) (currentPosition - messageStart);
-            binaryWriter.BaseStream.Seek(messageStart, SeekOrigin.Begin);
+            messageLength = (int) (currentPosition - messageStartPosition);
+            binaryWriter.BaseStream.Seek(messageStartPosition, SeekOrigin.Begin);
             binaryWriter.Write(messageLength);
             binaryWriter.BaseStream.Seek(currentPosition, SeekOrigin.Begin);
         }

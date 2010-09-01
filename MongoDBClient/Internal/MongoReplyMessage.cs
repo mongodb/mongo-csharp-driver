@@ -32,45 +32,45 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region constructors
-        public MongoReplyMessage()
+        internal MongoReplyMessage()
             : base(MessageOpcode.Reply) {
         }
         #endregion
 
-        #region public properties
-        public ResponseFlags ResponseFlags {
+        #region internal properties
+        internal ResponseFlags ResponseFlags {
             get { return responseFlags; }
             set { responseFlags = value; }
         }
 
-        public long CursorId {
+        internal long CursorId {
             get { return cursorId; }
             set { cursorId = value; }
         }
 
-        public int StartingFrom {
+        internal int StartingFrom {
             get { return startingFrom; }
             set { startingFrom = value; }
         }
 
-        public int NumberReturned {
+        internal int NumberReturned {
             get { return numberReturned; }
             set { numberReturned = value; }
         }
 
-        public List<T> Documents {
+        internal List<T> Documents {
             get { return documents; }
             set { documents = value; }
         }
         #endregion
 
-        #region public methods
-        public void ReadFrom(
+        #region internal methods
+        internal void ReadFrom(
             byte[] bytes
         ) {
             MemoryStream memoryStream = new MemoryStream(bytes);
             BinaryReader binaryReader = new BinaryReader(memoryStream);
-            long messageStart = binaryReader.BaseStream.Position;
+            long messageStartPosition = binaryReader.BaseStream.Position;
 
             ReadMessageHeaderFrom(binaryReader);
             responseFlags = (ResponseFlags) binaryReader.ReadInt32();
@@ -81,7 +81,7 @@ namespace MongoDB.MongoDBClient.Internal {
 
             BsonReader bsonReader = BsonReader.Create(binaryReader);
             BsonSerializer serializer = new BsonSerializer(typeof(T));
-            while (binaryReader.BaseStream.Position - messageStart < messageLength) {
+            while (binaryReader.BaseStream.Position - messageStartPosition < messageLength) {
                 T document = (T) serializer.ReadObject(bsonReader);
                 documents.Add(document);
             }
