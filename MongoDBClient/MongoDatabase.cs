@@ -59,44 +59,44 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region factory methods
-        public static MongoDatabase FromConnectionString(
+        public static MongoDatabase Create(
+            MongoConnectionStringBuilder builder
+        ) {
+            return InternalCreate(builder);
+        }
+
+        public static MongoDatabase Create(
+            MongoUrl url
+        ) {
+            return InternalCreate(url);
+        }
+
+        public static MongoDatabase Create(
             string connectionString
         ) {
             if (connectionString.StartsWith("mongodb://")) {
                 MongoUrl url = new MongoUrl(connectionString);
-                return FromMongoUrl(url);
+                return Create(url);
             } else {
                 MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return FromMongoConnectionStringBuilder(builder);
+                return Create(builder);
             }
         }
 
-        internal static MongoDatabase FromMongoConnectionSettings(
+        public static MongoDatabase Create(
+            Uri uri
+        ) {
+            return Create(new MongoUrl(uri.ToString()));
+        }
+
+        internal static MongoDatabase InternalCreate(
             IMongoConnectionSettings settings
         ) {
             if (settings.Database == null) {
                 throw new ArgumentException("Connection string must have database name");
             }
-            MongoServer server = MongoServer.FromMongoConnectionSettings(settings);
+            MongoServer server = MongoServer.Create(settings);
             return server.GetDatabase(settings.Database);
-        }
-
-        public static MongoDatabase FromMongoConnectionStringBuilder(
-            MongoConnectionStringBuilder builder
-        ) {
-            return FromMongoConnectionSettings(builder);
-        }
-
-        public static MongoDatabase FromMongoUrl(
-            MongoUrl url
-        ) {
-            return FromMongoConnectionSettings(url);
-        }
-
-        public static MongoDatabase FromUri(
-            Uri uri
-        ) {
-            return FromMongoUrl(new MongoUrl(uri.ToString()));
         }
         #endregion
 

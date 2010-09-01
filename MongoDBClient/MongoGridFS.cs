@@ -28,6 +28,7 @@ namespace MongoDB.MongoDBClient {
         private MongoGridFSSettings settings;
         private MongoCollection chunksCollection;
         private MongoCollection filesCollection;
+        private SafeMode safeMode;
         #endregion
 
         #region constructors
@@ -37,6 +38,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             this.database = database;
             this.settings = settings;
+            this.safeMode = database.SafeMode;
         }
         #endregion
 
@@ -59,6 +61,11 @@ namespace MongoDB.MongoDBClient {
             }
         }
 
+        public SafeMode SafeMode {
+            get { return safeMode; }
+            set { safeMode = value; }
+        }
+
         public MongoGridFSSettings Settings {
             get { return settings; }
             set { settings = value; }
@@ -72,9 +79,9 @@ namespace MongoDB.MongoDBClient {
             var fileIds = FilesCollection.Find<BsonDocument>(query).Select(f => f.GetObjectId("_id"));
             foreach (var fileId in fileIds) {
                 var fileQuery = new BsonDocument("_id", fileId);
-                FilesCollection.Remove(fileQuery, settings.SafeMode);
+                FilesCollection.Remove(fileQuery, safeMode);
                 var chunksQuery = new BsonDocument("files_id", fileId);
-                ChunksCollection.Remove(chunksQuery, settings.SafeMode);
+                ChunksCollection.Remove(chunksQuery, safeMode);
             }
         }
 
@@ -129,6 +136,13 @@ namespace MongoDB.MongoDBClient {
                     throw new MongoException(errorMessage);
                 }
                 var data = chunk.GetBinaryData("data");
+                if (data.Bytes.Length != fileInfo.ChunkSize) {
+                    // the last chunk only has as many bytes as needed to complete the file
+                    if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize) {
+                        string errorMessage = string.Format("Chunk {0} for {1} is the wrong size", n, fileInfo.Name);
+                        throw new MongoException(errorMessage);
+                    }
+                }
                 stream.Write(data.Bytes, 0, data.Bytes.Length);
             }
         }
@@ -232,14 +246,7 @@ namespace MongoDB.MongoDBClient {
         public List<MongoGridFSFileInfo> Find(
             BsonDocument query
         ) {
-            var fileInfos = new List<MongoGridFSFileInfo>();
-            using (var cursor = FilesCollection.Find<BsonDocument>(query)) {
-                foreach (var fileInfoDocument in cursor) {
-                    var fileInfo = new MongoGridFSFileInfo(this, fileInfoDocument);
-                    fileInfos.Add(fileInfo);
-                }
-            }
-            return fileInfos;
+            return FilesCollection.Find<BsonDocument>(query).Select(d => new MongoGridFSFileInfo(this, d)).ToList();
         }
 
         public List<MongoGridFSFileInfo> Find(
@@ -317,11 +324,11 @@ namespace MongoDB.MongoDBClient {
 
                 var chunk = new BsonDocument {
                     { "_id", BsonObjectId.GenerateNewId() },
+                    { "files_id", files_id },
                     { "n", n },
-                    { "data", new BsonBinaryData(data) },
-                    { "files_id", files_id }
+                    { "data", new BsonBinaryData(data) }
                 };
-                ChunksCollection.Insert(chunk, settings.SafeMode);
+                ChunksCollection.Insert(chunk, safeMode);
 
                 if (bytesRead < chunkSize) {
                     break;
@@ -343,7 +350,7 @@ namespace MongoDB.MongoDBClient {
                 { "uploadDate", DateTime.UtcNow },
                 { "md5", md5 }
             };
-            FilesCollection.Insert(fileInfo, settings.SafeMode);
+            FilesCollection.Insert(fileInfo, safeMode);
 
             return FindOne(files_id);
         }

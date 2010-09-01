@@ -46,7 +46,14 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region factory methods
-        public static MongoServer FromAddresses(
+        internal static MongoServer Create(
+           IMongoConnectionSettings settings
+       ) {
+            MongoServer server = Create(settings.Addresses);
+            return server;
+        }
+
+        public static MongoServer Create(
             List<MongoServerAddress> addresses
         ) {
             foreach (MongoServer server in servers) {
@@ -60,41 +67,34 @@ namespace MongoDB.MongoDBClient {
             return newServer;
         }
 
-        public static MongoServer FromConnectionString(
+        public static MongoServer Create(
+            MongoConnectionStringBuilder builder
+        ) {
+            return Create(builder);
+        }
+
+        public static MongoServer Create(
+            MongoUrl url
+        ) {
+            return Create(url);
+        }
+
+        public static MongoServer Create(
             string connectionString
         ) {
             if (connectionString.StartsWith("mongodb://")) {
                 var url = new MongoUrl(connectionString);
-                return FromMongoUrl(url);
+                return Create(url);
             } else {
                 MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return FromMongoConnectionStringBuilder(builder);
+                return Create(builder);
             }
         }
 
-        internal static MongoServer FromMongoConnectionSettings(
-           IMongoConnectionSettings settings
-       ) {
-            MongoServer server = FromAddresses(settings.Addresses);
-            return server;
-        }
-
-        public static MongoServer FromMongoConnectionStringBuilder(
-            MongoConnectionStringBuilder builder
-        ) {
-            return FromMongoConnectionSettings(builder);
-        }
-
-        public static MongoServer FromMongoUrl(
-            MongoUrl url
-        ) {
-            return FromMongoConnectionSettings(url);
-        }
-
-        public static MongoServer FromUri(
+        public static MongoServer Create(
             Uri uri
         ) {
-            return FromMongoUrl(new MongoUrl(uri.ToString()));
+            return Create(new MongoUrl(uri.ToString()));
         }
         #endregion
 

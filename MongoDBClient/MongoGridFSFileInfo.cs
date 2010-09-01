@@ -40,12 +40,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument fileInfoDocument
         ) {
             this.gridFS = gridFS;
-            chunkSize = fileInfoDocument.GetInt32("chunkSize");
-            id = fileInfoDocument.GetObjectId("_id");
-            length = fileInfoDocument.GetInt32("length");
-            md5 = fileInfoDocument.GetString("md5");
-            name = fileInfoDocument.GetString("filename");
-            uploadDate = fileInfoDocument.GetDateTime("uploadDate");
+            LoadFileInfo(fileInfoDocument);
         }
 
         public MongoGridFSFileInfo(
@@ -160,17 +155,26 @@ namespace MongoDB.MongoDBClient {
         }
 
         public void Refresh() {
-            var refreshed = gridFS.FindOne(id);
-            if (refreshed == null) {
+            var query = new BsonDocument("_id", id);
+            var fileInfoDocument = gridFS.FilesCollection.FindOne<BsonDocument>(query);
+            if (fileInfoDocument == null) {
                 string errorMessage = string.Format("GridFS file no longer exists: {0}", id);
                 throw new MongoException(errorMessage);
             }
+            LoadFileInfo(fileInfoDocument);
+        }
+        #endregion
 
-            this.chunkSize = refreshed.chunkSize;
-            this.length = refreshed.length;
-            this.md5 = refreshed.md5;
-            this.name = refreshed.name;
-            this.uploadDate = refreshed.uploadDate;
+        #region private methods
+        private void LoadFileInfo(
+            BsonDocument fileInfoDocument
+        ) {
+            chunkSize = fileInfoDocument.GetInt32("chunkSize");
+            id = fileInfoDocument.GetObjectId("_id");
+            length = fileInfoDocument.GetInt32("length");
+            md5 = fileInfoDocument.GetString("md5");
+            name = fileInfoDocument.GetString("filename");
+            uploadDate = fileInfoDocument.GetDateTime("uploadDate");
         }
         #endregion
     }

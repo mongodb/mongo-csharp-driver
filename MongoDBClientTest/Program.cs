@@ -31,7 +31,7 @@ namespace MongoDB.MongoDBClientTest {
             // test connection string pointing to server
             {
                 string connectionString = "mongodb://localhost";
-                var server = MongoServer.FromConnectionString(connectionString);
+                var server = MongoServer.Create(connectionString);
                 var database = server.GetDatabase("test");
                 var collection = database.GetCollection<BsonDocument>("library");
                 foreach (var document in collection.FindAll().Skip(1).Limit(1)) {
@@ -44,7 +44,7 @@ namespace MongoDB.MongoDBClientTest {
             // test connection string pointing to database
             {
                 string connectionString = "mongodb://localhost/test";
-                var database = MongoDatabase.FromConnectionString(connectionString);
+                var database = MongoDatabase.Create(connectionString);
                 var collection = database.GetCollection<BsonDocument>("library");
                 foreach (var document in collection.FindAll().Snapshot()) {
                     Console.WriteLine(document.ToJson());
@@ -56,7 +56,7 @@ namespace MongoDB.MongoDBClientTest {
             // test connection string pointing to database with default credentials
             {
                 string connectionString = "mongodb://john:secret@localhost/test";
-                var database = MongoDatabase.FromConnectionString(connectionString);
+                var database = MongoDatabase.Create(connectionString);
                 var collection = database.GetCollection<BsonDocument>("library");
                 foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
                     Console.WriteLine(document.ToJson());
@@ -66,12 +66,12 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             var connectionString = "server=localhost;database=test";
-            var server = MongoServer.FromConnectionString(connectionString);
+            var server = MongoServer.Create(connectionString);
             foreach (string databaseName in server.GetDatabaseNames()) {
                 Console.WriteLine(databaseName);
             }
 
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             foreach (string collectionName in database.GetCollectionNames()) {
                 Console.WriteLine(collectionName);
             }
@@ -79,7 +79,7 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection<BsonDocument>("library");
             int count;
             //count = collection.Count();
@@ -91,7 +91,7 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection<BsonDocument>("library");
             var cursor = collection.FindAll();
             var explanation = cursor.Explain(false);
@@ -104,7 +104,7 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection<BsonDocument>("library");
             var document = new BsonDocument {
                 { "_id", "123456789" },
@@ -120,19 +120,19 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var result = database.CurrentOp();
 #endif
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var server = MongoServer.FromConnectionString(connectionString);
+            var server = MongoServer.Create(connectionString);
             var result = server.RenameCollection("test.library", "test.books");
 #endif
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
             var result = collection.Update(
                 new BsonDocument("author", "Dick"), // query
@@ -143,14 +143,14 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
             var result = collection.Distinct("author");
 #endif
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
             var query = new BsonDocument("author", "Tom Clancy");
             var result1 = collection.Remove(query, RemoveFlags.Single, true);
@@ -159,7 +159,7 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
             //var result = collection.FindAndModify(
             //    new BsonDocument("author", "Hemmingway Jr."), // query
@@ -175,7 +175,7 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
             var result = collection.Group(
                 new BsonDocument("author", new BsonDocument("$gt", "H")), // query
@@ -191,7 +191,7 @@ namespace MongoDB.MongoDBClientTest {
 
 #if false
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
             var map = "function() { for (var key in this) { emit(key, {count: 1}); } }";
             var reduce = "function(key, emits) { total = 0; for (var i in emits) { total += emits[i].count; } return {count: total}; }";
@@ -201,7 +201,7 @@ namespace MongoDB.MongoDBClientTest {
 
 #if true
             string connectionString = "mongodb://localhost/test";
-            var database = MongoDatabase.FromConnectionString(connectionString);
+            var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
             //var stats = collection.Stats();
             //Console.WriteLine(stats.ToJson(new BsonJsonWriterSettings { Indent = true }));
