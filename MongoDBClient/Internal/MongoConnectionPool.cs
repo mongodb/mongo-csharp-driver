@@ -23,14 +23,17 @@ namespace MongoDB.MongoDBClient.Internal {
         // TODO: implement a real connection pool
         #region private fields
         private MongoServer server;
+        private MongoServerAddress address;
         private List<MongoConnection> pool = new List<MongoConnection>();
         #endregion
 
         #region constructors
         internal MongoConnectionPool(
-            MongoServer server
+            MongoServer server,
+            MongoServerAddress address
         ) {
             this.server = server;
+            this.address = address;
         }
         #endregion
 
@@ -38,10 +41,23 @@ namespace MongoDB.MongoDBClient.Internal {
         internal MongoServer Server {
             get { return server; }
         }
+
+        internal MongoServerAddress Address {
+            get { return address; }
+        }
         #endregion
 
         #region internal methods
-        internal MongoConnection AcquireConnection(
+        // used only to add the first connection to the pool
+        // we don't want to waste the connection made by FindPrimary
+        internal void AddConnection(
+            MongoConnection connection
+        ) {
+            connection.ConnectionPool = this;
+            pool.Add(connection);
+        }
+
+        internal MongoConnection GetConnection(
             MongoDatabase database
         ) {
             if (!object.ReferenceEquals(database.Server, server)) {
@@ -50,12 +66,13 @@ namespace MongoDB.MongoDBClient.Internal {
 
             MongoConnection connection;
             if (pool.Count == 0) {
-                MongoServerAddress address = server.Addresses.FirstOrDefault();
-                connection = new MongoConnection(address.Host, address.Port);
+                connection = new MongoConnection(address);
+                connection.ConnectionPool = this;
             } else {
                 connection = pool[0];
                 pool.RemoveAt(0);
             }
+
             connection.Database = database;
             return connection;
         }
@@ -63,6 +80,10 @@ namespace MongoDB.MongoDBClient.Internal {
         internal void ReleaseConnection(
             MongoConnection connection
         ) {
+            if (connection.ConnectionPool != this) {
+                throw new MongoException("The connection being released does not belong to this connection pool.");
+            }
+
             connection.Database = null;
             if (pool.Count < 10) {
                 pool.Add(connection);

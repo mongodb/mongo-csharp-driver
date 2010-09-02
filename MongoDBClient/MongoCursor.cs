@@ -181,7 +181,7 @@ namespace MongoDB.MongoDBClient {
 
             // hold connection until all documents have been enumerated
             // TODO: what if enumeration is abandoned before reaching the end?
-            connection = collection.Database.AcquireConnection();
+            connection = collection.Database.GetConnection();
 
             MongoReplyMessage<T> reply = null;
             int count = 0;
@@ -326,7 +326,7 @@ namespace MongoDB.MongoDBClient {
                 numberToReturn = limit;
             }
 
-            var message = new MongoQueryMessage(collection, flags, skip, numberToReturn, WrapQuery(), fields);
+            var message = new MongoQueryMessage(collection.FullName, flags, skip, numberToReturn, WrapQuery(), fields);
             connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
@@ -343,7 +343,7 @@ namespace MongoDB.MongoDBClient {
             MongoConnection connection,
             long cursorId
         ) {
-            var message = new MongoGetMoreMessage(collection, batchSize, cursorId);
+            var message = new MongoGetMoreMessage(collection.FullName, batchSize, cursorId);
             connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
             var reply = connection.ReceiveMessage<T>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {

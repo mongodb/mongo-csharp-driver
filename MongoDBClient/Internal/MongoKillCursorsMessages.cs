@@ -29,15 +29,14 @@ namespace MongoDB.MongoDBClient.Internal {
         internal MongoKillCursorsMessage(
             IList<long> cursorIds
         )
-            : base(MessageOpcode.KillCursors, null) {
+            : base(MessageOpcode.KillCursors) {
             this.cursorIds = cursorIds;
         }
 
         internal MongoKillCursorsMessage(
             long cursorId
         )
-            : base(MessageOpcode.KillCursors, null) {
-            this.cursorIds = new List<long> { cursorId };
+            : this(new List<long> { cursorId }) {
         }
         #endregion
 

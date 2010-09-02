@@ -96,20 +96,22 @@ namespace MongoDB.MongoDBClient {
             BsonDocument keys,
             BsonDocument options
         ) {
-            var indexes = database.GetCollection("system.indexes");
-            var indexName = ((options != null) ? options.GetString("name") : null) ?? GetIndexName(keys);
-            var index = new BsonDocument {
-                { "name", indexName },
-                { "ns", FullName },
-                { "key", keys }
-            };
-            if (options != null) {
-                foreach (var element in options) {
-                    index[element.Name] = element.Value;
+            lock (indexCache) {
+                var indexes = database.GetCollection("system.indexes");
+                var indexName = ((options != null) ? options.GetString("name") : null) ?? GetIndexName(keys);
+                var index = new BsonDocument {
+                    { "name", indexName },
+                    { "ns", FullName },
+                    { "key", keys }
+                };
+                if (options != null) {
+                    foreach (var element in options) {
+                        index[element.Name] = element.Value;
+                    }
                 }
+                indexes.Insert(index, SafeMode.True);
+                indexCache.Add(indexName);
             }
-            indexes.Insert(index, SafeMode.True);
-            indexCache.Add(indexName);
         }
 
         public void CreateIndex(
@@ -186,20 +188,24 @@ namespace MongoDB.MongoDBClient {
         public void DropIndex(
             string indexName
         ) {
-            var command = new BsonDocument {
-                { "deleteIndexes", FullName },
-                { "index", indexName }
-            };
-            database.RunCommand(command);
-            ResetIndexCache(); // TODO: what if RunCommand throws an exception
+            lock (indexCache) {
+                var command = new BsonDocument {
+                    { "deleteIndexes", FullName },
+                    { "index", indexName }
+                };
+                database.RunCommand(command);
+                ResetIndexCache(); // TODO: what if RunCommand throws an exception
+            }
         }
 
         public void EnsureIndex(
             BsonDocument keys
         ) {
-            string indexName = GetIndexName(keys);
-            if (!indexCache.Contains(indexName)) {
-                CreateIndex(keys, indexName);
+            lock (indexCache) {
+                string indexName = GetIndexName(keys);
+                if (!indexCache.Contains(indexName)) {
+                    CreateIndex(keys, indexName);
+                }
             }
         }
 
@@ -207,9 +213,11 @@ namespace MongoDB.MongoDBClient {
            BsonDocument keys,
            BsonDocument options
         ) {
-            string indexName = GetIndexName(keys);
-            if (!indexCache.Contains(indexName)) {
-                CreateIndex(keys, options);
+            lock (indexCache) {
+                string indexName = GetIndexName(keys);
+                if (!indexCache.Contains(indexName)) {
+                    CreateIndex(keys, options);
+                }
             }
         }
 
@@ -217,8 +225,10 @@ namespace MongoDB.MongoDBClient {
             BsonDocument keys,
             string indexName
         ) {
-            if (!indexCache.Contains(indexName)) {
-                CreateIndex(keys, indexName);
+            lock (indexCache) {
+                if (!indexCache.Contains(indexName)) {
+                    CreateIndex(keys, indexName);
+                }
             }
         }
 
@@ -227,17 +237,21 @@ namespace MongoDB.MongoDBClient {
            string indexName,
            bool unique
         ) {
-            if (!indexCache.Contains(indexName)) {
-                CreateIndex(keys, indexName, unique);
+            lock (indexCache) {
+                if (!indexCache.Contains(indexName)) {
+                    CreateIndex(keys, indexName, unique);
+                }
             }
         }
 
         public void EnsureIndex(
             params string[] keyNames
         ) {
-            string indexName = GetIndexName(keyNames);
-            if (!indexCache.Contains(indexName)) {
-                CreateIndex(keyNames);
+            lock (indexCache) {
+                string indexName = GetIndexName(keyNames);
+                if (!indexCache.Contains(indexName)) {
+                    CreateIndex(keyNames);
+                }
             }
         }
 
@@ -471,12 +485,12 @@ namespace MongoDB.MongoDBClient {
                 batches = new BsonArray();
             }
 
-            MongoConnection connection = database.AcquireConnection();
+            MongoConnection connection = database.GetConnection();
 
-            var message = new MongoInsertMessage(this);
+            var message = new MongoInsertMessage(FullName);
             foreach (var document in documents) {
                 message.AddDocument(document);
-                if (message.MessageLength > Mongo.MaxMessageLength) {
+                if (message.MessageLength > MongoDefaults.MaxMessageLength) {
                     byte[] lastDocument = message.RemoveLastDocument();
                     var intermediateError = connection.SendMessage(message, safeMode);
                     if (safeMode.Enabled) { batches.Add(intermediateError); }
@@ -608,9 +622,9 @@ namespace MongoDB.MongoDBClient {
                 flags |= RemoveFlags.Single;
             }
 
-            var message = new MongoDeleteMessage(this, flags, query);
+            var message = new MongoDeleteMessage(FullName, flags, query);
 
-            var connection = database.AcquireConnection();
+            var connection = database.GetConnection();
             var lastError = connection.SendMessage(message, safeMode);
             database.ReleaseConnection(connection);
 
@@ -628,7 +642,9 @@ namespace MongoDB.MongoDBClient {
         }
 
         public void ResetIndexCache() {
-            indexCache.Clear();
+            lock (indexCache) {
+                indexCache.Clear();
+            }
         }
 
         public BsonDocument Save(
@@ -712,9 +728,9 @@ namespace MongoDB.MongoDBClient {
             UpdateFlags flags,
             SafeMode safeMode
         ) where U : new() {
-            var message = new MongoUpdateMessage<U>(this, flags, query, update);
+            var message = new MongoUpdateMessage<U>(FullName, flags, query, update);
 
-            var connection = database.AcquireConnection();
+            var connection = database.GetConnection();
             var lastError = connection.SendMessage(message, safeMode);
             database.ReleaseConnection(connection);
 
@@ -733,6 +749,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             foreach (var document in documents) {
                 if (!document.ContainsElement("_id")) {
+                    // TODO: do we need to add in _id as the first field?
                     document.Add("_id", BsonObjectId.GenerateNewId());
                 }
             }

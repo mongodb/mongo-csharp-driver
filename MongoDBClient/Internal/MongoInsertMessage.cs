@@ -24,15 +24,17 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoInsertMessage : MongoRequestMessage {
         #region private fields
+        private string collectionFullName;
         private long firstDocumentStartPosition;
         private long lastDocumentStartPosition;
         #endregion
 
         #region constructors
         internal MongoInsertMessage(
-            MongoCollection collection
+            string collectionFullName
         )
-            : base(MessageOpcode.Insert, collection) {
+            : base(MessageOpcode.Insert) {
+            this.collectionFullName = collectionFullName;
         }
         #endregion
 
@@ -83,7 +85,7 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter binaryWriter
         ) {
             binaryWriter.Write((int) 0); // reserved
-            WriteCStringTo(binaryWriter, collection.FullName);
+            WriteCStringTo(binaryWriter, collectionFullName);
             // documents to be added later by calling AddDocument
         }
         #endregion

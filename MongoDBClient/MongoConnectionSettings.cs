@@ -21,7 +21,7 @@ using System.Text;
 namespace MongoDB.MongoDBClient.Internal {
     public class MongoConnectionSettings {
         #region private fields
-        private List<MongoServerAddress> addresses;
+        private List<MongoServerAddress> seedList;
         private string databaseName;
         private string username;
         private string password;
@@ -33,9 +33,14 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region public properties
-        public List<MongoServerAddress> Addresses {
-            get { return addresses; }
-            set { addresses = value; }
+        public MongoServerAddress Address {
+            get { return seedList.Single(); }
+            set { seedList.Clear(); seedList.Add(value); }
+        }
+
+        public List<MongoServerAddress> SeedList {
+            get { return seedList; }
+            set { seedList = value; }
         }
 
         public string DatabaseName {

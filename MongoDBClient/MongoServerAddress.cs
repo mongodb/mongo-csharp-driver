@@ -47,15 +47,30 @@ namespace MongoDB.MongoDBClient {
         public static MongoServerAddress Parse(
             string value
         ) {
+            MongoServerAddress address;
+            if (TryParse(value, out address)) {
+                return address;
+            } else {
+                throw new FormatException("Invalid server address");
+            }
+        }
+
+        public static bool TryParse(
+            string value,
+            out MongoServerAddress address
+        ) {
+            address = null;
+
             Match match = Regex.Match(value, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
             if (match.Success) {
                 string host = match.Groups["host"].Value;
                 string portString = match.Groups["port"].Value;
                 int port = (portString == "") ? 27017 : int.Parse(portString);
-                return new MongoServerAddress(host, port);
-                
+                address = new MongoServerAddress(host, port);
+                return true;
+
             } else {
-                throw new FormatException("Invalid server address");
+                return false;
             }
         }
         #endregion

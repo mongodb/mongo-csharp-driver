@@ -24,6 +24,7 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoUpdateMessage<U> : MongoRequestMessage where U : new() {
         #region private fields
+        private string collectionFullName;
         private UpdateFlags flags;
         private BsonDocument query;
         private U update;
@@ -31,12 +32,13 @@ namespace MongoDB.MongoDBClient.Internal {
 
         #region constructors
         internal MongoUpdateMessage(
-            MongoCollection collection,
+            string collectionFullName,
             UpdateFlags flags,
             BsonDocument query,
             U update
         ) :
-            base(MessageOpcode.Update, collection) {
+            base(MessageOpcode.Update) {
+            this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;
             this.update = update;
@@ -48,7 +50,7 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter binaryWriter
         ) {
             binaryWriter.Write((int) 0); // reserved
-            WriteCStringTo(binaryWriter, collection.FullName);
+            WriteCStringTo(binaryWriter, collectionFullName);
             binaryWriter.Write((int) flags);
 
             BsonWriter bsonWriter = BsonBinaryWriter.Create(binaryWriter);

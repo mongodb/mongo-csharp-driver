@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
+    <Compile Include="Internal\BlockingQueue.cs" />
     <Compile Include="MongoConnectionSettings.cs" />
     <Compile Include="Internal\MongoConnection.cs" />
     <Compile Include="Internal\MongoConnectionPool.cs" />
@@ -61,11 +62,13 @@
     <Compile Include="Internal\MongoQueryMessage.cs" />
     <Compile Include="Internal\MongoReplyMessage.cs" />
     <Compile Include="Internal\MongoUpdateMessage.cs" />
-    <Compile Include="Mongo.cs" />
+    <Compile Include="MongoUtils.cs" />
+    <Compile Include="MongoDefaults.cs" />
     <Compile Include="MongoGridFS.cs" />
     <Compile Include="MongoGridFSFileInfo.cs" />
     <Compile Include="MongoGridFSSettings.cs" />
     <Compile Include="MongoGridFSStream.cs" />
+    <Compile Include="MongoServerState.cs" />
     <Compile Include="QueryFlags.cs" />
     <Compile Include="Internal\MessageOpcode.cs" />
     <Compile Include="Internal\ResponseFlags.cs" />

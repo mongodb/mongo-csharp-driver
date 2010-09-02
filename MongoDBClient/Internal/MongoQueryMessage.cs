@@ -24,6 +24,7 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoQueryMessage : MongoRequestMessage {
         #region private fields
+        private string collectionFullName;
         private QueryFlags flags;
         private int numberToSkip;
         private int numberToReturn;
@@ -33,14 +34,15 @@ namespace MongoDB.MongoDBClient.Internal {
 
         #region constructors
         internal MongoQueryMessage(
-            MongoCollection collection,
+            string collectionFullName,
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
             BsonDocument query,
             BsonDocument fields
         ) :
-            base(MessageOpcode.Query, collection) {
+            base(MessageOpcode.Query) {
+            this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.numberToSkip = numberToSkip;
             this.numberToReturn = numberToReturn;
@@ -54,7 +56,7 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter binaryWriter
         ) {
             binaryWriter.Write((int) flags);
-            WriteCStringTo(binaryWriter, collection.FullName);
+            WriteCStringTo(binaryWriter, collectionFullName);
             binaryWriter.Write(numberToSkip);
             binaryWriter.Write(numberToReturn);
 

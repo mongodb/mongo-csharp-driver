@@ -91,7 +91,6 @@ namespace MongoDB.MongoDBClient {
                 case 2: return safeMode2;
                 case 3: return safeMode3;
                 default: return new SafeMode(replications);
-
             }
         }
 

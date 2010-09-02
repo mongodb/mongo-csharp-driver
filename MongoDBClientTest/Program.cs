@@ -199,18 +199,28 @@ namespace MongoDB.MongoDBClientTest {
             var results = mapReduceResult.GetResults<BsonDocument>().ToArray();
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://localhost/test";
             var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
-            //var stats = collection.Stats();
-            //Console.WriteLine(stats.ToJson(new BsonJsonWriterSettings { Indent = true }));
-            //long dataSize = collection.DataSize();
-            //long storageSize = collection.StorageSize();
-            //long totalIndexSize = collection.TotalIndexSize();
-            // long totalSize = collection.TotalSize();
             var result = collection.Validate();
             Console.WriteLine(result.ToJson(new BsonJsonWriterSettings { Indent = true }));
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost,localhost/test"; // fake replica set test by using localhost twice
+            var database = MongoDatabase.Create(connectionString);
+            var collection = database.GetCollection("books");
+            database.Server.Connect(TimeSpan.FromMinutes(10));
+
+            database.UseDedicatedConnection = true;
+            var book = new BsonDocument {
+                { "author", "Tom Jones" },
+                { "title", "Life is a song" }
+            };
+            collection.Insert(book);
+            book = collection.FindOne<BsonDocument>(book);
+            database.UseDedicatedConnection = false;
 #endif
         }
     }

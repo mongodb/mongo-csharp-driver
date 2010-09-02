@@ -24,7 +24,6 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Internal {
     internal abstract class MongoRequestMessage : MongoMessage {
         #region protected fields
-        protected MongoCollection collection; // null if subclass is not a collection related message (e.g. KillCursors)
         protected MemoryStream memoryStream; // null unless WriteTo has been called
         protected BinaryWriter binaryWriter; // null unless WriteTo has been called
         protected long messageStartPosition; // start position in stream for backpatching messageLength
@@ -32,11 +31,9 @@ namespace MongoDB.MongoDBClient.Internal {
 
         #region constructors
         protected MongoRequestMessage(
-            MessageOpcode opcode,
-            MongoCollection collection
+            MessageOpcode opcode
         )
             : base(opcode) {
-            this.collection = collection;
         }
         #endregion
 

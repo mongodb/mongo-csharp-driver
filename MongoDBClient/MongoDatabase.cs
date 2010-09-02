@@ -24,6 +24,7 @@ using MongoDB.MongoDBClient.Internal;
 namespace MongoDB.MongoDBClient {
     public class MongoDatabase {
         #region private fields
+        private object databaseLock = new object();
         private MongoServer server;
         private string name;
         private MongoCredentials credentials;
@@ -108,10 +109,12 @@ namespace MongoDB.MongoDBClient {
 
         public MongoGridFS GridFS {
             get {
-                if (gridFS == null) {
-                    gridFS = new MongoGridFS(this, MongoGridFSSettings.Defaults.Clone());
+                lock (databaseLock) {
+                    if (gridFS == null) {
+                        gridFS = new MongoGridFS(this, MongoGridFSSettings.Defaults.Clone());
+                    }
+                    return gridFS;
                 }
-                return gridFS;
             }
         }
 
@@ -131,8 +134,12 @@ namespace MongoDB.MongoDBClient {
         public bool UseDedicatedConnection {
             get { return useDedicatedConnection; }
             set {
-                useDedicatedConnection = value;
-                if (!useDedicatedConnection) { ReleaseDedicatedConnection(); }
+                lock (databaseLock) {
+                    useDedicatedConnection = value;
+                    if (!useDedicatedConnection) {
+                        ReleaseDedicatedConnection();
+                    }
+                }
             }
         }
         #endregion
@@ -154,7 +161,7 @@ namespace MongoDB.MongoDBClient {
             if (user == null) {
                 user = new BsonDocument("user", credentials.Username);
             }
-            user["pwd"] = Mongo.Hash(credentials.Username + ":mongo:" + credentials.Password);
+            user["pwd"] = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
             users.Save(user);
         }
 
@@ -203,24 +210,28 @@ namespace MongoDB.MongoDBClient {
         public MongoCollection GetCollection(
             string collectionName
         ) {
-            MongoCollection collection;
-            if (!collections.TryGetValue(collectionName, out collection)) {
-                collection = new MongoCollection(this, collectionName);
-                collections[collectionName] = collection;
+            lock (databaseLock) {
+                MongoCollection collection;
+                if (!collections.TryGetValue(collectionName, out collection)) {
+                    collection = new MongoCollection(this, collectionName);
+                    collections[collectionName] = collection;
+                }
+                return collection;
             }
-            return collection;
         }
 
         public MongoCollection<T> GetCollection<T>(
             string collectionName
         ) where T : new() {
-            MongoCollection collection;
-            string key = string.Format("{0}<{1}>", collectionName, typeof(T).FullName);
-            if (!collections.TryGetValue(key, out collection)) {
-                collection = new MongoCollection<T>(this, collectionName);
-                collections[collectionName] = collection;
+            lock (databaseLock) {
+                MongoCollection collection;
+                string key = string.Format("{0}<{1}>", collectionName, typeof(T).FullName);
+                if (!collections.TryGetValue(key, out collection)) {
+                    collection = new MongoCollection<T>(this, collectionName);
+                    collections[collectionName] = collection;
+                }
+                return (MongoCollection<T>) collection;
             }
-            return (MongoCollection<T>) collection;
         }
 
         public List<string> GetCollectionNames() {
@@ -262,9 +273,12 @@ namespace MongoDB.MongoDBClient {
         // TODO: mongo shell has IsMaster at database level?
 
         public void ReleaseDedicatedConnection() {
-            if (dedicatedConnection != null) {
-                server.ConnectionPool.ReleaseConnection(dedicatedConnection);
-                dedicatedConnection = null;
+            lock (databaseLock) {
+                if (dedicatedConnection != null) {
+                    var connectionPool = server.GetConnectionPool();
+                    connectionPool.ReleaseConnection(dedicatedConnection);
+                    dedicatedConnection = null;
+                }
             }
         }
 
@@ -308,22 +322,28 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region internal methods
-        internal MongoConnection AcquireConnection() {
-            if (useDedicatedConnection) {
-                if (dedicatedConnection == null) {
-                    dedicatedConnection = server.ConnectionPool.AcquireConnection(this);
+        internal MongoConnection GetConnection() {
+            lock (databaseLock) {
+                var connectionPool = server.GetConnectionPool();
+                if (useDedicatedConnection) {
+                    if (dedicatedConnection == null) {
+                        dedicatedConnection = connectionPool.GetConnection(this);
+                    }
+                    return dedicatedConnection;
+                } else {
+                    return connectionPool.GetConnection(this);
                 }
-                return dedicatedConnection;
-            } else {
-                return server.ConnectionPool.AcquireConnection(this);
             }
         }
 
         internal void ReleaseConnection(
             MongoConnection connection
         ) {
-            if (!useDedicatedConnection) {
-                server.ConnectionPool.ReleaseConnection(connection);
+            lock (databaseLock) {
+                if (connection != dedicatedConnection) {
+                    var connectionPool = server.GetConnectionPool();
+                    connectionPool.ReleaseConnection(connection);
+                }
             }
         }
         #endregion

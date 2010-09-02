@@ -22,17 +22,19 @@ using System.Text;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoGetMoreMessage : MongoRequestMessage {
         #region private fields
+        private string collectionFullName;
         private int numberToReturn;
         private long cursorId;
         #endregion
 
         #region constructors
         internal MongoGetMoreMessage(
-            MongoCollection collection,
+            string collectionFullName,
             int numberToReturn,
             long cursorId
         )
-            : base(MessageOpcode.GetMore, collection) {
+            : base(MessageOpcode.GetMore) {
+            this.collectionFullName = collectionFullName;
             this.numberToReturn = numberToReturn;
             this.cursorId = cursorId;
         }
@@ -43,7 +45,7 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter binaryWriter
         ) {
             binaryWriter.Write((int) 0); // reserved
-            WriteCStringTo(binaryWriter, collection.FullName); // fullCollectionName
+            WriteCStringTo(binaryWriter, collectionFullName);
             binaryWriter.Write(numberToReturn);
             binaryWriter.Write(cursorId);
         }

@@ -34,18 +34,18 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public properties
-        public List<MongoServerAddress> Addresses {
+        public List<MongoServerAddress> SeedList {
             get {
                 string servers = Servers;
                 if (servers == null) {
                     return null;
                 } else {
-                    List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+                    List<MongoServerAddress> seedList = new List<MongoServerAddress>();
                     foreach (string server in servers.Split(',')) {
                         MongoServerAddress address = MongoServerAddress.Parse(server);
-                        addresses.Add(address);
+                        seedList.Add(address);
                     }
-                    return addresses;
+                    return seedList;
                 }
             }
             set {
@@ -106,7 +106,7 @@ namespace MongoDB.MongoDBClient {
 
         public MongoConnectionSettings ToConnectionSettings() {
             return new MongoConnectionSettings {
-                Addresses = Addresses,
+                SeedList = SeedList,
                 DatabaseName = DatabaseName,
                 Username = Username,
                 Password = Password

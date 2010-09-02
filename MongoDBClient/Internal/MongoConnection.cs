@@ -25,30 +25,34 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoConnection : IDisposable {
         #region private fields
+        private object connectionLock = new object();
         private bool disposed = false;
-        private string host;
-        private int port;
+        private MongoServerAddress address;
         private TcpClient tcpClient;
         private int messageCounter;
+        private MongoConnectionPool connectionPool;
         private MongoDatabase database; // this is constantly changing as pooled connection is reused
         #endregion
 
         #region constructors
         internal MongoConnection(
-            string host,
-            int port
+            MongoServerAddress address
         ) {
-            this.host = host;
-            this.port = port;
+            this.address = address;
 
-            tcpClient = new TcpClient(host, port);
+            tcpClient = new TcpClient(address.Host, address.Port);
             tcpClient.NoDelay = true; // turn off Nagle
-            tcpClient.ReceiveBufferSize = Mongo.TcpReceiveBufferSize; // default 4MB
-            tcpClient.SendBufferSize = Mongo.TcpSendBufferSize; // default 4MB
+            tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize; // default 4MB
+            tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize; // default 4MB
         }
         #endregion
 
         #region internal properties
+        internal MongoConnectionPool ConnectionPool {
+            get { return connectionPool; }
+            set { connectionPool = value; }
+        }
+
         internal MongoDatabase Database {
             get { return database; }
             set { database = value; }
@@ -80,56 +84,60 @@ namespace MongoDB.MongoDBClient.Internal {
 
         #region internal methods
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
-            if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
-            var bytes = ReadMessageBytes();
-            var reply = new MongoReplyMessage<T>();
-            reply.ReadFrom(bytes);
-            return reply;
+            lock (connectionLock) {
+                if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
+                var bytes = ReadMessageBytes();
+                var reply = new MongoReplyMessage<T>();
+                reply.ReadFrom(bytes);
+                return reply;
+            }
         }
 
         internal BsonDocument SendMessage(
             MongoRequestMessage message,
             SafeMode safeMode
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
-            MemoryStream memoryStream = message.GetMemoryStream();
+            lock (connectionLock) {
+                if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
+                MemoryStream memoryStream = message.GetMemoryStream();
 
-            if (safeMode.Enabled) {
-                var command = new BsonDocument {
-                    { "getLastError", 1 },
-                    { safeMode.Replications > 1, "w", safeMode.Replications },
-                    { safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero, "wtimeout", (int) safeMode.Timeout.TotalMilliseconds }
-                };
-                var getLastErrorMessage = new MongoQueryMessage(database.CommandCollection, QueryFlags.None, 0, 1, command, null);
-                getLastErrorMessage.WriteTo(memoryStream); // piggy back on network transmission for message
+                if (safeMode.Enabled) {
+                    var command = new BsonDocument {
+                        { "getLastError", 1 },
+                        { safeMode.Replications > 1, "w", safeMode.Replications },
+                        { safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero, "wtimeout", (int) safeMode.Timeout.TotalMilliseconds }
+                    };
+                    var getLastErrorMessage = new MongoQueryMessage(database.CommandCollection.FullName, QueryFlags.None, 0, 1, command, null);
+                    getLastErrorMessage.WriteTo(memoryStream); // piggy back on network transmission for message
+                }
+
+                NetworkStream networkStream = tcpClient.GetStream();
+                networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
+                messageCounter++;
+
+                BsonDocument lastError = null;
+                if (safeMode.Enabled) {
+                    var replyMessage = ReceiveMessage<BsonDocument>();
+                    lastError = replyMessage.Documents[0];
+
+                    if (!lastError.ContainsElement("ok")) {
+                        throw new MongoException("ok element is missing");
+                    }
+                    if (!lastError.GetAsBoolean("ok")) {
+                        string errmsg = (string) lastError["errmsg"];
+                        string errorMessage = string.Format("Safemode detected an error ({0})", errmsg);
+                        throw new MongoException(errorMessage);
+                    }
+
+                    string err = lastError["err"] as string;
+                    if (!string.IsNullOrEmpty(err)) {
+                        string errorMessage = string.Format("Safemode detected an error ({0})", err);
+                        throw new MongoException(errorMessage);
+                    }
+                }
+
+                return lastError;
             }
-
-            NetworkStream networkStream = tcpClient.GetStream();
-            networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
-            messageCounter++;
-
-            BsonDocument lastError = null;
-            if (safeMode.Enabled) {
-                var replyMessage = ReceiveMessage<BsonDocument>();
-                lastError = replyMessage.Documents[0];
-
-                if (!lastError.ContainsElement("ok")) {
-                    throw new MongoException("ok element is missing");
-                }
-                if (!lastError.GetAsBoolean("ok")) {
-                    string errmsg = (string) lastError["errmsg"];
-                    string errorMessage = string.Format("Safemode detected an error ({0})", errmsg);
-                    throw new MongoException(errorMessage);
-                }
-
-                string err = lastError["err"] as string;
-                if (!string.IsNullOrEmpty(err)) {
-                    string errorMessage = string.Format("Safemode detected an error ({0})", err);
-                    throw new MongoException(errorMessage);
-                }
-            }
-
-            return lastError;
         }
         #endregion
 

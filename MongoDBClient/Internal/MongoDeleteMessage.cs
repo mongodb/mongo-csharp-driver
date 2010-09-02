@@ -24,17 +24,19 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoDeleteMessage : MongoRequestMessage {
         #region private fields
+        private string collectionFullName;
         private RemoveFlags flags;
         private BsonDocument query;
         #endregion
 
         #region constructors
         internal MongoDeleteMessage(
-            MongoCollection collection,
+            string collectionFullName,
             RemoveFlags flags,
             BsonDocument query
         ) :
-            base(MessageOpcode.Delete, collection) {
+            base(MessageOpcode.Delete) {
+            this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;
         }
@@ -45,7 +47,7 @@ namespace MongoDB.MongoDBClient.Internal {
             BinaryWriter binaryWriter
         ) {
             binaryWriter.Write((int) 0); // reserved
-            WriteCStringTo(binaryWriter, collection.FullName);
+            WriteCStringTo(binaryWriter, collectionFullName);
             binaryWriter.Write((int) flags);
 
             BsonWriter bsonWriter = BsonBinaryWriter.Create(binaryWriter);

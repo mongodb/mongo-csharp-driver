@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient.Internal;
@@ -24,11 +25,15 @@ using MongoDB.MongoDBClient.Internal;
 namespace MongoDB.MongoDBClient {
     public class MongoServer {
         #region private static fields
+        private static object staticLock = new object();
         private static List<MongoServer> servers = new List<MongoServer>();
         #endregion
 
         #region private fields
-        private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+        private object serverLock = new object();
+        private MongoServerState state = MongoServerState.Disconnected;
+        private List<MongoServerAddress> seedList;
+        private List<MongoServerAddress> replicaSet;
         private SafeMode safeMode = SafeMode.False;
         private bool slaveOk;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
@@ -40,8 +45,7 @@ namespace MongoDB.MongoDBClient {
         public MongoServer(
             MongoConnectionSettings settings
         ) {
-            this.addresses = settings.Addresses;
-            this.connectionPool = new MongoConnectionPool(this);
+            this.seedList = settings.SeedList;
         }
         #endregion
 
@@ -49,15 +53,17 @@ namespace MongoDB.MongoDBClient {
         public static MongoServer Create(
             MongoConnectionSettings settings
         ) {
-            foreach (MongoServer server in servers) {
-                if (server.Addresses.SequenceEqual(settings.Addresses)) {
-                    return server;
+            lock (staticLock) {
+                foreach (MongoServer server in servers) {
+                    if (server.SeedList.SequenceEqual(settings.SeedList)) {
+                        return server;
+                    }
                 }
-            }
 
-            MongoServer newServer = new MongoServer(settings);
-            servers.Add(newServer);
-            return newServer;
+                MongoServer newServer = new MongoServer(settings);
+                servers.Add(newServer);
+                return newServer;
+            }
         }
 
         public static MongoServer Create(
@@ -92,8 +98,8 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public properties
-        public IEnumerable<MongoServerAddress> Addresses {
-            get { return addresses; }
+        public IEnumerable<MongoServerAddress> SeedList {
+            get { return seedList; }
         }
 
         public MongoCredentials AdminCredentials {
@@ -105,12 +111,8 @@ namespace MongoDB.MongoDBClient {
             get { return GetDatabase("admin", adminCredentials); }
         }
 
-        public string Host {
-            get { return addresses[0].Host; }
-        }
-
-        public int Port {
-            get { return addresses[0].Port; }
+        public IEnumerable<MongoServerAddress> ReplicaSet {
+            get { return replicaSet; }
         }
 
         public SafeMode SafeMode {
@@ -122,11 +124,9 @@ namespace MongoDB.MongoDBClient {
             get { return slaveOk; }
             set { slaveOk = value; }
         }
-        #endregion
 
-        #region internal properties
-        internal MongoConnectionPool ConnectionPool {
-            get { return connectionPool; }
+        public MongoServerState State {
+            get { return state; }
         }
         #endregion
 
@@ -143,6 +143,41 @@ namespace MongoDB.MongoDBClient {
             string fromHost
         ) {
             throw new NotImplementedException();
+        }
+
+        public void Connect() {
+            Connect(MongoDefaults.ConnectTimeout);
+        }
+
+        public void Connect(
+            TimeSpan timeout
+        ) {
+            lock (serverLock) {
+                if (state != MongoServerState.Connected) {
+                    state = MongoServerState.Connecting;
+                    try {
+                        var results = FindPrimary(timeout);
+
+                        if (results.CommandResult.ContainsElement("hosts")) {
+                            replicaSet = new List<MongoServerAddress>();
+                            foreach (string host in results.CommandResult.GetArray("hosts")) {
+                                var address = MongoServerAddress.Parse(host);
+                                replicaSet.Add(address);
+                            }
+                        } else {
+                            replicaSet = null;
+                        }
+
+                        connectionPool = new MongoConnectionPool(this, results.Address);
+                        connectionPool.AddConnection(results.Connection); // don't waste the connection FindPrimary made to the primary
+
+                        state = MongoServerState.Connected;
+                    } catch {
+                        state = MongoServerState.Disconnected;
+                        throw;
+                    }
+                }
+            }
         }
 
         // TODO: fromHost parameter?
@@ -175,19 +210,21 @@ namespace MongoDB.MongoDBClient {
             if (credentials == null) {
                 key = databaseName;
             } else {
-                key = string.Format("{0}[{1}]", databaseName, credentials);
+                key = string.Format("{0}[{1}{2}]", databaseName, credentials.Username, credentials.Admin ? "(admin)" : "");
             }
 
-            MongoDatabase database;
-            if (!databases.TryGetValue(key, out database)) {
-                if (credentials == null) {
-                    database = new MongoDatabase(this, databaseName);
-                } else {
-                    database = new MongoDatabase(this, databaseName, credentials);
+            lock (serverLock) {
+                MongoDatabase database;
+                if (!databases.TryGetValue(key, out database)) {
+                    if (credentials == null) {
+                        database = new MongoDatabase(this, databaseName);
+                    } else {
+                        database = new MongoDatabase(this, databaseName, credentials);
+                    }
+                    databases[databaseName] = database;
                 }
-                databases[databaseName] = database;
+                return database;
             }
-            return database;
         }
 
         public List<string> GetDatabaseNames() {
@@ -211,6 +248,135 @@ namespace MongoDB.MongoDBClient {
                 { "to", newCollectionName }
             };
             return AdminDatabase.RunCommand(command);
+        }
+        #endregion
+
+        #region private methods
+        private QueryServerResults FindPrimary(
+            TimeSpan timeout
+        ) {
+            DateTime deadline = DateTime.UtcNow + timeout;
+
+            // query all servers in seed list in parallel (they will report results back through the resultsQueue)
+            var resultsQueue = new BlockingQueue<QueryServerResults>();
+            var queriedServers = new HashSet<MongoServerAddress>();
+            int pendingReplies = 0;
+            foreach (var address in seedList) {
+                var args = new QueryServerParameters {
+                    Address = address,
+                    ResultsQueue = resultsQueue
+                };
+                ThreadPool.QueueUserWorkItem(QueryServerWorkItem, args);
+                queriedServers.Add(address);
+                pendingReplies++;
+            }
+
+            // process the results as they come back and stop as soon as we find the primary
+            // stragglers will continue to report results to the resultsQueue but no one will read them
+            // and eventually it will all get garbage collected
+
+            QueryServerResults results;
+            while (pendingReplies > 0 && (results = resultsQueue.Dequeue(deadline)) != null) {
+                pendingReplies--;
+
+                if (results.Exception != null) {
+                    // TODO: how to report exceptions
+                    continue;
+                }
+
+                var commandResult = results.CommandResult;
+                if (!commandResult.GetAsBoolean("ok")) {
+                    // TODO: how to report errors?
+                    continue;
+                }
+
+                if (commandResult.GetAsBoolean("ismaster")) {
+                    return results;
+                }
+
+                // look for additional members of the replica set that might not have been in the seed list and query them also
+                if (commandResult.ContainsElement("hosts")) {
+                    foreach (string host in commandResult.GetArray("hosts")) {
+                        var address = MongoServerAddress.Parse(host);
+                        if (!queriedServers.Contains(address)) {
+                            var args = new QueryServerParameters {
+                                Address = address,
+                                ResultsQueue = resultsQueue
+                            };
+                            ThreadPool.QueueUserWorkItem(QueryServerWorkItem, args);
+                            queriedServers.Add(address);
+                            pendingReplies++;
+                        }
+                    }
+                }
+            }
+
+            throw new MongoException("Unable to connect to server");
+        }
+
+        // note: this method will run on a thread from the ThreadPool
+        private void QueryServerWorkItem(
+            object parameters
+        ) {
+            // this method has to work at a very low level because the connection pool isn't set up yet
+            var args = (QueryServerParameters) parameters;
+            var results = new QueryServerResults();
+            results.Address = args.Address;
+
+            try {
+                var connection = new MongoConnection(args.Address);
+                var command = new BsonDocument("ismaster", 1);
+                var message = new MongoQueryMessage(
+                    "admin.$cmd",
+                    QueryFlags.SlaveOk,
+                    0, // numberToSkip
+                    1, // numberToReturn
+                    command,
+                    null // fields
+                );
+                connection.SendMessage(message, SafeMode.False);
+                var reply = connection.ReceiveMessage<BsonDocument>();
+                var commandResult = reply.Documents[0];
+                results.CommandResult = commandResult;
+
+                if (
+                    commandResult.GetAsBoolean("ok", false) &&
+                    commandResult.GetAsBoolean("ismaster", false)
+                ) {
+                    results.Connection = connection; // will become the first connection in the connection pool
+                } else {
+                    connection.Dispose();
+                }
+            } catch (Exception ex) {
+                results.Exception = ex;
+            }
+
+            args.ResultsQueue.Enqueue(results);
+        }
+        #endregion
+
+        #region internal methods
+        internal MongoConnectionPool GetConnectionPool() {
+            lock (serverLock) {
+                if (connectionPool == null) {
+                    Connect();
+                }
+                return connectionPool;
+            }
+        }
+        #endregion
+
+        #region private nested classes
+        private class QueryServerParameters {
+            public MongoServerAddress Address { get; set; }
+            public BlockingQueue<QueryServerResults> ResultsQueue { get; set; }
+        }
+
+        private class QueryServerResults {
+            public MongoServerAddress Address { get; set; }
+            public MongoConnection Connection { get; set; }
+            public BsonDocument CommandResult { get; set; }
+            public Exception Exception { get; set; }
         }
         #endregion
     }
