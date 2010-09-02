@@ -68,6 +68,17 @@ namespace MongoDB.MongoDBClient.Internal {
         public void Dispose() {
             if (!disposed) {
                 try {
+                    Close();
+                } catch { } // ignore exceptions
+                disposed = true;
+            }
+        }
+        #endregion
+
+        #region internal methods
+        internal void Close() {
+            lock (connectionLock) {
+                if (tcpClient != null) {
                     // note: TcpClient.Close doesn't close the NetworkStream!?
                     NetworkStream networkStream = tcpClient.GetStream();
                     if (networkStream != null) {
@@ -75,18 +86,21 @@ namespace MongoDB.MongoDBClient.Internal {
                     }
                     tcpClient.Close();
                     ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
-                } catch { } // ignore exceptions
-                tcpClient = null;
-                disposed = true;
+                    tcpClient = null;
+                }
             }
         }
-        #endregion
 
-        #region internal methods
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
             lock (connectionLock) {
                 if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
-                var bytes = ReadMessageBytes();
+                byte[] bytes;
+                try {
+                    bytes = ReadMessageBytes();
+                } catch (SocketException ex) {
+                    HandleSocketException(ex);
+                    throw;
+                }
                 var reply = new MongoReplyMessage<T>();
                 reply.ReadFrom(bytes);
                 return reply;
@@ -111,9 +125,14 @@ namespace MongoDB.MongoDBClient.Internal {
                     getLastErrorMessage.WriteTo(memoryStream); // piggy back on network transmission for message
                 }
 
-                NetworkStream networkStream = tcpClient.GetStream();
-                networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
-                messageCounter++;
+                try {
+                    NetworkStream networkStream = tcpClient.GetStream();
+                    networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
+                    messageCounter++;
+                } catch (SocketException ex) {
+                    HandleSocketException(ex);
+                    throw;
+                }
 
                 BsonDocument lastError = null;
                 if (safeMode.Enabled) {
@@ -142,6 +161,18 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region private methods
+        private void HandleSocketException(
+            SocketException ex
+        ) {
+            if (connectionPool != null) {
+                // TODO: analyze SocketException to determine if the server is really down?
+                // for now assume it is and force MongoServer to find a new primary by calling Disconnect
+                try {
+                    connectionPool.Server.Disconnect();
+                } catch { } // ignore any further exceptions
+            }
+        }
+
         private byte[] ReadMessageBytes() {
             NetworkStream networkStream = tcpClient.GetStream();
             byte[] messageLengthBytes = new byte[4];

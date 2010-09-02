@@ -207,7 +207,7 @@ namespace MongoDB.MongoDBClientTest {
             Console.WriteLine(result.ToJson(new BsonJsonWriterSettings { Indent = true }));
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://localhost,localhost/test"; // fake replica set test by using localhost twice
             var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection("books");
@@ -221,6 +221,15 @@ namespace MongoDB.MongoDBClientTest {
             collection.Insert(book);
             book = collection.FindOne<BsonDocument>(book);
             database.UseDedicatedConnection = false;
+#endif
+
+#if true
+            string connectionString = "mongodb://localhost";
+            var server = MongoServer.Create(connectionString);
+
+            server.Connect();
+            server.Disconnect();
+            server.Connect();
 #endif
         }
     }

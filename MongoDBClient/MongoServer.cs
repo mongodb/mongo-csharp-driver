@@ -188,6 +188,18 @@ namespace MongoDB.MongoDBClient {
             throw new NotImplementedException();
         }
 
+        public void Disconnect() {
+            // normally called from a connection when there is a SocketException
+            // but anyone can call it if they want to close all sockets to the server
+            lock (serverLock) {
+                if (state == MongoServerState.Connected) {
+                    connectionPool.Close();
+                    connectionPool = null;
+                    state = MongoServerState.Disconnected;
+                }
+            }
+        }
+
         public void DropDatabase(
             string databaseName
         ) {
@@ -237,6 +249,13 @@ namespace MongoDB.MongoDBClient {
             }
             databaseNames.Sort();
             return databaseNames;
+        }
+
+        public void Reconnect() {
+            lock (serverLock) {
+                Disconnect();
+                Connect();
+            }
         }
 
         public BsonDocument RenameCollection(

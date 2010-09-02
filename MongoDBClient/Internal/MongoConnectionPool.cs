@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoConnectionPool {
@@ -25,6 +26,7 @@ namespace MongoDB.MongoDBClient.Internal {
         private MongoServer server;
         private MongoServerAddress address;
         private List<MongoConnection> pool = new List<MongoConnection>();
+        private bool closed;
         #endregion
 
         #region constructors
@@ -57,11 +59,19 @@ namespace MongoDB.MongoDBClient.Internal {
             pool.Add(connection);
         }
 
+        internal void Close() {
+            ThreadPool.QueueUserWorkItem(CloseAllConnections);
+            closed = true;
+        }
+
         internal MongoConnection GetConnection(
             MongoDatabase database
         ) {
             if (!object.ReferenceEquals(database.Server, server)) {
                 throw new MongoException("This connection pool is for a different server");
+            }
+            if (closed) {
+                throw new MongoException("Attempt to get a connection from a closed connection pool");
             }
 
             MongoConnection connection;
@@ -85,11 +95,24 @@ namespace MongoDB.MongoDBClient.Internal {
             }
 
             connection.Database = null;
-            if (pool.Count < 10) {
+            if (pool.Count < 10 && !closed) {
                 pool.Add(connection);
             } else {
                 connection.Dispose();
             }
+        }
+        #endregion
+
+        #region private methods
+        // note: this method runs on a thread from the ThreadPool
+        private void CloseAllConnections(
+            object parameters
+        ) {
+            try {
+                foreach (var connection in pool) {
+                    connection.Close();
+                }
+            } catch { } // ignore exceptions
         }
         #endregion
     }
