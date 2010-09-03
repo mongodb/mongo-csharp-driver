@@ -76,12 +76,14 @@ namespace MongoDB.MongoDBClient {
         public void Delete(
             BsonDocument query
         ) {
-            var fileIds = FilesCollection.Find<BsonDocument>(query).Select(f => f.GetObjectId("_id"));
-            foreach (var fileId in fileIds) {
-                var fileQuery = new BsonDocument("_id", fileId);
-                FilesCollection.Remove(fileQuery, safeMode);
-                var chunksQuery = new BsonDocument("files_id", fileId);
-                ChunksCollection.Remove(chunksQuery, safeMode);
+            using (database.RequestStart()) {
+                var fileIds = FilesCollection.Find<BsonDocument>(query).Select(f => f.GetObjectId("_id"));
+                foreach (var fileId in fileIds) {
+                    var fileQuery = new BsonDocument("_id", fileId);
+                    FilesCollection.Remove(fileQuery, safeMode);
+                    var chunksQuery = new BsonDocument("files_id", fileId);
+                    ChunksCollection.Remove(chunksQuery, safeMode);
+                }
             }
         }
 
@@ -124,26 +126,28 @@ namespace MongoDB.MongoDBClient {
             Stream stream,
             MongoGridFSFileInfo fileInfo
         ) {
-            var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
-            for (int n = 0; n < numberOfChunks; n++) {
-                var query = new BsonDocument {
-                    { "files_id", fileInfo.Id },
-                    { "n", n }
-                };
-                var chunk = ChunksCollection.FindOne<BsonDocument>(query);
-                if (chunk == null) {
-                    string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
-                    throw new MongoException(errorMessage);
-                }
-                var data = chunk.GetBinaryData("data");
-                if (data.Bytes.Length != fileInfo.ChunkSize) {
-                    // the last chunk only has as many bytes as needed to complete the file
-                    if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize) {
-                        string errorMessage = string.Format("Chunk {0} for {1} is the wrong size", n, fileInfo.Name);
+            using (database.RequestStart()) {
+                var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
+                for (int n = 0; n < numberOfChunks; n++) {
+                    var query = new BsonDocument {
+                        { "files_id", fileInfo.Id },
+                        { "n", n }
+                    };
+                    var chunk = ChunksCollection.FindOne<BsonDocument>(query);
+                    if (chunk == null) {
+                        string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
                         throw new MongoException(errorMessage);
                     }
+                    var data = chunk.GetBinaryData("data");
+                    if (data.Bytes.Length != fileInfo.ChunkSize) {
+                        // the last chunk only has as many bytes as needed to complete the file
+                        if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize) {
+                            string errorMessage = string.Format("Chunk {0} for {1} is the wrong size", n, fileInfo.Name);
+                            throw new MongoException(errorMessage);
+                        }
+                    }
+                    stream.Write(data.Bytes, 0, data.Bytes.Length);
                 }
-                stream.Write(data.Bytes, 0, data.Bytes.Length);
             }
         }
 
@@ -281,7 +285,12 @@ namespace MongoDB.MongoDBClient {
             } else {
                 fileInfoDocument = FilesCollection.FindOne<BsonDocument>(query);
             }
-            return new MongoGridFSFileInfo(this, fileInfoDocument);
+
+            if (fileInfoDocument != null) {
+                return new MongoGridFSFileInfo(this, fileInfoDocument);
+            } else {
+                return null;
+            }
         }
 
         public MongoGridFSFileInfo FindOne(
@@ -309,57 +318,59 @@ namespace MongoDB.MongoDBClient {
             Stream stream,
             string remoteFileName
         ) {
-            ChunksCollection.EnsureIndex("files_id", "n");
+            using (database.RequestStart()) {
+                ChunksCollection.EnsureIndex("files_id", "n");
 
-            BsonObjectId files_id = BsonObjectId.GenerateNewId();
-            var chunkSize = settings.DefaultChunkSize;
-            var buffer = new byte[chunkSize];
+                BsonObjectId files_id = BsonObjectId.GenerateNewId();
+                var chunkSize = settings.DefaultChunkSize;
+                var buffer = new byte[chunkSize];
 
-            var length = 0;
-            for (int n = 0; true; n++) {
-                int bytesRead = stream.Read(buffer, 0, chunkSize);
-                if (bytesRead == 0) {
-                    break;
+                var length = 0;
+                for (int n = 0; true; n++) {
+                    int bytesRead = stream.Read(buffer, 0, chunkSize);
+                    if (bytesRead == 0) {
+                        break;
+                    }
+                    length += bytesRead;
+
+                    byte[] data = buffer;
+                    if (bytesRead < chunkSize) {
+                        data = new byte[bytesRead];
+                        Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
+                    }
+
+                    var chunk = new BsonDocument {
+                        { "_id", BsonObjectId.GenerateNewId() },
+                        { "files_id", files_id },
+                        { "n", n },
+                        { "data", new BsonBinaryData(data) }
+                    };
+                    ChunksCollection.Insert(chunk, safeMode);
+
+                    if (bytesRead < chunkSize) {
+                        break;
+                    }
                 }
-                length += bytesRead;
 
-                byte[] data = buffer;
-                if (bytesRead < chunkSize) {
-                    data = new byte[bytesRead];
-                    Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
-                }
-
-                var chunk = new BsonDocument {
-                    { "_id", BsonObjectId.GenerateNewId() },
-                    { "files_id", files_id },
-                    { "n", n },
-                    { "data", new BsonBinaryData(data) }
+                var md5Command = new BsonDocument {
+                    { "filemd5", files_id },
+                    { "root", settings.Root }
                 };
-                ChunksCollection.Insert(chunk, safeMode);
+                var md5Result = database.RunCommand(md5Command);
+                var md5 = md5Result.GetString("md5");
 
-                if (bytesRead < chunkSize) {
-                    break;
-                }
+                BsonDocument fileInfo = new BsonDocument {
+                    { "_id", files_id },
+                    { "filename", remoteFileName },
+                    { "length", length },
+                    { "chunkSize", chunkSize },
+                    { "uploadDate", DateTime.UtcNow },
+                    { "md5", md5 }
+                };
+                FilesCollection.Insert(fileInfo, safeMode);
+
+                return FindOne(files_id);
             }
-
-            var md5Command = new BsonDocument {
-                { "filemd5", files_id },
-                { "root", settings.Root }
-            };
-            var md5Result = database.RunCommand(md5Command);
-            var md5 = md5Result.GetString("md5");
-
-            BsonDocument fileInfo = new BsonDocument {
-                { "_id", files_id },
-                { "filename", remoteFileName },
-                { "length", length },
-                { "chunkSize", chunkSize },
-                { "uploadDate", DateTime.UtcNow },
-                { "md5", md5 }
-            };
-            FilesCollection.Insert(fileInfo, safeMode);
-
-            return FindOne(files_id);
         }
 
         public MongoGridFSFileInfo Upload(

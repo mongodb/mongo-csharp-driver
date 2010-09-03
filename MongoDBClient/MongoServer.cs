@@ -367,7 +367,7 @@ namespace MongoDB.MongoDBClient {
             results.Address = args.Address;
 
             try {
-                var connection = new MongoConnection(null, args.Address, null); // no connection pool or credentials
+                var connection = new MongoConnection(null, args.Address); // no connection pool
                 var command = new BsonDocument("ismaster", 1);
                 var message = new MongoQueryMessage(
                     "admin.$cmd",

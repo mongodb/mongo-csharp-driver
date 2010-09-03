@@ -29,8 +29,6 @@ namespace MongoDB.MongoDBClient {
         private string name;
         private MongoCredentials credentials;
         private SafeMode safeMode;
-        private bool useDedicatedConnection;
-        private MongoConnection dedicatedConnection;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
         private MongoGridFS gridFS;
         #endregion
@@ -129,18 +127,6 @@ namespace MongoDB.MongoDBClient {
 
         public MongoServer Server {
             get { return server; }
-        }
-
-        public bool UseDedicatedConnection {
-            get { return useDedicatedConnection; }
-            set {
-                lock (databaseLock) {
-                    useDedicatedConnection = value;
-                    if (!useDedicatedConnection) {
-                        ReleaseDedicatedConnection();
-                    }
-                }
-            }
         }
         #endregion
 
@@ -256,10 +242,10 @@ namespace MongoDB.MongoDBClient {
             return collectionNames;
         }
 
-        // requires UseDedicatedConnection == true to return accurate results
         public BsonDocument GetLastError() {
-            if (!useDedicatedConnection) {
-                throw new MongoException("GetLastError can only be called if UseDedicatedConnection is true");
+            var connectionPool = server.GetConnectionPool();
+            if (connectionPool.RequestNestingLevel == 0) {
+                throw new MongoException("GetLastError can only be called if RequestStart has been called first");
             }
             return RunCommand("getLastError");
         }
@@ -280,21 +266,22 @@ namespace MongoDB.MongoDBClient {
 
         // TODO: mongo shell has IsMaster at database level?
 
-        public void ReleaseDedicatedConnection() {
-            lock (databaseLock) {
-                if (dedicatedConnection != null) {
-                    var connectionPool = server.GetConnectionPool();
-                    connectionPool.ReleaseConnection(dedicatedConnection);
-                    dedicatedConnection = null;
-                }
-            }
-        }
-
         public void RemoveUser(
             string username
         ) {
             MongoCollection users = GetCollection("system.users");
             users.Remove(new BsonDocument("user", username));
+        }
+
+        public void RequestDone() {
+            var connectionPool = server.GetConnectionPool();
+            connectionPool.RequestDone();
+        }
+
+        public IDisposable RequestStart() {
+            var connectionPool = server.GetConnectionPool();
+            connectionPool.RequestStart(this);
+            return new RequestDisposer(this);
         }
 
         // TODO: mongo shell has ResetError at the database level
@@ -333,14 +320,7 @@ namespace MongoDB.MongoDBClient {
         internal MongoConnection GetConnection() {
             lock (databaseLock) {
                 var connectionPool = server.GetConnectionPool();
-                if (useDedicatedConnection) {
-                    if (dedicatedConnection == null) {
-                        dedicatedConnection = connectionPool.GetConnection(this);
-                    }
-                    return dedicatedConnection;
-                } else {
-                    return connectionPool.GetConnection(this);
-                }
+                return connectionPool.GetConnection(this);
             }
         }
 
@@ -348,10 +328,8 @@ namespace MongoDB.MongoDBClient {
             MongoConnection connection
         ) {
             lock (databaseLock) {
-                if (connection != dedicatedConnection) {
-                    var connectionPool = server.GetConnectionPool();
-                    connectionPool.ReleaseConnection(connection);
-                }
+                var connectionPool = server.GetConnectionPool();
+                connectionPool.ReleaseConnection(connection);
             }
         }
         #endregion
@@ -371,6 +349,28 @@ namespace MongoDB.MongoDBClient {
             ) {
                 throw new MongoException("Invalid database name");
             }
+        }
+        #endregion
+
+        #region private nested classes
+        private class RequestDisposer : IDisposable {
+            #region private fields
+            private MongoDatabase database;
+            #endregion
+
+            #region constructors
+            public RequestDisposer(
+                MongoDatabase database
+            ) {
+                this.database = database;
+            }
+            #endregion
+
+            #region public methods
+            public void Dispose() {
+                database.RequestDone();
+            }
+            #endregion
         }
         #endregion
     }

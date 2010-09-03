@@ -29,22 +29,19 @@ namespace MongoDB.MongoDBClient.Internal {
         private bool disposed = false;
         private MongoConnectionPool connectionPool;
         private MongoServerAddress address;
-        private MongoCredentials credentials;
         private TcpClient tcpClient;
         private DateTime lastUsed; // set every time the connection is Released
         private int messageCounter;
-        private HashSet<string> authenticatedDatabases = new HashSet<string>();
+        private Dictionary<string, Authentication> authentications = new Dictionary<string, Authentication>();
         #endregion
 
         #region constructors
         internal MongoConnection(
             MongoConnectionPool connectionPool,
-            MongoServerAddress address,
-            MongoCredentials credentials
+            MongoServerAddress address
         ) {
             this.connectionPool = connectionPool;
             this.address = address;
-            this.credentials = credentials;
 
             tcpClient = new TcpClient(address.Host, address.Port);
             tcpClient.NoDelay = true; // turn off Nagle
@@ -56,10 +53,6 @@ namespace MongoDB.MongoDBClient.Internal {
         #region internal properties
         internal MongoConnectionPool ConnectionPool {
             get { return connectionPool; }
-        }
-
-        internal MongoCredentials Credentials {
-            get { return credentials; }
         }
 
         internal DateTime LastUsed {
@@ -89,14 +82,12 @@ namespace MongoDB.MongoDBClient.Internal {
             MongoDatabase database
         ) {
             lock (connectionLock) {
-                if (credentials != database.Credentials) {
-                    throw new MongoException("Connection credentials not equal to database credentials");
-                }
+                var credentials = database.Credentials;
+                var authenticationDatabaseName = credentials.Admin ? "admin" : database.Name;
 
-                var authenticateDatabaseName = credentials.Admin ? "admin" : database.Name;
                 var nonceCommand = new BsonDocument("getnonce", 1);
                 var nonceMessage = new MongoQueryMessage(
-                    string.Format("{0}.$cmd", authenticateDatabaseName), // collectionFullName
+                    string.Format("{0}.$cmd", authenticationDatabaseName), // collectionFullName
                     QueryFlags.None,
                     0, // numberToSkip
                     1, // numberToReturn
@@ -121,7 +112,7 @@ namespace MongoDB.MongoDBClient.Internal {
                     { "key", digest }
                 };
                 var authenticateMessage = new MongoQueryMessage(
-                    string.Format("{0}.$cmd", authenticateDatabaseName), // collectionFullName
+                    string.Format("{0}.$cmd", authenticationDatabaseName), // collectionFullName
                     QueryFlags.None,
                     0, // numberToSkip
                     1, // numberToReturn
@@ -135,7 +126,76 @@ namespace MongoDB.MongoDBClient.Internal {
                     throw new MongoException("Invalid credentials for database");
                 }
 
-                authenticatedDatabases.Add(database.Name);
+                var authentication = new Authentication(credentials);
+                authentications.Add(authenticationDatabaseName, authentication);
+            }
+        }
+
+        // check whether the connection can be used with the given database (and credentials)
+        // the following are the only valid authentication states for a connection:
+        // 1. the connection is not authenticated against any database
+        // 2. the connection has a single authentication against the admin database (with a particular set of credentials)
+        // 3. the connection has one or more authentications against any databases other than admin
+        //    (with the restriction that a particular database can only be authenticated against once and therefore with only one set of credentials)
+
+        // assume that IsAuthenticated was called first and returned false
+        internal bool CanAuthenticate(
+            MongoDatabase database
+        ) {
+            if (authentications.Count == 0) {
+                // a connection with no existing authentications can authenticate anything
+                return true;
+            } else {
+                // a connection with existing authentications can't be used without credentials
+                if (database.Credentials == null) {
+                    return false;
+                }
+
+                // a connection with existing authentications can't be used with new admin credentials
+                if (database.Credentials.Admin) {
+                    return false;
+                }
+
+                // a connection with an existing authentication to the admin database can't be used with any other credentials
+                if (authentications.ContainsKey("admin")) {
+                    return false;
+                }
+
+                // a connection with an existing authentication to a database can't authenticate for the same database again
+                if (authentications.ContainsKey(database.Name)) {
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        internal void CheckAuthentication(
+            MongoDatabase database
+        ) {
+            if (database.Credentials == null) {
+                if (authentications.Count != 0) {
+                    throw new MongoException("A connection that is already using authentication requires credentials");
+                }
+            } else {
+                var credentials = database.Credentials;
+                var authenticationDatabaseName = credentials.Admin ? "admin" : database.Name;
+                Authentication authentication;
+                if (authentications.TryGetValue(authenticationDatabaseName, out authentication)) {
+                    if (authentication.Credentials != database.Credentials) {
+                        if (authenticationDatabaseName == "admin") {
+                            throw new MongoException("The connection is already authenticated to the admin database with different credentials");
+                        } else {
+                            throw new MongoException("The connection is already authenticated to the same database with different credentials");
+                        }
+                    }
+                    authentication.LastUsed = DateTime.UtcNow;
+                } else {
+                    if (authenticationDatabaseName == "admin" && authentications.Count != 0) {
+                        throw new MongoException("The connection cannot be authenticated against the admin database when it is already authenticated against other databases");
+                    }
+                    Authenticate(database);
+                }
             }
         }
 
@@ -158,8 +218,17 @@ namespace MongoDB.MongoDBClient.Internal {
             MongoDatabase database
         ) {
             lock (connectionLock) {
-                var authenticateDatabaseName = credentials.Admin ? "admin" : database.Name;
-                return authenticatedDatabases.Contains(authenticateDatabaseName);
+                if (database.Credentials == null) {
+                    return authentications.Count == 0;
+                } else {
+                    var authenticationDatabaseName = database.Credentials.Admin ? "admin" : database.Name;
+                    Authentication authentication;
+                    if (authentications.TryGetValue(authenticationDatabaseName, out authentication)) {
+                        return database.Credentials == authentication.Credentials;
+                    } else {
+                        return false;
+                    }
+                }
             }
         }
 
@@ -170,10 +239,38 @@ namespace MongoDB.MongoDBClient.Internal {
             MongoConnectionPool connectionPool
         ) {
             if (this.connectionPool != null) {
-                throw new MongoException("Connection is already in a connection pool");
+                throw new MongoException("The connection is already in a connection pool");
             }
+            if (connectionPool.Address != address) {
+                throw new MongoException("A connection can only join a connection pool with the same server address");
+            }
+
             this.connectionPool = connectionPool;
             this.lastUsed = DateTime.UtcNow;
+        }
+
+        internal void Logout(
+            string databaseName
+        ) {
+            lock (connectionLock) {
+                var logoutCommand = new BsonDocument("logout", 1);
+                var logoutMessage = new MongoQueryMessage(
+                    string.Format("{0}.$cmd", databaseName), // collectionFullName
+                    QueryFlags.None,
+                    0, // numberToSkip
+                    1, // numberToReturn
+                    logoutCommand,
+                    null // fields
+                );
+                SendMessage(logoutMessage, SafeMode.False);
+                var logoutReply = ReceiveMessage<BsonDocument>();
+                var logoutCommandResult = logoutReply.Documents[0];
+                if (!logoutCommandResult.GetAsBoolean("ok", false)) {
+                    throw new MongoException("Error in logout");
+                }
+
+                authentications.Remove(databaseName);
+            }
         }
 
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
@@ -279,6 +376,35 @@ namespace MongoDB.MongoDBClient.Internal {
             }
 
             return reply;
+        }
+        #endregion
+
+        #region private nested classes
+        // keeps track of what credentials were used with a given database
+        // and when that database was last used on this connection
+        private class Authentication {
+            #region private fields
+            private MongoCredentials credentials;
+            private DateTime lastUsed;
+            #endregion
+
+            #region constructors
+            public Authentication(
+                MongoCredentials credentials
+            ) {
+                this.credentials = credentials;
+                this.lastUsed = DateTime.UtcNow;
+            }
+            #endregion
+
+            public MongoCredentials Credentials {
+                get { return credentials; }
+            }
+
+            public DateTime LastUsed {
+                get { return lastUsed; }
+                set { lastUsed = value; }
+            }
         }
         #endregion
     }

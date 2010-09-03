@@ -27,6 +27,7 @@ namespace MongoDB.MongoDBClient.Internal {
         private MongoServer server;
         private MongoServerAddress address;
         private List<MongoConnection> pool = new List<MongoConnection>();
+        private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private int maxPoolSize = 10; // TODO: make configurable?
         private TimeSpan maxIdleTime = TimeSpan.FromMinutes(10); // TODO: make configurable?
         #endregion
@@ -53,6 +54,18 @@ namespace MongoDB.MongoDBClient.Internal {
         internal MongoServerAddress Address {
             get { return address; }
         }
+
+        internal int RequestNestingLevel {
+            get {
+                int threadId = Thread.CurrentThread.ManagedThreadId;
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    return request.NestingLevel;
+                } else {
+                    return 0;
+                }
+            }
+        }
         #endregion
 
         #region internal methods
@@ -67,7 +80,7 @@ namespace MongoDB.MongoDBClient.Internal {
         internal MongoConnection GetConnection(
             MongoDatabase database
         ) {
-            if (!object.ReferenceEquals(database.Server, server)) {
+            if (database.Server != server) {
                 throw new MongoException("This connection pool is for a different server");
             }
             if (closed) {
@@ -75,31 +88,49 @@ namespace MongoDB.MongoDBClient.Internal {
             }
 
             MongoConnection connection = null;
+            Request request = null;
             lock (connectionPoolLock) {
-                // look for the most recently used connection that has the right credentials
-                for (int i = pool.Count - 1; i >= 0; i--) {
-                    if (pool[i].Credentials == database.Credentials) {
-                        connection = pool[i];
-                        pool.RemoveAt(i);
-                        break;
+                // if a thread has called RequestStart it wants all operations to take place on the same connection
+                int threadId = Thread.CurrentThread.ManagedThreadId;
+                if (requests.TryGetValue(threadId, out request)) {
+                    connection = request.Connection;
+                }
+
+                // otherwise find the most recently used connection that is already authenticated for this database
+                if (connection == null) {
+                    for (int i = pool.Count - 1; i >= 0; i--) {
+                        if (pool[i].IsAuthenticated(database)) {
+                            connection = pool[i];
+                            pool.RemoveAt(i);
+                            break;
+                        }
                     }
                 }
 
-                // if no connection with the right credentials was found create a new one
+                // otherwise find the most recently used connection that can be authenticated for this database
                 if (connection == null) {
-                    connection = new MongoConnection(this, address, database.Credentials);
+                    for (int i = pool.Count - 1; i >= 0; i--) {
+                        if (pool[i].CanAuthenticate(database)) {
+                            connection = pool[i];
+                            pool.RemoveAt(i);
+                            break;
+                        }
+                    }
+                }
+
+                // otherwise create a new one
+                if (connection == null) {
+                    connection = new MongoConnection(this, address);
                 }
             }
 
-            // if we need to authenticate do so only after the connectionPoolLock has been released
-            if (database.Credentials != null && !connection.IsAuthenticated(database)) {
-                try {
-                    connection.Authenticate(database);
-                } catch (MongoException) {
-                    // don't let the connection go to waste just because one authentication failed
-                    ReleaseConnection(connection);
-                    throw;
-                }
+            // be sure connectionPoolLock has been released before calling CheckAuthentication
+            try {
+                connection.CheckAuthentication(database); // might already be authenticated but we're not sure
+            } catch (MongoException) {
+                // don't let the connection go to waste just because authentication failed
+                ReleaseConnection(connection);
+                throw;
             }
 
             return connection;
@@ -114,6 +145,16 @@ namespace MongoDB.MongoDBClient.Internal {
 
             lock (connectionPoolLock) {
                 if (!closed) {
+                    // if the thread has called RequestStart just verify that the connection it is releasing is the right one
+                    int threadId = Thread.CurrentThread.ManagedThreadId;
+                    Request request;
+                    if (requests.TryGetValue(threadId, out request)) {
+                        if (connection != request.Connection) {
+                            throw new MongoException("Connection being released is not the one assigned to the thread by RequestStart");
+                        }
+                        return;
+                    }
+                    
                     // close connections that haven't been used for 10 minutes or more (should this be on a timer?)
                     DateTime cutoff = DateTime.UtcNow - maxIdleTime;
                     foreach (var idleConnection in pool.Where(c => c.LastUsed < cutoff).ToList()) {
@@ -130,6 +171,36 @@ namespace MongoDB.MongoDBClient.Internal {
                     pool.Add(connection);
                 } else {
                     connection.Dispose();
+                }
+            }
+        }
+
+        internal void RequestDone() {
+            lock (connectionPoolLock) {
+                int threadId = Thread.CurrentThread.ManagedThreadId;
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    if (--request.NestingLevel == 0) {
+                        requests.Remove(threadId);
+                    }
+                } else {
+                    throw new MongoException("Thread is not in a request (did you call RequestStart?)");
+                }
+            }
+        }
+
+        internal void RequestStart(
+            MongoDatabase database
+        ) {
+            lock (connectionPoolLock) {
+                int threadId = Thread.CurrentThread.ManagedThreadId;
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    request.NestingLevel++;
+                } else {
+                    var connection = GetConnection(database);
+                    request = new Request(connection);
+                    requests.Add(threadId, request);
                 }
             }
         }
@@ -156,6 +227,36 @@ namespace MongoDB.MongoDBClient.Internal {
                 var connection = (MongoConnection) parameters;
                 connection.Close();
             } catch { } // ignore exceptions
+        }
+        #endregion
+
+        #region private nested classes
+        private class Request {
+            #region private fields
+            private int nestingLevel;
+            private MongoConnection connection;
+            #endregion
+
+            #region constructors
+            public Request(
+                MongoConnection connection
+            ) {
+                this.nestingLevel = 1;
+                this.connection = connection;
+            }
+            #endregion
+
+            #region public properties
+            public int NestingLevel {
+                get { return nestingLevel; }
+                set { nestingLevel = value; }
+            }
+
+            public MongoConnection Connection {
+                get { return connection; }
+                set { connection = value; }
+            }
+            #endregion
         }
         #endregion
     }

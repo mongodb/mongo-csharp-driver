@@ -226,12 +226,14 @@ namespace MongoDB.MongoDBClientTest {
 #if true
             string connectionString = "mongodb://test:test@localhost/test";
             var database = MongoDatabase.Create(connectionString);
+            database.RequestStart();
             var collection = database.GetCollection<BsonDocument>("books");
             var books = collection.FindAll();
             foreach (var book in books) {
                 Console.WriteLine(book.ToJson(new BsonJsonWriterSettings { Indent = true }));
             }
             var count = collection.Count();
+            database.RequestDone();
 #endif
         }
     }
