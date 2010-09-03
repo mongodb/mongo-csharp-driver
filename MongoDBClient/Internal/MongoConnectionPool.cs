@@ -21,21 +21,27 @@ using System.Threading;
 
 namespace MongoDB.MongoDBClient.Internal {
     internal class MongoConnectionPool {
-        // TODO: implement a real connection pool
         #region private fields
+        private object connectionPoolLock = new object();
+        private bool closed = false;
         private MongoServer server;
         private MongoServerAddress address;
         private List<MongoConnection> pool = new List<MongoConnection>();
-        private bool closed;
+        private int maxPoolSize = 10; // TODO: make configurable?
+        private TimeSpan maxIdleTime = TimeSpan.FromMinutes(10); // TODO: make configurable?
         #endregion
 
         #region constructors
         internal MongoConnectionPool(
             MongoServer server,
-            MongoServerAddress address
+            MongoServerAddress address,
+            MongoConnection firstConnection
         ) {
             this.server = server;
             this.address = address;
+
+            pool.Add(firstConnection);
+            firstConnection.JoinConnectionPool(this);
         }
         #endregion
 
@@ -50,18 +56,12 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region internal methods
-        // used only to add the first connection to the pool
-        // we don't want to waste the connection made by FindPrimary
-        internal void AddConnection(
-            MongoConnection connection
-        ) {
-            connection.ConnectionPool = this;
-            pool.Add(connection);
-        }
-
         internal void Close() {
-            ThreadPool.QueueUserWorkItem(CloseAllConnections);
-            closed = true;
+            lock (connectionPoolLock) {
+                ThreadPool.QueueUserWorkItem(CloseAllConnectionsWorkItem, pool);
+                closed = true;
+                pool = null;
+            }
         }
 
         internal MongoConnection GetConnection(
@@ -74,16 +74,34 @@ namespace MongoDB.MongoDBClient.Internal {
                 throw new MongoException("Attempt to get a connection from a closed connection pool");
             }
 
-            MongoConnection connection;
-            if (pool.Count == 0) {
-                connection = new MongoConnection(address);
-                connection.ConnectionPool = this;
-            } else {
-                connection = pool[0];
-                pool.RemoveAt(0);
+            MongoConnection connection = null;
+            lock (connectionPoolLock) {
+                // look for the most recently used connection that has the right credentials
+                for (int i = pool.Count - 1; i >= 0; i--) {
+                    if (pool[i].Credentials == database.Credentials) {
+                        connection = pool[i];
+                        pool.RemoveAt(i);
+                        break;
+                    }
+                }
+
+                // if no connection with the right credentials was found create a new one
+                if (connection == null) {
+                    connection = new MongoConnection(this, address, database.Credentials);
+                }
             }
 
-            connection.Database = database;
+            // if we need to authenticate do so only after the connectionPoolLock has been released
+            if (database.Credentials != null && !connection.IsAuthenticated(database)) {
+                try {
+                    connection.Authenticate(database);
+                } catch (MongoException) {
+                    // don't let the connection go to waste just because one authentication failed
+                    ReleaseConnection(connection);
+                    throw;
+                }
+            }
+
             return connection;
         }
 
@@ -94,24 +112,49 @@ namespace MongoDB.MongoDBClient.Internal {
                 throw new MongoException("The connection being released does not belong to this connection pool.");
             }
 
-            connection.Database = null;
-            if (pool.Count < 10 && !closed) {
-                pool.Add(connection);
-            } else {
-                connection.Dispose();
+            lock (connectionPoolLock) {
+                if (!closed) {
+                    // close connections that haven't been used for 10 minutes or more (should this be on a timer?)
+                    DateTime cutoff = DateTime.UtcNow - maxIdleTime;
+                    foreach (var idleConnection in pool.Where(c => c.LastUsed < cutoff).ToList()) {
+                        ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, idleConnection);
+                        pool.Remove(idleConnection);
+                    }
+
+                    if (pool.Count == maxPoolSize) {
+                        ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, pool[0]); // close oldest connection
+                        pool.RemoveAt(0);
+                    }
+
+                    connection.LastUsed = DateTime.UtcNow;
+                    pool.Add(connection);
+                } else {
+                    connection.Dispose();
+                }
             }
         }
         #endregion
 
         #region private methods
         // note: this method runs on a thread from the ThreadPool
-        private void CloseAllConnections(
+        private void CloseAllConnectionsWorkItem(
             object parameters
         ) {
             try {
+                var pool = (List<MongoConnection>) parameters;
                 foreach (var connection in pool) {
                     connection.Close();
                 }
+            } catch { } // ignore exceptions
+        }
+
+        // note: this method runs on a thread from the ThreadPool
+        private void CloseConnectionWorkItem(
+            object parameters
+        ) {
+            try {
+                var connection = (MongoConnection) parameters;
+                connection.Close();
             } catch { } // ignore exceptions
         }
         #endregion

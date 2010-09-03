@@ -64,7 +64,7 @@ namespace MongoDB.MongoDBClient {
                 throw new ArgumentException("Connection string must have database name");
             }
             MongoServer server = MongoServer.Create(settings);
-            return server.GetDatabase(settings.DatabaseName);
+            return server.GetDatabase(settings.DatabaseName, settings.Credentials);
         }
 
         public static MongoDatabase Create(
@@ -156,11 +156,19 @@ namespace MongoDB.MongoDBClient {
         public void AddUser(
             MongoCredentials credentials
         ) {
+            AddUser(credentials, false);
+        }
+
+        public void AddUser(
+            MongoCredentials credentials,
+            bool readOnly
+        ) {
             var users = GetCollection("system.users");
             var user = users.FindOne<BsonDocument>(new BsonDocument("user", credentials.Username));
             if (user == null) {
                 user = new BsonDocument("user", credentials.Username);
             }
+            user["readOnly"] = readOnly;
             user["pwd"] = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
             users.Save(user);
         }
@@ -228,7 +236,7 @@ namespace MongoDB.MongoDBClient {
                 string key = string.Format("{0}<{1}>", collectionName, typeof(T).FullName);
                 if (!collections.TryGetValue(key, out collection)) {
                     collection = new MongoCollection<T>(this, collectionName);
-                    collections[collectionName] = collection;
+                    collections.Add(key, collection);
                 }
                 return (MongoCollection<T>) collection;
             }

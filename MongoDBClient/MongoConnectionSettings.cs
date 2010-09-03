@@ -21,10 +21,9 @@ using System.Text;
 namespace MongoDB.MongoDBClient.Internal {
     public class MongoConnectionSettings {
         #region private fields
-        private List<MongoServerAddress> seedList;
+        private MongoCredentials credentials;
         private string databaseName;
-        private string username;
-        private string password;
+        private List<MongoServerAddress> seedList;
         #endregion
 
         #region constructors
@@ -38,9 +37,9 @@ namespace MongoDB.MongoDBClient.Internal {
             set { seedList.Clear(); seedList.Add(value); }
         }
 
-        public List<MongoServerAddress> SeedList {
-            get { return seedList; }
-            set { seedList = value; }
+        public MongoCredentials Credentials {
+            get { return credentials; }
+            set { credentials = value; }
         }
 
         public string DatabaseName {
@@ -48,14 +47,9 @@ namespace MongoDB.MongoDBClient.Internal {
             set { databaseName = value; }
         }
 
-        public string Username {
-            get { return username; }
-            set { username = value; }
-        }
-
-        public string Password {
-            get { return password; }
-            set { password = value; }
+        public List<MongoServerAddress> SeedList {
+            get { return seedList; }
+            set { seedList = value; }
         }
         #endregion
     }

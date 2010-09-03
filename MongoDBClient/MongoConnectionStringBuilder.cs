@@ -106,10 +106,9 @@ namespace MongoDB.MongoDBClient {
 
         public MongoConnectionSettings ToConnectionSettings() {
             return new MongoConnectionSettings {
+                Credentials = MongoCredentials.Create(Username, Password),
                 SeedList = SeedList,
-                DatabaseName = DatabaseName,
-                Username = Username,
-                Password = Password
+                DatabaseName = DatabaseName
             };
         }
         #endregion

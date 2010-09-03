@@ -27,18 +27,24 @@ namespace MongoDB.MongoDBClient.Internal {
         #region private fields
         private object connectionLock = new object();
         private bool disposed = false;
-        private MongoServerAddress address;
-        private TcpClient tcpClient;
-        private int messageCounter;
         private MongoConnectionPool connectionPool;
-        private MongoDatabase database; // this is constantly changing as pooled connection is reused
+        private MongoServerAddress address;
+        private MongoCredentials credentials;
+        private TcpClient tcpClient;
+        private DateTime lastUsed; // set every time the connection is Released
+        private int messageCounter;
+        private HashSet<string> authenticatedDatabases = new HashSet<string>();
         #endregion
 
         #region constructors
         internal MongoConnection(
-            MongoServerAddress address
+            MongoConnectionPool connectionPool,
+            MongoServerAddress address,
+            MongoCredentials credentials
         ) {
+            this.connectionPool = connectionPool;
             this.address = address;
+            this.credentials = credentials;
 
             tcpClient = new TcpClient(address.Host, address.Port);
             tcpClient.NoDelay = true; // turn off Nagle
@@ -50,12 +56,15 @@ namespace MongoDB.MongoDBClient.Internal {
         #region internal properties
         internal MongoConnectionPool ConnectionPool {
             get { return connectionPool; }
-            set { connectionPool = value; }
         }
 
-        internal MongoDatabase Database {
-            get { return database; }
-            set { database = value; }
+        internal MongoCredentials Credentials {
+            get { return credentials; }
+        }
+
+        internal DateTime LastUsed {
+            get { return lastUsed; }
+            set { lastUsed = value; }
         }
 
         internal int MessageCounter {
@@ -76,6 +85,60 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region internal methods
+        internal void Authenticate(
+            MongoDatabase database
+        ) {
+            lock (connectionLock) {
+                if (credentials != database.Credentials) {
+                    throw new MongoException("Connection credentials not equal to database credentials");
+                }
+
+                var authenticateDatabaseName = credentials.Admin ? "admin" : database.Name;
+                var nonceCommand = new BsonDocument("getnonce", 1);
+                var nonceMessage = new MongoQueryMessage(
+                    string.Format("{0}.$cmd", authenticateDatabaseName), // collectionFullName
+                    QueryFlags.None,
+                    0, // numberToSkip
+                    1, // numberToReturn
+                    nonceCommand,
+                    null // fields
+                );
+                SendMessage(nonceMessage, SafeMode.False);
+                var nonceReply = ReceiveMessage<BsonDocument>();
+                var nonceCommandResult = nonceReply.Documents[0];
+                if (!nonceCommandResult.GetAsBoolean("ok", false)) {
+                    throw new MongoException("Error getting nonce for authentication");
+                }
+                var nonce = nonceCommandResult.GetString("nonce");
+
+                var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
+                var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
+
+                var authenticateCommand = new BsonDocument {
+                    { "authenticate", 1 },
+                    { "user", credentials.Username },
+                    { "nonce", nonce },
+                    { "key", digest }
+                };
+                var authenticateMessage = new MongoQueryMessage(
+                    string.Format("{0}.$cmd", authenticateDatabaseName), // collectionFullName
+                    QueryFlags.None,
+                    0, // numberToSkip
+                    1, // numberToReturn
+                    authenticateCommand,
+                    null // fields
+                );
+                SendMessage(authenticateMessage, SafeMode.False);
+                var authenticationReply = ReceiveMessage<BsonDocument>();
+                var authenticationResult = authenticationReply.Documents[0];
+                if (!authenticationResult.GetAsBoolean("ok", false)) {
+                    throw new MongoException("Invalid credentials for database");
+                }
+
+                authenticatedDatabases.Add(database.Name);
+            }
+        }
+
         internal void Close() {
             lock (connectionLock) {
                 if (tcpClient != null) {
@@ -89,6 +152,28 @@ namespace MongoDB.MongoDBClient.Internal {
                     tcpClient = null;
                 }
             }
+        }
+
+        internal bool IsAuthenticated(
+            MongoDatabase database
+        ) {
+            lock (connectionLock) {
+                var authenticateDatabaseName = credentials.Admin ? "admin" : database.Name;
+                return authenticatedDatabases.Contains(authenticateDatabaseName);
+            }
+        }
+
+        // normally a connection is linked to a connection pool at the time it is created
+        // but the very first connection was made by FindPrimary before the connection pool existed
+        // we don't want to waste that connection so it becomes the first connection of the new connection pool
+        internal void JoinConnectionPool(
+            MongoConnectionPool connectionPool
+        ) {
+            if (this.connectionPool != null) {
+                throw new MongoException("Connection is already in a connection pool");
+            }
+            this.connectionPool = connectionPool;
+            this.lastUsed = DateTime.UtcNow;
         }
 
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
@@ -121,7 +206,7 @@ namespace MongoDB.MongoDBClient.Internal {
                         { safeMode.Replications > 1, "w", safeMode.Replications },
                         { safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero, "wtimeout", (int) safeMode.Timeout.TotalMilliseconds }
                     };
-                    var getLastErrorMessage = new MongoQueryMessage(database.CommandCollection.FullName, QueryFlags.None, 0, 1, command, null);
+                    var getLastErrorMessage = new MongoQueryMessage("admin.$cmd", QueryFlags.None, 0, 1, command, null);
                     getLastErrorMessage.WriteTo(memoryStream); // piggy back on network transmission for message
                 }
 

@@ -44,13 +44,26 @@ namespace MongoDB.MongoDBClient {
         }
 
         public MongoCredentials(
-           string username,
-           string password,
-           bool admin
+            string username,
+            string password,
+            bool admin
         ) {
             this.username = username;
             this.password = password;
             this.admin = admin;
+        }
+        #endregion
+
+        #region factory methods
+        public static MongoCredentials Create(
+            string username,
+            string password
+        ) {
+            if (username != null && password != null) {
+                return new MongoCredentials(username, password);
+            } else {
+                return null;
+            }
         }
         #endregion
 
@@ -128,7 +141,7 @@ namespace MongoDB.MongoDBClient {
             if (password == null) {
                 throw new ArgumentNullException("password");
             }
-            if (((IEnumerable<char>) password).Any(c => (int) c >= 128)) {
+            if (password.Any(c => (int) c >= 128)) {
                 throw new MongoException("Password must contain only ASCII characters");
             }
         }

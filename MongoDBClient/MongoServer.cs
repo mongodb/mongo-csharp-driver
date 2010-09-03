@@ -39,6 +39,7 @@ namespace MongoDB.MongoDBClient {
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         private MongoConnectionPool connectionPool;
         private MongoCredentials adminCredentials;
+        private MongoCredentials credentials;
         #endregion
 
         #region constructors
@@ -46,6 +47,17 @@ namespace MongoDB.MongoDBClient {
             MongoConnectionSettings settings
         ) {
             this.seedList = settings.SeedList;
+
+            // credentials (if any) are for server only if no DatabaseName was provided
+            if (settings.Credentials != null && settings.DatabaseName == null) {
+                if (settings.Credentials.Admin) {
+                    this.adminCredentials = settings.Credentials;
+                    this.credentials = null;
+                } else {
+                    this.adminCredentials = null;
+                    this.credentials = settings.Credentials;
+                }
+            }
         }
         #endregion
 
@@ -55,7 +67,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             lock (staticLock) {
                 foreach (MongoServer server in servers) {
-                    if (server.SeedList.SequenceEqual(settings.SeedList)) {
+                    if (server.seedList.SequenceEqual(settings.SeedList)) {
                         return server;
                     }
                 }
@@ -98,10 +110,6 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public properties
-        public IEnumerable<MongoServerAddress> SeedList {
-            get { return seedList; }
-        }
-
         public MongoCredentials AdminCredentials {
             get { return adminCredentials; }
             set { adminCredentials = value; }
@@ -111,6 +119,11 @@ namespace MongoDB.MongoDBClient {
             get { return GetDatabase("admin", adminCredentials); }
         }
 
+        public MongoCredentials Credentials {
+            get { return credentials; }
+            set { credentials = value; }
+        }
+
         public IEnumerable<MongoServerAddress> ReplicaSet {
             get { return replicaSet; }
         }
@@ -118,6 +131,10 @@ namespace MongoDB.MongoDBClient {
         public SafeMode SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
+        }
+
+        public IEnumerable<MongoServerAddress> SeedList {
+            get { return seedList; }
         }
 
         public bool SlaveOk {
@@ -135,6 +152,13 @@ namespace MongoDB.MongoDBClient {
             string databaseName
         ] {
             get { return GetDatabase(databaseName); }
+        }
+
+        public MongoDatabase this[
+            string databaseName,
+            MongoCredentials credentials
+        ] {
+            get { return GetDatabase(databaseName, credentials); }
         }
         #endregion
 
@@ -168,8 +192,8 @@ namespace MongoDB.MongoDBClient {
                             replicaSet = null;
                         }
 
-                        connectionPool = new MongoConnectionPool(this, results.Address);
-                        connectionPool.AddConnection(results.Connection); // don't waste the connection FindPrimary made to the primary
+                        // the connection FindPrimary made to the primary becomes the first connection in the new connection pool
+                        connectionPool = new MongoConnectionPool(this, results.Address, results.Connection);
 
                         state = MongoServerState.Connected;
                     } catch {
@@ -211,7 +235,7 @@ namespace MongoDB.MongoDBClient {
         public MongoDatabase GetDatabase(
             string databaseName
         ) {
-            return GetDatabase(databaseName, null);
+            return GetDatabase(databaseName, credentials);
         }
 
         public MongoDatabase GetDatabase(
@@ -222,7 +246,7 @@ namespace MongoDB.MongoDBClient {
             if (credentials == null) {
                 key = databaseName;
             } else {
-                key = string.Format("{0}[{1}{2}]", databaseName, credentials.Username, credentials.Admin ? "(admin)" : "");
+                key = string.Format("{0}[{1}]", databaseName, credentials);
             }
 
             lock (serverLock) {
@@ -233,7 +257,7 @@ namespace MongoDB.MongoDBClient {
                     } else {
                         database = new MongoDatabase(this, databaseName, credentials);
                     }
-                    databases[databaseName] = database;
+                    databases.Add(key, database);
                 }
                 return database;
             }
@@ -343,7 +367,7 @@ namespace MongoDB.MongoDBClient {
             results.Address = args.Address;
 
             try {
-                var connection = new MongoConnection(args.Address);
+                var connection = new MongoConnection(null, args.Address, null); // no connection pool or credentials
                 var command = new BsonDocument("ismaster", 1);
                 var message = new MongoQueryMessage(
                     "admin.$cmd",
