@@ -165,16 +165,13 @@ namespace MongoDB.MongoDBClient {
             return GetCollectionNames().Contains(collectionName);
         }
 
-        public MongoCollection CreateCollection(
+        public BsonDocument CreateCollection(
             string collectionName,
             BsonDocument options
         ) {
-            if (options != null) {
-                BsonDocument command = new BsonDocument("create", collectionName);
-                command.Add(options);
-                RunCommand(command);
-            }
-            return GetCollection(collectionName);
+            BsonDocument command = new BsonDocument("create", collectionName);
+            command.Merge(options);
+            return RunCommand(command);
         }
 
         public BsonDocument CurrentOp() {
@@ -182,11 +179,11 @@ namespace MongoDB.MongoDBClient {
             return collection.FindOne<BsonDocument>();
         }
 
-        public void DropCollection(
+        public BsonDocument DropCollection(
             string collectionName
         ) {
             BsonDocument command = new BsonDocument("drop", collectionName);
-            RunCommand(command);
+            return RunCommand(command);
         }
 
         public object Eval(
@@ -208,7 +205,7 @@ namespace MongoDB.MongoDBClient {
                 MongoCollection collection;
                 if (!collections.TryGetValue(collectionName, out collection)) {
                     collection = new MongoCollection(this, collectionName);
-                    collections[collectionName] = collection;
+                    collections.Add(collectionName, collection);
                 }
                 return collection;
             }
@@ -232,11 +229,13 @@ namespace MongoDB.MongoDBClient {
             List<string> collectionNames = new List<string>();
             MongoCollection namespaces = GetCollection("system.namespaces");
             var prefix = name + ".";
-            foreach (BsonDocument ns in namespaces.FindAll<BsonDocument>()) {
-                string collectionName = (string) ns["name"];
-                if (!collectionName.StartsWith(prefix)) { continue; }
-                if (collectionName.Contains('$')) { continue; }
-                collectionNames.Add(collectionName);
+            using (var cursor = namespaces.FindAll<BsonDocument>()) {
+                foreach (BsonDocument ns in cursor) {
+                    string collectionName = (string) ns["name"];
+                    if (!collectionName.StartsWith(prefix)) { continue; }
+                    if (collectionName.Contains('$')) { continue; }
+                    collectionNames.Add(collectionName);
+                }
             }
             collectionNames.Sort();
             return collectionNames;
@@ -278,10 +277,12 @@ namespace MongoDB.MongoDBClient {
             connectionPool.RequestDone();
         }
 
+        // the result of RequestStart is IDisposable so you can use RequestStart in a using statment
+        // and then RequestDone will be called automatically when leaving the using statement
         public IDisposable RequestStart() {
             var connectionPool = server.GetConnectionPool();
             connectionPool.RequestStart(this);
-            return new RequestDisposer(this);
+            return new RequestStartResult(this);
         }
 
         // TODO: mongo shell has ResetError at the database level
@@ -290,7 +291,6 @@ namespace MongoDB.MongoDBClient {
             BsonDocument command
         ) {
             BsonDocument result = CommandCollection.FindOne<BsonDocument>(command);
-
             if (!result.ContainsElement("ok")) {
                 throw new MongoException("ok element is missing");
             }
@@ -300,7 +300,6 @@ namespace MongoDB.MongoDBClient {
                 string errorMessage = string.Format("{0} failed ({1})", commandName, errmsg);
                 throw new MongoException(errorMessage);
             }
-
             return result;
         }
 
@@ -318,19 +317,17 @@ namespace MongoDB.MongoDBClient {
 
         #region internal methods
         internal MongoConnection GetConnection() {
+            MongoConnectionPool connectionPool;
             lock (databaseLock) {
-                var connectionPool = server.GetConnectionPool();
-                return connectionPool.GetConnection(this);
+                connectionPool = server.GetConnectionPool();
             }
+            return connectionPool.GetConnection(this);
         }
 
         internal void ReleaseConnection(
             MongoConnection connection
         ) {
-            lock (databaseLock) {
-                var connectionPool = server.GetConnectionPool();
-                connectionPool.ReleaseConnection(connection);
-            }
+            connection.ConnectionPool.ReleaseConnection(connection);
         }
         #endregion
 
@@ -353,13 +350,13 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region private nested classes
-        private class RequestDisposer : IDisposable {
+        private class RequestStartResult : IDisposable {
             #region private fields
             private MongoDatabase database;
             #endregion
 
             #region constructors
-            public RequestDisposer(
+            public RequestStartResult(
                 MongoDatabase database
             ) {
                 this.database = database;

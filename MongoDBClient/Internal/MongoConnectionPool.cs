@@ -88,10 +88,10 @@ namespace MongoDB.MongoDBClient.Internal {
             }
 
             MongoConnection connection = null;
-            Request request = null;
             lock (connectionPoolLock) {
                 // if a thread has called RequestStart it wants all operations to take place on the same connection
                 int threadId = Thread.CurrentThread.ManagedThreadId;
+                Request request;
                 if (requests.TryGetValue(threadId, out request)) {
                     connection = request.Connection;
                 }
@@ -117,16 +117,17 @@ namespace MongoDB.MongoDBClient.Internal {
                         }
                     }
                 }
+            }
 
-                // otherwise create a new one
-                if (connection == null) {
-                    connection = new MongoConnection(this, address);
-                }
+            // if we have to create a new connection do it after releasing the connectionPoolLock
+            // because it is a slow operation (it opens a TCP connection to the server)
+            if (connection == null) {
+                connection = new MongoConnection(this, address);
             }
 
             // be sure connectionPoolLock has been released before calling CheckAuthentication
             try {
-                connection.CheckAuthentication(database); // might already be authenticated but we're not sure
+                connection.CheckAuthentication(database); // will authenticate if necessary
             } catch (MongoException) {
                 // don't let the connection go to waste just because authentication failed
                 ReleaseConnection(connection);
@@ -170,7 +171,7 @@ namespace MongoDB.MongoDBClient.Internal {
                     connection.LastUsed = DateTime.UtcNow;
                     pool.Add(connection);
                 } else {
-                    connection.Dispose();
+                    connection.Close();
                 }
             }
         }

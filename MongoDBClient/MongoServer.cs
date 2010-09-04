@@ -52,9 +52,7 @@ namespace MongoDB.MongoDBClient {
             if (settings.Credentials != null && settings.DatabaseName == null) {
                 if (settings.Credentials.Admin) {
                     this.adminCredentials = settings.Credentials;
-                    this.credentials = null;
                 } else {
-                    this.adminCredentials = null;
                     this.credentials = settings.Credentials;
                 }
             }
@@ -185,8 +183,12 @@ namespace MongoDB.MongoDBClient {
                         if (results.CommandResult.ContainsElement("hosts")) {
                             replicaSet = new List<MongoServerAddress>();
                             foreach (string host in results.CommandResult.GetArray("hosts")) {
-                                var address = MongoServerAddress.Parse(host);
-                                replicaSet.Add(address);
+                                // don't let errors parsing the address prevent us from connecting
+                                // the replicaSet just won't reflect any replicas with addresses we couldn't parse
+                                MongoServerAddress address;
+                                if (MongoServerAddress.TryParse(host, out address)) {
+                                    replicaSet.Add(address);
+                                }
                             }
                         } else {
                             replicaSet = null;
@@ -224,12 +226,12 @@ namespace MongoDB.MongoDBClient {
             }
         }
 
-        public void DropDatabase(
+        public BsonDocument DropDatabase(
             string databaseName
         ) {
             MongoDatabase database = GetDatabase(databaseName);
             var command = new BsonDocument("dropDatabase", 1);
-            database.RunCommand(command);
+            return database.RunCommand(command);
         }
 
         public MongoDatabase GetDatabase(
@@ -242,14 +244,14 @@ namespace MongoDB.MongoDBClient {
             string databaseName,
             MongoCredentials credentials
         ) {
-            string key;
-            if (credentials == null) {
-                key = databaseName;
-            } else {
-                key = string.Format("{0}[{1}]", databaseName, credentials);
-            }
-
             lock (serverLock) {
+                string key;
+                if (credentials == null) {
+                    key = databaseName;
+                } else {
+                    key = string.Format("{0}[{1}]", databaseName, credentials);
+                }
+
                 MongoDatabase database;
                 if (!databases.TryGetValue(key, out database)) {
                     if (credentials == null) {
@@ -328,12 +330,7 @@ namespace MongoDB.MongoDBClient {
                 }
 
                 var commandResult = results.CommandResult;
-                if (!commandResult.GetAsBoolean("ok")) {
-                    // TODO: how to report errors?
-                    continue;
-                }
-
-                if (commandResult.GetAsBoolean("ismaster")) {
+                if (results.IsPrimary) {
                     return results;
                 }
 
@@ -363,32 +360,37 @@ namespace MongoDB.MongoDBClient {
         ) {
             // this method has to work at a very low level because the connection pool isn't set up yet
             var args = (QueryServerParameters) parameters;
-            var results = new QueryServerResults();
-            results.Address = args.Address;
+            var results = new QueryServerResults { Address = args.Address };
 
             try {
                 var connection = new MongoConnection(null, args.Address); // no connection pool
-                var command = new BsonDocument("ismaster", 1);
-                var message = new MongoQueryMessage(
-                    "admin.$cmd",
-                    QueryFlags.SlaveOk,
-                    0, // numberToSkip
-                    1, // numberToReturn
-                    command,
-                    null // fields
-                );
-                connection.SendMessage(message, SafeMode.False);
-                var reply = connection.ReceiveMessage<BsonDocument>();
-                var commandResult = reply.Documents[0];
-                results.CommandResult = commandResult;
+                try {
+                    var command = new BsonDocument("ismaster", 1);
+                    var message = new MongoQueryMessage(
+                        "admin.$cmd",
+                        QueryFlags.SlaveOk,
+                        0, // numberToSkip
+                        1, // numberToReturn
+                        command,
+                        null // fields
+                    );
+                    connection.SendMessage(message, SafeMode.False);
+                    var reply = connection.ReceiveMessage<BsonDocument>();
+                    results.CommandResult = reply.Documents[0];
+                    if (
+                        results.CommandResult.GetAsBoolean("ok", false) &&
+                        results.CommandResult.GetAsBoolean("ismaster", false)
+                    ) {
+                        results.IsPrimary = true;
+                        results.Connection = connection; // will become the first connection in the connection pool
+                    }
+                } catch {
+                    try { connection.Close(); } catch { } // ignore exceptions
+                    throw;
+                }
 
-                if (
-                    commandResult.GetAsBoolean("ok", false) &&
-                    commandResult.GetAsBoolean("ismaster", false)
-                ) {
-                    results.Connection = connection; // will become the first connection in the connection pool
-                } else {
-                    connection.Dispose();
+                if (!results.IsPrimary) {
+                    connection.Close();
                 }
             } catch (Exception ex) {
                 results.Exception = ex;
@@ -417,8 +419,9 @@ namespace MongoDB.MongoDBClient {
 
         private class QueryServerResults {
             public MongoServerAddress Address { get; set; }
-            public MongoConnection Connection { get; set; }
             public BsonDocument CommandResult { get; set; }
+            public bool IsPrimary { get; set; }
+            public MongoConnection Connection { get; set; }
             public Exception Exception { get; set; }
         }
         #endregion

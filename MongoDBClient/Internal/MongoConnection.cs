@@ -23,12 +23,12 @@ using System.Text;
 using MongoDB.BsonLibrary;
 
 namespace MongoDB.MongoDBClient.Internal {
-    internal class MongoConnection : IDisposable {
+    internal class MongoConnection {
         #region private fields
         private object connectionLock = new object();
-        private bool disposed = false;
         private MongoConnectionPool connectionPool;
         private MongoServerAddress address;
+        private bool closed;
         private TcpClient tcpClient;
         private DateTime lastUsed; // set every time the connection is Released
         private int messageCounter;
@@ -65,33 +65,20 @@ namespace MongoDB.MongoDBClient.Internal {
         }
         #endregion
 
-        #region public methods
-        // Dispose has to be public in order to implement IDisposable
-        public void Dispose() {
-            if (!disposed) {
-                try {
-                    Close();
-                } catch { } // ignore exceptions
-                disposed = true;
-            }
-        }
-        #endregion
-
         #region internal methods
         internal void Authenticate(
-            MongoDatabase database
+            string databaseName,
+            MongoCredentials credentials
         ) {
+            if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
-                var credentials = database.Credentials;
-                var authenticationDatabaseName = credentials.Admin ? "admin" : database.Name;
-
                 var nonceCommand = new BsonDocument("getnonce", 1);
                 var nonceMessage = new MongoQueryMessage(
-                    string.Format("{0}.$cmd", authenticationDatabaseName), // collectionFullName
+                    string.Format("{0}.$cmd", databaseName), // collectionFullName
                     QueryFlags.None,
                     0, // numberToSkip
                     1, // numberToReturn
-                    nonceCommand,
+                    nonceCommand, // query
                     null // fields
                 );
                 SendMessage(nonceMessage, SafeMode.False);
@@ -104,7 +91,6 @@ namespace MongoDB.MongoDBClient.Internal {
 
                 var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
                 var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
-
                 var authenticateCommand = new BsonDocument {
                     { "authenticate", 1 },
                     { "user", credentials.Username },
@@ -112,11 +98,11 @@ namespace MongoDB.MongoDBClient.Internal {
                     { "key", digest }
                 };
                 var authenticateMessage = new MongoQueryMessage(
-                    string.Format("{0}.$cmd", authenticationDatabaseName), // collectionFullName
+                    string.Format("{0}.$cmd", databaseName), // collectionFullName
                     QueryFlags.None,
                     0, // numberToSkip
                     1, // numberToReturn
-                    authenticateCommand,
+                    authenticateCommand, // query
                     null // fields
                 );
                 SendMessage(authenticateMessage, SafeMode.False);
@@ -127,7 +113,7 @@ namespace MongoDB.MongoDBClient.Internal {
                 }
 
                 var authentication = new Authentication(credentials);
-                authentications.Add(authenticationDatabaseName, authentication);
+                authentications.Add(databaseName, authentication);
             }
         }
 
@@ -142,6 +128,7 @@ namespace MongoDB.MongoDBClient.Internal {
         internal bool CanAuthenticate(
             MongoDatabase database
         ) {
+            if (closed) { throw new MongoException("Connection is closed"); }
             if (authentications.Count == 0) {
                 // a connection with no existing authentications can authenticate anything
                 return true;
@@ -173,9 +160,10 @@ namespace MongoDB.MongoDBClient.Internal {
         internal void CheckAuthentication(
             MongoDatabase database
         ) {
+            if (closed) { throw new MongoException("Connection is closed"); }
             if (database.Credentials == null) {
                 if (authentications.Count != 0) {
-                    throw new MongoException("A connection that is already using authentication requires credentials");
+                    throw new MongoException("Connection requires credentials");
                 }
             } else {
                 var credentials = database.Credentials;
@@ -184,24 +172,24 @@ namespace MongoDB.MongoDBClient.Internal {
                 if (authentications.TryGetValue(authenticationDatabaseName, out authentication)) {
                     if (authentication.Credentials != database.Credentials) {
                         if (authenticationDatabaseName == "admin") {
-                            throw new MongoException("The connection is already authenticated to the admin database with different credentials");
+                            throw new MongoException("Connection already authenticated to the admin database with different credentials");
                         } else {
-                            throw new MongoException("The connection is already authenticated to the same database with different credentials");
+                            throw new MongoException("Connection already authenticated to the database with different credentials");
                         }
                     }
                     authentication.LastUsed = DateTime.UtcNow;
                 } else {
                     if (authenticationDatabaseName == "admin" && authentications.Count != 0) {
-                        throw new MongoException("The connection cannot be authenticated against the admin database when it is already authenticated against other databases");
+                        throw new MongoException("The connection cannot be authenticated against the admin database because it is already authenticated against other databases");
                     }
-                    Authenticate(database);
+                    Authenticate(authenticationDatabaseName, database.Credentials);
                 }
             }
         }
 
         internal void Close() {
             lock (connectionLock) {
-                if (tcpClient != null) {
+                if (!closed) {
                     // note: TcpClient.Close doesn't close the NetworkStream!?
                     NetworkStream networkStream = tcpClient.GetStream();
                     if (networkStream != null) {
@@ -210,6 +198,7 @@ namespace MongoDB.MongoDBClient.Internal {
                     tcpClient.Close();
                     ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
                     tcpClient = null;
+                    closed = true;
                 }
             }
         }
@@ -217,6 +206,7 @@ namespace MongoDB.MongoDBClient.Internal {
         internal bool IsAuthenticated(
             MongoDatabase database
         ) {
+            if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
                 if (database.Credentials == null) {
                     return authentications.Count == 0;
@@ -238,6 +228,7 @@ namespace MongoDB.MongoDBClient.Internal {
         internal void JoinConnectionPool(
             MongoConnectionPool connectionPool
         ) {
+            if (closed) { throw new MongoException("Connection is closed"); }
             if (this.connectionPool != null) {
                 throw new MongoException("The connection is already in a connection pool");
             }
@@ -252,6 +243,7 @@ namespace MongoDB.MongoDBClient.Internal {
         internal void Logout(
             string databaseName
         ) {
+            if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
                 var logoutCommand = new BsonDocument("logout", 1);
                 var logoutMessage = new MongoQueryMessage(
@@ -274,8 +266,8 @@ namespace MongoDB.MongoDBClient.Internal {
         }
 
         internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
+            if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
-                if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
                 byte[] bytes;
                 try {
                     bytes = ReadMessageBytes();
@@ -293,8 +285,8 @@ namespace MongoDB.MongoDBClient.Internal {
             MongoRequestMessage message,
             SafeMode safeMode
         ) {
+            if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
-                if (disposed) { throw new ObjectDisposedException("MongoConnection"); }
                 MemoryStream memoryStream = message.GetMemoryStream();
 
                 if (safeMode.Enabled) {

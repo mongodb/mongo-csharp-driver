@@ -30,7 +30,7 @@ namespace MongoDB.MongoDBClient {
         private string name;
         private SafeMode safeMode;
         private bool assignObjectIdsOnInsert = true;
-        private HashSet<string> indexCache = new HashSet<string>();
+        private HashSet<string> indexCache = new HashSet<string>(); // serves as its own lock object also
         #endregion
 
         #region constructors
@@ -82,17 +82,17 @@ namespace MongoDB.MongoDBClient {
                 { "query", query ?? new BsonDocument() }
             };
             var result = database.RunCommand(command);
-            return (int) result.GetDouble("n");
+            return result.GetAsInt32("n");
         }
 
-        public void CreateIndex(
+        public BsonDocument CreateIndex(
             BsonDocument keys
         ) {
             BsonDocument options = null;
-            CreateIndex(keys, options);
+            return CreateIndex(keys, options);
         }
 
-        public void CreateIndex(
+        public BsonDocument CreateIndex(
             BsonDocument keys,
             BsonDocument options
         ) {
@@ -104,24 +104,21 @@ namespace MongoDB.MongoDBClient {
                     { "ns", FullName },
                     { "key", keys }
                 };
-                if (options != null) {
-                    foreach (var element in options) {
-                        index[element.Name] = element.Value;
-                    }
-                }
-                indexes.Insert(index, SafeMode.True);
+                index.Merge(options);
+                var result = indexes.Insert(index, SafeMode.True);
                 indexCache.Add(indexName);
+                return result;
             }
         }
 
-        public void CreateIndex(
+        public BsonDocument CreateIndex(
             BsonDocument keys,
             string indexName
         ) {
-            CreateIndex(keys, indexName, false);
+            return CreateIndex(keys, indexName, false);
         }
 
-        public void CreateIndex(
+        public BsonDocument CreateIndex(
             BsonDocument keys,
             string indexName,
             bool unique
@@ -130,17 +127,17 @@ namespace MongoDB.MongoDBClient {
                 { "name", indexName },
                 { unique, "unique", true }
             };
-            CreateIndex(keys, options);
+            return CreateIndex(keys, options);
         }
 
-        public void CreateIndex(
+        public BsonDocument CreateIndex(
             params string[] keyNames
         ) {
             BsonDocument keys = new BsonDocument();
             foreach (string keyName in keyNames) {
                 keys.Add(keyName, 1);
             }
-            CreateIndex(keys);
+            return CreateIndex(keys);
         }
 
         public int DataSize() {
@@ -163,29 +160,28 @@ namespace MongoDB.MongoDBClient {
                 { "query", query }
             };
             var result = database.RunCommand(command);
-
             return (BsonArray) result["values"];
         }
 
-        public void DropAllIndexes() {
-            DropIndex("*");
+        public BsonDocument DropAllIndexes() {
+            return DropIndex("*");
         }
 
-        public void DropIndex(
+        public BsonDocument DropIndex(
             BsonDocument keys
         ) {
             string indexName = GetIndexName(keys);
-            DropIndex(indexName);
+            return DropIndex(indexName);
         }
 
-        public void DropIndex(
+        public BsonDocument DropIndex(
             params string[] keyNames
         ) {
             string indexName = GetIndexName(keyNames);
-            DropIndex(indexName);
+            return DropIndex(indexName);
         }
 
-        public void DropIndex(
+        public BsonDocument DropIndex(
             string indexName
         ) {
             lock (indexCache) {
@@ -193,8 +189,9 @@ namespace MongoDB.MongoDBClient {
                     { "deleteIndexes", FullName },
                     { "index", indexName }
                 };
-                database.RunCommand(command);
+                var result = database.RunCommand(command);
                 ResetIndexCache(); // TODO: what if RunCommand throws an exception
+                return result;
             }
         }
 
@@ -258,7 +255,8 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Find<T>(
             BsonDocument query
         ) where T : new() {
-            return new MongoCursor<T>(this, query);
+            BsonDocument fields = null;
+            return Find<T>(query, fields);
         }
 
         public MongoCursor<T> Find<T>(
@@ -271,26 +269,28 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Find<T>(
             BsonJavaScript where
         ) where T : new() {
-            BsonDocument query = new BsonDocument("$where", where);
-            return new MongoCursor<T>(this, query);
+            var query = new BsonDocument("$where", where);
+            return Find<T>(query);
         }
 
         public MongoCursor<T> Find<T>(
             BsonJavaScript where,
             BsonDocument fields
         ) where T : new() {
-            BsonDocument query = new BsonDocument("$where", where);
-            return new MongoCursor<T>(this, query, fields);
+            var query = new BsonDocument("$where", where);
+            return Find<T>(query, fields);
         }
 
         public MongoCursor<T> FindAll<T>() where T : new() {
-            return new MongoCursor<T>(this, null);
+            BsonDocument query = null;
+            return Find<T>(query);
         }
 
         public MongoCursor<T> FindAll<T>(
             BsonDocument fields
         ) where T : new() {
-            return new MongoCursor<T>(this, null, fields);
+            BsonDocument query = null;
+            return Find<T>(query, fields);
         }
 
         public BsonDocument FindAndModify(
@@ -344,51 +344,39 @@ namespace MongoDB.MongoDBClient {
         }
 
         public T FindOne<T>() where T : new() {
-            using (var cursor = new MongoCursor<T>(this, null).Limit(1)) {
-                return cursor.FirstOrDefault();
-            }
+            return FindAll<T>().Limit(1).FirstOrDefault();
         }
 
         public T FindOne<T>(
             BsonDocument query
         ) where T : new() {
-            using (var cursor = new MongoCursor<T>(this, query).Limit(1)) {
-                return cursor.FirstOrDefault();
-            }
+            return Find<T>(query).Limit(1).FirstOrDefault();
         }
 
         public T FindOne<T>(
             BsonDocument query,
             BsonDocument fields
         ) where T : new() {
-            using (var cursor = new MongoCursor<T>(this, query, fields).Limit(1)) {
-                return cursor.FirstOrDefault();
-            }
+            return Find<T>(query, fields).Limit(1).FirstOrDefault();
         }
 
         public T FindOne<T>(
             BsonJavaScript where
         ) where T : new() {
-            BsonDocument query = new BsonDocument("$where", where);
-            using (var cursor = new MongoCursor<T>(this, query).Limit(1)) {
-                return cursor.FirstOrDefault();
-            }
+            return Find<T>(where).Limit(1).FirstOrDefault();
         }
 
         public T FindOne<T>(
             BsonJavaScript where,
             BsonDocument fields
         ) where T : new() {
-            BsonDocument query = new BsonDocument("$where", where);
-            using (var cursor = new MongoCursor<T>(this, query, fields).Limit(1)) {
-                return cursor.FirstOrDefault();
-            }
+            return Find<T>(where, fields).Limit(1).FirstOrDefault();
         }
 
         public List<BsonDocument> GetIndexes() {
             var indexes = database.GetCollection("system.indexes");
             var query = new BsonDocument("ns", FullName);
-            var info = new List<BsonDocument>(indexes.Find<BsonDocument>(query));
+            var info = indexes.Find<BsonDocument>(query).ToList();
             return info;
         }
 
@@ -566,11 +554,11 @@ namespace MongoDB.MongoDBClient {
                 { "mapreduce", name },
                 { "query", query },
                 { "map", map },
-                { "reduce", reduce },
-                options
+                { "reduce", reduce }
             };
-            var commandResult = database.RunCommand(command);
-            return new MongoMapReduceResult(database, commandResult);
+            command.Merge(options);
+            var result = database.RunCommand(command);
+            return new MongoMapReduceResult(database, result);
         }
 
         public MongoMapReduceResult MapReduce(

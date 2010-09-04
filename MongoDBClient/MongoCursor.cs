@@ -40,15 +40,7 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region constructors
-        public MongoCursor(
-            MongoCollection collection,
-            BsonDocument query
-        ) {
-            this.collection = collection;
-            this.query = query;
-        }
-
-        public MongoCursor(
+        internal MongoCursor(
             MongoCollection collection,
             BsonDocument query,
             BsonDocument fields
@@ -90,11 +82,7 @@ namespace MongoDB.MongoDBClient {
 
         public MongoCursor<TNew> Clone<TNew>() where TNew : new() {
             var clone = new MongoCursor<TNew>(collection, query, fields);
-            if (options != null) {
-                foreach (var option in options) {
-                    clone.AddOption(option.Name, option.Value);
-                }
-            }
+            clone.options = options == null ? null : options.Clone();
             clone.flags = flags;
             clone.skip = skip;
             clone.limit = limit;
@@ -109,7 +97,7 @@ namespace MongoDB.MongoDBClient {
                 { "query", query ?? new BsonDocument() },
             };
             var result = collection.Database.RunCommand(command);
-            return (int) result.GetDouble("n");
+            return result.GetAsInt32("n");
         }
 
         public void Dispose() {
@@ -168,6 +156,13 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
+        // differs from default Enumerable extension method by ensuring the cursor is disposed
+        public T FirstOrDefault() {
+            using (this) {
+                return ((IEnumerable<T>) this).FirstOrDefault();
+            }
+        }
+
         public MongoCursor<T> Flags(
             QueryFlags flags
         ) {
@@ -199,7 +194,7 @@ namespace MongoDB.MongoDBClient {
                         ReleaseConnection(); // release the connection as soon as possible
                     }
                 } catch {
-                    try { connection.Dispose(); } catch { } // ignore exceptions
+                    try { connection.Close(); } catch { } // ignore exceptions
                     throw;
                 }
                 foreach (var document in reply.Documents) {
@@ -265,7 +260,7 @@ namespace MongoDB.MongoDBClient {
                 { skip != 0, "skip", skip }
             };
             var result = collection.Database.RunCommand(command);
-            return (int) result.GetDouble("n");
+            return result.GetAsInt32("n");
         }
 
         public MongoCursor<T> ShowDiskLoc() {
@@ -308,6 +303,18 @@ namespace MongoDB.MongoDBClient {
             if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             var orderBy = new BsonDocument(key, direction);
             return Sort(orderBy);
+        }
+
+        // differs from default Enumerable extension method by ensuring the cursor is disposed
+        public T[] ToArray() {
+            return ToList().ToArray();
+        }
+
+        // differs from default Enumerable extension method by ensuring the cursor is disposed
+        public List<T> ToList() {
+            using (this) {
+                return new List<T>(this);
+            }
         }
         #endregion
 
@@ -364,13 +371,11 @@ namespace MongoDB.MongoDBClient {
         private BsonDocument WrapQuery() {
             if (options == null) {
                 return query;
+            } else {
+                var wrappedQuery = new BsonDocument("$query", query ?? new BsonDocument());
+                wrappedQuery.Merge(options);
+                return wrappedQuery;
             }
-
-            var wrappedQuery = new BsonDocument {
-                { "$query", query ?? new BsonDocument() },
-                { options.Elements }
-            };
-            return wrappedQuery;
         }
         #endregion
     }
