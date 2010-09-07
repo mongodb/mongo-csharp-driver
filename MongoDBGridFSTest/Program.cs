@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient;
@@ -33,27 +34,30 @@ namespace MongoDBGridFSTest {
             gridFS.Settings.Root = "uploads";
             gridFS.SafeMode = SafeMode.True;
 
-            int iterations = 1;
+            Thread.Sleep(TimeSpan.FromSeconds(3)); // give a chance to start other instances
+            Console.WriteLine("Starting");
+
+            int iterations = 200;
             DateTime start = DateTime.UtcNow;
             for (int i = 0; i < iterations; i++) {
-                gridFS.Delete("06 Headstrong.mp3");
+                // gridFS.Delete("06 Headstrong.mp3");
                 var fileInfo = gridFS.Upload("06 Headstrong.mp3");
-                // gridFS.Delete(fileInfo.Id);
+                gridFS.Delete(fileInfo.Id);
             }
             DateTime end = DateTime.UtcNow;
             TimeSpan duration = end - start;
             double fps = iterations / duration.TotalSeconds;
             Console.WriteLine("Uploaded {0} files per second", fps);
 
-            iterations = 400;
-            start = DateTime.UtcNow;
-            for (int i = 0; i < iterations; i++) {
-                gridFS.Download("06 Headstrong.mp3");
-            }
-            end = DateTime.UtcNow;
-            duration = end - start;
-            fps = iterations / duration.TotalSeconds;
-            Console.WriteLine("Downloaded {0} files per second", fps);
+            //iterations = 100;
+            //start = DateTime.UtcNow;
+            //for (int i = 0; i < iterations; i++) {
+            //    gridFS.Download("06 Headstrong.mp3");
+            //}
+            //end = DateTime.UtcNow;
+            //duration = end - start;
+            //fps = iterations / duration.TotalSeconds;
+            //Console.WriteLine("Downloaded {0} files per second", fps);
 
             ListFiles();
         }

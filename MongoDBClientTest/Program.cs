@@ -20,6 +20,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient;
@@ -223,7 +224,7 @@ namespace MongoDB.MongoDBClientTest {
             database.UseDedicatedConnection = false;
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://test:test@localhost/test";
             var database = MongoDatabase.Create(connectionString);
             database.RequestStart();
@@ -235,6 +236,20 @@ namespace MongoDB.MongoDBClientTest {
             var book = collection.FindOne();
             var count = collection.Count();
             database.RequestDone();
+#endif
+
+#if true
+            string connectionString = "mongodb://test:test@localhost/test";
+            var database = MongoDatabase.Create(connectionString);
+            var collection = database.GetCollection<BsonDocument>("tail");
+            var cursor = collection.FindAll().Sort("_id").Flags(QueryFlags.TailableCursor);
+            while (true) {
+                foreach (var doc in cursor) {
+                    var id = doc.GetDouble("_id");
+                    Console.WriteLine(id);
+                }
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
 #endif
         }
     }

@@ -183,6 +183,7 @@ namespace MongoDB.MongoDBClient.Internal {
                 if (requests.TryGetValue(threadId, out request)) {
                     if (--request.NestingLevel == 0) {
                         requests.Remove(threadId);
+                        ReleaseConnection(request.Connection); // MUST be after request has been removed from requests
                     }
                 } else {
                     throw new MongoException("Thread is not in a request (did you call RequestStart?)");

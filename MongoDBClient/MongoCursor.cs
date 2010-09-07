@@ -48,6 +48,10 @@ namespace MongoDB.MongoDBClient {
             this.collection = collection;
             this.query = query;
             this.fields = fields;
+
+            if (collection.Database.Server.SlaveOk) {
+                this.flags |= QueryFlags.SlaveOk;
+            }
         }
         #endregion
 
@@ -363,6 +367,7 @@ namespace MongoDB.MongoDBClient {
             if (openCursorId != 0) {
                 var message = new MongoKillCursorsMessage(openCursorId);
                 connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                openCursorId = 0;
             }
             collection.Database.ReleaseConnection(connection);
             connection = null;
