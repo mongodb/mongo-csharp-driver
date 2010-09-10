@@ -28,7 +28,7 @@ namespace MongoDB.MongoDBClient {
         }
 
         public BsonDocument Counts {
-            get { return commandResult.GetEmbeddedDocument("counts"); }
+            get { return commandResult["counts"].AsBsonDocument; }
         }
 
         public MongoDatabase Database {
@@ -36,11 +36,11 @@ namespace MongoDB.MongoDBClient {
         }
 
         public TimeSpan Duration {
-            get { return TimeSpan.FromMilliseconds(commandResult.GetDouble("timeMillis")); }
+            get { return TimeSpan.FromMilliseconds(commandResult["timeMillis"].AsDouble); }
         }
 
         public string ResultCollectionName {
-            get { return commandResult.GetString("result"); }
+            get { return commandResult["result"].AsString; }
         }
         #endregion
 

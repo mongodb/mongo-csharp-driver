@@ -84,10 +84,10 @@ namespace MongoDB.MongoDBClient.Internal {
                 SendMessage(nonceMessage, SafeMode.False);
                 var nonceReply = ReceiveMessage<BsonDocument>();
                 var nonceCommandResult = nonceReply.Documents[0];
-                if (!nonceCommandResult.GetAsBoolean("ok", false)) {
+                if (!nonceCommandResult["ok", false].ToBoolean()) {
                     throw new MongoException("Error getting nonce for authentication");
                 }
-                var nonce = nonceCommandResult.GetString("nonce");
+                var nonce = nonceCommandResult["nonce"].AsString;
 
                 var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
                 var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
@@ -108,7 +108,7 @@ namespace MongoDB.MongoDBClient.Internal {
                 SendMessage(authenticateMessage, SafeMode.False);
                 var authenticationReply = ReceiveMessage<BsonDocument>();
                 var authenticationResult = authenticationReply.Documents[0];
-                if (!authenticationResult.GetAsBoolean("ok", false)) {
+                if (!authenticationResult["ok", false].ToBoolean()) {
                     throw new MongoException("Invalid credentials for database");
                 }
 
@@ -257,7 +257,7 @@ namespace MongoDB.MongoDBClient.Internal {
                 SendMessage(logoutMessage, SafeMode.False);
                 var logoutReply = ReceiveMessage<BsonDocument>();
                 var logoutCommandResult = logoutReply.Documents[0];
-                if (!logoutCommandResult.GetAsBoolean("ok", false)) {
+                if (!logoutCommandResult["ok", false].ToBoolean()) {
                     throw new MongoException("Error in logout");
                 }
 
@@ -316,14 +316,14 @@ namespace MongoDB.MongoDBClient.Internal {
                     if (!lastError.ContainsElement("ok")) {
                         throw new MongoException("ok element is missing");
                     }
-                    if (!lastError.GetAsBoolean("ok")) {
-                        string errmsg = (string) lastError["errmsg"];
+                    if (!lastError["ok"].ToBoolean()) {
+                        string errmsg = lastError["errmsg"].AsString;
                         string errorMessage = string.Format("Safemode detected an error ({0})", errmsg);
                         throw new MongoException(errorMessage);
                     }
 
-                    string err = lastError["err"] as string;
-                    if (!string.IsNullOrEmpty(err)) {
+                    if (lastError["err", false].ToBoolean()) {
+                        var err = lastError["err"].AsString;
                         string errorMessage = string.Format("Safemode detected an error ({0})", err);
                         throw new MongoException(errorMessage);
                     }

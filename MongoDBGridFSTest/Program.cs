@@ -32,7 +32,7 @@ namespace MongoDBGridFSTest {
             var database = server.GetDatabase("gridfstest");
             gridFS = database.GridFS;
             gridFS.Settings.Root = "uploads";
-            gridFS.SafeMode = SafeMode.True;
+            gridFS.SafeMode = SafeMode.False;
 
             Thread.Sleep(TimeSpan.FromSeconds(3)); // give a chance to start other instances
             Console.WriteLine("Starting");
@@ -42,7 +42,7 @@ namespace MongoDBGridFSTest {
             for (int i = 0; i < iterations; i++) {
                 // gridFS.Delete("06 Headstrong.mp3");
                 var fileInfo = gridFS.Upload("06 Headstrong.mp3");
-                gridFS.Delete(fileInfo.Id);
+                gridFS.DeleteById(fileInfo.Id);
             }
             DateTime end = DateTime.UtcNow;
             TimeSpan duration = end - start;

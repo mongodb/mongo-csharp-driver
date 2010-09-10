@@ -245,7 +245,7 @@ namespace MongoDB.MongoDBClientTest {
             var cursor = collection.FindAll().Sort("_id").Flags(QueryFlags.TailableCursor);
             while (true) {
                 foreach (var doc in cursor) {
-                    var id = doc.GetDouble("_id");
+                    var id = doc["_id"];
                     Console.WriteLine(id);
                 }
                 Thread.Sleep(TimeSpan.FromSeconds(1));

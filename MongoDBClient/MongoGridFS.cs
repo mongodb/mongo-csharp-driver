@@ -64,11 +64,10 @@ namespace MongoDB.MongoDBClient {
                 var files = database.GetCollection(settings.FilesCollectionName);
                 var chunks = database.GetCollection(settings.ChunksCollectionName);
                 using (var cursor = files.Find<BsonDocument>(query)) {
-                    var fileIds = cursor.Select(f => f.GetObjectId("_id"));
-                    foreach (var fileId in fileIds) {
-                        var fileQuery = new BsonDocument("_id", fileId);
+                    foreach (var file in cursor) {
+                        var fileQuery = new BsonDocument("_id", file["_id"]);
                         files.Remove(fileQuery, safeMode);
-                        var chunksQuery = new BsonDocument("files_id", fileId);
+                        var chunksQuery = new BsonDocument("files_id", file["_id"]);
                         chunks.Remove(chunksQuery, safeMode);
                     }
                 }
@@ -76,16 +75,16 @@ namespace MongoDB.MongoDBClient {
         }
 
         public void Delete(
-            BsonObjectId id
-        ) {
-            var query = new BsonDocument("_id", id);
-            Delete(query);
-        }
-
-        public void Delete(
             string remoteFileName
         ) {
             var query = new BsonDocument("filename", remoteFileName);
+            Delete(query);
+        }
+
+        public void DeleteById(
+            BsonValue id
+        ) {
+            var query = new BsonDocument("_id", id);
             Delete(query);
         }
 
@@ -126,7 +125,7 @@ namespace MongoDB.MongoDBClient {
                         string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
                         throw new MongoException(errorMessage);
                     }
-                    var data = chunk.GetBinaryData("data");
+                    var data = chunk["data"].AsBsonBinaryData;
                     if (data.Bytes.Length != fileInfo.ChunkSize) {
                         // the last chunk only has as many bytes as needed to complete the file
                         if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize) {
@@ -353,7 +352,7 @@ namespace MongoDB.MongoDBClient {
                     { "root", settings.Root }
                 };
                 var md5Result = database.RunCommand(md5Command);
-                var md5 = md5Result.GetString("md5");
+                var md5 = md5Result["md5"].AsString;
 
                 BsonDocument fileInfo = new BsonDocument {
                     { "_id", files_id },

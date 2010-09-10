@@ -186,13 +186,13 @@ namespace MongoDB.MongoDBClient {
             return RunCommand(command);
         }
 
-        public object Eval(
+        public BsonValue Eval(
             string code,
             params object[] args
         ) {
             BsonDocument command = new BsonDocument {
                 { "$eval", code },
-                { "args", args }
+                { "args", new BsonArray(args) }
             };
             var result = RunCommand(command);
             return result["retval"];
@@ -231,7 +231,7 @@ namespace MongoDB.MongoDBClient {
             var prefix = name + ".";
             using (var cursor = namespaces.FindAll<BsonDocument>()) {
                 foreach (BsonDocument ns in cursor) {
-                    string collectionName = (string) ns["name"];
+                    string collectionName = ns["name"].AsString;
                     if (!collectionName.StartsWith(prefix)) { continue; }
                     if (collectionName.Contains('$')) { continue; }
                     collectionNames.Add(collectionName);
@@ -294,9 +294,9 @@ namespace MongoDB.MongoDBClient {
             if (!result.ContainsElement("ok")) {
                 throw new MongoException("ok element is missing");
             }
-            if (!result.GetAsBoolean("ok")) {
+            if (!result["ok"].ToBoolean()) {
                 string commandName = (string) command.GetElement(0).Name;
-                string errmsg = (string) result["errmsg"];
+                string errmsg = result["errmsg"].AsString;
                 string errorMessage = string.Format("{0} failed ({1})", commandName, errmsg);
                 throw new MongoException(errorMessage);
             }

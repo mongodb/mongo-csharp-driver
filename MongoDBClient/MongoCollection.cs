@@ -82,7 +82,7 @@ namespace MongoDB.MongoDBClient {
                 { "query", query ?? new BsonDocument() }
             };
             var result = database.RunCommand(command);
-            return result.GetAsInt32("n");
+            return result["n"].ToInt32();
         }
 
         public BsonDocument CreateIndex(
@@ -98,7 +98,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             lock (indexCache) {
                 var indexes = database.GetCollection("system.indexes");
-                var indexName = ((options != null) ? options.GetString("name") : null) ?? GetIndexName(keys);
+                var indexName = (options != null && options.ContainsElement("name")) ? options["name"].AsString : GetIndexName(keys);
                 var index = new BsonDocument {
                     { "name", indexName },
                     { "ns", FullName },
@@ -141,16 +141,16 @@ namespace MongoDB.MongoDBClient {
         }
 
         public int DataSize() {
-            return Stats().GetInt32("size");
+            return Stats()["size"].ToInt32();
         }
 
-        public IEnumerable<object> Distinct(
+        public IEnumerable<BsonValue> Distinct(
             string key
         ) {
             return Distinct(key, null);
         }
 
-        public IEnumerable<object> Distinct(
+        public IEnumerable<BsonValue> Distinct(
             string key,
             BsonDocument query
         ) {
@@ -160,7 +160,7 @@ namespace MongoDB.MongoDBClient {
                 { "query", query }
             };
             var result = database.RunCommand(command);
-            return (BsonArray) result["values"];
+            return result["values"].AsBsonArray;
         }
 
         public BsonDocument DropAllIndexes() {
@@ -326,7 +326,7 @@ namespace MongoDB.MongoDBClient {
                 { returnNew, "new", true }
             };
             var result = database.RunCommand(command);
-            return result.GetEmbeddedDocument("value");
+            return result["value"].AsBsonDocument;
         }
 
         public BsonDocument FindAndRemove(
@@ -340,7 +340,7 @@ namespace MongoDB.MongoDBClient {
                 { "remove", true }
             };
             var result = database.RunCommand(command);
-            return result.GetEmbeddedDocument("value");
+            return result["value"].AsBsonDocument;
         }
 
         public T FindOne<T>() where T : new() {
@@ -417,7 +417,7 @@ namespace MongoDB.MongoDBClient {
                 }
             };
             var result = database.RunCommand(command);
-            return ((BsonArray) result["retval"]).Cast<BsonDocument>();
+            return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group(
@@ -440,7 +440,7 @@ namespace MongoDB.MongoDBClient {
                 }
             };
             var result = database.RunCommand(command);
-            return ((BsonArray) result["retval"]).Cast<BsonDocument>();
+            return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group(
@@ -493,7 +493,7 @@ namespace MongoDB.MongoDBClient {
 
             if (safeMode.Enabled) {
                 if (batches.Count() == 1) {
-                    return (BsonDocument) batches[0];
+                    return batches[0].AsBsonDocument;
                 } else {
                     return new BsonDocument("batches", batches);
                 }
@@ -606,7 +606,7 @@ namespace MongoDB.MongoDBClient {
            SafeMode safeMode
         ) {
             // special case for query on _id
-            if (query != null && query.Count == 1 && query.GetElement(0).Name == "_id" && query[0] is BsonObjectId) {
+            if (query != null && query.Count == 1 && query.GetElement(0).Name == "_id" && query[0].BsonType == BsonType.ObjectId) {
                 flags |= RemoveFlags.Single;
             }
 
@@ -647,7 +647,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument document,
             SafeMode safeMode
         ) {
-            object id = document["_id"];
+            BsonValue id = document["_id"];
             if (id == null) {
                 id = BsonObjectId.GenerateNewId();
                 document["_id"] = id; // TODO: do we need to make sure it's the first element?
@@ -664,18 +664,18 @@ namespace MongoDB.MongoDBClient {
         }
 
         public int StorageSize() {
-            return Stats().GetInt32("storageSize");
+            return Stats()["storageSize"].ToInt32();
         }
 
         public int TotalIndexSize() {
-            return Stats().GetInt32("totalIndexSize");
+            return Stats()["totalIndexSize"].ToInt32();
         }
 
         public int TotalSize() {
             var totalSize = StorageSize();
             var indexes = GetIndexes();
             foreach (var index in indexes) {
-                var indexName = index.GetString("name");
+                var indexName = index["name"].AsString;
                 var indexCollectionName = string.Format("{0}.${1}", name, indexName);
                 var indexCollection = database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.DataSize();
@@ -748,19 +748,18 @@ namespace MongoDB.MongoDBClient {
         ) {
             StringBuilder sb = new StringBuilder();
             foreach (var element in keys) {
-                string name = element.Name;
-                object value = element.Value;
                 if (sb.Length > 0) {
                     sb.Append("_");
                 }
-                sb.Append(name);
+                sb.Append(element.Name);
+                var value = element.Value;
                 if (
-                    value.GetType() == typeof(int) ||
-                    value.GetType() == typeof(long) ||
-                    value.GetType() == typeof(double) ||
-                    value.GetType() == typeof(string)
+                    value.BsonType == BsonType.Int32 ||
+                    value.BsonType == BsonType.Int64 ||
+                    value.BsonType == BsonType.Double ||
+                    value.BsonType == BsonType.String
                 ) {
-                    sb.Append(value.ToString().Replace(' ', '_'));
+                    sb.Append(value.RawValue.ToString().Replace(' ', '_'));
                 }
             }
             return sb.ToString();

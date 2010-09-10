@@ -27,7 +27,7 @@ namespace MongoDB.MongoDBClient {
         #region private fields
         private MongoGridFS gridFS;
         private int chunkSize;
-        private BsonObjectId id;
+        private BsonValue id; // usually a BsonObjectId but not required to be
         private int length;
         private string md5;
         private string name;
@@ -71,7 +71,7 @@ namespace MongoDB.MongoDBClient {
             get { return gridFS; }
         }
 
-        public BsonObjectId Id {
+        public BsonValue Id {
             get { return id; }
         }
 
@@ -121,7 +121,7 @@ namespace MongoDB.MongoDBClient {
         }
 
         public void Delete() {
-            gridFS.Delete(id);
+            gridFS.DeleteById(id);
         }
 
         public void MoveTo(
@@ -167,12 +167,12 @@ namespace MongoDB.MongoDBClient {
         private void LoadFileInfo(
             BsonDocument fileInfoDocument
         ) {
-            chunkSize = fileInfoDocument.GetInt32("chunkSize");
-            id = fileInfoDocument.GetObjectId("_id");
-            length = fileInfoDocument.GetInt32("length");
-            md5 = fileInfoDocument.GetString("md5");
-            name = fileInfoDocument.GetString("filename");
-            uploadDate = fileInfoDocument.GetDateTime("uploadDate");
+            chunkSize = fileInfoDocument["chunkSize"].ToInt32();
+            id = fileInfoDocument["_id"];
+            length = fileInfoDocument["length"].ToInt32();
+            md5 = fileInfoDocument["md5"].AsString;
+            name = fileInfoDocument["filename"].AsString;
+            uploadDate = fileInfoDocument["uploadDate"].AsDateTime;
         }
         #endregion
     }

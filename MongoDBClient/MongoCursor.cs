@@ -68,7 +68,7 @@ namespace MongoDB.MongoDBClient {
         #region public methods
         public MongoCursor<T> AddOption(
             string name,
-            object value
+            BsonValue value
         ) {
             if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             if (options == null) { options = new BsonDocument(); }
@@ -86,7 +86,7 @@ namespace MongoDB.MongoDBClient {
 
         public MongoCursor<TNew> Clone<TNew>() where TNew : new() {
             var clone = new MongoCursor<TNew>(collection, query, fields);
-            clone.options = options == null ? null : options.Clone();
+            clone.options = options == null ? null : (BsonDocument) options.Clone();
             clone.flags = flags;
             clone.skip = skip;
             clone.limit = limit;
@@ -101,7 +101,7 @@ namespace MongoDB.MongoDBClient {
                 { "query", query ?? new BsonDocument() },
             };
             var result = collection.Database.RunCommand(command);
-            return result.GetAsInt32("n");
+            return result["n"].ToInt32();
         }
 
         public void Dispose() {
@@ -136,13 +136,13 @@ namespace MongoDB.MongoDBClient {
                     explanation.RemoveElement("oldPlan");
                     if (explanation.ContainsElement("shards")) {
                         var shards = explanation["shards"];
-                        if (shards is BsonArray) {
-                            foreach (BsonDocument shard in (BsonArray) shards) {
+                        if (shards.BsonType == BsonType.Array) {
+                            foreach (BsonDocument shard in shards.AsBsonArray) {
                                 shard.RemoveElement("allPlans");
                                 shard.RemoveElement("oldPlan");
                             }
                         } else {
-                            BsonDocument shard = (BsonDocument) shards;
+                            var shard = shards.AsBsonDocument;
                             shard.RemoveElement("allPlans");
                             shard.RemoveElement("oldPlan");
                         }
@@ -264,7 +264,7 @@ namespace MongoDB.MongoDBClient {
                 { skip != 0, "skip", skip }
             };
             var result = collection.Database.RunCommand(command);
-            return result.GetAsInt32("n");
+            return result["n"].ToInt32();
         }
 
         public MongoCursor<T> ShowDiskLoc() {

@@ -182,11 +182,11 @@ namespace MongoDB.MongoDBClient {
 
                         if (results.CommandResult.ContainsElement("hosts")) {
                             replicaSet = new List<MongoServerAddress>();
-                            foreach (string host in results.CommandResult.GetArray("hosts")) {
+                            foreach (BsonString host in results.CommandResult["hosts"].AsBsonArray.Values) {
                                 // don't let errors parsing the address prevent us from connecting
                                 // the replicaSet just won't reflect any replicas with addresses we couldn't parse
                                 MongoServerAddress address;
-                                if (MongoServerAddress.TryParse(host, out address)) {
+                                if (MongoServerAddress.TryParse(host.Value, out address)) {
                                     replicaSet.Add(address);
                                 }
                             }
@@ -268,9 +268,8 @@ namespace MongoDB.MongoDBClient {
         public List<string> GetDatabaseNames() {
             var databaseNames = new List<string>();
             var result = AdminDatabase.RunCommand("listDatabases");
-            var databases = (BsonDocument) result["databases"];
-            foreach (BsonElement database in databases) {
-                string databaseName = (string) ((BsonDocument) database.Value)["name"];
+            foreach (BsonDocument database in result["databases"].AsBsonArray.Values) {
+                string databaseName = database["name"].AsString;
                 databaseNames.Add(databaseName);
             }
             databaseNames.Sort();
@@ -336,8 +335,8 @@ namespace MongoDB.MongoDBClient {
 
                 // look for additional members of the replica set that might not have been in the seed list and query them also
                 if (commandResult.ContainsElement("hosts")) {
-                    foreach (string host in commandResult.GetArray("hosts")) {
-                        var address = MongoServerAddress.Parse(host);
+                    foreach (BsonString host in commandResult["hosts"].AsBsonArray.Values) {
+                        var address = MongoServerAddress.Parse(host.Value);
                         if (!queriedServers.Contains(address)) {
                             var args = new QueryServerParameters {
                                 Address = address,
@@ -378,8 +377,8 @@ namespace MongoDB.MongoDBClient {
                     var reply = connection.ReceiveMessage<BsonDocument>();
                     results.CommandResult = reply.Documents[0];
                     if (
-                        results.CommandResult.GetAsBoolean("ok", false) &&
-                        results.CommandResult.GetAsBoolean("ismaster", false)
+                        results.CommandResult["ok", false].ToBoolean() &&
+                        results.CommandResult["ismaster", false].ToBoolean()
                     ) {
                         results.IsPrimary = true;
                         results.Connection = connection; // will become the first connection in the connection pool
