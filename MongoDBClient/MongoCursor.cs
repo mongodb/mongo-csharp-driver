@@ -109,19 +109,19 @@ namespace MongoDB.MongoDBClient {
             clone.limit = -clone.limit; // TODO: should this be -1?
             var explanation = clone.FirstOrDefault();
             if (!verbose) {
-                explanation.RemoveElement("allPlans");
-                explanation.RemoveElement("oldPlan");
-                if (explanation.ContainsElement("shards")) {
+                explanation.Remove("allPlans");
+                explanation.Remove("oldPlan");
+                if (explanation.Contains("shards")) {
                     var shards = explanation["shards"];
                     if (shards.BsonType == BsonType.Array) {
                         foreach (BsonDocument shard in shards.AsBsonArray) {
-                            shard.RemoveElement("allPlans");
-                            shard.RemoveElement("oldPlan");
+                            shard.Remove("allPlans");
+                            shard.Remove("oldPlan");
                         }
                     } else {
                         var shard = shards.AsBsonDocument;
-                        shard.RemoveElement("allPlans");
-                        shard.RemoveElement("oldPlan");
+                        shard.Remove("allPlans");
+                        shard.Remove("oldPlan");
                     }
                 }
             }

@@ -180,7 +180,7 @@ namespace MongoDB.MongoDBClient {
                     try {
                         var results = FindPrimary(timeout);
 
-                        if (results.CommandResult.ContainsElement("hosts")) {
+                        if (results.CommandResult.Contains("hosts")) {
                             replicaSet = new List<MongoServerAddress>();
                             foreach (BsonString host in results.CommandResult["hosts"].AsBsonArray.Values) {
                                 // don't let errors parsing the address prevent us from connecting
@@ -334,7 +334,7 @@ namespace MongoDB.MongoDBClient {
                 }
 
                 // look for additional members of the replica set that might not have been in the seed list and query them also
-                if (commandResult.ContainsElement("hosts")) {
+                if (commandResult.Contains("hosts")) {
                     foreach (BsonString host in commandResult["hosts"].AsBsonArray.Values) {
                         var address = MongoServerAddress.Parse(host.Value);
                         if (!queriedServers.Contains(address)) {

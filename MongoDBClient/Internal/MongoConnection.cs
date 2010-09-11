@@ -313,7 +313,7 @@ namespace MongoDB.MongoDBClient.Internal {
                     var replyMessage = ReceiveMessage<BsonDocument>();
                     lastError = replyMessage.Documents[0];
 
-                    if (!lastError.ContainsElement("ok")) {
+                    if (!lastError.Contains("ok")) {
                         throw new MongoException("ok element is missing");
                     }
                     if (!lastError["ok"].ToBoolean()) {

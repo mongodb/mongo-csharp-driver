@@ -98,7 +98,7 @@ namespace MongoDB.MongoDBClient {
         ) {
             lock (indexCache) {
                 var indexes = database.GetCollection("system.indexes");
-                var indexName = (options != null && options.ContainsElement("name")) ? options["name"].AsString : GetIndexName(keys);
+                var indexName = (options != null && options.Contains("name")) ? options["name"].AsString : GetIndexName(keys);
                 var index = new BsonDocument {
                     { "name", indexName },
                     { "ns", FullName },
@@ -740,7 +740,7 @@ namespace MongoDB.MongoDBClient {
             IEnumerable<BsonDocument> documents
         ) {
             foreach (var document in documents) {
-                if (!document.ContainsElement("_id")) {
+                if (!document.Contains("_id")) {
                     // TODO: do we need to add in _id as the first field?
                     document.Add("_id", BsonObjectId.GenerateNewId());
                 }

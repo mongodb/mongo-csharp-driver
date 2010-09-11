@@ -282,7 +282,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument command
         ) {
             BsonDocument result = CommandCollection.FindOne(command);
-            if (!result.ContainsElement("ok")) {
+            if (!result.Contains("ok")) {
                 throw new MongoException("ok element is missing");
             }
             if (!result["ok"].ToBoolean()) {
