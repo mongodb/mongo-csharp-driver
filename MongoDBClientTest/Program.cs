@@ -24,6 +24,7 @@ using System.Threading;
 
 using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient;
+using MongoDB.MongoDBClient.Builders;
 
 namespace MongoDB.MongoDBClientTest {
     public static class Program {
@@ -59,7 +60,12 @@ namespace MongoDB.MongoDBClientTest {
                 string connectionString = "mongodb://localhost/test";
                 var database = MongoDatabase.Create(connectionString);
                 var collection = database.GetCollection<BsonDocument>("books");
-                foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
+                //var fields = new BsonDocument {
+                //    { "author", 1 },
+                //    { "_id", 0 }
+                //};
+                var fields = Fields.Include("author", "title").Exclude("_id").Slice("comments", 20, 10);
+                foreach (var document in collection.FindAll(fields).Skip(0).Limit(2)) {
                     Console.WriteLine(document.ToJson());
                 }
             }
