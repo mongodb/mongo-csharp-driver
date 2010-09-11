@@ -22,75 +22,47 @@ using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient;
 
 namespace MongoDB.MongoDBClient.Builders {
-    public static class Fields {
+    public static class OrderBy {
         #region public static methods
-        public static FieldsBuilder Exclude(
+        public static OrderByBuilder Ascending(
             params string[] names
         ) {
-            var builder = new FieldsBuilder();
-            builder.Exclude(names);
+            var builder = new OrderByBuilder();
+            builder.Ascending(names);
             return builder;
         }
 
-        public static FieldsBuilder Include(
+        public static OrderByBuilder Descending(
             params string[] names
         ) {
-            var builder = new FieldsBuilder();
-            builder.Include(names);
-            return builder;
-        }
-
-        public static FieldsBuilder Slice(
-            string name,
-            int size // negative sizes are from the end
-        ) {
-            var builder = new FieldsBuilder();
-            builder.Slice(name, size);
-            return builder;
-        }
-
-        public static FieldsBuilder Slice(
-            string name,
-            int skip,
-            int limit
-        ) {
-            var builder = new FieldsBuilder();
-            builder.Slice(name, skip, limit);
+            var builder = new OrderByBuilder();
+            builder.Descending(names);
             return builder;
         }
         #endregion
     }
 
-    public class FieldsBuilder {
+    public class OrderByBuilder {
         #region private fields
         private BsonDocument document;
         #endregion
 
         #region constructors
-        public FieldsBuilder() {
+        public OrderByBuilder() {
             document = new BsonDocument();
         }
         #endregion
 
         #region public operators
         public static implicit operator BsonDocument(
-            FieldsBuilder builder
+            OrderByBuilder builder
         ) {
             return builder.document;
         }
         #endregion
 
         #region public methods
-        public FieldsBuilder Exclude(
-            params string[] names
-        ) {
-            foreach (var name in names) {
-                document.Add(name, 0);
-            }
-            return this;
-        }
-
-        public FieldsBuilder Include(
+        public OrderByBuilder Ascending(
             params string[] names
         ) {
             foreach (var name in names) {
@@ -99,20 +71,12 @@ namespace MongoDB.MongoDBClient.Builders {
             return this;
         }
 
-        public FieldsBuilder Slice(
-            string name,
-            int size // negative sizes are from the end
+        public OrderByBuilder Descending(
+            params string[] names
         ) {
-            document.Add(name, new BsonDocument("$slice", size));
-            return this;
-        }
-
-        public FieldsBuilder Slice(
-            string name,
-            int skip,
-            int limit
-        ) {
-            document.Add(name, new BsonDocument("$slice", new BsonArray { skip, limit }));
+            foreach (var name in names) {
+                document.Add(name, -1);
+            }
             return this;
         }
         #endregion

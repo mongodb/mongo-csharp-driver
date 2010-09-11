@@ -241,17 +241,8 @@ namespace MongoDB.MongoDBClient {
             params string[] keys
         ) {
             if (frozen) { ThrowFrozen(); }
-            var orderBy = new BsonDocument(keys.Select(k => new BsonElement(k, 1)));
-            return Sort(orderBy);
-        }
-
-        public MongoCursor<R> Sort(
-            string key,
-            int direction
-        ) {
-            if (frozen) { ThrowFrozen(); }
-            var orderBy = new BsonDocument(key, direction);
-            return Sort(orderBy);
+            // var orderBy = new BsonDocument(keys.Select(k => new BsonElement(k, 1)));
+            return Sort(Builders.OrderBy.Ascending(keys));
         }
         #endregion
 

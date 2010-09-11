@@ -23,138 +23,138 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.MongoDBClient.Builders {
     public static class Query {
         #region public static methods
-        public static QueryElementFragment All(
+        public static QueryElementBuilder All(
             string name,
             BsonArray array
         ) {
             var document = new BsonDocument(name, new BsonDocument("$all", array));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment All(
+        public static QueryElementBuilder All(
             string name,
             params BsonValue[] values
         ) {
             var document = new BsonDocument(name, new BsonDocument("$all", new BsonArray(values)));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryFragment And(
-            params QueryFragment[] fragments
+        public static QueryBuilder And(
+            params QueryBuilder[] queries
         ) {
             var document = new BsonDocument();
-            foreach (var fragment in fragments) {
-                document.Add((BsonDocument) fragment);
+            foreach (var query in queries) {
+                document.Add((BsonDocument) query);
             }
-            return new QueryFragment(document);
+            return new QueryBuilder(document);
         }
 
-        public static QueryFragment Eq(
+        public static QueryBuilder Eq(
             string name,
             BsonValue value
         ) {
             var document = new BsonDocument(name, value);
-            return new QueryFragment(document);
+            return new QueryBuilder(document);
         }
 
-        public static QueryElementFragment GT(
+        public static QueryElementBuilder GT(
             string name,
             BsonValue value
         ) {
             var document = new BsonDocument(name, new BsonDocument("$gt", value));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment GTE(
+        public static QueryElementBuilder GTE(
             string name,
             BsonValue value
         ) {
             var document = new BsonDocument(name, new BsonDocument("$gte", value));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment In(
+        public static QueryElementBuilder In(
             string name,
             BsonArray array
         ) {
             var document = new BsonDocument(name, new BsonDocument("$in", array));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment In(
+        public static QueryElementBuilder In(
             string name,
             params BsonValue[] values
         ) {
             var document = new BsonDocument(name, new BsonDocument("$in", new BsonArray(values)));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment LT(
+        public static QueryElementBuilder LT(
             string name,
             BsonValue value
         ) {
             var document = new BsonDocument(name, new BsonDocument("$lt", value));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment LTE(
+        public static QueryElementBuilder LTE(
             string name,
             BsonValue value
         ) {
             var document = new BsonDocument(name, new BsonDocument("$lte", value));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment Mod(
+        public static QueryElementBuilder Mod(
             string name,
             int modulus,
             int equals
         ) {
             var document = new BsonDocument(name, new BsonDocument("$mod", new BsonArray { modulus, equals }));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment NE(
+        public static QueryElementBuilder NE(
             string name,
             BsonValue value
         ) {
             var document = new BsonDocument(name, new BsonDocument("$ne", value));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment NotIn(
+        public static QueryElementBuilder NotIn(
             string name,
             BsonArray array
         ) {
             var document = new BsonDocument(name, new BsonDocument("$nin", array));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment NotIn(
+        public static QueryElementBuilder NotIn(
             string name,
             params BsonValue[] values
         ) {
             var document = new BsonDocument(name, new BsonDocument("$nin", new BsonArray(values)));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
 
-        public static QueryElementFragment Size(
+        public static QueryElementBuilder Size(
             string name,
             int size
         ) {
             var document = new BsonDocument(name, new BsonDocument("$size", size));
-            return new QueryElementFragment(document);
+            return new QueryElementBuilder(document);
         }
         #endregion
     }
 
-    public class QueryFragment {
+    public class QueryBuilder {
         #region private fields
         protected BsonDocument document;
         #endregion
 
         #region constructors
-        public QueryFragment(
+        public QueryBuilder(
             BsonDocument document
         ) {
             this.document = document;
@@ -163,16 +163,16 @@ namespace MongoDB.MongoDBClient.Builders {
 
         #region public operators
         public static implicit operator BsonDocument(
-            QueryFragment fragment
+            QueryBuilder builder
         ) {
-            return fragment.document;
+            return builder.document;
         }
         #endregion
     }
 
-    public class QueryElementFragment : QueryFragment {
+    public class QueryElementBuilder : QueryBuilder {
         #region constructors
-        public QueryElementFragment(
+        public QueryElementBuilder(
             BsonDocument document
         )
             : base(document) {
@@ -180,63 +180,63 @@ namespace MongoDB.MongoDBClient.Builders {
         #endregion
 
         #region public methods
-        public QueryElementFragment All(
+        public QueryElementBuilder All(
             BsonArray array
         ) {
             document[0].AsBsonDocument.Add("$all", array);
             return this;
         }
 
-        public QueryElementFragment All(
+        public QueryElementBuilder All(
             params BsonValue[] values
         ) {
             document[0].AsBsonDocument.Add("$all", new BsonArray(values));
             return this;
         }
 
-        public QueryElementFragment GT(
+        public QueryElementBuilder GT(
             BsonValue value
         ) {
             document[0].AsBsonDocument.Add("$gt", value);
             return this;
         }
 
-        public QueryElementFragment GE(
+        public QueryElementBuilder GE(
             BsonValue value
         ) {
             document[0].AsBsonDocument.Add("$gte", value);
             return this;
         }
 
-        public QueryElementFragment In(
+        public QueryElementBuilder In(
             BsonArray array
         ) {
             document[0].AsBsonDocument.Add("$in", array);
             return this;
         }
 
-        public QueryElementFragment In(
+        public QueryElementBuilder In(
             params BsonValue[] values
         ) {
             document[0].AsBsonDocument.Add("$in", new BsonArray(values));
             return this;
         }
 
-        public QueryElementFragment LT(
+        public QueryElementBuilder LT(
             BsonValue value
         ) {
             document[0].AsBsonDocument.Add("$lt", value);
             return this;
         }
 
-        public QueryElementFragment LE(
+        public QueryElementBuilder LE(
             BsonValue value
         ) {
             document[0].AsBsonDocument.Add("$lte", value);
             return this;
         }
 
-        public QueryElementFragment Mod(
+        public QueryElementBuilder Mod(
             int modulus,
             int equals
         ) {
@@ -244,28 +244,28 @@ namespace MongoDB.MongoDBClient.Builders {
             return this;
         }
 
-        public QueryElementFragment NE(
+        public QueryElementBuilder NE(
             BsonValue value
         ) {
             document[0].AsBsonDocument.Add("$ne", value);
             return this;
         }
 
-        public QueryElementFragment NotIn(
+        public QueryElementBuilder NotIn(
             BsonArray array
         ) {
             document[0].AsBsonDocument.Add("$nin", array);
             return this;
         }
 
-        public QueryElementFragment NotIn(
+        public QueryElementBuilder NotIn(
             params BsonValue[] values
         ) {
             document[0].AsBsonDocument.Add("$nin", new BsonArray(values));
             return this;
         }
 
-        public QueryElementFragment Size(
+        public QueryElementBuilder Size(
             int size
         ) {
             document[0].AsBsonDocument.Add("$size", size);
