@@ -252,45 +252,45 @@ namespace MongoDB.MongoDBClient {
             }
         }
 
-        public MongoCursor<T> Find<T>(
+        public MongoCursor<R> Find<R>(
             BsonDocument query
-        ) where T : new() {
+        ) where R : new() {
             BsonDocument fields = null;
-            return Find<T>(query, fields);
+            return Find<R>(query, fields);
         }
 
-        public MongoCursor<T> Find<T>(
+        public MongoCursor<R> Find<R>(
             BsonDocument query,
             BsonDocument fields
-        ) where T : new() {
-            return new MongoCursor<T>(this, query, fields);
+        ) where R : new() {
+            return new MongoCursor<R>(this, query, fields);
         }
 
-        public MongoCursor<T> Find<T>(
+        public MongoCursor<R> Find<R>(
             BsonJavaScript where
-        ) where T : new() {
+        ) where R : new() {
             var query = new BsonDocument("$where", where);
-            return Find<T>(query);
+            return Find<R>(query);
         }
 
-        public MongoCursor<T> Find<T>(
+        public MongoCursor<R> Find<R>(
             BsonJavaScript where,
             BsonDocument fields
-        ) where T : new() {
+        ) where R : new() {
             var query = new BsonDocument("$where", where);
-            return Find<T>(query, fields);
+            return Find<R>(query, fields);
         }
 
-        public MongoCursor<T> FindAll<T>() where T : new() {
+        public MongoCursor<R> FindAll<R>() where R : new() {
             BsonDocument query = null;
-            return Find<T>(query);
+            return Find<R>(query);
         }
 
-        public MongoCursor<T> FindAll<T>(
+        public MongoCursor<R> FindAll<R>(
             BsonDocument fields
-        ) where T : new() {
+        ) where R : new() {
             BsonDocument query = null;
-            return Find<T>(query, fields);
+            return Find<R>(query, fields);
         }
 
         public BsonDocument FindAndModify(
@@ -343,34 +343,34 @@ namespace MongoDB.MongoDBClient {
             return result["value"].AsBsonDocument;
         }
 
-        public T FindOne<T>() where T : new() {
-            return FindAll<T>().Limit(1).FirstOrDefault();
+        public R FindOne<R>() where R : new() {
+            return FindAll<R>().Limit(1).FirstOrDefault();
         }
 
-        public T FindOne<T>(
+        public R FindOne<R>(
             BsonDocument query
-        ) where T : new() {
-            return Find<T>(query).Limit(1).FirstOrDefault();
+        ) where R : new() {
+            return Find<R>(query).Limit(1).FirstOrDefault();
         }
 
-        public T FindOne<T>(
+        public R FindOne<R>(
             BsonDocument query,
             BsonDocument fields
-        ) where T : new() {
-            return Find<T>(query, fields).Limit(1).FirstOrDefault();
+        ) where R : new() {
+            return Find<R>(query, fields).Limit(1).FirstOrDefault();
         }
 
-        public T FindOne<T>(
+        public R FindOne<R>(
             BsonJavaScript where
-        ) where T : new() {
-            return Find<T>(where).Limit(1).FirstOrDefault();
+        ) where R : new() {
+            return Find<R>(where).Limit(1).FirstOrDefault();
         }
 
-        public T FindOne<T>(
+        public R FindOne<R>(
             BsonJavaScript where,
             BsonDocument fields
-        ) where T : new() {
-            return Find<T>(where, fields).Limit(1).FirstOrDefault();
+        ) where R : new() {
+            return Find<R>(where, fields).Limit(1).FirstOrDefault();
         }
 
         public List<BsonDocument> GetIndexes() {
@@ -452,18 +452,18 @@ namespace MongoDB.MongoDBClient {
             return Group(null, keys, initial, reduce, null);
         }
 
-        public BsonDocument Insert<T>(
-            IEnumerable<T> documents
+        public BsonDocument Insert<I>(
+            IEnumerable<I> documents
         ) {
             return Insert(documents, safeMode);
         }
 
-        public BsonDocument Insert<T>(
-            IEnumerable<T> documents,
+        public BsonDocument Insert<I>(
+            IEnumerable<I> documents,
             SafeMode safeMode
         ) {
             if (assignObjectIdsOnInsert) {
-                if (typeof(T) == typeof(BsonDocument)) {
+                if (typeof(I) == typeof(BsonDocument)) {
                     AssignObjectIds((IEnumerable<BsonDocument>) documents);
                 }
             }
@@ -502,24 +502,24 @@ namespace MongoDB.MongoDBClient {
             }
         }
 
-        public BsonDocument Insert<T>(
-            params T[] documents
+        public BsonDocument Insert<I>(
+            params I[] documents
         ) {
-            return Insert((IEnumerable<T>) documents, safeMode);
+            return Insert((IEnumerable<I>) documents, safeMode);
         }
 
-        public BsonDocument Insert<T>(
-            T document,
+        public BsonDocument Insert<I>(
+            I document,
             SafeMode safeMode
         ) {
-            return Insert((IEnumerable<T>) new T[] { document }, safeMode);
+            return Insert((IEnumerable<I>) new I[] { document }, safeMode);
         }
 
-        public BsonDocument Insert<T>(
-            T[] documents,
+        public BsonDocument Insert<I>(
+            I[] documents,
             SafeMode safeMode
         ) {
-            return Insert((IEnumerable<T>) documents, safeMode);
+            return Insert((IEnumerable<I>) documents, safeMode);
         }
 
         public bool IsCapped() {
@@ -801,7 +801,10 @@ namespace MongoDB.MongoDBClient {
         #endregion
     }
 
-    public class MongoCollection<T> : MongoCollection where T : new() {
+    // this subclass provides a default result document type for Find methods
+    // you can still Find any other document types by using the Find<R> methods
+
+    public class MongoCollection<D> : MongoCollection where D : new() {
         #region constructors
         public MongoCollection(
             MongoDatabase database,
@@ -812,70 +815,70 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
-        public MongoCursor<T> Find(
+        public MongoCursor<D> Find(
             BsonDocument query
         ) {
-            return Find<T>(query);
+            return Find<D>(query);
         }
 
-        public MongoCursor<T> Find(
+        public MongoCursor<D> Find(
             BsonDocument query,
             BsonDocument fields
         ) {
-            return Find<T>(query, fields);
+            return Find<D>(query, fields);
         }
 
-        public MongoCursor<T> Find(
+        public MongoCursor<D> Find(
             string where
         ) {
-            return Find<T>(where);
+            return Find<D>(where);
         }
 
-        public MongoCursor<T> Find(
+        public MongoCursor<D> Find(
             string where,
             BsonDocument fields
         ) {
-            return Find<T>(where, fields);
+            return Find<D>(where, fields);
         }
 
-        public MongoCursor<T> FindAll() {
-            return FindAll<T>();
+        public MongoCursor<D> FindAll() {
+            return FindAll<D>();
         }
 
-        public MongoCursor<T> FindAll(
+        public MongoCursor<D> FindAll(
             BsonDocument fields
         ) {
-            return FindAll<T>(fields);
+            return FindAll<D>(fields);
         }
 
-        public T FindOne() {
-            return FindOne<T>();
+        public D FindOne() {
+            return FindOne<D>();
         }
 
-        public T FindOne(
+        public D FindOne(
             BsonDocument query
         ) {
-            return FindOne<T>(query);
+            return FindOne<D>(query);
         }
 
-        public T FindOne(
+        public D FindOne(
             BsonDocument query,
             BsonDocument fields
         ) {
-            return FindOne<T>(query, fields);
+            return FindOne<D>(query, fields);
         }
 
-        public T FindOne(
+        public D FindOne(
             string where
         ) {
-            return FindOne<T>(where);
+            return FindOne<D>(where);
         }
 
-        public T FindOne(
+        public D FindOne(
             string where,
             BsonDocument fields
         ) {
-            return FindOne<T>(where, fields);
+            return FindOne<D>(where, fields);
         }
         #endregion
     }

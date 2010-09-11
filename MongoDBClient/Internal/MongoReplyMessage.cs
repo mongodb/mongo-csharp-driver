@@ -22,13 +22,13 @@ using System.Text;
 using MongoDB.BsonLibrary;
 
 namespace MongoDB.MongoDBClient.Internal {
-    internal class MongoReplyMessage<T> : MongoMessage where T : new() {
+    internal class MongoReplyMessage<R> : MongoMessage where R : new() {
         #region private fields
         private ResponseFlags responseFlags;
         private long cursorId;
         private int startingFrom;
         private int numberReturned;
-        private List<T> documents;
+        private List<R> documents;
         #endregion
 
         #region constructors
@@ -58,7 +58,7 @@ namespace MongoDB.MongoDBClient.Internal {
             set { numberReturned = value; }
         }
 
-        internal List<T> Documents {
+        internal List<R> Documents {
             get { return documents; }
             set { documents = value; }
         }
@@ -77,12 +77,12 @@ namespace MongoDB.MongoDBClient.Internal {
             cursorId = binaryReader.ReadInt64();
             startingFrom = binaryReader.ReadInt32();
             numberReturned = binaryReader.ReadInt32();
-            documents = new List<T>();
+            documents = new List<R>();
 
             BsonReader bsonReader = BsonReader.Create(binaryReader);
-            BsonSerializer serializer = new BsonSerializer(typeof(T));
+            BsonSerializer serializer = new BsonSerializer(typeof(R));
             while (binaryReader.BaseStream.Position - messageStartPosition < messageLength) {
-                T document = (T) serializer.ReadObject(bsonReader);
+                R document = (R) serializer.ReadObject(bsonReader);
                 documents.Add(document);
             }
         }

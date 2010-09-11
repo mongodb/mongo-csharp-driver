@@ -265,7 +265,7 @@ namespace MongoDB.MongoDBClient.Internal {
             }
         }
 
-        internal MongoReplyMessage<T> ReceiveMessage<T>() where T : new() {
+        internal MongoReplyMessage<R> ReceiveMessage<R>() where R : new() {
             if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
                 byte[] bytes;
@@ -275,7 +275,7 @@ namespace MongoDB.MongoDBClient.Internal {
                     HandleSocketException(ex);
                     throw;
                 }
-                var reply = new MongoReplyMessage<T>();
+                var reply = new MongoReplyMessage<R>();
                 reply.ReadFrom(bytes);
                 return reply;
             }

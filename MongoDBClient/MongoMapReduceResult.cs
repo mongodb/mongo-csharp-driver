@@ -45,9 +45,9 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
-        public MongoCursor<T> GetResults<T>() where T : new() {
+        public MongoCursor<R> GetResults<R>() where R : new() {
             MongoCollection collection = database.GetCollection(ResultCollectionName);
-            return collection.FindAll<T>();
+            return collection.FindAll<R>();
         }
         #endregion
     }

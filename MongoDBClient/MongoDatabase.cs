@@ -211,17 +211,17 @@ namespace MongoDB.MongoDBClient {
             }
         }
 
-        public MongoCollection<T> GetCollection<T>(
+        public MongoCollection<D> GetCollection<D>(
             string collectionName
-        ) where T : new() {
+        ) where D : new() {
             lock (databaseLock) {
                 MongoCollection collection;
-                string key = string.Format("{0}<{1}>", collectionName, typeof(T).FullName);
+                string key = string.Format("{0}<{1}>", collectionName, typeof(D).FullName);
                 if (!collections.TryGetValue(key, out collection)) {
-                    collection = new MongoCollection<T>(this, collectionName);
+                    collection = new MongoCollection<D>(this, collectionName);
                     collections.Add(key, collection);
                 }
-                return (MongoCollection<T>) collection;
+                return (MongoCollection<D>) collection;
             }
         }
 

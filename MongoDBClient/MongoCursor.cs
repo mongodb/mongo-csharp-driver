@@ -23,7 +23,7 @@ using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
-    public class MongoCursor<T> : IEnumerable<T> where T : new() {
+    public class MongoCursor<R> : IEnumerable<R> where R : new() {
         #region private fields
         private MongoCollection collection;
         private BsonDocument query;
@@ -59,7 +59,7 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public methods
-        public MongoCursor<T> AddOption(
+        public MongoCursor<R> AddOption(
             string name,
             BsonValue value
         ) {
@@ -69,7 +69,7 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> BatchSize(
+        public MongoCursor<R> BatchSize(
             int batchSize
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -78,8 +78,8 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<TNew> Clone<TNew>() where TNew : new() {
-            var clone = new MongoCursor<TNew>(collection, query, fields);
+        public MongoCursor<RNew> Clone<RNew>() where RNew : new() {
+            var clone = new MongoCursor<RNew>(collection, query, fields);
             clone.options = options == null ? null : (BsonDocument) options.Clone();
             clone.flags = flags;
             clone.skip = skip;
@@ -128,7 +128,7 @@ namespace MongoDB.MongoDBClient {
             return explanation;
         }
 
-        public MongoCursor<T> Fields(
+        public MongoCursor<R> Fields(
             BsonDocument fields
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -136,7 +136,7 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> Flags(
+        public MongoCursor<R> Flags(
             QueryFlags flags
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -144,12 +144,12 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public IEnumerator<T> GetEnumerator() {
+        public IEnumerator<R> GetEnumerator() {
             frozen = true;
             return new MongoCursorEnumerator(this);
         }
 
-        public MongoCursor<T> Hint(
+        public MongoCursor<R> Hint(
             BsonDocument hint
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -157,7 +157,7 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> Limit(
+        public MongoCursor<R> Limit(
             int limit
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -165,7 +165,7 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> Max(
+        public MongoCursor<R> Max(
            BsonDocument max
        ) {
             if (frozen) { ThrowFrozen(); }
@@ -173,7 +173,7 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> MaxScan(
+        public MongoCursor<R> MaxScan(
             int maxScan
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -181,7 +181,7 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> Min(
+        public MongoCursor<R> Min(
            BsonDocument min
        ) {
             if (frozen) { ThrowFrozen(); }
@@ -189,7 +189,7 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> Options(
+        public MongoCursor<R> Options(
             BsonDocument options
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -208,13 +208,13 @@ namespace MongoDB.MongoDBClient {
             return result["n"].ToInt32();
         }
 
-        public MongoCursor<T> ShowDiskLoc() {
+        public MongoCursor<R> ShowDiskLoc() {
             if (frozen) { ThrowFrozen(); }
             AddOption("$showDiskLoc", true);
             return this;
         }
 
-        public MongoCursor<T> Skip(
+        public MongoCursor<R> Skip(
             int skip
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -223,13 +223,13 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> Snapshot() {
+        public MongoCursor<R> Snapshot() {
             if (frozen) { ThrowFrozen(); }
             AddOption("$snapshot", true);
             return this;
         }
 
-        public MongoCursor<T> Sort(
+        public MongoCursor<R> Sort(
             BsonDocument orderBy
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -237,7 +237,7 @@ namespace MongoDB.MongoDBClient {
             return this;
         }
 
-        public MongoCursor<T> Sort(
+        public MongoCursor<R> Sort(
             params string[] keys
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -245,7 +245,7 @@ namespace MongoDB.MongoDBClient {
             return Sort(orderBy);
         }
 
-        public MongoCursor<T> Sort(
+        public MongoCursor<R> Sort(
             string key,
             int direction
         ) {
@@ -269,23 +269,23 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region nested classes
-        private class MongoCursorEnumerator : IEnumerator<T> {
+        private class MongoCursorEnumerator : IEnumerator<R> {
             #region private fields
             private bool disposed = false;
             private bool started = false;
             private bool done = false;
-            private MongoCursor<T> cursor;
+            private MongoCursor<R> cursor;
             private MongoConnection connection;
             private int count;
             private int positiveLimit;
-            private MongoReplyMessage<T> reply;
+            private MongoReplyMessage<R> reply;
             private int replyIndex;
             private long openCursorId;
             #endregion
 
             #region constructors
             public MongoCursorEnumerator(
-                MongoCursor<T> cursor
+                MongoCursor<R> cursor
             ) {
                 this.cursor = cursor;
                 this.positiveLimit = cursor.limit >= 0 ? cursor.limit : -cursor.limit;
@@ -293,7 +293,7 @@ namespace MongoDB.MongoDBClient {
             #endregion
 
             #region public properties
-            public T Current {
+            public R Current {
                 get {
                     if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
                     if (!started) {
@@ -366,7 +366,7 @@ namespace MongoDB.MongoDBClient {
             #endregion
 
             #region private methods
-            private MongoReplyMessage<T> GetFirst() {
+            private MongoReplyMessage<R> GetFirst() {
                 connection = cursor.Collection.Database.GetConnection();
                 try {
                     // some of these weird conditions are necessary to get commands to run correctly
@@ -392,7 +392,7 @@ namespace MongoDB.MongoDBClient {
                 }
             }
 
-            private MongoReplyMessage<T> GetMore() {
+            private MongoReplyMessage<R> GetMore() {
                 try {
                     int numberToReturn;
                     if (positiveLimit != 0) {
@@ -412,11 +412,11 @@ namespace MongoDB.MongoDBClient {
                 }
             }
 
-            private MongoReplyMessage<T> SendMessage(
+            private MongoReplyMessage<R> SendMessage(
                 MongoRequestMessage message
             ) {
                 connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-                var reply = connection.ReceiveMessage<T>();
+                var reply = connection.ReceiveMessage<R>();
                 openCursorId = reply.CursorId;
                 if (openCursorId == 0) {
                     ReleaseConnection();

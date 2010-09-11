@@ -39,8 +39,8 @@ namespace MongoDB.MongoDBClient.Internal {
         #endregion
 
         #region internal methods
-        internal void AddDocument<T>(
-            T document
+        internal void AddDocument<I>(
+            I document
         ) {
             if (memoryStream == null) {
                 // create a base message with no documents added yet
@@ -49,7 +49,7 @@ namespace MongoDB.MongoDBClient.Internal {
             }
 
             lastDocumentStartPosition = memoryStream.Position;
-            var serializer = new BsonSerializer(typeof(T));
+            var serializer = new BsonSerializer(typeof(I));
             var bsonWriter = BsonWriter.Create(binaryWriter);
             serializer.WriteObject(bsonWriter, document);
             BackpatchMessageLength(binaryWriter);
