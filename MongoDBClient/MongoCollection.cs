@@ -373,11 +373,10 @@ namespace MongoDB.MongoDBClient {
             return Find<R>(where, fields).Limit(1).FirstOrDefault();
         }
 
-        public List<BsonDocument> GetIndexes() {
+        public IEnumerable<BsonDocument> GetIndexes() {
             var indexes = database.GetCollection("system.indexes");
             var query = new BsonDocument("ns", FullName);
-            var info = indexes.Find<BsonDocument>(query).ToList();
-            return info;
+            return indexes.Find(query).ToList(); // force query to execute before returning
         }
 
         public IEnumerable<BsonDocument> Group(

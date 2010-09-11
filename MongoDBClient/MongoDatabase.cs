@@ -97,8 +97,8 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public properties
-        public MongoCollection CommandCollection {
-            get { return GetCollection("$cmd"); }
+        public MongoCollection<BsonDocument> CommandCollection {
+            get { return GetCollection<BsonDocument>("$cmd"); }
         }
 
         public MongoCredentials Credentials {
@@ -131,7 +131,7 @@ namespace MongoDB.MongoDBClient {
         #endregion
 
         #region public indexers
-        public MongoCollection this[
+        public MongoCollection<BsonDocument> this[
             string collectionName
         ] {
             get { return GetCollection(collectionName); }
@@ -150,7 +150,7 @@ namespace MongoDB.MongoDBClient {
             bool readOnly
         ) {
             var users = GetCollection("system.users");
-            var user = users.FindOne<BsonDocument>(new BsonDocument("user", credentials.Username));
+            var user = users.FindOne(new BsonDocument("user", credentials.Username));
             if (user == null) {
                 user = new BsonDocument("user", credentials.Username);
             }
@@ -176,7 +176,7 @@ namespace MongoDB.MongoDBClient {
 
         public BsonDocument CurrentOp() {
             var collection = GetCollection("$cmd.sys.inprog");
-            return collection.FindOne<BsonDocument>();
+            return collection.FindOne();
         }
 
         public BsonDocument DropCollection(
@@ -198,17 +198,10 @@ namespace MongoDB.MongoDBClient {
             return result["retval"];
         }
 
-        public MongoCollection GetCollection(
+        public MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
-            lock (databaseLock) {
-                MongoCollection collection;
-                if (!collections.TryGetValue(collectionName, out collection)) {
-                    collection = new MongoCollection(this, collectionName);
-                    collections.Add(collectionName, collection);
-                }
-                return collection;
-            }
+            return GetCollection<BsonDocument>(collectionName);
         }
 
         public MongoCollection<D> GetCollection<D>(
@@ -227,9 +220,9 @@ namespace MongoDB.MongoDBClient {
 
         public List<string> GetCollectionNames() {
             List<string> collectionNames = new List<string>();
-            MongoCollection namespaces = GetCollection("system.namespaces");
+            var namespaces = GetCollection("system.namespaces");
             var prefix = name + ".";
-            foreach (var ns in namespaces.FindAll<BsonDocument>()) {
+            foreach (var ns in namespaces.FindAll()) {
                 string collectionName = ns["name"].AsString;
                 if (!collectionName.StartsWith(prefix)) { continue; }
                 if (collectionName.Contains('$')) { continue; }
@@ -266,7 +259,7 @@ namespace MongoDB.MongoDBClient {
         public void RemoveUser(
             string username
         ) {
-            MongoCollection users = GetCollection("system.users");
+            var users = GetCollection("system.users");
             users.Remove(new BsonDocument("user", username));
         }
 
@@ -288,7 +281,7 @@ namespace MongoDB.MongoDBClient {
         public BsonDocument RunCommand(
             BsonDocument command
         ) {
-            BsonDocument result = CommandCollection.FindOne<BsonDocument>(command);
+            BsonDocument result = CommandCollection.FindOne(command);
             if (!result.ContainsElement("ok")) {
                 throw new MongoException("ok element is missing");
             }

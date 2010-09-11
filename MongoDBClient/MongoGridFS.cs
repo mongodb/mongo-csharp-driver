@@ -63,7 +63,7 @@ namespace MongoDB.MongoDBClient {
             using (database.RequestStart()) {
                 var files = database.GetCollection(settings.FilesCollectionName);
                 var chunks = database.GetCollection(settings.ChunksCollectionName);
-                foreach (var file in files.Find<BsonDocument>(query)) {
+                foreach (var file in files.Find(query)) {
                     files.Remove(new BsonDocument("_id", file["_id"]), safeMode);
                     chunks.Remove(new BsonDocument("files_id", file["_id"]), safeMode);
                 }
@@ -116,7 +116,7 @@ namespace MongoDB.MongoDBClient {
                         { "files_id", fileInfo.Id },
                         { "n", n }
                     };
-                    var chunk = chunks.FindOne<BsonDocument>(query);
+                    var chunk = chunks.FindOne(query);
                     if (chunk == null) {
                         string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
                         throw new MongoException(errorMessage);
@@ -236,7 +236,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
-            return files.Find<BsonDocument>(query).Select(d => new MongoGridFSFileInfo(this, d)).ToList();
+            return files.Find(query).Select(d => new MongoGridFSFileInfo(this, d)).ToList();
         }
 
         public List<MongoGridFSFileInfo> Find(
@@ -266,11 +266,11 @@ namespace MongoDB.MongoDBClient {
             var files = database.GetCollection(settings.FilesCollectionName);
             BsonDocument fileInfoDocument;
             if (version > 0) {
-                fileInfoDocument = files.Find<BsonDocument>(query).Sort("uploadDate").Skip(version - 1).Limit(1).FirstOrDefault();
+                fileInfoDocument = files.Find(query).Sort("uploadDate").Skip(version - 1).Limit(1).FirstOrDefault();
             } else if (version < 0) {
-                fileInfoDocument = files.Find<BsonDocument>(query).Sort(new BsonDocument("uploadDate", -1)).Skip(-version - 1).Limit(1).FirstOrDefault();
+                fileInfoDocument = files.Find(query).Sort(new BsonDocument("uploadDate", -1)).Skip(-version - 1).Limit(1).FirstOrDefault();
             } else {
-                fileInfoDocument = files.FindOne<BsonDocument>(query);
+                fileInfoDocument = files.FindOne(query);
             }
 
             if (fileInfoDocument != null) {

@@ -154,7 +154,7 @@ namespace MongoDB.MongoDBClient {
         public void Refresh() {
             var query = new BsonDocument("_id", id);
             var files = gridFS.Database.GetCollection(gridFS.Settings.FilesCollectionName);
-            var fileInfoDocument = files.FindOne<BsonDocument>(query);
+            var fileInfoDocument = files.FindOne(query);
             if (fileInfoDocument == null) {
                 string errorMessage = string.Format("GridFS file no longer exists: {0}", id);
                 throw new MongoException(errorMessage);
