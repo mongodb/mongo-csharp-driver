@@ -716,6 +716,11 @@ namespace MongoDB.MongoDBClient {
             UpdateFlags flags,
             SafeMode safeMode
         ) where U : new() {
+            // TODO: remove this sanity check or make it configurable?
+            if (query.Any(e => e.Name.StartsWith("$"))) {
+                throw new BsonException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
+            }
+
             var message = new MongoUpdateMessage<U>(FullName, flags, query, update);
 
             var connection = database.GetConnection();

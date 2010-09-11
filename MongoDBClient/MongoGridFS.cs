@@ -63,13 +63,9 @@ namespace MongoDB.MongoDBClient {
             using (database.RequestStart()) {
                 var files = database.GetCollection(settings.FilesCollectionName);
                 var chunks = database.GetCollection(settings.ChunksCollectionName);
-                using (var cursor = files.Find<BsonDocument>(query)) {
-                    foreach (var file in cursor) {
-                        var fileQuery = new BsonDocument("_id", file["_id"]);
-                        files.Remove(fileQuery, safeMode);
-                        var chunksQuery = new BsonDocument("files_id", file["_id"]);
-                        chunks.Remove(chunksQuery, safeMode);
-                    }
+                foreach (var file in files.Find<BsonDocument>(query)) {
+                    files.Remove(new BsonDocument("_id", file["_id"]), safeMode);
+                    chunks.Remove(new BsonDocument("files_id", file["_id"]), safeMode);
                 }
             }
         }
@@ -240,9 +236,7 @@ namespace MongoDB.MongoDBClient {
             BsonDocument query
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
-            using (var cursor = files.Find<BsonDocument>(query)) {
-                return cursor.Select(d => new MongoGridFSFileInfo(this, d)).ToList();
-            }
+            return files.Find<BsonDocument>(query).Select(d => new MongoGridFSFileInfo(this, d)).ToList();
         }
 
         public List<MongoGridFSFileInfo> Find(

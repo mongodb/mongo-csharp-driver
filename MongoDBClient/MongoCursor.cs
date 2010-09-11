@@ -23,9 +23,8 @@ using MongoDB.BsonLibrary;
 using MongoDB.MongoDBClient.Internal;
 
 namespace MongoDB.MongoDBClient {
-    public class MongoCursor<T> : IDisposable, IEnumerable<T> where T : new() {
+    public class MongoCursor<T> : IEnumerable<T> where T : new() {
         #region private fields
-        private bool disposed = false;
         private MongoCollection collection;
         private BsonDocument query;
         private BsonDocument fields;
@@ -34,9 +33,7 @@ namespace MongoDB.MongoDBClient {
         private int skip;
         private int limit; // number of documents to return (enforced by cursor)
         private int batchSize; // number of documents to return in each reply
-        private bool frozen; // TODO: freeze cursor once execution begins
-        private MongoConnection connection;
-        private long openCursorId;
+        private bool frozen; // prevent any further modifications once enumeration has begun
         #endregion
 
         #region constructors
@@ -59,10 +56,6 @@ namespace MongoDB.MongoDBClient {
         public MongoCollection Collection {
             get { return collection; }
         }
-
-        //public IEnumerable<T> Documents {
-        //    get { return GetEnumerator(); }
-        //}
         #endregion
 
         #region public methods
@@ -70,16 +63,17 @@ namespace MongoDB.MongoDBClient {
             string name,
             BsonValue value
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
             if (options == null) { options = new BsonDocument(); }
             options[name] = value;
             return this;
         }
 
-        public MongoCursor<T> Batch(
+        public MongoCursor<T> BatchSize(
             int batchSize
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
+            if (batchSize < 0) { throw new ArgumentException("BatchSize cannot be negative"); }
             this.batchSize = batchSize;
             return this;
         }
@@ -95,27 +89,12 @@ namespace MongoDB.MongoDBClient {
         }
 
         public int Count() {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             var command = new BsonDocument {
                 { "count", collection.Name },
                 { "query", query ?? new BsonDocument() },
             };
             var result = collection.Database.RunCommand(command);
             return result["n"].ToInt32();
-        }
-
-        public void Dispose() {
-            if (!disposed) {
-                if (connection != null) {
-                    ReleaseConnection();
-                }
-                disposed = true;
-            }
-        }
-
-        // not a property because it requires at least one round trip to the server
-        public IEnumerable<T> Documents() {
-            throw new NotImplementedException();
         }
 
         public BsonDocument Explain() {
@@ -125,103 +104,55 @@ namespace MongoDB.MongoDBClient {
         public BsonDocument Explain(
             bool verbose
         ) {
-            using (var clone = this.Clone<BsonDocument>()) {
-                clone.AddOption("$explain", true);
-                clone.limit = -clone.limit;
-                var enumerator = clone.GetEnumerator();
-                enumerator.MoveNext();
-                var explanation = enumerator.Current;
-                if (!verbose) {
-                    explanation.RemoveElement("allPlans");
-                    explanation.RemoveElement("oldPlan");
-                    if (explanation.ContainsElement("shards")) {
-                        var shards = explanation["shards"];
-                        if (shards.BsonType == BsonType.Array) {
-                            foreach (BsonDocument shard in shards.AsBsonArray) {
-                                shard.RemoveElement("allPlans");
-                                shard.RemoveElement("oldPlan");
-                            }
-                        } else {
-                            var shard = shards.AsBsonDocument;
+            var clone = this.Clone<BsonDocument>();
+            clone.AddOption("$explain", true);
+            clone.limit = -clone.limit; // TODO: should this be -1?
+            var explanation = clone.FirstOrDefault();
+            if (!verbose) {
+                explanation.RemoveElement("allPlans");
+                explanation.RemoveElement("oldPlan");
+                if (explanation.ContainsElement("shards")) {
+                    var shards = explanation["shards"];
+                    if (shards.BsonType == BsonType.Array) {
+                        foreach (BsonDocument shard in shards.AsBsonArray) {
                             shard.RemoveElement("allPlans");
                             shard.RemoveElement("oldPlan");
                         }
+                    } else {
+                        var shard = shards.AsBsonDocument;
+                        shard.RemoveElement("allPlans");
+                        shard.RemoveElement("oldPlan");
                     }
                 }
-                return explanation;
             }
+            return explanation;
         }
 
         public MongoCursor<T> Fields(
             BsonDocument fields
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
             this.fields = fields;
             return this;
-        }
-
-        // differs from default Enumerable extension method by ensuring the cursor is disposed
-        public T FirstOrDefault() {
-            using (this) {
-                return ((IEnumerable<T>) this).FirstOrDefault();
-            }
         }
 
         public MongoCursor<T> Flags(
             QueryFlags flags
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
             this.flags = flags;
             return this;
         }
 
         public IEnumerator<T> GetEnumerator() {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
-
-            // hold connection until all documents have been enumerated
-            // TODO: what if enumeration is abandoned before reaching the end?
-            connection = collection.Database.GetConnection();
-
-            MongoReplyMessage<T> reply = null;
-            int count = 0;
-            int limit = (this.limit > 0) ? this.limit : -this.limit;
-            do {
-                try {
-                    if (reply == null) {
-                        reply = ExecuteQuery(connection);
-                    } else {
-                        reply = GetMore(connection, reply.CursorId);
-                    }
-
-                    openCursorId = reply.CursorId;
-                    if (openCursorId == 0) {
-                        ReleaseConnection(); // release the connection as soon as possible
-                    }
-                } catch {
-                    try { connection.Close(); } catch { } // ignore exceptions
-                    throw;
-                }
-                foreach (var document in reply.Documents) {
-                    yield return document;
-                    if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
-
-                    count++;
-                    if (count == limit) {
-                        break;
-                    }
-                }
-            } while ((count != limit) && reply.CursorId > 0);
-
-            // if we exit the do/while loop early because the limit was reached
-            // it's possible that we might not have released the connection yet
-            if (connection != null) {
-                ReleaseConnection();
-            }
+            frozen = true;
+            return new MongoCursorEnumerator(this);
         }
 
         public MongoCursor<T> Hint(
             BsonDocument hint
         ) {
+            if (frozen) { ThrowFrozen(); }
             AddOption("$hint", hint);
             return this;
         }
@@ -229,7 +160,7 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Limit(
             int limit
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
             this.limit = limit;
             return this;
         }
@@ -237,6 +168,7 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Max(
            BsonDocument max
        ) {
+            if (frozen) { ThrowFrozen(); }
             AddOption("$max", max);
             return this;
         }
@@ -244,6 +176,7 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> MaxScan(
             int maxScan
         ) {
+            if (frozen) { ThrowFrozen(); }
             AddOption("$maxscan", maxScan);
             return this;
         }
@@ -251,12 +184,20 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Min(
            BsonDocument min
        ) {
+            if (frozen) { ThrowFrozen(); }
             AddOption("$min", min);
             return this;
         }
 
+        public MongoCursor<T> Options(
+            BsonDocument options
+        ) {
+            if (frozen) { ThrowFrozen(); }
+            this.options = options;
+            return this;
+        }
+
         public int Size() {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
             var command = new BsonDocument {
                 { "count", collection.Name },
                 { "query", query ?? new BsonDocument() },
@@ -268,19 +209,22 @@ namespace MongoDB.MongoDBClient {
         }
 
         public MongoCursor<T> ShowDiskLoc() {
-            throw new NotImplementedException();
+            if (frozen) { ThrowFrozen(); }
+            AddOption("$showDiskLoc", true);
+            return this;
         }
 
         public MongoCursor<T> Skip(
             int skip
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
+            if (skip < 0) { throw new ArgumentException("Skip cannot be negative"); }
             this.skip = skip;
             return this;
         }
 
         public MongoCursor<T> Snapshot() {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
             AddOption("$snapshot", true);
             return this;
         }
@@ -288,99 +232,227 @@ namespace MongoDB.MongoDBClient {
         public MongoCursor<T> Sort(
             BsonDocument orderBy
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
             AddOption("$orderby", orderBy);
             return this;
         }
 
         public MongoCursor<T> Sort(
-            string key
+            params string[] keys
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
-            return Sort(key, 1);
+            if (frozen) { ThrowFrozen(); }
+            var orderBy = new BsonDocument(keys.Select(k => new BsonElement(k, 1)));
+            return Sort(orderBy);
         }
 
         public MongoCursor<T> Sort(
             string key,
             int direction
         ) {
-            if (disposed) { throw new ObjectDisposedException("MongoCursor"); }
+            if (frozen) { ThrowFrozen(); }
             var orderBy = new BsonDocument(key, direction);
             return Sort(orderBy);
         }
+        #endregion
 
-        // differs from default Enumerable extension method by ensuring the cursor is disposed
-        public T[] ToArray() {
-            return ToList().ToArray();
-        }
-
-        // differs from default Enumerable extension method by ensuring the cursor is disposed
-        public List<T> ToList() {
-            using (this) {
-                return new List<T>(this);
-            }
+        #region explicit interface implementations
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
         }
         #endregion
 
         #region private methods
-        private MongoReplyMessage<T> ExecuteQuery(
-            MongoConnection connection
-        ) {
-            int numberToReturn;
-            if (batchSize == 0) {
-                numberToReturn = limit;
-            } else if (limit == 0) {
-                numberToReturn = batchSize;
-            } else if (batchSize < limit) {
-                numberToReturn = batchSize;
-            } else {
-                numberToReturn = limit;
-            }
-
-            var message = new MongoQueryMessage(collection.FullName, flags, skip, numberToReturn, WrapQuery(), fields);
-            connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-            var reply = connection.ReceiveMessage<T>();
-            if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
-                throw new MongoException("Query failure");
-            }
-            return reply;
+        // funnel exceptions through this method so we can have a single error message
+        private void ThrowFrozen() {
+            throw new MongoException("A cursor cannot be modified after enumeration has begun");
         }
+        #endregion
 
-        IEnumerator IEnumerable.GetEnumerator() {
-            return GetEnumerator();
-        }
+        #region nested classes
+        private class MongoCursorEnumerator : IEnumerator<T> {
+            #region private fields
+            private bool disposed = false;
+            private bool started = false;
+            private bool done = false;
+            private MongoCursor<T> cursor;
+            private MongoConnection connection;
+            private int count;
+            private int positiveLimit;
+            private MongoReplyMessage<T> reply;
+            private int replyIndex;
+            private long openCursorId;
+            #endregion
 
-        private MongoReplyMessage<T> GetMore(
-            MongoConnection connection,
-            long cursorId
-        ) {
-            var message = new MongoGetMoreMessage(collection.FullName, batchSize, cursorId);
-            connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-            var reply = connection.ReceiveMessage<T>();
-            if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
-                throw new MongoException("Query failure");
+            #region constructors
+            public MongoCursorEnumerator(
+                MongoCursor<T> cursor
+            ) {
+                this.cursor = cursor;
+                this.positiveLimit = cursor.limit >= 0 ? cursor.limit : -cursor.limit;
             }
-            return reply;
-        }
+            #endregion
 
-        private void ReleaseConnection() {
-            if (openCursorId != 0) {
-                var message = new MongoKillCursorsMessage(openCursorId);
-                connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
-                openCursorId = 0;
+            #region public properties
+            public T Current {
+                get {
+                    if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
+                    if (!started) {
+                        throw new InvalidOperationException("Current is not valid until MoveNext has been called");
+                    }
+                    if (done) {
+                        throw new InvalidOperationException("Current is not valid after MoveNext has returned false");
+                    }
+                    return reply.Documents[replyIndex];
+                }
             }
-            collection.Database.ReleaseConnection(connection);
-            connection = null;
-        }
+            #endregion
 
-        private BsonDocument WrapQuery() {
-            if (options == null) {
-                return query;
-            } else {
-                var wrappedQuery = new BsonDocument("$query", query ?? new BsonDocument());
-                wrappedQuery.Merge(options);
-                return wrappedQuery;
+            #region public methods
+            public void Dispose() {
+                if (!disposed) {
+                    try {
+                        ReleaseConnection();
+                    } finally {
+                        disposed = true;
+                    }
+                }
             }
+
+            public bool MoveNext() {
+                if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
+                if (done) {
+                    return false;
+                }
+
+                if (!started) {
+                    reply = GetFirst(); // sets connection if successfull
+                    replyIndex = -1;
+                    started = true;
+                }
+
+                if (positiveLimit != 0 && count == positiveLimit) {
+                    ReleaseConnection(); // early exit
+                    reply = null;
+                    done = true;
+                    return false;
+                }
+
+                if (replyIndex < reply.Documents.Count - 1) {
+                    replyIndex++; // move to next document in the current reply
+                } else {
+                    if (openCursorId != 0) {
+                        reply = GetMore(); // uses connection set by GetFirst
+                        replyIndex = 0;
+                    } else {
+                        reply = null;
+                        done = true;
+                        return false;
+                    }
+                }
+
+                count++;
+                return true;
+            }
+
+            public void Reset() {
+                throw new NotImplementedException();
+            }
+            #endregion
+
+            #region explicit interface implementations
+            object IEnumerator.Current {
+                get { return Current; }
+            }
+            #endregion
+
+            #region private methods
+            private MongoReplyMessage<T> GetFirst() {
+                connection = cursor.Collection.Database.GetConnection();
+                try {
+                    // some of these weird conditions are necessary to get commands to run correctly
+                    // specifically numberToReturn has to be 1 or -1 for commands
+                    int numberToReturn;
+                    if (cursor.limit < 0) {
+                        numberToReturn = cursor.limit;
+                    } else if (cursor.limit == 0) {
+                        numberToReturn = cursor.batchSize;
+                    } else if (cursor.batchSize == 0) {
+                        numberToReturn = cursor.limit;
+                    } else if (cursor.limit < cursor.batchSize) {
+                        numberToReturn = cursor.limit;
+                    } else {
+                        numberToReturn = cursor.batchSize;
+                    }
+
+                    var message = new MongoQueryMessage(cursor.Collection.FullName, cursor.flags, cursor.skip, numberToReturn, WrapQuery(), cursor.fields);
+                    return SendMessage(message);
+                } catch {
+                    try { ReleaseConnection(); } catch { } // ignore exceptions
+                    throw;
+                }
+            }
+
+            private MongoReplyMessage<T> GetMore() {
+                try {
+                    int numberToReturn;
+                    if (positiveLimit != 0) {
+                        numberToReturn = positiveLimit - count;
+                        if (cursor.batchSize != 0 && numberToReturn > cursor.batchSize) {
+                            numberToReturn = cursor.batchSize;
+                        }
+                    } else {
+                        numberToReturn = cursor.batchSize;
+                    }
+
+                    var message = new MongoGetMoreMessage(cursor.Collection.FullName, numberToReturn, openCursorId);
+                    return SendMessage(message);
+                } catch {
+                    try { ReleaseConnection(); } catch { } // ignore exceptions
+                    throw;
+                }
+            }
+
+            private MongoReplyMessage<T> SendMessage(
+                MongoRequestMessage message
+            ) {
+                connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
+                var reply = connection.ReceiveMessage<T>();
+                openCursorId = reply.CursorId;
+                if (openCursorId == 0) {
+                    ReleaseConnection();
+                }
+                if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
+                    throw new MongoException("Query failure");
+                }
+
+                return reply;
+            }
+
+            private void ReleaseConnection() {
+                if (connection != null) {
+                    try {
+                        if (openCursorId != 0) {
+                            var message = new MongoKillCursorsMessage(openCursorId);
+                            connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                        }
+                        cursor.Collection.Database.ReleaseConnection(connection);
+                    } finally {
+                        connection = null;
+                        openCursorId = 0;
+                    }
+                }
+            }
+
+            private BsonDocument WrapQuery() {
+                if (cursor.options == null) {
+                    return cursor.query;
+                } else {
+                    var wrappedQuery = new BsonDocument("$query", cursor.query ?? new BsonDocument());
+                    wrappedQuery.Merge(cursor.options);
+                    return wrappedQuery;
+                }
+            }
+            #endregion
         }
         #endregion
     }

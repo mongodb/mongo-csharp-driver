@@ -53,12 +53,12 @@ namespace MongoDB.MongoDBClientTest {
             }
 #endif
 
-#if false
+#if true
             // test connection string pointing to database with default credentials
             {
-                string connectionString = "mongodb://john:secret@localhost/test";
+                string connectionString = "mongodb://localhost/test";
                 var database = MongoDatabase.Create(connectionString);
-                var collection = database.GetCollection<BsonDocument>("library");
+                var collection = database.GetCollection<BsonDocument>("books");
                 foreach (var document in collection.FindAll().Skip(0).Limit(2)) {
                     Console.WriteLine(document.ToJson());
                 }
@@ -233,12 +233,22 @@ namespace MongoDB.MongoDBClientTest {
             //foreach (var book in books) {
             //    Console.WriteLine(book.ToJson(new BsonJsonWriterSettings { Indent = true }));
             //}
-            var book = collection.FindOne();
+            BsonDocument book;
+            // used all these to verify that LINQ is good about calling Dispose on enumerators
+            //book = collection.FindOne();
+            //book = collection.FindAll().First();
+            //book = collection.FindAll().FirstOrDefault();
+            //var e1 = collection.FindAll().DefaultIfEmpty(null);
+            //book = collection.FindAll().ElementAt(0);
+            //book = collection.FindAll().Last();
+            ////book = collection.FindAll().Single();
+            //var array = collection.FindAll().ToArray();
+            //var list = collection.FindAll().ToList();
             var count = collection.Count();
             database.RequestDone();
 #endif
 
-#if true
+#if false
             string connectionString = "mongodb://test:test@localhost/test";
             var database = MongoDatabase.Create(connectionString);
             var collection = database.GetCollection<BsonDocument>("tail");

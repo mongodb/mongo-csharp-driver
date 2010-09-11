@@ -229,13 +229,11 @@ namespace MongoDB.MongoDBClient {
             List<string> collectionNames = new List<string>();
             MongoCollection namespaces = GetCollection("system.namespaces");
             var prefix = name + ".";
-            using (var cursor = namespaces.FindAll<BsonDocument>()) {
-                foreach (BsonDocument ns in cursor) {
-                    string collectionName = ns["name"].AsString;
-                    if (!collectionName.StartsWith(prefix)) { continue; }
-                    if (collectionName.Contains('$')) { continue; }
-                    collectionNames.Add(collectionName);
-                }
+            foreach (var ns in namespaces.FindAll<BsonDocument>()) {
+                string collectionName = ns["name"].AsString;
+                if (!collectionName.StartsWith(prefix)) { continue; }
+                if (collectionName.Contains('$')) { continue; }
+                collectionNames.Add(collectionName);
             }
             collectionNames.Sort();
             return collectionNames;

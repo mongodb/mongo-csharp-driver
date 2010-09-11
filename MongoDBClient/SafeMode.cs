@@ -82,6 +82,22 @@ namespace MongoDB.MongoDBClient {
         }
         #endregion
 
+        #region public operators
+        public static bool operator ==(
+            SafeMode lhs,
+            SafeMode rhs
+        ) {
+            return object.Equals(lhs, rhs);
+        }
+
+        public static bool operator !=(
+            SafeMode lhs,
+            SafeMode rhs
+        ) {
+            return !(lhs == rhs);
+        }
+        #endregion
+
         #region public static methods
         public static SafeMode WaitForReplications(
             int replications
@@ -109,6 +125,30 @@ namespace MongoDB.MongoDBClient {
             } else {
                 return new SafeMode(replications, timeout);
             }
+        }
+        #endregion
+
+        #region public methods
+        public override bool Equals(
+            object obj
+        ) {
+            return Equals(obj as SafeMode); // works even if obj is null
+        }
+
+        public bool Equals(
+            SafeMode rhs
+        ) {
+            if (rhs == null) { return false; }
+            return this.enabled == rhs.enabled && this.replications == rhs.replications && this.timeout == rhs.timeout;
+        }
+
+        public override int GetHashCode() {
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + enabled.GetHashCode();
+            hash = 37 * hash + replications.GetHashCode();
+            hash = 37 * hash + timeout.GetHashCode();
+            return hash;
         }
         #endregion
     }
