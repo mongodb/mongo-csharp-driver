@@ -34,7 +34,7 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public properties
-        public List<MongoServerAddress> SeedList {
+        public IEnumerable<MongoServerAddress> SeedList {
             get {
                 string servers = Servers;
                 if (servers == null) {

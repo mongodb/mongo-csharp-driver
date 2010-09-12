@@ -32,8 +32,8 @@ namespace MongoDB.CSharpDriver {
         #region private fields
         private object serverLock = new object();
         private MongoServerState state = MongoServerState.Disconnected;
-        private List<MongoServerAddress> seedList;
-        private List<MongoServerAddress> replicaSet;
+        private IEnumerable<MongoServerAddress> seedList;
+        private IEnumerable<MongoServerAddress> replicaSet;
         private SafeMode safeMode = SafeMode.False;
         private bool slaveOk;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
@@ -60,6 +60,10 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region factory methods
+        public static MongoServer Create() {
+            return Create("mongodb://localhost");
+        }
+
         public static MongoServer Create(
             MongoConnectionSettings settings
         ) {
@@ -180,6 +184,7 @@ namespace MongoDB.CSharpDriver {
                     try {
                         var results = FindPrimary(timeout);
 
+                        List<MongoServerAddress> replicaSet = null;
                         if (results.CommandResult.Contains("hosts")) {
                             replicaSet = new List<MongoServerAddress>();
                             foreach (BsonString host in results.CommandResult["hosts"].AsBsonArray.Values) {
@@ -190,9 +195,8 @@ namespace MongoDB.CSharpDriver {
                                     replicaSet.Add(address);
                                 }
                             }
-                        } else {
-                            replicaSet = null;
                         }
+                        this.replicaSet = replicaSet;
 
                         // the connection FindPrimary made to the primary becomes the first connection in the new connection pool
                         connectionPool = new MongoConnectionPool(this, results.Address, results.Connection);
@@ -265,7 +269,7 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public List<string> GetDatabaseNames() {
+        public IEnumerable<string> GetDatabaseNames() {
             var databaseNames = new List<string>();
             var result = AdminDatabase.RunCommand("listDatabases");
             foreach (BsonDocument database in result["databases"].AsBsonArray.Values) {
@@ -411,11 +415,13 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region private nested classes
+        // note: OK to use automatic properties on private helper class
         private class QueryServerParameters {
             public MongoServerAddress Address { get; set; }
             public BlockingQueue<QueryServerResults> ResultsQueue { get; set; }
         }
 
+        // note: OK to use automatic properties on private helper class
         private class QueryServerResults {
             public MongoServerAddress Address { get; set; }
             public BsonDocument CommandResult { get; set; }

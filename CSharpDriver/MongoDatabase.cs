@@ -218,12 +218,12 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public List<string> GetCollectionNames() {
+        public IEnumerable<string> GetCollectionNames() {
             List<string> collectionNames = new List<string>();
             var namespaces = GetCollection("system.namespaces");
             var prefix = name + ".";
-            foreach (var ns in namespaces.FindAll()) {
-                string collectionName = ns["name"].AsString;
+            foreach (var @namespace in namespaces.FindAll()) {
+                string collectionName = @namespace["name"].AsString;
                 if (!collectionName.StartsWith(prefix)) { continue; }
                 if (collectionName.Contains('$')) { continue; }
                 collectionNames.Add(collectionName);

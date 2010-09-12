@@ -24,7 +24,7 @@ using MongoDB.CSharpDriver.Internal;
 namespace MongoDB.CSharpDriver {
     public class MongoUrl {
         #region private fields
-        private List<MongoServerAddress> seedList = new List<MongoServerAddress>();
+        private IEnumerable<MongoServerAddress> seedList;
         private string databaseName;
         private string username;
         private string password;
@@ -43,11 +43,11 @@ namespace MongoDB.CSharpDriver {
 
         #region public properties
         public MongoServerAddress Address {
-            get { return seedList.Single(); }
-            set { seedList = new List<MongoServerAddress> { value }; }
+            get { return seedList.First(); }
+            set { seedList = new MongoServerAddress[] { value }; }
         }
 
-        public List<MongoServerAddress> SeedList {
+        public IEnumerable<MongoServerAddress> SeedList {
             get { return seedList; }
             set { seedList = value; }
         }

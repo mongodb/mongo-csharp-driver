@@ -227,26 +227,26 @@ namespace MongoDB.CSharpDriver {
             return Exists(query);
         }
 
-        public List<MongoGridFSFileInfo> Find() {
+        public IEnumerable<MongoGridFSFileInfo> Find() {
             BsonDocument query = null;
             return Find(query);
         }
 
-        public List<MongoGridFSFileInfo> Find(
+        public IEnumerable<MongoGridFSFileInfo> Find(
             BsonDocument query
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
-            return files.Find(query).Select(d => new MongoGridFSFileInfo(this, d)).ToList();
+            return files.Find(query).Select(d => new MongoGridFSFileInfo(this, d));
         }
 
-        public List<MongoGridFSFileInfo> Find(
+        public IEnumerable<MongoGridFSFileInfo> Find(
             BsonObjectId id
         ) {
             var query = new BsonDocument("_id", id);
             return Find(query);
         }
 
-        public List<MongoGridFSFileInfo> Find(
+        public IEnumerable<MongoGridFSFileInfo> Find(
             string fileName
         ) {
             var query = new BsonDocument("filename", fileName);

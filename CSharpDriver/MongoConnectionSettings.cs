@@ -23,7 +23,7 @@ namespace MongoDB.CSharpDriver.Internal {
         #region private fields
         private MongoCredentials credentials;
         private string databaseName;
-        private List<MongoServerAddress> seedList;
+        private IEnumerable<MongoServerAddress> seedList;
         #endregion
 
         #region constructors
@@ -33,8 +33,8 @@ namespace MongoDB.CSharpDriver.Internal {
 
         #region public properties
         public MongoServerAddress Address {
-            get { return seedList.Single(); }
-            set { seedList.Clear(); seedList.Add(value); }
+            get { return seedList.First(); }
+            set { seedList = new MongoServerAddress[] { value }; }
         }
 
         public MongoCredentials Credentials {
@@ -47,7 +47,7 @@ namespace MongoDB.CSharpDriver.Internal {
             set { databaseName = value; }
         }
 
-        public List<MongoServerAddress> SeedList {
+        public IEnumerable<MongoServerAddress> SeedList {
             get { return seedList; }
             set { seedList = value; }
         }

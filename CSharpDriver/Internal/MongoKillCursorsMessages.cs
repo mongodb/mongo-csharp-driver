@@ -22,21 +22,15 @@ using System.Text;
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoKillCursorsMessage : MongoRequestMessage {
         #region private fields
-        private IList<long> cursorIds;
+        private long[] cursorIds;
         #endregion
 
         #region constructors
         internal MongoKillCursorsMessage(
-            IList<long> cursorIds
+            params long[] cursorIds
         )
             : base(MessageOpcode.KillCursors) {
             this.cursorIds = cursorIds;
-        }
-
-        internal MongoKillCursorsMessage(
-            long cursorId
-        )
-            : this(new List<long> { cursorId }) {
         }
         #endregion
 
@@ -45,7 +39,7 @@ namespace MongoDB.CSharpDriver.Internal {
             BinaryWriter binaryWriter
         ) {
             binaryWriter.Write((int) 0); // reserved
-            binaryWriter.Write(cursorIds.Count);
+            binaryWriter.Write(cursorIds.Length);
             foreach (long cursorId in cursorIds) {
                 binaryWriter.Write(cursorId);
             }

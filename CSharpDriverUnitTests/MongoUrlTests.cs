@@ -28,9 +28,9 @@ namespace MongoDB.CSharpDriver.Tests {
         public void TestL() {
             string urlString = "mongodb://localhost";
             MongoUrl url = new MongoUrl(urlString);
-            Assert.AreEqual(1, url.SeedList.Count);
-            Assert.AreEqual("localhost", url.SeedList[0].Host);
-            Assert.AreEqual(27017, url.SeedList[0].Port);
+            Assert.AreEqual(1, url.SeedList.Count());
+            Assert.AreEqual("localhost", url.SeedList.Single().Host);
+            Assert.AreEqual(27017, url.SeedList.Single().Port);
             Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
@@ -41,9 +41,9 @@ namespace MongoDB.CSharpDriver.Tests {
         public void TestH() {
             string urlString = "mongodb://mongo.xyz.com";
             MongoUrl url = new MongoUrl(urlString);
-            Assert.AreEqual(1, url.SeedList.Count);
-            Assert.AreEqual("mongo.xyz.com", url.SeedList[0].Host);
-            Assert.AreEqual(27017, url.SeedList[0].Port);
+            Assert.AreEqual(1, url.SeedList.Count());
+            Assert.AreEqual("mongo.xyz.com", url.SeedList.Single().Host);
+            Assert.AreEqual(27017, url.SeedList.Single().Port);
             Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
@@ -54,9 +54,9 @@ namespace MongoDB.CSharpDriver.Tests {
         public void TestHP() {
             string urlString = "mongodb://mongo.xyz.com:12345";
             MongoUrl url = new MongoUrl(urlString);
-            Assert.AreEqual(1, url.SeedList.Count);
-            Assert.AreEqual("mongo.xyz.com", url.SeedList[0].Host);
-            Assert.AreEqual(12345, url.SeedList[0].Port);
+            Assert.AreEqual(1, url.SeedList.Count());
+            Assert.AreEqual("mongo.xyz.com", url.SeedList.Single().Host);
+            Assert.AreEqual(12345, url.SeedList.Single().Port);
             Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
@@ -67,11 +67,11 @@ namespace MongoDB.CSharpDriver.Tests {
         public void TestH1H2() {
             string urlString = "mongodb://mongo1.xyz.com,mongo2.xyz.com";
             MongoUrl url = new MongoUrl(urlString);
-            Assert.AreEqual(2, url.SeedList.Count);
-            Assert.AreEqual("mongo1.xyz.com", url.SeedList[0].Host);
-            Assert.AreEqual(27017, url.SeedList[0].Port);
-            Assert.AreEqual("mongo2.xyz.com", url.SeedList[1].Host);
-            Assert.AreEqual(27017, url.SeedList[1].Port);
+            Assert.AreEqual(2, url.SeedList.Count());
+            Assert.AreEqual("mongo1.xyz.com", url.SeedList.First().Host);
+            Assert.AreEqual(27017, url.SeedList.First().Port);
+            Assert.AreEqual("mongo2.xyz.com", url.SeedList.Skip(1).Single().Host);
+            Assert.AreEqual(27017, url.SeedList.Skip(1).Single().Port);
             Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
@@ -82,11 +82,11 @@ namespace MongoDB.CSharpDriver.Tests {
         public void TestH1P1H2P2() {
             string urlString = "mongodb://mongo1.xyz.com:12345,mongo2.xyz.com:23456";
             MongoUrl url = new MongoUrl(urlString);
-            Assert.AreEqual(2, url.SeedList.Count);
-            Assert.AreEqual("mongo1.xyz.com", url.SeedList[0].Host);
-            Assert.AreEqual(12345, url.SeedList[0].Port);
-            Assert.AreEqual("mongo2.xyz.com", url.SeedList[1].Host);
-            Assert.AreEqual(23456, url.SeedList[1].Port);
+            Assert.AreEqual(2, url.SeedList.Count());
+            Assert.AreEqual("mongo1.xyz.com", url.SeedList.First().Host);
+            Assert.AreEqual(12345, url.SeedList.First().Port);
+            Assert.AreEqual("mongo2.xyz.com", url.SeedList.Skip(1).Single().Host);
+            Assert.AreEqual(23456, url.SeedList.Skip(1).Single().Port);
             Assert.IsNull(url.DatabaseName);
             Assert.IsNull(url.Username);
             Assert.IsNull(url.Password);
@@ -97,9 +97,9 @@ namespace MongoDB.CSharpDriver.Tests {
         public void TestUPLD() {
             string urlString = "mongodb://userx:pwd@localhost/dbname";
             MongoUrl url = new MongoUrl(urlString);
-            Assert.AreEqual(1, url.SeedList.Count);
-            Assert.AreEqual("localhost", url.SeedList[0].Host);
-            Assert.AreEqual(27017, url.SeedList[0].Port);
+            Assert.AreEqual(1, url.SeedList.Count());
+            Assert.AreEqual("localhost", url.SeedList.Single().Host);
+            Assert.AreEqual(27017, url.SeedList.Single().Port);
             Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual("userx", url.Username);
             Assert.AreEqual("pwd", url.Password);
@@ -110,11 +110,11 @@ namespace MongoDB.CSharpDriver.Tests {
         public void TestUPH1H2D() {
             string urlString = "mongodb://userx:pwd@mongo1.xyz.com,mongo2.xyz.com/dbname";
             MongoUrl url = new MongoUrl(urlString);
-            Assert.AreEqual(2, url.SeedList.Count);
-            Assert.AreEqual("mongo1.xyz.com", url.SeedList[0].Host);
-            Assert.AreEqual(27017, url.SeedList[0].Port);
-            Assert.AreEqual("mongo2.xyz.com", url.SeedList[1].Host);
-            Assert.AreEqual(27017, url.SeedList[1].Port);
+            Assert.AreEqual(2, url.SeedList.Count());
+            Assert.AreEqual("mongo1.xyz.com", url.SeedList.First().Host);
+            Assert.AreEqual(27017, url.SeedList.First().Port);
+            Assert.AreEqual("mongo2.xyz.com", url.SeedList.Skip(1).Single().Host);
+            Assert.AreEqual(27017, url.SeedList.Skip(1).Single().Port);
             Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual("userx", url.Username);
             Assert.AreEqual("pwd", url.Password);
@@ -125,11 +125,11 @@ namespace MongoDB.CSharpDriver.Tests {
         public void TestUPH1P1H2P2D() {
             string urlString = "mongodb://userx:pwd@mongo1.xyz.com:12345,mongo2.xyz.com:23456/dbname";
             MongoUrl url = new MongoUrl(urlString);
-            Assert.AreEqual(2, url.SeedList.Count);
-            Assert.AreEqual("mongo1.xyz.com", url.SeedList[0].Host);
-            Assert.AreEqual(12345, url.SeedList[0].Port);
-            Assert.AreEqual("mongo2.xyz.com", url.SeedList[1].Host);
-            Assert.AreEqual(23456, url.SeedList[1].Port);
+            Assert.AreEqual(2, url.SeedList.Count());
+            Assert.AreEqual("mongo1.xyz.com", url.SeedList.First().Host);
+            Assert.AreEqual(12345, url.SeedList.First().Port);
+            Assert.AreEqual("mongo2.xyz.com", url.SeedList.Skip(1).Single().Host);
+            Assert.AreEqual(23456, url.SeedList.Skip(1).Single().Port);
             Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual("userx", url.Username);
             Assert.AreEqual("pwd", url.Password);

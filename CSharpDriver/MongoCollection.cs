@@ -451,13 +451,30 @@ namespace MongoDB.CSharpDriver {
             return Group(null, keys, initial, reduce, null);
         }
 
+        // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
+        // it's very easy for the compiler to end up inferring the wrong type for I!
+        // that's also why Insert and InsertBatch have to have different names
+
         public BsonDocument Insert<I>(
-            IEnumerable<I> documents
+            I document
         ) {
-            return Insert(documents, safeMode);
+            return Insert(document, safeMode);
         }
 
         public BsonDocument Insert<I>(
+            I document,
+            SafeMode safeMode
+        ) {
+            return InsertBatch<I>(new I[] { document }, safeMode);
+        }
+
+        public BsonDocument InsertBatch<I>(
+            IEnumerable<I> documents
+        ) {
+            return InsertBatch<I>(documents, safeMode);
+        }
+
+        public BsonDocument InsertBatch<I>(
             IEnumerable<I> documents,
             SafeMode safeMode
         ) {
@@ -499,26 +516,6 @@ namespace MongoDB.CSharpDriver {
             } else {
                 return null;
             }
-        }
-
-        public BsonDocument Insert<I>(
-            params I[] documents
-        ) {
-            return Insert((IEnumerable<I>) documents, safeMode);
-        }
-
-        public BsonDocument Insert<I>(
-            I document,
-            SafeMode safeMode
-        ) {
-            return Insert((IEnumerable<I>) new I[] { document }, safeMode);
-        }
-
-        public BsonDocument Insert<I>(
-            I[] documents,
-            SafeMode safeMode
-        ) {
-            return Insert((IEnumerable<I>) documents, safeMode);
         }
 
         public bool IsCapped() {

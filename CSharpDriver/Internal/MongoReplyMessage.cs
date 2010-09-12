@@ -40,27 +40,22 @@ namespace MongoDB.CSharpDriver.Internal {
         #region internal properties
         internal ResponseFlags ResponseFlags {
             get { return responseFlags; }
-            set { responseFlags = value; }
         }
 
         internal long CursorId {
             get { return cursorId; }
-            set { cursorId = value; }
         }
 
         internal int StartingFrom {
             get { return startingFrom; }
-            set { startingFrom = value; }
         }
 
         internal int NumberReturned {
             get { return numberReturned; }
-            set { numberReturned = value; }
         }
 
         internal List<R> Documents {
             get { return documents; }
-            set { documents = value; }
         }
         #endregion
 
