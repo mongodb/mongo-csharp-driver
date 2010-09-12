@@ -23,127 +23,37 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.CSharpDriver.Builders {
     public static class Query {
         #region public static methods
-        public static QueryElementBuilder All(
-            string name,
-            BsonArray array
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$all", array));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder All(
-            string name,
-            params BsonValue[] values
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$all", new BsonArray(values)));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryBuilder And(
+        public static QueryBuilder and(
             params QueryBuilder[] queries
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
-                document.Add((BsonDocument) query);
+                document.Add(query.Document);
             }
             return new QueryBuilder(document);
         }
 
-        public static QueryBuilder Eq(
-            string name,
-            BsonValue value
+        public static QueryBuilder.ElementStart Element(
+            string name
         ) {
-            var document = new BsonDocument(name, value);
+            return new QueryBuilder.ElementStart(name);
+        }
+
+        public static QueryBuilder or(
+            params QueryBuilder[] queries
+        ) {
+            var document = new BsonDocument("$or", new BsonArray());
+            foreach (var query in queries) {
+                document[0].AsBsonArray.Add(query.Document);
+            }
             return new QueryBuilder(document);
         }
 
-        public static QueryElementBuilder GT(
-            string name,
-            BsonValue value
+        public static QueryBuilder where(
+            BsonJavaScript javaScript
         ) {
-            var document = new BsonDocument(name, new BsonDocument("$gt", value));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder GTE(
-            string name,
-            BsonValue value
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$gte", value));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder In(
-            string name,
-            BsonArray array
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$in", array));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder In(
-            string name,
-            params BsonValue[] values
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$in", new BsonArray(values)));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder LT(
-            string name,
-            BsonValue value
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$lt", value));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder LTE(
-            string name,
-            BsonValue value
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$lte", value));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder Mod(
-            string name,
-            int modulus,
-            int equals
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$mod", new BsonArray { modulus, equals }));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder NE(
-            string name,
-            BsonValue value
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$ne", value));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder NotIn(
-            string name,
-            BsonArray array
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$nin", array));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder NotIn(
-            string name,
-            params BsonValue[] values
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$nin", new BsonArray(values)));
-            return new QueryElementBuilder(document);
-        }
-
-        public static QueryElementBuilder Size(
-            string name,
-            int size
-        ) {
-            var document = new BsonDocument(name, new BsonDocument("$size", size));
-            return new QueryElementBuilder(document);
+            var document = new BsonDocument("$where", javaScript);
+            return new QueryBuilder(document);
         }
         #endregion
     }
@@ -161,6 +71,12 @@ namespace MongoDB.CSharpDriver.Builders {
         }
         #endregion
 
+        #region public properties
+        public BsonDocument Document {
+            get { return document; }
+        }
+        #endregion
+
         #region public operators
         public static implicit operator BsonDocument(
             QueryBuilder builder
@@ -168,108 +84,157 @@ namespace MongoDB.CSharpDriver.Builders {
             return builder.document;
         }
         #endregion
-    }
 
-    public class QueryElementBuilder : QueryBuilder {
-        #region constructors
-        public QueryElementBuilder(
-            BsonDocument document
-        )
-            : base(document) {
+        #region nested classes
+        public class Element : QueryBuilder {
+            #region constructors
+            public Element(
+                BsonDocument document
+            )
+                : base(document) {
+            }
+            #endregion
+
+            #region public methods
+            public Element all(
+                BsonArray array
+            ) {
+                document[0].AsBsonDocument.Add("$all", array);
+                return this;
+            }
+
+            public Element all(
+                params BsonValue[] values
+            ) {
+                document[0].AsBsonDocument.Add("$all", new BsonArray(values));
+                return this;
+            }
+
+            public Element elemMatch(
+                QueryBuilder query
+            ) {
+                document[0].AsBsonDocument.Add("$elemMatch", query.Document);
+                return this;
+            }
+
+            public Element exists(
+                bool value
+            ) {
+                document[0].AsBsonDocument.Add("$exists", BsonBoolean.Create(value));
+                return this;
+            }
+
+            public Element gt(
+                BsonValue value
+            ) {
+                document[0].AsBsonDocument.Add("$gt", value);
+                return this;
+            }
+
+            public Element gte(
+                BsonValue value
+            ) {
+                document[0].AsBsonDocument.Add("$gte", value);
+                return this;
+            }
+
+            public Element @in(
+                BsonArray array
+            ) {
+                document[0].AsBsonDocument.Add("$in", array);
+                return this;
+            }
+
+            public Element @in(
+                params BsonValue[] values
+            ) {
+                document[0].AsBsonDocument.Add("$in", new BsonArray(values));
+                return this;
+            }
+
+            public Element lt(
+                BsonValue value
+            ) {
+                document[0].AsBsonDocument.Add("$lt", value);
+                return this;
+            }
+
+            public Element lte(
+                BsonValue value
+            ) {
+                document[0].AsBsonDocument.Add("$lte", value);
+                return this;
+            }
+
+            public Element mod(
+                int modulus,
+                int equals
+            ) {
+                document[0].AsBsonDocument.Add("$mod", new BsonArray { modulus, equals });
+                return this;
+            }
+
+            public Element ne(
+                BsonValue value
+            ) {
+                document[0].AsBsonDocument.Add("$ne", value);
+                return this;
+            }
+
+            public Element nin(
+                BsonArray array
+            ) {
+                document[0].AsBsonDocument.Add("$nin", array);
+                return this;
+            }
+
+            public Element nin(
+                params BsonValue[] values
+            ) {
+                document[0].AsBsonDocument.Add("$nin", new BsonArray(values));
+                return this;
+            }
+
+            public Element size(
+                int size
+            ) {
+                document[0].AsBsonDocument.Add("$size", size);
+                return this;
+            }
+
+            public Element type(
+                BsonType type
+            ) {
+                document[0].AsBsonDocument.Add("$type", (int) type);
+                return this;
+            }
+            #endregion
         }
-        #endregion
 
-        #region public methods
-        public QueryElementBuilder All(
-            BsonArray array
-        ) {
-            document[0].AsBsonDocument.Add("$all", array);
-            return this;
-        }
+        public class ElementStart : Element {
+            #region constructors
+            public ElementStart(
+                string name
+            )
+                : base(new BsonDocument(name, new BsonDocument())) {
+            }
+            #endregion
 
-        public QueryElementBuilder All(
-            params BsonValue[] values
-        ) {
-            document[0].AsBsonDocument.Add("$all", new BsonArray(values));
-            return this;
-        }
+            #region public methods
+            public QueryBuilder eq(
+                BsonValue value
+            ) {
+                document[0] = value;
+                return this;
+            }
 
-        public QueryElementBuilder GT(
-            BsonValue value
-        ) {
-            document[0].AsBsonDocument.Add("$gt", value);
-            return this;
-        }
-
-        public QueryElementBuilder GE(
-            BsonValue value
-        ) {
-            document[0].AsBsonDocument.Add("$gte", value);
-            return this;
-        }
-
-        public QueryElementBuilder In(
-            BsonArray array
-        ) {
-            document[0].AsBsonDocument.Add("$in", array);
-            return this;
-        }
-
-        public QueryElementBuilder In(
-            params BsonValue[] values
-        ) {
-            document[0].AsBsonDocument.Add("$in", new BsonArray(values));
-            return this;
-        }
-
-        public QueryElementBuilder LT(
-            BsonValue value
-        ) {
-            document[0].AsBsonDocument.Add("$lt", value);
-            return this;
-        }
-
-        public QueryElementBuilder LE(
-            BsonValue value
-        ) {
-            document[0].AsBsonDocument.Add("$lte", value);
-            return this;
-        }
-
-        public QueryElementBuilder Mod(
-            int modulus,
-            int equals
-        ) {
-            document[0].AsBsonDocument.Add("$mod", new BsonArray { modulus, equals });
-            return this;
-        }
-
-        public QueryElementBuilder NE(
-            BsonValue value
-        ) {
-            document[0].AsBsonDocument.Add("$ne", value);
-            return this;
-        }
-
-        public QueryElementBuilder NotIn(
-            BsonArray array
-        ) {
-            document[0].AsBsonDocument.Add("$nin", array);
-            return this;
-        }
-
-        public QueryElementBuilder NotIn(
-            params BsonValue[] values
-        ) {
-            document[0].AsBsonDocument.Add("$nin", new BsonArray(values));
-            return this;
-        }
-
-        public QueryElementBuilder Size(
-            int size
-        ) {
-            document[0].AsBsonDocument.Add("$size", size);
-            return this;
+            public QueryBuilder regex(
+               BsonRegularExpression value
+           ) {
+                document[0] = value;
+                return this;
+            }
+            #endregion
         }
         #endregion
     }
