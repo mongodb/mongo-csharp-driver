@@ -89,6 +89,7 @@ namespace MongoDB.CSharpDriver {
         }
 
         public int Count() {
+            frozen = true;
             var command = new BsonDocument {
                 { "count", collection.Name },
                 { "query", query ?? new BsonDocument() },
@@ -104,6 +105,7 @@ namespace MongoDB.CSharpDriver {
         public BsonDocument Explain(
             bool verbose
         ) {
+            frozen = true;
             var clone = this.Clone<BsonDocument>();
             clone.AddOption("$explain", true);
             clone.limit = -clone.limit; // TODO: should this be -1?
@@ -198,6 +200,7 @@ namespace MongoDB.CSharpDriver {
         }
 
         public int Size() {
+            frozen = true;
             var command = new BsonDocument {
                 { "count", collection.Name },
                 { "query", query ?? new BsonDocument() },
