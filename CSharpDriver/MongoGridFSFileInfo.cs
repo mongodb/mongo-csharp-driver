@@ -147,6 +147,11 @@ namespace MongoDB.CSharpDriver {
             return Open(FileMode.Open, FileAccess.Read);
         }
 
+        public StreamReader OpenText() {
+            Stream stream = Open(FileMode.Open, FileAccess.Read);
+            return new StreamReader(stream, Encoding.UTF8);
+        }
+
         public MongoGridFSStream OpenWrite() {
             return Open(FileMode.OpenOrCreate, FileAccess.Write);
         }

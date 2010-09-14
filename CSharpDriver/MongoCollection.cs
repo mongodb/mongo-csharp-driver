@@ -24,7 +24,7 @@ using MongoDB.BsonLibrary;
 using MongoDB.CSharpDriver.Internal;
 
 namespace MongoDB.CSharpDriver {
-    public class MongoCollection {
+    public abstract class MongoCollection {
         #region private fields
         private MongoDatabase database;
         private string name;
