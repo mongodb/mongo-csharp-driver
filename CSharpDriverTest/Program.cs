@@ -54,7 +54,7 @@ namespace MongoDB.MongoDBClientTest {
             }
 #endif
 
-#if true
+#if false
             // test connection string pointing to database with default credentials
             {
                 string connectionString = "mongodb://localhost/test";
@@ -265,6 +265,42 @@ namespace MongoDB.MongoDBClientTest {
                     Console.WriteLine(id);
                 }
                 Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+#endif
+
+#if true
+            // test sending replSetInitiate to brand new replica set
+            string connectionString = "mongodb://kilimanjaro:10002"; // arbitrarily chose 2nd member to send init command to
+            var server = MongoServer.Create(connectionString);
+            server.SlaveOk = true;
+
+            var initCommand = new BsonDocument {
+                { "replSetInitiate", new BsonDocument {
+                    { "_id" , "azure" },
+                    { "members", new BsonArray {
+                        new BsonDocument {
+                            { "_id", 1 },
+                            { "host", "kilimanjaro:10001" }
+                        },
+                        new BsonDocument {
+                            { "_id", 2 },
+                            { "host", "kilimanjaro:10002" }
+                        }}
+                    }}
+                }
+            };
+            var commandResult = server.RunAdminCommand(initCommand); // takes about 10 seconds to return
+
+            server.SlaveOk = false; // forces a Disconnect becaues value is changing
+            while (true) {
+                try {
+                    // this is going to throw exceptions until the replica set has finished electing a primary
+                    int count = server["foo"]["bar"].Count(); // arbitrary trivial operation
+                    break;
+                } catch (Exception ex) {
+                    Console.WriteLine(ex);
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                }
             }
 #endif
         }

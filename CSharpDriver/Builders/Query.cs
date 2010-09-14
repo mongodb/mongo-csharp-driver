@@ -106,7 +106,7 @@ namespace MongoDB.CSharpDriver.Builders {
             public Element all(
                 params BsonValue[] values
             ) {
-                document[0].AsBsonDocument.Add("$all", new BsonArray(values));
+                document[0].AsBsonDocument.Add("$all", new BsonArray((IEnumerable<BsonValue>) values));
                 return this;
             }
 
@@ -148,7 +148,7 @@ namespace MongoDB.CSharpDriver.Builders {
             public Element @in(
                 params BsonValue[] values
             ) {
-                document[0].AsBsonDocument.Add("$in", new BsonArray(values));
+                document[0].AsBsonDocument.Add("$in", new BsonArray((IEnumerable<BsonValue>) values));
                 return this;
             }
 
@@ -191,7 +191,7 @@ namespace MongoDB.CSharpDriver.Builders {
             public Element nin(
                 params BsonValue[] values
             ) {
-                document[0].AsBsonDocument.Add("$nin", new BsonArray(values));
+                document[0].AsBsonDocument.Add("$nin", new BsonArray((IEnumerable<BsonValue>) values));
                 return this;
             }
 

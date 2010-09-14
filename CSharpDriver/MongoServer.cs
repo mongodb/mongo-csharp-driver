@@ -33,9 +33,9 @@ namespace MongoDB.CSharpDriver {
         private object serverLock = new object();
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> seedList;
+        private bool slaveOk;
         private IEnumerable<MongoServerAddress> replicaSet;
         private SafeMode safeMode = SafeMode.False;
-        private bool slaveOk;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         private MongoConnectionPool connectionPool;
         private MongoCredentials adminCredentials;
@@ -141,7 +141,12 @@ namespace MongoDB.CSharpDriver {
 
         public bool SlaveOk {
             get { return slaveOk; }
-            set { slaveOk = value; }
+            set {
+                if (slaveOk != value) {
+                    slaveOk = value;
+                    Disconnect(); // Connect will be called automatically the next time an operation is performed
+                }
+            }
         }
 
         public MongoServerState State {
@@ -297,6 +302,12 @@ namespace MongoDB.CSharpDriver {
             };
             return AdminDatabase.RunCommand(command);
         }
+
+        public BsonDocument RunAdminCommand(
+            BsonDocument command
+        ) {
+            return AdminDatabase.RunCommand(command);
+        }
         #endregion
 
         #region private methods
@@ -333,8 +344,10 @@ namespace MongoDB.CSharpDriver {
                 }
 
                 var commandResult = results.CommandResult;
-                if (results.IsPrimary) {
+                if (results.IsPrimary || slaveOk) {
                     return results;
+                } else {
+                    results.Connection.Close();
                 }
 
                 // look for additional members of the replica set that might not have been in the seed list and query them also
@@ -380,20 +393,16 @@ namespace MongoDB.CSharpDriver {
                     connection.SendMessage(message, SafeMode.False);
                     var reply = connection.ReceiveMessage<BsonDocument>();
                     results.CommandResult = reply.Documents[0];
+                    results.Connection = connection; // might become the first connection in the connection pool
                     if (
                         results.CommandResult["ok", false].ToBoolean() &&
                         results.CommandResult["ismaster", false].ToBoolean()
                     ) {
                         results.IsPrimary = true;
-                        results.Connection = connection; // will become the first connection in the connection pool
                     }
                 } catch {
                     try { connection.Close(); } catch { } // ignore exceptions
                     throw;
-                }
-
-                if (!results.IsPrimary) {
-                    connection.Close();
                 }
             } catch (Exception ex) {
                 results.Exception = ex;
