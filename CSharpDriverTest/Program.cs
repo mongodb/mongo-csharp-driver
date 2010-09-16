@@ -270,8 +270,8 @@ namespace MongoDB.MongoDBClientTest {
 
 #if true
             // test sending replSetInitiate to brand new replica set
-            string connectionString = "mongodb://kilimanjaro:10002"; // arbitrarily chose 2nd member to send init command to
-            var server = MongoServer.Create(connectionString);
+            string connectionString1 = "mongodb://kilimanjaro:10002"; // arbitrarily chose 2nd member to send init command to
+            var server = MongoServer.Create(connectionString1);
             server.SlaveOk = true;
 
             var initCommand = new BsonDocument {
@@ -291,7 +291,9 @@ namespace MongoDB.MongoDBClientTest {
             };
             var commandResult = server.RunAdminCommand(initCommand); // takes about 10 seconds to return
 
-            server.SlaveOk = false; // forces a Disconnect becaues value is changing
+            string connectionString2 = "mongodb://kilimanjaro:10001,kilimanjaro:10002";
+            server = MongoServer.Create(connectionString2);
+
             while (true) {
                 try {
                     // this is going to throw exceptions until the replica set has finished electing a primary

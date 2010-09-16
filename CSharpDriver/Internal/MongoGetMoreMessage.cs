@@ -19,6 +19,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using MongoDB.BsonLibrary;
+
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoGetMoreMessage : MongoRequestMessage {
         #region private fields
@@ -41,13 +43,11 @@ namespace MongoDB.CSharpDriver.Internal {
         #endregion
 
         #region protected methods
-        protected override void WriteBodyTo(
-            BinaryWriter binaryWriter
-        ) {
-            binaryWriter.Write((int) 0); // reserved
-            WriteCStringTo(binaryWriter, collectionFullName);
-            binaryWriter.Write(numberToReturn);
-            binaryWriter.Write(cursorId);
+        protected override void WriteBody() {
+            buffer.Write((int) 0); // reserved
+            buffer.WriteCString(collectionFullName);
+            buffer.Write(numberToReturn);
+            buffer.Write(cursorId);
         }
         #endregion
     }

@@ -19,6 +19,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using MongoDB.BsonLibrary;
+
 namespace MongoDB.CSharpDriver.Internal {
     internal abstract class MongoMessage {
         #region protected fields
@@ -67,12 +69,12 @@ namespace MongoDB.CSharpDriver.Internal {
         }
 
         protected void WriteMessageHeaderTo(
-            BinaryWriter binaryWriter
+            BsonBuffer buffer
         ) {
-            binaryWriter.Write(0); // messageLength will be backpatched later
-            binaryWriter.Write(requestId);
-            binaryWriter.Write(0); // responseTo not used in requests sent by client
-            binaryWriter.Write((int) opcode);
+            buffer.Write(0); // messageLength will be backpatched later
+            buffer.Write(requestId);
+            buffer.Write(0); // responseTo not used in requests sent by client
+            buffer.Write((int) opcode);
         }
         #endregion
     }

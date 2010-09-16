@@ -25,8 +25,8 @@ namespace MongoDB.CSharpDriver.Internal {
     internal class MongoInsertMessage : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
-        private long firstDocumentStartPosition;
-        private long lastDocumentStartPosition;
+        private int firstDocumentStartPosition;
+        private int lastDocumentStartPosition;
         #endregion
 
         #region constructors
@@ -42,50 +42,37 @@ namespace MongoDB.CSharpDriver.Internal {
         internal void AddDocument<I>(
             I document
         ) {
-            if (memoryStream == null) {
-                // create a base message with no documents added yet
-                WriteTo(new MemoryStream()); // assigns values to inherited memoryStream and binaryWriter fields
-                firstDocumentStartPosition = memoryStream.Position;
-            }
-
-            lastDocumentStartPosition = memoryStream.Position;
+            lastDocumentStartPosition = buffer.Position;
             var serializer = new BsonSerializer(typeof(I));
-            var bsonWriter = BsonWriter.Create(binaryWriter);
+            var bsonWriter = BsonWriter.Create(buffer);
             serializer.WriteObject(bsonWriter, document);
-            BackpatchMessageLength(binaryWriter);
+            BackpatchMessageLength();
         }
 
         internal byte[] RemoveLastDocument() {
-            var lastDocumentLength = (int) (memoryStream.Position - lastDocumentStartPosition);
+            var lastDocumentLength = (int) (buffer.Position - lastDocumentStartPosition);
             var lastDocument = new byte[lastDocumentLength];
-            memoryStream.Position = lastDocumentStartPosition;
-            memoryStream.Read(lastDocument, 0, lastDocumentLength);
-
-            memoryStream.Position = lastDocumentStartPosition;
-            memoryStream.SetLength(lastDocumentStartPosition);
-            BackpatchMessageLength(binaryWriter);
+            Buffer.BlockCopy(buffer.Bytes, lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
+            buffer.Position = lastDocumentStartPosition;
+            BackpatchMessageLength();
 
             return lastDocument;
         }
 
-        internal void Reset(
-            byte[] bsonDocument // as returned by RemoveLastDocument
+        internal void ResetBatch(
+            byte[] lastDocument // as returned by RemoveLastDocument
         ) {
-            memoryStream.Position = firstDocumentStartPosition;
-            memoryStream.SetLength(firstDocumentStartPosition);
-
-            lastDocumentStartPosition = memoryStream.Position;
-            memoryStream.Write(bsonDocument, 0, bsonDocument.Length);
-            BackpatchMessageLength(binaryWriter);
+            buffer.Position = firstDocumentStartPosition;
+            buffer.Write(lastDocument);
+            BackpatchMessageLength();
         }
         #endregion
 
         #region protected methods
-        protected override void WriteBodyTo(
-            BinaryWriter binaryWriter
-        ) {
-            binaryWriter.Write((int) 0); // reserved
-            WriteCStringTo(binaryWriter, collectionFullName);
+        protected override void WriteBody() {
+            buffer.Write((int) 0); // reserved
+            buffer.WriteCString(collectionFullName);
+            firstDocumentStartPosition = buffer.Position;
             // documents to be added later by calling AddDocument
         }
         #endregion

@@ -29,6 +29,7 @@ namespace MongoDBGridFSTest {
         public static void Main(string[] args) {
             var connectionString = "mongodb://127.0.0.1";
             var server = MongoServer.Create(connectionString);
+            server.Connect(TimeSpan.FromMinutes(5)); // give time to debug
             var database = server.GetDatabase("gridfstest");
             gridFS = database.GridFS;
             gridFS.Settings.Root = "uploads";
@@ -37,7 +38,7 @@ namespace MongoDBGridFSTest {
             Thread.Sleep(TimeSpan.FromSeconds(3)); // give a chance to start other instances
             Console.WriteLine("Starting");
 
-            int iterations = 200;
+            int iterations = 400;
             DateTime start = DateTime.UtcNow;
             for (int i = 0; i < iterations; i++) {
                 // gridFS.Delete("06 Headstrong.mp3");
@@ -60,6 +61,7 @@ namespace MongoDBGridFSTest {
             //Console.WriteLine("Downloaded {0} files per second", fps);
 
             ListFiles();
+            Console.ReadLine();
         }
 
         private static void ListFiles() {

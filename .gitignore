@@ -2,3 +2,5 @@ bin
 obj
 *.user
 *.suo
+*.vsp
+

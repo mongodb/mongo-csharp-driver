@@ -287,21 +287,20 @@ namespace MongoDB.CSharpDriver.Internal {
         ) {
             if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
-                MemoryStream memoryStream = message.GetMemoryStream();
-
+                message.WriteToBuffer();
                 if (safeMode.Enabled) {
                     var command = new BsonDocument {
                         { "getLastError", 1 },
                         { safeMode.Replications > 1, "w", safeMode.Replications },
                         { safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero, "wtimeout", (int) safeMode.Timeout.TotalMilliseconds }
                     };
-                    var getLastErrorMessage = new MongoQueryMessage("admin.$cmd", QueryFlags.None, 0, 1, command, null);
-                    getLastErrorMessage.WriteTo(memoryStream); // piggy back on network transmission for message
+                    var getLastErrorMessage = new MongoQueryMessage("admin.$cmd", QueryFlags.None, 0, 1, command, null, message.BsonBuffer);
+                    getLastErrorMessage.WriteToBuffer(); // piggy back on network transmission for message
                 }
 
                 try {
                     NetworkStream networkStream = tcpClient.GetStream();
-                    networkStream.Write(memoryStream.GetBuffer(), 0, (int) memoryStream.Length);
+                    networkStream.Write(message.BsonBuffer.Bytes, 0, message.BsonBuffer.Position);
                     messageCounter++;
                 } catch (SocketException ex) {
                     HandleSocketException(ex);

@@ -492,13 +492,15 @@ namespace MongoDB.CSharpDriver {
             MongoConnection connection = database.GetConnection();
 
             var message = new MongoInsertMessage(FullName);
+            message.WriteToBuffer(); // must be called before AddDocument
+
             foreach (var document in documents) {
                 message.AddDocument(document);
                 if (message.MessageLength > MongoDefaults.MaxMessageLength) {
                     byte[] lastDocument = message.RemoveLastDocument();
                     var intermediateError = connection.SendMessage(message, safeMode);
                     if (safeMode.Enabled) { batches.Add(intermediateError); }
-                    message.Reset(lastDocument);
+                    message.ResetBatch(lastDocument);
                 }
             }
 

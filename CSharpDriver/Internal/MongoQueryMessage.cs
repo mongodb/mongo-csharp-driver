@@ -41,7 +41,19 @@ namespace MongoDB.CSharpDriver.Internal {
             BsonDocument query,
             BsonDocument fields
         ) :
-            base(MessageOpcode.Query) {
+            this(collectionFullName, flags, numberToSkip, numberToReturn, query, fields, null) {
+        }
+
+        internal MongoQueryMessage(
+            string collectionFullName,
+            QueryFlags flags,
+            int numberToSkip,
+            int numberToReturn,
+            BsonDocument query,
+            BsonDocument fields,
+            BsonBuffer buffer
+        ) :
+            base(MessageOpcode.Query, buffer) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.numberToSkip = numberToSkip;
@@ -52,15 +64,13 @@ namespace MongoDB.CSharpDriver.Internal {
         #endregion
 
         #region protected methods
-        protected override void WriteBodyTo(
-            BinaryWriter binaryWriter
-        ) {
-            binaryWriter.Write((int) flags);
-            WriteCStringTo(binaryWriter, collectionFullName);
-            binaryWriter.Write(numberToSkip);
-            binaryWriter.Write(numberToReturn);
+        protected override void WriteBody() {
+            buffer.Write((int) flags);
+            buffer.WriteCString(collectionFullName);
+            buffer.Write(numberToSkip);
+            buffer.Write(numberToReturn);
 
-            BsonWriter bsonWriter = BsonBinaryWriter.Create(binaryWriter);
+            BsonWriter bsonWriter = BsonWriter.Create(buffer);
             if (query == null) {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();

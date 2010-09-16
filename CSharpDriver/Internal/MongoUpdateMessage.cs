@@ -46,14 +46,12 @@ namespace MongoDB.CSharpDriver.Internal {
         #endregion
 
         #region protected methods
-        protected override void WriteBodyTo(
-            BinaryWriter binaryWriter
-        ) {
-            binaryWriter.Write((int) 0); // reserved
-            WriteCStringTo(binaryWriter, collectionFullName);
-            binaryWriter.Write((int) flags);
+        protected override void WriteBody() {
+            buffer.Write((int) 0); // reserved
+            buffer.WriteCString(collectionFullName);
+            buffer.Write((int) flags);
 
-            BsonWriter bsonWriter = BsonBinaryWriter.Create(binaryWriter);
+            BsonWriter bsonWriter = BsonWriter.Create(buffer);
             query.WriteTo(bsonWriter);
             BsonSerializer serializer = new BsonSerializer(typeof(U));
             serializer.WriteObject(bsonWriter, update);

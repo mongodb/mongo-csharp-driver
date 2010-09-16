@@ -19,6 +19,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using MongoDB.BsonLibrary;
+
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoKillCursorsMessage : MongoRequestMessage {
         #region private fields
@@ -35,13 +37,11 @@ namespace MongoDB.CSharpDriver.Internal {
         #endregion
 
         #region protected methods
-        protected override void WriteBodyTo(
-            BinaryWriter binaryWriter
-        ) {
-            binaryWriter.Write((int) 0); // reserved
-            binaryWriter.Write(cursorIds.Length);
+        protected override void WriteBody() {
+            buffer.Write((int) 0); // reserved
+            buffer.Write(cursorIds.Length);
             foreach (long cursorId in cursorIds) {
-                binaryWriter.Write(cursorId);
+                buffer.Write(cursorId);
             }
         }
         #endregion

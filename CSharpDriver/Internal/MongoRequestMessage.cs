@@ -24,66 +24,51 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.CSharpDriver.Internal {
     internal abstract class MongoRequestMessage : MongoMessage {
         #region protected fields
-        protected MemoryStream memoryStream; // null unless WriteTo has been called
-        protected BinaryWriter binaryWriter; // null unless WriteTo has been called
-        protected long messageStartPosition; // start position in stream for backpatching messageLength
+        protected BsonBuffer buffer;
+        protected int messageStartPosition = -1; // start position in buffer for backpatching messageLength
         #endregion
 
         #region constructors
         protected MongoRequestMessage(
             MessageOpcode opcode
         )
+            : this(opcode, null) {
+        }
+
+        protected MongoRequestMessage(
+            MessageOpcode opcode,
+            BsonBuffer buffer // not null if piggybacking this message onto an existing buffer
+        )
             : base(opcode) {
+            this.buffer = buffer ?? new BsonBuffer();
+        }
+        #endregion
+
+        #region public propertieds
+        public BsonBuffer BsonBuffer {
+            get { return buffer; }
         }
         #endregion
 
         #region internal methods
-        internal MemoryStream GetMemoryStream() {
-            if (memoryStream == null) {
-                WriteTo(new MemoryStream());
+        internal void WriteToBuffer() {
+            // this method is sometimes called more than once (see MongoConnection and MongoCollection)
+            if (messageStartPosition == -1) {
+                messageStartPosition = buffer.Position;
+                WriteMessageHeaderTo(buffer);
+                WriteBody();
+                BackpatchMessageLength();
             }
-            return memoryStream;
-        }
-
-        internal void WriteTo(
-            MemoryStream memoryStream
-        ) {
-            this.memoryStream = memoryStream;
-            this.binaryWriter = new BinaryWriter(memoryStream);
-
-            messageStartPosition = memoryStream.Position;
-            WriteMessageHeaderTo(binaryWriter);
-            WriteBodyTo(binaryWriter);
-            BackpatchMessageLength(binaryWriter);
         }
         #endregion
 
         #region protected methods
-        protected void BackpatchMessageLength(
-            BinaryWriter binaryWriter
-        ) {
-            long currentPosition = binaryWriter.BaseStream.Position;
-            messageLength = (int) (currentPosition - messageStartPosition);
-            binaryWriter.BaseStream.Seek(messageStartPosition, SeekOrigin.Begin);
-            binaryWriter.Write(messageLength);
-            binaryWriter.BaseStream.Seek(currentPosition, SeekOrigin.Begin);
+        protected void BackpatchMessageLength() {
+            int messageLength = buffer.Position - messageStartPosition;
+            buffer.Backpatch(messageStartPosition, messageLength);
         }
 
-        protected abstract void WriteBodyTo(
-            BinaryWriter binaryWriter
-        );
-
-        protected void WriteCStringTo(
-            BinaryWriter binaryWriter,
-            string value
-        ) {
-            byte[] utf8Bytes = Encoding.UTF8.GetBytes(value);
-            if (utf8Bytes.Contains((byte) 0)) {
-                throw new MongoException("A cstring cannot contain 0x00");
-            }
-            binaryWriter.Write(utf8Bytes);
-            binaryWriter.Write((byte) 0);
-        }
+        protected abstract void WriteBody();
         #endregion
     }
 }
