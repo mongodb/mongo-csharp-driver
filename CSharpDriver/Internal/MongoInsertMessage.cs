@@ -52,7 +52,7 @@ namespace MongoDB.CSharpDriver.Internal {
         internal byte[] RemoveLastDocument() {
             var lastDocumentLength = (int) (buffer.Position - lastDocumentStartPosition);
             var lastDocument = new byte[lastDocumentLength];
-            Buffer.BlockCopy(buffer.Bytes, lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
+            buffer.CopyTo(lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
             buffer.Position = lastDocumentStartPosition;
             BackpatchMessageLength();
 

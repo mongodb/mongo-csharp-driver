@@ -35,7 +35,7 @@ namespace MongoDBGridFSTest {
             gridFS.Settings.Root = "uploads";
             gridFS.SafeMode = SafeMode.False;
 
-            Thread.Sleep(TimeSpan.FromSeconds(3)); // give a chance to start other instances
+            Thread.Sleep(TimeSpan.FromSeconds(1)); // give a chance to start other instances
             Console.WriteLine("Starting");
 
             int iterations = 400;

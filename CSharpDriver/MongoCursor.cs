@@ -378,8 +378,18 @@ namespace MongoDB.CSharpDriver {
                         numberToReturn = cursor.batchSize;
                     }
 
-                    var message = new MongoQueryMessage(cursor.Collection.FullName, cursor.flags, cursor.skip, numberToReturn, WrapQuery(), cursor.fields);
-                    return SendMessage(message);
+                    using (
+                        var message = new MongoQueryMessage(
+                            cursor.Collection.FullName,
+                            cursor.flags,
+                            cursor.skip,
+                            numberToReturn,
+                            WrapQuery(),
+                            cursor.fields
+                        )
+                    ) {
+                        return SendMessage(message);
+                    }
                 } catch {
                     try { ReleaseConnection(); } catch { } // ignore exceptions
                     throw;
@@ -398,8 +408,15 @@ namespace MongoDB.CSharpDriver {
                         numberToReturn = cursor.batchSize;
                     }
 
-                    var message = new MongoGetMoreMessage(cursor.Collection.FullName, numberToReturn, openCursorId);
-                    return SendMessage(message);
+                    using (
+                        var message = new MongoGetMoreMessage(
+                            cursor.Collection.FullName,
+                            numberToReturn,
+                            openCursorId
+                        )
+                    ) {
+                        return SendMessage(message);
+                    }
                 } catch {
                     try { ReleaseConnection(); } catch { } // ignore exceptions
                     throw;
@@ -426,8 +443,9 @@ namespace MongoDB.CSharpDriver {
                 if (connection != null) {
                     try {
                         if (openCursorId != 0) {
-                            var message = new MongoKillCursorsMessage(openCursorId);
-                            connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                            using (var message = new MongoKillCursorsMessage(openCursorId)) {
+                                connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                            }
                         }
                         cursor.Collection.Database.ReleaseConnection(connection);
                     } finally {

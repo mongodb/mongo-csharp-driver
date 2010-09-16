@@ -22,9 +22,11 @@ using System.Text;
 using MongoDB.BsonLibrary;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal abstract class MongoRequestMessage : MongoMessage {
+    internal abstract class MongoRequestMessage : MongoMessage, IDisposable {
         #region protected fields
+        protected bool disposed = false;
         protected BsonBuffer buffer;
+        protected bool disposeBuffer;
         protected int messageStartPosition = -1; // start position in buffer for backpatching messageLength
         #endregion
 
@@ -41,12 +43,25 @@ namespace MongoDB.CSharpDriver.Internal {
         )
             : base(opcode) {
             this.buffer = buffer ?? new BsonBuffer();
+            this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
         }
         #endregion
 
         #region public propertieds
         public BsonBuffer BsonBuffer {
             get { return buffer; }
+        }
+        #endregion
+
+        #region public methods
+        public void Dispose() {
+            if (!disposed) {
+                if (disposeBuffer) {
+                    buffer.Dispose();
+                }
+                buffer = null;
+                disposed = true;
+            }
         }
         #endregion
 

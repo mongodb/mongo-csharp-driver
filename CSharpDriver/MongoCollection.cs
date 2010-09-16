@@ -96,19 +96,16 @@ namespace MongoDB.CSharpDriver {
             BsonDocument keys,
             BsonDocument options
         ) {
-            lock (indexCache) {
-                var indexes = database.GetCollection("system.indexes");
-                var indexName = (options != null && options.Contains("name")) ? options["name"].AsString : GetIndexName(keys);
-                var index = new BsonDocument {
-                    { "name", indexName },
-                    { "ns", FullName },
-                    { "key", keys }
-                };
-                index.Merge(options);
-                var result = indexes.Insert(index, SafeMode.True);
-                indexCache.Add(indexName);
-                return result;
-            }
+            var indexes = database.GetCollection("system.indexes");
+            var indexName = (options != null && options.Contains("name")) ? options["name"].AsString : GetIndexName(keys);
+            var index = new BsonDocument {
+                { "name", indexName },
+                { "ns", FullName },
+                { "key", keys }
+            };
+            index.Merge(options);
+            var result = indexes.Insert(index, SafeMode.True);
+            return result;
         }
 
         public BsonDocument CreateIndex(
@@ -202,6 +199,7 @@ namespace MongoDB.CSharpDriver {
                 string indexName = GetIndexName(keys);
                 if (!indexCache.Contains(indexName)) {
                     CreateIndex(keys, indexName);
+                    indexCache.Add(indexName);
                 }
             }
         }
@@ -214,6 +212,7 @@ namespace MongoDB.CSharpDriver {
                 string indexName = GetIndexName(keys);
                 if (!indexCache.Contains(indexName)) {
                     CreateIndex(keys, options);
+                    indexCache.Add(indexName);
                 }
             }
         }
@@ -225,6 +224,7 @@ namespace MongoDB.CSharpDriver {
             lock (indexCache) {
                 if (!indexCache.Contains(indexName)) {
                     CreateIndex(keys, indexName);
+                    indexCache.Add(indexName);
                 }
             }
         }
@@ -237,6 +237,7 @@ namespace MongoDB.CSharpDriver {
             lock (indexCache) {
                 if (!indexCache.Contains(indexName)) {
                     CreateIndex(keys, indexName, unique);
+                    indexCache.Add(indexName);
                 }
             }
         }
@@ -248,6 +249,7 @@ namespace MongoDB.CSharpDriver {
                 string indexName = GetIndexName(keyNames);
                 if (!indexCache.Contains(indexName)) {
                     CreateIndex(keyNames);
+                    indexCache.Add(indexName);
                 }
             }
         }
@@ -491,21 +493,22 @@ namespace MongoDB.CSharpDriver {
 
             MongoConnection connection = database.GetConnection();
 
-            var message = new MongoInsertMessage(FullName);
-            message.WriteToBuffer(); // must be called before AddDocument
+            using (var message = new MongoInsertMessage(FullName)) {
+                message.WriteToBuffer(); // must be called before AddDocument
 
-            foreach (var document in documents) {
-                message.AddDocument(document);
-                if (message.MessageLength > MongoDefaults.MaxMessageLength) {
-                    byte[] lastDocument = message.RemoveLastDocument();
-                    var intermediateError = connection.SendMessage(message, safeMode);
-                    if (safeMode.Enabled) { batches.Add(intermediateError); }
-                    message.ResetBatch(lastDocument);
+                foreach (var document in documents) {
+                    message.AddDocument(document);
+                    if (message.MessageLength > MongoDefaults.MaxMessageLength) {
+                        byte[] lastDocument = message.RemoveLastDocument();
+                        var intermediateError = connection.SendMessage(message, safeMode);
+                        if (safeMode.Enabled) { batches.Add(intermediateError); }
+                        message.ResetBatch(lastDocument);
+                    }
                 }
-            }
 
-            var lastError = connection.SendMessage(message, safeMode);
-            if (safeMode.Enabled) { batches.Add(lastError); }
+                var lastError = connection.SendMessage(message, safeMode);
+                if (safeMode.Enabled) { batches.Add(lastError); }
+            }
 
             database.ReleaseConnection(connection);
 
@@ -608,13 +611,12 @@ namespace MongoDB.CSharpDriver {
                 flags |= RemoveFlags.Single;
             }
 
-            var message = new MongoDeleteMessage(FullName, flags, query);
-
-            var connection = database.GetConnection();
-            var lastError = connection.SendMessage(message, safeMode);
-            database.ReleaseConnection(connection);
-
-            return lastError;
+            using (var message = new MongoDeleteMessage(FullName, flags, query)) {
+                var connection = database.GetConnection();
+                var lastError = connection.SendMessage(message, safeMode);
+                database.ReleaseConnection(connection);
+                return lastError;
+            }
         }
 
         public BsonDocument RemoveAll() {
@@ -719,13 +721,12 @@ namespace MongoDB.CSharpDriver {
                 throw new BsonException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
             }
 
-            var message = new MongoUpdateMessage<U>(FullName, flags, query, update);
-
-            var connection = database.GetConnection();
-            var lastError = connection.SendMessage(message, safeMode);
-            database.ReleaseConnection(connection);
-
-            return lastError;
+            using (var message = new MongoUpdateMessage<U>(FullName, flags, query, update)) {
+                var connection = database.GetConnection();
+                var lastError = connection.SendMessage(message, safeMode);
+                database.ReleaseConnection(connection);
+                return lastError;
+            }
         }
 
         public BsonDocument Validate() {
@@ -755,6 +756,7 @@ namespace MongoDB.CSharpDriver {
                     sb.Append("_");
                 }
                 sb.Append(element.Name);
+                sb.Append("_");
                 var value = element.Value;
                 if (
                     value.BsonType == BsonType.Int32 ||

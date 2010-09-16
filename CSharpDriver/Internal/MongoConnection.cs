@@ -73,15 +73,18 @@ namespace MongoDB.CSharpDriver.Internal {
             if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
                 var nonceCommand = new BsonDocument("getnonce", 1);
-                var nonceMessage = new MongoQueryMessage(
-                    string.Format("{0}.$cmd", databaseName), // collectionFullName
-                    QueryFlags.None,
-                    0, // numberToSkip
-                    1, // numberToReturn
-                    nonceCommand, // query
-                    null // fields
-                );
-                SendMessage(nonceMessage, SafeMode.False);
+                using (
+                    var nonceMessage = new MongoQueryMessage(
+                        string.Format("{0}.$cmd", databaseName), // collectionFullName
+                        QueryFlags.None,
+                        0, // numberToSkip
+                        1, // numberToReturn
+                        nonceCommand, // query
+                        null // fields
+                    )
+                ) {
+                    SendMessage(nonceMessage, SafeMode.False);
+                }
                 var nonceReply = ReceiveMessage<BsonDocument>();
                 var nonceCommandResult = nonceReply.Documents[0];
                 if (!nonceCommandResult["ok", false].ToBoolean()) {
@@ -97,15 +100,18 @@ namespace MongoDB.CSharpDriver.Internal {
                     { "nonce", nonce },
                     { "key", digest }
                 };
-                var authenticateMessage = new MongoQueryMessage(
-                    string.Format("{0}.$cmd", databaseName), // collectionFullName
-                    QueryFlags.None,
-                    0, // numberToSkip
-                    1, // numberToReturn
-                    authenticateCommand, // query
-                    null // fields
-                );
-                SendMessage(authenticateMessage, SafeMode.False);
+                using (
+                    var authenticateMessage = new MongoQueryMessage(
+                        string.Format("{0}.$cmd", databaseName), // collectionFullName
+                        QueryFlags.None,
+                        0, // numberToSkip
+                        1, // numberToReturn
+                        authenticateCommand, // query
+                        null // fields
+                    )
+                ) {
+                    SendMessage(authenticateMessage, SafeMode.False);
+                }
                 var authenticationReply = ReceiveMessage<BsonDocument>();
                 var authenticationResult = authenticationReply.Documents[0];
                 if (!authenticationResult["ok", false].ToBoolean()) {
@@ -246,15 +252,18 @@ namespace MongoDB.CSharpDriver.Internal {
             if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
                 var logoutCommand = new BsonDocument("logout", 1);
-                var logoutMessage = new MongoQueryMessage(
-                    string.Format("{0}.$cmd", databaseName), // collectionFullName
-                    QueryFlags.None,
-                    0, // numberToSkip
-                    1, // numberToReturn
-                    logoutCommand,
-                    null // fields
-                );
-                SendMessage(logoutMessage, SafeMode.False);
+                using (
+                    var logoutMessage = new MongoQueryMessage(
+                        string.Format("{0}.$cmd", databaseName), // collectionFullName
+                        QueryFlags.None,
+                        0, // numberToSkip
+                        1, // numberToReturn
+                        logoutCommand,
+                        null // fields
+                    )
+                ) {
+                    SendMessage(logoutMessage, SafeMode.False);
+                }
                 var logoutReply = ReceiveMessage<BsonDocument>();
                 var logoutCommandResult = logoutReply.Documents[0];
                 if (!logoutCommandResult["ok", false].ToBoolean()) {
@@ -294,13 +303,24 @@ namespace MongoDB.CSharpDriver.Internal {
                         { safeMode.Replications > 1, "w", safeMode.Replications },
                         { safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero, "wtimeout", (int) safeMode.Timeout.TotalMilliseconds }
                     };
-                    var getLastErrorMessage = new MongoQueryMessage("admin.$cmd", QueryFlags.None, 0, 1, command, null, message.BsonBuffer);
-                    getLastErrorMessage.WriteToBuffer(); // piggy back on network transmission for message
+                    using (
+                        var getLastErrorMessage = new MongoQueryMessage(
+                            "admin.$cmd", // collectionFullName
+                            QueryFlags.None,
+                            0, // numberToSkip
+                            1, // numberToReturn
+                            command,
+                            null, // fields
+                            message.BsonBuffer // piggy back on network transmission for message
+                        )
+                    ) {
+                        getLastErrorMessage.WriteToBuffer();
+                    }
                 }
 
                 try {
                     NetworkStream networkStream = tcpClient.GetStream();
-                    networkStream.Write(message.BsonBuffer.Bytes, 0, message.BsonBuffer.Position);
+                    message.BsonBuffer.WriteTo(networkStream);
                     messageCounter++;
                 } catch (SocketException ex) {
                     HandleSocketException(ex);

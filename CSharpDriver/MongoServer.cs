@@ -382,15 +382,18 @@ namespace MongoDB.CSharpDriver {
                 var connection = new MongoConnection(null, args.Address); // no connection pool
                 try {
                     var command = new BsonDocument("ismaster", 1);
-                    var message = new MongoQueryMessage(
-                        "admin.$cmd",
-                        QueryFlags.SlaveOk,
-                        0, // numberToSkip
-                        1, // numberToReturn
-                        command,
-                        null // fields
-                    );
-                    connection.SendMessage(message, SafeMode.False);
+                    using (
+                        var message = new MongoQueryMessage(
+                            "admin.$cmd",
+                            QueryFlags.SlaveOk,
+                            0, // numberToSkip
+                            1, // numberToReturn
+                            command,
+                            null // fields
+                        )
+                    ) {
+                        connection.SendMessage(message, SafeMode.False);
+                    }
                     var reply = connection.ReceiveMessage<BsonDocument>();
                     results.CommandResult = reply.Documents[0];
                     results.Connection = connection; // might become the first connection in the connection pool
