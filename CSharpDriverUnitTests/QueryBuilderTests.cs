@@ -28,25 +28,25 @@ namespace MongoDB.CSharpDriver.Tests {
     public class QueryBuilderTests {
         [Test]
         public void TestNewSyntax() {
-            BsonDocument query = Query.Element("x").gte(3).lte(10);
+            BsonDocument query = Query.gte("x", 3).lte(10);
             var expected = "{ \"x\" : { \"$gte\" : 3, \"$lte\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestAll() {
-            //BsonDocument query = Query.Element("j").all(new BsonArray { 2, 4, 6 });
-            BsonDocument query = Query.Element("j").all(2, 4, 6);
+            //BsonDocument query = Query.all("j", new BsonArray { 2, 4, 6 });
+            BsonDocument query = Query.all("j", 2, 4, 6);
             var expected = "{ \"j\" : { \"$all\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestElementMatch() {
-            BsonDocument query = Query.Element("x").elemMatch(
+            BsonDocument query = Query.elemMatch("x", 
                 Query.and(
-                    Query.Element("a").eq(1),
-                    Query.Element("b").gt(1)
+                    Query.eq("a", 1),
+                    Query.gt("b", 1)
                 )
             );
             var expected = "{ \"x\" : { \"$elemMatch\" : { \"a\" : 1, \"b\" : { \"$gt\" : 1 } } } }";
@@ -55,7 +55,7 @@ namespace MongoDB.CSharpDriver.Tests {
 
         [Test]
         public void TestEquals() {
-            BsonDocument query = Query.Element("x").eq(3);
+            BsonDocument query = Query.eq("x", 3);
             var expected = "{ \"x\" : 3 }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -63,8 +63,8 @@ namespace MongoDB.CSharpDriver.Tests {
         [Test]
         public void TestEqualsTwoElements() {
             BsonDocument query = Query.and(
-                Query.Element("x").eq(3),
-                Query.Element("y").eq("foo")
+                Query.eq("x", 3),
+                Query.eq("y", "foo")
             );
             var expected = "{ \"x\" : 3, \"y\" : \"foo\" }";
             Assert.AreEqual(expected, query.ToJson());
@@ -72,106 +72,106 @@ namespace MongoDB.CSharpDriver.Tests {
 
         [Test]
         public void TestExists() {
-            BsonDocument query = Query.Element("x").exists(true);
+            BsonDocument query = Query.exists("x", true);
             var expected = "{ \"x\" : { \"$exists\" : true } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestExistsFalse() {
-            BsonDocument query = Query.Element("x").exists(false);
+            BsonDocument query = Query.exists("x", false);
             var expected = "{ \"x\" : { \"$exists\" : false } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestGreaterThan() {
-            BsonDocument query = Query.Element("k").gt(10);
+            BsonDocument query = Query.gt("k", 10);
             var expected = "{ \"k\" : { \"$gt\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestGreaterThanAndLessThan() {
-            BsonDocument query = Query.Element("k").gt(10).lt(20);
+            BsonDocument query = Query.gt("k", 10).lt(20);
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$lt\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestGreaterThanAndLessThanOrEqual() {
-            BsonDocument query = Query.Element("k").gt(10).lte(20);
+            BsonDocument query = Query.gt("k", 10).lte(20);
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$lte\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestGreaterThanAndMod() {
-            BsonDocument query = Query.Element("k").gt(10).mod(10, 1);
+            BsonDocument query = Query.gt("k", 10).mod(10, 1);
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$mod\" : [10, 1] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestGreaterThanOrEqual() {
-            BsonDocument query = Query.Element("k").gte(10);
+            BsonDocument query = Query.gte("k", 10);
             var expected = "{ \"k\" : { \"$gte\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestGreaterThanOrEqualAndLessThan() {
-            BsonDocument query = Query.Element("k").gte(10).lt(20);
+            BsonDocument query = Query.gte("k", 10).lt(20);
             var expected = "{ \"k\" : { \"$gte\" : 10, \"$lt\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestGreaterThanOrEqualAndLessThanOrEqual() {
-            BsonDocument query = Query.Element("k").gte(10).lte(20);
+            BsonDocument query = Query.gte("k", 10).lte(20);
             var expected = "{ \"k\" : { \"$gte\" : 10, \"$lte\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestIn() {
-            //BsonDocument query = Query.Element("j").In(new BsonArray { 2, 4, 6 });
-            BsonDocument query = Query.Element("j").@in(2, 4, 6);
+            //BsonDocument query = Query.@in("j", new BsonArray { 2, 4, 6 });
+            BsonDocument query = Query.@in("j", 2, 4, 6);
             var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestLessThan() {
-            BsonDocument query = Query.Element("k").lt(10);
+            BsonDocument query = Query.lt("k", 10);
             var expected = "{ \"k\" : { \"$lt\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestLessThanOrEqual() {
-            BsonDocument query = Query.Element("k").lte(10);
+            BsonDocument query = Query.lte("k", 10);
             var expected = "{ \"k\" : { \"$lte\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestLessThanOrEqualAndNotEquals() {
-            BsonDocument query = Query.Element("k").lte(10).ne(5);
+            BsonDocument query = Query.lte("k", 10).ne(5);
             var expected = "{ \"k\" : { \"$lte\" : 10, \"$ne\" : 5 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestLessThanOrEqualAndNotIn() {
-            BsonDocument query = Query.Element("k").lte(20).nin(7, 11);
+            BsonDocument query = Query.lte("k", 20).nin(7, 11);
             var expected = "{ \"k\" : { \"$lte\" : 20, \"$nin\" : [7, 11] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestMod() {
-            BsonDocument query = Query.Element("a").mod(10, 1);
+            BsonDocument query = Query.mod("a", 10, 1);
             var expected = "{ \"a\" : { \"$mod\" : [10, 1] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -179,10 +179,10 @@ namespace MongoDB.CSharpDriver.Tests {
         [Test]
         public void TestNestedOr() {
             BsonDocument query = Query.and(
-                Query.Element("name").eq("bob"),
+                Query.eq("name", "bob"),
                 Query.or(
-                    Query.Element("a").eq(1),
-                    Query.Element("b").eq(2)
+                    Query.eq("a", 1),
+                    Query.eq("b", 2)
                 )
             );
             var expected = "{ \"name\" : \"bob\", \"$or\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
@@ -191,7 +191,7 @@ namespace MongoDB.CSharpDriver.Tests {
 
         [Test]
         public void TestNotEquals() {
-            BsonDocument query = Query.Element("j").ne(3);
+            BsonDocument query = Query.ne("j", 3);
             var expected = "{ \"j\" : { \"$ne\" : 3 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -199,8 +199,8 @@ namespace MongoDB.CSharpDriver.Tests {
         [Test]
         public void TestOr() {
             BsonDocument query = Query.or(
-                Query.Element("a").eq(1),
-                Query.Element("b").eq(2)
+                Query.eq("a", 1),
+                Query.eq("b", 2)
             );
             var expected = "{ \"$or\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
             Assert.AreEqual(expected, query.ToJson());
@@ -208,7 +208,7 @@ namespace MongoDB.CSharpDriver.Tests {
 
         [Test]
         public void TestRegex() {
-            BsonDocument query = Query.Element("name").regex(new BsonRegularExpression("acme.*corp", "i"));
+            BsonDocument query = Query.matches("name", new BsonRegularExpression("acme.*corp", "i"));
             var expected = "{ \"name\" : /acme.*corp/i }";
             BsonJsonWriterSettings settings = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -216,22 +216,31 @@ namespace MongoDB.CSharpDriver.Tests {
         }
 
         [Test]
+        public void TestNotRegex() {
+            BsonDocument query = Query.not("name").matches(new BsonRegularExpression("acme.*corp", "i"));
+            var expected = "{ \"name\" : { \"$not\" : /acme.*corp/i } }";
+            BsonJsonWriterSettings settings = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
         public void TestSize() {
-            BsonDocument query = Query.Element("k").size(20);
+            BsonDocument query = Query.size("k", 20);
             var expected = "{ \"k\" : { \"$size\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestSizeAndAll() {
-            BsonDocument query = Query.Element("k").size(20).all(7, 11);
+            BsonDocument query = Query.size("k", 20).all(7, 11);
             var expected = "{ \"k\" : { \"$size\" : 20, \"$all\" : [7, 11] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
         public void TestType() {
-            BsonDocument query = Query.Element("a").type(BsonType.String);
+            BsonDocument query = Query.type("a", BsonType.String);
             var expected = "{ \"a\" : { \"$type\" : 2 } }";
             Assert.AreEqual(expected, query.ToJson());
         }

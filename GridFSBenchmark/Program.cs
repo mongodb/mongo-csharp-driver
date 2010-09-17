@@ -38,7 +38,7 @@ namespace MongoDBGridFSTest {
             Thread.Sleep(TimeSpan.FromSeconds(1)); // give a chance to start other instances
             Console.WriteLine("Starting");
 
-            int iterations = 400;
+            int iterations = 100;
             DateTime start = DateTime.UtcNow;
             for (int i = 0; i < iterations; i++) {
                 // gridFS.Delete("06 Headstrong.mp3");

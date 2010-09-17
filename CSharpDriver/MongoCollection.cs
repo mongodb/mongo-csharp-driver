@@ -647,7 +647,7 @@ namespace MongoDB.CSharpDriver {
             BsonDocument document,
             SafeMode safeMode
         ) {
-            BsonValue id = document["_id"];
+            BsonValue id = document["_id", null];
             if (id == null) {
                 id = BsonObjectId.GenerateNewId();
                 document["_id"] = id; // TODO: do we need to make sure it's the first element?

@@ -334,7 +334,7 @@ namespace MongoDB.CSharpDriver {
                         { "n", n },
                         { "data", new BsonBinaryData(data) }
                     };
-                    chunks.Insert(chunk, safeMode); // TODO: need a channel to communicate to BsonBinaryWriter to start with a really big buffer
+                    chunks.Insert(chunk, safeMode);
 
                     if (bytesRead < chunkSize) {
                         break;

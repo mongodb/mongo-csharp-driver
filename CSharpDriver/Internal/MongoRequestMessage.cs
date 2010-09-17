@@ -48,7 +48,7 @@ namespace MongoDB.CSharpDriver.Internal {
         #endregion
 
         #region public propertieds
-        public BsonBuffer BsonBuffer {
+        public BsonBuffer Buffer {
             get { return buffer; }
         }
         #endregion

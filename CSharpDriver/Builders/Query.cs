@@ -23,48 +23,175 @@ using MongoDB.BsonLibrary;
 namespace MongoDB.CSharpDriver.Builders {
     public static class Query {
         #region public static methods
-        public static QueryBuilder and(
-            params QueryBuilder[] queries
+        public static QueryConditionList all(
+            string name,
+            BsonArray array
+        ) {
+            return new QueryConditionList(name, "$all", array);
+        }
+
+        public static QueryConditionList all(
+            string name,
+            params BsonValue[] values
+        ) {
+            return new QueryConditionList(name, "$all", new BsonArray((IEnumerable<BsonValue>) values));
+        }
+
+        public static QueryComplete and(
+            params QueryComplete[] queries
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
                 document.Add(query.Document);
             }
-            return new QueryBuilder(document);
+            return new QueryComplete(document);
         }
 
-        public static QueryBuilder.ElementStart Element(
+        public static QueryConditionList elemMatch(
+            string name,
+            QueryComplete query
+        ) {
+            return new QueryConditionList(name, "$elemMatch", query.Document);
+        }
+
+        public static QueryComplete eq(
+            string name,
+            BsonValue value
+        ) {
+            return new QueryComplete(new BsonDocument(name, value));
+        }
+
+        public static QueryConditionList exists(
+            string name,
+            bool value
+        ) {
+            return new QueryConditionList(name, "$exists", BsonBoolean.Create(value));
+        }
+
+        public static QueryConditionList gt(
+            string name,
+            BsonValue value
+        ) {
+            return new QueryConditionList(name, "$gt", value);
+        }
+
+        public static QueryConditionList gte(
+            string name,
+            BsonValue value
+        ) {
+            return new QueryConditionList(name, "$gte", value);
+        }
+
+        public static QueryConditionList @in(
+            string name,
+            BsonArray value
+        ) {
+            return new QueryConditionList(name, "$in", value);
+        }
+
+        public static QueryConditionList @in(
+            string name,
+            params BsonValue[] values
+        ) {
+            return new QueryConditionList(name, "$in", new BsonArray((IEnumerable<BsonValue>) values));
+        }
+
+        public static QueryConditionList lt(
+            string name,
+            BsonValue value
+        ) {
+            return new QueryConditionList(name, "$lt", value);
+        }
+
+        public static QueryConditionList lte(
+            string name,
+            BsonValue value
+        ) {
+            return new QueryConditionList(name, "$lte", value);
+        }
+
+        public static QueryComplete matches(
+            string name,
+            BsonRegularExpression regex
+        ) {
+            return new QueryComplete(new BsonDocument(name, regex));
+        }
+
+        public static QueryConditionList mod(
+            string name,
+            int modulus,
+            int equals
+        ) {
+            return new QueryConditionList(name, "$mod", new BsonArray { modulus, equals });
+        }
+
+        public static QueryConditionList ne(
+            string name,
+            BsonValue value
+        ) {
+            return new QueryConditionList(name, "$ne", value);
+        }
+
+        public static QueryConditionList nin(
+            string name,
+            BsonArray array
+        ) {
+            return new QueryConditionList(name, "$nin", array);
+        }
+
+        public static QueryConditionList nin(
+            string name,
+            params BsonValue[] values
+        ) {
+            return new QueryConditionList(name, "$nin", new BsonArray((IEnumerable<BsonValue>) values));
+        }
+
+        public static QueryNot not(
             string name
         ) {
-            return new QueryBuilder.ElementStart(name);
+            return new QueryNot(name);
         }
 
-        public static QueryBuilder or(
-            params QueryBuilder[] queries
+        public static QueryComplete or(
+            params QueryComplete[] queries
         ) {
-            var document = new BsonDocument("$or", new BsonArray());
+            var array = new BsonArray();
             foreach (var query in queries) {
-                document[0].AsBsonArray.Add(query.Document);
+                array.Add(query.Document);
             }
-            return new QueryBuilder(document);
+            var document = new BsonDocument("$or", array);
+            return new QueryComplete(document);
         }
 
-        public static QueryBuilder where(
+        public static QueryConditionList size(
+            string name,
+            int size
+        ) {
+            return new QueryConditionList(name, "$size", size);
+        }
+
+        public static QueryConditionList type(
+            string name,
+            BsonType type
+        ) {
+            return new QueryConditionList(name, "$type", (int) type);
+        }
+
+        public static QueryComplete where(
             BsonJavaScript javaScript
         ) {
-            var document = new BsonDocument("$where", javaScript);
-            return new QueryBuilder(document);
+            return new QueryComplete(new BsonDocument("$where", javaScript));
         }
         #endregion
     }
 
-    public class QueryBuilder {
+    public abstract class QueryBase {
         #region private fields
         protected BsonDocument document;
         #endregion
 
         #region constructors
-        public QueryBuilder(
+        protected QueryBase(
             BsonDocument document
         ) {
             this.document = document;
@@ -76,165 +203,405 @@ namespace MongoDB.CSharpDriver.Builders {
             get { return document; }
         }
         #endregion
+    }
+
+    public class QueryComplete : QueryBase {
+        #region constructors
+        public QueryComplete(
+            BsonDocument document
+        )
+            : base(document) {
+        }
+        #endregion
 
         #region public operators
         public static implicit operator BsonDocument(
-            QueryBuilder builder
+            QueryComplete builder
         ) {
             return builder.document;
         }
         #endregion
+    }
 
-        #region nested classes
-        public class Element : QueryBuilder {
-            #region constructors
-            public Element(
-                BsonDocument document
-            )
-                : base(document) {
-            }
-            #endregion
+    public class QueryConditionList : QueryComplete {
+        #region private fields
+        private BsonDocument conditions;
+        #endregion
 
-            #region public methods
-            public Element all(
-                BsonArray array
-            ) {
-                document[0].AsBsonDocument.Add("$all", array);
-                return this;
-            }
+        #region constructors
+        public QueryConditionList(
+            string name,
+            string op,
+            BsonValue value
+        )
+            : base(new BsonDocument(name, new BsonDocument(op, value))) {
+            conditions = document[0].AsBsonDocument;
+        }
+        #endregion
 
-            public Element all(
-                params BsonValue[] values
-            ) {
-                document[0].AsBsonDocument.Add("$all", new BsonArray((IEnumerable<BsonValue>) values));
-                return this;
-            }
-
-            public Element elemMatch(
-                QueryBuilder query
-            ) {
-                document[0].AsBsonDocument.Add("$elemMatch", query.Document);
-                return this;
-            }
-
-            public Element exists(
-                bool value
-            ) {
-                document[0].AsBsonDocument.Add("$exists", BsonBoolean.Create(value));
-                return this;
-            }
-
-            public Element gt(
-                BsonValue value
-            ) {
-                document[0].AsBsonDocument.Add("$gt", value);
-                return this;
-            }
-
-            public Element gte(
-                BsonValue value
-            ) {
-                document[0].AsBsonDocument.Add("$gte", value);
-                return this;
-            }
-
-            public Element @in(
-                BsonArray array
-            ) {
-                document[0].AsBsonDocument.Add("$in", array);
-                return this;
-            }
-
-            public Element @in(
-                params BsonValue[] values
-            ) {
-                document[0].AsBsonDocument.Add("$in", new BsonArray((IEnumerable<BsonValue>) values));
-                return this;
-            }
-
-            public Element lt(
-                BsonValue value
-            ) {
-                document[0].AsBsonDocument.Add("$lt", value);
-                return this;
-            }
-
-            public Element lte(
-                BsonValue value
-            ) {
-                document[0].AsBsonDocument.Add("$lte", value);
-                return this;
-            }
-
-            public Element mod(
-                int modulus,
-                int equals
-            ) {
-                document[0].AsBsonDocument.Add("$mod", new BsonArray { modulus, equals });
-                return this;
-            }
-
-            public Element ne(
-                BsonValue value
-            ) {
-                document[0].AsBsonDocument.Add("$ne", value);
-                return this;
-            }
-
-            public Element nin(
-                BsonArray array
-            ) {
-                document[0].AsBsonDocument.Add("$nin", array);
-                return this;
-            }
-
-            public Element nin(
-                params BsonValue[] values
-            ) {
-                document[0].AsBsonDocument.Add("$nin", new BsonArray((IEnumerable<BsonValue>) values));
-                return this;
-            }
-
-            public Element size(
-                int size
-            ) {
-                document[0].AsBsonDocument.Add("$size", size);
-                return this;
-            }
-
-            public Element type(
-                BsonType type
-            ) {
-                document[0].AsBsonDocument.Add("$type", (int) type);
-                return this;
-            }
-            #endregion
+        #region public methods
+        public QueryConditionList all(
+            BsonArray array
+        ) {
+            conditions.Add("$all", array);
+            return this;
         }
 
-        public class ElementStart : Element {
-            #region constructors
-            public ElementStart(
-                string name
-            )
-                : base(new BsonDocument(name, new BsonDocument())) {
-            }
-            #endregion
+        public QueryConditionList all(
+            params BsonValue[] values
+        ) {
+            conditions.Add("$all", new BsonArray((IEnumerable<BsonValue>) values));
+            return this;
+        }
 
-            #region public methods
-            public QueryBuilder eq(
-                BsonValue value
-            ) {
-                document[0] = value;
-                return this;
-            }
+        public QueryConditionList elemMatch(
+            QueryComplete query
+        ) {
+            conditions.Add("$elemMatch", query.Document);
+            return this;
+        }
 
-            public QueryBuilder regex(
-               BsonRegularExpression value
-           ) {
-                document[0] = value;
-                return this;
-            }
-            #endregion
+        public QueryConditionList exists(
+            bool value
+        ) {
+            conditions.Add("$exists", BsonBoolean.Create(value));
+            return this;
+        }
+
+        public QueryConditionList gt(
+            BsonValue value
+        ) {
+            conditions.Add("$gt", value);
+            return this;
+        }
+
+        public QueryConditionList gte(
+            BsonValue value
+        ) {
+            conditions.Add("$gte", value);
+            return this;
+        }
+
+        public QueryConditionList @in(
+            BsonArray array
+        ) {
+            conditions.Add("$in", array);
+            return this;
+        }
+
+        public QueryConditionList @in(
+            params BsonValue[] values
+        ) {
+            conditions.Add("$in", new BsonArray((IEnumerable<BsonValue>) values));
+            return this;
+        }
+
+        public QueryConditionList lt(
+            BsonValue value
+        ) {
+            conditions.Add("$lt", value);
+            return this;
+        }
+
+        public QueryConditionList lte(
+            BsonValue value
+        ) {
+            conditions.Add("$lte", value);
+            return this;
+        }
+
+        public QueryConditionList mod(
+            int modulus,
+            int equals
+        ) {
+            conditions.Add("$mod", new BsonArray { modulus, equals });
+            return this;
+        }
+
+        public QueryConditionList ne(
+            BsonValue value
+        ) {
+            conditions.Add("$ne", value);
+            return this;
+        }
+
+        public QueryConditionList nin(
+            BsonArray array
+        ) {
+            conditions.Add("$nin", array);
+            return this;
+        }
+
+        public QueryConditionList nin(
+            params BsonValue[] values
+        ) {
+            conditions.Add("$nin", new BsonArray((IEnumerable<BsonValue>) values));
+            return this;
+        }
+
+        public QueryConditionList size(
+            int size
+        ) {
+            conditions.Add("$size", size);
+            return this;
+        }
+
+        public QueryConditionList type(
+            BsonType type
+        ) {
+            conditions.Add("$type", (int) type);
+            return this;
+        }
+        #endregion
+    }
+
+    public class QueryNot {
+        #region private fields
+        private string name;
+        #endregion
+
+        #region constructors
+        public QueryNot(
+            string name
+        ) {
+            this.name = name;
+        }
+        #endregion
+
+        #region public methods
+        public QueryNotConditionList all(
+            BsonArray array
+        ) {
+            return new QueryNotConditionList(name, "$all", array);
+        }
+
+        public QueryNotConditionList all(
+            params BsonValue[] values
+        ) {
+            return new QueryNotConditionList(name, "$all", new BsonArray((IEnumerable<BsonValue>) values));
+        }
+
+        public QueryNotConditionList elemMatch(
+            QueryComplete query
+        ) {
+            return new QueryNotConditionList(name, "$elemMatch", query.Document);
+        }
+
+        public QueryNotConditionList exists(
+            bool value
+        ) {
+            return new QueryNotConditionList(name, "$exists", BsonBoolean.Create(value));
+        }
+
+        public QueryNotConditionList gt(
+            BsonValue value
+        ) {
+            return new QueryNotConditionList(name, "$gt", value);
+        }
+
+        public QueryNotConditionList gte(
+            BsonValue value
+        ) {
+            return new QueryNotConditionList(name, "$gte", value);
+        }
+
+        public QueryNotConditionList @in(
+            BsonArray array
+        ) {
+            return new QueryNotConditionList(name, "$in", array);
+        }
+
+        public QueryNotConditionList @in(
+            params BsonValue[] values
+        ) {
+            return new QueryNotConditionList(name, "$in", new BsonArray((IEnumerable<BsonValue>) values));
+        }
+
+        public QueryNotConditionList mod(
+            int modulus,
+            int equals
+        ) {
+            return new QueryNotConditionList(name, "$mod", new BsonArray { modulus, equals });
+        }
+
+        public QueryNotConditionList ne(
+            BsonValue value
+        ) {
+            return new QueryNotConditionList(name, "$ne", value);
+        }
+
+        public QueryNotConditionList nin(
+            BsonArray array
+        ) {
+            return new QueryNotConditionList(name, "nin", array);
+        }
+
+        public QueryNotConditionList nin(
+            params BsonValue[] values
+        ) {
+            return new QueryNotConditionList(name, "nin", new BsonArray((IEnumerable<BsonValue>) values));
+        }
+
+        public QueryNotConditionList lt(
+            BsonValue value
+        ) {
+            return new QueryNotConditionList(name, "$lt", value);
+        }
+
+        public QueryNotConditionList lte(
+            BsonValue value
+        ) {
+            return new QueryNotConditionList(name, "$lte", value);
+        }
+
+        public QueryComplete matches(
+            BsonRegularExpression regex
+        ) {
+            return new QueryComplete(new BsonDocument(name, new BsonDocument("$not", regex)));
+        }
+
+        public QueryNotConditionList size(
+            BsonValue value
+        ) {
+            return new QueryNotConditionList(name, "$size", value);
+        }
+
+        public QueryNotConditionList type(
+            BsonType type
+        ) {
+            return new QueryNotConditionList(name, "$type", (int) type);
+        }
+        #endregion
+    }
+
+    public class QueryNotConditionList : QueryComplete {
+        #region private fields
+        private BsonDocument conditions;
+        #endregion
+
+        #region constructors
+        public QueryNotConditionList(
+            string name,
+            string op,
+            BsonValue value
+        )
+            : base(new BsonDocument(name, new BsonDocument("$not", new BsonDocument(op, value)))) {
+            conditions = document[0].AsBsonDocument[0].AsBsonDocument;
+        }
+        #endregion
+
+        #region public methods
+        public QueryNotConditionList all(
+            BsonArray array
+        ) {
+            conditions.Add("$all", array);
+            return this;
+        }
+
+        public QueryNotConditionList all(
+            params BsonValue[] values
+        ) {
+            conditions.Add("$all", new BsonArray((IEnumerable<BsonValue>) values));
+            return this;
+        }
+
+        public QueryNotConditionList elemMatch(
+            QueryComplete query
+        ) {
+            conditions.Add("$elemMatch", query.Document);
+            return this;
+        }
+
+        public QueryNotConditionList exists(
+            bool value
+        ) {
+            conditions.Add("$exists", BsonBoolean.Create(value));
+            return this;
+        }
+
+        public QueryNotConditionList gt(
+            BsonValue value
+        ) {
+            conditions.Add("$gt", value);
+            return this;
+        }
+
+        public QueryNotConditionList gte(
+            BsonValue value
+        ) {
+            conditions.Add("$gte", value);
+            return this;
+        }
+
+        public QueryNotConditionList @in(
+            BsonArray array
+        ) {
+            conditions.Add("$in", array);
+            return this;
+        }
+
+        public QueryNotConditionList @in(
+            params BsonValue[] values
+        ) {
+            conditions.Add("$in", new BsonArray((IEnumerable<BsonValue>) values));
+            return this;
+        }
+
+        public QueryNotConditionList lt(
+            BsonValue value
+        ) {
+            conditions.Add("$lt", value);
+            return this;
+        }
+
+        public QueryNotConditionList lte(
+            BsonValue value
+        ) {
+            conditions.Add("$lte", value);
+            return this;
+        }
+
+        public QueryNotConditionList mod(
+            int modulus,
+            int equals
+        ) {
+            conditions.Add("$mod", new BsonArray { modulus, equals });
+            return this;
+        }
+
+        public QueryNotConditionList ne(
+            BsonValue value
+        ) {
+            conditions.Add("$ne", value);
+            return this;
+        }
+
+        public QueryNotConditionList nin(
+            BsonArray array
+        ) {
+            conditions.Add("$nin", array);
+            return this;
+        }
+
+        public QueryNotConditionList nin(
+            params BsonValue[] values
+        ) {
+            conditions.Add("$nin", new BsonArray((IEnumerable<BsonValue>) values));
+            return this;
+        }
+
+        public QueryNotConditionList size(
+            int size
+        ) {
+            conditions.Add("$size", size);
+            return this;
+        }
+
+        public QueryNotConditionList type(
+            BsonType type
+        ) {
+            conditions.Add("$type", (int) type);
+            return this;
         }
         #endregion
     }

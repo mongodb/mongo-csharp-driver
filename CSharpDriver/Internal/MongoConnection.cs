@@ -311,7 +311,7 @@ namespace MongoDB.CSharpDriver.Internal {
                             1, // numberToReturn
                             command,
                             null, // fields
-                            message.BsonBuffer // piggy back on network transmission for message
+                            message.Buffer // piggy back on network transmission for message
                         )
                     ) {
                         getLastErrorMessage.WriteToBuffer();
@@ -320,7 +320,7 @@ namespace MongoDB.CSharpDriver.Internal {
 
                 try {
                     NetworkStream networkStream = tcpClient.GetStream();
-                    message.BsonBuffer.WriteTo(networkStream);
+                    message.Buffer.WriteTo(networkStream);
                     messageCounter++;
                 } catch (SocketException ex) {
                     HandleSocketException(ex);
