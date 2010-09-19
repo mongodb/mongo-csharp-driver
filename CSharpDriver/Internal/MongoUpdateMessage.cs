@@ -53,8 +53,8 @@ namespace MongoDB.CSharpDriver.Internal {
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
             query.WriteTo(bsonWriter);
-            BsonSerializer serializer = new BsonSerializer(typeof(U));
-            serializer.WriteObject(bsonWriter, update);
+            BsonSerializer serializer = new BsonSerializer();
+            serializer.Serialize(bsonWriter, update);
         }
         #endregion
     }

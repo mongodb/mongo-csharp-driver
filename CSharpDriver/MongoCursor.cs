@@ -388,7 +388,7 @@ namespace MongoDB.CSharpDriver {
                             cursor.fields
                         )
                     ) {
-                        return SendMessage(message);
+                        return GetReply(message);
                     }
                 } catch {
                     try { ReleaseConnection(); } catch { } // ignore exceptions
@@ -415,7 +415,7 @@ namespace MongoDB.CSharpDriver {
                             openCursorId
                         )
                     ) {
-                        return SendMessage(message);
+                        return GetReply(message);
                     }
                 } catch {
                     try { ReleaseConnection(); } catch { } // ignore exceptions
@@ -423,7 +423,7 @@ namespace MongoDB.CSharpDriver {
                 }
             }
 
-            private MongoReplyMessage<R> SendMessage(
+            private MongoReplyMessage<R> GetReply(
                 MongoRequestMessage message
             ) {
                 connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries

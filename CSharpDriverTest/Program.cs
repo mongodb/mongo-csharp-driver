@@ -54,18 +54,19 @@ namespace MongoDB.MongoDBClientTest {
             }
 #endif
 
-#if false
+#if true
             // test connection string pointing to database with default credentials
             {
                 string connectionString = "mongodb://localhost/test";
                 var database = MongoDatabase.Create(connectionString);
+                database.Server.Connect(TimeSpan.FromMinutes(3)); // time to debug
                 var collection = database.GetCollection<BsonDocument>("books");
                 //var fields = new BsonDocument {
                 //    { "author", 1 },
                 //    { "_id", 0 }
                 //};
                 var fields = Fields.Include("author", "title").Exclude("_id").Slice("comments", 20, 10);
-                foreach (var document in collection.FindAll(fields).Skip(0).Limit(2)) {
+                foreach (var document in collection.Find(new BsonDocument(), fields).Skip(0).Limit(2)) {
                     Console.WriteLine(document.ToJson());
                 }
             }
@@ -268,7 +269,7 @@ namespace MongoDB.MongoDBClientTest {
             }
 #endif
 
-#if true
+#if false
             // test sending replSetInitiate to brand new replica set
             string connectionString1 = "mongodb://kilimanjaro:10002"; // arbitrarily chose 2nd member to send init command to
             var server = MongoServer.Create(connectionString1);
