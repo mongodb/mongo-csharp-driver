@@ -20,6 +20,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.IO;
 using MongoDB.CSharpDriver;
 using MongoDB.CSharpDriver.Builders;
 

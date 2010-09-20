@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.CSharpDriver.Internal {
     internal abstract class MongoMessage {
@@ -58,12 +59,12 @@ namespace MongoDB.CSharpDriver.Internal {
 
         #region protected methods
         protected void ReadMessageHeaderFrom(
-            BinaryReader binaryReader
+            BsonBuffer buffer
         ) {
-            messageLength = binaryReader.ReadInt32();
-            requestId = binaryReader.ReadInt32();
-            responseTo = binaryReader.ReadInt32();
-            if ((MessageOpcode) binaryReader.ReadInt32() != opcode) {
+            messageLength = buffer.ReadInt32();
+            requestId = buffer.ReadInt32();
+            responseTo = buffer.ReadInt32();
+            if ((MessageOpcode) buffer.ReadInt32() != opcode) {
                 throw new MongoException("Message header opcode was not the expected one");
             }
         }

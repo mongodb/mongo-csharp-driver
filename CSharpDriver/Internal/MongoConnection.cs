@@ -21,6 +21,7 @@ using System.Net.Sockets;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoConnection {
@@ -277,15 +278,15 @@ namespace MongoDB.CSharpDriver.Internal {
         internal MongoReplyMessage<R> ReceiveMessage<R>() where R : new() {
             if (closed) { throw new MongoException("Connection is closed"); }
             lock (connectionLock) {
-                byte[] bytes;
+                BsonBuffer buffer = new BsonBuffer();
                 try {
-                    bytes = ReadMessageBytes();
+                    buffer.LoadFrom(tcpClient.GetStream());
                 } catch (SocketException ex) {
                     HandleSocketException(ex);
                     throw;
                 }
                 var reply = new MongoReplyMessage<R>();
-                reply.ReadFrom(bytes);
+                reply.ReadFrom(buffer);
                 return reply;
             }
         }
@@ -364,29 +365,6 @@ namespace MongoDB.CSharpDriver.Internal {
                     connectionPool.Server.Disconnect();
                 } catch { } // ignore any further exceptions
             }
-        }
-
-        private byte[] ReadMessageBytes() {
-            NetworkStream networkStream = tcpClient.GetStream();
-            byte[] messageLengthBytes = new byte[4];
-            networkStream.Read(messageLengthBytes, 0, 4);
-            BinaryReader binaryReader = new BinaryReader(new MemoryStream(messageLengthBytes));
-            int messageLength = binaryReader.ReadInt32();
-
-            // create reply buffer and copy message length bytes to it
-            byte[] reply = new byte[messageLength];
-            Buffer.BlockCopy(messageLengthBytes, 0, reply, 0, 4);
-
-            // keep reading until entire reply has been received
-            int offset = 4;
-            int remaining = messageLength - 4;
-            while (remaining > 0) {
-                int bytesRead = networkStream.Read(reply, offset, remaining);
-                offset += bytesRead;
-                remaining -= bytesRead;
-            }
-
-            return reply;
         }
         #endregion
 

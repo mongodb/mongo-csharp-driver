@@ -27,26 +27,20 @@ namespace MongoDB.CSharpDriver.Builders {
         public static FieldsBuilder Exclude(
             params string[] names
         ) {
-            var builder = new FieldsBuilder();
-            builder.Exclude(names);
-            return builder;
+            return new FieldsBuilder().Exclude(names);
         }
 
         public static FieldsBuilder Include(
             params string[] names
         ) {
-            var builder = new FieldsBuilder();
-            builder.Include(names);
-            return builder;
+            return new FieldsBuilder().Include(names);
         }
 
         public static FieldsBuilder Slice(
             string name,
             int size // negative sizes are from the end
         ) {
-            var builder = new FieldsBuilder();
-            builder.Slice(name, size);
-            return builder;
+            return new FieldsBuilder().Slice(name, size);
         }
 
         public static FieldsBuilder Slice(
@@ -54,9 +48,7 @@ namespace MongoDB.CSharpDriver.Builders {
             int skip,
             int limit
         ) {
-            var builder = new FieldsBuilder();
-            builder.Slice(name, skip, limit);
-            return builder;
+            return new FieldsBuilder().Slice(name, skip, limit);
         }
         #endregion
     }

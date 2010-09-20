@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoReplyMessage<R> : MongoMessage where R : new() {
@@ -61,22 +62,20 @@ namespace MongoDB.CSharpDriver.Internal {
 
         #region internal methods
         internal void ReadFrom(
-            byte[] bytes
+            BsonBuffer buffer
         ) {
-            MemoryStream memoryStream = new MemoryStream(bytes);
-            BinaryReader binaryReader = new BinaryReader(memoryStream);
-            long messageStartPosition = binaryReader.BaseStream.Position;
+            var messageStartPosition = buffer.Position;
 
-            ReadMessageHeaderFrom(binaryReader);
-            responseFlags = (ResponseFlags) binaryReader.ReadInt32();
-            cursorId = binaryReader.ReadInt64();
-            startingFrom = binaryReader.ReadInt32();
-            numberReturned = binaryReader.ReadInt32();
+            ReadMessageHeaderFrom(buffer);
+            responseFlags = (ResponseFlags) buffer.ReadInt32();
+            cursorId = buffer.ReadInt64();
+            startingFrom = buffer.ReadInt32();
+            numberReturned = buffer.ReadInt32();
             documents = new List<R>();
 
-            BsonReader bsonReader = BsonReader.Create(binaryReader);
+            BsonReader bsonReader = BsonReader.Create(buffer);
             BsonSerializer serializer = new BsonSerializer();
-            while (binaryReader.BaseStream.Position - messageStartPosition < messageLength) {
+            while (buffer.Position - messageStartPosition < messageLength) {
                 R document = (R) serializer.Deserialize(bsonReader, typeof(R));
                 documents.Add(document);
             }

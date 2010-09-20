@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoDeleteMessage : MongoRequestMessage {
