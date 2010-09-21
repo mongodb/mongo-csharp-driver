@@ -48,9 +48,9 @@ namespace MongoDB.CSharpDriver.Internal {
 
         #region protected methods
         protected override void WriteBody() {
-            buffer.Write((int) 0); // reserved
+            buffer.WriteInt32(0); // reserved
             buffer.WriteCString(collectionFullName);
-            buffer.Write((int) flags);
+            buffer.WriteInt32((int) flags);
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
             query.WriteTo(bsonWriter);

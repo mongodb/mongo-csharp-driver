@@ -38,10 +38,10 @@ namespace MongoDB.CSharpDriver.Internal {
 
         #region protected methods
         protected override void WriteBody() {
-            buffer.Write((int) 0); // reserved
-            buffer.Write(cursorIds.Length);
+            buffer.WriteInt32(0); // reserved
+            buffer.WriteInt32(cursorIds.Length);
             foreach (long cursorId in cursorIds) {
-                buffer.Write(cursorId);
+                buffer.WriteInt64(cursorId);
             }
         }
         #endregion

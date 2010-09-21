@@ -64,14 +64,14 @@ namespace MongoDB.CSharpDriver.Internal {
             byte[] lastDocument // as returned by RemoveLastDocument
         ) {
             buffer.Position = firstDocumentStartPosition;
-            buffer.Write(lastDocument);
+            buffer.WriteByteArray(lastDocument);
             BackpatchMessageLength();
         }
         #endregion
 
         #region protected methods
         protected override void WriteBody() {
-            buffer.Write((int) 0); // reserved
+            buffer.WriteInt32(0); // reserved
             buffer.WriteCString(collectionFullName);
             firstDocumentStartPosition = buffer.Position;
             // documents to be added later by calling AddDocument

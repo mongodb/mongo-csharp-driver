@@ -44,10 +44,10 @@ namespace MongoDB.CSharpDriver.Internal {
 
         #region protected methods
         protected override void WriteBody() {
-            buffer.Write((int) 0); // reserved
+            buffer.WriteInt32(0); // reserved
             buffer.WriteCString(collectionFullName);
-            buffer.Write(numberToReturn);
-            buffer.Write(cursorId);
+            buffer.WriteInt32(numberToReturn);
+            buffer.WriteInt64(cursorId);
         }
         #endregion
     }

@@ -66,10 +66,10 @@ namespace MongoDB.CSharpDriver.Internal {
 
         #region protected methods
         protected override void WriteBody() {
-            buffer.Write((int) flags);
+            buffer.WriteInt32((int) flags);
             buffer.WriteCString(collectionFullName);
-            buffer.Write(numberToSkip);
-            buffer.Write(numberToReturn);
+            buffer.WriteInt32(numberToSkip);
+            buffer.WriteInt32(numberToReturn);
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
             if (query == null) {

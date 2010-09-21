@@ -72,10 +72,10 @@ namespace MongoDB.CSharpDriver.Internal {
         protected void WriteMessageHeaderTo(
             BsonBuffer buffer
         ) {
-            buffer.Write(0); // messageLength will be backpatched later
-            buffer.Write(requestId);
-            buffer.Write(0); // responseTo not used in requests sent by client
-            buffer.Write((int) opcode);
+            buffer.WriteInt32(0); // messageLength will be backpatched later
+            buffer.WriteInt32(requestId);
+            buffer.WriteInt32(0); // responseTo not used in requests sent by client
+            buffer.WriteInt32((int) opcode);
         }
         #endregion
     }
