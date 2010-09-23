@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.IO;
 using MongoDB.CSharpDriver;
 
 namespace MongoDB.CSharpDriver.Builders {
@@ -53,7 +54,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
-    public class FieldsBuilder {
+    public class FieldsBuilder : BuilderBase, IBsonSerializable {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -106,6 +107,21 @@ namespace MongoDB.CSharpDriver.Builders {
         ) {
             document.Add(name, new BsonDocument("$slice", new BsonArray { skip, limit }));
             return this;
+        }
+        #endregion
+
+        #region explicit interface implementations
+        void IBsonSerializable.Deserialize(
+            BsonReader bsonReader
+        ) {
+            throw new MongoException("Deserialize is not supported for FieldsBuilder");
+        }
+
+        void IBsonSerializable.Serialize(
+            BsonWriter bsonWriter,
+            bool serializeIdFirst
+        ) {
+            document.Serialize(bsonWriter, serializeIdFirst);
         }
         #endregion
     }

@@ -65,8 +65,9 @@ namespace MongoDB.MongoDBClientTest {
                 //    { "author", 1 },
                 //    { "_id", 0 }
                 //};
+                var query = new { author = "Tolkien" };
                 var fields = Fields.Include("author", "title").Exclude("_id").Slice("comments", 20, 10);
-                foreach (var document in collection.Find(new BsonDocument(), fields).Skip(0).Limit(2)) {
+                foreach (var document in collection.Find(query).Fields(fields).Skip(0).Limit(2)) {
                     Console.WriteLine(document.ToJson());
                 }
             }

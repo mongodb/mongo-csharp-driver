@@ -23,11 +23,11 @@ using MongoDB.BsonLibrary;
 using MongoDB.CSharpDriver.Internal;
 
 namespace MongoDB.CSharpDriver {
-    public class MongoCursor<R> : IEnumerable<R> where R : new() {
+    public class MongoCursor<Q, R> : IEnumerable<R> where R : new() {
         #region private fields
         private MongoCollection collection;
-        private BsonDocument query;
-        private BsonDocument fields;
+        private Q query;
+        private BsonDocumentWrapper fields;
         private BsonDocument options;
         private QueryFlags flags;
         private int skip;
@@ -39,12 +39,10 @@ namespace MongoDB.CSharpDriver {
         #region constructors
         internal MongoCursor(
             MongoCollection collection,
-            BsonDocument query,
-            BsonDocument fields
+            Q query
         ) {
             this.collection = collection;
             this.query = query;
-            this.fields = fields;
 
             if (collection.Database.Server.SlaveOk) {
                 this.flags |= QueryFlags.SlaveOk;
@@ -59,7 +57,7 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public MongoCursor<R> AddOption(
+        public MongoCursor<Q, R> AddOption(
             string name,
             BsonValue value
         ) {
@@ -69,7 +67,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<R> BatchSize(
+        public MongoCursor<Q, R> BatchSize(
             int batchSize
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -78,8 +76,8 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<RNew> Clone<RNew>() where RNew : new() {
-            var clone = new MongoCursor<RNew>(collection, query, fields);
+        public MongoCursor<Q, RNew> Clone<RNew>() where RNew : new() {
+            var clone = new MongoCursor<Q, RNew>(collection, query);
             clone.options = options == null ? null : (BsonDocument) options.Clone();
             clone.flags = flags;
             clone.skip = skip;
@@ -92,7 +90,7 @@ namespace MongoDB.CSharpDriver {
             frozen = true;
             var command = new BsonDocument {
                 { "count", collection.Name },
-                { "query", query ?? new BsonDocument() },
+                { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = collection.Database.RunCommand(command);
             return result["n"].ToInt32();
@@ -130,15 +128,23 @@ namespace MongoDB.CSharpDriver {
             return explanation;
         }
 
-        public MongoCursor<R> Fields(
-            BsonDocument fields
+        public MongoCursor<Q, R> Fields<F>(
+            F fields
         ) {
             if (frozen) { ThrowFrozen(); }
-            this.fields = fields;
+            this.fields = BsonDocumentWrapper.Create(fields);
             return this;
         }
 
-        public MongoCursor<R> Flags(
+        public MongoCursor<Q, R> Fields<F>(
+            params string[] fields
+        ) {
+            if (frozen) { ThrowFrozen(); }
+            this.fields = BsonDocumentWrapper.Create(Builders.Fields.Include(fields));
+            return this;
+        }
+
+        public MongoCursor<Q, R> Flags(
             QueryFlags flags
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -151,7 +157,7 @@ namespace MongoDB.CSharpDriver {
             return new MongoCursorEnumerator(this);
         }
 
-        public MongoCursor<R> Hint(
+        public MongoCursor<Q, R> Hint(
             BsonDocument hint
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -159,7 +165,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<R> Limit(
+        public MongoCursor<Q, R> Limit(
             int limit
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -167,7 +173,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<R> Max(
+        public MongoCursor<Q, R> Max(
            BsonDocument max
        ) {
             if (frozen) { ThrowFrozen(); }
@@ -175,7 +181,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<R> MaxScan(
+        public MongoCursor<Q, R> MaxScan(
             int maxScan
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -183,7 +189,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<R> Min(
+        public MongoCursor<Q, R> Min(
            BsonDocument min
        ) {
             if (frozen) { ThrowFrozen(); }
@@ -191,7 +197,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<R> Options(
+        public MongoCursor<Q, R> Options(
             BsonDocument options
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -203,7 +209,7 @@ namespace MongoDB.CSharpDriver {
             frozen = true;
             var command = new BsonDocument {
                 { "count", collection.Name },
-                { "query", query ?? new BsonDocument() },
+                { "query", BsonDocumentWrapper.Create(query) }, // query is optional
                 { limit != 0, "limit", limit },
                 { skip != 0, "skip", skip }
             };
@@ -211,13 +217,13 @@ namespace MongoDB.CSharpDriver {
             return result["n"].ToInt32();
         }
 
-        public MongoCursor<R> ShowDiskLoc() {
+        public MongoCursor<Q, R> ShowDiskLoc() {
             if (frozen) { ThrowFrozen(); }
             AddOption("$showDiskLoc", true);
             return this;
         }
 
-        public MongoCursor<R> Skip(
+        public MongoCursor<Q, R> Skip(
             int skip
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -226,13 +232,13 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<R> Snapshot() {
+        public MongoCursor<Q, R> Snapshot() {
             if (frozen) { ThrowFrozen(); }
             AddOption("$snapshot", true);
             return this;
         }
 
-        public MongoCursor<R> Sort(
+        public MongoCursor<Q, R> Sort(
             BsonDocument orderBy
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -240,7 +246,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<R> Sort(
+        public MongoCursor<Q, R> Sort(
             params string[] keys
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -268,7 +274,7 @@ namespace MongoDB.CSharpDriver {
             private bool disposed = false;
             private bool started = false;
             private bool done = false;
-            private MongoCursor<R> cursor;
+            private MongoCursor<Q, R> cursor;
             private MongoConnection connection;
             private int count;
             private int positiveLimit;
@@ -279,7 +285,7 @@ namespace MongoDB.CSharpDriver {
 
             #region constructors
             public MongoCursorEnumerator(
-                MongoCursor<R> cursor
+                MongoCursor<Q, R> cursor
             ) {
                 this.cursor = cursor;
                 this.positiveLimit = cursor.limit >= 0 ? cursor.limit : -cursor.limit;
@@ -379,7 +385,7 @@ namespace MongoDB.CSharpDriver {
                     }
 
                     using (
-                        var message = new MongoQueryMessage(
+                        var message = new MongoQueryMessage<BsonDocumentWrapper>(
                             cursor.Collection.FullName,
                             cursor.flags,
                             cursor.skip,
@@ -455,13 +461,14 @@ namespace MongoDB.CSharpDriver {
                 }
             }
 
-            private BsonDocument WrapQuery() {
+            private BsonDocumentWrapper WrapQuery() {
                 if (cursor.options == null) {
-                    return cursor.query;
+                    return BsonDocumentWrapper.Create(cursor.query);
                 } else {
-                    var wrappedQuery = new BsonDocument("$query", cursor.query ?? new BsonDocument());
+                    var query = (cursor.query == null) ? (BsonValue) new BsonDocument() : BsonDocumentWrapper.Create(cursor.query);
+                    var wrappedQuery = new BsonDocument("$query", query);
                     wrappedQuery.Merge(cursor.options);
-                    return wrappedQuery;
+                    return BsonDocumentWrapper.Create(wrappedQuery);
                 }
             }
             #endregion

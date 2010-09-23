@@ -75,7 +75,7 @@ namespace MongoDB.CSharpDriver.Internal {
             lock (connectionLock) {
                 var nonceCommand = new BsonDocument("getnonce", 1);
                 using (
-                    var nonceMessage = new MongoQueryMessage(
+                    var nonceMessage = new MongoQueryMessage<BsonDocument>(
                         string.Format("{0}.$cmd", databaseName), // collectionFullName
                         QueryFlags.None,
                         0, // numberToSkip
@@ -102,7 +102,7 @@ namespace MongoDB.CSharpDriver.Internal {
                     { "key", digest }
                 };
                 using (
-                    var authenticateMessage = new MongoQueryMessage(
+                    var authenticateMessage = new MongoQueryMessage<BsonDocument>(
                         string.Format("{0}.$cmd", databaseName), // collectionFullName
                         QueryFlags.None,
                         0, // numberToSkip
@@ -254,7 +254,7 @@ namespace MongoDB.CSharpDriver.Internal {
             lock (connectionLock) {
                 var logoutCommand = new BsonDocument("logout", 1);
                 using (
-                    var logoutMessage = new MongoQueryMessage(
+                    var logoutMessage = new MongoQueryMessage<BsonDocument>(
                         string.Format("{0}.$cmd", databaseName), // collectionFullName
                         QueryFlags.None,
                         0, // numberToSkip
@@ -305,7 +305,7 @@ namespace MongoDB.CSharpDriver.Internal {
                         { safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero, "wtimeout", (int) safeMode.Timeout.TotalMilliseconds }
                     };
                     using (
-                        var getLastErrorMessage = new MongoQueryMessage(
+                        var getLastErrorMessage = new MongoQueryMessage<BsonDocument>(
                             "admin.$cmd", // collectionFullName
                             QueryFlags.None,
                             0, // numberToSkip

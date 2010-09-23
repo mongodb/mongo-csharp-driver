@@ -383,7 +383,7 @@ namespace MongoDB.CSharpDriver {
                 try {
                     var command = new BsonDocument("ismaster", 1);
                     using (
-                        var message = new MongoQueryMessage(
+                        var message = new MongoQueryMessage<BsonDocument>(
                             "admin.$cmd",
                             QueryFlags.SlaveOk,
                             0, // numberToSkip

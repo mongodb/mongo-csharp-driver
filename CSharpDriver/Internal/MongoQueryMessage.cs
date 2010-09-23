@@ -23,14 +23,14 @@ using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoQueryMessage : MongoRequestMessage {
+    internal class MongoQueryMessage<Q> : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
         private QueryFlags flags;
         private int numberToSkip;
         private int numberToReturn;
-        private BsonDocument query;
-        private BsonDocument fields;
+        private Q query;
+        private BsonDocumentWrapper fields;
         #endregion
 
         #region constructors
@@ -39,8 +39,8 @@ namespace MongoDB.CSharpDriver.Internal {
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
-            BsonDocument query,
-            BsonDocument fields
+            Q query,
+            BsonDocumentWrapper fields
         ) :
             this(collectionFullName, flags, numberToSkip, numberToReturn, query, fields, null) {
         }
@@ -50,8 +50,8 @@ namespace MongoDB.CSharpDriver.Internal {
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
-            BsonDocument query,
-            BsonDocument fields,
+            Q query,
+            BsonDocumentWrapper fields,
             BsonBuffer buffer
         ) :
             base(MessageOpcode.Query, buffer) {
@@ -72,14 +72,15 @@ namespace MongoDB.CSharpDriver.Internal {
             buffer.WriteInt32(numberToReturn);
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
+            BsonSerializer serializer = new BsonSerializer();
             if (query == null) {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
             } else {
-                query.WriteTo(bsonWriter);
+                serializer.Serialize(bsonWriter, query, true); // serializeIdFirst
             }
             if (fields != null) {
-                fields.WriteTo(bsonWriter);
+                serializer.Serialize(bsonWriter, fields, false); // don't serializeIdFirst
             }
         }
         #endregion

@@ -71,15 +71,15 @@ namespace MongoDB.CSharpDriver {
 
         #region public methods
         public int Count() {
-            return Count(null);
+            return Count<BsonDocument>(null);
         }
 
-        public int Count(
-            BsonDocument query
+        public int Count<Q>(
+            Q query
         ) {
-            BsonDocument command = new BsonDocument {
+            var command = new BsonDocument {
                 { "count", name },
-                { "query", query ?? new BsonDocument() }
+                { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
             return result["n"].ToInt32();
@@ -144,17 +144,18 @@ namespace MongoDB.CSharpDriver {
         public IEnumerable<BsonValue> Distinct(
             string key
         ) {
-            return Distinct(key, null);
+            BsonDocument query = null;
+            return Distinct(key, query);
         }
 
-        public IEnumerable<BsonValue> Distinct(
+        public IEnumerable<BsonValue> Distinct<Q>(
             string key,
-            BsonDocument query
+            Q query
         ) {
             var command = new BsonDocument {
                 { "distinct", name },
                 { "key", key },
-                { "query", query }
+                { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
             return result["values"].AsBsonArray;
@@ -254,91 +255,63 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public MongoCursor<R> Find<R>(
-            BsonDocument query
+        public MongoCursor<Q, R> Find<Q, R>(
+            Q query
         ) where R : new() {
-            BsonDocument fields = null;
-            return Find<R>(query, fields);
+            return new MongoCursor<Q, R>(this, query);
         }
 
-        public MongoCursor<R> Find<R>(
-            BsonDocument query,
-            BsonDocument fields
-        ) where R : new() {
-            return new MongoCursor<R>(this, query, fields);
-        }
-
-        public MongoCursor<R> Find<R>(
-            BsonJavaScript where
-        ) where R : new() {
-            var query = new BsonDocument("$where", where);
-            return Find<R>(query);
-        }
-
-        public MongoCursor<R> Find<R>(
-            BsonJavaScript where,
-            BsonDocument fields
-        ) where R : new() {
-            var query = new BsonDocument("$where", where);
-            return Find<R>(query, fields);
-        }
-
-        public MongoCursor<R> FindAll<R>() where R : new() {
+        public MongoCursor<BsonDocument, R> FindAll<R>() where R : new() {
             BsonDocument query = null;
-            return Find<R>(query);
+            return Find<BsonDocument, R>(query);
         }
 
-        public MongoCursor<R> FindAll<R>(
-            BsonDocument fields
-        ) where R : new() {
-            BsonDocument query = null;
-            return Find<R>(query, fields);
-        }
-
-        public BsonDocument FindAndModify(
-            BsonDocument query,
-            BsonDocument sort,
-            BsonDocument update
+        public BsonDocument FindAndModify<Q, S, U>(
+            Q query,
+            S sort,
+            U update
         ) {
-            return FindAndModify(query, sort, update, null, false);
+            BsonDocument fields = null;
+            return FindAndModify(query, sort, update, fields, false);
         }
 
-        public BsonDocument FindAndModify(
-            BsonDocument query,
-            BsonDocument sort,
-            BsonDocument update,
+        public BsonDocument FindAndModify<Q, S, U>(
+            Q query,
+            S sort,
+            U update,
             bool returnNew
         ) {
-            return FindAndModify(query, sort, update, null, returnNew);
+            BsonDocument fields = null;
+            return FindAndModify(query, sort, update, fields, returnNew);
         }
 
-        public BsonDocument FindAndModify(
-            BsonDocument query,
-            BsonDocument sort,
-            BsonDocument update,
-            BsonDocument fields,
+        public BsonDocument FindAndModify<Q, S, U, F>(
+            Q query,
+            S sort,
+            U update,
+            F fields,
             bool returnNew
         ) {
             var command = new BsonDocument {
                 { "findAndModify", name },
-                { "query", query },
-                { "sort", sort },
-                { "update", update },
-                { "fields", fields },
+                { "query", BsonDocumentWrapper.Create(query) },
+                { "sort", BsonDocumentWrapper.Create(sort) },
+                { "update", BsonDocumentWrapper.Create(update) },
+                { "fields", BsonDocumentWrapper.Create(fields) },
                 { returnNew, "new", true }
             };
             var result = database.RunCommand(command);
             return result["value"].AsBsonDocument;
         }
 
-        public BsonDocument FindAndRemove(
-            BsonDocument query,
-            BsonDocument sort
+        public BsonDocument FindAndRemove<Q, S>(
+            Q query,
+            S sort
         ) {
             var command = new BsonDocument {
                 { "findAndModify", name },
-                { "query", query },
-                { "sort", sort },
+                { "query", BsonDocumentWrapper.Create(query) },
+                { "sort", BsonDocumentWrapper.Create(sort) },
                 { "remove", true }
             };
             var result = database.RunCommand(command);
@@ -349,30 +322,10 @@ namespace MongoDB.CSharpDriver {
             return FindAll<R>().Limit(1).FirstOrDefault();
         }
 
-        public R FindOne<R>(
-            BsonDocument query
+        public R FindOne<Q, R>(
+            Q query
         ) where R : new() {
-            return Find<R>(query).Limit(1).FirstOrDefault();
-        }
-
-        public R FindOne<R>(
-            BsonDocument query,
-            BsonDocument fields
-        ) where R : new() {
-            return Find<R>(query, fields).Limit(1).FirstOrDefault();
-        }
-
-        public R FindOne<R>(
-            BsonJavaScript where
-        ) where R : new() {
-            return Find<R>(where).Limit(1).FirstOrDefault();
-        }
-
-        public R FindOne<R>(
-            BsonJavaScript where,
-            BsonDocument fields
-        ) where R : new() {
-            return Find<R>(where, fields).Limit(1).FirstOrDefault();
+            return Find<Q, R>(query).Limit(1).FirstOrDefault();
         }
 
         public IEnumerable<BsonDocument> GetIndexes() {
@@ -386,11 +339,12 @@ namespace MongoDB.CSharpDriver {
             BsonDocument initial,
             BsonJavaScript reduce
         ) {
-            return Group(null, keys, initial, reduce, null);
+            BsonDocument query = null;
+            return Group(query, keys, initial, reduce, null);
         }
 
-        public IEnumerable<BsonDocument> Group(
-            BsonDocument query,
+        public IEnumerable<BsonDocument> Group<Q>(
+            Q query,
             BsonDocument keys,
             BsonDocument initial,
             BsonJavaScript reduce
@@ -398,8 +352,8 @@ namespace MongoDB.CSharpDriver {
             return Group(query, keys, initial, reduce, null);
         }
 
-        public IEnumerable<BsonDocument> Group(
-            BsonDocument query,
+        public IEnumerable<BsonDocument> Group<Q>(
+            Q query,
             BsonDocument keys,
             BsonDocument initial,
             BsonJavaScript reduce,
@@ -409,7 +363,7 @@ namespace MongoDB.CSharpDriver {
                 { "group",
                     new BsonDocument {
                         { "ns", name },
-                        { "cond", query },
+                        { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
                         { "key", keys },
                         { "initial", initial },
                         { "$reduce", reduce },
@@ -421,8 +375,8 @@ namespace MongoDB.CSharpDriver {
             return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
-        public IEnumerable<BsonDocument> Group(
-            BsonDocument query,
+        public IEnumerable<BsonDocument> Group<Q>(
+            Q query,
             BsonJavaScript keyf,
             BsonDocument initial,
             BsonJavaScript reduce,
@@ -432,7 +386,7 @@ namespace MongoDB.CSharpDriver {
                 { "group",
                     new BsonDocument {
                         { "ns", name },
-                        { "cond", query },
+                        { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
                         { "$keyf", keyf },
                         { "initial", initial },
                         { "$reduce", reduce },
@@ -449,8 +403,9 @@ namespace MongoDB.CSharpDriver {
             BsonDocument initial,
             BsonJavaScript reduce
         ) {
+            BsonDocument query = null;
             var keys = new BsonDocument(key, 1);
-            return Group(null, keys, initial, reduce, null);
+            return Group(query, keys, initial, reduce, null);
         }
 
         // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
@@ -527,16 +482,16 @@ namespace MongoDB.CSharpDriver {
             throw new NotImplementedException();
         }
 
-        public MongoMapReduceResult MapReduce(
-            BsonDocument query,
+        public MongoMapReduceResult MapReduce<Q>(
+            Q query,
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
             return MapReduce(query, map, reduce, null, null);
         }
 
-        public MongoMapReduceResult MapReduce(
-            BsonDocument query,
+        public MongoMapReduceResult MapReduce<Q>(
+            Q query,
             BsonJavaScript map,
             BsonJavaScript reduce,
             BsonJavaScript finalize
@@ -544,8 +499,8 @@ namespace MongoDB.CSharpDriver {
             return MapReduce(query, map, reduce, finalize, null);
         }
 
-        public MongoMapReduceResult MapReduce(
-            BsonDocument query,
+        public MongoMapReduceResult MapReduce<Q>(
+            Q query,
             BsonJavaScript map,
             BsonJavaScript reduce,
             BsonJavaScript finalize,
@@ -553,7 +508,7 @@ namespace MongoDB.CSharpDriver {
         ) {
             var command = new BsonDocument {
                 { "mapreduce", name },
-                { "query", query },
+                { "query", BsonDocumentWrapper.Create(query) }, // query is optional
                 { "map", map },
                 { "reduce", reduce }
             };
@@ -566,7 +521,8 @@ namespace MongoDB.CSharpDriver {
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
-            return MapReduce(null, map, reduce, null, null);
+            BsonDocument query = null;
+            return MapReduce(query, map, reduce, null, null);
         }
 
         public MongoMapReduceResult MapReduce(
@@ -574,44 +530,55 @@ namespace MongoDB.CSharpDriver {
             BsonJavaScript reduce,
             BsonJavaScript finalize
         ) {
-            return MapReduce(null, map, reduce, finalize, null);
+            BsonDocument query = null;
+            return MapReduce(query, map, reduce, finalize, null);
         }
 
         public void ReIndex() {
             throw new NotImplementedException();
         }
 
-        public BsonDocument Remove(
-            BsonDocument query
+        public BsonDocument Remove<Q>(
+            Q query
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public BsonDocument Remove(
-            BsonDocument query,
+        public BsonDocument Remove<Q>(
+            Q query,
             SafeMode safeMode
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public BsonDocument Remove(
-            BsonDocument query,
+        public BsonDocument Remove<Q>(
+            Q query,
             RemoveFlags flags
         ) {
             return Remove(query, flags, safeMode);
         }
 
-        public BsonDocument Remove(
-           BsonDocument query,
+        public BsonDocument Remove<Q>(
+           Q query,
            RemoveFlags flags,
            SafeMode safeMode
         ) {
             // special case for query on _id
-            if (query != null && query.Count == 1 && query.GetElement(0).Name == "_id" && query[0].BsonType == BsonType.ObjectId) {
-                flags |= RemoveFlags.Single;
+            // TODO: find _id even when type is not BsonDocument
+            if (query != null) {
+                BsonDocument queryBsonDocument = query as BsonDocument;
+                if (queryBsonDocument != null) {
+                    if (
+                        queryBsonDocument.Count == 1 &&
+                        queryBsonDocument.GetElement(0).Name == "_id" &&
+                        queryBsonDocument[0].BsonType == BsonType.ObjectId
+                    ) {
+                        flags |= RemoveFlags.Single;
+                    }
+                }
             }
 
-            using (var message = new MongoDeleteMessage(FullName, flags, query)) {
+            using (var message = new MongoDeleteMessage<Q>(FullName, flags, query)) {
                 var connection = database.GetConnection();
                 var lastError = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
@@ -620,13 +587,15 @@ namespace MongoDB.CSharpDriver {
         }
 
         public BsonDocument RemoveAll() {
-            return Remove(null, RemoveFlags.None, safeMode);
+            BsonDocument query = null;
+            return Remove(query, RemoveFlags.None, safeMode);
         }
 
         public BsonDocument RemoveAll(
            SafeMode safeMode
         ) {
-            return Remove(null, RemoveFlags.None, safeMode);
+            BsonDocument query = null;
+            return Remove(query, RemoveFlags.None, safeMode);
         }
 
         public void ResetIndexCache() {
@@ -687,41 +656,44 @@ namespace MongoDB.CSharpDriver {
  	         return FullName;
         }
 
-        public BsonDocument Update<U>(
-            BsonDocument query,
+        public BsonDocument Update<Q, U>(
+            Q query,
             U update
         ) where U : new() {
-            return Update<U>(query, update, UpdateFlags.None, safeMode);
+            return Update(query, update, UpdateFlags.None, safeMode);
         }
 
-        public BsonDocument Update<U>(
-            BsonDocument query,
+        public BsonDocument Update<Q, U>(
+            Q query,
             U update,
             SafeMode safeMode
         ) where U : new() {
-            return Update<U>(query, update, UpdateFlags.None, safeMode);
+            return Update(query, update, UpdateFlags.None, safeMode);
         }
 
-        public BsonDocument Update<U>(
-            BsonDocument query,
+        public BsonDocument Update<Q, U>(
+            Q query,
             U update,
             UpdateFlags flags
         ) where U : new() {
-            return Update<U>(query, update, flags, safeMode);
+            return Update(query, update, flags, safeMode);
         }
 
-        public BsonDocument Update<U>(
-            BsonDocument query,
+        public BsonDocument Update<Q, U>(
+            Q query,
             U update,
             UpdateFlags flags,
             SafeMode safeMode
         ) where U : new() {
             // TODO: remove this sanity check or make it configurable?
-            if (query.Any(e => e.Name.StartsWith("$"))) {
-                throw new BsonException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
+            var queryBsonDocument = query as BsonDocument;
+            if (queryBsonDocument != null) {
+                if (queryBsonDocument.Any(e => e.Name.StartsWith("$"))) {
+                    throw new BsonException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
+                }
             }
 
-            using (var message = new MongoUpdateMessage<U>(FullName, flags, query, update)) {
+            using (var message = new MongoUpdateMessage<Q, U>(FullName, flags, query, update)) {
                 var connection = database.GetConnection();
                 var lastError = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
@@ -815,70 +787,24 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public MongoCursor<D> Find(
-            BsonDocument query
+        public MongoCursor<Q, D> Find<Q>(
+            Q query
         ) {
-            return Find<D>(query);
+            return Find<Q, D>(query);
         }
 
-        public MongoCursor<D> Find(
-            BsonDocument query,
-            BsonDocument fields
-        ) {
-            return Find<D>(query, fields);
-        }
-
-        public MongoCursor<D> Find(
-            string where
-        ) {
-            return Find<D>(where);
-        }
-
-        public MongoCursor<D> Find(
-            string where,
-            BsonDocument fields
-        ) {
-            return Find<D>(where, fields);
-        }
-
-        public MongoCursor<D> FindAll() {
+        public MongoCursor<BsonDocument, D> FindAll() {
             return FindAll<D>();
-        }
-
-        public MongoCursor<D> FindAll(
-            BsonDocument fields
-        ) {
-            return FindAll<D>(fields);
         }
 
         public D FindOne() {
             return FindOne<D>();
         }
 
-        public D FindOne(
-            BsonDocument query
+        public D FindOne<Q>(
+            Q query
         ) {
-            return FindOne<D>(query);
-        }
-
-        public D FindOne(
-            BsonDocument query,
-            BsonDocument fields
-        ) {
-            return FindOne<D>(query, fields);
-        }
-
-        public D FindOne(
-            string where
-        ) {
-            return FindOne<D>(where);
-        }
-
-        public D FindOne(
-            string where,
-            BsonDocument fields
-        ) {
-            return FindOne<D>(where, fields);
+            return FindOne<Q, D>(query);
         }
         #endregion
     }

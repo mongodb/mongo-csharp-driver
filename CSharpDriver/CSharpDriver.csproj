@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\Fields.cs" />
     <Compile Include="Builders\Query.cs" />
     <Compile Include="Builders\OrderBy.cs" />

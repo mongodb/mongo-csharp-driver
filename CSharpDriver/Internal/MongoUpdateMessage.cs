@@ -23,11 +23,11 @@ using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoUpdateMessage<U> : MongoRequestMessage where U : new() {
+    internal class MongoUpdateMessage<Q, U> : MongoRequestMessage where U : new() {
         #region private fields
         private string collectionFullName;
         private UpdateFlags flags;
-        private BsonDocument query;
+        private Q query;
         private U update;
         #endregion
 
@@ -35,7 +35,7 @@ namespace MongoDB.CSharpDriver.Internal {
         internal MongoUpdateMessage(
             string collectionFullName,
             UpdateFlags flags,
-            BsonDocument query,
+            Q query,
             U update
         ) :
             base(MessageOpcode.Update) {
@@ -53,9 +53,9 @@ namespace MongoDB.CSharpDriver.Internal {
             buffer.WriteInt32((int) flags);
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
-            query.WriteTo(bsonWriter);
             BsonSerializer serializer = new BsonSerializer();
-            serializer.Serialize(bsonWriter, update);
+            serializer.Serialize(bsonWriter, query, true); // serializeIdFirst
+            serializer.Serialize(bsonWriter, update, true); // serializeIdFirst
         }
         #endregion
     }

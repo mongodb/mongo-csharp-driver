@@ -278,17 +278,16 @@ namespace MongoDB.CSharpDriver {
 
         // TODO: mongo shell has ResetError at the database level
 
-        public BsonDocument RunCommand(
-            BsonDocument command
+        public BsonDocument RunCommand<C>(
+            C command
         ) {
             BsonDocument result = CommandCollection.FindOne(command);
             if (!result.Contains("ok")) {
                 throw new MongoException("ok element is missing");
             }
             if (!result["ok"].ToBoolean()) {
-                string commandName = (string) command.GetElement(0).Name;
                 string errmsg = result["errmsg"].AsString;
-                string errorMessage = string.Format("{0} failed ({1})", commandName, errmsg);
+                string errorMessage = string.Format("Command failed: {1}", errmsg);
                 throw new MongoException(errorMessage);
             }
             return result;

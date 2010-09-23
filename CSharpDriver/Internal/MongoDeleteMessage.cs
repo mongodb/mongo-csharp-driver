@@ -23,18 +23,18 @@ using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoDeleteMessage : MongoRequestMessage {
+    internal class MongoDeleteMessage<Q> : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
         private RemoveFlags flags;
-        private BsonDocument query;
+        private Q query;
         #endregion
 
         #region constructors
         internal MongoDeleteMessage(
             string collectionFullName,
             RemoveFlags flags,
-            BsonDocument query
+            Q query
         ) :
             base(MessageOpcode.Delete) {
             this.collectionFullName = collectionFullName;
@@ -50,11 +50,12 @@ namespace MongoDB.CSharpDriver.Internal {
             buffer.WriteInt32((int) flags);
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
+            BsonSerializer serializer = new BsonSerializer();
             if (query == null) {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
             } else {
-                query.WriteTo(bsonWriter);
+                serializer.Serialize(bsonWriter, query, true); // serializeIdFirst
             }
         }
         #endregion
