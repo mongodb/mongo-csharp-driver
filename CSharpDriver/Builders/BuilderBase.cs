@@ -21,6 +21,7 @@ using System.Text;
 
 using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Builders {
     public abstract class BuilderBase {
@@ -39,8 +40,7 @@ namespace MongoDB.CSharpDriver.Builders {
         ) {
             StringWriter stringWriter = new StringWriter();
             using (BsonWriter bsonWriter = BsonWriter.Create(stringWriter, settings)) {
-                BsonSerializer serializer = new BsonSerializer();
-                serializer.Serialize(bsonWriter, this, false); // don't serializeIdFirst
+                BsonSerializer.Serialize(bsonWriter, this, false); // don't serializeIdFirst
             }
             return stringWriter.ToString();
         }

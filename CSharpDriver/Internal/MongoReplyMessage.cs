@@ -21,6 +21,7 @@ using System.Text;
 
 using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoReplyMessage<R> : MongoMessage where R : new() {
@@ -74,9 +75,8 @@ namespace MongoDB.CSharpDriver.Internal {
             documents = new List<R>();
 
             BsonReader bsonReader = BsonReader.Create(buffer);
-            BsonSerializer serializer = new BsonSerializer();
             while (buffer.Position - messageStartPosition < messageLength) {
-                R document = (R) serializer.Deserialize(bsonReader, typeof(R));
+                R document = (R) BsonSerializer.Deserialize(bsonReader, typeof(R));
                 documents.Add(document);
             }
         }

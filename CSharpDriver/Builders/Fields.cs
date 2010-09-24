@@ -20,6 +20,7 @@ using System.Text;
 
 using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization;
 using MongoDB.CSharpDriver;
 
 namespace MongoDB.CSharpDriver.Builders {

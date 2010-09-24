@@ -21,6 +21,7 @@ using System.Text;
 
 using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoInsertMessage : MongoRequestMessage {
@@ -44,9 +45,8 @@ namespace MongoDB.CSharpDriver.Internal {
             I document
         ) {
             lastDocumentStartPosition = buffer.Position;
-            var serializer = new BsonSerializer();
             var bsonWriter = BsonWriter.Create(buffer);
-            serializer.Serialize(bsonWriter, document, true); // serializeIdFirst
+            BsonSerializer.Serialize(bsonWriter, document, true); // serializeIdFirst
             BackpatchMessageLength();
         }
 

@@ -21,6 +21,7 @@ using System.Text;
 
 using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
     internal class MongoDeleteMessage<Q> : MongoRequestMessage {
@@ -50,12 +51,11 @@ namespace MongoDB.CSharpDriver.Internal {
             buffer.WriteInt32((int) flags);
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
-            BsonSerializer serializer = new BsonSerializer();
             if (query == null) {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
             } else {
-                serializer.Serialize(bsonWriter, query, true); // serializeIdFirst
+                BsonSerializer.Serialize(bsonWriter, query, true); // serializeIdFirst
             }
         }
         #endregion
