@@ -3,11 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpDriver", "CSharpDriver\CSharpDriver.csproj", "{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpDriverTest", "CSharpDriverTest\CSharpDriverTest.csproj", "{4FC21822-317C-49BF-8B10-150BD9AADFDE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpDriverUnitTests", "CSharpDriverUnitTests\CSharpDriverUnitTests.csproj", "{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridFSBenchmark", "GridFSBenchmark\GridFSBenchmark.csproj", "{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,18 +15,10 @@ Global
 		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4FC21822-317C-49BF-8B10-150BD9AADFDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4FC21822-317C-49BF-8B10-150BD9AADFDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4FC21822-317C-49BF-8B10-150BD9AADFDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4FC21822-317C-49BF-8B10-150BD9AADFDE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EFE0C8E1-4240-45D4-9E7D-FC9AD9A0A292}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
