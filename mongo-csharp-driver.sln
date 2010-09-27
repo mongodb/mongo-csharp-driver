@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpDriver", "CSharpDrive
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpDriverUnitTests", "CSharpDriverUnitTests\CSharpDriverUnitTests.csproj", "{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CSharpDriverSetup", "CSharpDriverSetup\CSharpDriverSetup.vdproj", "{41D0BDEA-DF49-44B9-BB5F-BB58D02160DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,8 @@ Global
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41D0BDEA-DF49-44B9-BB5F-BB58D02160DA}.Debug|Any CPU.ActiveCfg = Debug
+		{41D0BDEA-DF49-44B9-BB5F-BB58D02160DA}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

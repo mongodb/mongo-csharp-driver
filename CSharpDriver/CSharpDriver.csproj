@@ -33,7 +33,7 @@
   <ItemGroup>
     <Reference Include="MongoDB.BsonLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\csharp-bson\BsonLibrary\bin\Debug\MongoDB.BsonLibrary.dll</HintPath>
+      <HintPath>..\..\csharp-bson\BsonLibrary\bin\$(ConfigurationName)\MongoDB.BsonLibrary.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
