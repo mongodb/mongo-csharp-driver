@@ -85,38 +85,40 @@ namespace MongoDB.CSharpDriver {
             return result["n"].ToInt32();
         }
 
-        public BsonDocument CreateIndex(
-            BsonDocument keys
+        public BsonDocument CreateIndex<K>(
+            K keys
         ) {
             BsonDocument options = null;
             return CreateIndex(keys, options);
         }
 
-        public BsonDocument CreateIndex(
-            BsonDocument keys,
-            BsonDocument options
+        public BsonDocument CreateIndex<K, O>(
+            K keys,
+            O options
         ) {
+            var keysDocument = BsonUtils.ToBsonDocument(keys);
+            var optionsDocument = options == null ? null : BsonUtils.ToBsonDocument(options);
             var indexes = database.GetCollection("system.indexes");
-            var indexName = (options != null && options.Contains("name")) ? options["name"].AsString : GetIndexName(keys);
+            var indexName = (optionsDocument != null && optionsDocument.Contains("name")) ? optionsDocument["name"].AsString : GetIndexName(keysDocument);
             var index = new BsonDocument {
                 { "name", indexName },
                 { "ns", FullName },
-                { "key", keys }
+                { "key", keysDocument }
             };
-            index.Merge(options);
+            index.Merge(optionsDocument);
             var result = indexes.Insert(index, SafeMode.True);
             return result;
         }
 
-        public BsonDocument CreateIndex(
-            BsonDocument keys,
+        public BsonDocument CreateIndex<K>(
+            K keys,
             string indexName
         ) {
             return CreateIndex(keys, indexName, false);
         }
 
-        public BsonDocument CreateIndex(
-            BsonDocument keys,
+        public BsonDocument CreateIndex<K>(
+            K keys,
             string indexName,
             bool unique
         ) {
@@ -165,10 +167,11 @@ namespace MongoDB.CSharpDriver {
             return DropIndex("*");
         }
 
-        public BsonDocument DropIndex(
-            BsonDocument keys
+        public BsonDocument DropIndex<K>(
+            K keys
         ) {
-            string indexName = GetIndexName(keys);
+            var keysDocument = BsonUtils.ToBsonDocument(keys);
+            string indexName = GetIndexName(keysDocument);
             return DropIndex(indexName);
         }
 
@@ -193,33 +196,35 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public void EnsureIndex(
-            BsonDocument keys
+        public void EnsureIndex<K>(
+            K keys
         ) {
             lock (indexCache) {
-                string indexName = GetIndexName(keys);
+                var keysDocument = BsonUtils.ToBsonDocument(keys);
+                string indexName = GetIndexName(keysDocument);
                 if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keys, indexName);
+                    CreateIndex(keysDocument, indexName);
                     indexCache.Add(indexName);
                 }
             }
         }
 
-        public void EnsureIndex(
-           BsonDocument keys,
-           BsonDocument options
+        public void EnsureIndex<K, O>(
+           K keys,
+           O options
         ) {
             lock (indexCache) {
-                string indexName = GetIndexName(keys);
+                var keysDocument = BsonUtils.ToBsonDocument(keys);
+                string indexName = GetIndexName(keysDocument);
                 if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keys, options);
+                    CreateIndex(keysDocument, options);
                     indexCache.Add(indexName);
                 }
             }
         }
 
-        public void EnsureIndex(
-            BsonDocument keys,
+        public void EnsureIndex<K>(
+            K keys,
             string indexName
         ) {
             lock (indexCache) {
@@ -230,8 +235,8 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public void EnsureIndex(
-           BsonDocument keys,
+        public void EnsureIndex<K>(
+           K keys,
            string indexName,
            bool unique
         ) {
@@ -604,26 +609,26 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public BsonDocument Save(
-            BsonDocument document
+        public BsonDocument Save<T>(
+            T document
         ) {
             return Save(document, safeMode);
         }
 
-        // only works with BsonDocuments for now
-        // reason: how do we find the _id value for an arbitrary class?
-        public BsonDocument Save(
-            BsonDocument document,
+        public BsonDocument Save<T>(
+            T document,
             SafeMode safeMode
         ) {
-            BsonValue id = document["_id", null];
+            // TODO: find a way to do this more efficiently without creating an intermediate BsonDocument
+            var bsonDocument = BsonUtils.ToBsonDocument(document);
+            BsonValue id = bsonDocument["_id", null];
             if (id == null) {
                 id = BsonObjectId.GenerateNewId();
-                document["_id"] = id; // TODO: do we need to make sure it's the first element?
+                bsonDocument.InsertAt(0, new BsonElement("_id", id));
                 return Insert(document, safeMode);
             } else {
                 var query = new BsonDocument("_id", id);
-                return Update(query, document, UpdateFlags.Upsert, safeMode);
+                return Update(query, bsonDocument, UpdateFlags.Upsert, safeMode);
             }
         }
 

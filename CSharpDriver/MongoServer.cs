@@ -303,8 +303,8 @@ namespace MongoDB.CSharpDriver {
             return AdminDatabase.RunCommand(command);
         }
 
-        public BsonDocument RunAdminCommand(
-            BsonDocument command
+        public BsonDocument RunAdminCommand<C>(
+            C command
         ) {
             return AdminDatabase.RunCommand(command);
         }

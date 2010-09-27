@@ -57,8 +57,8 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public void Delete(
-            BsonDocument query
+        public void Delete<Q>(
+            Q query
         ) {
             using (database.RequestStart()) {
                 var files = database.GetCollection(settings.FilesCollectionName);
@@ -84,16 +84,16 @@ namespace MongoDB.CSharpDriver {
             Delete(query);
         }
 
-        public void Download(
+        public void Download<Q>(
             Stream stream,
-            BsonDocument query
+            Q query
         ) {
             Download(stream, query, -1); // most recent version
         }
 
-        public void Download(
+        public void Download<Q>(
             Stream stream,
-            BsonDocument query,
+            Q query,
             int version
         ) {
             var fileInfo = FindOne(query, version);
@@ -163,16 +163,16 @@ namespace MongoDB.CSharpDriver {
             Download(fileName, fileName, version); // same local and remote file names
         }
 
-        public void Download(
+        public void Download<Q>(
             string localFileName,
-            BsonDocument query
+            Q query
         ) {
             Download(localFileName, query, -1); // most recent version
         }
 
-        public void Download(
+        public void Download<Q>(
             string localFileName,
-            BsonDocument query,
+            Q query,
             int version
         ) {
             using (Stream stream = File.Create(localFileName)) {
@@ -206,8 +206,8 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public bool Exists(
-            BsonDocument query
+        public bool Exists<Q>(
+            Q query
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
             return files.Count(query) > 0;
@@ -232,8 +232,8 @@ namespace MongoDB.CSharpDriver {
             return Find(query);
         }
 
-        public IEnumerable<MongoGridFSFileInfo> Find(
-            BsonDocument query
+        public IEnumerable<MongoGridFSFileInfo> Find<Q>(
+            Q query
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
             return files.Find(query).Select(d => new MongoGridFSFileInfo(this, d));
@@ -253,14 +253,14 @@ namespace MongoDB.CSharpDriver {
             return Find(query);
         }
 
-        public MongoGridFSFileInfo FindOne(
-            BsonDocument query
+        public MongoGridFSFileInfo FindOne<Q>(
+            Q query
         ) {
             return FindOne(query, -1); // most recent version
         }
 
-        public MongoGridFSFileInfo FindOne(
-            BsonDocument query,
+        public MongoGridFSFileInfo FindOne<Q>(
+            Q query,
             int version // 1 is oldest, -1 is newest, 0 is no sort
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
