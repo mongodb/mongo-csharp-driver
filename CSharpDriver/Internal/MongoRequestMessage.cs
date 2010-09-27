@@ -18,12 +18,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.CSharpDriver.Internal {
     internal abstract class MongoRequestMessage : MongoMessage, IDisposable {
+        #region private static fields
+        private static int lastRequestId = 0;
+        #endregion
+
         #region protected fields
         protected bool disposed = false;
         protected BsonBuffer buffer;
@@ -45,6 +50,7 @@ namespace MongoDB.CSharpDriver.Internal {
             : base(opcode) {
             this.buffer = buffer ?? new BsonBuffer();
             this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
+            this.requestId = Interlocked.Increment(ref lastRequestId);
         }
         #endregion
 
