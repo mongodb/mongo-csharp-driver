@@ -97,7 +97,7 @@ namespace MongoDB.CSharpDriver {
             O options
         ) {
             var keysDocument = BsonUtils.ToBsonDocument(keys);
-            var optionsDocument = options == null ? null : BsonUtils.ToBsonDocument(options);
+            var optionsDocument = BsonUtils.ToBsonDocument(options);
             var indexes = database.GetCollection("system.indexes");
             var indexName = (optionsDocument != null && optionsDocument.Contains("name")) ? optionsDocument["name"].AsString : GetIndexName(keysDocument);
             var index = new BsonDocument {
@@ -339,50 +339,31 @@ namespace MongoDB.CSharpDriver {
             return indexes.Find(query).ToList(); // force query to execute before returning
         }
 
-        public IEnumerable<BsonDocument> Group(
-            BsonDocument keys,
-            BsonDocument initial,
-            BsonJavaScript reduce
-        ) {
-            BsonDocument query = null;
-            return Group(query, keys, initial, reduce, null);
-        }
-
-        public IEnumerable<BsonDocument> Group<Q>(
+        public IEnumerable<BsonDocument> Group<K, Q>(
+            K keys,
             Q query,
-            BsonDocument keys,
-            BsonDocument initial,
-            BsonJavaScript reduce
-        ) {
-            return Group(query, keys, initial, reduce, null);
-        }
-
-        public IEnumerable<BsonDocument> Group<Q>(
-            Q query,
-            BsonDocument keys,
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
         ) {
+            var keysDocument = BsonUtils.ToBsonDocument(keys);
             var command = new BsonDocument {
-                { "group",
-                    new BsonDocument {
-                        { "ns", name },
-                        { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
-                        { "key", keys },
-                        { "initial", initial },
-                        { "$reduce", reduce },
-                        { "finalize", finalize }
-                    }
-                }
+                { "group", new BsonDocument {
+                    { "ns", name },
+                    { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
+                    { "key", keysDocument },
+                    { "initial", initial },
+                    { "$reduce", reduce },
+                    { "finalize", finalize }
+                } }
             };
             var result = database.RunCommand(command);
             return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group<Q>(
-            Q query,
             BsonJavaScript keyf,
+            Q query,
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
@@ -403,14 +384,15 @@ namespace MongoDB.CSharpDriver {
             return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
-        public IEnumerable<BsonDocument> Group(
+        public IEnumerable<BsonDocument> Group<Q>(
             string key,
+            Q query,
             BsonDocument initial,
-            BsonJavaScript reduce
+            BsonJavaScript reduce,
+            BsonJavaScript finalize
         ) {
-            BsonDocument query = null;
             var keys = new BsonDocument(key, 1);
-            return Group(query, keys, initial, reduce, null);
+            return Group(keys, query, initial, reduce, finalize);
         }
 
         // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
@@ -513,9 +495,9 @@ namespace MongoDB.CSharpDriver {
         ) {
             var command = new BsonDocument {
                 { "mapreduce", name },
-                { "query", BsonDocumentWrapper.Create(query) }, // query is optional
                 { "map", map },
-                { "reduce", reduce }
+                { "reduce", reduce },
+                { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             command.Merge(options);
             var result = database.RunCommand(command);
