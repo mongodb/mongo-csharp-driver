@@ -19,6 +19,8 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization;
 using MongoDB.CSharpDriver;
 
 namespace MongoDB.CSharpDriver.Builders {
@@ -42,7 +44,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
-    public class OrderByBuilder {
+    public class OrderByBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -50,14 +52,6 @@ namespace MongoDB.CSharpDriver.Builders {
         #region constructors
         public OrderByBuilder() {
             document = new BsonDocument();
-        }
-        #endregion
-
-        #region public operators
-        public static implicit operator BsonDocument(
-            OrderByBuilder builder
-        ) {
-            return builder.document;
         }
         #endregion
 
@@ -78,6 +72,25 @@ namespace MongoDB.CSharpDriver.Builders {
                 document.Add(name, -1);
             }
             return this;
+        }
+
+        public BsonDocument ToBsonDocument() {
+            return document;
+        }
+        #endregion
+
+        #region explicit interface implementations
+        void IBsonSerializable.Deserialize(
+            BsonReader bsonReader
+        ) {
+            throw new MongoException("Deserialize is not supported for OrderByBuilder");
+        }
+
+        void IBsonSerializable.Serialize(
+            BsonWriter bsonWriter,
+            bool serializeIdFirst
+        ) {
+            document.Serialize(bsonWriter, serializeIdFirst);
         }
         #endregion
     }

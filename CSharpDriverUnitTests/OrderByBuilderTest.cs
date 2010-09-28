@@ -28,56 +28,56 @@ namespace MongoDB.CSharpDriver.Tests {
     public class OrderByBuilderTests {
         [Test]
         public void TestAscending1() {
-            BsonDocument orderBy = OrderBy.Ascending("a");
+            var orderBy = OrderBy.Ascending("a");
             string expected = "{ \"a\" : 1 }";
             Assert.AreEqual(expected, orderBy.ToJson());
         }
 
         [Test]
         public void TestAscending2() {
-            BsonDocument orderBy = OrderBy.Ascending("a", "b");
+            var orderBy = OrderBy.Ascending("a", "b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, orderBy.ToJson());
         }
 
         [Test]
         public void TestAscendingAscending() {
-            BsonDocument orderBy = OrderBy.Ascending("a").Ascending("b");
+            var orderBy = OrderBy.Ascending("a").Ascending("b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, orderBy.ToJson());
         }
 
         [Test]
         public void TestAscendingDescending() {
-            BsonDocument orderBy = OrderBy.Ascending("a").Descending("b");
+            var orderBy = OrderBy.Ascending("a").Descending("b");
             string expected = "{ \"a\" : 1, \"b\" : -1 }";
             Assert.AreEqual(expected, orderBy.ToJson());
         }
 
         [Test]
         public void TestDescending1() {
-            BsonDocument orderBy = OrderBy.Descending("a");
+            var orderBy = OrderBy.Descending("a");
             string expected = "{ \"a\" : -1 }";
             Assert.AreEqual(expected, orderBy.ToJson());
         }
 
         [Test]
         public void TestDescending2() {
-            BsonDocument orderBy = OrderBy.Descending("a", "b");
+            var orderBy = OrderBy.Descending("a", "b");
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, orderBy.ToJson());
         }
 
         [Test]
         public void TestDescendingAscending() {
-            BsonDocument orderBy = OrderBy.Descending("a").Ascending("b");
+            var orderBy = OrderBy.Descending("a").Ascending("b");
             string expected = "{ \"a\" : -1, \"b\" : 1 }";
             Assert.AreEqual(expected, orderBy.ToJson());
         }
 
         [Test]
         public void TestDescendingDescending() {
-            BsonDocument orderBy = OrderBy.Descending("a").Descending("b");
+            var orderBy = OrderBy.Descending("a").Descending("b");
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, orderBy.ToJson());
         }

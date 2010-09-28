@@ -19,6 +19,8 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Builders {
     public static class Query {
@@ -42,7 +44,7 @@ namespace MongoDB.CSharpDriver.Builders {
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
-                document.Add(query.Document);
+                document.Add(query.ToBsonDocument());
             }
             return new QueryComplete(document);
         }
@@ -51,7 +53,7 @@ namespace MongoDB.CSharpDriver.Builders {
             string name,
             QueryComplete query
         ) {
-            return new QueryConditionList(name, "$elemMatch", query.Document);
+            return new QueryConditionList(name, "$elemMatch", query.ToBsonDocument());
         }
 
         public static QueryComplete eq(
@@ -157,7 +159,7 @@ namespace MongoDB.CSharpDriver.Builders {
         ) {
             var array = new BsonArray();
             foreach (var query in queries) {
-                array.Add(query.Document);
+                array.Add(query.ToBsonDocument());
             }
             var document = new BsonDocument("$or", array);
             return new QueryComplete(document);
@@ -185,40 +187,47 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
-    public abstract class QueryBase {
+    public abstract class QueryBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
         #region private fields
         protected BsonDocument document;
         #endregion
 
         #region constructors
-        protected QueryBase(
+        protected QueryBuilder(
             BsonDocument document
         ) {
             this.document = document;
         }
         #endregion
 
-        #region public properties
-        public BsonDocument Document {
-            get { return document; }
+        #region public methods
+        public BsonDocument ToBsonDocument() {
+            return document;
+        }
+        #endregion
+
+        #region explicit interface implementations
+        void IBsonSerializable.Deserialize(
+            BsonReader bsonReader
+        ) {
+            throw new MongoException("Deserialize is not supported for OrderByBuilder");
+        }
+
+        void IBsonSerializable.Serialize(
+            BsonWriter bsonWriter,
+            bool serializeIdFirst
+        ) {
+            document.Serialize(bsonWriter, serializeIdFirst);
         }
         #endregion
     }
 
-    public class QueryComplete : QueryBase {
+    public class QueryComplete : QueryBuilder {
         #region constructors
         public QueryComplete(
             BsonDocument document
         )
             : base(document) {
-        }
-        #endregion
-
-        #region public operators
-        public static implicit operator BsonDocument(
-            QueryComplete builder
-        ) {
-            return builder.document;
         }
         #endregion
     }
@@ -257,7 +266,7 @@ namespace MongoDB.CSharpDriver.Builders {
         public QueryConditionList elemMatch(
             QueryComplete query
         ) {
-            conditions.Add("$elemMatch", query.Document);
+            conditions.Add("$elemMatch", query.ToBsonDocument());
             return this;
         }
 
@@ -384,7 +393,7 @@ namespace MongoDB.CSharpDriver.Builders {
         public QueryNotConditionList elemMatch(
             QueryComplete query
         ) {
-            return new QueryNotConditionList(name, "$elemMatch", query.Document);
+            return new QueryNotConditionList(name, "$elemMatch", query.ToBsonDocument());
         }
 
         public QueryNotConditionList exists(
@@ -508,7 +517,7 @@ namespace MongoDB.CSharpDriver.Builders {
         public QueryNotConditionList elemMatch(
             QueryComplete query
         ) {
-            conditions.Add("$elemMatch", query.Document);
+            conditions.Add("$elemMatch", query.ToBsonDocument());
             return this;
         }
 

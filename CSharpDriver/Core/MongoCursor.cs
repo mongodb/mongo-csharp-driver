@@ -238,11 +238,11 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> Sort(
-            BsonDocument orderBy
+        public MongoCursor<Q, R> Sort<S>(
+            S orderBy
         ) {
             if (frozen) { ThrowFrozen(); }
-            AddOption("$orderby", orderBy);
+            AddOption("$orderby", BsonUtils.ToBsonDocument(orderBy));
             return this;
         }
 

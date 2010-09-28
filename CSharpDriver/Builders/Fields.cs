@@ -55,7 +55,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
-    public class FieldsBuilder : BuilderBase, IBsonSerializable {
+    public class FieldsBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -63,14 +63,6 @@ namespace MongoDB.CSharpDriver.Builders {
         #region constructors
         public FieldsBuilder() {
             document = new BsonDocument();
-        }
-        #endregion
-
-        #region public operators
-        public static implicit operator BsonDocument(
-            FieldsBuilder builder
-        ) {
-            return builder.document;
         }
         #endregion
 
@@ -108,6 +100,10 @@ namespace MongoDB.CSharpDriver.Builders {
         ) {
             document.Add(name, new BsonDocument("$slice", new BsonArray { skip, limit }));
             return this;
+        }
+
+        public BsonDocument ToBsonDocument() {
+            return document;
         }
         #endregion
 
