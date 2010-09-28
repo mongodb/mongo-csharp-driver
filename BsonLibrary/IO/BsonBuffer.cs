@@ -325,7 +325,7 @@ namespace MongoDB.BsonLibrary.IO {
             }
             byte terminator = ReadByte();
             if (terminator != 0) {
-                throw new BsonException("String is missing null terminator");
+                throw new FileFormatException("String is missing null terminator");
             }
             return value;
         }
@@ -369,7 +369,7 @@ namespace MongoDB.BsonLibrary.IO {
                 localPosition += chunkSize;
             }
 
-            throw new BsonException("String is missing null terminator");
+            throw new FileFormatException("String is missing null terminator");
         }
 
         public byte[] ToArray() {
@@ -557,7 +557,7 @@ namespace MongoDB.BsonLibrary.IO {
             int needed
         ) {
             if (length - position < needed) {
-                throw new BsonException("Not enough input bytes available");
+                throw new EndOfStreamException("Not enough input bytes available");
             }
         }
 

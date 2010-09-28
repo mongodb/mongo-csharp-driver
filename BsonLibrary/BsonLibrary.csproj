@@ -43,8 +43,13 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\BsonInternalException.cs" />
+    <Compile Include="Exceptions\BsonSerializationException.cs" />
     <Compile Include="ObjectModel\IBsonDocumentBuilder.cs" />
     <Compile Include="Serialization\BsonPropertySerializer.cs" />
     <Compile Include="ObjectModel\BsonArray.cs" />

@@ -133,7 +133,7 @@ namespace MongoDB.BsonLibrary {
             if (TryMapToBsonValue(value, out bsonValue)) {
                 return bsonValue;
             }
-            throw new BsonException(".NET type {0} cannot be mapped to a BsonValue", value.GetType().FullName);
+            throw new ArgumentException(".NET type {0} cannot be mapped to a BsonValue", value.GetType().FullName);
         }
 
         public static BsonValue MapToBsonValue(
@@ -141,7 +141,7 @@ namespace MongoDB.BsonLibrary {
             BsonType bsonType
         ) {
             if (value == null) {
-                throw new BsonException("Value to be mapped to BsonValue cannot be null");
+                throw new ArgumentNullException("value");
             }
 
             Conversion conversion; // the conversion (if it exists) that will convert value to bsonType
@@ -163,7 +163,8 @@ namespace MongoDB.BsonLibrary {
                     break;
             }
 
-            throw new BsonException(".NET type {0} cannot be mapped to BsonType.{1}", value.GetType().FullName, bsonType);
+            string message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}", value.GetType().FullName, bsonType);
+            throw new ArgumentException(message, "value");
         }
 
         public static bool TryMapToBsonValue(
@@ -270,7 +271,7 @@ namespace MongoDB.BsonLibrary {
                 case Conversion.UInt64ToBsonTimestamp: return new BsonTimestamp((long) (ulong) value);
             }
 
-            throw new BsonException("Invalid conversion");
+            throw new BsonInternalException("Unexpected Conversion");
         }
         #endregion
 

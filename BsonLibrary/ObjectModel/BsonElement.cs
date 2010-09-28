@@ -199,7 +199,7 @@ namespace MongoDB.BsonLibrary {
                     value = Bson.MaxKey;
                     break;
                 default:
-                    throw new BsonException("Invalid BsonType");
+                    throw new BsonInternalException("Unexpected BsonType");
             }
 
             return new BsonElement(name, value);
@@ -217,7 +217,7 @@ namespace MongoDB.BsonLibrary {
                 name == "" ||
                 name.Contains('\0')
             ) {
-                throw new BsonException("Invalid element name");
+                throw new ArgumentException("Invalid element name", "name");
             }
         }
         #endregion

@@ -637,7 +637,7 @@ namespace MongoDB.CSharpDriver {
             var queryBsonDocument = query as BsonDocument;
             if (queryBsonDocument != null) {
                 if (queryBsonDocument.Any(e => e.Name.StartsWith("$"))) {
-                    throw new BsonException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
+                    throw new MongoException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
                 }
             }
 

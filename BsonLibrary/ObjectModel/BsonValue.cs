@@ -443,11 +443,11 @@ namespace MongoDB.BsonLibrary {
         public override bool Equals(
             object obj
         ) {
-            throw new BsonException("A subclass of BsonValue did not override Equals");
+            throw new BsonInternalException("A subclass of BsonValue did not override Equals");
         }
 
         public override int GetHashCode() {
-            throw new BsonException("A subclass of BsonValue did not override GetHashCode");
+            throw new BsonInternalException("A subclass of BsonValue did not override GetHashCode");
         }
 
         // ToBoolean follows the JavaScript definition of truthiness

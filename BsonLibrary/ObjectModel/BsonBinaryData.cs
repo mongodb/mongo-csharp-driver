@@ -164,7 +164,7 @@ namespace MongoDB.BsonLibrary {
             if (subType == BsonBinarySubType.Uuid) {
                 return new Guid(bytes);
             } else {
-                throw new BsonException("BinaryData subtype is not UUID");
+                throw new InvalidOperationException("BinaryData subtype is not UUID");
             }
         }
 

@@ -94,7 +94,7 @@ namespace MongoDB.BsonLibrary.Serialization {
                     // create a temporary BsonElement because it has the WriteTo method we need
                     new BsonElement(name, bsonValue).WriteTo(bsonWriter);
                 } else {
-                    throw new BsonException("BsonPropertySerializer doesn't know how to serializer type: {0}", value.GetType().FullName);
+                    throw new BsonSerializationException("BsonPropertySerializer doesn't know how to serializer type: {0}", value.GetType().FullName);
                 }
             }
         }

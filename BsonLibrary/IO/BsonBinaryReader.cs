@@ -77,12 +77,12 @@ namespace MongoDB.BsonLibrary.IO {
         public override byte[] ReadBinaryData() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Binary) {
-                throw new BsonException("ReadBinaryData can only be called when ReadState is Value and BsonType is Binary");
+                throw new InvalidOperationException("ReadBinaryData can only be called when ReadState is Value and BsonType is Binary");
             }
             BsonBinarySubType subType;
             byte[] bytes = ReadBinaryDataHelper(out subType);
             if (subType != BsonBinarySubType.Binary) {
-                throw new BsonException("Binary sub type is not Binary");
+                throw new InvalidOperationException("Binary sub type is not Binary");
             }
             context.ReadState = BsonReadState.Type;
             return bytes;
@@ -93,7 +93,7 @@ namespace MongoDB.BsonLibrary.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Binary) {
-                throw new BsonException("ReadBinaryData can only be called when ReadState is Value and BsonType is Binary");
+                throw new InvalidOperationException("ReadBinaryData can only be called when ReadState is Value and BsonType is Binary");
             }
             context.ReadState = BsonReadState.Type;
             return ReadBinaryDataHelper(out subType);
@@ -102,7 +102,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override bool ReadBoolean() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Boolean) {
-                throw new BsonException("ReadBoolean can only be called when ReadState is Value and BsonType is Boolean");
+                throw new InvalidOperationException("ReadBoolean can only be called when ReadState is Value and BsonType is Boolean");
             }
             context.ReadState = BsonReadState.Type;
             return buffer.ReadBoolean();
@@ -111,16 +111,20 @@ namespace MongoDB.BsonLibrary.IO {
         public override BsonType ReadBsonType() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Type) {
-                throw new BsonException("ReadBsonType can only be called when ReadState is Type");
+                throw new InvalidOperationException("ReadBsonType can only be called when ReadState is Type");
             }
             bsonType = (BsonType) buffer.ReadByte();
+            if (!Enum.IsDefined(typeof(BsonType), bsonType)) {
+                string message = string.Format("Invalid BsonType: {0}", (int) bsonType);
+                throw new FileFormatException(message);
+            }
             if (bsonType == BsonType.EndOfDocument) {
                 switch (context.DocumentType) {
                     case BsonReaderDocumentType.Document: context.ReadState = BsonReadState.EndOfDocument; break;
                     case BsonReaderDocumentType.EmbeddedDocument: context.ReadState = BsonReadState.EndOfEmbeddedDocument; break;
                     case BsonReaderDocumentType.ArrayDocument: context.ReadState = BsonReadState.EndOfArray; break;
                     case BsonReaderDocumentType.ScopeDocument: context.ReadState = BsonReadState.EndOfScopeDocument; break;
-                    default: throw new BsonException("Unexpected DocumentType");
+                    default: throw new BsonInternalException("Unexpected DocumentType");
                 }
             } else {
                 context.ReadState = BsonReadState.Name;
@@ -131,7 +135,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override DateTime ReadDateTime() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.DateTime) {
-                throw new BsonException("ReadDateTime can only be called when ReadState is Value and BsonType is DateTime");
+                throw new InvalidOperationException("ReadDateTime can only be called when ReadState is Value and BsonType is DateTime");
             }
             context.ReadState = BsonReadState.Type;
             long milliseconds = buffer.ReadInt64();
@@ -141,7 +145,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override double ReadDouble() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Double) {
-                throw new BsonException("ReadDouble can only be called when ReadState is Value and BsonType is Double");
+                throw new InvalidOperationException("ReadDouble can only be called when ReadState is Value and BsonType is Double");
             }
             context.ReadState = BsonReadState.Type;
             return buffer.ReadDouble();
@@ -150,10 +154,10 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadEndArray() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.EndOfArray) {
-                throw new BsonException("ReadEndArray can only be called when ReadState is EndOfArray");
+                throw new InvalidOperationException("ReadEndArray can only be called when ReadState is EndOfArray");
             }
             if (context.Size != buffer.Position - context.StartPosition) {
-                throw new BsonException("Document size was incorrect");
+                throw new FileFormatException("Document size was incorrect");
             }
             context = context.ParentContext;
         }
@@ -161,10 +165,10 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadEndDocument() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.EndOfDocument) {
-                throw new BsonException("ReadEndDocument can only be called when ReadState is EndOfDocument");
+                throw new InvalidOperationException("ReadEndDocument can only be called when ReadState is EndOfDocument");
             }
             if (context.Size != buffer.Position - context.StartPosition) {
-                throw new BsonException("Document size was incorrect");
+                throw new FileFormatException("Document size was incorrect");
             }
             context = context.ParentContext;
         }
@@ -172,10 +176,10 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadEndEmbeddedDocument() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.EndOfEmbeddedDocument) {
-                throw new BsonException("ReadEndEmbeddedDocument can only be called when ReadState is EndOfEmbeddedDocument");
+                throw new InvalidOperationException("ReadEndEmbeddedDocument can only be called when ReadState is EndOfEmbeddedDocument");
             }
             if (context.Size != buffer.Position - context.StartPosition) {
-                throw new BsonException("Document size was incorrect");
+                throw new FileFormatException("Document size was incorrect");
             }
             context = context.ParentContext;
         }
@@ -183,14 +187,14 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadEndJavaScriptWithScope() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.EndOfScopeDocument) {
-                throw new BsonException("ReadEndJavaScriptWithScope can only be called when ReadState is EndOfScopeDocument");
+                throw new InvalidOperationException("ReadEndJavaScriptWithScope can only be called when ReadState is EndOfScopeDocument");
             }
             if (context.Size != buffer.Position - context.StartPosition) {
-                throw new BsonException("Document size was incorrect");
+                throw new FileFormatException("Document size was incorrect");
             }
             context = context.ParentContext;
             if (context.Size != buffer.Position - context.StartPosition) {
-                throw new BsonException("Document size was incorrect");
+                throw new FileFormatException("Document size was incorrect");
             }
             context = context.ParentContext;
         }
@@ -198,15 +202,15 @@ namespace MongoDB.BsonLibrary.IO {
         public override Guid ReadGuid() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Binary) {
-                throw new BsonException("ReadGuid can only be called when ReadState is Value and BsonType is Binary");
+                throw new InvalidOperationException("ReadGuid can only be called when ReadState is Value and BsonType is Binary");
             }
             BsonBinarySubType subType;
             byte[] bytes = ReadBinaryData(out subType);
             if (subType != BsonBinarySubType.Uuid) {
-                throw new BsonException("Binary sub type is not Uuid");
+                throw new FileFormatException("Binary sub type is not Uuid");
             }
             if (bytes.Length != 16) {
-                throw new BsonException("Size of Uuid value is not 16");
+                throw new FileFormatException("Size of Uuid value is not 16");
             }
             context.ReadState = BsonReadState.Type;
             return new Guid(bytes);
@@ -215,7 +219,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override int ReadInt32() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Int32) {
-                throw new BsonException("ReadInt32 can only be called when ReadState is Value and BsonType is Int32");
+                throw new InvalidOperationException("ReadInt32 can only be called when ReadState is Value and BsonType is Int32");
             }
             context.ReadState = BsonReadState.Type;
             return buffer.ReadInt32();
@@ -224,7 +228,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override long ReadInt64() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Int64) {
-                throw new BsonException("ReadInt64 can only be called when ReadState is Value and BsonType is Int64");
+                throw new InvalidOperationException("ReadInt64 can only be called when ReadState is Value and BsonType is Int64");
             }
             context.ReadState = BsonReadState.Type;
             return buffer.ReadInt64();
@@ -233,7 +237,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override string ReadJavaScript() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.JavaScript) {
-                throw new BsonException("ReadJavaScript can only be called when ReadState is Value and BsonType is JavaScript");
+                throw new InvalidOperationException("ReadJavaScript can only be called when ReadState is Value and BsonType is JavaScript");
             }
             context.ReadState = BsonReadState.Type;
             return buffer.ReadString();
@@ -242,7 +246,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadMaxKey() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.MaxKey) {
-                throw new BsonException("ReadMaxKey can only be called when ReadState is Value and BsonType is MaxKey");
+                throw new InvalidOperationException("ReadMaxKey can only be called when ReadState is Value and BsonType is MaxKey");
             }
             context.ReadState = BsonReadState.Type;
         }
@@ -250,7 +254,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadMinKey() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.MinKey) {
-                throw new BsonException("ReadMinKey can only be called when ReadState is Value and BsonType is MinKey");
+                throw new InvalidOperationException("ReadMinKey can only be called when ReadState is Value and BsonType is MinKey");
             }
             context.ReadState = BsonReadState.Type;
         }
@@ -258,7 +262,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override string ReadName() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Name) {
-                throw new BsonException("ReadName can only be called when ReadState is Name");
+                throw new InvalidOperationException("ReadName can only be called when ReadState is Name");
             }
             context.ReadState = BsonReadState.Value;
             return buffer.ReadCString(); 
@@ -267,7 +271,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadNull() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Null) {
-                throw new BsonException("ReadNull can only be called when ReadState is Value and BsonType is Null");
+                throw new InvalidOperationException("ReadNull can only be called when ReadState is Value and BsonType is Null");
             }
             context.ReadState = BsonReadState.Type;
         }
@@ -278,7 +282,7 @@ namespace MongoDB.BsonLibrary.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.ObjectId) {
-                throw new BsonException("ReadObjectId can only be called when ReadState is Value and BsonType is ObjectId");
+                throw new InvalidOperationException("ReadObjectId can only be called when ReadState is Value and BsonType is ObjectId");
             }
             context.ReadState = BsonReadState.Type;
             buffer.ReadObjectId(out timestamp, out machinePidIncrement);
@@ -290,7 +294,7 @@ namespace MongoDB.BsonLibrary.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.RegularExpression) {
-                throw new BsonException("ReadRegularExpression can only be called when ReadState is Value and BsonType is RegularExpression");
+                throw new InvalidOperationException("ReadRegularExpression can only be called when ReadState is Value and BsonType is RegularExpression");
             }
             context.ReadState = BsonReadState.Type;
             pattern = buffer.ReadCString();
@@ -300,7 +304,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadStartArray() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Array) {
-                throw new BsonException("ReadStartArray can only be called when ReadState is Value and BsonType is Array");
+                throw new InvalidOperationException("ReadStartArray can only be called when ReadState is Value and BsonType is Array");
             }
             int startPosition = buffer.Position;
             int size = ReadSize();
@@ -311,7 +315,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadStartDocument() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Initial && context.ReadState != BsonReadState.Done) {
-                throw new BsonException("ReadStartDocument can only be called when ReadState is Initial or Done");
+                throw new InvalidOperationException("ReadStartDocument can only be called when ReadState is Initial or Done");
             }
             int startPosition = buffer.Position;
             int size = ReadSize();
@@ -322,7 +326,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override void ReadStartEmbeddedDocument() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Document) {
-                throw new BsonException("ReadStartEmbeddedDocument can only be called when ReadState is Value and BsonType is Document");
+                throw new InvalidOperationException("ReadStartEmbeddedDocument can only be called when ReadState is Value and BsonType is Document");
             }
             int startPosition = buffer.Position;
             int size = ReadSize();
@@ -335,7 +339,7 @@ namespace MongoDB.BsonLibrary.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.JavaScriptWithScope) {
-                throw new BsonException("ReadStartJavaScriptWithScope can only be called when ReadState is Value and BsonType is JavaScriptWithScope");
+                throw new InvalidOperationException("ReadStartJavaScriptWithScope can only be called when ReadState is Value and BsonType is JavaScriptWithScope");
             }
             int startPosition = buffer.Position;
             int size = ReadSize();
@@ -350,7 +354,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override string ReadString() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.String) {
-                throw new BsonException("ReadString can only be called when ReadState is Value and BsonType is String");
+                throw new InvalidOperationException("ReadString can only be called when ReadState is Value and BsonType is String");
             }
             context.ReadState = BsonReadState.Type;
             return buffer.ReadString();
@@ -359,7 +363,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override string ReadSymbol() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Symbol) {
-                throw new BsonException("ReadSymbol can only be called when ReadState is Value and BsonType is Symbol");
+                throw new InvalidOperationException("ReadSymbol can only be called when ReadState is Value and BsonType is Symbol");
             }
             context.ReadState = BsonReadState.Type;
             return buffer.ReadString();
@@ -368,7 +372,7 @@ namespace MongoDB.BsonLibrary.IO {
         public override long ReadTimestamp() {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if (context.ReadState != BsonReadState.Value || bsonType != BsonType.Timestamp) {
-                throw new BsonException("ReadTimestamp can only be called when ReadState is Value and BsonType is Timestamp");
+                throw new InvalidOperationException("ReadTimestamp can only be called when ReadState is Value and BsonType is Timestamp");
             }
             context.ReadState = BsonReadState.Type;
             return buffer.ReadInt64();
@@ -386,7 +390,7 @@ namespace MongoDB.BsonLibrary.IO {
                 // sub type OldBinary has two sizes (for historical reasons)
                 int size2 = ReadSize();
                 if (size2 != size - 4) {
-                    throw new BsonException("Binary sub type OldBinary has inconsistent sizes");
+                    throw new FileFormatException("Binary sub type OldBinary has inconsistent sizes");
                 }
                 size = size2;
 
@@ -401,10 +405,10 @@ namespace MongoDB.BsonLibrary.IO {
         private int ReadSize() {
             int size = buffer.ReadInt32();
             if (size < 0) {
-                throw new BsonException("Size is negative");
+                throw new FileFormatException("Size is negative");
             }
             if (size > settings.MaxDocumentSize) {
-                throw new BsonException("Size is larger than MaxDocumentSize");
+                throw new FileFormatException("Size is larger than MaxDocumentSize");
             }
             return size;
         }
