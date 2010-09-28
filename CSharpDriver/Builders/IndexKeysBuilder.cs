@@ -92,7 +92,7 @@ namespace MongoDB.CSharpDriver.Builders {
         void IBsonSerializable.Deserialize(
             BsonReader bsonReader
         ) {
-            throw new MongoException("Deserialize is not supported for IndexKeysBuilder");
+            throw new InvalidOperationException("Deserialize is not supported for IndexKeysBuilder");
         }
 
         void IBsonSerializable.Serialize(

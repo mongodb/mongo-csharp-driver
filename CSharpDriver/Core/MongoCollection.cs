@@ -637,7 +637,7 @@ namespace MongoDB.CSharpDriver {
             var queryBsonDocument = query as BsonDocument;
             if (queryBsonDocument != null) {
                 if (queryBsonDocument.Any(e => e.Name.StartsWith("$"))) {
-                    throw new MongoException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
+                    throw new ArgumentException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
                 }
             }
 
@@ -715,7 +715,7 @@ namespace MongoDB.CSharpDriver {
                 name.Contains('\0') ||
                 Encoding.UTF8.GetBytes(name).Length > 121
             ) {
-                throw new MongoException("Invalid collection name");
+                throw new ArgumentException("Invalid collection name", "name");
             }
         }
         #endregion

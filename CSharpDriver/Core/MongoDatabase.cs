@@ -235,7 +235,7 @@ namespace MongoDB.CSharpDriver {
         public BsonDocument GetLastError() {
             var connectionPool = server.GetConnectionPool();
             if (connectionPool.RequestNestingLevel == 0) {
-                throw new MongoException("GetLastError can only be called if RequestStart has been called first");
+                throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
             return RunCommand("getLastError");
         }
@@ -283,12 +283,12 @@ namespace MongoDB.CSharpDriver {
         ) {
             BsonDocument result = CommandCollection.FindOne(command);
             if (!result.Contains("ok")) {
-                throw new MongoException("ok element is missing");
+                throw new MongoCommandException("ok element is missing");
             }
             if (!result["ok"].ToBoolean()) {
                 string errmsg = result["errmsg"].AsString;
                 string errorMessage = string.Format("Command failed: {1}", errmsg);
-                throw new MongoException(errorMessage);
+                throw new MongoCommandException(errorMessage);
             }
             return result;
         }
@@ -334,7 +334,7 @@ namespace MongoDB.CSharpDriver {
                 name != name.ToLower() ||
                 Encoding.UTF8.GetBytes(name).Length > 64
             ) {
-                throw new MongoException("Invalid database name");
+                throw new ArgumentException("Invalid database name", "name");
             }
         }
         #endregion

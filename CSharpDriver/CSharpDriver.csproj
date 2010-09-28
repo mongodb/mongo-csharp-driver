@@ -43,6 +43,9 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\BuilderBase.cs" />
@@ -51,6 +54,13 @@
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\OrderByBuilder.cs" />
+    <Compile Include="Exceptions\MongoAuthenticationException.cs" />
+    <Compile Include="Exceptions\MongoCommandException.cs" />
+    <Compile Include="Exceptions\MongoConnectionException.cs" />
+    <Compile Include="Exceptions\MongoGridFSException.cs" />
+    <Compile Include="Exceptions\MongoInternalException.cs" />
+    <Compile Include="Exceptions\MongoQueryFailureException.cs" />
+    <Compile Include="Exceptions\MongoSafeModeException.cs" />
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
     <Compile Include="Core\MongoConnectionSettings.cs" />

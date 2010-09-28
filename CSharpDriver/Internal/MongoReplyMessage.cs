@@ -75,6 +75,15 @@ namespace MongoDB.CSharpDriver.Internal {
             documents = new List<R>();
 
             BsonReader bsonReader = BsonReader.Create(buffer);
+            if ((responseFlags & ResponseFlags.CursorNotFound) != 0) {
+                throw new MongoQueryFailureException("Cursor not found.");
+            }
+            if ((responseFlags & ResponseFlags.QueryFailure) != 0) {
+                var document = BsonDocument.ReadFrom(bsonReader);
+                var err = document["$err", null].AsString ?? "Unknown error.";
+                throw new MongoQueryFailureException(err);
+            }
+
             while (buffer.Position - messageStartPosition < messageLength) {
                 R document = (R) BsonSerializer.Deserialize(bsonReader, typeof(R));
                 documents.Add(document);

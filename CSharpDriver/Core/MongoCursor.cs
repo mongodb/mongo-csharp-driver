@@ -265,7 +265,7 @@ namespace MongoDB.CSharpDriver {
         #region private methods
         // funnel exceptions through this method so we can have a single error message
         private void ThrowFrozen() {
-            throw new MongoException("A cursor cannot be modified after enumeration has begun");
+            throw new InvalidOperationException("A cursor cannot be modified after enumeration has begun");
         }
         #endregion
 
@@ -439,10 +439,6 @@ namespace MongoDB.CSharpDriver {
                 if (openCursorId == 0) {
                     ReleaseConnection();
                 }
-                if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
-                    throw new MongoException("Query failure");
-                }
-
                 return reply;
             }
 

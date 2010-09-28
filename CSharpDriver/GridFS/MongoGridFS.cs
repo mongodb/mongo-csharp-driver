@@ -98,8 +98,9 @@ namespace MongoDB.CSharpDriver {
         ) {
             var fileInfo = FindOne(query, version);
             if (fileInfo == null) {
-                string errorMessage = string.Format("GridFS file not found: {0}", query);
-                throw new MongoException(errorMessage);
+                var jsonQuery = BsonUtils.ToJson(query);
+                string errorMessage = string.Format("GridFS file not found: {0}", jsonQuery);
+                throw new FileNotFoundException(errorMessage, jsonQuery);
             }
             Download(stream, fileInfo);
         }
@@ -119,14 +120,14 @@ namespace MongoDB.CSharpDriver {
                     var chunk = chunks.FindOne(query);
                     if (chunk == null) {
                         string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
-                        throw new MongoException(errorMessage);
+                        throw new MongoGridFSException(errorMessage);
                     }
                     var data = chunk["data"].AsBsonBinaryData;
                     if (data.Bytes.Length != fileInfo.ChunkSize) {
                         // the last chunk only has as many bytes as needed to complete the file
                         if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize) {
                             string errorMessage = string.Format("Chunk {0} for {1} is the wrong size", n, fileInfo.Name);
-                            throw new MongoException(errorMessage);
+                            throw new MongoGridFSException(errorMessage);
                         }
                     }
                     stream.Write(data.Bytes, 0, data.Bytes.Length);

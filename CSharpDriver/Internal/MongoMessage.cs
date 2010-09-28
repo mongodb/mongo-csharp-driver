@@ -65,7 +65,7 @@ namespace MongoDB.CSharpDriver.Internal {
             requestId = buffer.ReadInt32();
             responseTo = buffer.ReadInt32();
             if ((MessageOpcode) buffer.ReadInt32() != opcode) {
-                throw new MongoException("Message header opcode was not the expected one");
+                throw new FileFormatException("Message header opcode was not the expected one");
             }
         }
 

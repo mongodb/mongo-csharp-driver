@@ -142,7 +142,7 @@ namespace MongoDB.CSharpDriver {
                 throw new ArgumentNullException("password");
             }
             if (password.Any(c => (int) c >= 128)) {
-                throw new MongoException("Password must contain only ASCII characters");
+                throw new ArgumentException("Password must contain only ASCII characters");
             }
         }
         #endregion

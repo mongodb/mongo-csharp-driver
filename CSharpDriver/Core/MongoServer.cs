@@ -367,7 +367,7 @@ namespace MongoDB.CSharpDriver {
                 }
             }
 
-            throw new MongoException("Unable to connect to server");
+            throw new MongoConnectionException("Unable to connect to server");
         }
 
         // note: this method will run on a thread from the ThreadPool

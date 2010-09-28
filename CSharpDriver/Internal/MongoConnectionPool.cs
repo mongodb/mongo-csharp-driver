@@ -81,10 +81,10 @@ namespace MongoDB.CSharpDriver.Internal {
             MongoDatabase database
         ) {
             if (database.Server != server) {
-                throw new MongoException("This connection pool is for a different server");
+                throw new ArgumentException("This connection pool is for a different server", "database");
             }
             if (closed) {
-                throw new MongoException("Attempt to get a connection from a closed connection pool");
+                throw new InvalidOperationException("Attempt to get a connection from a closed connection pool");
             }
 
             MongoConnection connection = null;
@@ -128,7 +128,7 @@ namespace MongoDB.CSharpDriver.Internal {
             // be sure connectionPoolLock has been released before calling CheckAuthentication
             try {
                 connection.CheckAuthentication(database); // will authenticate if necessary
-            } catch (MongoException) {
+            } catch (MongoAuthenticationException) {
                 // don't let the connection go to waste just because authentication failed
                 ReleaseConnection(connection);
                 throw;
@@ -141,7 +141,7 @@ namespace MongoDB.CSharpDriver.Internal {
             MongoConnection connection
         ) {
             if (connection.ConnectionPool != this) {
-                throw new MongoException("The connection being released does not belong to this connection pool.");
+                throw new ArgumentException("The connection being released does not belong to this connection pool.", "connection");
             }
 
             lock (connectionPoolLock) {
@@ -151,7 +151,7 @@ namespace MongoDB.CSharpDriver.Internal {
                     Request request;
                     if (requests.TryGetValue(threadId, out request)) {
                         if (connection != request.Connection) {
-                            throw new MongoException("Connection being released is not the one assigned to the thread by RequestStart");
+                            throw new ArgumentException("Connection being released is not the one assigned to the thread by RequestStart", "connection");
                         }
                         return;
                     }
@@ -186,7 +186,7 @@ namespace MongoDB.CSharpDriver.Internal {
                         ReleaseConnection(request.Connection); // MUST be after request has been removed from requests
                     }
                 } else {
-                    throw new MongoException("Thread is not in a request (did you call RequestStart?)");
+                    throw new InvalidOperationException("Thread is not in a request (did you call RequestStart?)");
                 }
             }
         }

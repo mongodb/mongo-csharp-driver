@@ -123,7 +123,7 @@ namespace MongoDB.CSharpDriver.Builders {
         void IBsonSerializable.Deserialize(
             BsonReader bsonReader
         ) {
-            throw new MongoException("Deserialize is not supported for IndexOptionsBuilder");
+            throw new InvalidOperationException("Deserialize is not supported for IndexOptionsBuilder");
         }
 
         void IBsonSerializable.Serialize(

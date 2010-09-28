@@ -161,8 +161,9 @@ namespace MongoDB.CSharpDriver {
             var files = gridFS.Database.GetCollection(gridFS.Settings.FilesCollectionName);
             var fileInfoDocument = files.FindOne(query);
             if (fileInfoDocument == null) {
-                string errorMessage = string.Format("GridFS file no longer exists: {0}", id);
-                throw new MongoException(errorMessage);
+                var jsonQuery = BsonUtils.ToJson(query);
+                string errorMessage = string.Format("GridFS file not found: {0}", jsonQuery);
+                throw new FileNotFoundException(errorMessage, jsonQuery);
             }
             LoadFileInfo(fileInfoDocument);
         }
