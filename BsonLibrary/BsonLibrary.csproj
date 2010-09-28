@@ -81,7 +81,7 @@
     <Compile Include="Bson.cs" />
     <Compile Include="ObjectModel\BsonBinarySubType.cs" />
     <Compile Include="ObjectModel\BsonType.cs" />
-    <Compile Include="BsonException.cs" />
+    <Compile Include="Exceptions\BsonException.cs" />
     <Compile Include="ObjectModel\BsonSymbolTable.cs" />
     <Compile Include="IO\BsonBinaryWriter.cs" />
     <Compile Include="ObjectModel\BsonDocument.cs" />

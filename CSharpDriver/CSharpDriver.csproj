@@ -51,7 +51,7 @@
     <Compile Include="Builders\OrderBy.cs" />
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
-    <Compile Include="MongoConnectionSettings.cs" />
+    <Compile Include="Core\MongoConnectionSettings.cs" />
     <Compile Include="Internal\MongoConnection.cs" />
     <Compile Include="Internal\MongoConnectionPool.cs" />
     <Compile Include="Internal\MongoDeleteMessage.cs" />
@@ -64,30 +64,30 @@
     <Compile Include="Internal\MongoUpdateMessage.cs" />
     <Compile Include="MongoUtils.cs" />
     <Compile Include="MongoDefaults.cs" />
-    <Compile Include="MongoGridFS.cs" />
-    <Compile Include="MongoGridFSFileInfo.cs" />
-    <Compile Include="MongoGridFSSettings.cs" />
-    <Compile Include="MongoGridFSStream.cs" />
-    <Compile Include="MongoServerState.cs" />
-    <Compile Include="QueryFlags.cs" />
+    <Compile Include="GridFS\MongoGridFS.cs" />
+    <Compile Include="GridFS\MongoGridFSFileInfo.cs" />
+    <Compile Include="GridFS\MongoGridFSSettings.cs" />
+    <Compile Include="GridFS\MongoGridFSStream.cs" />
+    <Compile Include="Core\MongoServerState.cs" />
+    <Compile Include="Core\QueryFlags.cs" />
     <Compile Include="Internal\MessageOpcode.cs" />
     <Compile Include="Internal\ResponseFlags.cs" />
-    <Compile Include="MongoCollection.cs" />
-    <Compile Include="MongoConnectionStringBuilder.cs">
+    <Compile Include="Core\MongoCollection.cs" />
+    <Compile Include="Core\MongoConnectionStringBuilder.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MongoCredentials.cs" />
-    <Compile Include="MongoMapReduceResult.cs" />
-    <Compile Include="MongoServer.cs" />
-    <Compile Include="MongoCursor.cs" />
-    <Compile Include="MongoDatabase.cs" />
-    <Compile Include="MongoException.cs" />
-    <Compile Include="MongoServerAddress.cs" />
-    <Compile Include="MongoUrl.cs" />
+    <Compile Include="Core\MongoCredentials.cs" />
+    <Compile Include="Core\MongoMapReduceResult.cs" />
+    <Compile Include="Core\MongoServer.cs" />
+    <Compile Include="Core\MongoCursor.cs" />
+    <Compile Include="Core\MongoDatabase.cs" />
+    <Compile Include="Exceptions\MongoException.cs" />
+    <Compile Include="Core\MongoServerAddress.cs" />
+    <Compile Include="Core\MongoUrl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoveFlags.cs" />
-    <Compile Include="SafeMode.cs" />
-    <Compile Include="UpdateFlags.cs" />
+    <Compile Include="Core\RemoveFlags.cs" />
+    <Compile Include="Core\SafeMode.cs" />
+    <Compile Include="Core\UpdateFlags.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BsonLibrary\BsonLibrary.csproj">
