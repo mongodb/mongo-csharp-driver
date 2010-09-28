@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.CSharpDriver.Builders;
 using MongoDB.CSharpDriver.Internal;
 
 namespace MongoDB.CSharpDriver {
@@ -251,7 +252,7 @@ namespace MongoDB.CSharpDriver {
         ) {
             if (frozen) { ThrowFrozen(); }
             // var orderBy = new BsonDocument(keys.Select(k => new BsonElement(k, 1)));
-            return Sort(Builders.OrderBy.Ascending(keys));
+            return Sort(OrderBy.Ascending(keys));
         }
         #endregion
 

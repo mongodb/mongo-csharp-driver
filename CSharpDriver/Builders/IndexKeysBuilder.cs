@@ -24,35 +24,41 @@ using MongoDB.BsonLibrary.Serialization;
 using MongoDB.CSharpDriver;
 
 namespace MongoDB.CSharpDriver.Builders {
-    public static class OrderBy {
+    public static class IndexKeys {
         #region public static methods
-        public static OrderByBuilder Ascending(
+        public static IndexKeysBuilder Ascending(
             params string[] names
         ) {
-            return new OrderByBuilder().Ascending(names);
+            return new IndexKeysBuilder().Ascending(names);
         }
 
-        public static OrderByBuilder Descending(
+        public static IndexKeysBuilder Descending(
             params string[] names
         ) {
-            return new OrderByBuilder().Descending(names);
+            return new IndexKeysBuilder().Descending(names);
+        }
+
+        public static IndexKeysBuilder GeoSpatial(
+            string name
+        ) {
+            return new IndexKeysBuilder().GeoSpatial(name);
         }
         #endregion
     }
 
-    public class OrderByBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
+    public class IndexKeysBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
         #region private fields
         private BsonDocument document;
         #endregion
 
         #region constructors
-        public OrderByBuilder() {
+        public IndexKeysBuilder() {
             document = new BsonDocument();
         }
         #endregion
 
         #region public methods
-        public OrderByBuilder Ascending(
+        public IndexKeysBuilder Ascending(
             params string[] names
         ) {
             foreach (var name in names) {
@@ -61,12 +67,19 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public OrderByBuilder Descending(
+        public IndexKeysBuilder Descending(
             params string[] names
         ) {
             foreach (var name in names) {
                 document.Add(name, -1);
             }
+            return this;
+        }
+
+        public IndexKeysBuilder GeoSpatial(
+            string name
+        ) {
+            document.Add(name, "2d");
             return this;
         }
 
@@ -79,7 +92,7 @@ namespace MongoDB.CSharpDriver.Builders {
         void IBsonSerializable.Deserialize(
             BsonReader bsonReader
         ) {
-            throw new MongoException("Deserialize is not supported for OrderByBuilder");
+            throw new MongoException("Deserialize is not supported for IndexKeysBuilder");
         }
 
         void IBsonSerializable.Serialize(

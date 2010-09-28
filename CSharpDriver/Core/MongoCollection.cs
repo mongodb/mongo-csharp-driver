@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.CSharpDriver.Builders;
 using MongoDB.CSharpDriver.Internal;
 
 namespace MongoDB.CSharpDriver {
@@ -85,13 +86,6 @@ namespace MongoDB.CSharpDriver {
             return result["n"].ToInt32();
         }
 
-        public BsonDocument CreateIndex<K>(
-            K keys
-        ) {
-            BsonDocument options = null;
-            return CreateIndex(keys, options);
-        }
-
         public BsonDocument CreateIndex<K, O>(
             K keys,
             O options
@@ -111,32 +105,15 @@ namespace MongoDB.CSharpDriver {
         }
 
         public BsonDocument CreateIndex<K>(
-            K keys,
-            string indexName
+            K keys
         ) {
-            return CreateIndex(keys, indexName, false);
-        }
-
-        public BsonDocument CreateIndex<K>(
-            K keys,
-            string indexName,
-            bool unique
-        ) {
-            BsonDocument options = new BsonDocument {
-                { "name", indexName },
-                { unique, "unique", true }
-            };
-            return CreateIndex(keys, options);
+            return CreateIndex(keys, IndexOptions.None);
         }
 
         public BsonDocument CreateIndex(
             params string[] keyNames
         ) {
-            BsonDocument keys = new BsonDocument();
-            foreach (string keyName in keyNames) {
-                keys.Add(keyName, 1);
-            }
-            return CreateIndex(keys);
+            return CreateIndex(IndexKeys.Ascending(keyNames));
         }
 
         public int DataSize() {
@@ -196,56 +173,25 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public void EnsureIndex<K>(
-            K keys
-        ) {
-            lock (indexCache) {
-                var keysDocument = BsonUtils.ToBsonDocument(keys);
-                string indexName = GetIndexName(keysDocument);
-                if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keysDocument, indexName);
-                    indexCache.Add(indexName);
-                }
-            }
-        }
-
         public void EnsureIndex<K, O>(
            K keys,
            O options
         ) {
             lock (indexCache) {
                 var keysDocument = BsonUtils.ToBsonDocument(keys);
-                string indexName = GetIndexName(keysDocument);
+                var optionsDocument = BsonUtils.ToBsonDocument(options);
+                var indexName = (optionsDocument != null && optionsDocument.Contains("name")) ? optionsDocument["name"].AsString : GetIndexName(keysDocument);
                 if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keysDocument, options);
+                    CreateIndex(keysDocument, optionsDocument);
                     indexCache.Add(indexName);
                 }
             }
         }
 
         public void EnsureIndex<K>(
-            K keys,
-            string indexName
+            K keys
         ) {
-            lock (indexCache) {
-                if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keys, indexName);
-                    indexCache.Add(indexName);
-                }
-            }
-        }
-
-        public void EnsureIndex<K>(
-           K keys,
-           string indexName,
-           bool unique
-        ) {
-            lock (indexCache) {
-                if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keys, indexName, unique);
-                    indexCache.Add(indexName);
-                }
-            }
+            EnsureIndex(keys, IndexOptions.None);
         }
 
         public void EnsureIndex(
@@ -254,7 +200,7 @@ namespace MongoDB.CSharpDriver {
             lock (indexCache) {
                 string indexName = GetIndexName(keyNames);
                 if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keyNames);
+                    CreateIndex(IndexKeys.Ascending(keyNames), IndexOptions.Name(indexName));
                     indexCache.Add(indexName);
                 }
             }
