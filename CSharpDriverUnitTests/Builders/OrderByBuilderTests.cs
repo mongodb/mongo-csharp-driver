@@ -23,7 +23,7 @@ using MongoDB.BsonLibrary;
 using MongoDB.CSharpDriver;
 using MongoDB.CSharpDriver.Builders;
 
-namespace MongoDB.CSharpDriver.Tests {
+namespace MongoDB.CSharpDriver.UnitTests.Builders {
     [TestFixture]
     public class OrderByBuilderTests {
         [Test]

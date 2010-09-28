@@ -46,9 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\BuilderBase.cs" />
-    <Compile Include="Builders\Fields.cs" />
-    <Compile Include="Builders\Query.cs" />
-    <Compile Include="Builders\OrderBy.cs" />
+    <Compile Include="Builders\FieldsBuilder.cs" />
+    <Compile Include="Builders\QueryBuilder.cs" />
+    <Compile Include="Builders\OrderByBuilder.cs" />
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
     <Compile Include="Core\MongoConnectionSettings.cs" />

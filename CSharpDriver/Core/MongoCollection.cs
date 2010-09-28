@@ -333,6 +333,21 @@ namespace MongoDB.CSharpDriver {
             return Find<Q, R>(query).Limit(1).FirstOrDefault();
         }
 
+        public BsonDocument GeoNear<Q>(
+            Q query,
+            double x,
+            double y,
+            int limit
+        ) {
+            var command = new BsonDocument {
+                { "geoNear", name },
+                { "near", new BsonArray { x, y } },
+                { "num", limit },
+                { "query", BsonUtils.ToBsonDocument(query) } // query is optional
+            };
+            return database.RunCommand(command);
+        }
+
         public IEnumerable<BsonDocument> GetIndexes() {
             var indexes = database.GetCollection("system.indexes");
             var query = new BsonDocument("ns", FullName);

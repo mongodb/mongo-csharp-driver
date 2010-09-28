@@ -46,10 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MongoUrlTests.cs" />
+    <Compile Include="Builders\FieldsBuilderTests.cs" />
+    <Compile Include="Core\MongoUrlTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryBuilderTests.cs" />
-    <Compile Include="OrderByBuilderTest.cs" />
+    <Compile Include="Builders\QueryBuilderTests.cs" />
+    <Compile Include="Builders\OrderByBuilderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BsonLibrary\BsonLibrary.csproj">

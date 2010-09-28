@@ -21,7 +21,7 @@ using NUnit.Framework;
 
 using MongoDB.CSharpDriver;
 
-namespace MongoDB.CSharpDriver.Tests {
+namespace MongoDB.CSharpDriver.UnitTests.Core {
     [TestFixture]
     public class MongoUrlTests {
         [Test]

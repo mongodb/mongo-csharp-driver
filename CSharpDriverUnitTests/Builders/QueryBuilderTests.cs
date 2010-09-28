@@ -24,7 +24,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.CSharpDriver;
 using MongoDB.CSharpDriver.Builders;
 
-namespace MongoDB.CSharpDriver.Tests {
+namespace MongoDB.CSharpDriver.UnitTests.Builders {
     [TestFixture]
     public class QueryBuilderTests {
         [Test]
