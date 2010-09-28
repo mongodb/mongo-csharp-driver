@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{DBF3A41B-D0EE-4CA5-ADA6-EB1A4DE903E1}</ProjectGuid>
+    <ProjectGuid>{10A5FAC2-E26F-4726-B888-26D5B849F805}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MongoDB.CSharpDriver.UnitTests</RootNamespace>
-    <AssemblyName>CSharpDriverUnitTests</AssemblyName>
+    <RootNamespace>MongoDB.BsonLibrary.UnitTests</RootNamespace>
+    <AssemblyName>BsonLibraryUnitTests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -46,19 +46,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MongoUrlTests.cs" />
+    <Compile Include="BsonDocumentTests.cs" />
+    <Compile Include="BsonElementTests.cs" />
+    <Compile Include="BsonEqualsTests.cs" />
+    <Compile Include="BsonJsonWriterTests.cs" />
+    <Compile Include="ObjectModel\BsonObjectIdTests.cs" />
+    <Compile Include="ObjectModel\ObjectIdTests.cs" />
+    <Compile Include="BsonReaderTests.cs" />
+    <Compile Include="BsonRoundTripTests.cs" />
+    <Compile Include="BsonValueCompareToTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryBuilderTests.cs" />
-    <Compile Include="OrderByBuilderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BsonLibrary\BsonLibrary.csproj">
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
       <Name>BsonLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CSharpDriver\CSharpDriver.csproj">
-      <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>
-      <Name>CSharpDriver</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
