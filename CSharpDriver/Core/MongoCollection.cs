@@ -307,39 +307,23 @@ namespace MongoDB.CSharpDriver {
             BsonJavaScript reduce,
             BsonJavaScript finalize
         ) {
-            var keysDocument = BsonUtils.ToBsonDocument(keys);
+            BsonElement keyElement;
+            var keyFunction = keys as BsonJavaScript;
+            if (keyFunction == null) {
+                keyElement = new BsonElement("key", BsonUtils.ToBsonDocument(keys));
+            } else {
+                keyElement = new BsonElement("$keyf", keyFunction);
+            }
+
             var command = new BsonDocument {
                 { "group", new BsonDocument {
                     { "ns", name },
                     { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
-                    { "key", keysDocument },
+                    keyElement, // name is either "key" or "$keyf"
                     { "initial", initial },
                     { "$reduce", reduce },
                     { "finalize", finalize }
                 } }
-            };
-            var result = database.RunCommand(command);
-            return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
-        }
-
-        public IEnumerable<BsonDocument> Group<Q>(
-            BsonJavaScript keyf,
-            Q query,
-            BsonDocument initial,
-            BsonJavaScript reduce,
-            BsonJavaScript finalize
-        ) {
-            var command = new BsonDocument {
-                { "group",
-                    new BsonDocument {
-                        { "ns", name },
-                        { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
-                        { "$keyf", keyf },
-                        { "initial", initial },
-                        { "$reduce", reduce },
-                        { "finalize", finalize }
-                    } 
-                }
             };
             var result = database.RunCommand(command);
             return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
@@ -353,7 +337,7 @@ namespace MongoDB.CSharpDriver {
             BsonJavaScript finalize
         ) {
             var keys = new BsonDocument(key, 1);
-            return Group(keys, query, initial, reduce, finalize);
+            return Group(GroupBy.Keys(key), query, initial, reduce, finalize);
         }
 
         // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)

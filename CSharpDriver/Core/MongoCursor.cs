@@ -240,10 +240,10 @@ namespace MongoDB.CSharpDriver {
         }
 
         public MongoCursor<Q, R> Sort<S>(
-            S orderBy
+            S sortBy
         ) {
             if (frozen) { ThrowFrozen(); }
-            AddOption("$orderby", BsonUtils.ToBsonDocument(orderBy));
+            AddOption("$orderby", BsonUtils.ToBsonDocument(sortBy));
             return this;
         }
 
@@ -251,8 +251,7 @@ namespace MongoDB.CSharpDriver {
             params string[] keys
         ) {
             if (frozen) { ThrowFrozen(); }
-            // var orderBy = new BsonDocument(keys.Select(k => new BsonElement(k, 1)));
-            return Sort(OrderBy.Ascending(keys));
+            return Sort(SortBy.Ascending(keys));
         }
         #endregion
 

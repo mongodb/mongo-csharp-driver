@@ -210,7 +210,7 @@ namespace MongoDB.CSharpDriver.Builders {
         void IBsonSerializable.Deserialize(
             BsonReader bsonReader
         ) {
-            throw new InvalidOperationException("Deserialize is not supported for OrderByBuilder");
+            throw new InvalidOperationException("Deserialize is not supported for QueryBuilder");
         }
 
         void IBsonSerializable.Serialize(

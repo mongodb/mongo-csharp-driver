@@ -24,35 +24,35 @@ using MongoDB.BsonLibrary.Serialization;
 using MongoDB.CSharpDriver;
 
 namespace MongoDB.CSharpDriver.Builders {
-    public static class OrderBy {
+    public static class SortBy {
         #region public static methods
-        public static OrderByBuilder Ascending(
+        public static SortByBuilder Ascending(
             params string[] names
         ) {
-            return new OrderByBuilder().Ascending(names);
+            return new SortByBuilder().Ascending(names);
         }
 
-        public static OrderByBuilder Descending(
+        public static SortByBuilder Descending(
             params string[] names
         ) {
-            return new OrderByBuilder().Descending(names);
+            return new SortByBuilder().Descending(names);
         }
         #endregion
     }
 
-    public class OrderByBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
+    public class SortByBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
         #region private fields
         private BsonDocument document;
         #endregion
 
         #region constructors
-        public OrderByBuilder() {
+        public SortByBuilder() {
             document = new BsonDocument();
         }
         #endregion
 
         #region public methods
-        public OrderByBuilder Ascending(
+        public SortByBuilder Ascending(
             params string[] names
         ) {
             foreach (var name in names) {
@@ -61,7 +61,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public OrderByBuilder Descending(
+        public SortByBuilder Descending(
             params string[] names
         ) {
             foreach (var name in names) {
@@ -79,7 +79,7 @@ namespace MongoDB.CSharpDriver.Builders {
         void IBsonSerializable.Deserialize(
             BsonReader bsonReader
         ) {
-            throw new InvalidOperationException("Deserialize is not supported for OrderByBuilder");
+            throw new InvalidOperationException("Deserialize is not supported for SortByBuilder");
         }
 
         void IBsonSerializable.Serialize(

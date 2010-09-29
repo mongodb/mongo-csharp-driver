@@ -47,12 +47,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\FieldsBuilderTests.cs" />
+    <Compile Include="Builders\GroupByBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
     <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
     <Compile Include="Core\MongoUrlTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
-    <Compile Include="Builders\OrderByBuilderTests.cs" />
+    <Compile Include="Builders\SortByBuilderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BsonLibrary\BsonLibrary.csproj">
