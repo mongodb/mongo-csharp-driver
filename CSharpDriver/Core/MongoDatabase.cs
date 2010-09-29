@@ -206,7 +206,7 @@ namespace MongoDB.CSharpDriver {
 
         public MongoCollection<D> GetCollection<D>(
             string collectionName
-        ) where D : new() {
+        ) {
             lock (databaseLock) {
                 MongoCollection collection;
                 string key = string.Format("{0}<{1}>", collectionName, typeof(D).FullName);

@@ -24,7 +24,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoUpdateMessage<Q, U> : MongoRequestMessage where U : new() {
+    internal class MongoUpdateMessage<Q, U> : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
         private UpdateFlags flags;

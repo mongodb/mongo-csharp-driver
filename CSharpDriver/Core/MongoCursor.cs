@@ -24,7 +24,7 @@ using MongoDB.CSharpDriver.Builders;
 using MongoDB.CSharpDriver.Internal;
 
 namespace MongoDB.CSharpDriver {
-    public class MongoCursor<Q, R> : IEnumerable<R> where R : new() {
+    public class MongoCursor<Q, R> : IEnumerable<R> {
         #region private fields
         private MongoCollection collection;
         private Q query;
@@ -77,7 +77,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, RNew> Clone<RNew>() where RNew : new() {
+        public MongoCursor<Q, RNew> Clone<RNew>() {
             var clone = new MongoCursor<Q, RNew>(collection, query);
             clone.options = options == null ? null : (BsonDocument) options.Clone();
             clone.flags = flags;

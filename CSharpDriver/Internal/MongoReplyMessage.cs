@@ -24,7 +24,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoReplyMessage<R> : MongoMessage where R : new() {
+    internal class MongoReplyMessage<R> : MongoMessage {
         #region private fields
         private ResponseFlags responseFlags;
         private long cursorId;

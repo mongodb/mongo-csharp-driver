@@ -208,11 +208,11 @@ namespace MongoDB.CSharpDriver {
 
         public MongoCursor<Q, R> Find<Q, R>(
             Q query
-        ) where R : new() {
+        ) {
             return new MongoCursor<Q, R>(this, query);
         }
 
-        public MongoCursor<BsonDocument, R> FindAll<R>() where R : new() {
+        public MongoCursor<BsonDocument, R> FindAll<R>() {
             BsonDocument query = null;
             return Find<BsonDocument, R>(query);
         }
@@ -269,13 +269,13 @@ namespace MongoDB.CSharpDriver {
             return result["value"].AsBsonDocument;
         }
 
-        public R FindOne<R>() where R : new() {
+        public R FindOne<R>() {
             return FindAll<R>().Limit(1).FirstOrDefault();
         }
 
         public R FindOne<Q, R>(
             Q query
-        ) where R : new() {
+        ) {
             return Find<Q, R>(query).Limit(1).FirstOrDefault();
         }
 
@@ -579,7 +579,7 @@ namespace MongoDB.CSharpDriver {
         public BsonDocument Update<Q, U>(
             Q query,
             U update
-        ) where U : new() {
+        ) {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
@@ -587,7 +587,7 @@ namespace MongoDB.CSharpDriver {
             Q query,
             U update,
             SafeMode safeMode
-        ) where U : new() {
+        ) {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
@@ -595,7 +595,7 @@ namespace MongoDB.CSharpDriver {
             Q query,
             U update,
             UpdateFlags flags
-        ) where U : new() {
+        ) {
             return Update(query, update, flags, safeMode);
         }
 
@@ -604,7 +604,7 @@ namespace MongoDB.CSharpDriver {
             U update,
             UpdateFlags flags,
             SafeMode safeMode
-        ) where U : new() {
+        ) {
             // TODO: remove this sanity check or make it configurable?
             var queryBsonDocument = query as BsonDocument;
             if (queryBsonDocument != null) {
@@ -696,7 +696,7 @@ namespace MongoDB.CSharpDriver {
     // this subclass provides a default result document type for Find methods
     // you can still Find any other document types by using the Find<R> methods
 
-    public class MongoCollection<D> : MongoCollection where D : new() {
+    public class MongoCollection<D> : MongoCollection {
         #region constructors
         public MongoCollection(
             MongoDatabase database,

@@ -277,7 +277,7 @@ namespace MongoDB.CSharpDriver.Internal {
             }
         }
 
-        internal MongoReplyMessage<R> ReceiveMessage<R>() where R : new() {
+        internal MongoReplyMessage<R> ReceiveMessage<R>() {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 BsonBuffer buffer = new BsonBuffer();
