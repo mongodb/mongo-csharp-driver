@@ -289,7 +289,7 @@ namespace MongoDB.CSharpDriver {
                 { "geoNear", name },
                 { "near", new BsonArray { x, y } },
                 { "num", limit },
-                { "query", BsonUtils.ToBsonDocument(query) } // query is optional
+                { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             return database.RunCommand(command);
         }
@@ -310,7 +310,7 @@ namespace MongoDB.CSharpDriver {
             BsonElement keyElement;
             var keyFunction = keys as BsonJavaScript;
             if (keyFunction == null) {
-                keyElement = new BsonElement("key", BsonUtils.ToBsonDocument(keys));
+                keyElement = new BsonElement("key", BsonDocumentWrapper.Create(keys));
             } else {
                 keyElement = new BsonElement("$keyf", keyFunction);
             }
@@ -414,56 +414,44 @@ namespace MongoDB.CSharpDriver {
             throw new NotImplementedException();
         }
 
-        public MongoMapReduceResult MapReduce<Q>(
-            Q query,
-            BsonJavaScript map,
-            BsonJavaScript reduce
-        ) {
-            return MapReduce(query, map, reduce, null, null);
-        }
-
-        public MongoMapReduceResult MapReduce<Q>(
-            Q query,
+        public MongoMapReduceResult MapReduce<O>(
             BsonJavaScript map,
             BsonJavaScript reduce,
-            BsonJavaScript finalize
-        ) {
-            return MapReduce(query, map, reduce, finalize, null);
-        }
-
-        public MongoMapReduceResult MapReduce<Q>(
-            Q query,
-            BsonJavaScript map,
-            BsonJavaScript reduce,
-            BsonJavaScript finalize,
-            BsonDocument options
+            O options
         ) {
             var command = new BsonDocument {
                 { "mapreduce", name },
                 { "map", map },
-                { "reduce", reduce },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "reduce", reduce }
             };
-            command.Merge(options);
+            command.Merge(BsonUtils.ToBsonDocument(options));
             var result = database.RunCommand(command);
             return new MongoMapReduceResult(database, result);
+        }
+
+        public MongoMapReduceResult MapReduce<Q, O>(
+            Q query,
+            BsonJavaScript map,
+            BsonJavaScript reduce,
+            O options
+        ) {
+            // create a new set of options because we don't want to modify caller's data
+            return MapReduce(map, reduce, MapReduceOptions.Query(query).Append(BsonUtils.ToBsonDocument(options)));
+        }
+
+        public MongoMapReduceResult MapReduce<Q>(
+            Q query,
+            BsonJavaScript map,
+            BsonJavaScript reduce
+        ) {
+            return MapReduce(map, reduce, MapReduceOptions.Query(query));
         }
 
         public MongoMapReduceResult MapReduce(
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
-            BsonDocument query = null;
-            return MapReduce(query, map, reduce, null, null);
-        }
-
-        public MongoMapReduceResult MapReduce(
-            BsonJavaScript map,
-            BsonJavaScript reduce,
-            BsonJavaScript finalize
-        ) {
-            BsonDocument query = null;
-            return MapReduce(query, map, reduce, finalize, null);
+            return MapReduce(map, reduce, MapReduceOptions.None);
         }
 
         public void ReIndex() {

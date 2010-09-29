@@ -27,15 +27,15 @@ namespace MongoDB.CSharpDriver.Builders {
     public static class SortBy {
         #region public static methods
         public static SortByBuilder Ascending(
-            params string[] names
+            params string[] keys
         ) {
-            return new SortByBuilder().Ascending(names);
+            return new SortByBuilder().Ascending(keys);
         }
 
         public static SortByBuilder Descending(
-            params string[] names
+            params string[] keys
         ) {
-            return new SortByBuilder().Descending(names);
+            return new SortByBuilder().Descending(keys);
         }
         #endregion
     }
@@ -53,19 +53,19 @@ namespace MongoDB.CSharpDriver.Builders {
 
         #region public methods
         public SortByBuilder Ascending(
-            params string[] names
+            params string[] keys
         ) {
-            foreach (var name in names) {
-                document.Add(name, 1);
+            foreach (var key in keys) {
+                document.Add(key, 1);
             }
             return this;
         }
 
         public SortByBuilder Descending(
-            params string[] names
+            params string[] keys
         ) {
-            foreach (var name in names) {
-                document.Add(name, -1);
+            foreach (var key in keys) {
+                document.Add(key, -1);
             }
             return this;
         }

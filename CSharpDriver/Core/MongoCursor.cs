@@ -243,7 +243,7 @@ namespace MongoDB.CSharpDriver {
             S sortBy
         ) {
             if (frozen) { ThrowFrozen(); }
-            AddOption("$orderby", BsonUtils.ToBsonDocument(sortBy));
+            AddOption("$orderby", BsonDocumentWrapper.Create(sortBy));
             return this;
         }
 
