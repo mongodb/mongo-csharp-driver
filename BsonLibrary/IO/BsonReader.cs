@@ -27,7 +27,6 @@ namespace MongoDB.BsonLibrary.IO {
         #endregion
 
         #region public properties
-        public abstract BsonReaderDocumentType DocumentType { get; }
         public abstract BsonReadState ReadState { get; }
         #endregion
 
@@ -64,43 +63,69 @@ namespace MongoDB.BsonLibrary.IO {
         #region public methods
         public abstract void Close();
         public abstract void Dispose();
-        public abstract byte[] ReadBinaryData();
-        public abstract byte[] ReadBinaryData(
+        public abstract BsonType PeekBsonType();
+        public abstract void ReadArrayName(
+            out string name
+        );
+        public abstract void ReadBinaryData(
+            out string name,
+            out byte[] bytes,
             out BsonBinarySubType subType
         );
-        public abstract bool ReadBoolean();
-        public abstract BsonType ReadBsonType();
-        public abstract DateTime ReadDateTime();
-        public abstract double ReadDouble();
-        public abstract void ReadEndArray();
+        public abstract bool ReadBoolean(
+            out string name
+        );
+        public abstract DateTime ReadDateTime(
+            out string name
+        );
+        public abstract void ReadDocumentName(
+            out string name
+        );
+        public abstract double ReadDouble(
+            out string name
+        );
         public abstract void ReadEndDocument();
-        public abstract void ReadEndEmbeddedDocument();
-        public abstract void ReadEndJavaScriptWithScope();
-        public abstract Guid ReadGuid();
-        public abstract int ReadInt32() ;
-        public abstract long ReadInt64() ;
-        public abstract string ReadJavaScript();
-        public abstract void ReadMaxKey();
-        public abstract void ReadMinKey();
-        public abstract string ReadName();
-        public abstract void ReadNull();
+        public abstract int ReadInt32(
+            out string name
+        );
+        public abstract long ReadInt64(
+            out string name
+        );
+        public abstract string ReadJavaScript(
+            out string name
+        );
+        public abstract string ReadJavaScriptWithScope(
+            out string name
+        );
+        public abstract void ReadMaxKey(
+            out string name
+        );
+        public abstract void ReadMinKey(
+            out string name
+        );
+        public abstract void ReadNull(
+            out string name
+        );
         public abstract void ReadObjectId(
+            out string name,
             out int timestamp,
             out long machinePidIncrement
         );
         public abstract void ReadRegularExpression(
+            out string name,
             out string pattern,
             out string options
         );
-        public abstract void ReadStartArray();
         public abstract void ReadStartDocument();
-        public abstract void ReadStartEmbeddedDocument();
-        public abstract void ReadStartJavaScriptWithScope(
-            out string code
+        public abstract string ReadString(
+            out string name
         );
-        public abstract string ReadString();
-        public abstract string ReadSymbol();
-        public abstract long ReadTimestamp();
+        public abstract string ReadSymbol(
+            out string name
+        );
+        public abstract long ReadTimestamp(
+            out string name
+        );
         #endregion
     }
 }

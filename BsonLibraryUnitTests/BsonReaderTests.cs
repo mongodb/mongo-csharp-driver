@@ -33,10 +33,8 @@ namespace MongoDB.BsonLibrary.UnitTests {
             MemoryStream stream = new MemoryStream(bytes);
             using (BsonReader bsonReader = BsonReader.Create(stream)) {
                 bsonReader.ReadStartDocument();
-                BsonType bsonType = bsonReader.ReadBsonType();
-                string name = bsonReader.ReadName();
-                string value = bsonReader.ReadString();
-                bsonType = bsonReader.ReadBsonType();
+                string name;
+                string value = bsonReader.ReadString(out name);
                 bsonReader.ReadEndDocument();
             }
         }
@@ -48,21 +46,13 @@ namespace MongoDB.BsonLibrary.UnitTests {
             MemoryStream stream = new MemoryStream(bytes);
             using (BsonReader bsonReader = BsonReader.Create(stream)) {
                 bsonReader.ReadStartDocument();
-                BsonType bsonType = bsonReader.ReadBsonType();
-                string name = bsonReader.ReadName();
-                bsonReader.ReadStartArray();
-                bsonType = bsonReader.ReadBsonType();
-                name = bsonReader.ReadName();
-                string awesome = bsonReader.ReadString();
-                bsonType = bsonReader.ReadBsonType();
-                name = bsonReader.ReadName();
-                double fiveOhFive = bsonReader.ReadDouble();
-                bsonType = bsonReader.ReadBsonType();
-                name = bsonReader.ReadName();
-                int year = bsonReader.ReadInt32();
-                bsonType = bsonReader.ReadBsonType();
-                bsonReader.ReadEndArray();
-                bsonType = bsonReader.ReadBsonType();
+                string name;
+                bsonReader.ReadArrayName(out name);
+                bsonReader.ReadStartDocument();
+                string awesome = bsonReader.ReadString(out name);
+                double fiveOhFive = bsonReader.ReadDouble(out name);
+                int year = bsonReader.ReadInt32(out name);
+                bsonReader.ReadEndDocument();
                 bsonReader.ReadEndDocument();
             }
         }

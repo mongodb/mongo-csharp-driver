@@ -49,7 +49,6 @@ namespace MongoDB.BsonLibrary.IO {
 
         internal BsonWriteState WriteState {
             get { return writeState; }
-            set { writeState = value; }
         }
         #endregion
     }

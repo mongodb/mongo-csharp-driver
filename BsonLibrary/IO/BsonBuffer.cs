@@ -214,6 +214,12 @@ namespace MongoDB.BsonLibrary.IO {
             }
         }
 
+        public byte PeekByte() {
+            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            EnsureDataAvailable(1);
+            return chunk[chunkOffset];
+        }
+
         public bool ReadBoolean() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);

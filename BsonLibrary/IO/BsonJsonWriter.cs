@@ -70,14 +70,14 @@ namespace MongoDB.BsonLibrary.IO {
             textWriter.Flush();
         }
 
-        public override void WriteArray(
+        public override void WriteArrayName(
             string name
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteStartArray can only be called when WriteState is one of the document states");
             }
-            WriteEmbeddedDocument(name, BsonWriteState.Array);
+            WriteDocumentName(name, BsonWriteState.Array);
         }
 
         public override void WriteBinaryData(
@@ -89,7 +89,7 @@ namespace MongoDB.BsonLibrary.IO {
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteBinaryData can only be called when WriteState is one of the document states");
             }
-            WriteEmbeddedDocument(name);
+            WriteDocumentName(name);
             WriteStartDocument();
             WriteString("$binary", Convert.ToBase64String(bytes));
             WriteString("$type", ((int) subType).ToString("x2"));
@@ -119,7 +119,7 @@ namespace MongoDB.BsonLibrary.IO {
             long milliseconds = (long) Math.Floor((value.ToUniversalTime() - Bson.UnixEpoch).TotalMilliseconds);
             switch (settings.OutputMode) {
                 case BsonJsonOutputMode.Strict:
-                    WriteEmbeddedDocument(name);
+                    WriteDocumentName(name);
                     WriteStartDocument();
                     WriteInt64("$date", milliseconds);
                     WriteEndDocument();
@@ -134,6 +134,16 @@ namespace MongoDB.BsonLibrary.IO {
             }
         }
 
+        public override void WriteDocumentName(
+            string name
+        ) {
+            if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
+            if ((context.WriteState & BsonWriteState.Document) == 0) {
+                throw new InvalidOperationException("WriteStartEmbeddedDocument can only be called when WriteState is one of the document states");
+            }
+            WriteDocumentName(name, BsonWriteState.EmbeddedDocument);
+        }
+
         public override void WriteDouble(
             string name,
             double value
@@ -144,16 +154,6 @@ namespace MongoDB.BsonLibrary.IO {
             }
             WriteName(name);
             textWriter.Write(value);
-        }
-
-        public override void WriteEmbeddedDocument(
-            string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteStartEmbeddedDocument can only be called when WriteState is one of the document states");
-            }
-            WriteEmbeddedDocument(name, BsonWriteState.EmbeddedDocument);
         }
 
         public override void WriteEndDocument() {
@@ -215,7 +215,7 @@ namespace MongoDB.BsonLibrary.IO {
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteJavaScript can only be called when WriteState is one of the document states");
             }
-            WriteEmbeddedDocument(name);
+            WriteDocumentName(name);
             WriteStartDocument();
             WriteString("$code", code);
             WriteEndDocument();
@@ -229,10 +229,10 @@ namespace MongoDB.BsonLibrary.IO {
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteStartJavaScriptWithScope can only be called when WriteState is one of the document states");
             }
-            WriteEmbeddedDocument(name, BsonWriteState.JavaScriptWithScope);
+            WriteDocumentName(name, BsonWriteState.JavaScriptWithScope);
             WriteStartDocument();
             WriteString("$code", code);
-            WriteEmbeddedDocument("$scope", BsonWriteState.ScopeDocument);
+            WriteDocumentName("$scope", BsonWriteState.ScopeDocument);
         }
 
         public override void WriteMaxKey(
@@ -242,7 +242,7 @@ namespace MongoDB.BsonLibrary.IO {
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteMaxKey can only be called when WriteState is one of the document states");
             }
-            WriteEmbeddedDocument(name);
+            WriteDocumentName(name);
             WriteStartDocument();
             WriteInt32("$maxkey", 1);
             WriteEndDocument();
@@ -255,7 +255,7 @@ namespace MongoDB.BsonLibrary.IO {
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteMinKey can only be called when WriteState is one of the document states");
             }
-            WriteEmbeddedDocument(name);
+            WriteDocumentName(name);
             WriteStartDocument();
             WriteInt32("$minkey", 1);
             WriteEndDocument();
@@ -285,7 +285,7 @@ namespace MongoDB.BsonLibrary.IO {
             switch (settings.OutputMode) {
                 case BsonJsonOutputMode.Strict:
                 case BsonJsonOutputMode.JavaScript:
-                    WriteEmbeddedDocument(name);
+                    WriteDocumentName(name);
                     WriteStartDocument();
                     WriteString("$oid", BsonUtils.ToHexString(bytes));
                     WriteEndDocument();
@@ -308,7 +308,7 @@ namespace MongoDB.BsonLibrary.IO {
             }
             switch (settings.OutputMode) {
                 case BsonJsonOutputMode.Strict:
-                    WriteEmbeddedDocument(name);
+                    WriteDocumentName(name);
                     WriteStartDocument();
                     WriteString("$regex", pattern);
                     WriteString("$options", options);
@@ -369,7 +369,7 @@ namespace MongoDB.BsonLibrary.IO {
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteSymbol can only be called when WriteState is one of the document states");
             }
-            WriteEmbeddedDocument(name);
+            WriteDocumentName(name);
             WriteStartDocument();
             WriteString("$symbol", value);
             WriteEndDocument();
@@ -383,7 +383,7 @@ namespace MongoDB.BsonLibrary.IO {
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteTimestamp can only be called when WriteState is one of the document states");
             }
-            WriteEmbeddedDocument(name);
+            WriteDocumentName(name);
             WriteStartDocument();
             WriteInt64("$timestamp", value);
             WriteEndDocument();
@@ -391,7 +391,7 @@ namespace MongoDB.BsonLibrary.IO {
         #endregion
 
         #region private methods
-        private void WriteEmbeddedDocument(
+        private void WriteDocumentName(
             string name,
             BsonWriteState documentType
         ) {

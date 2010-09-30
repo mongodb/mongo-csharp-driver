@@ -65,7 +65,6 @@
     <Compile Include="ObjectModel\BsonInt64.cs" />
     <Compile Include="ObjectModel\BsonNull.cs" />
     <Compile Include="ObjectModel\BsonBinaryData.cs" />
-    <Compile Include="IO\BsonReaderDocumentType.cs" />
     <Compile Include="ObjectModel\BsonJavaScriptWithScope.cs" />
     <Compile Include="IO\BsonReader.cs" />
     <Compile Include="IO\BsonReadState.cs" />
@@ -100,7 +99,7 @@
     <Compile Include="Serialization\IBsonSerializable.cs" />
     <Compile Include="Serialization\IBsonSerializer.cs" />
     <Compile Include="IO\BsonJsonWriterContext.cs" />
-    <Compile Include="IO\BsonReaderContext.cs" />
+    <Compile Include="IO\BsonBinaryReaderContext.cs" />
     <Compile Include="IO\BsonBinaryWriterContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

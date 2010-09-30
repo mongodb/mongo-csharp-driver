@@ -126,7 +126,7 @@ namespace MongoDB.BsonLibrary.UnitTests {
             MemoryStream stream = new MemoryStream();
             using (BsonWriter bsonWriter = BsonWriter.Create(stream)) {
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteArray("BSON");
+                bsonWriter.WriteArrayName("BSON");
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteString("0", "awesome");
                 bsonWriter.WriteDouble("1", 5.05);

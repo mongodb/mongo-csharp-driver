@@ -19,18 +19,18 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.BsonLibrary.IO {
-    // the state of a BsonReader
     public enum BsonReadState {
-        Initial, // ReadStartDocument should be called next
-        Type, // ReadType should be called next
-        Name, // ReadName should be called next
-        Value, // Read<Type> should be called next
-        EndOfDocument, // ReadEndDocument should be called next
-        EndOfEmbeddedDocument, // ReadEndEmbeddedDocument should be called next
-        EndOfArray, // ReadEndArray should be called next
-        EndOfScopeDocument, // ReadEndOfJavaScriptWithScope should be called next
-        Done, // an entire document has been read
-        Error,
-        Closed
+        Initial, // must call StartDocument next
+        StartDocument, // must call StartDocument next
+        Done, // can call StartDocument if reading a second document using the same reader
+        Closed, // can't use this reader anymore
+        Error, // can't use this reader anymore
+
+        // NOTE: all the Document states start with 0x80 to facilitate checking for them as a group
+        Document = 0x80,
+        EmbeddedDocument = Document | 0x01,
+        Array = Document | 0x02,
+        JavaScriptWithScope = Document | 0x03, // used internally (callers will only see ScopeDocument)
+        ScopeDocument = Document | 0x04
     }
 }

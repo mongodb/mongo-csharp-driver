@@ -19,51 +19,41 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.BsonLibrary.IO {
-    internal class BsonReaderContext {
+    internal class BsonBinaryReaderContext {
         #region private fields
-        private BsonReaderContext parentContext;
+        private BsonBinaryReaderContext parentContext;
         private int startPosition;
         private int size;
-        private BsonReaderDocumentType documentType;
         private BsonReadState readState;
         #endregion
 
         #region constructors
-        internal BsonReaderContext(
-            BsonReaderContext parentContext,
-            int startPosition,
-            int size,
-            BsonReaderDocumentType documentType,
+        internal BsonBinaryReaderContext(
+            BsonBinaryReaderContext parentContext,
             BsonReadState readState
         ) {
             this.parentContext = parentContext;
-            this.startPosition = startPosition;
-            this.size = size;
-            this.documentType = documentType;
             this.readState = readState;
         }
         #endregion
 
         #region internal properties
-        internal BsonReaderContext ParentContext {
+        internal BsonBinaryReaderContext ParentContext {
             get { return parentContext; }
         }
 
         internal int StartPosition {
             get { return startPosition; }
+            set { startPosition = value; }
         }
 
         internal int Size {
             get { return size; }
-        }
-
-        internal BsonReaderDocumentType DocumentType {
-            get { return documentType; }
+            set { size = value; }
         }
 
         internal BsonReadState ReadState {
             get { return readState; }
-            set { readState = value; }
         }
         #endregion
     }

@@ -83,7 +83,7 @@ namespace MongoDB.BsonLibrary.IO {
         public abstract void Close();
         public abstract void Dispose();
         public abstract void Flush();
-        public abstract void WriteArray(
+        public abstract void WriteArrayName(
             string name
         );
         public abstract void WriteBinaryData(
@@ -99,12 +99,12 @@ namespace MongoDB.BsonLibrary.IO {
             string name,
             DateTime value
         );
+        public abstract void WriteDocumentName(
+            string name
+        );
         public abstract void WriteDouble(
             string name,
             double value
-        );
-        public abstract void WriteEmbeddedDocument(
-            string name
         );
         public abstract void WriteEndDocument();
         public abstract void WriteInt32(

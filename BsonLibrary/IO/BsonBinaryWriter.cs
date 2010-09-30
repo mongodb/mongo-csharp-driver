@@ -94,7 +94,7 @@ namespace MongoDB.BsonLibrary.IO {
             }
         }
 
-        public override void WriteArray(
+        public override void WriteArrayName(
             string name
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
@@ -164,6 +164,19 @@ namespace MongoDB.BsonLibrary.IO {
             buffer.WriteInt64(milliseconds);
         }
 
+        public override void WriteDocumentName(
+            string name
+        ) {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if ((context.WriteState & BsonWriteState.Document) == 0) {
+                throw new InvalidOperationException("WriteStartEmbeddedDocument can only be called when WriteState is one of the document states");
+            }
+            buffer.WriteByte((byte) BsonType.Document);
+            buffer.WriteCString(name);
+            context = new BsonBinaryWriterContext(context, BsonWriteState.EmbeddedDocument);
+            context = new BsonBinaryWriterContext(context, BsonWriteState.StartDocument);
+        }
+
         public override void WriteDouble(
             string name,
             double value
@@ -175,19 +188,6 @@ namespace MongoDB.BsonLibrary.IO {
             buffer.WriteByte((byte) BsonType.Double);
             buffer.WriteCString(name);
             buffer.WriteDouble(value);
-        }
-
-        public override void WriteEmbeddedDocument(
-            string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteStartEmbeddedDocument can only be called when WriteState is one of the document states");
-            }
-            buffer.WriteByte((byte) BsonType.Document);
-            buffer.WriteCString(name);
-            context = new BsonBinaryWriterContext(context, BsonWriteState.EmbeddedDocument);
-            context = new BsonBinaryWriterContext(context, BsonWriteState.StartDocument);
         }
 
         public override void WriteEndDocument() {

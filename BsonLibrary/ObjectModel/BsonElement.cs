@@ -102,100 +102,103 @@ namespace MongoDB.BsonLibrary {
         internal static BsonElement ReadFrom(
             BsonReader bsonReader
         ) {
-            BsonType bsonType = bsonReader.ReadBsonType();
+            BsonType bsonType = bsonReader.PeekBsonType();
             if (bsonType == BsonType.EndOfDocument) {
                 return null;
             }
 
-            string name = bsonReader.ReadName();
+            string name;
             BsonValue value; // computed in switch statement below
 
             switch (bsonType) {
                 case BsonType.Double:
-                    value = new BsonDouble(bsonReader.ReadDouble());
+                    value = new BsonDouble(bsonReader.ReadDouble(out name));
                     break;
                 case BsonType.String:
-                    value = new BsonString(bsonReader.ReadString());
+                    value = new BsonString(bsonReader.ReadString(out name));
                     break;
                 case BsonType.Document:
+                    bsonReader.ReadDocumentName(out name);
+                    bsonReader.ReadStartDocument();
                     BsonDocument document = new BsonDocument();
-                    bsonReader.ReadStartEmbeddedDocument();
                     BsonElement documentElement;
                     while ((documentElement = BsonElement.ReadFrom(bsonReader)) != null) {
                         document.Add(documentElement);
                     }
-                    bsonReader.ReadEndEmbeddedDocument();
+                    bsonReader.ReadEndDocument();
                     value = document;
                     break;
                 case BsonType.Array:
+                    bsonReader.ReadArrayName(out name);
+                    bsonReader.ReadStartDocument();
                     BsonArray array = new BsonArray();
-                    bsonReader.ReadStartArray();
                     BsonElement arrayElement;
                     while ((arrayElement = BsonElement.ReadFrom(bsonReader)) != null) {
                         array.Add(arrayElement.Value); // names are ignored on input and regenerated on output
                     }
-                    bsonReader.ReadEndArray();
+                    bsonReader.ReadEndDocument();
                     value = array;
                     break;
                 case BsonType.Binary:
+                    byte[] bytes;
                     BsonBinarySubType subType;
-                    byte[] bytes = bsonReader.ReadBinaryData(out subType);
+                    bsonReader.ReadBinaryData(out name, out bytes, out subType);
                     value = new BsonBinaryData(bytes, subType);
                     break;
                 case BsonType.ObjectId:
                     int timestamp;
                     long machinePidIncrement;
-                    bsonReader.ReadObjectId(out timestamp, out machinePidIncrement);
+                    bsonReader.ReadObjectId(out name, out timestamp, out machinePidIncrement);
                     value = new BsonObjectId(timestamp, machinePidIncrement);
                     break;
                 case BsonType.Boolean:
-                    value = BsonBoolean.Create(bsonReader.ReadBoolean());
+                    value = BsonBoolean.Create(bsonReader.ReadBoolean(out name));
                     break;
                 case BsonType.DateTime:
-                    value = new BsonDateTime(bsonReader.ReadDateTime());
+                    value = new BsonDateTime(bsonReader.ReadDateTime(out name));
                     break;
                 case BsonType.Null:
-                    bsonReader.ReadNull();
+                    bsonReader.ReadNull(out name);
                     value = Bson.Null;
                     break;
                 case BsonType.RegularExpression:
                     string pattern;
                     string options;
-                    bsonReader.ReadRegularExpression(out pattern, out options);
+                    bsonReader.ReadRegularExpression(out name, out pattern, out options);
                     value = new BsonRegularExpression(pattern, options);
                     break;
                 case BsonType.JavaScript:
-                    value = new BsonJavaScript(bsonReader.ReadJavaScript());
+                    value = new BsonJavaScript(bsonReader.ReadJavaScript(out name));
                     break;
                 case BsonType.Symbol:
-                    value = BsonSymbol.Create(bsonReader.ReadSymbol());
+                    value = BsonSymbol.Create(bsonReader.ReadSymbol(out name));
                     break;
                 case BsonType.JavaScriptWithScope:
-                    string code;
+                    string code = bsonReader.ReadJavaScriptWithScope(out name);
+                    bsonReader.ReadStartDocument();
                     BsonDocument scope = new BsonDocument();
-                    bsonReader.ReadStartJavaScriptWithScope(out code);
                     BsonElement scopeElement;
                     while ((scopeElement = BsonElement.ReadFrom(bsonReader)) != null) {
                         scope.Add(scopeElement);
                     }
-                    bsonReader.ReadEndJavaScriptWithScope();
+                    bsonReader.ReadEndDocument();
                     value = new BsonJavaScriptWithScope(code, scope);
                     break;
                 case BsonType.Int32:
-                    value = BsonInt32.Create(bsonReader.ReadInt32());
+                    value = BsonInt32.Create(bsonReader.ReadInt32(out name));
                     break;
                 case BsonType.Timestamp:
-                    value = new BsonTimestamp(bsonReader.ReadTimestamp());
+                    value = new BsonTimestamp(bsonReader.ReadTimestamp(out name));
                     break;
                 case BsonType.Int64:
-                    value = new BsonInt64(bsonReader.ReadInt64());
+                    value = new BsonInt64(bsonReader.ReadInt64(out name));
                     break;
                 case BsonType.MinKey:
-                    bsonReader.ReadMinKey();
+                    bsonReader.ReadMinKey(out name);
                     value = Bson.MinKey;
                     break;
                 case BsonType.MaxKey:
-                    bsonReader.ReadMaxKey();
+                    bsonReader.ReadMaxKey(out name);
                     value = Bson.MaxKey;
                     break;
                 default:
@@ -284,7 +287,7 @@ namespace MongoDB.BsonLibrary {
                     bsonWriter.WriteString(name, value.AsString);
                     break;
                 case BsonType.Document:
-                    bsonWriter.WriteEmbeddedDocument(name);
+                    bsonWriter.WriteDocumentName(name);
                     var document = value as BsonDocument;
                     if (document != null) {
                         document.WriteTo(bsonWriter);
@@ -294,7 +297,7 @@ namespace MongoDB.BsonLibrary {
                     }
                     break;
                 case BsonType.Array:
-                    bsonWriter.WriteArray(name);
+                    bsonWriter.WriteArrayName(name);
                     BsonArray array = value.AsBsonArray;
                     array.WriteTo(bsonWriter);
                     break;
