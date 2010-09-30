@@ -57,8 +57,8 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public void Delete<Q>(
-            Q query
+        public void Delete<TQuery>(
+            TQuery query
         ) {
             using (database.RequestStart()) {
                 var files = database.GetCollection(settings.FilesCollectionName);
@@ -84,16 +84,16 @@ namespace MongoDB.CSharpDriver {
             Delete(query);
         }
 
-        public void Download<Q>(
+        public void Download<TQuery>(
             Stream stream,
-            Q query
+            TQuery query
         ) {
             Download(stream, query, -1); // most recent version
         }
 
-        public void Download<Q>(
+        public void Download<TQuery>(
             Stream stream,
-            Q query,
+            TQuery query,
             int version
         ) {
             var fileInfo = FindOne(query, version);
@@ -164,16 +164,16 @@ namespace MongoDB.CSharpDriver {
             Download(fileName, fileName, version); // same local and remote file names
         }
 
-        public void Download<Q>(
+        public void Download<TQuery>(
             string localFileName,
-            Q query
+            TQuery query
         ) {
             Download(localFileName, query, -1); // most recent version
         }
 
-        public void Download<Q>(
+        public void Download<TQuery>(
             string localFileName,
-            Q query,
+            TQuery query,
             int version
         ) {
             using (Stream stream = File.Create(localFileName)) {
@@ -207,8 +207,8 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public bool Exists<Q>(
-            Q query
+        public bool Exists<TQuery>(
+            TQuery query
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
             return files.Count(query) > 0;
@@ -233,8 +233,8 @@ namespace MongoDB.CSharpDriver {
             return Find(query);
         }
 
-        public IEnumerable<MongoGridFSFileInfo> Find<Q>(
-            Q query
+        public IEnumerable<MongoGridFSFileInfo> Find<TQuery>(
+            TQuery query
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
             return files.Find(query).Select(d => new MongoGridFSFileInfo(this, d));
@@ -254,14 +254,14 @@ namespace MongoDB.CSharpDriver {
             return Find(query);
         }
 
-        public MongoGridFSFileInfo FindOne<Q>(
-            Q query
+        public MongoGridFSFileInfo FindOne<TQuery>(
+            TQuery query
         ) {
             return FindOne(query, -1); // most recent version
         }
 
-        public MongoGridFSFileInfo FindOne<Q>(
-            Q query,
+        public MongoGridFSFileInfo FindOne<TQuery>(
+            TQuery query,
             int version // 1 is oldest, -1 is newest, 0 is no sort
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);

@@ -204,17 +204,17 @@ namespace MongoDB.CSharpDriver {
             return GetCollection<BsonDocument>(collectionName);
         }
 
-        public MongoCollection<D> GetCollection<D>(
+        public MongoCollection<TResultDefault> GetCollection<TResultDefault>(
             string collectionName
         ) {
             lock (databaseLock) {
                 MongoCollection collection;
-                string key = string.Format("{0}<{1}>", collectionName, typeof(D).FullName);
+                string key = string.Format("{0}<{1}>", collectionName, typeof(TResultDefault).FullName);
                 if (!collections.TryGetValue(key, out collection)) {
-                    collection = new MongoCollection<D>(this, collectionName);
+                    collection = new MongoCollection<TResultDefault>(this, collectionName);
                     collections.Add(key, collection);
                 }
-                return (MongoCollection<D>) collection;
+                return (MongoCollection<TResultDefault>) collection;
             }
         }
 
@@ -278,8 +278,8 @@ namespace MongoDB.CSharpDriver {
 
         // TODO: mongo shell has ResetError at the database level
 
-        public BsonDocument RunCommand<C>(
-            C command
+        public BsonDocument RunCommand<TCommand>(
+            TCommand command
         ) {
             BsonDocument result = CommandCollection.FindOne(command);
             if (!result.Contains("ok")) {

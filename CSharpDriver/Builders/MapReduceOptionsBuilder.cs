@@ -56,20 +56,20 @@ namespace MongoDB.CSharpDriver.Builders {
             return new MapReduceOptionsBuilder().Out(collectionName);
         }
 
-        public static MapReduceOptionsBuilder Query<Q>(
-            Q query
+        public static MapReduceOptionsBuilder Query<TQuery>(
+            TQuery query
         ) {
             return new MapReduceOptionsBuilder().Query(query);
         }
 
-        public static MapReduceOptionsBuilder Scope<S>(
-            S scope
+        public static MapReduceOptionsBuilder Scope<TScope>(
+            TScope scope
         ) {
             return new MapReduceOptionsBuilder().Scope(scope);
         }
 
-        public static MapReduceOptionsBuilder Sort<S>(
-            S sortBy
+        public static MapReduceOptionsBuilder Sort<TSortBy>(
+            TSortBy sortBy
         ) {
             return new MapReduceOptionsBuilder().Sort(sortBy);
         }
@@ -128,22 +128,22 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public MapReduceOptionsBuilder Query<Q>(
-            Q query
+        public MapReduceOptionsBuilder Query<TQuery>(
+            TQuery query
         ) {
             document["query"] = BsonDocumentWrapper.Create(query);
             return this;
         }
 
-        public MapReduceOptionsBuilder Scope<S>(
-            S scope
+        public MapReduceOptionsBuilder Scope<TScope>(
+            TScope scope
         ) {
             document["scope"] = BsonDocumentWrapper.Create(scope);
             return this;
         }
 
-        public MapReduceOptionsBuilder Sort<S>(
-            S sortBy
+        public MapReduceOptionsBuilder Sort<TSortBy>(
+            TSortBy sortBy
         ) {
             document["sort"] = BsonDocumentWrapper.Create(sortBy);
             return this;

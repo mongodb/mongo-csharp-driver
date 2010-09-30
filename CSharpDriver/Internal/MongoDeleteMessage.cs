@@ -24,18 +24,18 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoDeleteMessage<Q> : MongoRequestMessage {
+    internal class MongoDeleteMessage<TQuery> : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
         private RemoveFlags flags;
-        private Q query;
+        private TQuery query;
         #endregion
 
         #region constructors
         internal MongoDeleteMessage(
             string collectionFullName,
             RemoveFlags flags,
-            Q query
+            TQuery query
         ) :
             base(MessageOpcode.Delete) {
             this.collectionFullName = collectionFullName;

@@ -41,8 +41,8 @@ namespace MongoDB.CSharpDriver.Internal {
         #endregion
 
         #region internal methods
-        internal void AddDocument<I>(
-            I document
+        internal void AddDocument<TDocument>(
+            TDocument document
         ) {
             lastDocumentStartPosition = buffer.Position;
             var bsonWriter = BsonWriter.Create(buffer);

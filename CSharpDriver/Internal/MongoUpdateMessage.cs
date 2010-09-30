@@ -24,20 +24,20 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoUpdateMessage<Q, U> : MongoRequestMessage {
+    internal class MongoUpdateMessage<TQuery, TUpdate> : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
         private UpdateFlags flags;
-        private Q query;
-        private U update;
+        private TQuery query;
+        private TUpdate update;
         #endregion
 
         #region constructors
         internal MongoUpdateMessage(
             string collectionFullName,
             UpdateFlags flags,
-            Q query,
-            U update
+            TQuery query,
+            TUpdate update
         ) :
             base(MessageOpcode.Update) {
             this.collectionFullName = collectionFullName;

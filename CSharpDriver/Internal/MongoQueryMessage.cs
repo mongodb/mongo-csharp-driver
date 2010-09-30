@@ -24,13 +24,13 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoQueryMessage<Q> : MongoRequestMessage {
+    internal class MongoQueryMessage<TQuery> : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
         private QueryFlags flags;
         private int numberToSkip;
         private int numberToReturn;
-        private Q query;
+        private TQuery query;
         private BsonDocumentWrapper fields;
         #endregion
 
@@ -40,7 +40,7 @@ namespace MongoDB.CSharpDriver.Internal {
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
-            Q query,
+            TQuery query,
             BsonDocumentWrapper fields
         ) :
             this(collectionFullName, flags, numberToSkip, numberToReturn, query, fields, null) {
@@ -51,7 +51,7 @@ namespace MongoDB.CSharpDriver.Internal {
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
-            Q query,
+            TQuery query,
             BsonDocumentWrapper fields,
             BsonBuffer buffer
         ) :

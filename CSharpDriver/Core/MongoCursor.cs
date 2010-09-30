@@ -24,10 +24,10 @@ using MongoDB.CSharpDriver.Builders;
 using MongoDB.CSharpDriver.Internal;
 
 namespace MongoDB.CSharpDriver {
-    public class MongoCursor<Q, R> : IEnumerable<R> {
+    public class MongoCursor<TQuery, TResult> : IEnumerable<TResult> {
         #region private fields
         private MongoCollection collection;
-        private Q query;
+        private TQuery query;
         private BsonDocumentWrapper fields;
         private BsonDocument options;
         private QueryFlags flags;
@@ -40,7 +40,7 @@ namespace MongoDB.CSharpDriver {
         #region constructors
         internal MongoCursor(
             MongoCollection collection,
-            Q query
+            TQuery query
         ) {
             this.collection = collection;
             this.query = query;
@@ -58,7 +58,7 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public MongoCursor<Q, R> AddOption(
+        public MongoCursor<TQuery, TResult> AddOption(
             string name,
             BsonValue value
         ) {
@@ -68,7 +68,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> BatchSize(
+        public MongoCursor<TQuery, TResult> BatchSize(
             int batchSize
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -77,8 +77,8 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, RNew> Clone<RNew>() {
-            var clone = new MongoCursor<Q, RNew>(collection, query);
+        public MongoCursor<TQuery, TResultNew> Clone<TResultNew>() {
+            var clone = new MongoCursor<TQuery, TResultNew>(collection, query);
             clone.options = options == null ? null : (BsonDocument) options.Clone();
             clone.flags = flags;
             clone.skip = skip;
@@ -129,15 +129,15 @@ namespace MongoDB.CSharpDriver {
             return explanation;
         }
 
-        public MongoCursor<Q, R> Fields<F>(
-            F fields
+        public MongoCursor<TQuery, TResult> Fields<TFields>(
+            TFields fields
         ) {
             if (frozen) { ThrowFrozen(); }
             this.fields = BsonDocumentWrapper.Create(fields);
             return this;
         }
 
-        public MongoCursor<Q, R> Fields<F>(
+        public MongoCursor<TQuery, TResult> Fields<TFields>(
             params string[] fields
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -145,7 +145,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> Flags(
+        public MongoCursor<TQuery, TResult> Flags(
             QueryFlags flags
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -153,12 +153,12 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public IEnumerator<R> GetEnumerator() {
+        public IEnumerator<TResult> GetEnumerator() {
             frozen = true;
             return new MongoCursorEnumerator(this);
         }
 
-        public MongoCursor<Q, R> Hint(
+        public MongoCursor<TQuery, TResult> Hint(
             BsonDocument hint
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -166,7 +166,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> Limit(
+        public MongoCursor<TQuery, TResult> Limit(
             int limit
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -174,7 +174,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> Max(
+        public MongoCursor<TQuery, TResult> Max(
            BsonDocument max
        ) {
             if (frozen) { ThrowFrozen(); }
@@ -182,7 +182,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> MaxScan(
+        public MongoCursor<TQuery, TResult> MaxScan(
             int maxScan
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -190,7 +190,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> Min(
+        public MongoCursor<TQuery, TResult> Min(
            BsonDocument min
        ) {
             if (frozen) { ThrowFrozen(); }
@@ -198,7 +198,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> Options(
+        public MongoCursor<TQuery, TResult> Options(
             BsonDocument options
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -218,13 +218,13 @@ namespace MongoDB.CSharpDriver {
             return result["n"].ToInt32();
         }
 
-        public MongoCursor<Q, R> ShowDiskLoc() {
+        public MongoCursor<TQuery, TResult> ShowDiskLoc() {
             if (frozen) { ThrowFrozen(); }
             AddOption("$showDiskLoc", true);
             return this;
         }
 
-        public MongoCursor<Q, R> Skip(
+        public MongoCursor<TQuery, TResult> Skip(
             int skip
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -233,21 +233,21 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<Q, R> Snapshot() {
+        public MongoCursor<TQuery, TResult> Snapshot() {
             if (frozen) { ThrowFrozen(); }
             AddOption("$snapshot", true);
             return this;
         }
 
-        public MongoCursor<Q, R> Sort<S>(
-            S sortBy
+        public MongoCursor<TQuery, TResult> Sort<TSortBy>(
+            TSortBy sortBy
         ) {
             if (frozen) { ThrowFrozen(); }
             AddOption("$orderby", BsonDocumentWrapper.Create(sortBy));
             return this;
         }
 
-        public MongoCursor<Q, R> Sort(
+        public MongoCursor<TQuery, TResult> Sort(
             params string[] keys
         ) {
             if (frozen) { ThrowFrozen(); }
@@ -269,23 +269,23 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region nested classes
-        private class MongoCursorEnumerator : IEnumerator<R> {
+        private class MongoCursorEnumerator : IEnumerator<TResult> {
             #region private fields
             private bool disposed = false;
             private bool started = false;
             private bool done = false;
-            private MongoCursor<Q, R> cursor;
+            private MongoCursor<TQuery, TResult> cursor;
             private MongoConnection connection;
             private int count;
             private int positiveLimit;
-            private MongoReplyMessage<R> reply;
+            private MongoReplyMessage<TResult> reply;
             private int replyIndex;
             private long openCursorId;
             #endregion
 
             #region constructors
             public MongoCursorEnumerator(
-                MongoCursor<Q, R> cursor
+                MongoCursor<TQuery, TResult> cursor
             ) {
                 this.cursor = cursor;
                 this.positiveLimit = cursor.limit >= 0 ? cursor.limit : -cursor.limit;
@@ -293,7 +293,7 @@ namespace MongoDB.CSharpDriver {
             #endregion
 
             #region public properties
-            public R Current {
+            public TResult Current {
                 get {
                     if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
                     if (!started) {
@@ -366,7 +366,7 @@ namespace MongoDB.CSharpDriver {
             #endregion
 
             #region private methods
-            private MongoReplyMessage<R> GetFirst() {
+            private MongoReplyMessage<TResult> GetFirst() {
                 connection = cursor.Collection.Database.GetConnection();
                 try {
                     // some of these weird conditions are necessary to get commands to run correctly
@@ -402,7 +402,7 @@ namespace MongoDB.CSharpDriver {
                 }
             }
 
-            private MongoReplyMessage<R> GetMore() {
+            private MongoReplyMessage<TResult> GetMore() {
                 try {
                     int numberToReturn;
                     if (positiveLimit != 0) {
@@ -429,11 +429,11 @@ namespace MongoDB.CSharpDriver {
                 }
             }
 
-            private MongoReplyMessage<R> GetReply(
+            private MongoReplyMessage<TResult> GetReply(
                 MongoRequestMessage message
             ) {
                 connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-                var reply = connection.ReceiveMessage<R>();
+                var reply = connection.ReceiveMessage<TResult>();
                 openCursorId = reply.CursorId;
                 if (openCursorId == 0) {
                     ReleaseConnection();

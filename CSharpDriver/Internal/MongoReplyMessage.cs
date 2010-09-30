@@ -24,13 +24,13 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Internal {
-    internal class MongoReplyMessage<R> : MongoMessage {
+    internal class MongoReplyMessage<TResult> : MongoMessage {
         #region private fields
         private ResponseFlags responseFlags;
         private long cursorId;
         private int startingFrom;
         private int numberReturned;
-        private List<R> documents;
+        private List<TResult> documents;
         #endregion
 
         #region constructors
@@ -56,7 +56,7 @@ namespace MongoDB.CSharpDriver.Internal {
             get { return numberReturned; }
         }
 
-        internal List<R> Documents {
+        internal List<TResult> Documents {
             get { return documents; }
         }
         #endregion
@@ -72,7 +72,7 @@ namespace MongoDB.CSharpDriver.Internal {
             cursorId = buffer.ReadInt64();
             startingFrom = buffer.ReadInt32();
             numberReturned = buffer.ReadInt32();
-            documents = new List<R>();
+            documents = new List<TResult>();
 
             BsonReader bsonReader = BsonReader.Create(buffer);
             if ((responseFlags & ResponseFlags.CursorNotFound) != 0) {
@@ -85,7 +85,7 @@ namespace MongoDB.CSharpDriver.Internal {
             }
 
             while (buffer.Position - messageStartPosition < messageLength) {
-                R document = (R) BsonSerializer.Deserialize(bsonReader, typeof(R));
+                TResult document = (TResult) BsonSerializer.Deserialize(bsonReader, typeof(TResult));
                 documents.Add(document);
             }
         }

@@ -75,8 +75,8 @@ namespace MongoDB.CSharpDriver {
             return Count<BsonDocument>(null);
         }
 
-        public int Count<Q>(
-            Q query
+        public int Count<TQuery>(
+            TQuery query
         ) {
             var command = new BsonDocument {
                 { "count", name },
@@ -86,9 +86,9 @@ namespace MongoDB.CSharpDriver {
             return result["n"].ToInt32();
         }
 
-        public BsonDocument CreateIndex<K, O>(
-            K keys,
-            O options
+        public BsonDocument CreateIndex<TIndexKeys, TIndexOptions>(
+            TIndexKeys keys,
+            TIndexOptions options
         ) {
             var keysDocument = BsonUtils.ToBsonDocument(keys);
             var optionsDocument = BsonUtils.ToBsonDocument(options);
@@ -104,8 +104,8 @@ namespace MongoDB.CSharpDriver {
             return result;
         }
 
-        public BsonDocument CreateIndex<K>(
-            K keys
+        public BsonDocument CreateIndex<TIndexKeys>(
+            TIndexKeys keys
         ) {
             return CreateIndex(keys, IndexOptions.None);
         }
@@ -127,9 +127,9 @@ namespace MongoDB.CSharpDriver {
             return Distinct(key, query);
         }
 
-        public IEnumerable<BsonValue> Distinct<Q>(
+        public IEnumerable<BsonValue> Distinct<TQuery>(
             string key,
-            Q query
+            TQuery query
         ) {
             var command = new BsonDocument {
                 { "distinct", name },
@@ -144,8 +144,8 @@ namespace MongoDB.CSharpDriver {
             return DropIndex("*");
         }
 
-        public BsonDocument DropIndex<K>(
-            K keys
+        public BsonDocument DropIndex<TIndexKeys>(
+            TIndexKeys keys
         ) {
             var keysDocument = BsonUtils.ToBsonDocument(keys);
             string indexName = GetIndexName(keysDocument);
@@ -173,9 +173,9 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public void EnsureIndex<K, O>(
-           K keys,
-           O options
+        public void EnsureIndex<TIndexKeys, TIndexOptions>(
+           TIndexKeys keys,
+           TIndexOptions options
         ) {
             lock (indexCache) {
                 var keysDocument = BsonUtils.ToBsonDocument(keys);
@@ -188,8 +188,8 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public void EnsureIndex<K>(
-            K keys
+        public void EnsureIndex<TIndexKeys>(
+            TIndexKeys keys
         ) {
             EnsureIndex(keys, IndexOptions.None);
         }
@@ -206,47 +206,47 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public MongoCursor<Q, R> Find<Q, R>(
-            Q query
+        public MongoCursor<TQuery, TResult> Find<TQuery, TResult>(
+            TQuery query
         ) {
-            return new MongoCursor<Q, R>(this, query);
+            return new MongoCursor<TQuery, TResult>(this, query);
         }
 
-        public MongoCursor<BsonDocument, R> FindAll<R>() {
+        public MongoCursor<BsonDocument, TResult> FindAll<TResult>() {
             BsonDocument query = null;
-            return Find<BsonDocument, R>(query);
+            return Find<BsonDocument, TResult>(query);
         }
 
-        public BsonDocument FindAndModify<Q, S, U>(
-            Q query,
-            S sort,
-            U update
+        public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate>(
+            TQuery query,
+            TSortBy sortBy,
+            TUpdate update
         ) {
             BsonDocument fields = null;
-            return FindAndModify(query, sort, update, fields, false);
+            return FindAndModify(query, sortBy, update, fields, false);
         }
 
-        public BsonDocument FindAndModify<Q, S, U>(
-            Q query,
-            S sort,
-            U update,
+        public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate>(
+            TQuery query,
+            TSortBy sortBy,
+            TUpdate update,
             bool returnNew
         ) {
             BsonDocument fields = null;
-            return FindAndModify(query, sort, update, fields, returnNew);
+            return FindAndModify(query, sortBy, update, fields, returnNew);
         }
 
-        public BsonDocument FindAndModify<Q, S, U, F>(
-            Q query,
-            S sort,
-            U update,
-            F fields,
+        public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate, TFields>(
+            TQuery query,
+            TSortBy sortBy,
+            TUpdate update,
+            TFields fields,
             bool returnNew
         ) {
             var command = new BsonDocument {
                 { "findAndModify", name },
                 { "query", BsonDocumentWrapper.Create(query) },
-                { "sort", BsonDocumentWrapper.Create(sort) },
+                { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "update", BsonDocumentWrapper.Create(update) },
                 { "fields", BsonDocumentWrapper.Create(fields) },
                 { returnNew, "new", true }
@@ -255,32 +255,32 @@ namespace MongoDB.CSharpDriver {
             return result["value"].AsBsonDocument;
         }
 
-        public BsonDocument FindAndRemove<Q, S>(
-            Q query,
-            S sort
+        public BsonDocument FindAndRemove<TQuery, TSortBy>(
+            TQuery query,
+            TSortBy sortBy
         ) {
             var command = new BsonDocument {
                 { "findAndModify", name },
                 { "query", BsonDocumentWrapper.Create(query) },
-                { "sort", BsonDocumentWrapper.Create(sort) },
+                { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "remove", true }
             };
             var result = database.RunCommand(command);
             return result["value"].AsBsonDocument;
         }
 
-        public R FindOne<R>() {
-            return FindAll<R>().Limit(1).FirstOrDefault();
+        public TResult FindOne<TResult>() {
+            return FindAll<TResult>().Limit(1).FirstOrDefault();
         }
 
-        public R FindOne<Q, R>(
-            Q query
+        public TResult FindOne<TQuery, TResult>(
+            TQuery query
         ) {
-            return Find<Q, R>(query).Limit(1).FirstOrDefault();
+            return Find<TQuery, TResult>(query).Limit(1).FirstOrDefault();
         }
 
-        public BsonDocument GeoNear<Q>(
-            Q query,
+        public BsonDocument GeoNear<TQuery>(
+            TQuery query,
             double x,
             double y,
             int limit
@@ -300,17 +300,17 @@ namespace MongoDB.CSharpDriver {
             return indexes.Find(query).ToList(); // force query to execute before returning
         }
 
-        public IEnumerable<BsonDocument> Group<K, Q>(
-            K keys,
-            Q query,
+        public IEnumerable<BsonDocument> Group<TGroupBy, TQuery>(
+            TGroupBy groupBy,
+            TQuery query,
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
         ) {
             BsonElement keyElement;
-            var keyFunction = keys as BsonJavaScript;
+            var keyFunction = groupBy as BsonJavaScript;
             if (keyFunction == null) {
-                keyElement = new BsonElement("key", BsonDocumentWrapper.Create(keys));
+                keyElement = new BsonElement("key", BsonDocumentWrapper.Create(groupBy));
             } else {
                 keyElement = new BsonElement("$keyf", keyFunction);
             }
@@ -329,42 +329,41 @@ namespace MongoDB.CSharpDriver {
             return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
-        public IEnumerable<BsonDocument> Group<Q>(
+        public IEnumerable<BsonDocument> Group<TQuery>(
             string key,
-            Q query,
+            TQuery query,
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
         ) {
-            var keys = new BsonDocument(key, 1);
             return Group(GroupBy.Keys(key), query, initial, reduce, finalize);
         }
 
         // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
-        // it's very easy for the compiler to end up inferring the wrong type for I!
+        // it's very easy for the compiler to end up inferring the wrong type for TDocument!
         // that's also why Insert and InsertBatch have to have different names
 
-        public BsonDocument Insert<I>(
-            I document
+        public BsonDocument Insert<TDocument>(
+            TDocument document
         ) {
             return Insert(document, safeMode);
         }
 
-        public BsonDocument Insert<I>(
-            I document,
+        public BsonDocument Insert<TDocument>(
+            TDocument document,
             SafeMode safeMode
         ) {
-            return InsertBatch<I>(new I[] { document }, safeMode);
+            return InsertBatch<TDocument>(new TDocument[] { document }, safeMode);
         }
 
-        public BsonDocument InsertBatch<I>(
-            IEnumerable<I> documents
+        public BsonDocument InsertBatch<TDocument>(
+            IEnumerable<TDocument> documents
         ) {
-            return InsertBatch<I>(documents, safeMode);
+            return InsertBatch<TDocument>(documents, safeMode);
         }
 
-        public BsonDocument InsertBatch<I>(
-            IEnumerable<I> documents,
+        public BsonDocument InsertBatch<TDocument>(
+            IEnumerable<TDocument> documents,
             SafeMode safeMode
         ) {
             BsonArray batches = null;
@@ -417,10 +416,10 @@ namespace MongoDB.CSharpDriver {
             throw new NotImplementedException();
         }
 
-        public MongoMapReduceResult MapReduce<O>(
+        public MongoMapReduceResult MapReduce<TMapReduceOptions>(
             BsonJavaScript map,
             BsonJavaScript reduce,
-            O options
+            TMapReduceOptions options
         ) {
             var command = new BsonDocument {
                 { "mapreduce", name },
@@ -432,18 +431,18 @@ namespace MongoDB.CSharpDriver {
             return new MongoMapReduceResult(database, result);
         }
 
-        public MongoMapReduceResult MapReduce<Q, O>(
-            Q query,
+        public MongoMapReduceResult MapReduce<TQuery, TMapReduceOptions>(
+            TQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce,
-            O options
+            TMapReduceOptions options
         ) {
             // create a new set of options because we don't want to modify caller's data
             return MapReduce(map, reduce, MapReduceOptions.Query(query).Append(BsonUtils.ToBsonDocument(options)));
         }
 
-        public MongoMapReduceResult MapReduce<Q>(
-            Q query,
+        public MongoMapReduceResult MapReduce<TQuery>(
+            TQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
@@ -461,28 +460,28 @@ namespace MongoDB.CSharpDriver {
             throw new NotImplementedException();
         }
 
-        public BsonDocument Remove<Q>(
-            Q query
+        public BsonDocument Remove<TQuery>(
+            TQuery query
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public BsonDocument Remove<Q>(
-            Q query,
+        public BsonDocument Remove<TQuery>(
+            TQuery query,
             SafeMode safeMode
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public BsonDocument Remove<Q>(
-            Q query,
+        public BsonDocument Remove<TQuery>(
+            TQuery query,
             RemoveFlags flags
         ) {
             return Remove(query, flags, safeMode);
         }
 
-        public BsonDocument Remove<Q>(
-           Q query,
+        public BsonDocument Remove<TQuery>(
+           TQuery query,
            RemoveFlags flags,
            SafeMode safeMode
         ) {
@@ -501,7 +500,7 @@ namespace MongoDB.CSharpDriver {
                 }
             }
 
-            using (var message = new MongoDeleteMessage<Q>(FullName, flags, query)) {
+            using (var message = new MongoDeleteMessage<TQuery>(FullName, flags, query)) {
                 var connection = database.GetConnection();
                 var lastError = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
@@ -527,14 +526,14 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public BsonDocument Save<T>(
-            T document
+        public BsonDocument Save<TDocument>(
+            TDocument document
         ) {
             return Save(document, safeMode);
         }
 
-        public BsonDocument Save<T>(
-            T document,
+        public BsonDocument Save<TDocument>(
+            TDocument document,
             SafeMode safeMode
         ) {
             // TODO: find a way to do this more efficiently without creating an intermediate BsonDocument
@@ -579,32 +578,32 @@ namespace MongoDB.CSharpDriver {
  	    return FullName;
         }
 
-        public BsonDocument Update<Q, U>(
-            Q query,
-            U update
+        public BsonDocument Update<TQuery, TUpdate>(
+            TQuery query,
+            TUpdate update
         ) {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
-        public BsonDocument Update<Q, U>(
-            Q query,
-            U update,
+        public BsonDocument Update<TQuery, TUpdate>(
+            TQuery query,
+            TUpdate update,
             SafeMode safeMode
         ) {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
-        public BsonDocument Update<Q, U>(
-            Q query,
-            U update,
+        public BsonDocument Update<TQuery, TUpdate>(
+            TQuery query,
+            TUpdate update,
             UpdateFlags flags
         ) {
             return Update(query, update, flags, safeMode);
         }
 
-        public BsonDocument Update<Q, U>(
-            Q query,
-            U update,
+        public BsonDocument Update<TQuery, TUpdate>(
+            TQuery query,
+            TUpdate update,
             UpdateFlags flags,
             SafeMode safeMode
         ) {
@@ -616,7 +615,7 @@ namespace MongoDB.CSharpDriver {
                 }
             }
 
-            using (var message = new MongoUpdateMessage<Q, U>(FullName, flags, query, update)) {
+            using (var message = new MongoUpdateMessage<TQuery, TUpdate>(FullName, flags, query, update)) {
                 var connection = database.GetConnection();
                 var lastError = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
@@ -686,9 +685,9 @@ namespace MongoDB.CSharpDriver {
     }
 
     // this subclass provides a default result document type for Find methods
-    // you can still Find any other document types by using the Find<R> methods
+    // you can still Find any other document types by using the Find<TResult> methods
 
-    public class MongoCollection<D> : MongoCollection {
+    public class MongoCollection<TResultDefault> : MongoCollection {
         #region constructors
         public MongoCollection(
             MongoDatabase database,
@@ -699,24 +698,24 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public MongoCursor<Q, D> Find<Q>(
-            Q query
+        public MongoCursor<TQuery, TResultDefault> Find<TQuery>(
+            TQuery query
         ) {
-            return Find<Q, D>(query);
+            return Find<TQuery, TResultDefault>(query);
         }
 
-        public MongoCursor<BsonDocument, D> FindAll() {
-            return FindAll<D>();
+        public MongoCursor<BsonDocument, TResultDefault> FindAll() {
+            return FindAll<TResultDefault>();
         }
 
-        public D FindOne() {
-            return FindOne<D>();
+        public TResultDefault FindOne() {
+            return FindOne<TResultDefault>();
         }
 
-        public D FindOne<Q>(
-            Q query
+        public TResultDefault FindOne<TQuery>(
+            TQuery query
         ) {
-            return FindOne<Q, D>(query);
+            return FindOne<TQuery, TResultDefault>(query);
         }
         #endregion
     }
