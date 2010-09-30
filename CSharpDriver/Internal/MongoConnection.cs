@@ -232,7 +232,7 @@ namespace MongoDB.CSharpDriver.Internal {
         }
 
         // normally a connection is linked to a connection pool at the time it is created
-        // but the very first connection was made by FindPrimary before the connection pool existed
+        // but the very first connection was made by FindServer before the connection pool existed
         // we don't want to waste that connection so it becomes the first connection of the new connection pool
         internal void JoinConnectionPool(
             MongoConnectionPool connectionPool

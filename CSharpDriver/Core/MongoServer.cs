@@ -187,7 +187,7 @@ namespace MongoDB.CSharpDriver {
                 if (state != MongoServerState.Connected) {
                     state = MongoServerState.Connecting;
                     try {
-                        var results = FindPrimary(timeout);
+                        var results = FindServer(timeout);
 
                         List<MongoServerAddress> replicaSet = null;
                         if (results.CommandResult.Contains("hosts")) {
@@ -203,7 +203,7 @@ namespace MongoDB.CSharpDriver {
                         }
                         this.replicaSet = replicaSet;
 
-                        // the connection FindPrimary made to the primary becomes the first connection in the new connection pool
+                        // the connection FindServer made to the primary becomes the first connection in the new connection pool
                         connectionPool = new MongoConnectionPool(this, results.Address, results.Connection);
 
                         state = MongoServerState.Connected;
@@ -311,7 +311,7 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region private methods
-        private QueryServerResults FindPrimary(
+        private QueryServerResults FindServer(
             TimeSpan timeout
         ) {
             DateTime deadline = DateTime.UtcNow + timeout;
