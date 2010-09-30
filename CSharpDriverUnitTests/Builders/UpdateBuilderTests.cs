@@ -28,266 +28,266 @@ namespace MongoDB.CSharpDriver.UnitTests.Builders {
     public class UpdateBuilderTests {
         [Test]
         public void TestAddToSet() {
-            var update = Update.addToSet("name", "abc");
+            var update = Update.AddToSet("name", "abc");
             var expected = "{ \"$addToSet\" : { \"name\" : \"abc\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestAddToSetEach() {
-            var update = Update.addToSetEach("name", "abc", "def");
+            var update = Update.AddToSetEach("name", "abc", "def");
             var expected = "{ \"$addToSet\" : { \"name\" : { \"$each\" : [\"abc\", \"def\"] } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestIncDouble() {
-            var update = Update.inc("name", 1.1);
+            var update = Update.Inc("name", 1.1);
             var expected = "{ \"$inc\" : { \"name\" : 1.1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestIncInt() {
-            var update = Update.inc("name", 1);
+            var update = Update.Inc("name", 1);
             var expected = "{ \"$inc\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestIncLong() {
-            var update = Update.inc("name", 1L);
+            var update = Update.Inc("name", 1L);
             var expected = "{ \"$inc\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPopFirst() {
-            var update = Update.popFirst("name");
+            var update = Update.PopFirst("name");
             var expected = "{ \"$pop\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPopLast() {
-            var update = Update.popLast("name");
+            var update = Update.PopLast("name");
             var expected = "{ \"$pop\" : { \"name\" : -1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPull() {
-            var update = Update.pull("name", "abc");
+            var update = Update.Pull("name", "abc");
             var expected = "{ \"$pull\" : { \"name\" : \"abc\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPullAll() {
-            var update = Update.pullAll("name", "abc", "def");
+            var update = Update.PullAll("name", "abc", "def");
             var expected = "{ \"$pullAll\" : { \"name\" : [\"abc\", \"def\"] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPush() {
-            var update = Update.push("name", "abc");
+            var update = Update.Push("name", "abc");
             var expected = "{ \"$push\" : { \"name\" : \"abc\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPushAll() {
-            var update = Update.pushAll("name", "abc", "def");
+            var update = Update.PushAll("name", "abc", "def");
             var expected = "{ \"$pushAll\" : { \"name\" : [\"abc\", \"def\"] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSet() {
-            var update = Update.set("name", "abc");
+            var update = Update.Set("name", "abc");
             var expected = "{ \"$set\" : { \"name\" : \"abc\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestUnset() {
-            var update = Update.unset("name");
+            var update = Update.Unset("name");
             var expected = "{ \"$unset\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestAddToSetTwice() {
-            var update = Update.addToSet("a", 1).addToSet("b", 2);
+            var update = Update.AddToSet("a", 1).AddToSet("b", 2);
             var expected = "{ \"$addToSet\" : { \"a\" : 1, \"b\" : 2 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestAddToSetEachTwice() {
-            var update = Update.addToSetEach("a", 1, 2).addToSetEach("b", 3, 4);
+            var update = Update.AddToSetEach("a", 1, 2).AddToSetEach("b", 3, 4);
             var expected = "{ \"$addToSet\" : { \"a\" : { \"$each\" : [1, 2] }, \"b\" : { \"$each\" : [3, 4] } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestIncDoubleTwice() {
-            var update = Update.inc("x", 1.1).inc("y", 2.2);
+            var update = Update.Inc("x", 1.1).Inc("y", 2.2);
             var expected = "{ \"$inc\" : { \"x\" : 1.1, \"y\" : 2.2 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestIncIntTwice() {
-            var update = Update.inc("x", 1).inc("y", 2);
+            var update = Update.Inc("x", 1).Inc("y", 2);
             var expected = "{ \"$inc\" : { \"x\" : 1, \"y\" : 2 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestIncLongTwice() {
-            var update = Update.inc("x", 1L).inc("y", 2L);
+            var update = Update.Inc("x", 1L).Inc("y", 2L);
             var expected = "{ \"$inc\" : { \"x\" : 1, \"y\" : 2 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPopFirstTwice() {
-            var update = Update.popFirst("a").popFirst("b");
+            var update = Update.PopFirst("a").PopFirst("b");
             var expected = "{ \"$pop\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPopLastTwice() {
-            var update = Update.popLast("a").popLast("b");
+            var update = Update.PopLast("a").PopLast("b");
             var expected = "{ \"$pop\" : { \"a\" : -1, \"b\" : -1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPullTwice() {
-            var update = Update.pull("a", 1).pull("b", 2);
+            var update = Update.Pull("a", 1).Pull("b", 2);
             var expected = "{ \"$pull\" : { \"a\" : 1, \"b\" : 2 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPullAllTwice() {
-            var update = Update.pullAll("a", 1, 2).pullAll("b", 3, 4);
+            var update = Update.PullAll("a", 1, 2).PullAll("b", 3, 4);
             var expected = "{ \"$pullAll\" : { \"a\" : [1, 2], \"b\" : [3, 4] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPushTwice() {
-            var update = Update.push("a", 1).push("b", 2);
+            var update = Update.Push("a", 1).Push("b", 2);
             var expected = "{ \"$push\" : { \"a\" : 1, \"b\" : 2 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPushAllTwice() {
-            var update = Update.pushAll("a", 1, 2).pushAll("b", 3, 4);
+            var update = Update.PushAll("a", 1, 2).PushAll("b", 3, 4);
             var expected = "{ \"$pushAll\" : { \"a\" : [1, 2], \"b\" : [3, 4] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetTwice() {
-            var update = Update.set("a", 1).set("b", 2);
+            var update = Update.Set("a", 1).Set("b", 2);
             var expected = "{ \"$set\" : { \"a\" : 1, \"b\" : 2 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestUnsetTwice() {
-            var update = Update.unset("a").unset("b");
+            var update = Update.Unset("a").Unset("b");
             var expected = "{ \"$unset\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenAddToSet() {
-            var update = Update.set("x", 1).addToSet("name", "abc");
+            var update = Update.Set("x", 1).AddToSet("name", "abc");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$addToSet\" : { \"name\" : \"abc\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenAddToSetEach() {
-            var update = Update.set("x", 1).addToSetEach("name", "abc", "def");
+            var update = Update.Set("x", 1).AddToSetEach("name", "abc", "def");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$addToSet\" : { \"name\" : { \"$each\" : [\"abc\", \"def\"] } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenIncDouble() {
-            var update = Update.set("x", 1).inc("name", 1.1);
+            var update = Update.Set("x", 1).Inc("name", 1.1);
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$inc\" : { \"name\" : 1.1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenIncInt() {
-            var update = Update.set("x", 1).inc("name", 1);
+            var update = Update.Set("x", 1).Inc("name", 1);
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$inc\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenIncLong() {
-            var update = Update.set("x", 1).inc("name", 1L);
+            var update = Update.Set("x", 1).Inc("name", 1L);
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$inc\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenPopFirst() {
-            var update = Update.set("x", 1).popFirst("name");
+            var update = Update.Set("x", 1).PopFirst("name");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pop\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenPopLast() {
-            var update = Update.set("x", 1).popLast("name");
+            var update = Update.Set("x", 1).PopLast("name");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pop\" : { \"name\" : -1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenPull() {
-            var update = Update.set("x", 1).pull("name", "abc");
+            var update = Update.Set("x", 1).Pull("name", "abc");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pull\" : { \"name\" : \"abc\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenPullAll() {
-            var update = Update.set("x", 1).pullAll("name", "abc", "def");
+            var update = Update.Set("x", 1).PullAll("name", "abc", "def");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pullAll\" : { \"name\" : [\"abc\", \"def\"] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenPush() {
-            var update = Update.set("x", 1).push("name", "abc");
+            var update = Update.Set("x", 1).Push("name", "abc");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$push\" : { \"name\" : \"abc\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenPushAll() {
-            var update = Update.set("x", 1).pushAll("name", "abc", "def");
+            var update = Update.Set("x", 1).PushAll("name", "abc", "def");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pushAll\" : { \"name\" : [\"abc\", \"def\"] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenUnset() {
-            var update = Update.set("x", 1).unset("name");
+            var update = Update.Set("x", 1).Unset("name");
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$unset\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }

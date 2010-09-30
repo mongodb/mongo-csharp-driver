@@ -25,21 +25,21 @@ using MongoDB.BsonLibrary.Serialization;
 namespace MongoDB.CSharpDriver.Builders {
     public static class Query {
         #region public static methods
-        public static QueryConditionList all(
+        public static QueryConditionList All(
             string name,
             BsonArray array
         ) {
             return new QueryConditionList(name, "$all", array);
         }
 
-        public static QueryConditionList all(
+        public static QueryConditionList All(
             string name,
             params BsonValue[] values
         ) {
             return new QueryConditionList(name, "$all", new BsonArray((IEnumerable<BsonValue>) values));
         }
 
-        public static QueryComplete and(
+        public static QueryComplete And(
             params QueryComplete[] queries
         ) {
             var document = new BsonDocument();
@@ -49,77 +49,77 @@ namespace MongoDB.CSharpDriver.Builders {
             return new QueryComplete(document);
         }
 
-        public static QueryConditionList elemMatch(
+        public static QueryConditionList ElemMatch(
             string name,
             QueryComplete query
         ) {
             return new QueryConditionList(name, "$elemMatch", query.ToBsonDocument());
         }
 
-        public static QueryComplete eq(
+        public static QueryComplete EQ(
             string name,
             BsonValue value
         ) {
             return new QueryComplete(new BsonDocument(name, value));
         }
 
-        public static QueryConditionList exists(
+        public static QueryConditionList Exists(
             string name,
             bool value
         ) {
             return new QueryConditionList(name, "$exists", BsonBoolean.Create(value));
         }
 
-        public static QueryConditionList gt(
+        public static QueryConditionList GT(
             string name,
             BsonValue value
         ) {
             return new QueryConditionList(name, "$gt", value);
         }
 
-        public static QueryConditionList gte(
+        public static QueryConditionList GTE(
             string name,
             BsonValue value
         ) {
             return new QueryConditionList(name, "$gte", value);
         }
 
-        public static QueryConditionList @in(
+        public static QueryConditionList In(
             string name,
             BsonArray value
         ) {
             return new QueryConditionList(name, "$in", value);
         }
 
-        public static QueryConditionList @in(
+        public static QueryConditionList In(
             string name,
             params BsonValue[] values
         ) {
             return new QueryConditionList(name, "$in", new BsonArray((IEnumerable<BsonValue>) values));
         }
 
-        public static QueryConditionList lt(
+        public static QueryConditionList LT(
             string name,
             BsonValue value
         ) {
             return new QueryConditionList(name, "$lt", value);
         }
 
-        public static QueryConditionList lte(
+        public static QueryConditionList LTE(
             string name,
             BsonValue value
         ) {
             return new QueryConditionList(name, "$lte", value);
         }
 
-        public static QueryComplete matches(
+        public static QueryComplete Matches(
             string name,
             BsonRegularExpression regex
         ) {
             return new QueryComplete(new BsonDocument(name, regex));
         }
 
-        public static QueryConditionList mod(
+        public static QueryConditionList Mod(
             string name,
             int modulus,
             int equals
@@ -127,34 +127,34 @@ namespace MongoDB.CSharpDriver.Builders {
             return new QueryConditionList(name, "$mod", new BsonArray { modulus, equals });
         }
 
-        public static QueryConditionList ne(
+        public static QueryConditionList NE(
             string name,
             BsonValue value
         ) {
             return new QueryConditionList(name, "$ne", value);
         }
 
-        public static QueryConditionList nin(
+        public static QueryConditionList NotIn(
             string name,
             BsonArray array
         ) {
             return new QueryConditionList(name, "$nin", array);
         }
 
-        public static QueryConditionList nin(
+        public static QueryConditionList NotIn(
             string name,
             params BsonValue[] values
         ) {
             return new QueryConditionList(name, "$nin", new BsonArray((IEnumerable<BsonValue>) values));
         }
 
-        public static QueryNot not(
+        public static QueryNot Not(
             string name
         ) {
             return new QueryNot(name);
         }
 
-        public static QueryComplete or(
+        public static QueryComplete Or(
             params QueryComplete[] queries
         ) {
             var array = new BsonArray();
@@ -165,21 +165,21 @@ namespace MongoDB.CSharpDriver.Builders {
             return new QueryComplete(document);
         }
 
-        public static QueryConditionList size(
+        public static QueryConditionList Size(
             string name,
             int size
         ) {
             return new QueryConditionList(name, "$size", size);
         }
 
-        public static QueryConditionList type(
+        public static QueryConditionList Type(
             string name,
             BsonType type
         ) {
             return new QueryConditionList(name, "$type", (int) type);
         }
 
-        public static QueryComplete where(
+        public static QueryComplete Where(
             BsonJavaScript javaScript
         ) {
             return new QueryComplete(new BsonDocument("$where", javaScript));
@@ -249,77 +249,77 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public methods
-        public QueryConditionList all(
+        public QueryConditionList All(
             BsonArray array
         ) {
             conditions.Add("$all", array);
             return this;
         }
 
-        public QueryConditionList all(
+        public QueryConditionList All(
             params BsonValue[] values
         ) {
             conditions.Add("$all", new BsonArray((IEnumerable<BsonValue>) values));
             return this;
         }
 
-        public QueryConditionList elemMatch(
+        public QueryConditionList ElemMatch(
             QueryComplete query
         ) {
             conditions.Add("$elemMatch", query.ToBsonDocument());
             return this;
         }
 
-        public QueryConditionList exists(
+        public QueryConditionList Exists(
             bool value
         ) {
             conditions.Add("$exists", BsonBoolean.Create(value));
             return this;
         }
 
-        public QueryConditionList gt(
+        public QueryConditionList GT(
             BsonValue value
         ) {
             conditions.Add("$gt", value);
             return this;
         }
 
-        public QueryConditionList gte(
+        public QueryConditionList GTE(
             BsonValue value
         ) {
             conditions.Add("$gte", value);
             return this;
         }
 
-        public QueryConditionList @in(
+        public QueryConditionList In(
             BsonArray array
         ) {
             conditions.Add("$in", array);
             return this;
         }
 
-        public QueryConditionList @in(
+        public QueryConditionList In(
             params BsonValue[] values
         ) {
             conditions.Add("$in", new BsonArray((IEnumerable<BsonValue>) values));
             return this;
         }
 
-        public QueryConditionList lt(
+        public QueryConditionList LT(
             BsonValue value
         ) {
             conditions.Add("$lt", value);
             return this;
         }
 
-        public QueryConditionList lte(
+        public QueryConditionList LTE(
             BsonValue value
         ) {
             conditions.Add("$lte", value);
             return this;
         }
 
-        public QueryConditionList mod(
+        public QueryConditionList Mod(
             int modulus,
             int equals
         ) {
@@ -327,35 +327,35 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public QueryConditionList ne(
+        public QueryConditionList NE(
             BsonValue value
         ) {
             conditions.Add("$ne", value);
             return this;
         }
 
-        public QueryConditionList nin(
+        public QueryConditionList NotIn(
             BsonArray array
         ) {
             conditions.Add("$nin", array);
             return this;
         }
 
-        public QueryConditionList nin(
+        public QueryConditionList NotIn(
             params BsonValue[] values
         ) {
             conditions.Add("$nin", new BsonArray((IEnumerable<BsonValue>) values));
             return this;
         }
 
-        public QueryConditionList size(
+        public QueryConditionList Size(
             int size
         ) {
             conditions.Add("$size", size);
             return this;
         }
 
-        public QueryConditionList type(
+        public QueryConditionList Type(
             BsonType type
         ) {
             conditions.Add("$type", (int) type);
@@ -378,104 +378,104 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public methods
-        public QueryNotConditionList all(
+        public QueryNotConditionList All(
             BsonArray array
         ) {
             return new QueryNotConditionList(name, "$all", array);
         }
 
-        public QueryNotConditionList all(
+        public QueryNotConditionList All(
             params BsonValue[] values
         ) {
             return new QueryNotConditionList(name, "$all", new BsonArray((IEnumerable<BsonValue>) values));
         }
 
-        public QueryNotConditionList elemMatch(
+        public QueryNotConditionList ElemMatch(
             QueryComplete query
         ) {
             return new QueryNotConditionList(name, "$elemMatch", query.ToBsonDocument());
         }
 
-        public QueryNotConditionList exists(
+        public QueryNotConditionList Exists(
             bool value
         ) {
             return new QueryNotConditionList(name, "$exists", BsonBoolean.Create(value));
         }
 
-        public QueryNotConditionList gt(
+        public QueryNotConditionList GT(
             BsonValue value
         ) {
             return new QueryNotConditionList(name, "$gt", value);
         }
 
-        public QueryNotConditionList gte(
+        public QueryNotConditionList GTE(
             BsonValue value
         ) {
             return new QueryNotConditionList(name, "$gte", value);
         }
 
-        public QueryNotConditionList @in(
+        public QueryNotConditionList In(
             BsonArray array
         ) {
             return new QueryNotConditionList(name, "$in", array);
         }
 
-        public QueryNotConditionList @in(
+        public QueryNotConditionList In(
             params BsonValue[] values
         ) {
             return new QueryNotConditionList(name, "$in", new BsonArray((IEnumerable<BsonValue>) values));
         }
 
-        public QueryNotConditionList mod(
+        public QueryNotConditionList Mod(
             int modulus,
             int equals
         ) {
             return new QueryNotConditionList(name, "$mod", new BsonArray { modulus, equals });
         }
 
-        public QueryNotConditionList ne(
+        public QueryNotConditionList NE(
             BsonValue value
         ) {
             return new QueryNotConditionList(name, "$ne", value);
         }
 
-        public QueryNotConditionList nin(
+        public QueryNotConditionList NotIn(
             BsonArray array
         ) {
             return new QueryNotConditionList(name, "nin", array);
         }
 
-        public QueryNotConditionList nin(
+        public QueryNotConditionList NotIn(
             params BsonValue[] values
         ) {
             return new QueryNotConditionList(name, "nin", new BsonArray((IEnumerable<BsonValue>) values));
         }
 
-        public QueryNotConditionList lt(
+        public QueryNotConditionList LT(
             BsonValue value
         ) {
             return new QueryNotConditionList(name, "$lt", value);
         }
 
-        public QueryNotConditionList lte(
+        public QueryNotConditionList LTE(
             BsonValue value
         ) {
             return new QueryNotConditionList(name, "$lte", value);
         }
 
-        public QueryComplete matches(
+        public QueryComplete Matches(
             BsonRegularExpression regex
         ) {
             return new QueryComplete(new BsonDocument(name, new BsonDocument("$not", regex)));
         }
 
-        public QueryNotConditionList size(
+        public QueryNotConditionList Size(
             BsonValue value
         ) {
             return new QueryNotConditionList(name, "$size", value);
         }
 
-        public QueryNotConditionList type(
+        public QueryNotConditionList Type(
             BsonType type
         ) {
             return new QueryNotConditionList(name, "$type", (int) type);
@@ -500,77 +500,77 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public methods
-        public QueryNotConditionList all(
+        public QueryNotConditionList All(
             BsonArray array
         ) {
             conditions.Add("$all", array);
             return this;
         }
 
-        public QueryNotConditionList all(
+        public QueryNotConditionList All(
             params BsonValue[] values
         ) {
             conditions.Add("$all", new BsonArray((IEnumerable<BsonValue>) values));
             return this;
         }
 
-        public QueryNotConditionList elemMatch(
+        public QueryNotConditionList ElemMatch(
             QueryComplete query
         ) {
             conditions.Add("$elemMatch", query.ToBsonDocument());
             return this;
         }
 
-        public QueryNotConditionList exists(
+        public QueryNotConditionList Exists(
             bool value
         ) {
             conditions.Add("$exists", BsonBoolean.Create(value));
             return this;
         }
 
-        public QueryNotConditionList gt(
+        public QueryNotConditionList GT(
             BsonValue value
         ) {
             conditions.Add("$gt", value);
             return this;
         }
 
-        public QueryNotConditionList gte(
+        public QueryNotConditionList GTE(
             BsonValue value
         ) {
             conditions.Add("$gte", value);
             return this;
         }
 
-        public QueryNotConditionList @in(
+        public QueryNotConditionList In(
             BsonArray array
         ) {
             conditions.Add("$in", array);
             return this;
         }
 
-        public QueryNotConditionList @in(
+        public QueryNotConditionList In(
             params BsonValue[] values
         ) {
             conditions.Add("$in", new BsonArray((IEnumerable<BsonValue>) values));
             return this;
         }
 
-        public QueryNotConditionList lt(
+        public QueryNotConditionList LT(
             BsonValue value
         ) {
             conditions.Add("$lt", value);
             return this;
         }
 
-        public QueryNotConditionList lte(
+        public QueryNotConditionList LTE(
             BsonValue value
         ) {
             conditions.Add("$lte", value);
             return this;
         }
 
-        public QueryNotConditionList mod(
+        public QueryNotConditionList Mod(
             int modulus,
             int equals
         ) {
@@ -578,35 +578,35 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public QueryNotConditionList ne(
+        public QueryNotConditionList NE(
             BsonValue value
         ) {
             conditions.Add("$ne", value);
             return this;
         }
 
-        public QueryNotConditionList nin(
+        public QueryNotConditionList NotIn(
             BsonArray array
         ) {
             conditions.Add("$nin", array);
             return this;
         }
 
-        public QueryNotConditionList nin(
+        public QueryNotConditionList NotIn(
             params BsonValue[] values
         ) {
             conditions.Add("$nin", new BsonArray((IEnumerable<BsonValue>) values));
             return this;
         }
 
-        public QueryNotConditionList size(
+        public QueryNotConditionList Size(
             int size
         ) {
             conditions.Add("$size", size);
             return this;
         }
 
-        public QueryNotConditionList type(
+        public QueryNotConditionList Type(
             BsonType type
         ) {
             conditions.Add("$type", (int) type);

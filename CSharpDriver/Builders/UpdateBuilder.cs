@@ -26,92 +26,92 @@ using MongoDB.CSharpDriver;
 namespace MongoDB.CSharpDriver.Builders {
     public static class Update {
         #region public static methods
-        public static UpdateBuilder addToSet(
+        public static UpdateBuilder AddToSet(
             string name,
             BsonValue value
         ) {
-            return new UpdateBuilder().addToSet(name, value);
+            return new UpdateBuilder().AddToSet(name, value);
         }
 
-        public static UpdateBuilder addToSetEach(
+        public static UpdateBuilder AddToSetEach(
             string name,
             params BsonValue[] values
         ) {
-            return new UpdateBuilder().addToSetEach(name, values);
+            return new UpdateBuilder().AddToSetEach(name, values);
         }
 
-        public static UpdateBuilder inc(
+        public static UpdateBuilder Inc(
             string name,
             double value
         ) {
-            return new UpdateBuilder().inc(name, value);
+            return new UpdateBuilder().Inc(name, value);
         }
 
-        public static UpdateBuilder inc(
+        public static UpdateBuilder Inc(
             string name,
             int value
         ) {
-            return new UpdateBuilder().inc(name, value);
+            return new UpdateBuilder().Inc(name, value);
         }
 
-        public static UpdateBuilder inc(
+        public static UpdateBuilder Inc(
             string name,
             long value
         ) {
-            return new UpdateBuilder().inc(name, value);
+            return new UpdateBuilder().Inc(name, value);
         }
 
-        public static UpdateBuilder popFirst(
+        public static UpdateBuilder PopFirst(
             string name
         ) {
-            return new UpdateBuilder().popFirst(name);
+            return new UpdateBuilder().PopFirst(name);
         }
 
-        public static UpdateBuilder popLast(
+        public static UpdateBuilder PopLast(
             string name
         ) {
-            return new UpdateBuilder().popLast(name);
+            return new UpdateBuilder().PopLast(name);
         }
 
-        public static UpdateBuilder pull(
+        public static UpdateBuilder Pull(
             string name,
             BsonValue value
         ) {
-            return new UpdateBuilder().pull(name, value);
+            return new UpdateBuilder().Pull(name, value);
         }
 
-        public static UpdateBuilder pullAll(
+        public static UpdateBuilder PullAll(
             string name,
             params BsonValue[] values
         ) {
-            return new UpdateBuilder().pullAll(name, values);
+            return new UpdateBuilder().PullAll(name, values);
         }
 
-        public static UpdateBuilder push(
+        public static UpdateBuilder Push(
             string name,
             BsonValue value
         ) {
-            return new UpdateBuilder().push(name, value);
+            return new UpdateBuilder().Push(name, value);
         }
 
-        public static UpdateBuilder pushAll(
+        public static UpdateBuilder PushAll(
             string name,
             params BsonValue[] values
         ) {
-            return new UpdateBuilder().pushAll(name, values);
+            return new UpdateBuilder().PushAll(name, values);
         }
 
-        public static UpdateBuilder set(
+        public static UpdateBuilder Set(
             string name,
             BsonValue value
         ) {
-            return new UpdateBuilder().set(name, value);
+            return new UpdateBuilder().Set(name, value);
         }
 
-        public static UpdateBuilder unset(
+        public static UpdateBuilder Unset(
             string name
         ) {
-            return new UpdateBuilder().unset(name);
+            return new UpdateBuilder().Unset(name);
         }
         #endregion
     }
@@ -128,7 +128,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public methods
-        public UpdateBuilder addToSet(
+        public UpdateBuilder AddToSet(
             string name,
             BsonValue value
         ) {
@@ -141,7 +141,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder addToSetEach(
+        public UpdateBuilder AddToSetEach(
             string name,
             params BsonValue[] values
         ) {
@@ -155,7 +155,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder inc(
+        public UpdateBuilder Inc(
             string name,
             double value
         ) {
@@ -168,7 +168,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder inc(
+        public UpdateBuilder Inc(
             string name,
             int value
         ) {
@@ -181,7 +181,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder inc(
+        public UpdateBuilder Inc(
             string name,
             long value
         ) {
@@ -194,7 +194,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder popFirst(
+        public UpdateBuilder PopFirst(
             string name
         ) {
             BsonElement element;
@@ -206,7 +206,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder popLast(
+        public UpdateBuilder PopLast(
             string name
         ) {
             BsonElement element;
@@ -218,7 +218,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder pull(
+        public UpdateBuilder Pull(
             string name,
             BsonValue value
         ) {
@@ -231,7 +231,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder pullAll(
+        public UpdateBuilder PullAll(
             string name,
             params BsonValue[] values
         ) {
@@ -245,7 +245,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder push(
+        public UpdateBuilder Push(
             string name,
             BsonValue value
         ) {
@@ -258,7 +258,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder pushAll(
+        public UpdateBuilder PushAll(
             string name,
             params BsonValue[] values
         ) {
@@ -272,7 +272,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public UpdateBuilder set(
+        public UpdateBuilder Set(
             string name,
             BsonValue value
         ) {
@@ -289,7 +289,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return document;
         }
 
-        public UpdateBuilder unset(
+        public UpdateBuilder Unset(
             string name
         ) {
             BsonElement element;

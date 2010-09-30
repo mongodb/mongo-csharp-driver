@@ -62,7 +62,7 @@ namespace MongoDB.CSharpDriver.UnitTests.Builders {
 
         [Test]
         public void TestQuery() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1));
+            var options = MapReduceOptions.Query(Query.EQ("x", 1));
             var expected = "{ \"query\" : { \"x\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -97,56 +97,56 @@ namespace MongoDB.CSharpDriver.UnitTests.Builders {
 
         [Test]
         public void TestQueryAndFinalize() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1)).Finalize("code");
+            var options = MapReduceOptions.Query(Query.EQ("x", 1)).Finalize("code");
             var expected = "{ \"query\" : { \"x\" : 1 }, \"finalize\" : { \"$code\" : \"code\" } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestQueryAndKeepTemp() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1)).KeepTemp(true);
+            var options = MapReduceOptions.Query(Query.EQ("x", 1)).KeepTemp(true);
             var expected = "{ \"query\" : { \"x\" : 1 }, \"keeptemp\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestQueryAndLimit() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1)).Limit(123);
+            var options = MapReduceOptions.Query(Query.EQ("x", 1)).Limit(123);
             var expected = "{ \"query\" : { \"x\" : 1 }, \"limit\" : 123 }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestQueryAndOut() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1)).Out("name");
+            var options = MapReduceOptions.Query(Query.EQ("x", 1)).Out("name");
             var expected = "{ \"query\" : { \"x\" : 1 }, \"out\" : \"name\" }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestQueryAndScope() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1)).Scope(new BsonDocument("x", 1));
+            var options = MapReduceOptions.Query(Query.EQ("x", 1)).Scope(new BsonDocument("x", 1));
             var expected = "{ \"query\" : { \"x\" : 1 }, \"scope\" : { \"x\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestQueryAndSortWithBuilder() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1)).Sort(SortBy.Ascending("a", "b"));
+            var options = MapReduceOptions.Query(Query.EQ("x", 1)).Sort(SortBy.Ascending("a", "b"));
             var expected = "{ \"query\" : { \"x\" : 1 }, \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestQueryAndSortWithKeys() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1)).Sort("a", "b");
+            var options = MapReduceOptions.Query(Query.EQ("x", 1)).Sort("a", "b");
             var expected = "{ \"query\" : { \"x\" : 1 }, \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestQueryAndVerbose() {
-            var options = MapReduceOptions.Query(Query.eq("x", 1)).Verbose(true);
+            var options = MapReduceOptions.Query(Query.EQ("x", 1)).Verbose(true);
             var expected = "{ \"query\" : { \"x\" : 1 }, \"verbose\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
