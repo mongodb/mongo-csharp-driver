@@ -64,7 +64,7 @@ namespace MongoDB.CSharpDriver.Internal {
             byte[] lastDocument // as returned by RemoveLastDocument
         ) {
             buffer.Position = firstDocumentStartPosition;
-            buffer.WriteByteArray(lastDocument);
+            buffer.WriteBytes(lastDocument);
             BackpatchMessageLength();
         }
         #endregion

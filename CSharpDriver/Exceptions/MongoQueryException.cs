@@ -19,15 +19,15 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.CSharpDriver {
-    public class MongoQueryFailureException : MongoException {
+    public class MongoQueryException : MongoException {
         #region constructors
-        public MongoQueryFailureException(
+        public MongoQueryException(
             string message
         )
             : base(message) {
         }
 
-        public MongoQueryFailureException(
+        public MongoQueryException(
             string message,
             Exception innerException
         )

@@ -403,7 +403,7 @@ namespace MongoDB.BsonLibrary.IO {
             Position++;
         }
 
-        public void WriteByteArray(
+        public void WriteBytes(
             byte[] value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
@@ -434,7 +434,7 @@ namespace MongoDB.BsonLibrary.IO {
             } else {
                 // straddles chunk boundary
                 byte[] bytes = Encoding.UTF8.GetBytes(value);
-                WriteByteArray(bytes);
+                WriteBytes(bytes);
                 WriteByte(0);
             }
         }
@@ -447,7 +447,7 @@ namespace MongoDB.BsonLibrary.IO {
                 Buffer.BlockCopy(BitConverter.GetBytes(value), 0, chunk, chunkOffset, 8);
                 Position += 8;
             } else {
-                WriteByteArray(BitConverter.GetBytes(value)); // straddles chunk boundary
+                WriteBytes(BitConverter.GetBytes(value)); // straddles chunk boundary
             }
         }
 
@@ -464,7 +464,7 @@ namespace MongoDB.BsonLibrary.IO {
                 chunk[chunkOffset + 3] = (byte) (value >> 24);
                 Position += 4;
             } else {
-                WriteByteArray(BitConverter.GetBytes(value)); // straddles chunk boundary
+                WriteBytes(BitConverter.GetBytes(value)); // straddles chunk boundary
             }
         }
 
@@ -477,7 +477,7 @@ namespace MongoDB.BsonLibrary.IO {
                 Buffer.BlockCopy(BitConverter.GetBytes(value), 0, chunk, chunkOffset, 8);
                 Position += 8;
             } else {
-                WriteByteArray(BitConverter.GetBytes(value)); // straddles chunk boundary
+                WriteBytes(BitConverter.GetBytes(value)); // straddles chunk boundary
             }
         }
 
@@ -502,7 +502,7 @@ namespace MongoDB.BsonLibrary.IO {
                 chunk[chunkOffset + 11] = (byte) (machinePidIncrement);
                 Position += 12;
             } else {
-                WriteByteArray(ObjectId.Pack(timestamp, machinePidIncrement)); // straddles chunk boundary
+                WriteBytes(ObjectId.Pack(timestamp, machinePidIncrement)); // straddles chunk boundary
             }
         }
 
@@ -525,7 +525,7 @@ namespace MongoDB.BsonLibrary.IO {
                 // straddles chunk boundary
                 byte[] bytes = Encoding.UTF8.GetBytes(value);
                 WriteInt32(bytes.Length + 1);
-                WriteByteArray(bytes);
+                WriteBytes(bytes);
                 WriteByte(0);
             }
         }
@@ -553,7 +553,7 @@ namespace MongoDB.BsonLibrary.IO {
                 chunk[chunkOffset + 3] = 0;
                 Position += 4;
             } else {
-                WriteByteArray(BitConverter.GetBytes((int) 0)); // straddles chunk boundary
+                WriteBytes(BitConverter.GetBytes((int) 0)); // straddles chunk boundary
             }
         }
         #endregion

@@ -133,7 +133,7 @@ namespace MongoDB.BsonLibrary.IO {
                 buffer.WriteInt32(bytes.Length);
                 buffer.WriteByte((byte) subType);
             }
-            buffer.WriteByteArray(bytes);
+            buffer.WriteBytes(bytes);
         }
         #pragma warning restore 618
 

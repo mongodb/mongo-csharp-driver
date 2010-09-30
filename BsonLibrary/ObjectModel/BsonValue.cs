@@ -106,7 +106,7 @@ namespace MongoDB.BsonLibrary {
             get { return (BsonTimestamp) this; }
         }
 
-        public byte[] AsBytes {
+        public byte[] AsByteArray {
             get { return ((BsonBinaryData) this).Bytes; }
         }
 
@@ -291,7 +291,7 @@ namespace MongoDB.BsonLibrary {
         public static explicit operator byte[](
             BsonValue value
         ) {
-            return value.AsBytes;
+            return value.AsByteArray;
         }
 
         public static explicit operator DateTime(

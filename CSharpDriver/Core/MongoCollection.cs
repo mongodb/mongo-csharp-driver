@@ -367,12 +367,6 @@ namespace MongoDB.CSharpDriver {
             IEnumerable<I> documents,
             SafeMode safeMode
         ) {
-            if (assignObjectIdsOnInsert) {
-                if (typeof(I) == typeof(BsonDocument)) {
-                    AssignObjectIds((IEnumerable<BsonDocument>) documents);
-                }
-            }
-
             BsonArray batches = null;
             if (safeMode.Enabled) {
                 batches = new BsonArray();
@@ -384,7 +378,16 @@ namespace MongoDB.CSharpDriver {
                 message.WriteToBuffer(); // must be called before AddDocument
 
                 foreach (var document in documents) {
-                    message.AddDocument(document);
+                    if (assignObjectIdsOnInsert) {
+                        // TODO: find a way to do this more efficiently without creating an intermediate BsonDocument
+                        var bsonDocument = BsonUtils.ToBsonDocument(document);
+                        if (!bsonDocument.Contains("_id")) {
+                            bsonDocument.InsertAt(0, new BsonElement("_id", BsonObjectId.GenerateNewId()));
+                        }
+                        message.AddDocument(bsonDocument);
+                    } else {
+                        message.AddDocument(document);
+                    }
                     if (message.MessageLength > MongoDefaults.MaxMessageLength) {
                         byte[] lastDocument = message.RemoveLastDocument();
                         var intermediateError = connection.SendMessage(message, safeMode);
@@ -573,7 +576,7 @@ namespace MongoDB.CSharpDriver {
         }
 
         public override string ToString() {
- 	         return FullName;
+ 	    return FullName;
         }
 
         public BsonDocument Update<Q, U>(
@@ -628,17 +631,6 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region private methods
-        private void AssignObjectIds(
-            IEnumerable<BsonDocument> documents
-        ) {
-            foreach (var document in documents) {
-                if (!document.Contains("_id")) {
-                    // TODO: do we need to add in _id as the first field?
-                    document.Add("_id", BsonObjectId.GenerateNewId());
-                }
-            }
-        }
-
         private string GetIndexName(
             BsonDocument keys
         ) {

@@ -25,7 +25,6 @@ using System.Xml;
 using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
-
 namespace MongoDB.BsonLibrary {
     // this class is a wrapper for an object that we intend to serialize as a BSON document
     // it is a subclass of BsonValue so that it may be used where a BsonValue is expected

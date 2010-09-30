@@ -20,11 +20,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BsonLibrary")]
+[assembly: AssemblyTitle("MongoDB.BsonLibrary")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("10gen Inc.")]
-[assembly: AssemblyProduct("BsonLibrary")]
+[assembly: AssemblyProduct("MongoDB.BsonLibrary")]
 [assembly: AssemblyCopyright("Copyright © 2010 10gen Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
