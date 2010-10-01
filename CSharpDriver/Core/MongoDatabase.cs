@@ -204,17 +204,17 @@ namespace MongoDB.CSharpDriver {
             return GetCollection<BsonDocument>(collectionName);
         }
 
-        public MongoCollection<TResultDefault> GetCollection<TResultDefault>(
+        public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName
         ) {
             lock (databaseLock) {
                 MongoCollection collection;
-                string key = string.Format("{0}<{1}>", collectionName, typeof(TResultDefault).FullName);
+                string key = string.Format("{0}<{1}>", collectionName, typeof(TDefaultDocument).FullName);
                 if (!collections.TryGetValue(key, out collection)) {
-                    collection = new MongoCollection<TResultDefault>(this, collectionName);
+                    collection = new MongoCollection<TDefaultDocument>(this, collectionName);
                     collections.Add(key, collection);
                 }
-                return (MongoCollection<TResultDefault>) collection;
+                return (MongoCollection<TDefaultDocument>) collection;
             }
         }
 

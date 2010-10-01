@@ -60,8 +60,8 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public MongoCursor<BsonDocument, TResult> GetResults<TResult>() {
-            MongoCollection<TResult> collection = database.GetCollection<TResult>(ResultCollectionName);
+        public MongoCursor<BsonDocument, TDocument> GetResults<TDocument>() {
+            MongoCollection<TDocument> collection = database.GetCollection<TDocument>(ResultCollectionName);
             return collection.FindAll();
         }
         #endregion

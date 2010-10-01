@@ -206,15 +206,15 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public MongoCursor<TQuery, TResult> Find<TQuery, TResult>(
+        public MongoCursor<TQuery, TDocument> Find<TQuery, TDocument>(
             TQuery query
         ) {
-            return new MongoCursor<TQuery, TResult>(this, query);
+            return new MongoCursor<TQuery, TDocument>(this, query);
         }
 
-        public MongoCursor<BsonDocument, TResult> FindAll<TResult>() {
+        public MongoCursor<BsonDocument, TDocument> FindAll<TDocument>() {
             BsonDocument query = null;
-            return Find<BsonDocument, TResult>(query);
+            return Find<BsonDocument, TDocument>(query);
         }
 
         public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate>(
@@ -269,14 +269,14 @@ namespace MongoDB.CSharpDriver {
             return result["value"].AsBsonDocument;
         }
 
-        public TResult FindOne<TResult>() {
-            return FindAll<TResult>().Limit(1).FirstOrDefault();
+        public TDocument FindOne<TDocument>() {
+            return FindAll<TDocument>().Limit(1).FirstOrDefault();
         }
 
-        public TResult FindOne<TQuery, TResult>(
+        public TDocument FindOne<TQuery, TDocument>(
             TQuery query
         ) {
-            return Find<TQuery, TResult>(query).Limit(1).FirstOrDefault();
+            return Find<TQuery, TDocument>(query).Limit(1).FirstOrDefault();
         }
 
         public BsonDocument GeoNear<TQuery>(
@@ -685,9 +685,9 @@ namespace MongoDB.CSharpDriver {
     }
 
     // this subclass provides a default result document type for Find methods
-    // you can still Find any other document types by using the Find<TResult> methods
+    // you can still Find any other document types by using the Find<TDocument> methods
 
-    public class MongoCollection<TResultDefault> : MongoCollection {
+    public class MongoCollection<TDefaultDocument> : MongoCollection {
         #region constructors
         public MongoCollection(
             MongoDatabase database,
@@ -698,24 +698,24 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public MongoCursor<TQuery, TResultDefault> Find<TQuery>(
+        public MongoCursor<TQuery, TDefaultDocument> Find<TQuery>(
             TQuery query
         ) {
-            return Find<TQuery, TResultDefault>(query);
+            return Find<TQuery, TDefaultDocument>(query);
         }
 
-        public MongoCursor<BsonDocument, TResultDefault> FindAll() {
-            return FindAll<TResultDefault>();
+        public MongoCursor<BsonDocument, TDefaultDocument> FindAll() {
+            return FindAll<TDefaultDocument>();
         }
 
-        public TResultDefault FindOne() {
-            return FindOne<TResultDefault>();
+        public TDefaultDocument FindOne() {
+            return FindOne<TDefaultDocument>();
         }
 
-        public TResultDefault FindOne<TQuery>(
+        public TDefaultDocument FindOne<TQuery>(
             TQuery query
         ) {
-            return FindOne<TQuery, TResultDefault>(query);
+            return FindOne<TQuery, TDefaultDocument>(query);
         }
         #endregion
     }
