@@ -67,6 +67,13 @@ namespace MongoDB.BsonLibrary {
             return new BsonTimestamp(value);
         }
 
+        public static BsonTimestamp Create(
+            int timestamp,
+            int increment
+        ) {
+            return new BsonTimestamp(timestamp, increment);
+        }
+
         public new static BsonTimestamp Create(
             object value
         ) {

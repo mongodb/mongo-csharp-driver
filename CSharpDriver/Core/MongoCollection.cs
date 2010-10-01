@@ -684,8 +684,8 @@ namespace MongoDB.CSharpDriver {
         #endregion
     }
 
-    // this subclass provides a default result document type for Find methods
-    // you can still Find any other document types by using the Find<TDocument> methods
+    // this subclass provides a default document type for Find methods
+    // you can still Find any other document type by using the Find<TQuery, TDocument> methods
 
     public class MongoCollection<TDefaultDocument> : MongoCollection {
         #region constructors

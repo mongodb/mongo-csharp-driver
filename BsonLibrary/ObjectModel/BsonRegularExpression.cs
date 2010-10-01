@@ -93,6 +93,16 @@ namespace MongoDB.BsonLibrary {
         }
 
         public static BsonRegularExpression Create(
+            Regex regex
+        ) {
+            if (regex != null) {
+                return new BsonRegularExpression(regex);
+            } else {
+                return null;
+            }
+        }
+
+        public static BsonRegularExpression Create(
             string pattern
         ) {
             if (pattern != null) {

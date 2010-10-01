@@ -324,6 +324,12 @@ namespace MongoDB.BsonLibrary {
             return value.AsInt64;
         }
 
+        public static explicit operator ObjectId(
+            BsonValue value
+        ) {
+            return value.AsObjectId;
+        }
+
         public static explicit operator Regex(
             BsonValue value
         ) {
