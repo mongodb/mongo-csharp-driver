@@ -237,7 +237,7 @@ namespace MongoDB.CSharpDriver {
             if (connectionPool.RequestNestingLevel == 0) {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
-            return RunCommand("getLastError");
+            return RunCommand("getlasterror"); // use all lowercase for backward compatibility
         }
 
         // TODO: mongo shell has GetPrevError at the database level?

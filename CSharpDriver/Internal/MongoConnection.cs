@@ -302,7 +302,7 @@ namespace MongoDB.CSharpDriver.Internal {
                 message.WriteToBuffer();
                 if (safeMode.Enabled) {
                     var command = new BsonDocument {
-                        { "getLastError", 1 },
+                        { "getlasterror", 1 }, // use all lowercase for backward compatibility
                         { safeMode.Replications > 1, "w", safeMode.Replications },
                         { safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero, "wtimeout", (int) safeMode.Timeout.TotalMilliseconds }
                     };
