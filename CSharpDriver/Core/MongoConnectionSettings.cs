@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.CSharpDriver.Internal {
+    [Serializable]
     public class MongoConnectionSettings {
         #region private fields
         private MongoCredentials credentials;

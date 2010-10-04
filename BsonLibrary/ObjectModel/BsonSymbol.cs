@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.BsonLibrary {
+    // TODO: [Serializable] // must have custom deserialization to do SymbolTable lookup
     public class BsonSymbol : BsonValue, IComparable<BsonSymbol>, IEquatable<BsonSymbol> {
         #region private fields
         private string name;

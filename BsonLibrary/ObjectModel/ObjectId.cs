@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId> {
         #region private static fields
         private static long machinePid;

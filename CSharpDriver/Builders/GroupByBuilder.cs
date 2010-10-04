@@ -40,6 +40,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
+    [Serializable]
     public class GroupByBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
         #region private fields
         private BsonDocument document;

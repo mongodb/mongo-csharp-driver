@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public abstract class BsonValue : IComparable<BsonValue>, IEquatable<BsonValue> {
         #region private static fields
         private static Dictionary<BsonType, int> bsonTypeSortOrder = new Dictionary<BsonType, int> {

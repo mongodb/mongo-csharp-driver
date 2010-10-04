@@ -116,6 +116,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
+    [Serializable]
     public class UpdateBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
         #region private fields
         private BsonDocument document;

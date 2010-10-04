@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId> {
         #region private fields
         private ObjectId value;

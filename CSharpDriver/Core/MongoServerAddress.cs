@@ -20,6 +20,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MongoDB.CSharpDriver {
+    [Serializable]
     public class MongoServerAddress : IEquatable<MongoServerAddress> {
         #region private fields
         private string host;

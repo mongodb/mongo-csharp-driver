@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.BsonLibrary.IO {
+    [Serializable]
     public class BsonBinaryWriterSettings {
         #region private static fields
         private static BsonBinaryWriterSettings defaults = new BsonBinaryWriterSettings();

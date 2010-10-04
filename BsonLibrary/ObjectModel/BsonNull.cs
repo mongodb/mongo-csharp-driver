@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonNull : BsonValue, IComparable<BsonNull>, IEquatable<BsonNull> {
         #region private static fields
         private static BsonNull singleton = new BsonNull();

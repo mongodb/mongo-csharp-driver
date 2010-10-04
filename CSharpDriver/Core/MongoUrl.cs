@@ -22,6 +22,7 @@ using System.Text.RegularExpressions;
 using MongoDB.CSharpDriver.Internal;
 
 namespace MongoDB.CSharpDriver {
+    [Serializable]
     public class MongoUrl {
         #region private fields
         private IEnumerable<MongoServerAddress> seedList;

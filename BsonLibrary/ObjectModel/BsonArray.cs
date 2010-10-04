@@ -23,6 +23,7 @@ using System.Text.RegularExpressions;
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonArray : BsonValue, IComparable<BsonArray>, IEquatable<BsonArray>, IList<BsonValue> {
         #region private fields
         private List<BsonValue> values = new List<BsonValue>();

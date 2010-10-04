@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.CSharpDriver {
+    [Serializable]
     public class SafeMode {
         #region private static fields
         private static SafeMode safeMode1 = new SafeMode(1);

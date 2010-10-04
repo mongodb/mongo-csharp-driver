@@ -20,6 +20,7 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonBoolean : BsonValue, IComparable<BsonBoolean>, IEquatable<BsonBoolean> {
         #region private static fields
         private static BsonBoolean falseInstance = new BsonBoolean(false);

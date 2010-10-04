@@ -16,9 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace MongoDB.CSharpDriver {
+    [Serializable]
     public class MongoException : Exception {
         #region constructors
         public MongoException(
@@ -32,6 +34,14 @@ namespace MongoDB.CSharpDriver {
             Exception innerException
         )
             : base(message, innerException) {
+        }
+
+        // this constructor needed to support deserialization
+        public MongoException(
+            SerializationInfo info,
+            StreamingContext context
+        )
+            : base(info, context) {
         }
         #endregion
     }

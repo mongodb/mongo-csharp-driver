@@ -20,6 +20,7 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64> {
         #region private fields
         private long value;

@@ -24,6 +24,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.CSharpDriver.Builders {
+    [Serializable]
     public abstract class BuilderBase {
         #region constructors
         protected BuilderBase() {

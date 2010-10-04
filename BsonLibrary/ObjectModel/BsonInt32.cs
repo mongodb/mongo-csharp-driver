@@ -20,6 +20,7 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32> {
         #region private static fields
         private static int firstInstance = -10;

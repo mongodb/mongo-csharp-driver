@@ -187,6 +187,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
+    [Serializable]
     public abstract class QueryBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
         #region private fields
         protected BsonDocument document;
@@ -222,6 +223,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
+    [Serializable]
     public class QueryComplete : QueryBuilder {
         #region constructors
         public QueryComplete(
@@ -232,6 +234,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
+    [Serializable]
     public class QueryConditionList : QueryComplete {
         #region private fields
         private BsonDocument conditions;
@@ -483,6 +486,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
     }
 
+    [Serializable]
     public class QueryNotConditionList : QueryComplete {
         #region private fields
         private BsonDocument conditions;

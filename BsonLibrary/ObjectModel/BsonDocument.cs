@@ -26,6 +26,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonDocument : BsonValue, IBsonSerializable, IEnumerable<BsonElement>, IComparable<BsonDocument>, IEquatable<BsonDocument> {
         #region private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added

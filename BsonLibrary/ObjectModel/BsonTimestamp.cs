@@ -20,6 +20,7 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonTimestamp : BsonValue, IComparable<BsonTimestamp>, IEquatable<BsonTimestamp> {
         #region private fields
         private long value;

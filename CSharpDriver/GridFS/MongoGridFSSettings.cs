@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.CSharpDriver {
+    [Serializable]
     public class MongoGridFSSettings {
         #region private static fields
         private static MongoGridFSSettings defaults = new MongoGridFSSettings();

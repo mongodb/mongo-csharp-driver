@@ -164,7 +164,7 @@ namespace MongoDB.CSharpDriver {
         ) {
             lock (indexCache) {
                 var command = new BsonDocument {
-                    { "deleteIndexes", FullName },
+                    { "deleteIndexes", name }, // not FullName
                     { "index", indexName }
                 };
                 var result = database.RunCommand(command);

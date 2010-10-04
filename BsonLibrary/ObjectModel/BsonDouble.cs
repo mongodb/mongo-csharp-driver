@@ -20,6 +20,7 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.BsonLibrary {
+    [Serializable]
     public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble> {
         #region private fields
         private double value;
