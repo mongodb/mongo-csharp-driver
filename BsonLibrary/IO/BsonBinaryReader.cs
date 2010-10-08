@@ -104,6 +104,15 @@ namespace MongoDB.BsonLibrary.IO {
             return bsonType != BsonType.EndOfDocument;
         }
 
+        public override BsonType PeekBsonType() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if ((context.ReadState & BsonReadState.Document) == 0) {
+                string message = string.Format("PeekBsonType cannot be called when ReadState is: {0}", context.ReadState);
+                throw new InvalidOperationException(message);
+            }
+            return buffer.PeekBsonType();
+        }
+
         public override void ReadArrayName(
             out string name
         ) {
@@ -168,7 +177,12 @@ namespace MongoDB.BsonLibrary.IO {
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
             name = buffer.ReadCString();
             long milliseconds = buffer.ReadInt64();
-            return Bson.UnixEpoch.AddMilliseconds(milliseconds); // Kind = DateTimeKind.Utc
+            if (milliseconds == 253402300800000) {
+                // special case to avoid ArgumentOutOfRangeException in AddMilliseconds
+                return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+            } else {
+                return Bson.UnixEpoch.AddMilliseconds(milliseconds); // Kind = DateTimeKind.Utc
+            }
         }
 
         public override DateTime ReadDateTime(

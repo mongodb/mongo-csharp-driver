@@ -107,10 +107,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\PropertySerializers\CultureInfoPropertySerializer.cs" />
     <Compile Include="Serialization\PropertySerializers\DateTimeOffsetPropertySerializer.cs" />
-    <Compile Include="Serialization\PropertySerializers\DateTimePropertySerializer.cs" />
+    <Compile Include="Serialization\PropertySerializers\PrimitivePropertySerializers.cs" />
     <Compile Include="Serialization\PropertySerializers\DecimalPropertySerializer.cs" />
     <Compile Include="Serialization\PropertySerializers\ObjectIdPropertySerializer.cs" />
-    <Compile Include="Serialization\PropertySerializers\StringPropertySerializer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -70,6 +70,7 @@ namespace MongoDB.BsonLibrary.IO {
             out BsonType bsonType,
             out string name
         );
+        public abstract BsonType PeekBsonType();
         public abstract void ReadArrayName(
             out string name
         );

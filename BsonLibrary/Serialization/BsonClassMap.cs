@@ -98,6 +98,10 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
         }
 
+        public static BsonClassMap<TClass> RegisterClassMap<TClass>() {
+            return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
+        }
+
         public static BsonClassMap<TClass> RegisterClassMap<TClass>(
             Action<BsonClassMap<TClass>> classMapInitializer
         ) {

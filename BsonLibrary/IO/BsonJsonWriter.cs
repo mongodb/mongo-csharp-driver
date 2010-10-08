@@ -433,7 +433,6 @@ namespace MongoDB.BsonLibrary.IO {
                 switch (c) {
                     case '"': textWriter.Write("\\\""); break;
                     case '\\': textWriter.Write("\\\\"); break;
-                    case '/': textWriter.Write("\\/"); break;
                     case '\b': textWriter.Write("\\b"); break;
                     case '\f': textWriter.Write("\\f"); break;
                     case '\n': textWriter.Write("\\n"); break;
