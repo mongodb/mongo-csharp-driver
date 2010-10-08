@@ -188,7 +188,7 @@ namespace MongoDB.CSharpDriver.Builders {
     }
 
     [Serializable]
-    public abstract class QueryBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
+    public abstract class QueryBuilder : BuilderBase, IConvertibleToBsonDocument, IBsonSerializable {
         #region private fields
         protected BsonDocument document;
         #endregion

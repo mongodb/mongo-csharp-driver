@@ -89,7 +89,7 @@ namespace MongoDB.CSharpDriver.Builders {
     }
 
     [Serializable]
-    public class MapReduceOptionsBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
+    public class MapReduceOptionsBuilder : BuilderBase, IConvertibleToBsonDocument, IBsonSerializable {
         #region private fields
         private BsonDocument document;
         #endregion

@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.BsonLibrary {
-    public interface IBsonDocumentBuilder {
+    public interface IConvertibleToBsonDocument {
         string ToJson(); // useful for debugging
         BsonDocument ToBsonDocument();
     }

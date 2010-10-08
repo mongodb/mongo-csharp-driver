@@ -66,7 +66,7 @@ namespace MongoDB.CSharpDriver.Builders {
     }
 
     [Serializable]
-    public class IndexOptionsBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
+    public class IndexOptionsBuilder : BuilderBase, IConvertibleToBsonDocument, IBsonSerializable {
         #region private fields
         private BsonDocument document;
         #endregion

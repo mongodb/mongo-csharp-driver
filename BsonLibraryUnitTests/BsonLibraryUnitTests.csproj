@@ -57,6 +57,7 @@
     <Compile Include="BsonValueCompareToTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\BsonClassMapSerializerTests.cs" />
+    <Compile Include="Serialization\PropertySerializers\BsonValuePropertySerializerTests.cs" />
     <Compile Include="Serialization\PropertySerializers\DateTimeOffsetPropertySerializerTests.cs" />
     <Compile Include="Serialization\PropertySerializers\PrimitivePropertySerializerTests.cs" />
   </ItemGroup>

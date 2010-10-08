@@ -65,9 +65,9 @@ namespace MongoDB.BsonLibrary {
                 return bsonDocument; // it's already a BsonDocument
             }
 
-            var builder = obj as IBsonDocumentBuilder;
-            if (builder != null) {
-                return builder.ToBsonDocument(); // use the provided ToBsonDocument method
+            var convertibleToBsonDocument = obj as IConvertibleToBsonDocument;
+            if (convertibleToBsonDocument != null) {
+                return convertibleToBsonDocument.ToBsonDocument(); // use the provided ToBsonDocument method
             }
 
             // otherwise serialize it and then deserialize it into a new BsonDocument

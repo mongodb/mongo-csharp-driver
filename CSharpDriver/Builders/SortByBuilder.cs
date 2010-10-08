@@ -41,7 +41,7 @@ namespace MongoDB.CSharpDriver.Builders {
     }
 
     [Serializable]
-    public class SortByBuilder : BuilderBase, IBsonDocumentBuilder, IBsonSerializable {
+    public class SortByBuilder : BuilderBase, IConvertibleToBsonDocument, IBsonSerializable {
         #region private fields
         private BsonDocument document;
         #endregion
