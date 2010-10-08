@@ -83,14 +83,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         }
 
         public class Account {
-            static Account() {
-                BsonClassMap.RegisterClassMap<Account>(
-                    cm => {
-                        cm.AutoMap();
-                    }
-                );
-            }
-
             public DateTimeOffset Opened { get; set; }
             public decimal Balance { get; set; }
         }

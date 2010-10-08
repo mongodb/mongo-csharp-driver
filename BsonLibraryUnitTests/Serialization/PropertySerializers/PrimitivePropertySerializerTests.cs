@@ -27,10 +27,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class BooleanPropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public bool Boolean { get; set; }
         }
 
@@ -66,10 +62,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class BytePropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public byte Byte { get; set; }
         }
 
@@ -119,10 +111,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class CharPropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public char Char { get; set; }
         }
 
@@ -185,10 +173,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class DateTimePropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public DateTime DateTime { get; set; }
         }
 
@@ -331,10 +315,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class DoublePropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public double Double { get; set; }
         }
 
@@ -454,10 +434,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class GuidPropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public Guid Guid { get; set; }
         }
 
@@ -494,10 +470,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class Int16PropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public short Int16 { get; set; }
         }
 
@@ -575,10 +547,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class Int32PropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public int Int32 { get; set; }
         }
 
@@ -656,10 +624,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class Int64PropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public long Int64 { get; set; }
         }
 
@@ -737,10 +701,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class SBytePropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public sbyte SByte { get; set; }
         }
 
@@ -818,10 +778,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class SinglePropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public float Single { get; set; }
         }
 
@@ -943,10 +899,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class StringPropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public String String { get; set; }
         }
 
@@ -996,10 +948,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class UInt16PropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public ushort UInt16 { get; set; }
         }
 
@@ -1063,10 +1011,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class UInt32PropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public uint UInt32 { get; set; }
         }
 
@@ -1130,10 +1074,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
     public class UInt64PropertySerializerTests {
         public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>();
-            }
-
             public ulong UInt64 { get; set; }
         }
 

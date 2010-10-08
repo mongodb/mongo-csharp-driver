@@ -78,8 +78,16 @@ namespace MongoDB.BsonLibrary.Serialization {
                 if (classMaps.TryGetValue(classType, out classMap)) {
                     return classMap;
                 } else {
-                    string message = string.Format("No class map found for type: {0}", classType.FullName);
-                    throw new BsonSerializationException(message);
+                    // automatically register a class map for classType
+                    var genericRegisterClassMapMethodInfo = typeof(BsonClassMap).GetMethod(
+                        "RegisterClassMap", // name
+                        BindingFlags.Public | BindingFlags.Static, // bindingAttr
+                        null, // binder
+                        new Type[] { }, // types
+                        null // modifiers
+                    );
+                    var registerClassMapMethodInfo = genericRegisterClassMapMethodInfo.MakeGenericMethod(classType);
+                    return (BsonClassMap) registerClassMapMethodInfo.Invoke(null, new object[] { });
                 }
             }
         }
