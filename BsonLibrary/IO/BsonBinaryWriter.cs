@@ -38,7 +38,7 @@ namespace MongoDB.BsonLibrary.IO {
         ) {
             this.stream = stream;
             this.buffer = buffer ?? new BsonBuffer();
-            this.disposeBuffer = buffer != null; // only call Dispose if we allocated the buffer
+            this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
             this.settings = settings;
             context = new BsonBinaryWriterContext(null, BsonWriteState.Initial);
         }

@@ -63,51 +63,103 @@ namespace MongoDB.BsonLibrary.IO {
         #region public methods
         public abstract void Close();
         public abstract void Dispose();
-        public abstract BsonType PeekBsonType();
+        public abstract bool HasElement(
+            out BsonType bsonType
+        );
+        public abstract bool HasElement(
+            out BsonType bsonType,
+            out string name
+        );
         public abstract void ReadArrayName(
             out string name
+        );
+        public abstract void ReadArrayName(
+            string expectedName
         );
         public abstract void ReadBinaryData(
             out string name,
             out byte[] bytes,
             out BsonBinarySubType subType
         );
+        public abstract void ReadBinaryData(
+            string expectedName,
+            out byte[] bytes,
+            out BsonBinarySubType subType
+        );
         public abstract bool ReadBoolean(
             out string name
+        );
+        public abstract bool ReadBoolean(
+            string expectedName
         );
         public abstract DateTime ReadDateTime(
             out string name
         );
+        public abstract DateTime ReadDateTime(
+            string expectedName
+        );
         public abstract void ReadDocumentName(
             out string name
         );
+        public abstract void ReadDocumentName(
+            string expectedName
+        );
         public abstract double ReadDouble(
             out string name
+        );
+        public abstract double ReadDouble(
+            string expectedName
         );
         public abstract void ReadEndDocument();
         public abstract int ReadInt32(
             out string name
         );
+        public abstract int ReadInt32(
+            string expectedName
+        );
         public abstract long ReadInt64(
             out string name
+        );
+        public abstract long ReadInt64(
+            string expectedName
         );
         public abstract string ReadJavaScript(
             out string name
         );
+        public abstract string ReadJavaScript(
+            string expectedName
+        );
         public abstract string ReadJavaScriptWithScope(
             out string name
+        );
+        public abstract string ReadJavaScriptWithScope(
+            string expectedName
         );
         public abstract void ReadMaxKey(
             out string name
         );
+        public abstract void ReadMaxKey(
+            string expectedName
+        );
         public abstract void ReadMinKey(
             out string name
+        );
+        public abstract void ReadMinKey(
+            string expectedName
         );
         public abstract void ReadNull(
             out string name
         );
+        public abstract void ReadNull(
+            string expectedName
+        );
         public abstract void ReadObjectId(
             out string name,
+            out int timestamp,
+            out long machinePidIncrement
+        );
+        public abstract void ReadObjectId(
+            string expectedName,
             out int timestamp,
             out long machinePidIncrement
         );
@@ -116,15 +168,33 @@ namespace MongoDB.BsonLibrary.IO {
             out string pattern,
             out string options
         );
+        public abstract void ReadRegularExpression(
+            string expectedName,
+            out string pattern,
+            out string options
+        );
         public abstract void ReadStartDocument();
         public abstract string ReadString(
             out string name
         );
+        public abstract string ReadString(
+            string expectedName
+        );
         public abstract string ReadSymbol(
             out string name
         );
+        public abstract string ReadSymbol(
+            string expectedName
+        );
         public abstract long ReadTimestamp(
             out string name
+        );
+        public abstract long ReadTimestamp(
+            string expectedName
+        );
+        public abstract void VerifyString(
+            string expectedName,
+            string expectedValue
         );
         #endregion
     }

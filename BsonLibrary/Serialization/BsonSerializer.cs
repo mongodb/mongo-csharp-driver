@@ -26,7 +26,7 @@ namespace MongoDB.BsonLibrary.Serialization {
         private static object staticLock = new object();
         private static Dictionary<Type, IBsonSerializer> registry = new Dictionary<Type, IBsonSerializer>();
         private static Dictionary<Type, IBsonSerializer> cache = new Dictionary<Type, IBsonSerializer>();
-        private static IBsonSerializer defaultSerializer = BsonPropertySerializer.Singleton;
+        private static IBsonSerializer defaultSerializer = BsonClassMapSerializer.Singleton;
         #endregion
 
         #region public static properties
@@ -48,11 +48,11 @@ namespace MongoDB.BsonLibrary.Serialization {
                 return obj;
             }
 
-            var serializer = FindSerializer(type);
+            var serializer = LookupSerializer(type);
             return serializer.Deserialize(bsonReader, type);
         }
 
-        public static IBsonSerializer FindSerializer(
+        public static IBsonSerializer LookupSerializer(
             Type type
         ) {
             lock (staticLock) {
@@ -104,7 +104,7 @@ namespace MongoDB.BsonLibrary.Serialization {
                 return;
             }
 
-            var serializer = FindSerializer(obj.GetType());
+            var serializer = LookupSerializer(obj.GetType());
             serializer.Serialize(bsonWriter, obj, serializeIdFirst);
         }
 

@@ -214,10 +214,15 @@ namespace MongoDB.BsonLibrary.IO {
             }
         }
 
-        public byte PeekByte() {
+        public BsonType PeekBsonType() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
-            return chunk[chunkOffset];
+            var bsonType = (BsonType) chunk[chunkOffset];
+            if (!Enum.IsDefined(typeof(BsonType), bsonType)) {
+                string message = string.Format("Invalid BsonType: {0}", (int) bsonType);
+                throw new FileFormatException(message);
+            }
+            return bsonType;
         }
 
         public bool ReadBoolean() {
@@ -226,6 +231,18 @@ namespace MongoDB.BsonLibrary.IO {
             var value = chunk[chunkOffset] != 0;
             Position++;
             return value;
+        }
+
+        public BsonType ReadBsonType() {
+            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            EnsureDataAvailable(1);
+            var bsonType = (BsonType) chunk[chunkOffset];
+            if (!Enum.IsDefined(typeof(BsonType), bsonType)) {
+                string message = string.Format("Invalid BsonType: {0}", (int) bsonType);
+                throw new FileFormatException(message);
+            }
+            Position++;
+            return bsonType;
         }
 
         public byte ReadByte() {

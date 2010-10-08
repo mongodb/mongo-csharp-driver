@@ -35,7 +35,7 @@ namespace MongoDB.BsonLibrary.IO {
             BsonBinaryReaderSettings settings
         ) {
             this.buffer = buffer ?? new BsonBuffer();
-            this.disposeBuffer = buffer != null;
+            this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
             this.settings = settings;
             context = new BsonBinaryReaderContext(null, BsonReadState.Initial);
         }
@@ -70,18 +70,38 @@ namespace MongoDB.BsonLibrary.IO {
             }
         }
 
-        public override BsonType PeekBsonType() {
+        public override bool HasElement(
+            out BsonType bsonType
+        ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             if ((context.ReadState & BsonReadState.Document) == 0) {
-                string message = string.Format("PeekBsonType cannot be called when ReadState is: {0}", context.ReadState);
+                string message = string.Format("HasElement cannot be called when ReadState is: {0}", context.ReadState);
                 throw new InvalidOperationException(message);
             }
-            var bsonType = (BsonType) buffer.PeekByte();
-            if (!Enum.IsDefined(typeof(BsonType), bsonType)) {
-                string message = string.Format("Invalid BsonType: {0}", (int) bsonType);
-                throw new FileFormatException(message);
+            bsonType = buffer.PeekBsonType();
+            return bsonType != BsonType.EndOfDocument;
+        }
+
+        public override bool HasElement(
+            out BsonType bsonType,
+            out string name
+        ) {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if ((context.ReadState & BsonReadState.Document) == 0) {
+                string message = string.Format("HasElement cannot be called when ReadState is: {0}", context.ReadState);
+                throw new InvalidOperationException(message);
             }
-            return bsonType;
+
+            int currentPosition = buffer.Position;
+            bsonType = buffer.ReadBsonType();
+            if (bsonType == BsonType.EndOfDocument) {
+                name = null;
+            } else {
+                name = buffer.ReadCString();
+            }
+            buffer.Position = currentPosition;
+
+            return bsonType != BsonType.EndOfDocument;
         }
 
         public override void ReadArrayName(
@@ -92,6 +112,14 @@ namespace MongoDB.BsonLibrary.IO {
             name = buffer.ReadCString();
             context = new BsonBinaryReaderContext(context, BsonReadState.Array);
             context = new BsonBinaryReaderContext(context, BsonReadState.StartDocument);
+        }
+
+        public override void ReadArrayName(
+            string expectedName
+        ) {
+            string actualName;
+            ReadArrayName(out actualName);
+            VerifyName(actualName, expectedName);
         }
 
         public override void ReadBinaryData(
@@ -105,6 +133,16 @@ namespace MongoDB.BsonLibrary.IO {
             ReadBinaryDataHelper(out bytes, out subType);
         }
 
+        public override void ReadBinaryData(
+            string expectedName,
+            out byte[] bytes,
+            out BsonBinarySubType subType
+        ) {
+            string actualName;
+            ReadBinaryData(out actualName, out bytes, out subType);
+            VerifyName(actualName, expectedName);
+        }
+
         public override bool ReadBoolean(
             out string name
         ) {
@@ -112,6 +150,15 @@ namespace MongoDB.BsonLibrary.IO {
             VerifyBsonType("ReadBoolean", BsonType.Boolean);
             name = buffer.ReadCString();
             return buffer.ReadBoolean();
+        }
+
+        public override bool ReadBoolean(
+            string expectedName
+        ) {
+            string actualName;
+            var value = ReadBoolean(out actualName);
+            VerifyName(actualName, expectedName);
+            return value;
         }
 
         public override DateTime ReadDateTime(
@@ -124,6 +171,15 @@ namespace MongoDB.BsonLibrary.IO {
             return DateTime.SpecifyKind(Bson.UnixEpoch.AddMilliseconds(milliseconds), DateTimeKind.Utc);
         }
 
+        public override DateTime ReadDateTime(
+            string expectedName
+        ) {
+            string actualName;
+            var value = ReadDateTime(out actualName);
+            VerifyName(actualName, expectedName);
+            return value;
+        }
+
         public override void ReadDocumentName(
             out string name
         ) {
@@ -134,6 +190,14 @@ namespace MongoDB.BsonLibrary.IO {
             context = new BsonBinaryReaderContext(context, BsonReadState.StartDocument);
         }
 
+        public override void ReadDocumentName(
+            string expectedName
+        ) {
+            string actualName;
+            ReadDocumentName(out actualName);
+            VerifyName(actualName, expectedName);
+        }
+
         public override double ReadDouble(
             out string name
         ) {
@@ -141,6 +205,15 @@ namespace MongoDB.BsonLibrary.IO {
             VerifyBsonType("ReadDouble", BsonType.Double);
             name = buffer.ReadCString();
             return buffer.ReadDouble();
+        }
+
+        public override double ReadDouble(
+            string expectedName
+        ) {
+            string actualName;
+            var value = ReadDouble(out actualName);
+            VerifyName(actualName, expectedName);
+            return value;
         }
 
         public override void ReadEndDocument() {
@@ -172,6 +245,15 @@ namespace MongoDB.BsonLibrary.IO {
             return buffer.ReadInt32();
         }
 
+        public override int ReadInt32(
+            string expectedName
+        ) {
+            string actualName;
+            var value = ReadInt32(out actualName);
+            VerifyName(actualName, expectedName);
+            return value;
+        }
+
         public override long ReadInt64(
             out string name
         ) {
@@ -181,6 +263,15 @@ namespace MongoDB.BsonLibrary.IO {
             return buffer.ReadInt64();
         }
 
+        public override long ReadInt64(
+            string expectedName
+        ) {
+            string actualName;
+            var value = ReadInt64(out actualName);
+            VerifyName(actualName, expectedName);
+            return value;
+        }
+
         public override string ReadJavaScript(
             out string name
         ) {
@@ -188,6 +279,15 @@ namespace MongoDB.BsonLibrary.IO {
             VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
             name = buffer.ReadCString();
             return buffer.ReadString();
+        }
+
+        public override string ReadJavaScript(
+            string expectedName
+        ) {
+            string actualName;
+            var code = ReadJavaScript(out actualName);
+            VerifyName(actualName, expectedName);
+            return code;
         }
 
         public override string ReadJavaScriptWithScope(
@@ -205,12 +305,29 @@ namespace MongoDB.BsonLibrary.IO {
             return code;
         }
 
+        public override string ReadJavaScriptWithScope(
+            string expectedName
+        ) {
+            string actualName;
+            var code = ReadJavaScriptWithScope(out actualName);
+            VerifyName(actualName, expectedName);
+            return code;
+        }
+
         public override void ReadMaxKey(
             out string name
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             VerifyBsonType("ReadMaxKey", BsonType.MaxKey);
             name = buffer.ReadCString();
+        }
+
+        public override void ReadMaxKey(
+            string expectedName
+        ) {
+            string actualName;
+            ReadMaxKey(out actualName);
+            VerifyName(actualName, expectedName);
         }
 
         public override void ReadMinKey(
@@ -221,12 +338,28 @@ namespace MongoDB.BsonLibrary.IO {
             name = buffer.ReadCString();
         }
 
+        public override void ReadMinKey(
+            string expectedName
+        ) {
+            string actualName;
+            ReadMinKey(out actualName);
+            VerifyName(actualName, expectedName);
+        }
+
         public override void ReadNull(
             out string name
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             VerifyBsonType("ReadNull", BsonType.Null);
             name = buffer.ReadCString();
+        }
+
+        public override void ReadNull(
+            string expectedName
+        ) {
+            string actualName;
+            ReadNull(out actualName);
+            VerifyName(actualName, expectedName);
         }
 
         public override void ReadObjectId(
@@ -240,6 +373,16 @@ namespace MongoDB.BsonLibrary.IO {
             buffer.ReadObjectId(out timestamp, out machinePidIncrement);
         }
 
+        public override void ReadObjectId(
+            string expectedName,
+            out int timestamp,
+            out long machinePidIncrement
+        ) {
+            string actualName;
+            ReadObjectId(out actualName, out timestamp, out machinePidIncrement);
+            VerifyName(actualName, expectedName);
+        }
+
         public override void ReadRegularExpression(
             out string name,
             out string pattern,
@@ -250,6 +393,16 @@ namespace MongoDB.BsonLibrary.IO {
             name = buffer.ReadCString();
             pattern = buffer.ReadCString();
             options = buffer.ReadCString();
+        }
+
+        public override void ReadRegularExpression(
+            string expectedName,
+            out string pattern,
+            out string options
+        ) {
+            string actualName;
+            ReadRegularExpression(out actualName, out pattern, out options);
+            VerifyName(actualName, expectedName);
         }
 
         public override void ReadStartDocument() {
@@ -275,6 +428,15 @@ namespace MongoDB.BsonLibrary.IO {
             return buffer.ReadString();
         }
 
+        public override string ReadString(
+            string expectedName
+        ) {
+            string actualName;
+            var value = ReadString(out actualName);
+            VerifyName(actualName, expectedName);
+            return value;
+        }
+
         public override string ReadSymbol(
             out string name
         ) {
@@ -284,6 +446,15 @@ namespace MongoDB.BsonLibrary.IO {
             return buffer.ReadString();
         }
 
+        public override string ReadSymbol(
+            string expectedName
+        ) {
+            string actualName;
+            var value = ReadSymbol(out actualName);
+            VerifyName(actualName, expectedName);
+            return value;
+        }
+
         public override long ReadTimestamp(
             out string name
         ) {
@@ -291,6 +462,28 @@ namespace MongoDB.BsonLibrary.IO {
             VerifyBsonType("ReadTimestamp", BsonType.Timestamp);
             name = buffer.ReadCString();
             return buffer.ReadInt64();
+        }
+
+        public override long ReadTimestamp(
+            string expectedName
+        ) {
+            string actualName;
+            var value = ReadTimestamp(out actualName);
+            VerifyName(actualName, expectedName);
+            return value;
+        }
+
+        public override void VerifyString(
+            string expectedName,
+            string expectedValue
+        ) {
+            string actualName;
+            var actualValue = ReadString(out actualName);
+            VerifyName(actualName, expectedName);
+            if (actualValue != expectedValue) {
+                string message = string.Format("Value for element {0} is not: \"{1}\"", expectedName, expectedValue);
+                throw new FileFormatException(message);
+            }
         }
         #endregion
 
@@ -337,9 +530,19 @@ namespace MongoDB.BsonLibrary.IO {
                 string message = string.Format("{0} cannot be called when ReadState is: {1}", methodName, context.ReadState);
                 throw new InvalidOperationException(message);
             }
-            var bsonType = (BsonType) buffer.ReadByte();
+            var bsonType = buffer.ReadBsonType();
             if (bsonType != requiredBsonType) {
                 string message = string.Format("BSON type is not {0}", requiredBsonType);
+                throw new FileFormatException(message);
+            }
+        }
+
+        private void VerifyName(
+            string actualName,
+            string expectedName
+        ) {
+            if (actualName != expectedName) {
+                string message = string.Format("Element name is not {0}", expectedName);
                 throw new FileFormatException(message);
             }
         }

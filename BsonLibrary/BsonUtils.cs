@@ -95,7 +95,7 @@ namespace MongoDB.BsonLibrary {
         public static string ToJson(
             object obj
         ) {
-            return ToJson(BsonJsonWriterSettings.Defaults);
+            return ToJson(obj, BsonJsonWriterSettings.Defaults);
         }
 
         public static string ToJson(

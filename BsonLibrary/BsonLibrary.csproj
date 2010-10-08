@@ -51,7 +51,9 @@
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />
     <Compile Include="ObjectModel\IBsonDocumentBuilder.cs" />
-    <Compile Include="Serialization\BsonPropertySerializer.cs" />
+    <Compile Include="Serialization\BsonClassMap.cs" />
+    <Compile Include="Serialization\BsonClassMapSerializer.cs" />
+    <Compile Include="Serialization\BsonPropertyMap.cs" />
     <Compile Include="ObjectModel\BsonArray.cs" />
     <Compile Include="IO\BsonBinaryReader.cs" />
     <Compile Include="IO\BsonBinaryReaderSettings.cs" />
@@ -96,12 +98,19 @@
     <Compile Include="ObjectModel\BsonMaxKey.cs" />
     <Compile Include="ObjectModel\BsonMinKey.cs" />
     <Compile Include="IO\BsonBuffer.cs" />
+    <Compile Include="Serialization\IBsonPropertySerializer.cs" />
     <Compile Include="Serialization\IBsonSerializable.cs" />
     <Compile Include="Serialization\IBsonSerializer.cs" />
     <Compile Include="IO\BsonJsonWriterContext.cs" />
     <Compile Include="IO\BsonBinaryReaderContext.cs" />
     <Compile Include="IO\BsonBinaryWriterContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\PropertySerializers\CultureInfoPropertySerializer.cs" />
+    <Compile Include="Serialization\PropertySerializers\DateTimeOffsetPropertySerializer.cs" />
+    <Compile Include="Serialization\PropertySerializers\DateTimePropertySerializer.cs" />
+    <Compile Include="Serialization\PropertySerializers\DecimalPropertySerializer.cs" />
+    <Compile Include="Serialization\PropertySerializers\ObjectIdPropertySerializer.cs" />
+    <Compile Include="Serialization\PropertySerializers\StringPropertySerializer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
