@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using MongoDB.BsonLibrary.IO;
 
@@ -52,8 +53,8 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             bsonReader.ReadDocumentName(propertyMap.ElementName);
             bsonReader.ReadStartDocument();
             bsonReader.VerifyString("_t", typeof(DateTimeOffset).FullName);
-            var dateTime = bsonReader.ReadDateTime("v");
-            var offset = TimeSpan.FromMinutes(bsonReader.ReadInt32("o"));
+            var dateTime = DateTime.Parse(bsonReader.ReadString("dt")); // Kind = DateTimeKind.Unspecified
+            var offset = TimeSpan.Parse(bsonReader.ReadString("o"));
             bsonReader.ReadEndDocument();
             var value = new DateTimeOffset(dateTime, offset);
             propertyMap.Setter(obj, value);
@@ -64,12 +65,13 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
+            // note: the DateTime portion has to be serialized as a string because it is NOT in UTC
             var value = (DateTimeOffset) propertyMap.Getter(obj);
             bsonWriter.WriteDocumentName(propertyMap.ElementName);
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteString("_t", typeof(DateTimeOffset).FullName);
-            bsonWriter.WriteDateTime("v", value.DateTime);
-            bsonWriter.WriteInt32("o", (int) value.Offset.TotalMinutes);
+            bsonWriter.WriteString("dt", value.DateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFF")); // omit trailing zeros
+            bsonWriter.WriteString("o", Regex.Replace(value.Offset.ToString(), ":00$", "")); // omit trailing zeros
             bsonWriter.WriteEndDocument();
         }
         #endregion

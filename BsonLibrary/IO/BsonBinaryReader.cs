@@ -168,7 +168,7 @@ namespace MongoDB.BsonLibrary.IO {
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
             name = buffer.ReadCString();
             long milliseconds = buffer.ReadInt64();
-            return DateTime.SpecifyKind(Bson.UnixEpoch.AddMilliseconds(milliseconds), DateTimeKind.Utc);
+            return Bson.UnixEpoch.AddMilliseconds(milliseconds); // Kind = DateTimeKind.Utc
         }
 
         public override DateTime ReadDateTime(

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -50,6 +51,24 @@ namespace MongoDB.BsonLibrary.Serialization {
 
             var serializer = LookupSerializer(type);
             return serializer.Deserialize(bsonReader, type);
+        }
+
+        public static object Deserialize(
+            byte[] bytes,
+            Type type
+        ) {
+            using (var memoryStream = new MemoryStream(bytes)) {
+                return Deserialize(memoryStream, type);
+            }
+        }
+
+        public static object Deserialize(
+            Stream stream,
+            Type type
+        ) {
+            using (var bsonReader = BsonReader.Create(stream)) {
+                return Deserialize(bsonReader, type);
+            }
         }
 
         public static IBsonSerializer LookupSerializer(
