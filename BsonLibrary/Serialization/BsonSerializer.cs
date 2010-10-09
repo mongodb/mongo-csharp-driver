@@ -38,6 +38,27 @@ namespace MongoDB.BsonLibrary.Serialization {
         #endregion
 
         #region public static methods
+        public static T Deserialize<T>(
+            BsonReader bsonReader
+        ) {
+            var obj = Deserialize(bsonReader, typeof(T));
+            return (T) obj;
+        }
+
+        public static T Deserialize<T>(
+            byte[] bytes
+        ) {
+            var obj = Deserialize(bytes, typeof(T));
+            return (T) obj;
+        }
+
+        public static T Deserialize<T>(
+            Stream stream
+        ) {
+            var obj = Deserialize(stream, typeof(T));
+            return (T) obj;
+        }
+
         public static object Deserialize(
             BsonReader bsonReader,
             Type type
@@ -111,20 +132,37 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
         }
 
+        public static void Serialize<T>(
+            BsonWriter bsonWriter,
+            T obj
+        ) {
+            Serialize(bsonWriter, obj, false);
+        }
+
+        public static void Serialize<T>(
+            BsonWriter bsonWriter,
+            T obj,
+            bool serializeIdFirst
+        ) {
+            var serializeDiscriminator = BsonPropertyMap.IsPolymorphicType(typeof(T)) || obj.GetType() != typeof(T);
+            Serialize(bsonWriter, obj, serializeIdFirst, serializeDiscriminator);
+        }
+
         public static void Serialize(
             BsonWriter bsonWriter,
             object obj,
-            bool serializeIdFirst
+            bool serializeIdFirst,
+            bool serializeDiscriminator
         ) {
             // optimize for the most common case
             var bsonSerializable = obj as IBsonSerializable;
             if (bsonSerializable != null) {
-                bsonSerializable.Serialize(bsonWriter, serializeIdFirst);
+                bsonSerializable.Serialize(bsonWriter, serializeIdFirst, serializeDiscriminator);
                 return;
             }
 
             var serializer = LookupSerializer(obj.GetType());
-            serializer.Serialize(bsonWriter, obj, serializeIdFirst);
+            serializer.Serialize(bsonWriter, obj, serializeIdFirst, serializeDiscriminator);
         }
 
         public static void UnregisterSerializer(

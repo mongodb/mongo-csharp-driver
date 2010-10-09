@@ -80,28 +80,21 @@ namespace MongoDB.BsonLibrary {
         }
 
         public void Serialize(
+            BsonWriter bsonWriter
+        ) {
+            Serialize(bsonWriter, false, false);
+        }
+
+        public void Serialize(
             BsonWriter bsonWriter,
-            bool serializeIdFirst
+            bool serializeIdFirst,
+            bool serializeDiscriminator
         ) {
-            BsonSerializer.Serialize(bsonWriter, document, serializeIdFirst);
-        }
-
-        public string ToJson() {
-            return ToJson(BsonJsonWriterSettings.Defaults);
-        }
-
-        public string ToJson(
-            BsonJsonWriterSettings settings
-        ) {
-            StringWriter stringWriter = new StringWriter();
-            using (BsonWriter bsonWriter = BsonWriter.Create(stringWriter, settings)) {
-                Serialize(bsonWriter, false);
-            }
-            return stringWriter.ToString();
+            BsonSerializer.Serialize(bsonWriter, document, serializeIdFirst, serializeDiscriminator);
         }
 
         public override string ToString() {
-            return ToJson();
+            return this.ToJson();
         }
         #endregion
     }

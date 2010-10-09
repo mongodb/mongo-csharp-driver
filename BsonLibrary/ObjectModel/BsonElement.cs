@@ -309,7 +309,7 @@ namespace MongoDB.BsonLibrary {
                         document.WriteTo(bsonWriter);
                     } else {
                         var documentWrapper = value as BsonDocumentWrapper;
-                        documentWrapper.Serialize(bsonWriter, false); // don't serializeIdFirst
+                        documentWrapper.Serialize(bsonWriter);
                     }
                     break;
                 case BsonType.Array:

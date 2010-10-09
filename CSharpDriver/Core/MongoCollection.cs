@@ -90,8 +90,8 @@ namespace MongoDB.CSharpDriver {
             TIndexKeys keys,
             TIndexOptions options
         ) {
-            var keysDocument = BsonUtils.ToBsonDocument(keys);
-            var optionsDocument = BsonUtils.ToBsonDocument(options);
+            var keysDocument = keys.ToBsonDocument();
+            var optionsDocument = options.ToBsonDocument();
             var indexes = database.GetCollection("system.indexes");
             var indexName = (optionsDocument != null && optionsDocument.Contains("name")) ? optionsDocument["name"].AsString : GetIndexName(keysDocument);
             var index = new BsonDocument {
@@ -147,7 +147,7 @@ namespace MongoDB.CSharpDriver {
         public BsonDocument DropIndex<TIndexKeys>(
             TIndexKeys keys
         ) {
-            var keysDocument = BsonUtils.ToBsonDocument(keys);
+            var keysDocument = keys.ToBsonDocument();
             string indexName = GetIndexName(keysDocument);
             return DropIndex(indexName);
         }
@@ -178,8 +178,8 @@ namespace MongoDB.CSharpDriver {
            TIndexOptions options
         ) {
             lock (indexCache) {
-                var keysDocument = BsonUtils.ToBsonDocument(keys);
-                var optionsDocument = BsonUtils.ToBsonDocument(options);
+                var keysDocument = keys.ToBsonDocument();
+                var optionsDocument = options.ToBsonDocument();
                 var indexName = (optionsDocument != null && optionsDocument.Contains("name")) ? optionsDocument["name"].AsString : GetIndexName(keysDocument);
                 if (!indexCache.Contains(indexName)) {
                     CreateIndex(keysDocument, optionsDocument);
@@ -379,7 +379,7 @@ namespace MongoDB.CSharpDriver {
                 foreach (var document in documents) {
                     if (assignObjectIdsOnInsert) {
                         // TODO: find a way to do this more efficiently without creating an intermediate BsonDocument
-                        var bsonDocument = BsonUtils.ToBsonDocument(document);
+                        var bsonDocument = document.ToBsonDocument();
                         if (!bsonDocument.Contains("_id")) {
                             bsonDocument.InsertAt(0, new BsonElement("_id", BsonObjectId.GenerateNewId()));
                         }
@@ -426,7 +426,7 @@ namespace MongoDB.CSharpDriver {
                 { "map", map },
                 { "reduce", reduce }
             };
-            command.Merge(BsonUtils.ToBsonDocument(options));
+            command.Merge(options.ToBsonDocument());
             var result = database.RunCommand(command);
             return new MongoMapReduceResult(database, result);
         }
@@ -438,7 +438,7 @@ namespace MongoDB.CSharpDriver {
             TMapReduceOptions options
         ) {
             // create a new set of options because we don't want to modify caller's data
-            return MapReduce(map, reduce, MapReduceOptions.Query(query).Append(BsonUtils.ToBsonDocument(options)));
+            return MapReduce(map, reduce, MapReduceOptions.Query(query).Append(options.ToBsonDocument()));
         }
 
         public MongoMapReduceResult MapReduce<TQuery>(
@@ -537,7 +537,7 @@ namespace MongoDB.CSharpDriver {
             SafeMode safeMode
         ) {
             // TODO: find a way to do this more efficiently without creating an intermediate BsonDocument
-            var bsonDocument = BsonUtils.ToBsonDocument(document);
+            var bsonDocument = document.ToBsonDocument();
             BsonValue id = bsonDocument["_id", null];
             if (id == null) {
                 id = BsonObjectId.GenerateNewId();

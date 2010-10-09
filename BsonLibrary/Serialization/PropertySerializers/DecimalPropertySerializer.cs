@@ -53,7 +53,7 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             bsonReader.ReadDocumentName(propertyMap.ElementName);
             bsonReader.ReadStartDocument();
             bsonReader.VerifyString("_t", typeof(Decimal).FullName);
-            var value = XmlConvert.ToDecimal(bsonReader.ReadString(propertyMap.ElementName));
+            var value = XmlConvert.ToDecimal(bsonReader.ReadString("v"));
             bsonReader.ReadEndDocument();
             propertyMap.Setter(obj, value);
         }

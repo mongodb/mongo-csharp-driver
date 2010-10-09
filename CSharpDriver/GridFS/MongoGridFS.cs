@@ -98,7 +98,7 @@ namespace MongoDB.CSharpDriver {
         ) {
             var fileInfo = FindOne(query, version);
             if (fileInfo == null) {
-                var jsonQuery = BsonUtils.ToJson(query);
+                var jsonQuery = query.ToJson();
                 string errorMessage = string.Format("GridFS file not found: {0}", jsonQuery);
                 throw new FileNotFoundException(errorMessage, jsonQuery);
             }

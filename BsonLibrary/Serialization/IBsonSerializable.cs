@@ -23,6 +23,6 @@ using MongoDB.BsonLibrary.IO;
 namespace MongoDB.BsonLibrary.Serialization {
     public interface IBsonSerializable {
         void Deserialize(BsonReader bsonReader);
-        void Serialize(BsonWriter bsonWriter, bool serializeIdFirst);
+        void Serialize(BsonWriter bsonWriter, bool serializeIdFirst, bool serializeDiscriminator);
     }
 }

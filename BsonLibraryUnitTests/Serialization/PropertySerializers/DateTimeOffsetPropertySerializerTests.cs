@@ -42,13 +42,13 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
         public void TestSerializeDateTimeOffset() {
             var dateTime = new DateTime(2010, 10, 8, 11, 29, 0);
             var obj = new TestClass { DateTimeOffset = new DateTimeOffset(dateTime, TimeSpan.FromHours(-4)) };
-            var json = BsonUtils.ToJson(obj);
+            var json = obj.ToJson();
             var expected = "{ 'dto' : { '_t' : 'System.DateTimeOffset', 'dt' : '2010-10-08T11:29:00', 'o' : '-04:00' } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
-            var bson = BsonUtils.ToBson(obj);
-            var rehydrated = BsonSerializer.Deserialize(bson, typeof(TestClass));
-            Assert.IsTrue(bson.SequenceEqual(BsonUtils.ToBson(rehydrated)));
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

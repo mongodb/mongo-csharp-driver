@@ -85,7 +85,8 @@ namespace MongoDB.BsonLibrary.Serialization {
         public void Serialize(
             BsonWriter bsonWriter,
             object obj,
-            bool serializeIdFirst
+            bool serializeIdFirst,
+            bool serializeDiscriminator
         ) {
             var classMap = BsonClassMap.LookupClassMap(obj.GetType());
 
@@ -96,6 +97,10 @@ namespace MongoDB.BsonLibrary.Serialization {
                 if (idPropertyMap != null) {
                     idPropertyMap.PropertySerializer.SerializeProperty(bsonWriter, obj, idPropertyMap);
                 }
+            }
+
+            if (serializeDiscriminator) {
+                bsonWriter.WriteString("_t", obj.GetType().FullName);
             }
 
             foreach (var propertyMap in classMap.PropertyMaps) {

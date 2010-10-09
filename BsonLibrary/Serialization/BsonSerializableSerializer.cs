@@ -50,9 +50,10 @@ namespace MongoDB.BsonLibrary.Serialization {
         public void Serialize(
             BsonWriter bsonWriter,
             object obj,
-            bool serializeIdFirst
+            bool serializeIdFirst,
+            bool serializeDiscriminator
         ) {
-            ((IBsonSerializable) obj).Serialize(bsonWriter, serializeIdFirst);
+            ((IBsonSerializable) obj).Serialize(bsonWriter, serializeIdFirst, serializeDiscriminator);
         }
         #endregion
     }

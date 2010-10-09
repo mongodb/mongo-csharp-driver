@@ -30,6 +30,7 @@ namespace MongoDB.BsonLibrary.Serialization {
         protected Func<object, object> getter;
         protected Action<object, object> setter;
         protected IBsonPropertySerializer propertySerializer;
+        protected bool isPolymorphicProperty;
         protected bool isRequired;
         protected bool hasDefaultValue;
         protected object defaultValue;
@@ -43,6 +44,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             this.propertyName = propertyInfo.Name;
             this.elementName = elementName;
             this.propertyInfo = propertyInfo;
+            this.isPolymorphicProperty = IsPolymorphicType(propertyInfo.PropertyType);
         }
         #endregion
 
@@ -76,6 +78,10 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
         }
 
+        public bool IsPolymorphicProperty {
+            get { return isPolymorphicProperty; }
+        }
+
         public bool IsRequired {
             get { return isRequired; }
         }
@@ -86,6 +92,18 @@ namespace MongoDB.BsonLibrary.Serialization {
 
         public object DefaultValue {
             get { return defaultValue; }
+        }
+        #endregion
+
+        #region public static methods
+        public static bool IsPolymorphicType(
+            Type type
+        ) {
+            if (type.IsAbstract) { return true; }
+            if (type.IsInterface) { return true; }
+            if (type == typeof(object)) { return true; }
+            // TODO: return true if type has derived classes?
+            return false;
         }
         #endregion
 

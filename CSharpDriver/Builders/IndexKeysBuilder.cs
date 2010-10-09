@@ -98,9 +98,10 @@ namespace MongoDB.CSharpDriver.Builders {
 
         void IBsonSerializable.Serialize(
             BsonWriter bsonWriter,
-            bool serializeIdFirst
+            bool serializeIdFirst,
+            bool serializeDiscriminator
         ) {
-            document.Serialize(bsonWriter, serializeIdFirst);
+            document.Serialize(bsonWriter, serializeIdFirst, serializeDiscriminator);
         }
         #endregion
     }

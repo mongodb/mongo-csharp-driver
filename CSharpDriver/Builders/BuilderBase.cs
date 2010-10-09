@@ -32,22 +32,8 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public methods
-        public string ToJson() {
-            return ToJson(BsonJsonWriterSettings.Defaults);
-        }
-
-        public string ToJson(
-            BsonJsonWriterSettings settings
-        ) {
-            StringWriter stringWriter = new StringWriter();
-            using (BsonWriter bsonWriter = BsonWriter.Create(stringWriter, settings)) {
-                BsonSerializer.Serialize(bsonWriter, this, false); // don't serializeIdFirst
-            }
-            return stringWriter.ToString();
-        }
-
         public override string ToString() {
-            return ToJson();
+            return this.ToJson(); // "this." required to access extension method
         }
         #endregion
     }

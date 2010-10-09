@@ -35,53 +35,6 @@ namespace MongoDB.BsonLibrary {
             return bytes;
         }
 
-        public static byte[] ToBson(
-            object obj
-        ) {
-            return ToBson(obj, BsonBinaryWriterSettings.Defaults);
-        }
-
-        public static byte[] ToBson(
-            object obj,
-            BsonBinaryWriterSettings settings
-        ) {
-            using (var buffer = new BsonBuffer()) {
-                using (var bsonWriter = BsonWriter.Create(buffer, settings)) {
-                    BsonSerializer.Serialize(bsonWriter, obj, false); // don't serializeIdFirst
-                }
-                return buffer.ToArray();
-            }
-        }
-
-        public static BsonDocument ToBsonDocument(
-            object obj
-        ) {
-            if (obj == null) {
-                return null;
-            }
-
-            var bsonDocument = obj as BsonDocument;
-            if (bsonDocument != null) {
-                return bsonDocument; // it's already a BsonDocument
-            }
-
-            var convertibleToBsonDocument = obj as IConvertibleToBsonDocument;
-            if (convertibleToBsonDocument != null) {
-                return convertibleToBsonDocument.ToBsonDocument(); // use the provided ToBsonDocument method
-            }
-
-            // otherwise serialize it and then deserialize it into a new BsonDocument
-            using (var buffer = new BsonBuffer()) {
-                using (var bsonWriter = BsonWriter.Create(buffer)) {
-                    BsonSerializer.Serialize(bsonWriter, obj, false); // don't serializeIdFirst
-                }
-                buffer.Position = 0;
-                using (var bsonReader = BsonReader.Create(buffer)) {
-                    return BsonDocument.ReadFrom(bsonReader);
-                }
-            }
-        }
-
         public static string ToHexString(
             byte[] bytes
         ) {
@@ -90,23 +43,6 @@ namespace MongoDB.BsonLibrary {
                 sb.AppendFormat("{0:x2}", b);
             }
             return sb.ToString();
-        }
-
-        public static string ToJson(
-            object obj
-        ) {
-            return ToJson(obj, BsonJsonWriterSettings.Defaults);
-        }
-
-        public static string ToJson(
-            object obj,
-            BsonJsonWriterSettings settings
-        ) {
-            var stringWriter = new StringWriter();
-            using (var bsonWriter = BsonWriter.Create(stringWriter, settings)) {
-                BsonSerializer.Serialize(bsonWriter, obj, false); // don't serializeIdFirst
-            }
-            return stringWriter.ToString();
         }
 
         public static bool TryParseHexString(

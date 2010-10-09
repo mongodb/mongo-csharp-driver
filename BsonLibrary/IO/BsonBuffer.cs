@@ -395,7 +395,7 @@ namespace MongoDB.BsonLibrary.IO {
             throw new FileFormatException("String is missing null terminator");
         }
 
-        public byte[] ToArray() {
+        public byte[] ToByteArray() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             var bytes = new byte[position];
             CopyTo(0, bytes, 0, position);

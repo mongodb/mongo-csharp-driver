@@ -490,16 +490,29 @@ namespace MongoDB.BsonLibrary {
         }
 
         public void Serialize(
+            BsonWriter bsonWriter
+        ) {
+            Serialize(bsonWriter, false, false);
+        }
+
+        public void Serialize(
             BsonWriter bsonWriter,
-            bool serializeIdFirst
+            bool serializeIdFirst,
+            bool serializeDiscriminator
         ) {
             bsonWriter.WriteStartDocument();
+
             int idIndex;
             if (serializeIdFirst && indexes.TryGetValue("_id", out idIndex)) {
                 elements[idIndex].WriteTo(bsonWriter);
             } else {
                 idIndex = -1; // remember that when TryGetValue returns false it sets idIndex to 0
             }
+
+            if (serializeDiscriminator) {
+                throw new InvalidOperationException("BsonDocument is not polymorphic");
+            }
+
             for (int i = 0; i < elements.Count; i++) {
                 if (i != idIndex) {
                     elements[i].WriteTo(bsonWriter);
@@ -546,37 +559,6 @@ namespace MongoDB.BsonLibrary {
             return this;
         }
 
-        public byte[] ToBson() {
-            return ToBson(BsonBinaryWriterSettings.Defaults);
-        }
-
-        public byte[] ToBson(
-            BsonBinaryWriterSettings settings
-        ) {
-            using (var bsonWriter = (BsonBinaryWriter) BsonWriter.Create(settings)) {
-                WriteTo(bsonWriter);
-                return bsonWriter.Buffer.ToArray();
-            }
-        }
-
-        public string ToJson() {
-            return ToJson(BsonJsonWriterSettings.Defaults);
-        }
-
-        public string ToJson(
-            BsonJsonWriterSettings settings
-        ) {
-            StringWriter stringWriter = new StringWriter();
-            using (BsonWriter bsonWriter = BsonWriter.Create(stringWriter, settings)) {
-                WriteTo(bsonWriter);
-            }
-            return stringWriter.ToString();
-        }
-
-        public override string ToString() {
-            return ToJson(BsonJsonWriterSettings.Defaults);
-        }
-
         public bool TryGetElement(
             string name,
             out BsonElement value
@@ -608,7 +590,7 @@ namespace MongoDB.BsonLibrary {
         public void WriteTo(
             BsonWriter bsonWriter
         ) {
-            Serialize(bsonWriter, false); // don't serializeIdFirst
+            Serialize(bsonWriter);
         }
 
         public void WriteTo(

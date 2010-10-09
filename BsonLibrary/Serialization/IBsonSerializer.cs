@@ -20,6 +20,6 @@ using MongoDB.BsonLibrary.IO;
 namespace MongoDB.BsonLibrary.Serialization {
     public interface IBsonSerializer {
         object Deserialize(BsonReader bsonReader, Type type);
-        void Serialize(BsonWriter bsonWriter, object obj, bool serializeIdFirst);
+        void Serialize(BsonWriter bsonWriter, object obj, bool serializeIdFirst, bool serializeDiscriminator);
     }
 }

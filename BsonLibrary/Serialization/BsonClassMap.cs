@@ -31,6 +31,8 @@ namespace MongoDB.BsonLibrary.Serialization {
         #endregion
 
         #region protected fields
+        protected BsonClassMap baseClassMap; // null for class object and interfaces
+        protected bool baseClassMapLoaded; // lazy load baseClassMap so class maps can be constructed out of order
         protected Type classType;
         protected string collectionName;
         protected BsonPropertyMap idPropertyMap;
@@ -52,6 +54,13 @@ namespace MongoDB.BsonLibrary.Serialization {
         #endregion
 
         #region public properties
+        public BsonClassMap BaseClassMap {
+            get {
+                if (!baseClassMapLoaded) { LoadBaseClassMap(); }
+                return baseClassMap;
+            }
+        }
+
         public Type ClassType {
             get { return classType; }
         }
@@ -61,11 +70,29 @@ namespace MongoDB.BsonLibrary.Serialization {
         }
 
         public BsonPropertyMap IdPropertyMap {
-            get { return idPropertyMap; }
+            get {
+                if (idPropertyMap != null) {
+                    return idPropertyMap;
+                } else {
+                    var baseClassMap = BaseClassMap; // call property for lazy loading
+                    if (baseClassMap != null) {
+                        return baseClassMap.IdPropertyMap;
+                    } else {
+                        return null;
+                    }
+                }
+            }
         }
 
         public IEnumerable<BsonPropertyMap> PropertyMaps {
-            get { return propertyMaps; }
+            get {
+                var baseClassMap = BaseClassMap; // call property for lazy loading
+                if (baseClassMap != null) {
+                    return baseClassMap.PropertyMaps.Concat(propertyMaps);
+                } else {
+                    return propertyMaps;
+                }
+            }
         }
         #endregion
 
@@ -122,7 +149,8 @@ namespace MongoDB.BsonLibrary.Serialization {
             BsonClassMap classMap
         ) {
             lock (staticLock) {
-                classMaps[classMap.ClassType] = classMap;
+                // note: class maps can NOT be replaced (because derived classes refer to existing instance)
+                classMaps.Add(classMap.ClassType, classMap);
             }
         }
 
@@ -130,6 +158,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             IBsonPropertySerializer propertySerializer
         ) {
             lock (staticLock) {
+                // note: property serializers CAN be replaced
                 propertySerializers[propertySerializer.PropertyType] = propertySerializer;
             }
         }
@@ -167,7 +196,9 @@ namespace MongoDB.BsonLibrary.Serialization {
 
         #region public methods
         public void AutoMap() {
-            foreach (var propertyInfo in classType.GetProperties()) {
+            // only auto map properties declared in this class (and not in base classes)
+            var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+            foreach (var propertyInfo in classType.GetProperties(bindingFlags)) {
                 if (propertyInfo.CanRead && (propertyInfo.CanWrite || IsAnonymousType(classType))) {
                     var genericMapPropertyInfo = this.GetType().GetMethod(
                         "MapProperty", // name
@@ -204,6 +235,14 @@ namespace MongoDB.BsonLibrary.Serialization {
         ) {
             // TODO: figure out if this is a reliable test
             return type.Namespace == null;
+        }
+
+        private void LoadBaseClassMap() {
+            var baseType = classType.BaseType;
+            if (baseType != null) {
+                baseClassMap = LookupClassMap(baseType);
+            }
+            baseClassMapLoaded = true;
         }
         #endregion
     }

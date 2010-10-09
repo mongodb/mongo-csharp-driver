@@ -72,14 +72,11 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         [Test]
         public void TestSerializeEmployee() {
             var employee = new Employee { FirstName = "John", LastName = "Smith", DateOfBirth = new DateTime(2001, 2, 3) };
-            var json = BsonUtils.ToJson(employee);
+            var json = employee.ToJson();
 
-            var bson = BsonUtils.ToBson(employee);
-            using (var memoryStream = new MemoryStream(bson)) {
-                using (var bsonReader = BsonReader.Create(memoryStream)) {
-                    var employee2 = (Employee) BsonSerializer.Deserialize(bsonReader, typeof(Employee));
-                }
-            }
+            var bson = employee.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<Employee>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         public class Account {
@@ -90,7 +87,11 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         [Test]
         public void TestSerializeAccount() {
             var account = new Account { Opened = DateTimeOffset.Now, Balance = 12345.67M };
-            var json = BsonUtils.ToJson(account);
+            var json = account.ToJson();
+
+            var bson = account.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<Account>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }
