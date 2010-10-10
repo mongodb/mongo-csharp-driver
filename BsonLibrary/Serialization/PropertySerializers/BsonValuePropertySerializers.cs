@@ -515,6 +515,228 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         #endregion
     }
 
+    public class BsonMaxKeyPropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static BsonMaxKeyPropertySerializer singleton = new BsonMaxKeyPropertySerializer();
+        #endregion
+
+        #region constructors
+        private BsonMaxKeyPropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonMaxKeyPropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(BsonMaxKey); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            BsonMaxKey value;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = null;
+            } else {
+                bsonReader.ReadMaxKey(propertyMap.ElementName);
+                value = Bson.MaxKey;
+            }
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (BsonMaxKey) propertyMap.Getter(obj);
+            if (value == null) {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            } else {
+                bsonWriter.WriteMaxKey(propertyMap.ElementName);
+            }
+        }
+        #endregion
+    }
+
+    public class BsonMinKeyPropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static BsonMinKeyPropertySerializer singleton = new BsonMinKeyPropertySerializer();
+        #endregion
+
+        #region constructors
+        private BsonMinKeyPropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonMinKeyPropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(BsonMinKey); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            BsonMinKey value;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = null;
+            } else {
+                bsonReader.ReadMinKey(propertyMap.ElementName);
+                value = Bson.MinKey;
+            }
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (BsonMinKey) propertyMap.Getter(obj);
+            if (value == null) {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            } else {
+                bsonWriter.WriteMinKey(propertyMap.ElementName);
+            }
+        }
+        #endregion
+    }
+
+    public class BsonNullPropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static BsonNullPropertySerializer singleton = new BsonNullPropertySerializer();
+        #endregion
+
+        #region constructors
+        private BsonNullPropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonNullPropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(BsonNull); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            BsonNull value;
+            if (bsonType == BsonType.String) {
+                bsonReader.VerifyString(propertyMap.ElementName, "C#null");
+                value = null;
+            } else {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = Bson.Null;
+            }
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (BsonNull) propertyMap.Getter(obj);
+            if (value == null) {
+                bsonWriter.WriteString(propertyMap.ElementName, "C#null");
+            } else {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            }
+        }
+        #endregion
+    }
+
+    public class BsonObjectIdPropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static BsonObjectIdPropertySerializer singleton = new BsonObjectIdPropertySerializer();
+        #endregion
+
+        #region constructors
+        private BsonObjectIdPropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonObjectIdPropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(BsonObjectId); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            BsonObjectId value;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = null;
+            } else {
+                int timestamp;
+                long machinePidIncrement;
+                bsonReader.ReadObjectId(propertyMap.ElementName, out timestamp, out machinePidIncrement);
+                value = new BsonObjectId(timestamp, machinePidIncrement);
+            }
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (BsonObjectId) propertyMap.Getter(obj);
+            if (value == null) {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            } else {
+                bsonWriter.WriteObjectId(propertyMap.ElementName, value.Timestamp, value.MachinePidIncrement);
+            }
+        }
+        #endregion
+    }
+
     public class BsonStringPropertySerializer : IBsonPropertySerializer {
         #region private static fields
         private static BsonStringPropertySerializer singleton = new BsonStringPropertySerializer();

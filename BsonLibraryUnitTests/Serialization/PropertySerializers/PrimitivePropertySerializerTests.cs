@@ -699,6 +699,27 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     }
 
     [TestFixture]
+    public class ObjectIdPropertySerializerTests {
+        public class TestClass {
+            public ObjectId ObjectId { get; set; }
+        }
+
+        [Test]
+        public void TestSerialize() {
+            var obj = new TestClass {
+                ObjectId = new ObjectId(1, 2)
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'ObjectId' : { '$oid' : '000000010000000000000002' } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
     public class SBytePropertySerializerTests {
         public class TestClass {
             public sbyte SByte { get; set; }
