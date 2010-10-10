@@ -215,13 +215,6 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
         }
 
-        public object CreateObject(
-            BsonReader bsonReader
-        ) {
-            var obj = Activator.CreateInstance(classType); // TODO: peek at discriminator
-            return obj;
-        }
-
         public BsonPropertyMap GetPropertyMapForElement(
             string elementName
         ) {

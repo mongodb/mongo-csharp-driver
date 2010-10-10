@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -42,21 +43,29 @@ namespace MongoDB.BsonLibrary.Serialization {
             BsonReader bsonReader,
             Type classType
         ) {
-            var classMap = BsonClassMap.LookupClassMap(classType);
-
-            // CreateObject peeks at the discriminator if necessary and might return an instance of a subclass of classType
-            var obj = classMap.CreateObject(bsonReader);
-            if (obj.GetType() != classType) {
-                // since an instance of a subclass was created set classType and classMap to the subclass
-                classType = obj.GetType();
-                classMap = BsonClassMap.LookupClassMap(classType);
+            // peek at the discriminator (if present) to see what class to create an instance for
+            var discriminator = bsonReader.FindString("_t");
+            if (discriminator != null) {
+                var actualType = Type.GetType(discriminator);
+                if (!classType.IsAssignableFrom(actualType)) {
+                    string message = string.Format("Actual type {0} is not assignable to expected type {1}", actualType.FullName, classType.FullName);
+                    throw new FileFormatException(message);
+                }
+                classType = actualType;
             }
+            var classMap = BsonClassMap.LookupClassMap(classType);
+            var obj = Activator.CreateInstance(classType);
 
             var missingElementPropertyMaps = new List<BsonPropertyMap>(classMap.PropertyMaps); // make a copy!
             bsonReader.ReadStartDocument();
             BsonType bsonType;
             string elementName;
             while (bsonReader.HasElement(out bsonType, out elementName)) {
+                if (elementName == "_t") {
+                    BsonElement.ReadFrom(bsonReader, "_t"); // skip over discriminator
+                    continue;
+                }
+
                 var propertyMap = classMap.GetPropertyMapForElement(elementName);
                 if (propertyMap != null) {
                     propertyMap.PropertySerializer.DeserializeProperty(bsonReader, obj, propertyMap);
@@ -88,7 +97,8 @@ namespace MongoDB.BsonLibrary.Serialization {
             bool serializeIdFirst,
             bool serializeDiscriminator
         ) {
-            var classMap = BsonClassMap.LookupClassMap(obj.GetType());
+            var objType = obj.GetType();
+            var classMap = BsonClassMap.LookupClassMap(objType);
 
             bsonWriter.WriteStartDocument();
             BsonPropertyMap idPropertyMap = null;
@@ -100,7 +110,8 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
 
             if (serializeDiscriminator) {
-                bsonWriter.WriteString("_t", obj.GetType().FullName);
+                var discriminator = string.Join(",", objType.AssemblyQualifiedName.Split(','), 0, 2);
+                bsonWriter.WriteString("_t", discriminator);
             }
 
             foreach (var propertyMap in classMap.PropertyMaps) {

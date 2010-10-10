@@ -31,12 +31,12 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         }
 
         private class A : IX {
-            public static readonly string TypeName = "MongoDB.BsonLibrary.UnitTests.Serialization.SerializeInterfaceTests+A";
+            public static readonly string TypeName = "MongoDB.BsonLibrary.UnitTests.Serialization.SerializeInterfaceTests+A, BsonLibraryUnitTests";
             public string FX { get; set; }
         }
 
         private class B : IX {
-            public static readonly string TypeName = "MongoDB.BsonLibrary.UnitTests.Serialization.SerializeInterfaceTests+B";
+            public static readonly string TypeName = "MongoDB.BsonLibrary.UnitTests.Serialization.SerializeInterfaceTests+B, BsonLibraryUnitTests";
             public string FX { get; set; }
         }
 
@@ -46,6 +46,10 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             var json = a.ToJson();
             var expected = ("{ '_t' : '" + A.TypeName + "', 'FX' : 'a' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
+
+            var bson = a.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<IX>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]
@@ -54,6 +58,10 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             var json = b.ToJson();
             var expected = ("{ '_t' : '" + B.TypeName + "', 'FX' : 'b' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
+
+            var bson = b.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<IX>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 }

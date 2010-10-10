@@ -70,6 +70,62 @@ namespace MongoDB.BsonLibrary.IO {
             }
         }
 
+        public override string FindString(
+            string name
+        ) {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (
+                context.ReadState != BsonReadState.Initial &&
+                context.ReadState != BsonReadState.Done &&
+                context.ReadState != BsonReadState.StartDocument
+            ) {
+                string message = string.Format("FindString cannot be called when ReadState is: {0}", context.ReadState);
+                throw new InvalidOperationException(message);
+            }
+
+            string value = null;
+            var initialPosition = buffer.Position;
+            var documentSize = ReadSize();
+            BsonType bsonType;
+            while ((bsonType = buffer.ReadBsonType()) != BsonType.EndOfDocument) {
+                if (buffer.Position >= initialPosition + documentSize) {
+                    throw new FileFormatException("EndOfDocument missing");
+                }
+
+                var elementName = buffer.ReadCString();
+                if (bsonType == BsonType.String && elementName == name) {
+                    value = buffer.ReadString();
+                    break;
+                } else {
+                    int skip;
+                    switch (bsonType) {
+                        case BsonType.Array: skip = ReadSize() - 4; break;
+                        case BsonType.Binary: skip = ReadSize() + 1; break;
+                        case BsonType.Boolean: skip = 1; break;
+                        case BsonType.DateTime: skip = 8; break;
+                        case BsonType.Document: skip = ReadSize() - 4; break;
+                        case BsonType.Double: skip = 8; break;
+                        case BsonType.Int32: skip = 4; break;
+                        case BsonType.Int64: skip = 8; break;
+                        case BsonType.JavaScript: skip = ReadSize(); break;
+                        case BsonType.JavaScriptWithScope: skip = ReadSize() - 4; break;
+                        case BsonType.MaxKey: skip = 0; break;
+                        case BsonType.MinKey: skip = 0; break;
+                        case BsonType.Null: skip = 0; break;
+                        case BsonType.ObjectId: skip = 12; break;
+                        case BsonType.RegularExpression: buffer.ReadCString(); buffer.ReadCString(); skip = 0; break;
+                        case BsonType.String: skip = ReadSize(); break;
+                        case BsonType.Symbol: skip = ReadSize(); break;
+                        case BsonType.Timestamp: skip = 8; break;
+                        default: throw new BsonInternalException("Unexpected BsonType");
+                    }
+                    buffer.Position += skip;
+                }
+            }
+            buffer.Position = initialPosition;
+            return value;
+        }
+
         public override bool HasElement(
             out BsonType bsonType
         ) {
@@ -426,7 +482,7 @@ namespace MongoDB.BsonLibrary.IO {
             } else  if (context.ReadState == BsonReadState.Initial || context.ReadState == BsonReadState.Done) {
                 context = new BsonBinaryReaderContext(context, BsonReadState.Document);
             } else {
-                string message = string.Format("ReadStartDocument cannot be called when ReadState is: {1}", context.ReadState);
+                string message = string.Format("ReadStartDocument cannot be called when ReadState is: {0}", context.ReadState);
                 throw new InvalidOperationException(message);
             }
             context.StartPosition = buffer.Position;
