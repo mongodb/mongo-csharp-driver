@@ -127,7 +127,7 @@ namespace MongoDB.BsonLibrary.Serialization {
                 if (propertySerializers.TryGetValue(propertyType, out propertySerializer)) {
                     return propertySerializer;
                 } else {
-                    string message = string.Format("No property serializer found property type: {0}", propertyType.FullName);
+                    string message = string.Format("No property serializer found for property type: {0}", propertyType.FullName);
                     throw new BsonSerializationException(message);
                 }
             }

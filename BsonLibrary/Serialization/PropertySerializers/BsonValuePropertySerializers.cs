@@ -515,6 +515,117 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         #endregion
     }
 
+    public class BsonJavaScriptPropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static BsonJavaScriptPropertySerializer singleton = new BsonJavaScriptPropertySerializer();
+        #endregion
+
+        #region constructors
+        private BsonJavaScriptPropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonJavaScriptPropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(BsonJavaScript); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            BsonJavaScript value;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = null;
+            } else {
+                value = new BsonJavaScript(bsonReader.ReadJavaScript(propertyMap.ElementName));
+            }
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (BsonJavaScript) propertyMap.Getter(obj);
+            if (value == null) {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            } else {
+                bsonWriter.WriteJavaScript(propertyMap.ElementName, value.Code);
+            }
+        }
+        #endregion
+    }
+
+    public class BsonJavaScriptWithScopePropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static BsonJavaScriptWithScopePropertySerializer singleton = new BsonJavaScriptWithScopePropertySerializer();
+        #endregion
+
+        #region constructors
+        private BsonJavaScriptWithScopePropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonJavaScriptWithScopePropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(BsonJavaScriptWithScope); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            BsonJavaScriptWithScope value;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = null;
+            } else {
+                var code = bsonReader.ReadJavaScriptWithScope(propertyMap.ElementName);
+                var scope = BsonDocument.ReadFrom(bsonReader);
+                value = new BsonJavaScriptWithScope(code, scope);
+            }
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (BsonJavaScriptWithScope) propertyMap.Getter(obj);
+            if (value == null) {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            } else {
+                bsonWriter.WriteJavaScriptWithScope(propertyMap.ElementName, value.Code);
+                value.Scope.WriteTo(bsonWriter);
+            }
+        }
+        #endregion
+    }
+
     public class BsonMaxKeyPropertySerializer : IBsonPropertySerializer {
         #region private static fields
         private static BsonMaxKeyPropertySerializer singleton = new BsonMaxKeyPropertySerializer();
@@ -737,6 +848,62 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         #endregion
     }
 
+    public class BsonRegularExpressionPropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static BsonRegularExpressionPropertySerializer singleton = new BsonRegularExpressionPropertySerializer();
+        #endregion
+
+        #region constructors
+        private BsonRegularExpressionPropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonRegularExpressionPropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(BsonRegularExpression); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            BsonRegularExpression value;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = null;
+            } else {
+                string pattern, options;
+                bsonReader.ReadRegularExpression(propertyMap.ElementName, out pattern, out options);
+                value = new BsonRegularExpression(pattern, options);
+            }
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (BsonRegularExpression) propertyMap.Getter(obj);
+            if (value == null) {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            } else {
+                bsonWriter.WriteRegularExpression(propertyMap.ElementName, value.Pattern, value.Options);
+            }
+        }
+        #endregion
+    }
+
     public class BsonStringPropertySerializer : IBsonPropertySerializer {
         #region private static fields
         private static BsonStringPropertySerializer singleton = new BsonStringPropertySerializer();
@@ -840,6 +1007,60 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
                 bsonWriter.WriteNull(propertyMap.ElementName);
             } else {
                 bsonWriter.WriteSymbol(propertyMap.ElementName, value.Name);
+            }
+        }
+        #endregion
+    }
+
+    public class BsonTimestampPropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static BsonTimestampPropertySerializer singleton = new BsonTimestampPropertySerializer();
+        #endregion
+
+        #region constructors
+        private BsonTimestampPropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonTimestampPropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(BsonTimestamp); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            BsonTimestamp value;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = null;
+            } else {
+                value = BsonTimestamp.Create(bsonReader.ReadTimestamp(propertyMap.ElementName));
+            }
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (BsonTimestamp) propertyMap.Getter(obj);
+            if (value == null) {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            } else {
+                bsonWriter.WriteTimestamp(propertyMap.ElementName, value.Value);
             }
         }
         #endregion

@@ -747,6 +747,77 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     }
 
     [TestFixture]
+    public class BsonJavaScriptPropertySerializerTests {
+        public class TestClass {
+            public BsonJavaScript BsonJavaScript { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                BsonJavaScript = null
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonJavaScript' : null }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestNotNull() {
+            var obj = new TestClass {
+                BsonJavaScript = "this.age === 21"
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonJavaScript' : { '$code' : 'this.age === 21' } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class BsonJavaScriptWithScopePropertySerializerTests {
+        public class TestClass {
+            public BsonJavaScriptWithScope BsonJavaScriptWithScope { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                BsonJavaScriptWithScope = null
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonJavaScriptWithScope' : null }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestNotNull() {
+            var scope = new BsonDocument("x", 21);
+            var obj = new TestClass {
+                BsonJavaScriptWithScope = new BsonJavaScriptWithScope("this.age === 21", scope)
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonJavaScriptWithScope' : { '$code' : 'this.age === 21', '$scope' : { 'x' : 21 } } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
     public class BsonMaxKeyPropertySerializerTests {
         public class TestClass {
             public BsonMaxKey BsonMaxKey { get; set; }
@@ -890,6 +961,55 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     }
 
     [TestFixture]
+    public class BsonRegularExpressionPropertySerializerTests {
+        public class TestClass {
+            public BsonRegularExpression BsonRegularExpression { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                BsonRegularExpression = null
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonRegularExpression' : null }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestWithoutOptions() {
+            var obj = new TestClass {
+                BsonRegularExpression = new BsonRegularExpression("abc")
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonRegularExpression' : { '$regex' : 'abc', '$options' : '' } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestWithOptions() {
+            var obj = new TestClass {
+                BsonRegularExpression = new BsonRegularExpression("abc", "gim")
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonRegularExpression' : { '$regex' : 'abc', '$options' : 'gim' } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
     public class BsonStringPropertySerializerTests {
         public class TestClass {
             public BsonString BsonString { get; set; }
@@ -986,6 +1106,111 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.AreSame(obj.BsonSymbol, rehydrated.BsonSymbol);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class BsonTimestampPropertySerializerTests {
+        public class TestClass {
+            public BsonTimestamp BsonTimestamp { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                BsonTimestamp = null
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonTimestamp' : null }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestMin() {
+            var obj = new TestClass {
+                BsonTimestamp = new BsonTimestamp(long.MinValue)
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonTimestamp' : { '$timestamp' : " + long.MinValue.ToString() + " } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestMinusOne() {
+            var obj = new TestClass {
+                BsonTimestamp = new BsonTimestamp(-1)
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'BsonTimestamp' : { '$timestamp' : -1 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestZero() {
+            var obj = new TestClass {
+                BsonTimestamp = new BsonTimestamp(0)
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'BsonTimestamp' : { '$timestamp' : 0 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestOne() {
+            var obj = new TestClass {
+                BsonTimestamp = new BsonTimestamp(1)
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'BsonTimestamp' : { '$timestamp' : 1 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestOneTwo() {
+            var obj = new TestClass {
+                BsonTimestamp = new BsonTimestamp(1, 2)
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonTimestamp' : { '$timestamp' : " + ((1L << 32) + 2).ToString() + " } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestMax() {
+            var obj = new TestClass {
+                BsonTimestamp = new BsonTimestamp(long.MaxValue)
+            };
+            var json = obj.ToJson();
+            var expected = ("{ 'BsonTimestamp' : { '$timestamp' : " + long.MaxValue.ToString() + " } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

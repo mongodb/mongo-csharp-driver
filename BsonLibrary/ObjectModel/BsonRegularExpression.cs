@@ -42,7 +42,7 @@ namespace MongoDB.BsonLibrary {
         )
             : base(BsonType.RegularExpression) {
             this.pattern = pattern;
-            this.options = options;
+            this.options = options ?? "";
         }
 
         public BsonRegularExpression(
@@ -164,7 +164,7 @@ namespace MongoDB.BsonLibrary {
             int hash = 17;
             hash = 37 * hash + bsonType.GetHashCode();
             hash = 37 * hash + pattern.GetHashCode();
-            hash = 37 * hash + (options == null ? 0 : options.GetHashCode());
+            hash = 37 * hash + options.GetHashCode();
             return hash;
         }
 
@@ -178,7 +178,7 @@ namespace MongoDB.BsonLibrary {
         }
 
         public override string ToString() {
-            return string.Format("/{0}/{1}", pattern, options ?? "");
+            return string.Format("/{0}/{1}", pattern, options);
         }
         #endregion
     }
