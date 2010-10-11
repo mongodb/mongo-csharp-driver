@@ -101,16 +101,14 @@ namespace MongoDB.BsonLibrary {
         #endregion
 
         #region internal static methods
-        internal static BsonElement ReadFrom(
-            BsonReader bsonReader
+        internal static bool ReadFrom(
+            BsonReader bsonReader,
+            out BsonElement element
         ) {
-            BsonElement element = null;
-
             BsonType bsonType;
             if (bsonReader.HasElement(out bsonType)) {
                 string name;
-                BsonValue value; // computed in switch statement below
-
+                BsonValue value;
                 switch (bsonType) {
                     case BsonType.Double:
                         value = new BsonDouble(bsonReader.ReadDouble(out name));
@@ -120,25 +118,11 @@ namespace MongoDB.BsonLibrary {
                         break;
                     case BsonType.Document:
                         bsonReader.ReadDocumentName(out name);
-                        bsonReader.ReadStartDocument();
-                        BsonDocument document = new BsonDocument();
-                        BsonElement documentElement;
-                        while ((documentElement = BsonElement.ReadFrom(bsonReader)) != null) {
-                            document.Add(documentElement);
-                        }
-                        bsonReader.ReadEndDocument();
-                        value = document;
+                        value = BsonDocument.ReadFrom(bsonReader);
                         break;
                     case BsonType.Array:
                         bsonReader.ReadArrayName(out name);
-                        bsonReader.ReadStartDocument();
-                        BsonArray array = new BsonArray();
-                        BsonElement arrayElement;
-                        while ((arrayElement = BsonElement.ReadFrom(bsonReader)) != null) {
-                            array.Add(arrayElement.Value); // names are ignored on input and regenerated on output
-                        }
-                        bsonReader.ReadEndDocument();
-                        value = array;
+                        value = BsonArray.ReadFrom(bsonReader);
                         break;
                     case BsonType.Binary:
                         byte[] bytes;
@@ -176,13 +160,7 @@ namespace MongoDB.BsonLibrary {
                         break;
                     case BsonType.JavaScriptWithScope:
                         string code = bsonReader.ReadJavaScriptWithScope(out name);
-                        bsonReader.ReadStartDocument();
-                        BsonDocument scope = new BsonDocument();
-                        BsonElement scopeElement;
-                        while ((scopeElement = BsonElement.ReadFrom(bsonReader)) != null) {
-                            scope.Add(scopeElement);
-                        }
-                        bsonReader.ReadEndDocument();
+                        var scope = BsonDocument.ReadFrom(bsonReader);
                         value = new BsonJavaScriptWithScope(code, scope);
                         break;
                     case BsonType.Int32:
@@ -205,23 +183,29 @@ namespace MongoDB.BsonLibrary {
                     default:
                         throw new BsonInternalException("Unexpected BsonType");
                 }
-
                 element = new BsonElement(name, value);
+                return true;
+            } else {
+                element = null;
+                return false;
             }
-
-            return element;
         }
 
         internal static BsonElement ReadFrom(
             BsonReader bsonReader,
             string expectedName
         ) {
-            var element = ReadFrom(bsonReader);
-            if (element.name != expectedName) {
-                string message = string.Format("Element name is not {0}", expectedName);
+            BsonElement element;
+            if (ReadFrom(bsonReader, out element)) {
+                if (element.Name != expectedName) {
+                    string message = string.Format("Element name is not {0}", expectedName);
+                    throw new FileFormatException(message);
+                }
+                return element;
+            } else {
+                string message = string.Format("Element is missing: {0}", expectedName);
                 throw new FileFormatException(message);
             }
-            return element;
         }
         #endregion
 
@@ -309,13 +293,16 @@ namespace MongoDB.BsonLibrary {
                         document.WriteTo(bsonWriter);
                     } else {
                         var documentWrapper = value as BsonDocumentWrapper;
-                        documentWrapper.Serialize(bsonWriter);
+                        if (documentWrapper != null) {
+                            documentWrapper.Serialize(bsonWriter);
+                        } else {
+                            throw new BsonInternalException("Unexpected class for BsonType document: ", value.GetType().FullName);
+                        }
                     }
                     break;
                 case BsonType.Array:
                     bsonWriter.WriteArrayName(name);
-                    BsonArray array = value.AsBsonArray;
-                    array.WriteTo(bsonWriter);
+                    value.AsBsonArray.WriteTo(bsonWriter);
                     break;
                 case BsonType.Binary:
                     BsonBinaryData binaryData = value.AsBsonBinaryData;

@@ -62,7 +62,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             string elementName;
             while (bsonReader.HasElement(out bsonType, out elementName)) {
                 if (elementName == "_t") {
-                    BsonElement.ReadFrom(bsonReader, "_t"); // skip over discriminator
+                    bsonReader.ReadString("_t"); // skip over discriminator
                     continue;
                 }
 

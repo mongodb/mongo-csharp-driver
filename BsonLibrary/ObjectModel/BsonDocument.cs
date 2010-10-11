@@ -200,6 +200,14 @@ namespace MongoDB.BsonLibrary {
         }
 
         public static BsonDocument ReadFrom(
+            BsonBuffer buffer
+        ) {
+            using (BsonReader bsonReader = BsonReader.Create(buffer)) {
+                return ReadFrom(bsonReader);
+            }
+        }
+
+        public static BsonDocument ReadFrom(
             BsonReader bsonReader
         ) {
             BsonDocument document = new BsonDocument();
@@ -368,7 +376,7 @@ namespace MongoDB.BsonLibrary {
         ) {
             bsonReader.ReadStartDocument();
             BsonElement element;
-            while ((element = BsonElement.ReadFrom(bsonReader)) != null) {
+            while (BsonElement.ReadFrom(bsonReader, out element)) {
                 Add(element);
             }
             bsonReader.ReadEndDocument();
@@ -514,10 +522,12 @@ namespace MongoDB.BsonLibrary {
             }
 
             for (int i = 0; i < elements.Count; i++) {
+                // if serializeIdFirst is false then idIndex will be -1 and no elements will be skipped
                 if (i != idIndex) {
                     elements[i].WriteTo(bsonWriter);
                 }
             }
+
             bsonWriter.WriteEndDocument();
         }
 
@@ -591,6 +601,14 @@ namespace MongoDB.BsonLibrary {
             BsonWriter bsonWriter
         ) {
             Serialize(bsonWriter);
+        }
+
+        public void WriteTo(
+            BsonBuffer buffer
+        ) {
+            using (BsonWriter bsonWriter = BsonWriter.Create(buffer)) {
+                WriteTo(bsonWriter);
+            }
         }
 
         public void WriteTo(

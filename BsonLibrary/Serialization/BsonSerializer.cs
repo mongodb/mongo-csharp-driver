@@ -65,9 +65,7 @@ namespace MongoDB.BsonLibrary.Serialization {
         ) {
             // optimize for the most common case
             if (type == typeof(BsonDocument)) {
-                var obj = new BsonDocument();
-                obj.Deserialize(bsonReader);
-                return obj;
+                return BsonDocument.ReadFrom(bsonReader);
             }
 
             var serializer = LookupSerializer(type);

@@ -58,13 +58,7 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
                 value = null;
             } else {
                 bsonReader.ReadArrayName(propertyMap.ElementName);
-                bsonReader.ReadStartDocument();
-                value = new BsonArray();
-                BsonElement element;
-                while ((element = BsonElement.ReadFrom(bsonReader)) != null) {
-                    value.Add(element.Value); // names are ignored on input and regenerated on output
-                }
-                bsonReader.ReadEndDocument();
+                value = BsonArray.ReadFrom(bsonReader);
             }
             propertyMap.Setter(obj, value);
         }

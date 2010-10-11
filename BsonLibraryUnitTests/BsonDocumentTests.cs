@@ -116,8 +116,8 @@ namespace MongoDB.BsonLibrary.UnitTests {
             BsonDocument document = new BsonDocument(
                 new BsonElement("hello", "world")
             );
-            byte[] bytes = WriteDocument(document);
-            AssertAreEqual(@"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00", bytes);
+            byte[] bson = document.ToBson();
+            AssertAreEqual(@"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00", bson);
         }
 
         [Test]
@@ -144,16 +144,8 @@ namespace MongoDB.BsonLibrary.UnitTests {
             BsonDocument document = new BsonDocument(
                 new BsonElement("BSON", new BsonArray { "awesome", 5.05, 1986 })
             );
-            byte[] bytes = WriteDocument(document);
-            AssertAreEqual(@"1\x00\x00\x00\x04BSON\x00&\x00\x00\x00\x020\x00\x08\x00\x00\x00awesome\x00\x011\x00333333\x14@\x102\x00\xc2\x07\x00\x00\x00\x00", bytes);
-        }
-
-        private byte[] WriteDocument(
-            BsonDocument document
-        ) {
-            MemoryStream stream = new MemoryStream();
-            document.WriteTo(stream);
-            return stream.ToArray();
+            byte[] bson = document.ToBson();
+            AssertAreEqual(@"1\x00\x00\x00\x04BSON\x00&\x00\x00\x00\x020\x00\x08\x00\x00\x00awesome\x00\x011\x00333333\x14@\x102\x00\xc2\x07\x00\x00\x00\x00", bson);
         }
 
         private void AssertAreEqual(
