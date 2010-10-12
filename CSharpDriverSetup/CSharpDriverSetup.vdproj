@@ -57,7 +57,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:Debug\\CSharpDriverSetup.msi"
+        "OutputFilename" = "8:Debug\\CSharpDriver.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -111,6 +111,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5.SP1"
+                    {
+                    "Name" = "8:.NET Framework 3.5 SP1"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5.SP1"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
     }
@@ -165,7 +178,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.BsonLibrary, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.BsonLibrary, Version=0.5.0.3936, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_19C47AA9C163C63775DCDE8A17FE272B"
@@ -291,7 +304,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:MongoDB CSharpDriver 0.5.0"
         "ProductCode" = "8:{28913A17-E690-40F2-BB19-A46C28BAAFAC}"
-        "PackageCode" = "8:{F0A26A24-01F1-49A3-AEC8-BCDCEA92C338}"
+        "PackageCode" = "8:{60416817-D07F-4D39-8521-D0A4E4F0A251}"
         "UpgradeCode" = "8:{47C43F79-8FCD-470F-8B69-61818E314CC2}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
