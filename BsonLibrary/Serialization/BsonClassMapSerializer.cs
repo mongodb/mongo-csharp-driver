@@ -54,6 +54,9 @@ namespace MongoDB.BsonLibrary.Serialization {
                 classType = actualType;
             }
             var classMap = BsonClassMap.LookupClassMap(classType);
+            if (classMap.IsAnonymous) {
+                throw new InvalidOperationException("Anonymous classes cannot be deserialized");
+            }
             var obj = Activator.CreateInstance(classType);
 
             var missingElementPropertyMaps = new List<BsonPropertyMap>(classMap.PropertyMaps); // make a copy!

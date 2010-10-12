@@ -34,6 +34,7 @@ namespace MongoDB.BsonLibrary.Serialization {
         protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected bool baseClassMapLoaded; // lazy load baseClassMap so class maps can be constructed out of order
         protected Type classType;
+        protected bool isAnonymous;
         protected string collectionName;
         protected BsonPropertyMap idPropertyMap;
         protected List<BsonPropertyMap> propertyMaps = new List<BsonPropertyMap>();
@@ -50,6 +51,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             Type classType
         ) {
             this.classType = classType;
+            this.isAnonymous = IsAnonymousType(classType);
         }
         #endregion
 
@@ -63,6 +65,10 @@ namespace MongoDB.BsonLibrary.Serialization {
 
         public Type ClassType {
             get { return classType; }
+        }
+
+        public bool IsAnonymous {
+            get { return isAnonymous; }
         }
 
         public string CollectionName {
@@ -199,7 +205,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             // only auto map properties declared in this class (and not in base classes)
             var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
             foreach (var propertyInfo in classType.GetProperties(bindingFlags)) {
-                if (propertyInfo.CanRead && (propertyInfo.CanWrite || IsAnonymousType(classType))) {
+                if (propertyInfo.CanRead && (propertyInfo.CanWrite || isAnonymous)) {
                     var genericMapPropertyInfo = this.GetType().GetMethod(
                         "MapProperty", // name
                         BindingFlags.NonPublic | BindingFlags.Instance,
