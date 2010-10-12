@@ -57,10 +57,10 @@
     <Compile Include="BsonValueCompareToTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\BsonClassMapSerializerTests.cs" />
+    <Compile Include="Serialization\PropertySerializers\NetPrimitiveSerializerTests.cs" />
     <Compile Include="Serialization\SerializePolymorphicClassTests.cs" />
     <Compile Include="Serialization\PropertySerializers\BsonValuePropertySerializerTests.cs" />
-    <Compile Include="Serialization\PropertySerializers\DateTimeOffsetPropertySerializerTests.cs" />
-    <Compile Include="Serialization\PropertySerializers\PrimitivePropertySerializerTests.cs" />
+    <Compile Include="Serialization\PropertySerializers\BsonPrimitivePropertySerializerTests.cs" />
     <Compile Include="Serialization\SerializeInterfaceTests.cs" />
   </ItemGroup>
   <ItemGroup>
