@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -52,7 +53,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (byte) bsonReader.ReadInt32(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            byte value;
+            if (bsonType == BsonType.Int32) {
+                value = (byte) bsonReader.ReadInt32(propertyMap.ElementName);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(byte).FullName);
+                value = (byte) bsonReader.ReadInt32("v");
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.Byte");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -62,7 +75,15 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (byte) propertyMap.Getter(obj);
-            bsonWriter.WriteInt32(propertyMap.ElementName, value);
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteInt32(propertyMap.ElementName, value);
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(byte).FullName);
+                bsonWriter.WriteInt32("v", value);
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
@@ -95,7 +116,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (char) bsonReader.ReadInt32(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            char value;
+            if (bsonType == BsonType.String) {
+                value = (char) bsonReader.ReadString(propertyMap.ElementName)[0];
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(char).FullName);
+                value = bsonReader.ReadString("v")[0];
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.Char");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -105,7 +138,66 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (char) propertyMap.Getter(obj);
-            bsonWriter.WriteInt32(propertyMap.ElementName, value);
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteString(propertyMap.ElementName, new string(new char[] { value }));
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(char).FullName);
+                bsonWriter.WriteString("v", new string(new char[] { value }));
+                bsonWriter.WriteEndDocument();
+            }
+        }
+        #endregion
+    }
+
+    public class CultureInfoPropertySerializer : IBsonPropertySerializer {
+        #region private static fields
+        private static CultureInfoPropertySerializer singleton = new CultureInfoPropertySerializer();
+        #endregion
+
+        #region constructors
+        private CultureInfoPropertySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static CultureInfoPropertySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public properties
+        public Type PropertyType {
+            get { return typeof(CultureInfo); }
+        }
+        #endregion
+
+        #region public methods
+        public void DeserializeProperty(
+            BsonReader bsonReader,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            bsonReader.ReadDocumentName(propertyMap.ElementName);
+            bsonReader.ReadStartDocument();
+            bsonReader.VerifyString("_t", typeof(CultureInfo).FullName);
+            var value = new CultureInfo(bsonReader.ReadString("v"));
+            bsonReader.ReadEndDocument();
+            propertyMap.Setter(obj, value);
+        }
+
+        public void SerializeProperty(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonPropertyMap propertyMap
+        ) {
+            var value = (CultureInfo) propertyMap.Getter(obj);
+            bsonWriter.WriteDocumentName(propertyMap.ElementName);
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteString("_t", typeof(CultureInfo).FullName);
+            bsonWriter.WriteString("v", value.ToString());
+            bsonWriter.WriteEndDocument();
         }
         #endregion
     }
@@ -138,13 +230,26 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            bsonReader.ReadDocumentName(propertyMap.ElementName);
-            bsonReader.ReadStartDocument();
-            bsonReader.VerifyString("_t", typeof(DateTimeOffset).FullName);
-            var dateTime = DateTime.Parse(bsonReader.ReadString("dt")); // Kind = DateTimeKind.Unspecified
-            var offset = TimeSpan.Parse(bsonReader.ReadString("o"));
-            bsonReader.ReadEndDocument();
-            var value = new DateTimeOffset(dateTime, offset);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            DateTimeOffset value;
+            if (bsonType == BsonType.Array) {
+                bsonReader.ReadArrayName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                var dateTime = new DateTime(bsonReader.ReadInt64("0"));
+                var offset = new TimeSpan(bsonReader.ReadInt64("1"));
+                bsonReader.ReadEndDocument();
+                value = new DateTimeOffset(dateTime, offset);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(DateTimeOffset).FullName);
+                var dateTime = DateTime.Parse(bsonReader.ReadString("dt")); // Kind = DateTimeKind.Unspecified
+                var offset = TimeSpan.Parse(bsonReader.ReadString("o"));
+                bsonReader.ReadEndDocument();
+                value = new DateTimeOffset(dateTime, offset);
+            } else {
+                throw new FileFormatException("Element is not valid System.DateTimeOffset");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -153,14 +258,22 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            // note: the DateTime portion has to be serialized as a string because it is NOT in UTC
+            // note: the DateTime portion cannot be serialized as a BsonType.DateTime because it is NOT in UTC
             var value = (DateTimeOffset) propertyMap.Getter(obj);
-            bsonWriter.WriteDocumentName(propertyMap.ElementName);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteString("_t", typeof(DateTimeOffset).FullName);
-            bsonWriter.WriteString("dt", value.DateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFF")); // omit trailing zeros
-            bsonWriter.WriteString("o", Regex.Replace(value.Offset.ToString(), ":00$", "")); // omit trailing zeros
-            bsonWriter.WriteEndDocument();
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteArrayName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteInt64("0", value.DateTime.Ticks);
+                bsonWriter.WriteInt64("1", value.Offset.Ticks);
+                bsonWriter.WriteEndDocument();
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(DateTimeOffset).FullName);
+                bsonWriter.WriteString("dt", value.DateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFF")); // omit trailing zeros
+                bsonWriter.WriteString("o", Regex.Replace(value.Offset.ToString(), ":00$", "")); // omit trailing zeros
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
@@ -244,7 +357,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (short) bsonReader.ReadInt32(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            short value;
+            if (bsonType == BsonType.Int32) {
+                value = (short) bsonReader.ReadInt32(propertyMap.ElementName);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(short).FullName);
+                value = (short) bsonReader.ReadInt32("v");
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.Int16");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -254,7 +379,15 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (short) propertyMap.Getter(obj);
-            bsonWriter.WriteInt32(propertyMap.ElementName, value);
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteInt32(propertyMap.ElementName, value);
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(short).FullName);
+                bsonWriter.WriteInt32("v", value);
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
@@ -287,7 +420,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (sbyte) bsonReader.ReadInt32(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            sbyte value;
+            if (bsonType == BsonType.Int32) {
+                value = (sbyte) bsonReader.ReadInt32(propertyMap.ElementName);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(sbyte).FullName);
+                value = (sbyte) bsonReader.ReadInt32("v");
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.SByte");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -297,7 +442,15 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (sbyte) propertyMap.Getter(obj);
-            bsonWriter.WriteInt32(propertyMap.ElementName, value);
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteInt32(propertyMap.ElementName, value);
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(sbyte).FullName);
+                bsonWriter.WriteInt32("v", value);
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
@@ -330,7 +483,20 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (float) bsonReader.ReadDouble(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            double doubleValue;
+            if (bsonType == BsonType.Double) {
+                doubleValue = bsonReader.ReadDouble(propertyMap.ElementName);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(float).FullName);
+                doubleValue = bsonReader.ReadDouble("v");
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.Single");
+            }
+            var value = doubleValue == double.MinValue ? float.MinValue : doubleValue == double.MaxValue ? float.MaxValue : (float) doubleValue;
             propertyMap.Setter(obj, value);
         }
 
@@ -340,7 +506,16 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (float) propertyMap.Getter(obj);
-            bsonWriter.WriteDouble(propertyMap.ElementName, value);
+            var doubleValue = value == float.MinValue ? double.MinValue : value == float.MaxValue ? double.MaxValue : value;
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteDouble(propertyMap.ElementName, doubleValue);
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(float).FullName);
+                bsonWriter.WriteDouble("v", doubleValue);
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
@@ -373,12 +548,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            bsonReader.ReadDocumentName(propertyMap.ElementName);
-            bsonReader.ReadStartDocument();
-            bsonReader.VerifyString("_t", typeof(TimeSpan).FullName);
-            var ticks = bsonReader.ReadInt64("v");
-            bsonReader.ReadEndDocument();
-            var value = new TimeSpan(ticks);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            TimeSpan value;
+            if (bsonType == BsonType.Int64) {
+                value = new TimeSpan(bsonReader.ReadInt64(propertyMap.ElementName));
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(TimeSpan).FullName);
+                value = TimeSpan.Parse(bsonReader.ReadString("v"));
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.TimeSpan");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -387,13 +569,16 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            // note: the DateTime portion has to be serialized as a string because it is NOT in UTC
             var value = (TimeSpan) propertyMap.Getter(obj);
-            bsonWriter.WriteDocumentName(propertyMap.ElementName);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteString("_t", typeof(TimeSpan).FullName);
-            bsonWriter.WriteInt64("v", value.Ticks);
-            bsonWriter.WriteEndDocument();
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteInt64(propertyMap.ElementName, value.Ticks);
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(TimeSpan).FullName);
+                bsonWriter.WriteString("v", value.ToString());
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
@@ -426,7 +611,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (ushort) bsonReader.ReadInt32(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            ushort value;
+            if (bsonType == BsonType.Int32) {
+                value = (ushort) bsonReader.ReadInt32(propertyMap.ElementName);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(ushort).FullName);
+                value = (ushort) bsonReader.ReadInt32("v");
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.UInt16");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -436,7 +633,15 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (ushort) propertyMap.Getter(obj);
-            bsonWriter.WriteInt32(propertyMap.ElementName, (int) value);
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteInt32(propertyMap.ElementName, value);
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(ushort).FullName);
+                bsonWriter.WriteInt32("v", value);
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
@@ -469,7 +674,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (uint) bsonReader.ReadInt32(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            uint value;
+            if (bsonType == BsonType.Int32) {
+                value = (uint) bsonReader.ReadInt32(propertyMap.ElementName);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(uint).FullName);
+                value = (uint) bsonReader.ReadInt32("v");
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.UInt32");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -479,7 +696,15 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (uint) propertyMap.Getter(obj);
-            bsonWriter.WriteInt32(propertyMap.ElementName, (int) value);
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteInt32(propertyMap.ElementName, (int) value);
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(uint).FullName);
+                bsonWriter.WriteInt32("v", (int) value);
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
@@ -512,7 +737,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (ulong) bsonReader.ReadInt64(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            ulong value;
+            if (bsonType == BsonType.Int64) {
+                value = (ulong) bsonReader.ReadInt64(propertyMap.ElementName);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", typeof(ulong).FullName);
+                value = (ulong) bsonReader.ReadInt64("v");
+                bsonReader.ReadEndDocument();
+            } else {
+                throw new FileFormatException("Element is not valid System.UInt64");
+            }
             propertyMap.Setter(obj, value);
         }
 
@@ -522,7 +759,15 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (ulong) propertyMap.Getter(obj);
-            bsonWriter.WriteInt64(propertyMap.ElementName, (long) value);
+            if (propertyMap.UseCompactRepresentation) {
+                bsonWriter.WriteInt64(propertyMap.ElementName, (long) value);
+            } else {
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", typeof(ulong).FullName);
+                bsonWriter.WriteInt64("v", (long) value);
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -439,10 +440,31 @@ namespace MongoDB.BsonLibrary.IO {
                     case '\r': textWriter.Write("\\r"); break;
                     case '\t': textWriter.Write("\\t"); break;
                     default:
-                        if (c <= '\x001f' || c == '\x007f' || (c >= '\x0080' && c <= '\x009f')) {
-                            textWriter.Write("\\u{0:x4}", c);
-                        } else {
-                            textWriter.Write(c);
+                        switch (char.GetUnicodeCategory(c)) {
+                            case UnicodeCategory.UppercaseLetter:
+                            case UnicodeCategory.LowercaseLetter:
+                            case UnicodeCategory.TitlecaseLetter:
+                            case UnicodeCategory.OtherLetter:
+                            case UnicodeCategory.DecimalDigitNumber:
+                            case UnicodeCategory.LetterNumber:
+                            case UnicodeCategory.OtherNumber:
+                            case UnicodeCategory.SpaceSeparator:
+                            case UnicodeCategory.ConnectorPunctuation:
+                            case UnicodeCategory.DashPunctuation:
+                            case UnicodeCategory.OpenPunctuation:
+                            case UnicodeCategory.ClosePunctuation:
+                            case UnicodeCategory.InitialQuotePunctuation:
+                            case UnicodeCategory.FinalQuotePunctuation:
+                            case UnicodeCategory.OtherPunctuation:
+                            case UnicodeCategory.MathSymbol:
+                            case UnicodeCategory.CurrencySymbol:
+                            case UnicodeCategory.ModifierSymbol:
+                            case UnicodeCategory.OtherSymbol:
+                                textWriter.Write(c);
+                                break;
+                            default:
+                                textWriter.Write("\\u{0:x4}", (int) c);
+                                break;
                         }
                         break;
                 }

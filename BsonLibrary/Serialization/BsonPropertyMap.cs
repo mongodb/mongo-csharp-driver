@@ -30,6 +30,7 @@ namespace MongoDB.BsonLibrary.Serialization {
         protected Func<object, object> getter;
         protected Action<object, object> setter;
         protected IBsonPropertySerializer propertySerializer;
+        protected bool useCompactRepresentation;
         protected bool isPolymorphicProperty;
         protected bool isRequired;
         protected bool hasDefaultValue;
@@ -76,6 +77,10 @@ namespace MongoDB.BsonLibrary.Serialization {
                 }
                 return propertySerializer;
             }
+        }
+
+        public bool UseCompactRepresentation {
+            get { return useCompactRepresentation; }
         }
 
         public bool IsPolymorphicProperty {
@@ -136,6 +141,13 @@ namespace MongoDB.BsonLibrary.Serialization {
             IBsonPropertySerializer propertySerializer
         ) {
             this.propertySerializer = propertySerializer;
+            return this;
+        }
+
+        public BsonPropertyMap SetUseCompactRepresentation(
+            bool useCompactRepresentation
+        ) {
+            this.useCompactRepresentation = useCompactRepresentation;
             return this;
         }
         #endregion

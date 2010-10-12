@@ -52,6 +52,7 @@
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />
     <Compile Include="ObjectModel\IConvertibleToBsonDocument.cs" />
+    <Compile Include="Serialization\Attributes\BsonUseCompactRepresentationAttribute.cs" />
     <Compile Include="Serialization\BsonClassMap.cs" />
     <Compile Include="Serialization\BsonClassMapSerializer.cs" />
     <Compile Include="Serialization\BsonPropertyMap.cs" />
@@ -107,7 +108,6 @@
     <Compile Include="IO\BsonBinaryWriterContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\PropertySerializers\BsonValuePropertySerializers.cs" />
-    <Compile Include="Serialization\PropertySerializers\CultureInfoPropertySerializer.cs" />
     <Compile Include="Serialization\PropertySerializers\NetPrimitiveSerializers.cs" />
     <Compile Include="Serialization\PropertySerializers\BsonPrimitivePropertySerializers.cs" />
   </ItemGroup>

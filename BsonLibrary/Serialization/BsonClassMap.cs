@@ -210,7 +210,11 @@ namespace MongoDB.BsonLibrary.Serialization {
                     var mapPropertyInfo = genericMapPropertyInfo.MakeGenericMethod(propertyInfo.PropertyType);
 
                     var elementName = propertyInfo.Name;
-                    mapPropertyInfo.Invoke(this, new object[] { propertyInfo, elementName });
+                    var propertyMap = (BsonPropertyMap) mapPropertyInfo.Invoke(this, new object[] { propertyInfo, elementName });
+
+                    if (propertyInfo.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).Length != 0) {
+                        propertyMap.SetUseCompactRepresentation(true);
+                    }
                 }
             }
         }
