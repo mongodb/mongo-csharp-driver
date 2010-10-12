@@ -328,13 +328,14 @@ namespace MongoDB.CSharpDriver {
             if (name == null) {
                 throw new ArgumentNullException("name");
             }
-            if (
-                name == "" ||
-                name.IndexOfAny(new char[] { '\0', ' ', '.', '$', '/', '\\' }) != -1 ||
-                name != name.ToLower() ||
-                Encoding.UTF8.GetBytes(name).Length > 64
-            ) {
-                throw new ArgumentException("Invalid database name", "name");
+            if (name == "") {
+                throw new ArgumentException("Database name is empty");
+            }
+            if (name.IndexOfAny(new char[] { '\0', ' ', '.', '$', '/', '\\' }) != -1) {
+                throw new ArgumentException("Database name cannot contain the following special characters: null, space, period, $, / or \\");
+            }
+            if (Encoding.UTF8.GetBytes(name).Length > 64) {
+                throw new ArgumentException("Database name cannot exceed 64 bytes (after encoding to UTF8)");
             }
         }
         #endregion
