@@ -21,16 +21,66 @@ using NUnit.Framework;
 
 using MongoDB.BsonLibrary.Serialization;
 
-namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
+namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.GenericEnumerable {
+    public class Address {
+        public string Street { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public int Zip { get; set; }
+    }
+
     [TestFixture]
-    public class GenericEnumerablePropertySerializerTests {
-        public class Address {
-            public string Street { get; set; }
-            public string City { get; set; }
-            public string State { get; set; }
-            public int Zip { get; set; }
+    public class HashSetPropertySerializerTests {
+        public class TestClass {
+            public HashSet<Address> Addresses { get; set; }
         }
 
+        [Test]
+        public void TestMin() {
+            var obj = new TestClass {
+                Addresses = new HashSet<Address>() {
+                    new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 },
+                    new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
+                }
+            };
+            var json = obj.ToJson();
+            //var expected = "{ 'C' : 0, 'F' : { '_t' : 'System.Byte', 'v' : 0 } }".Replace("'", "\"");
+            //Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsInstanceOf<HashSet<Address>>(rehydrated.Addresses);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class IEnumerablePropertySerializerTests {
+        public class TestClass {
+            public IEnumerable<Address> Addresses { get; set; }
+        }
+
+        [Test]
+        public void TestMin() {
+            var obj = new TestClass {
+                Addresses = new List<Address>() {
+                    new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 },
+                    new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
+                }
+            };
+            var json = obj.ToJson();
+            //var expected = "{ 'C' : 0, 'F' : { '_t' : 'System.Byte', 'v' : 0 } }".Replace("'", "\"");
+            //Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsInstanceOf<List<Address>>(rehydrated.Addresses);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class IListPropertySerializerTests {
         public class TestClass {
             public IList<Address> Addresses { get; set; }
         }
@@ -49,6 +99,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsInstanceOf<List<Address>>(rehydrated.Addresses);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

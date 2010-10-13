@@ -40,16 +40,15 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
 
         #region public static methods
         public static void RegisterPropertySerializer() {
-            // TODO: support rest if IEnumerable<T> types
-            //BsonClassMap.RegisterPropertySerializer(typeof(HashSet<>), singleton);
-            //BsonClassMap.RegisterPropertySerializer(typeof(LinkedList<>), singleton);
-            //BsonClassMap.RegisterPropertySerializer(typeof(List<>), singleton);
-            //BsonClassMap.RegisterPropertySerializer(typeof(Queue<>), singleton);
-            //BsonClassMap.RegisterPropertySerializer(typeof(Stack<>), singleton);
-            //BsonClassMap.RegisterPropertySerializer(typeof(SynchronizedCollection<>), singleton);
-            //BsonClassMap.RegisterPropertySerializer(typeof(SynchronizedReadOnlyCollection<>), singleton);
-            //BsonClassMap.RegisterPropertySerializer(typeof(ICollection<>), singleton);
-            //BsonClassMap.RegisterPropertySerializer(typeof(IEnumerable<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(HashSet<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(LinkedList<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(List<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(Queue<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(Stack<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(SynchronizedCollection<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(SynchronizedReadOnlyCollection<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(ICollection<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(IEnumerable<>), singleton);
             BsonClassMap.RegisterPropertySerializer(typeof(IList<>), singleton);
         }
         #endregion
@@ -83,10 +82,10 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
                 string message = string.Format("GetType returned null for discriminator: {0}", discriminator);
                 throw new BsonSerializationException(message);
             }
-            if (!typeof(IList<T>).IsAssignableFrom(actualType)) {
+            if (!propertyMap.PropertyInfo.PropertyType.IsAssignableFrom(actualType)) {
                 throw new BsonSerializationException("Incompatible type found");
             }
-            var value = (IList<T>) Activator.CreateInstance(actualType);
+            var value = (ICollection<T>) Activator.CreateInstance(actualType); // deserialization requires ICollection<T> instead of IEnumerable<T>
 
             bsonReader.ReadStartDocument();
             bsonReader.VerifyString("_t", discriminator);
@@ -121,7 +120,7 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var value = (IList<T>) propertyMap.Getter(obj);
+            var value = (IEnumerable<T>) propertyMap.Getter(obj);
 
             var elementTypeName = typeof(T).FullName;
             var elementAssemblyName = typeof(T).Assembly.FullName.Split(',')[0];
