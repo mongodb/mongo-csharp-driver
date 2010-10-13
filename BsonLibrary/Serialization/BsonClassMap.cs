@@ -129,6 +129,10 @@ namespace MongoDB.BsonLibrary.Serialization {
             Type propertyType
         ) {
             lock (staticLock) {
+                if (propertyType.IsGenericType) {
+                    propertyType = propertyType.GetGenericTypeDefinition();
+                }
+
                 IBsonPropertySerializer propertySerializer;
                 if (propertySerializers.TryGetValue(propertyType, out propertySerializer)) {
                     return propertySerializer;
