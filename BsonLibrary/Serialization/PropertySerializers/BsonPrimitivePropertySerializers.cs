@@ -40,9 +40,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(bool); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(bool), singleton);
         }
         #endregion
 
@@ -83,9 +83,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(DateTime); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(DateTime), singleton);
         }
         #endregion
 
@@ -126,9 +126,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(double); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(double), singleton);
         }
         #endregion
 
@@ -169,9 +169,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(Guid); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(Guid), singleton);
         }
         #endregion
 
@@ -221,9 +221,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(int); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(int), singleton);
         }
         #endregion
 
@@ -264,9 +264,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(long); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(long), singleton);
         }
         #endregion
 
@@ -307,9 +307,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(ObjectId); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(ObjectId), singleton);
         }
         #endregion
 
@@ -353,9 +353,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(string); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(string), singleton);
         }
         #endregion
 

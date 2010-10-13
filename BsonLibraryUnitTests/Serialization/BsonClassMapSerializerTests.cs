@@ -43,10 +43,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
 
         public class Employee {
             private class DateOfBirthSerializer : IBsonPropertySerializer {
-                public Type PropertyType {
-                    get { return typeof(DateTime); }
-                }
-
                 public void DeserializeProperty(
                     BsonReader bsonReader,
                     object obj,

@@ -165,11 +165,12 @@ namespace MongoDB.BsonLibrary.Serialization {
         }
 
         public static void RegisterPropertySerializer(
+            Type type,
             IBsonPropertySerializer propertySerializer
         ) {
             lock (staticLock) {
                 // note: property serializers CAN be replaced
-                propertySerializers[propertySerializer.PropertyType] = propertySerializer;
+                propertySerializers[type] = propertySerializer;
             }
         }
 
@@ -195,10 +196,11 @@ namespace MongoDB.BsonLibrary.Serialization {
         private static void RegisterPropertySerializers() {
             var assembly = Assembly.GetExecutingAssembly();
             foreach (var type in assembly.GetTypes()) {
-                if (typeof(IBsonPropertySerializer).IsAssignableFrom(type) && !type.IsInterface) {
-                    var singletonPropertyInfo = type.GetProperty("Singleton", BindingFlags.Public | BindingFlags.Static);
-                    var singleton = (IBsonPropertySerializer) singletonPropertyInfo.GetValue(null, null);
-                    RegisterPropertySerializer(singleton);
+                if (typeof(IBsonPropertySerializer).IsAssignableFrom(type) && type != typeof(IBsonPropertySerializer)) {
+                    var registerPropertySerializerInfo = type.GetMethod("RegisterPropertySerializer", BindingFlags.Public | BindingFlags.Static);
+                    if (registerPropertySerializerInfo != null) {
+                        registerPropertySerializerInfo.Invoke(null, null);
+                    }
                 }
             }
         }

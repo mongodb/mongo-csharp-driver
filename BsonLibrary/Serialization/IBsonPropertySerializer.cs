@@ -22,7 +22,6 @@ using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.BsonLibrary.Serialization {
     public interface IBsonPropertySerializer {
-        Type PropertyType { get; } // needed to support auto registration of standard property serializers
         void DeserializeProperty(BsonReader bsonReader, object obj, BsonPropertyMap propertyMap);
         void SerializeProperty(BsonWriter bsonWriter, object obj, BsonPropertyMap propertyMap);
     }

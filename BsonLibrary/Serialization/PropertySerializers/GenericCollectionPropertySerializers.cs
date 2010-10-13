@@ -38,9 +38,19 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(IList<>); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            // TODO: support rest if IEnumerable<T> types
+            //BsonClassMap.RegisterPropertySerializer(typeof(HashSet<>), singleton);
+            //BsonClassMap.RegisterPropertySerializer(typeof(LinkedList<>), singleton);
+            //BsonClassMap.RegisterPropertySerializer(typeof(List<>), singleton);
+            //BsonClassMap.RegisterPropertySerializer(typeof(Queue<>), singleton);
+            //BsonClassMap.RegisterPropertySerializer(typeof(Stack<>), singleton);
+            //BsonClassMap.RegisterPropertySerializer(typeof(SynchronizedCollection<>), singleton);
+            //BsonClassMap.RegisterPropertySerializer(typeof(SynchronizedReadOnlyCollection<>), singleton);
+            //BsonClassMap.RegisterPropertySerializer(typeof(ICollection<>), singleton);
+            //BsonClassMap.RegisterPropertySerializer(typeof(IEnumerable<>), singleton);
+            BsonClassMap.RegisterPropertySerializer(typeof(IList<>), singleton);
         }
         #endregion
 

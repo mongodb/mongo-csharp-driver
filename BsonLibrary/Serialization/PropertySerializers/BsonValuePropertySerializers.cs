@@ -39,9 +39,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonArray); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonArray), singleton);
         }
         #endregion
 
@@ -95,9 +95,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonBinaryData); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonBinaryData), singleton);
         }
         #endregion
 
@@ -152,9 +152,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonBoolean); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonBoolean), singleton);
         }
         #endregion
 
@@ -206,9 +206,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonDateTime); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonDateTime), singleton);
         }
         #endregion
 
@@ -260,9 +260,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonDocument); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonDocument), singleton);
         }
         #endregion
 
@@ -316,9 +316,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonDocumentWrapper); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonDocumentWrapper), singleton);
         }
         #endregion
 
@@ -363,9 +363,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonDouble); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonDouble), singleton);
         }
         #endregion
 
@@ -417,9 +417,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonInt32); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonInt32), singleton);
         }
         #endregion
 
@@ -471,9 +471,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonInt64); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonInt64), singleton);
         }
         #endregion
 
@@ -525,9 +525,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonJavaScript); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonJavaScript), singleton);
         }
         #endregion
 
@@ -579,9 +579,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonJavaScriptWithScope); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonJavaScriptWithScope), singleton);
         }
         #endregion
 
@@ -636,9 +636,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonMaxKey); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonMaxKey), singleton);
         }
         #endregion
 
@@ -691,9 +691,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonMinKey); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonMinKey), singleton);
         }
         #endregion
 
@@ -746,9 +746,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonNull); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonNull), singleton);
         }
         #endregion
 
@@ -807,9 +807,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonObjectId); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonObjectId), singleton);
         }
         #endregion
 
@@ -864,9 +864,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonRegularExpression); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonRegularExpression), singleton);
         }
         #endregion
 
@@ -920,9 +920,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonString); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonString), singleton);
         }
         #endregion
 
@@ -974,9 +974,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonSymbol); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonSymbol), singleton);
         }
         #endregion
 
@@ -1028,9 +1028,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonTimestamp); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonTimestamp), singleton);
         }
         #endregion
 
@@ -1082,9 +1082,9 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
         }
         #endregion
 
-        #region public properties
-        public Type PropertyType {
-            get { return typeof(BsonValue); }
+        #region public static methods
+        public static void RegisterPropertySerializer() {
+            BsonClassMap.RegisterPropertySerializer(typeof(BsonValue), singleton);
         }
         #endregion
 
