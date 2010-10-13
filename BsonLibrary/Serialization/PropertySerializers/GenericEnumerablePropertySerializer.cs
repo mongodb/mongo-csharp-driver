@@ -22,18 +22,18 @@ using System.IO;
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
-    public class GenericIListPropertySerializer : IBsonPropertySerializer {
+    public class GenericEnumerablePropertySerializer : IBsonPropertySerializer {
         #region private static fields
-        private static GenericIListPropertySerializer singleton = new GenericIListPropertySerializer();
+        private static GenericEnumerablePropertySerializer singleton = new GenericEnumerablePropertySerializer();
         #endregion
 
         #region constructors
-        private GenericIListPropertySerializer() {
+        private GenericEnumerablePropertySerializer() {
         }
         #endregion
 
         #region public static properties
-        public static GenericIListPropertySerializer Singleton {
+        public static GenericEnumerablePropertySerializer Singleton {
             get { return singleton; }
         }
         #endregion

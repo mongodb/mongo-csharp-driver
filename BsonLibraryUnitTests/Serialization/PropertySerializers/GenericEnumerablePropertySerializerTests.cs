@@ -23,7 +23,7 @@ using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers {
     [TestFixture]
-    public class GenericCollectionPropertySerializerTests {
+    public class GenericEnumerablePropertySerializerTests {
         public class Address {
             public string Street { get; set; }
             public string City { get; set; }

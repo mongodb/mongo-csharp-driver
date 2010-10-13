@@ -111,7 +111,7 @@
     <Compile Include="IO\BsonBinaryWriterContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\PropertySerializers\BsonValuePropertySerializers.cs" />
-    <Compile Include="Serialization\PropertySerializers\GenericCollectionPropertySerializers.cs" />
+    <Compile Include="Serialization\PropertySerializers\GenericEnumerablePropertySerializer.cs" />
     <Compile Include="Serialization\PropertySerializers\NetPrimitiveSerializers.cs" />
     <Compile Include="Serialization\PropertySerializers\BsonPrimitivePropertySerializers.cs" />
   </ItemGroup>
