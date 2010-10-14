@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.BsonLibrary.Serialization;
 using MongoDB.CSharpDriver.Builders;
 using MongoDB.CSharpDriver.Internal;
 
@@ -206,15 +207,9 @@ namespace MongoDB.CSharpDriver {
             }
         }
 
-        public MongoCursor<TQuery, TDocument> Find<TQuery, TDocument>(
-            TQuery query
-        ) {
-            return new MongoCursor<TQuery, TDocument>(this, query);
-        }
-
-        public MongoCursor<BsonDocument, TDocument> FindAll<TDocument>() {
+        public MongoCursor<BsonDocument, TDocument> FindAllAs<TDocument>() {
             BsonDocument query = null;
-            return Find<BsonDocument, TDocument>(query);
+            return FindAs<BsonDocument, TDocument>(query);
         }
 
         public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate>(
@@ -269,14 +264,26 @@ namespace MongoDB.CSharpDriver {
             return result["value"].AsBsonDocument;
         }
 
-        public TDocument FindOne<TDocument>() {
-            return FindAll<TDocument>().Limit(1).FirstOrDefault();
+        public MongoCursor<IBsonSerializable, TDocument> FindAs<TDocument>(
+           IBsonSerializable query
+       ) {
+            return FindAs<IBsonSerializable, TDocument>(query);
         }
 
-        public TDocument FindOne<TQuery, TDocument>(
+        public MongoCursor<TQuery, TDocument> FindAs<TQuery, TDocument>(
             TQuery query
         ) {
-            return Find<TQuery, TDocument>(query).Limit(1).FirstOrDefault();
+            return new MongoCursor<TQuery, TDocument>(this, query);
+        }
+
+        public TDocument FindOneAs<TDocument>() {
+            return FindAllAs<TDocument>().Limit(1).FirstOrDefault();
+        }
+
+        public TDocument FindOneAs<TQuery, TDocument>(
+            TQuery query
+        ) {
+            return FindAs<TQuery, TDocument>(query).Limit(1).FirstOrDefault();
         }
 
         public BsonDocument GeoNear<TQuery>(
@@ -701,21 +708,21 @@ namespace MongoDB.CSharpDriver {
         public MongoCursor<TQuery, TDefaultDocument> Find<TQuery>(
             TQuery query
         ) {
-            return Find<TQuery, TDefaultDocument>(query);
+            return FindAs<TQuery, TDefaultDocument>(query);
         }
 
         public MongoCursor<BsonDocument, TDefaultDocument> FindAll() {
-            return FindAll<TDefaultDocument>();
+            return FindAllAs<TDefaultDocument>();
         }
 
         public TDefaultDocument FindOne() {
-            return FindOne<TDefaultDocument>();
+            return FindOneAs<TDefaultDocument>();
         }
 
         public TDefaultDocument FindOne<TQuery>(
             TQuery query
         ) {
-            return FindOne<TQuery, TDefaultDocument>(query);
+            return FindOneAs<TQuery, TDefaultDocument>(query);
         }
         #endregion
     }
