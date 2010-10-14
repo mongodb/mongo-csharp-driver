@@ -118,7 +118,7 @@ namespace MongoDB.BsonLibrary.Serialization {
                     missingElementPropertyMaps.Remove(propertyMap);
                 } else {
                     // TODO: how to handle extra elements?
-                    throw new BsonSerializationException("Unexpected element");
+                    bsonReader.SkipElement();
                 }
             }
             bsonReader.ReadEndDocument();

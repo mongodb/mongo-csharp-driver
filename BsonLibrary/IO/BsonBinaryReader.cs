@@ -97,29 +97,7 @@ namespace MongoDB.BsonLibrary.IO {
                     value = buffer.ReadString();
                     break;
                 } else {
-                    int skip;
-                    switch (bsonType) {
-                        case BsonType.Array: skip = ReadSize() - 4; break;
-                        case BsonType.Binary: skip = ReadSize() + 1; break;
-                        case BsonType.Boolean: skip = 1; break;
-                        case BsonType.DateTime: skip = 8; break;
-                        case BsonType.Document: skip = ReadSize() - 4; break;
-                        case BsonType.Double: skip = 8; break;
-                        case BsonType.Int32: skip = 4; break;
-                        case BsonType.Int64: skip = 8; break;
-                        case BsonType.JavaScript: skip = ReadSize(); break;
-                        case BsonType.JavaScriptWithScope: skip = ReadSize() - 4; break;
-                        case BsonType.MaxKey: skip = 0; break;
-                        case BsonType.MinKey: skip = 0; break;
-                        case BsonType.Null: skip = 0; break;
-                        case BsonType.ObjectId: skip = 12; break;
-                        case BsonType.RegularExpression: buffer.ReadCString(); buffer.ReadCString(); skip = 0; break;
-                        case BsonType.String: skip = ReadSize(); break;
-                        case BsonType.Symbol: skip = ReadSize(); break;
-                        case BsonType.Timestamp: skip = 8; break;
-                        default: throw new BsonInternalException("Unexpected BsonType");
-                    }
-                    buffer.Position += skip;
+                    buffer.Position += GetValueSize(bsonType); // skip over value
                 }
             }
             buffer.Position = initialPosition;
@@ -555,9 +533,53 @@ namespace MongoDB.BsonLibrary.IO {
                 throw new FileFormatException(message);
             }
         }
+
+        public override void SkipElement() {
+            if ((context.ReadState & BsonReadState.Document) == 0) {
+                string message = string.Format("SkipElement cannot be called when ReadState is: {1}", context.ReadState);
+                throw new InvalidOperationException(message);
+            }
+            var bsonType = buffer.ReadBsonType();
+            var name = buffer.ReadCString();
+            buffer.Position += GetValueSize(bsonType); // skip over value
+        }
         #endregion
 
         #region private methods
+        private int GetValueSize(
+            BsonType bsonType
+        ) {
+            int size;
+            switch (bsonType) {
+                case BsonType.Array: size = PeekSize(); break;
+                case BsonType.Binary: size = PeekSize() + 5; break;
+                case BsonType.Boolean: size = 1; break;
+                case BsonType.DateTime: size = 8; break;
+                case BsonType.Document: size = PeekSize(); break;
+                case BsonType.Double: size = 8; break;
+                case BsonType.Int32: size = 4; break;
+                case BsonType.Int64: size = 8; break;
+                case BsonType.JavaScript: size = PeekSize() + 4; break;
+                case BsonType.JavaScriptWithScope: size = PeekSize(); break;
+                case BsonType.MaxKey: size = 0; break;
+                case BsonType.MinKey: size = 0; break;
+                case BsonType.Null: size = 0; break;
+                case BsonType.ObjectId: size = 12; break;
+                case BsonType.RegularExpression: var p = buffer.Position; buffer.ReadCString(); buffer.ReadCString(); size = buffer.Position - p; buffer.Position = p; break;
+                case BsonType.String: size = PeekSize() + 4; break;
+                case BsonType.Symbol: size = PeekSize() + 4; break;
+                case BsonType.Timestamp: size = 8; break;
+                default: throw new BsonInternalException("Unexpected BsonType");
+            }
+            return size;
+        }
+
+        private int PeekSize() {
+            var size = ReadSize();
+            buffer.Position -= 4;
+            return size;
+        }
+
         #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         private void ReadBinaryDataHelper(
             out byte[] bytes,

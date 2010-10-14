@@ -196,6 +196,7 @@ namespace MongoDB.BsonLibrary.IO {
         public abstract long ReadTimestamp(
             string expectedName
         );
+        public abstract void SkipElement();
         public abstract void VerifyString(
             string expectedName,
             string expectedValue
