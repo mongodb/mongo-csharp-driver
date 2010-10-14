@@ -22,6 +22,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization.PropertySerializers;
 
 namespace MongoDB.BsonLibrary.Serialization {
     public abstract class BsonClassMap {
@@ -183,12 +184,16 @@ namespace MongoDB.BsonLibrary.Serialization {
                 }
 
                 IBsonPropertySerializer propertySerializer;
-                if (propertySerializers.TryGetValue(propertyType, out propertySerializer)) {
-                    return propertySerializer;
-                } else {
-                    string message = string.Format("No property serializer found for property type: {0}", propertyType.FullName);
-                    throw new BsonSerializationException(message);
+                if (!propertySerializers.TryGetValue(propertyType, out propertySerializer)) {
+                    if (!propertyType.IsPrimitive) {
+                        propertySerializer = DefaultPropertySerializer.Singleton;
+                        propertySerializers.Add(propertyType, propertySerializer);
+                    } else {
+                        string message = string.Format("No property serializer found for property type: {0}", propertyType.FullName);
+                        throw new BsonSerializationException(message);
+                    }
                 }
+                return propertySerializer;
             }
         }
 

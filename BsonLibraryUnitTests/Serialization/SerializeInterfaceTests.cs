@@ -39,7 +39,19 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeAasA() {
+            A a = new A { FX = "a" };
+            var json = a.ToJson();
+            var expected = ("{ 'FX' : 'a' }").Replace("'", "\""); // no discriminator
+            Assert.AreEqual(expected, json);
+
+            var bson = a.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<A>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeAasIX() {
             IX a = new A { FX = "a" };
             var json = a.ToJson();
             var expected = ("{ '_t' : 'A', 'FX' : 'a' }").Replace("'", "\"");
@@ -51,7 +63,19 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeBasB() {
+            B b = new B { FX = "b" };
+            var json = b.ToJson();
+            var expected = ("{ 'FX' : 'b' }").Replace("'", "\""); // no discriminator
+            Assert.AreEqual(expected, json);
+
+            var bson = b.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<B>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeBasIX() {
             IX b = new B { FX = "b" };
             var json = b.ToJson();
             var expected = ("{ '_t' : 'B', 'FX' : 'b' }").Replace("'", "\"");

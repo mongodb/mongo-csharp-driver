@@ -145,5 +145,57 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             var rehydrated = BsonSerializer.Deserialize<E>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Test]
+        public void TestSerializeTNull() {
+            T t = new T { FT = null };
+            var json = t.ToJson();
+            var expected = ("{ 'FT' : null }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = t.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsNull(rehydrated.FT);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeTC() {
+            T t = new T { FT = new C { FA = "a", FC = "c" } };
+            var json = t.ToJson();
+            var expected = ("{ 'FT' : { '_t' : 'C', 'FA' : 'a', 'FC' : 'c' } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = t.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<C>(rehydrated.FT);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeTD() {
+            T t = new T { FT = new D { FA = "a", FB = "b", FD = "d" } };
+            var json = t.ToJson();
+            var expected = ("{ 'FT' : { '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = t.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<D>(rehydrated.FT);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeTE() {
+            T t = new T { FT = new E { FA = "a", FB = "b", FE = "e" } };
+            var json = t.ToJson();
+            var expected = ("{ 'FT' : { '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = t.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<E>(rehydrated.FT);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
     }
 }
