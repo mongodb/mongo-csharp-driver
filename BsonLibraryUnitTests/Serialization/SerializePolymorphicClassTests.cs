@@ -51,7 +51,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeCasA() {
             A a = new C { FA = "a", FC = "c" };
             var json = a.ToJson();
             var expected = ("{ '_t' : 'C', 'FA' : 'a', 'FC' : 'c' }").Replace("'", "\"");
@@ -59,6 +59,90 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
 
             var bson = a.ToBson();
             var rehydrated = BsonSerializer.Deserialize<A>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeCasC() {
+            C c = new C { FA = "a", FC = "c" };
+            var json = c.ToJson();
+            var expected = ("{ 'FA' : 'a', 'FC' : 'c' }").Replace("'", "\""); // no discriminator
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeDasA() {
+            A a = new D { FA = "a", FB = "b", FD = "d" };
+            var json = a.ToJson();
+            var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = a.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<A>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeDasB() {
+            B b = new D { FA = "a", FB = "b", FD = "d" };
+            var json = b.ToJson();
+            var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = b.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<B>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeDasD() {
+            D d = new D { FA = "a", FB = "b", FD = "d" };
+            var json = d.ToJson();
+            var expected = ("{ 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\""); // no discriminator
+            Assert.AreEqual(expected, json);
+
+            var bson = d.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<D>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeEasA() {
+            A a = new E { FA = "a", FB = "b", FE = "e" };
+            var json = a.ToJson();
+            var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = a.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<A>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeEasB() {
+            B b = new E { FA = "a", FB = "b", FE = "e" };
+            var json = b.ToJson();
+            var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = b.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<B>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeEasE() {
+            E e = new E { FA = "a", FB = "b", FE = "e" };
+            var json = e.ToJson();
+            var expected = ("{ 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\""); // no discriminator
+            Assert.AreEqual(expected, json);
+
+            var bson = e.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<E>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
