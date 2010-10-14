@@ -45,25 +45,14 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var propertyType = propertyMap.PropertyInfo.PropertyType;
-            var genericDeserializePropertyHelperInfo = this.GetType().GetMethod("DeserializePropertyHelper");
-            var deserializePropertyHelperInfo = genericDeserializePropertyHelperInfo.MakeGenericMethod(propertyType);
-            deserializePropertyHelperInfo.Invoke(this, new object[] { bsonReader, obj, propertyMap });
-        }
-
-        public void DeserializePropertyHelper<T>(
-           BsonReader bsonReader,
-           object obj,
-           BsonPropertyMap propertyMap
-       ) {
             BsonType bsonType = bsonReader.PeekBsonType();
-            T value;
+            object value;
             if (bsonType == BsonType.Null) {
                 bsonReader.ReadNull(propertyMap.ElementName);
-                value = default(T);
+                value = null;
             } else {
                 bsonReader.ReadDocumentName(propertyMap.ElementName);
-                value = BsonSerializer.Deserialize<T>(bsonReader);
+                value = BsonSerializer.Deserialize(bsonReader, propertyMap.PropertyInfo.PropertyType);
             }
             propertyMap.Setter(obj, value);
         }
@@ -73,23 +62,14 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             object obj,
             BsonPropertyMap propertyMap
         ) {
-            var propertyType = propertyMap.PropertyInfo.PropertyType;
-            var genericSerializePropertyHelperInfo = this.GetType().GetMethod("SerializePropertyHelper");
-            var serializePropertyHelperInfo = genericSerializePropertyHelperInfo.MakeGenericMethod(propertyType);
-            serializePropertyHelperInfo.Invoke(this, new object[] { bsonWriter, obj, propertyMap });
-        }
-
-        public void SerializePropertyHelper<T>(
-            BsonWriter bsonWriter,
-            object obj,
-            BsonPropertyMap propertyMap
-        ) {
-            var value = (T) propertyMap.Getter(obj);
+            var value = propertyMap.Getter(obj);
             if (value == null) {
                 bsonWriter.WriteNull(propertyMap.ElementName);
             } else {
                 bsonWriter.WriteDocumentName(propertyMap.ElementName);
-                BsonSerializer.Serialize<T>(bsonWriter, value);
+                var propertyType = propertyMap.PropertyInfo.PropertyType;
+                var serializeDiscriminator = BsonPropertyMap.IsPolymorphicType(propertyType) || obj.GetType() != propertyType;
+                BsonSerializer.Serialize(bsonWriter, value, false, serializeDiscriminator);
             }
         }
         #endregion
