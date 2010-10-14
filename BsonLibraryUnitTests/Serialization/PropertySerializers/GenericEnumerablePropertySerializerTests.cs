@@ -36,7 +36,19 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
         }
 
         [Test]
-        public void TestMin() {
+        public void TestNull() {
+            var obj = new TestClass { Addresses = null };
+            var json = obj.ToJson();
+            var expected = "{ 'Addresses' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialization() {
             var obj = new TestClass {
                 Addresses = new HashSet<Address>() {
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 },
@@ -65,7 +77,19 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
         }
 
         [Test]
-        public void TestMin() {
+        public void TestNull() {
+            var obj = new TestClass { Addresses = null };
+            var json = obj.ToJson();
+            var expected = "{ 'Addresses' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialization() {
             var obj = new TestClass {
                 Addresses = new List<Address>() {
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 },
@@ -94,7 +118,19 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
         }
 
         [Test]
-        public void TestMin() {
+        public void TestNull() {
+            var obj = new TestClass { Addresses = null };
+            var json = obj.ToJson();
+            var expected = "{ 'Addresses' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialization() {
             var obj = new TestClass {
                 Addresses = new List<Address>() {
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 },

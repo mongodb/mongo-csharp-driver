@@ -72,35 +72,41 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
            object obj,
            BsonPropertyMap propertyMap
        ) {
-            bsonReader.ReadDocumentName(propertyMap.ElementName);
+            BsonType bsonType = bsonReader.PeekBsonType();
+            ICollection<T> value;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(propertyMap.ElementName);
+                value = null;
+            } else {
+                bsonReader.ReadDocumentName(propertyMap.ElementName);
 
-            var discriminator = bsonReader.FindString("_t");
-            if (discriminator == null) {
-                throw new FileFormatException("Discriminator missing");
-            }
-            var actualType = Type.GetType(discriminator);
-            if (actualType == null) {
-                string message = string.Format("GetType returned null for discriminator: {0}", discriminator);
-                throw new BsonSerializationException(message);
-            }
-            if (!propertyMap.PropertyInfo.PropertyType.IsAssignableFrom(actualType)) {
-                throw new BsonSerializationException("Incompatible type found");
-            }
-            var value = (ICollection<T>) Activator.CreateInstance(actualType); // deserialization requires ICollection<T> instead of IEnumerable<T>
+                var discriminator = bsonReader.FindString("_t");
+                if (discriminator == null) {
+                    throw new FileFormatException("Discriminator missing");
+                }
+                var actualType = Type.GetType(discriminator); // TODO: use registered discriminator?
+                if (actualType == null) {
+                    string message = string.Format("GetType returned null for discriminator: {0}", discriminator);
+                    throw new BsonSerializationException(message);
+                }
+                if (!propertyMap.PropertyInfo.PropertyType.IsAssignableFrom(actualType)) {
+                    throw new BsonSerializationException("Incompatible type found");
+                }
+                value = (ICollection<T>) Activator.CreateInstance(actualType); // deserialization requires ICollection<T> instead of IEnumerable<T>
 
-            bsonReader.ReadStartDocument();
-            bsonReader.VerifyString("_t", discriminator);
-            bsonReader.ReadArrayName("v");
-            bsonReader.ReadStartDocument();
-            BsonType bsonType;
-            string elementName;
-            while (bsonReader.HasElement(out bsonType, out elementName)) {
-                bsonReader.ReadDocumentName(elementName); // TODO: handle primitive element types
-                T item = BsonSerializer.Deserialize<T>(bsonReader);
-                value.Add(item);
+                bsonReader.ReadStartDocument();
+                bsonReader.VerifyString("_t", discriminator);
+                bsonReader.ReadArrayName("v");
+                bsonReader.ReadStartDocument();
+                string elementName;
+                while (bsonReader.HasElement(out bsonType, out elementName)) {
+                    bsonReader.ReadDocumentName(elementName); // TODO: handle primitive element types
+                    T item = BsonSerializer.Deserialize<T>(bsonReader);
+                    value.Add(item);
+                }
+                bsonReader.ReadEndDocument();
+                bsonReader.ReadEndDocument();
             }
-            bsonReader.ReadEndDocument();
-            bsonReader.ReadEndDocument();
             propertyMap.Setter(obj, value);
         }
 
@@ -122,21 +128,25 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (IEnumerable<T>) propertyMap.Getter(obj);
-            var discriminator = BsonClassMap.GetTypeNameDiscriminator(value.GetType());
+            if (value == null) {
+                bsonWriter.WriteNull(propertyMap.ElementName);
+            } else {
+                var discriminator = BsonClassMap.GetTypeNameDiscriminator(value.GetType());
 
-            bsonWriter.WriteDocumentName(propertyMap.ElementName);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteString("_t", discriminator);
-            bsonWriter.WriteArrayName("v");
-            bsonWriter.WriteStartDocument();
-            int index = 0;
-            foreach (var item in value) {
-                bsonWriter.WriteDocumentName(index.ToString()); // TODO: handle primitive element types
-                BsonSerializer.Serialize(bsonWriter, item);
-                index++;
+                bsonWriter.WriteDocumentName(propertyMap.ElementName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("_t", discriminator);
+                bsonWriter.WriteArrayName("v");
+                bsonWriter.WriteStartDocument();
+                int index = 0;
+                foreach (var item in value) {
+                    bsonWriter.WriteDocumentName(index.ToString()); // TODO: handle primitive element types
+                    BsonSerializer.Serialize(bsonWriter, item);
+                    index++;
+                }
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
             }
-            bsonWriter.WriteEndDocument();
-            bsonWriter.WriteEndDocument();
         }
         #endregion
     }
