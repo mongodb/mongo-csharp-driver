@@ -277,13 +277,13 @@ namespace MongoDB.CSharpDriver {
         }
 
         public TDocument FindOneAs<TDocument>() {
-            return FindAllAs<TDocument>().Limit(1).FirstOrDefault();
+            return FindAllAs<TDocument>().SetLimit(1).FirstOrDefault();
         }
 
         public TDocument FindOneAs<TQuery, TDocument>(
             TQuery query
         ) {
-            return FindAs<TQuery, TDocument>(query).Limit(1).FirstOrDefault();
+            return FindAs<TQuery, TDocument>(query).SetLimit(1).FirstOrDefault();
         }
 
         public BsonDocument GeoNear<TQuery>(
@@ -445,7 +445,7 @@ namespace MongoDB.CSharpDriver {
             TMapReduceOptions options
         ) {
             // create a new set of options because we don't want to modify caller's data
-            return MapReduce(map, reduce, MapReduceOptions.Query(query).Append(options.ToBsonDocument()));
+            return MapReduce(map, reduce, MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument()));
         }
 
         public MongoMapReduceResult MapReduce<TQuery>(
@@ -453,7 +453,7 @@ namespace MongoDB.CSharpDriver {
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
-            return MapReduce(map, reduce, MapReduceOptions.Query(query));
+            return MapReduce(map, reduce, MapReduceOptions.SetQuery(query));
         }
 
         public MongoMapReduceResult MapReduce(

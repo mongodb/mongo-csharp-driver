@@ -20,6 +20,7 @@ using System.IO;
 using System.Text;
 
 using MongoDB.BsonLibrary;
+using MongoDB.CSharpDriver.Builders;
 
 namespace MongoDB.CSharpDriver {
     public class MongoGridFS {
@@ -267,9 +268,9 @@ namespace MongoDB.CSharpDriver {
             var files = database.GetCollection(settings.FilesCollectionName);
             BsonDocument fileInfoDocument;
             if (version > 0) {
-                fileInfoDocument = files.Find(query).Sort("uploadDate").Skip(version - 1).Limit(1).FirstOrDefault();
+                fileInfoDocument = files.Find(query).SetSortOrder("uploadDate").SetSkip(version - 1).SetLimit(1).FirstOrDefault();
             } else if (version < 0) {
-                fileInfoDocument = files.Find(query).Sort(new BsonDocument("uploadDate", -1)).Skip(-version - 1).Limit(1).FirstOrDefault();
+                fileInfoDocument = files.Find(query).SetSortOrder(SortBy.Descending("uploadDate")).SetSkip(-version - 1).SetLimit(1).FirstOrDefault();
             } else {
                 fileInfoDocument = files.FindOne(query);
             }

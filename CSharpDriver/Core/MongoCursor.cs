@@ -34,7 +34,7 @@ namespace MongoDB.CSharpDriver {
         private int skip;
         private int limit; // number of documents to return (enforced by cursor)
         private int batchSize; // number of documents to return in each reply
-        private bool frozen; // prevent any further modifications once enumeration has begun
+        private bool isFrozen; // prevent any further modifications once enumeration has begun
         #endregion
 
         #region constructors
@@ -55,23 +55,61 @@ namespace MongoDB.CSharpDriver {
         public MongoCollection Collection {
             get { return collection; }
         }
+
+        public TQuery Query {
+            get { return query; }
+        }
+
+        public BsonDocumentWrapper Fields {
+            get { return fields; }
+            set { fields = value; }
+        }
+
+        public BsonDocument Options {
+            get { return options; }
+            set { options = value; }
+        }
+
+        public QueryFlags Flags {
+            get { return flags; }
+            set { flags = value; }
+        }
+
+        public int Skip {
+            get { return skip; }
+            set { skip = value; }
+        }
+
+        public int Limit {
+            get { return limit; }
+            set { limit = value; }
+        }
+
+        public int BatchSize {
+            get { return batchSize; }
+            set { batchSize = value; }
+        }
+
+        public bool IsFrozen {
+            get { return isFrozen; }
+        }
         #endregion
 
         #region public methods
-        public MongoCursor<TQuery, TDocument> AddOption(
+        public MongoCursor<TQuery, TDocument> SetOption(
             string name,
             BsonValue value
         ) {
-            if (frozen) { ThrowFrozen(); }
+            if (isFrozen) { ThrowFrozen(); }
             if (options == null) { options = new BsonDocument(); }
             options[name] = value;
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> BatchSize(
+        public MongoCursor<TQuery, TDocument> SetBatchSize(
             int batchSize
         ) {
-            if (frozen) { ThrowFrozen(); }
+            if (isFrozen) { ThrowFrozen(); }
             if (batchSize < 0) { throw new ArgumentException("BatchSize cannot be negative"); }
             this.batchSize = batchSize;
             return this;
@@ -88,7 +126,7 @@ namespace MongoDB.CSharpDriver {
         }
 
         public int Count() {
-            frozen = true;
+            isFrozen = true;
             var command = new BsonDocument {
                 { "count", collection.Name },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
@@ -104,9 +142,9 @@ namespace MongoDB.CSharpDriver {
         public BsonDocument Explain(
             bool verbose
         ) {
-            frozen = true;
+            isFrozen = true;
             var clone = this.Clone<BsonDocument>();
-            clone.AddOption("$explain", true);
+            clone.SetOption("$explain", true);
             clone.limit = -clone.limit; // TODO: should this be -1?
             var explanation = clone.FirstOrDefault();
             if (!verbose) {
@@ -129,85 +167,88 @@ namespace MongoDB.CSharpDriver {
             return explanation;
         }
 
-        public MongoCursor<TQuery, TDocument> Fields<TFields>(
+        public MongoCursor<TQuery, TDocument> SetFields<TFields>(
             TFields fields
         ) {
-            if (frozen) { ThrowFrozen(); }
+            if (isFrozen) { ThrowFrozen(); }
             this.fields = BsonDocumentWrapper.Create(fields);
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Fields<TFields>(
+        public MongoCursor<TQuery, TDocument> SetFields<TFields>(
             params string[] fields
         ) {
-            if (frozen) { ThrowFrozen(); }
+            if (isFrozen) { ThrowFrozen(); }
             this.fields = BsonDocumentWrapper.Create(Builders.Fields.Include(fields));
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Flags(
+        public MongoCursor<TQuery, TDocument> SetFlags(
             QueryFlags flags
         ) {
-            if (frozen) { ThrowFrozen(); }
+            if (isFrozen) { ThrowFrozen(); }
             this.flags = flags;
             return this;
         }
 
         public IEnumerator<TDocument> GetEnumerator() {
-            frozen = true;
+            isFrozen = true;
             return new MongoCursorEnumerator(this);
         }
 
-        public MongoCursor<TQuery, TDocument> Hint(
+        public MongoCursor<TQuery, TDocument> SetHint(
             BsonDocument hint
         ) {
-            if (frozen) { ThrowFrozen(); }
-            AddOption("$hint", hint);
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$hint", hint);
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Limit(
+        public MongoCursor<TQuery, TDocument> SetLimit(
             int limit
         ) {
-            if (frozen) { ThrowFrozen(); }
+            if (isFrozen) { ThrowFrozen(); }
             this.limit = limit;
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Max(
+        public MongoCursor<TQuery, TDocument> SetMax(
            BsonDocument max
        ) {
-            if (frozen) { ThrowFrozen(); }
-            AddOption("$max", max);
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$max", max);
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> MaxScan(
+        public MongoCursor<TQuery, TDocument> SetMaxScan(
             int maxScan
         ) {
-            if (frozen) { ThrowFrozen(); }
-            AddOption("$maxscan", maxScan);
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$maxscan", maxScan);
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Min(
+        public MongoCursor<TQuery, TDocument> SetMin(
            BsonDocument min
        ) {
-            if (frozen) { ThrowFrozen(); }
-            AddOption("$min", min);
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$min", min);
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Options(
+        public MongoCursor<TQuery, TDocument> SetOptions(
             BsonDocument options
         ) {
-            if (frozen) { ThrowFrozen(); }
+            if (isFrozen) { ThrowFrozen(); }
             this.options = options;
+            foreach (var option in options) {
+                this.options[option.Name] = option.Value;
+            }
             return this;
         }
 
         public int Size() {
-            frozen = true;
+            isFrozen = true;
             var command = new BsonDocument {
                 { "count", collection.Name },
                 { "query", BsonDocumentWrapper.Create(query) }, // query is optional
@@ -218,40 +259,40 @@ namespace MongoDB.CSharpDriver {
             return result["n"].ToInt32();
         }
 
-        public MongoCursor<TQuery, TDocument> ShowDiskLoc() {
-            if (frozen) { ThrowFrozen(); }
-            AddOption("$showDiskLoc", true);
+        public MongoCursor<TQuery, TDocument> SetShowDiskLoc() {
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$showDiskLoc", true);
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Skip(
+        public MongoCursor<TQuery, TDocument> SetSkip(
             int skip
         ) {
-            if (frozen) { ThrowFrozen(); }
+            if (isFrozen) { ThrowFrozen(); }
             if (skip < 0) { throw new ArgumentException("Skip cannot be negative"); }
             this.skip = skip;
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Snapshot() {
-            if (frozen) { ThrowFrozen(); }
-            AddOption("$snapshot", true);
+        public MongoCursor<TQuery, TDocument> SetSnapshot() {
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$snapshot", true);
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Sort<TSortBy>(
+        public MongoCursor<TQuery, TDocument> SetSortOrder<TSortBy>(
             TSortBy sortBy
         ) {
-            if (frozen) { ThrowFrozen(); }
-            AddOption("$orderby", BsonDocumentWrapper.Create(sortBy));
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$orderby", BsonDocumentWrapper.Create(sortBy));
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> Sort(
+        public MongoCursor<TQuery, TDocument> SetSortOrder(
             params string[] keys
         ) {
-            if (frozen) { ThrowFrozen(); }
-            return Sort(SortBy.Ascending(keys));
+            if (isFrozen) { ThrowFrozen(); }
+            return SetSortOrder(SortBy.Ascending(keys));
         }
         #endregion
 

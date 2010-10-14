@@ -215,6 +215,15 @@ namespace MongoDB.BsonLibrary {
             get { return bsonType == BsonType.Int64; }
         }
 
+        public bool IsNumeric {
+            get {
+                return
+                    bsonType == BsonType.Double ||
+                    bsonType == BsonType.Int32 ||
+                    bsonType == BsonType.Int64;
+            }
+        }
+
         public bool IsObjectId {
             get { return bsonType == BsonType.ObjectId; }
         }

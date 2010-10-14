@@ -35,32 +35,32 @@ namespace MongoDB.CSharpDriver.Builders {
         public static IndexOptionsBuilder Background(
             bool value
         ) {
-            return new IndexOptionsBuilder().Background(value);
+            return new IndexOptionsBuilder().SetBackground(value);
         }
 
         public static IndexOptionsBuilder DropDups(
             bool value
         ) {
-            return new IndexOptionsBuilder().DropDups(value);
+            return new IndexOptionsBuilder().SetDropDups(value);
         }
 
         public static IndexOptionsBuilder GeoSpatialRange(
             double min,
             double max
         ) {
-            return new IndexOptionsBuilder().GeoSpatialRange(min, max);
+            return new IndexOptionsBuilder().SetGeoSpatialRange(min, max);
         }
 
         public static IndexOptionsBuilder Name(
             string value
         ) {
-            return new IndexOptionsBuilder().Name(value);
+            return new IndexOptionsBuilder().SetName(value);
         }
 
         public static IndexOptionsBuilder Unique(
             bool value
         ) {
-            return new IndexOptionsBuilder().Unique(value);
+            return new IndexOptionsBuilder().SetUnique(value);
         }
         #endregion
     }
@@ -78,21 +78,21 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public methods
-        public IndexOptionsBuilder Background(
+        public IndexOptionsBuilder SetBackground(
             bool value
         ) {
             document["background"] = value;
             return this;
         }
 
-        public IndexOptionsBuilder DropDups(
+        public IndexOptionsBuilder SetDropDups(
             bool value
         ) {
             document["dropDups"] = value;
             return this;
         }
 
-        public IndexOptionsBuilder GeoSpatialRange(
+        public IndexOptionsBuilder SetGeoSpatialRange(
             double min,
             double max
         ) {
@@ -101,7 +101,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return this;
         }
 
-        public IndexOptionsBuilder Name(
+        public IndexOptionsBuilder SetName(
             string value
         ) {
             document["name"] = value;
@@ -112,7 +112,7 @@ namespace MongoDB.CSharpDriver.Builders {
             return document;
         }
 
-        public IndexOptionsBuilder Unique(
+        public IndexOptionsBuilder SetUnique(
             bool value
         ) {
             document["unique"] = value;

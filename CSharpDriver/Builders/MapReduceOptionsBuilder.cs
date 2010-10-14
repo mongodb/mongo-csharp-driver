@@ -32,58 +32,58 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public static methods
-        public static MapReduceOptionsBuilder Finalize(
+        public static MapReduceOptionsBuilder SetFinalize(
             BsonJavaScript finalize
         ) {
-            return new MapReduceOptionsBuilder().Finalize(finalize);
+            return new MapReduceOptionsBuilder().SetFinalize(finalize);
         }
 
-        public static MapReduceOptionsBuilder KeepTemp(
+        public static MapReduceOptionsBuilder SetKeepTemp(
             bool value
         ) {
-            return new MapReduceOptionsBuilder().KeepTemp(value);
+            return new MapReduceOptionsBuilder().SetKeepTemp(value);
         }
 
-        public static MapReduceOptionsBuilder Limit(
+        public static MapReduceOptionsBuilder SetLimit(
             int value
         ) {
-            return new MapReduceOptionsBuilder().Limit(value);
+            return new MapReduceOptionsBuilder().SetLimit(value);
         }
 
-        public static MapReduceOptionsBuilder Out(
+        public static MapReduceOptionsBuilder SetOutput(
             string collectionName
         ) {
-            return new MapReduceOptionsBuilder().Out(collectionName);
+            return new MapReduceOptionsBuilder().SetOutput(collectionName);
         }
 
-        public static MapReduceOptionsBuilder Query<TQuery>(
+        public static MapReduceOptionsBuilder SetQuery<TQuery>(
             TQuery query
         ) {
-            return new MapReduceOptionsBuilder().Query(query);
+            return new MapReduceOptionsBuilder().SetQuery(query);
         }
 
-        public static MapReduceOptionsBuilder Scope<TScope>(
+        public static MapReduceOptionsBuilder SetScope<TScope>(
             TScope scope
         ) {
-            return new MapReduceOptionsBuilder().Scope(scope);
+            return new MapReduceOptionsBuilder().SetScope(scope);
         }
 
-        public static MapReduceOptionsBuilder Sort<TSortBy>(
+        public static MapReduceOptionsBuilder SetSortOrder<TSortBy>(
             TSortBy sortBy
         ) {
-            return new MapReduceOptionsBuilder().Sort(sortBy);
+            return new MapReduceOptionsBuilder().SetSortOrder(sortBy);
         }
 
-        public static MapReduceOptionsBuilder Sort(
+        public static MapReduceOptionsBuilder SetSortOrder(
             params string[] keys
         ) {
-            return new MapReduceOptionsBuilder().Sort(SortBy.Ascending(keys));
+            return new MapReduceOptionsBuilder().SetSortOrder(SortBy.Ascending(keys));
         }
 
-        public static MapReduceOptionsBuilder Verbose(
+        public static MapReduceOptionsBuilder SetVerbose(
             bool value
         ) {
-            return new MapReduceOptionsBuilder().Verbose(value);
+            return new MapReduceOptionsBuilder().SetVerbose(value);
         }
         #endregion
     }
@@ -101,66 +101,66 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public methods
-        public MapReduceOptionsBuilder Finalize(
+        public MapReduceOptionsBuilder SetFinalize(
             BsonJavaScript finalize
         ) {
             document["finalize"] = finalize;
             return this;
         }
 
-        public MapReduceOptionsBuilder KeepTemp(
+        public MapReduceOptionsBuilder SetKeepTemp(
             bool value
         ) {
             document["keeptemp"] = value;
             return this;
         }
 
-        public MapReduceOptionsBuilder Limit(
+        public MapReduceOptionsBuilder SetLimit(
             int value
         ) {
             document["limit"] = value;
             return this;
         }
 
-        public MapReduceOptionsBuilder Out(
+        public MapReduceOptionsBuilder SetOutput(
             string collectionName
         ) {
             document["out"] = collectionName;
             return this;
         }
 
-        public MapReduceOptionsBuilder Query<TQuery>(
+        public MapReduceOptionsBuilder SetQuery<TQuery>(
             TQuery query
         ) {
             document["query"] = BsonDocumentWrapper.Create(query);
             return this;
         }
 
-        public MapReduceOptionsBuilder Scope<TScope>(
+        public MapReduceOptionsBuilder SetScope<TScope>(
             TScope scope
         ) {
             document["scope"] = BsonDocumentWrapper.Create(scope);
             return this;
         }
 
-        public MapReduceOptionsBuilder Sort<TSortBy>(
+        public MapReduceOptionsBuilder SetSortOrder<TSortBy>(
             TSortBy sortBy
         ) {
             document["sort"] = BsonDocumentWrapper.Create(sortBy);
             return this;
         }
 
-        public MapReduceOptionsBuilder Sort(
+        public MapReduceOptionsBuilder SetSortOrder(
             params string[] keys
         ) {
-            return Sort(SortBy.Ascending(keys));
+            return SetSortOrder(SortBy.Ascending(keys));
         }
 
         public BsonDocument ToBsonDocument() {
             return document;
         }
 
-        public MapReduceOptionsBuilder Verbose(
+        public MapReduceOptionsBuilder SetVerbose(
             bool value
         ) {
             document["verbose"] = value;
@@ -169,7 +169,7 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region internal methods
-        internal MapReduceOptionsBuilder Append(
+        internal MapReduceOptionsBuilder AddOptions(
             BsonDocument options
         ) {
             document.Add(options);

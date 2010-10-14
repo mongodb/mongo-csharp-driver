@@ -63,28 +63,28 @@ namespace MongoDB.CSharpDriver.UnitTests.Builders {
 
         [Test]
         public void TestNameBackground() {
-            var options = IndexOptions.Name("custom").Background(true);
+            var options = IndexOptions.Name("custom").SetBackground(true);
             string expected = "{ \"name\" : \"custom\", \"background\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestNameDropDups() {
-            var options = IndexOptions.Name("custom").DropDups(true);
+            var options = IndexOptions.Name("custom").SetDropDups(true);
             string expected = "{ \"name\" : \"custom\", \"dropDups\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestNameGeoSpatialRange() {
-            var options = IndexOptions.Name("custom").GeoSpatialRange(1.1, 2.2);
+            var options = IndexOptions.Name("custom").SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"name\" : \"custom\", \"min\" : 1.1, \"max\" : 2.2 }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestNameUnique() {
-            var options = IndexOptions.Name("custom").Unique(true);
+            var options = IndexOptions.Name("custom").SetUnique(true);
             string expected = "{ \"name\" : \"custom\", \"unique\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
