@@ -24,6 +24,10 @@ using System.Threading;
 namespace MongoDB.BsonLibrary {
     [Serializable]
     public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId> {
+        #region private static fields
+        private static BsonObjectId emptyInstance = new BsonObjectId(ObjectId.Empty);
+        #endregion
+
         #region private fields
         private ObjectId value;
         #endregion
@@ -56,6 +60,12 @@ namespace MongoDB.BsonLibrary {
         )
             : base(BsonType.ObjectId) {
             this.value = new ObjectId(value);
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonObjectId Empty {
+            get { return emptyInstance; }
         }
         #endregion
 

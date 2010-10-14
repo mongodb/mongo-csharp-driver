@@ -25,6 +25,7 @@ namespace MongoDB.BsonLibrary {
     [Serializable]
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId> {
         #region private static fields
+        private static ObjectId emptyInstance = default(ObjectId);
         private static long machinePid;
         private static int increment; // high byte will be masked out when generating new ObjectId
         #endregion
@@ -63,6 +64,12 @@ namespace MongoDB.BsonLibrary {
             string value
         ) {
             Unpack(BsonUtils.ParseHexString(value), out timestamp, out machinePidIncrement);
+        }
+        #endregion
+
+        #region public static properties
+        public static ObjectId Empty {
+            get { return emptyInstance; }
         }
         #endregion
 
