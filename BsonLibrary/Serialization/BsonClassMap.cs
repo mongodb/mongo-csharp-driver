@@ -29,7 +29,6 @@ namespace MongoDB.BsonLibrary.Serialization {
         private static object staticLock = new object();
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
         private static Dictionary<Type, IBsonPropertySerializer> propertySerializers = new Dictionary<Type, IBsonPropertySerializer>();
-        private static Dictionary<Type, List<string>> discriminators = new Dictionary<Type, List<string>>();
         private static Dictionary<string, List<Type>> discriminatedTypes = new Dictionary<string, List<Type>>();
         #endregion
 
@@ -250,15 +249,6 @@ namespace MongoDB.BsonLibrary.Serialization {
             string discriminator
         ) {
             lock (staticLock) {
-                List<string> discriminatorList;
-                if (!discriminators.TryGetValue(type, out discriminatorList)) {
-                    discriminatorList = new List<string>();
-                    discriminators.Add(type, discriminatorList);
-                }
-                if (!discriminatorList.Contains(discriminator)) {
-                    discriminatorList.Add(discriminator);
-                }
-
                 List<Type> typeList;
                 if (!discriminatedTypes.TryGetValue(discriminator, out typeList)) {
                     typeList = new List<Type>();
