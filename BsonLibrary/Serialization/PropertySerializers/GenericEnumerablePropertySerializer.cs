@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
@@ -121,22 +122,7 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (IEnumerable<T>) propertyMap.Getter(obj);
-
-            var elementTypeName = typeof(T).FullName;
-            var elementAssemblyName = typeof(T).Assembly.FullName.Split(',')[0];
-            if (elementAssemblyName != "mscorlib") {
-                elementTypeName = string.Format("[{0}, {1}]", elementTypeName, elementAssemblyName);
-            }
-
-            var genericType = value.GetType().GetGenericTypeDefinition();
-            var genericTypeName = genericType.FullName;
-            var genericAssemblyName = genericType.Assembly.FullName.Split(',')[0];
-            string discriminator;
-            if (genericAssemblyName == "mscorlib") {
-                discriminator = string.Format("{0}[{1}]", genericTypeName, elementTypeName);
-            } else {
-                discriminator = string.Format("{0}[{1}], {2}", genericTypeName, elementTypeName, genericAssemblyName);
-            }
+            var discriminator = BsonClassMapSerializer.GetDiscriminatorTypeName(value.GetType());
 
             bsonWriter.WriteDocumentName(propertyMap.ElementName);
             bsonWriter.WriteStartDocument();

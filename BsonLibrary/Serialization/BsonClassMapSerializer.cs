@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using MongoDB.BsonLibrary.IO;
 
@@ -35,6 +36,48 @@ namespace MongoDB.BsonLibrary.Serialization {
         #region public static properties
         public static BsonClassMapSerializer Singleton {
             get { return singleton; }
+        }
+        #endregion
+
+        #region public static methods
+        public static string GetDiscriminatorTypeName(
+            Type type
+        ) {
+            string typeName;
+            if (type.IsGenericType) {
+                var genericTypeNames = "";
+                foreach (var genericType in type.GetGenericArguments()) {
+                    var genericTypeName = GetDiscriminatorTypeName(genericType);
+                    if (genericTypeName.Contains(',')) {
+                        genericTypeName = "[" + genericTypeName + "]";
+                    }
+                    if (genericTypeNames != "") {
+                        genericTypeNames += ",";
+                    }
+                    genericTypeNames += genericTypeName;
+                }
+                typeName = type.GetGenericTypeDefinition().FullName + "[" + genericTypeNames + "]";
+            } else {
+                typeName = type.FullName;
+            }
+
+            string assemblyName = type.Assembly.FullName;
+            Match match = Regex.Match(assemblyName, "(?<dll>[^,]+), Version=[^,]+, Culture=[^,]+, PublicKeyToken=(?<token>[^,]+)");
+            if (match.Success) {
+                var dll = match.Groups["dll"].Value;
+                var publicKeyToken = match.Groups["token"].Value;
+                if (dll == "mscorlib") {
+                    assemblyName = null;
+                } else if (publicKeyToken == "null") {
+                    assemblyName = dll;
+                }
+            }
+
+            if (assemblyName == null) {
+                return typeName;
+            } else {
+                return typeName + ", " + assemblyName;
+            }
         }
         #endregion
 
@@ -113,7 +156,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
 
             if (serializeDiscriminator) {
-                var discriminator = string.Join(",", objType.AssemblyQualifiedName.Split(','), 0, 2);
+                var discriminator = GetDiscriminatorTypeName(objType);
                 bsonWriter.WriteString("_t", discriminator);
             }
 
