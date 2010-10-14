@@ -122,7 +122,7 @@ namespace MongoDB.BsonLibrary.Serialization.PropertySerializers {
             BsonPropertyMap propertyMap
         ) {
             var value = (IEnumerable<T>) propertyMap.Getter(obj);
-            var discriminator = BsonClassMapSerializer.GetDiscriminatorTypeName(value.GetType());
+            var discriminator = BsonClassMap.GetTypeNameDiscriminator(value.GetType());
 
             bsonWriter.WriteDocumentName(propertyMap.ElementName);
             bsonWriter.WriteStartDocument();

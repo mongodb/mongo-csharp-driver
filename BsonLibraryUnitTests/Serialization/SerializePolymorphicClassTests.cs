@@ -35,7 +35,6 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         }
 
         private class C : A {
-            public static readonly string TypeName = "MongoDB.BsonLibrary.UnitTests.Serialization.SerializePolymorphicClassTests+C, BsonLibraryUnitTests";
             public string FC { get; set; }
         }
 
@@ -55,7 +54,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         public void TestSerializeA() {
             A a = new C { FA = "a", FC = "c" };
             var json = a.ToJson();
-            var expected = ("{ '_t' : '" + C.TypeName + "', 'FA' : 'a', 'FC' : 'c' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'C', 'FA' : 'a', 'FC' : 'c' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = a.ToBson();

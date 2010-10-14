@@ -44,8 +44,12 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
                 }
             };
             var json = obj.ToJson();
-            //var expected = "{ 'C' : 0, 'F' : { '_t' : 'System.Byte', 'v' : 0 } }".Replace("'", "\"");
-            //Assert.AreEqual(expected, json);
+            var expected = "{ 'Addresses' : { '_t' : '#T', 'v' : [#A1, #A2] } }";
+            expected = expected.Replace("#T", "System.Collections.Generic.HashSet`1[[MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.GenericEnumerable.Address, BsonLibraryUnitTests]], System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
+            expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
+            expected = expected.Replace("'", "\"");
+            Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
@@ -69,8 +73,12 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
                 }
             };
             var json = obj.ToJson();
-            //var expected = "{ 'C' : 0, 'F' : { '_t' : 'System.Byte', 'v' : 0 } }".Replace("'", "\"");
-            //Assert.AreEqual(expected, json);
+            var expected = "{ 'Addresses' : { '_t' : '#T', 'v' : [#A1, #A2] } }";
+            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.GenericEnumerable.Address, BsonLibraryUnitTests]]");
+            expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
+            expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
+            expected = expected.Replace("'", "\"");
+            Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
@@ -94,8 +102,12 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
                 }
             };
             var json = obj.ToJson();
-            //var expected = "{ 'C' : 0, 'F' : { '_t' : 'System.Byte', 'v' : 0 } }".Replace("'", "\"");
-            //Assert.AreEqual(expected, json);
+            var expected = "{ 'Addresses' : { '_t' : '#T', 'v' : [#A1, #A2] } }";
+            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.GenericEnumerable.Address, BsonLibraryUnitTests]]");
+            expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
+            expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
+            expected = expected.Replace("'", "\"");
+            Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);

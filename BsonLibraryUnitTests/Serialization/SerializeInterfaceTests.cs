@@ -31,12 +31,10 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         }
 
         private class A : IX {
-            public static readonly string TypeName = "MongoDB.BsonLibrary.UnitTests.Serialization.SerializeInterfaceTests+A, BsonLibraryUnitTests";
             public string FX { get; set; }
         }
 
         private class B : IX {
-            public static readonly string TypeName = "MongoDB.BsonLibrary.UnitTests.Serialization.SerializeInterfaceTests+B, BsonLibraryUnitTests";
             public string FX { get; set; }
         }
 
@@ -44,7 +42,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         public void TestSerializeA() {
             IX a = new A { FX = "a" };
             var json = a.ToJson();
-            var expected = ("{ '_t' : '" + A.TypeName + "', 'FX' : 'a' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'A', 'FX' : 'a' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = a.ToBson();
@@ -56,7 +54,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         public void TestSerializeB() {
             IX b = new B { FX = "b" };
             var json = b.ToJson();
-            var expected = ("{ '_t' : '" + B.TypeName + "', 'FX' : 'b' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'B', 'FX' : 'b' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = b.ToBson();

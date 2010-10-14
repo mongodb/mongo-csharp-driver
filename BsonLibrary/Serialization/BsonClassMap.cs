@@ -19,6 +19,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using MongoDB.BsonLibrary.IO;
 
@@ -28,12 +29,15 @@ namespace MongoDB.BsonLibrary.Serialization {
         private static object staticLock = new object();
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
         private static Dictionary<Type, IBsonPropertySerializer> propertySerializers = new Dictionary<Type, IBsonPropertySerializer>();
+        private static Dictionary<Type, List<string>> discriminators = new Dictionary<Type, List<string>>();
+        private static Dictionary<string, List<Type>> discriminatedTypes = new Dictionary<string, List<Type>>();
         #endregion
 
         #region protected fields
-        protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected bool baseClassMapLoaded; // lazy load baseClassMap so class maps can be constructed out of order
+        protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected Type classType;
+        protected string discriminator;
         protected bool isAnonymous;
         protected string collectionName;
         protected BsonPropertyMap idPropertyMap;
@@ -51,6 +55,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             Type classType
         ) {
             this.classType = classType;
+            this.discriminator = classType.Name;
             this.isAnonymous = IsAnonymousType(classType);
         }
         #endregion
@@ -65,6 +70,10 @@ namespace MongoDB.BsonLibrary.Serialization {
 
         public Type ClassType {
             get { return classType; }
+        }
+
+        public string Discriminator {
+            get { return discriminator; }
         }
 
         public bool IsAnonymous {
@@ -103,6 +112,47 @@ namespace MongoDB.BsonLibrary.Serialization {
         #endregion
 
         #region public static methods
+        // this is like the AssemblyQualifiedName but shortened where possible
+        public static string GetTypeNameDiscriminator(
+            Type type
+        ) {
+            string typeName;
+            if (type.IsGenericType) {
+                var genericTypeNames = "";
+                foreach (var genericType in type.GetGenericArguments()) {
+                    var genericTypeName = GetTypeNameDiscriminator(genericType);
+                    if (genericTypeName.Contains(',')) {
+                        genericTypeName = "[" + genericTypeName + "]";
+                    }
+                    if (genericTypeNames != "") {
+                        genericTypeNames += ",";
+                    }
+                    genericTypeNames += genericTypeName;
+                }
+                typeName = type.GetGenericTypeDefinition().FullName + "[" + genericTypeNames + "]";
+            } else {
+                typeName = type.FullName;
+            }
+
+            string assemblyName = type.Assembly.FullName;
+            Match match = Regex.Match(assemblyName, "(?<dll>[^,]+), Version=[^,]+, Culture=[^,]+, PublicKeyToken=(?<token>[^,]+)");
+            if (match.Success) {
+                var dll = match.Groups["dll"].Value;
+                var publicKeyToken = match.Groups["token"].Value;
+                if (dll == "mscorlib") {
+                    assemblyName = null;
+                } else if (publicKeyToken == "null") {
+                    assemblyName = dll;
+                }
+            }
+
+            if (assemblyName == null) {
+                return typeName;
+            } else {
+                return typeName + ", " + assemblyName;
+            }
+        }
+
         public static BsonClassMap LookupClassMap(
             Type classType
         ) {
@@ -143,6 +193,37 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
         }
 
+        public static Type LookupTypeByDiscriminator(
+            Type targetType,
+            string discriminator
+        ) {
+            // TODO: will there be too much contention on staticLock?
+            lock (staticLock) {
+                Type type = null;
+
+                List<Type> typeList;
+                if (discriminatedTypes.TryGetValue(discriminator, out typeList)) {
+                    foreach (var discriminatedType in typeList) {
+                        if (targetType.IsAssignableFrom(discriminatedType)) {
+                            if (type == null) {
+                                type = discriminatedType;
+                            } else {
+                                string message = string.Format("Ambiguous discriminator: {0}", discriminator);
+                                throw new BsonSerializationException(message);
+                            }
+                        }
+                    }
+                }
+
+                if (type != null) {
+                    return type;
+                } else {
+                    string message = string.Format("Unknown discriminator: {0}", discriminator);
+                    throw new BsonSerializationException(message);
+                }
+            }
+        }
+
         public static BsonClassMap<TClass> RegisterClassMap<TClass>() {
             return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
         }
@@ -161,6 +242,31 @@ namespace MongoDB.BsonLibrary.Serialization {
             lock (staticLock) {
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
                 classMaps.Add(classMap.ClassType, classMap);
+            }
+        }
+
+        public static void RegisterDiscriminator(
+            Type type,
+            string discriminator
+        ) {
+            lock (staticLock) {
+                List<string> discriminatorList;
+                if (!discriminators.TryGetValue(type, out discriminatorList)) {
+                    discriminatorList = new List<string>();
+                    discriminators.Add(type, discriminatorList);
+                }
+                if (!discriminatorList.Contains(discriminator)) {
+                    discriminatorList.Add(discriminator);
+                }
+
+                List<Type> typeList;
+                if (!discriminatedTypes.TryGetValue(discriminator, out typeList)) {
+                    typeList = new List<Type>();
+                    discriminatedTypes.Add(discriminator, typeList);
+                }
+                if (!typeList.Contains(type)) {
+                    typeList.Add(type);
+                }
             }
         }
 
@@ -229,12 +335,21 @@ namespace MongoDB.BsonLibrary.Serialization {
                     }
                 }
             }
+
+            RegisterDiscriminator(classType, discriminator);
         }
 
         public BsonPropertyMap GetPropertyMapForElement(
             string elementName
         ) {
             return PropertyMaps.FirstOrDefault(pm => pm.ElementName == elementName);
+        }
+
+        public BsonClassMap SetDiscriminator(
+            string discriminator
+        ) {
+            this.discriminator = discriminator;
+            return this;
         }
         #endregion
 

@@ -39,48 +39,6 @@ namespace MongoDB.BsonLibrary.Serialization {
         }
         #endregion
 
-        #region public static methods
-        public static string GetDiscriminatorTypeName(
-            Type type
-        ) {
-            string typeName;
-            if (type.IsGenericType) {
-                var genericTypeNames = "";
-                foreach (var genericType in type.GetGenericArguments()) {
-                    var genericTypeName = GetDiscriminatorTypeName(genericType);
-                    if (genericTypeName.Contains(',')) {
-                        genericTypeName = "[" + genericTypeName + "]";
-                    }
-                    if (genericTypeNames != "") {
-                        genericTypeNames += ",";
-                    }
-                    genericTypeNames += genericTypeName;
-                }
-                typeName = type.GetGenericTypeDefinition().FullName + "[" + genericTypeNames + "]";
-            } else {
-                typeName = type.FullName;
-            }
-
-            string assemblyName = type.Assembly.FullName;
-            Match match = Regex.Match(assemblyName, "(?<dll>[^,]+), Version=[^,]+, Culture=[^,]+, PublicKeyToken=(?<token>[^,]+)");
-            if (match.Success) {
-                var dll = match.Groups["dll"].Value;
-                var publicKeyToken = match.Groups["token"].Value;
-                if (dll == "mscorlib") {
-                    assemblyName = null;
-                } else if (publicKeyToken == "null") {
-                    assemblyName = dll;
-                }
-            }
-
-            if (assemblyName == null) {
-                return typeName;
-            } else {
-                return typeName + ", " + assemblyName;
-            }
-        }
-        #endregion
-
         #region public methods
         public object Deserialize(
             BsonReader bsonReader,
@@ -89,7 +47,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             // peek at the discriminator (if present) to see what class to create an instance for
             var discriminator = bsonReader.FindString("_t");
             if (discriminator != null) {
-                var actualType = Type.GetType(discriminator);
+                var actualType = BsonClassMap.LookupTypeByDiscriminator(classType, discriminator);
                 if (!classType.IsAssignableFrom(actualType)) {
                     string message = string.Format("Actual type {0} is not assignable to expected type {1}", actualType.FullName, classType.FullName);
                     throw new FileFormatException(message);
@@ -156,8 +114,7 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
 
             if (serializeDiscriminator) {
-                var discriminator = GetDiscriminatorTypeName(objType);
-                bsonWriter.WriteString("_t", discriminator);
+                bsonWriter.WriteString("_t", classMap.Discriminator);
             }
 
             foreach (var propertyMap in classMap.PropertyMaps) {
