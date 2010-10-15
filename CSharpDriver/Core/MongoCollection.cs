@@ -160,7 +160,7 @@ namespace MongoDB.CSharpDriver {
             return DropIndex(indexName);
         }
 
-        public BsonDocument DropIndex(
+        public BsonDocument DropIndexByName(
             string indexName
         ) {
             lock (indexCache) {
@@ -278,6 +278,12 @@ namespace MongoDB.CSharpDriver {
 
         public TDocument FindOneAs<TDocument>() {
             return FindAllAs<TDocument>().SetLimit(1).FirstOrDefault();
+        }
+
+        public TDocument FindOneAs<TDocument>(
+            IBsonSerializable query
+        ) {
+            return FindOneAs<IBsonSerializable, TDocument>(query);
         }
 
         public TDocument FindOneAs<TQuery, TDocument>(

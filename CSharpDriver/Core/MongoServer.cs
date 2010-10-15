@@ -39,7 +39,7 @@ namespace MongoDB.CSharpDriver {
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         private MongoConnectionPool connectionPool;
         private MongoCredentials adminCredentials;
-        private MongoCredentials credentials;
+        private MongoCredentials defaultCredentials;
         #endregion
 
         #region constructors
@@ -53,7 +53,7 @@ namespace MongoDB.CSharpDriver {
                 if (settings.Credentials.Admin) {
                     this.adminCredentials = settings.Credentials;
                 } else {
-                    this.credentials = settings.Credentials;
+                    this.defaultCredentials = settings.Credentials;
                 }
             }
         }
@@ -121,9 +121,9 @@ namespace MongoDB.CSharpDriver {
             get { return GetDatabase("admin", adminCredentials); }
         }
 
-        public MongoCredentials Credentials {
-            get { return credentials; }
-            set { credentials = value; }
+        public MongoCredentials DefaultCredentials {
+            get { return defaultCredentials; }
+            set { defaultCredentials = value; }
         }
 
         public IEnumerable<MongoServerAddress> ReplicaSet {
@@ -246,7 +246,7 @@ namespace MongoDB.CSharpDriver {
         public MongoDatabase GetDatabase(
             string databaseName
         ) {
-            return GetDatabase(databaseName, credentials);
+            return GetDatabase(databaseName, defaultCredentials);
         }
 
         public MongoDatabase GetDatabase(
@@ -306,6 +306,13 @@ namespace MongoDB.CSharpDriver {
         public BsonDocument RunAdminCommand<TCommand>(
             TCommand command
         ) {
+            return AdminDatabase.RunCommand(command);
+        }
+
+        public BsonDocument RunAdminCommand(
+            string commandName
+        ) {
+            var command = new BsonDocument(commandName, true);
             return AdminDatabase.RunCommand(command);
         }
         #endregion
