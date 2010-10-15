@@ -1,5 +1,8 @@
-set VER=0.5.0.3936
+set VER=0.5.0.3940
 set PACKAGES=packages-%VER%
+
+echo Creating %PACKAGES%
+pause
 
 rmdir /s /q %PACKAGES%
 mkdir %PACKAGES%
