@@ -55,6 +55,13 @@
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />
     <Compile Include="ObjectModel\IConvertibleToBsonDocument.cs" />
+    <Compile Include="Serialization\Attributes\BsonDefaultValueAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonDiscriminatorAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonElementAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonIdAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonIgnoreAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonIgnoreIfNullAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonRequiredAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonUseCompactRepresentationAttribute.cs" />
     <Compile Include="Serialization\BsonClassMap.cs" />
     <Compile Include="Serialization\BsonClassMapSerializer.cs" />

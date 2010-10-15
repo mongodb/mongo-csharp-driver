@@ -19,26 +19,29 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.BsonLibrary.Serialization {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
-    public class BsonUseCompactRepresentationAttribute : Attribute {
+    [AttributeUsage(AttributeTargets.Property)]
+    public class BsonElementAttribute : Attribute {
         #region private fields
-        private bool useCompactRepresentation;
+        private string elementName;
+        private int order = int.MaxValue;
         #endregion
 
         #region constructors
-        public BsonUseCompactRepresentationAttribute() : this(true) {
-        }
-
-        public BsonUseCompactRepresentationAttribute(
-            bool useCompactRepresentation
+        public BsonElementAttribute(
+            string elementName
         ) {
-            this.useCompactRepresentation = useCompactRepresentation;
+            this.elementName = elementName;
         }
         #endregion
 
         #region public properties
-        public bool UseCompactRepresentation {
-            get { return useCompactRepresentation; }
+        public string ElementName {
+            get { return elementName; }
+        }
+
+        public int Order {
+            get { return order; }
+            set { order = value; }
         }
         #endregion
     }

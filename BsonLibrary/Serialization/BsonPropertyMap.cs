@@ -26,6 +26,7 @@ namespace MongoDB.BsonLibrary.Serialization {
         #region protected fields
         protected string propertyName;
         protected string elementName;
+        protected int order = int.MaxValue;
         protected PropertyInfo propertyInfo;
         protected Func<object, object> getter;
         protected Action<object, object> setter;
@@ -34,6 +35,8 @@ namespace MongoDB.BsonLibrary.Serialization {
         protected bool isPolymorphicProperty;
         protected bool isRequired;
         protected bool hasDefaultValue;
+        protected bool serializeDefaultValue = true;
+        protected bool ignoreIfNull;
         protected object defaultValue;
         #endregion
 
@@ -56,6 +59,10 @@ namespace MongoDB.BsonLibrary.Serialization {
 
         public string ElementName {
             get { return elementName; }
+        }
+
+        public int Order {
+            get { return order; }
         }
 
         public PropertyInfo PropertyInfo {
@@ -95,6 +102,14 @@ namespace MongoDB.BsonLibrary.Serialization {
             get { return hasDefaultValue; }
         }
 
+        public bool SerializeDefaultValue {
+            get { return serializeDefaultValue; }
+        }
+
+        public bool IgnoreIfNull {
+            get { return ignoreIfNull; }
+        }
+
         public object DefaultValue {
             get { return defaultValue; }
         }
@@ -125,8 +140,23 @@ namespace MongoDB.BsonLibrary.Serialization {
         public BsonPropertyMap SetDefaultValue(
             object defaultValue
         ) {
+            return SetDefaultValue(defaultValue, true); // serializeDefaultValue
+        }
+
+        public BsonPropertyMap SetDefaultValue(
+            object defaultValue,
+            bool serializeDefaultValue
+        ) {
             this.hasDefaultValue = true;
+            this.serializeDefaultValue = serializeDefaultValue;
             this.defaultValue = defaultValue;
+            return this;
+        }
+
+        public BsonPropertyMap SetIgnoreIfNull(
+            bool ignoreIfNull
+        ) {
+            this.ignoreIfNull = ignoreIfNull;
             return this;
         }
 
@@ -137,10 +167,24 @@ namespace MongoDB.BsonLibrary.Serialization {
             return this;
         }
 
+        public BsonPropertyMap SetOrder(
+            int order
+        ) {
+            this.order = order;
+            return this;
+        }
+
         public BsonPropertyMap SetPropertySerializer(
             IBsonPropertySerializer propertySerializer
         ) {
             this.propertySerializer = propertySerializer;
+            return this;
+        }
+
+        public BsonPropertyMap SetSerializeDefaultValue(
+            bool serializeDefaultValue
+        ) {
+            this.serializeDefaultValue = serializeDefaultValue;
             return this;
         }
 

@@ -19,26 +19,29 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.BsonLibrary.Serialization {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
-    public class BsonUseCompactRepresentationAttribute : Attribute {
+    [AttributeUsage(AttributeTargets.Property)]
+    public class BsonDefaultValueAttribute : Attribute {
         #region private fields
-        private bool useCompactRepresentation;
+        private object defaultValue;
+        private bool serializeDefaultValue = true;
         #endregion
 
         #region constructors
-        public BsonUseCompactRepresentationAttribute() : this(true) {
-        }
-
-        public BsonUseCompactRepresentationAttribute(
-            bool useCompactRepresentation
+        public BsonDefaultValueAttribute(
+            object defaultValue
         ) {
-            this.useCompactRepresentation = useCompactRepresentation;
+            this.defaultValue = defaultValue;
         }
         #endregion
 
         #region public properties
-        public bool UseCompactRepresentation {
-            get { return useCompactRepresentation; }
+        public object DefaultValue {
+            get { return defaultValue; }
+        }
+
+        public bool SerializeDefaultValue {
+            get { return serializeDefaultValue; }
+            set { serializeDefaultValue = value; }
         }
         #endregion
     }

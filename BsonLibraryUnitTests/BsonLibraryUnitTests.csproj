@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\BsonAttributeTests.cs" />
     <Compile Include="BsonDocumentTests.cs" />
     <Compile Include="BsonElementTests.cs" />
     <Compile Include="BsonEqualsTests.cs" />

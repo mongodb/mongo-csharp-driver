@@ -38,15 +38,16 @@ namespace MongoDB.BsonLibrary.Serialization {
         protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected Type classType;
         protected string discriminator;
+        protected bool discriminatorIsRequired;
         protected bool isAnonymous;
-        protected string collectionName;
         protected BsonPropertyMap idPropertyMap;
         protected List<BsonPropertyMap> propertyMaps = new List<BsonPropertyMap>();
+        protected bool useCompactRepresentation;
         #endregion
 
         #region static constructor
         static BsonClassMap() {
-            RegisterPropertySerializers();
+            AutoRegisterPropertySerializers();
         }
         #endregion
 
@@ -76,12 +77,12 @@ namespace MongoDB.BsonLibrary.Serialization {
             get { return discriminator; }
         }
 
-        public bool IsAnonymous {
-            get { return isAnonymous; }
+        public bool DiscriminatorIsRequired {
+            get { return discriminatorIsRequired; }
         }
 
-        public string CollectionName {
-            get { return collectionName; }
+        public bool IsAnonymous {
+            get { return isAnonymous; }
         }
 
         public BsonPropertyMap IdPropertyMap {
@@ -108,6 +109,10 @@ namespace MongoDB.BsonLibrary.Serialization {
                     return propertyMaps;
                 }
             }
+        }
+
+        public bool UseCompactRepresentation {
+            get { return useCompactRepresentation; }
         }
         #endregion
 
@@ -294,7 +299,7 @@ namespace MongoDB.BsonLibrary.Serialization {
 
         #region private static methods
         // automatically register all property serializers found in the BsonLibrary
-        private static void RegisterPropertySerializers() {
+        private static void AutoRegisterPropertySerializers() {
             var assembly = Assembly.GetExecutingAssembly();
             foreach (var type in assembly.GetTypes()) {
                 if (typeof(IBsonPropertySerializer).IsAssignableFrom(type) && type != typeof(IBsonPropertySerializer)) {
@@ -309,10 +314,27 @@ namespace MongoDB.BsonLibrary.Serialization {
 
         #region public methods
         public void AutoMap() {
+            var discriminatorAttribute = (BsonDiscriminatorAttribute) classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
+            if (discriminatorAttribute != null) {
+                discriminator = discriminatorAttribute.Discriminator;
+                discriminatorIsRequired = discriminatorAttribute.Required;
+            }
+
+            var useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) classType.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
+            if (useCompactRepresentationAttribute != null) {
+                useCompactRepresentation = useCompactRepresentationAttribute.UseCompactRepresentation;
+            }
+
             // only auto map properties declared in this class (and not in base classes)
+            var hasOrderedElements = false;
             var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
             foreach (var propertyInfo in classType.GetProperties(bindingFlags)) {
                 if (propertyInfo.CanRead && (propertyInfo.CanWrite || isAnonymous)) {
+                    var ignoreAttribute = (BsonIgnoreAttribute) propertyInfo.GetCustomAttributes(typeof(BsonIgnoreAttribute), false).FirstOrDefault();
+                    if (ignoreAttribute != null) {
+                        continue; // ignore this property
+                    }
+
                     var genericMapPropertyInfo = this.GetType().GetMethod(
                         "MapProperty", // name
                         BindingFlags.NonPublic | BindingFlags.Instance,
@@ -323,15 +345,70 @@ namespace MongoDB.BsonLibrary.Serialization {
                     var mapPropertyInfo = genericMapPropertyInfo.MakeGenericMethod(propertyInfo.PropertyType);
 
                     var elementName = propertyInfo.Name;
-                    var propertyMap = (BsonPropertyMap) mapPropertyInfo.Invoke(this, new object[] { propertyInfo, elementName });
+                    var order = int.MaxValue;
+                    var idAttribute = (BsonIdAttribute) propertyInfo.GetCustomAttributes(typeof(BsonIdAttribute), false).FirstOrDefault();
+                    if (idAttribute != null) {
+                        elementName = "_id"; // if BsonIdAttribute is present ignore BsonElementAttribute
+                    } else {
+                        var elementAttribute = (BsonElementAttribute) propertyInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
+                        if (elementAttribute != null) {
+                            elementName = elementAttribute.ElementName;
+                            order = elementAttribute.Order;
+                        }
+                    }
 
-                    if (propertyInfo.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).Length != 0) {
-                        propertyMap.SetUseCompactRepresentation(true);
+                    var propertyMap = (BsonPropertyMap) mapPropertyInfo.Invoke(this, new object[] { propertyInfo, elementName });
+                    if (order != int.MaxValue) {
+                        propertyMap.SetOrder(order);
+                        hasOrderedElements = true;
+                    }
+                    if (idAttribute != null) {
+                        idPropertyMap = propertyMap;
+                    }
+
+                    var defaultValueAttribute = (BsonDefaultValueAttribute) propertyInfo.GetCustomAttributes(typeof(BsonDefaultValueAttribute), false).FirstOrDefault();
+                    if (defaultValueAttribute != null) {
+                        propertyMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
+                        propertyMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
+                    }
+
+                    var ignoreIfNullAttribute = (BsonIgnoreIfNullAttribute) propertyInfo.GetCustomAttributes(typeof(BsonIgnoreIfNullAttribute), false).FirstOrDefault();
+                    if (ignoreIfNullAttribute != null) {
+                        propertyMap.SetIgnoreIfNull(true);
+                    }
+
+                    var requiredAttribute = (BsonRequiredAttribute) propertyInfo.GetCustomAttributes(typeof(BsonRequiredAttribute), false).FirstOrDefault();
+                    if (requiredAttribute != null) {
+                        propertyMap.SetIsRequired(true);
+                    }
+
+                    propertyMap.SetUseCompactRepresentation(useCompactRepresentation);
+                    useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) propertyInfo.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
+                    if (useCompactRepresentationAttribute != null) {
+                        propertyMap.SetUseCompactRepresentation(useCompactRepresentationAttribute.UseCompactRepresentation);
                     }
                 }
             }
 
+            if (hasOrderedElements) {
+                // split out the items with a value for Order and sort them separately (because Sort is unstable, see online help)
+                // and then concatenate any items with no value for Order at the end (in their original order)
+                var ordered = new List<BsonPropertyMap>(propertyMaps.Where(pm => pm.Order != int.MaxValue));
+                ordered.Sort((x, y) => x.Order.CompareTo(y.Order));
+                propertyMaps = new List<BsonPropertyMap>(ordered.Concat(propertyMaps.Where(pm => pm.Order == int.MaxValue)));
+            }
+
+            if (idPropertyMap == null) {
+                idPropertyMap = propertyMaps.Where(pm => pm.PropertyName.EndsWith("Id")).FirstOrDefault();
+            }
+
             RegisterDiscriminator(classType, discriminator);
+        }
+
+        public BsonPropertyMap GetPropertyMap(
+            string propertyName
+        ) {
+            return PropertyMaps.FirstOrDefault(pm => pm.PropertyName == propertyName);
         }
 
         public BsonPropertyMap GetPropertyMapForElement(
@@ -344,6 +421,20 @@ namespace MongoDB.BsonLibrary.Serialization {
             string discriminator
         ) {
             this.discriminator = discriminator;
+            return this;
+        }
+
+        public BsonClassMap SetRequireDiscriminator(
+            bool requireDiscriminator
+        ) {
+            this.discriminatorIsRequired = requireDiscriminator;
+            return this;
+        }
+
+        public BsonClassMap SetUseCompactRepresentation(
+            bool useCompactRepresentation
+        ) {
+            this.useCompactRepresentation = useCompactRepresentation;
             return this;
         }
         #endregion
