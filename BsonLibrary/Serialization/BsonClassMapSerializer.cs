@@ -75,8 +75,12 @@ namespace MongoDB.BsonLibrary.Serialization {
                     propertyMap.PropertySerializer.DeserializeProperty(bsonReader, obj, propertyMap);
                     missingElementPropertyMaps.Remove(propertyMap);
                 } else {
-                    // TODO: how to handle extra elements?
-                    bsonReader.SkipElement();
+                    if (classMap.IgnoreExtraElements) {
+                        bsonReader.SkipElement();
+                    } else {
+                        string message = string.Format("Unexpected element: {0}", elementName);
+                        throw new FileFormatException(message);
+                    }
                 }
             }
             bsonReader.ReadEndDocument();
@@ -120,6 +124,12 @@ namespace MongoDB.BsonLibrary.Serialization {
             foreach (var propertyMap in classMap.PropertyMaps) {
                 // note: if serializeIdFirst is false then idPropertyMap will be null (so no property will be skipped)
                 if (propertyMap != idPropertyMap) {
+                    if (obj == null && propertyMap.IgnoreIfNull) {
+                        continue; // don't serialize null value
+                    }
+                    if (propertyMap.HasDefaultValue && !propertyMap.SerializeDefaultValue && obj.Equals(propertyMap.DefaultValue)) {
+                        continue; // don't serialize default value
+                    }
                     propertyMap.PropertySerializer.SerializeProperty(bsonWriter, obj, propertyMap);
                 }
             }

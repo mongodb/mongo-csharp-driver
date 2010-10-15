@@ -26,6 +26,7 @@ namespace MongoDB.BsonLibrary.UnitTests.ObjectModel {
     [TestFixture]
     public class BsonAttributeTests {
         [BsonDiscriminator("discriminator", Required=true)]
+        [BsonIgnoreExtraElements(false)]
         [BsonUseCompactRepresentation]
         public class Test {
             [BsonDefaultValue("default1")]
@@ -68,6 +69,12 @@ namespace MongoDB.BsonLibrary.UnitTests.ObjectModel {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.AreEqual("discriminator", classMap.Discriminator);
             Assert.AreEqual(true, classMap.DiscriminatorIsRequired);
+        }
+
+        [Test]
+        public void TestIgnoreExtraElements() {
+            var classMap = BsonClassMap.LookupClassMap(typeof(Test));
+            Assert.AreEqual(false, classMap.IgnoreExtraElements);
         }
 
         [Test]

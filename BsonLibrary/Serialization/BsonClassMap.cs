@@ -42,6 +42,7 @@ namespace MongoDB.BsonLibrary.Serialization {
         protected bool isAnonymous;
         protected BsonPropertyMap idPropertyMap;
         protected List<BsonPropertyMap> propertyMaps = new List<BsonPropertyMap>();
+        protected bool ignoreExtraElements = true;
         protected bool useCompactRepresentation;
         #endregion
 
@@ -109,6 +110,10 @@ namespace MongoDB.BsonLibrary.Serialization {
                     return propertyMaps;
                 }
             }
+        }
+
+        public bool IgnoreExtraElements {
+            get { return ignoreExtraElements; }
         }
 
         public bool UseCompactRepresentation {
@@ -320,6 +325,11 @@ namespace MongoDB.BsonLibrary.Serialization {
                 discriminatorIsRequired = discriminatorAttribute.Required;
             }
 
+            var ignoreExtraElementsAttribute = (BsonIgnoreExtraElementsAttribute) classType.GetCustomAttributes(typeof(BsonIgnoreExtraElementsAttribute), false).FirstOrDefault();
+            if (ignoreExtraElementsAttribute != null) {
+                ignoreExtraElements = ignoreExtraElementsAttribute.IgnoreExtraElements;
+            }
+
             var useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) classType.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
             if (useCompactRepresentationAttribute != null) {
                 useCompactRepresentation = useCompactRepresentationAttribute.UseCompactRepresentation;
@@ -424,10 +434,17 @@ namespace MongoDB.BsonLibrary.Serialization {
             return this;
         }
 
-        public BsonClassMap SetRequireDiscriminator(
-            bool requireDiscriminator
+        public BsonClassMap SetDiscriminatorIsRequired(
+            bool discriminatorIsRequired
         ) {
-            this.discriminatorIsRequired = requireDiscriminator;
+            this.discriminatorIsRequired = discriminatorIsRequired;
+            return this;
+        }
+
+        public BsonClassMap SetIgnoreExtraElements(
+            bool ignoreExtraElements
+        ) {
+            this.ignoreExtraElements = ignoreExtraElements;
             return this;
         }
 
@@ -451,6 +468,9 @@ namespace MongoDB.BsonLibrary.Serialization {
             var baseType = classType.BaseType;
             if (baseType != null) {
                 baseClassMap = LookupClassMap(baseType);
+                if (baseClassMap.DiscriminatorIsRequired) {
+                    discriminatorIsRequired = true; // only inherit true values
+                }
             }
             baseClassMapLoaded = true;
         }
