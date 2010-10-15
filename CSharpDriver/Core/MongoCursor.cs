@@ -96,25 +96,6 @@ namespace MongoDB.CSharpDriver {
         #endregion
 
         #region public methods
-        public MongoCursor<TQuery, TDocument> SetOption(
-            string name,
-            BsonValue value
-        ) {
-            if (isFrozen) { ThrowFrozen(); }
-            if (options == null) { options = new BsonDocument(); }
-            options[name] = value;
-            return this;
-        }
-
-        public MongoCursor<TQuery, TDocument> SetBatchSize(
-            int batchSize
-        ) {
-            if (isFrozen) { ThrowFrozen(); }
-            if (batchSize < 0) { throw new ArgumentException("BatchSize cannot be negative"); }
-            this.batchSize = batchSize;
-            return this;
-        }
-
         public MongoCursor<TQuery, TNewDocument> Clone<TNewDocument>() {
             var clone = new MongoCursor<TQuery, TNewDocument>(collection, query);
             clone.options = options == null ? null : (BsonDocument) options.Clone();
@@ -167,6 +148,20 @@ namespace MongoDB.CSharpDriver {
             return explanation;
         }
 
+        public IEnumerator<TDocument> GetEnumerator() {
+            isFrozen = true;
+            return new MongoCursorEnumerator(this);
+        }
+
+        public MongoCursor<TQuery, TDocument> SetBatchSize(
+            int batchSize
+        ) {
+            if (isFrozen) { ThrowFrozen(); }
+            if (batchSize < 0) { throw new ArgumentException("BatchSize cannot be negative"); }
+            this.batchSize = batchSize;
+            return this;
+        }
+
         public MongoCursor<TQuery, TDocument> SetFields<TFields>(
             TFields fields
         ) {
@@ -189,11 +184,6 @@ namespace MongoDB.CSharpDriver {
             if (isFrozen) { ThrowFrozen(); }
             this.flags = flags;
             return this;
-        }
-
-        public IEnumerator<TDocument> GetEnumerator() {
-            isFrozen = true;
-            return new MongoCursorEnumerator(this);
         }
 
         public MongoCursor<TQuery, TDocument> SetHint(
@@ -236,6 +226,16 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
+        public MongoCursor<TQuery, TDocument> SetOption(
+            string name,
+            BsonValue value
+        ) {
+            if (isFrozen) { ThrowFrozen(); }
+            if (options == null) { options = new BsonDocument(); }
+            options[name] = value;
+            return this;
+        }
+
         public MongoCursor<TQuery, TDocument> SetOptions(
             BsonDocument options
         ) {
@@ -245,18 +245,6 @@ namespace MongoDB.CSharpDriver {
                 this.options[option.Name] = option.Value;
             }
             return this;
-        }
-
-        public int Size() {
-            isFrozen = true;
-            var command = new BsonDocument {
-                { "count", collection.Name },
-                { "query", BsonDocumentWrapper.Create(query) }, // query is optional
-                { limit != 0, "limit", limit },
-                { skip != 0, "skip", skip }
-            };
-            var result = collection.Database.RunCommand(command);
-            return result["n"].ToInt32();
         }
 
         public MongoCursor<TQuery, TDocument> SetShowDiskLoc() {
@@ -293,6 +281,18 @@ namespace MongoDB.CSharpDriver {
         ) {
             if (isFrozen) { ThrowFrozen(); }
             return SetSortOrder(SortBy.Ascending(keys));
+        }
+
+        public int Size() {
+            isFrozen = true;
+            var command = new BsonDocument {
+                { "count", collection.Name },
+                { "query", BsonDocumentWrapper.Create(query) }, // query is optional
+                { limit != 0, "limit", limit },
+                { skip != 0, "skip", skip }
+            };
+            var result = collection.Database.RunCommand(command);
+            return result["n"].ToInt32();
         }
         #endregion
 

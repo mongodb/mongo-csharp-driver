@@ -32,32 +32,32 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region public static methods
-        public static IndexOptionsBuilder Background(
+        public static IndexOptionsBuilder SetBackground(
             bool value
         ) {
             return new IndexOptionsBuilder().SetBackground(value);
         }
 
-        public static IndexOptionsBuilder DropDups(
+        public static IndexOptionsBuilder SetDropDups(
             bool value
         ) {
             return new IndexOptionsBuilder().SetDropDups(value);
         }
 
-        public static IndexOptionsBuilder GeoSpatialRange(
+        public static IndexOptionsBuilder SetGeoSpatialRange(
             double min,
             double max
         ) {
             return new IndexOptionsBuilder().SetGeoSpatialRange(min, max);
         }
 
-        public static IndexOptionsBuilder Name(
+        public static IndexOptionsBuilder SetName(
             string value
         ) {
             return new IndexOptionsBuilder().SetName(value);
         }
 
-        public static IndexOptionsBuilder Unique(
+        public static IndexOptionsBuilder SetUnique(
             bool value
         ) {
             return new IndexOptionsBuilder().SetUnique(value);

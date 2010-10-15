@@ -28,63 +28,63 @@ namespace MongoDB.CSharpDriver.UnitTests.Builders {
     public class IndexOptionsBuilderTests {
         [Test]
         public void TestBackground() {
-            var options = IndexOptions.Background(true);
+            var options = IndexOptions.SetBackground(true);
             string expected = "{ \"background\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestDropDups() {
-            var options = IndexOptions.DropDups(true);
+            var options = IndexOptions.SetDropDups(true);
             string expected = "{ \"dropDups\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestGeoSpatialRange() {
-            var options = IndexOptions.GeoSpatialRange(1.1, 2.2);
+            var options = IndexOptions.SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"min\" : 1.1, \"max\" : 2.2 }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestName() {
-            var options = IndexOptions.Name("custom");
+            var options = IndexOptions.SetName("custom");
             string expected = "{ \"name\" : \"custom\" }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestUnique() {
-            var options = IndexOptions.Unique(true);
+            var options = IndexOptions.SetUnique(true);
             string expected = "{ \"unique\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestNameBackground() {
-            var options = IndexOptions.Name("custom").SetBackground(true);
+            var options = IndexOptions.SetName("custom").SetBackground(true);
             string expected = "{ \"name\" : \"custom\", \"background\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestNameDropDups() {
-            var options = IndexOptions.Name("custom").SetDropDups(true);
+            var options = IndexOptions.SetName("custom").SetDropDups(true);
             string expected = "{ \"name\" : \"custom\", \"dropDups\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestNameGeoSpatialRange() {
-            var options = IndexOptions.Name("custom").SetGeoSpatialRange(1.1, 2.2);
+            var options = IndexOptions.SetName("custom").SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"name\" : \"custom\", \"min\" : 1.1, \"max\" : 2.2 }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
         public void TestNameUnique() {
-            var options = IndexOptions.Name("custom").SetUnique(true);
+            var options = IndexOptions.SetName("custom").SetUnique(true);
             string expected = "{ \"name\" : \"custom\", \"unique\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
