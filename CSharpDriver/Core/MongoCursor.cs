@@ -288,8 +288,8 @@ namespace MongoDB.CSharpDriver {
             var command = new BsonDocument {
                 { "count", collection.Name },
                 { "query", BsonDocumentWrapper.Create(query) }, // query is optional
-                { limit != 0, "limit", limit },
-                { skip != 0, "skip", skip }
+                { "limit", limit, limit != 0 },
+                { "skip", skip, skip != 0 }
             };
             var result = collection.Database.RunCommand(command);
             return result["n"].ToInt32();

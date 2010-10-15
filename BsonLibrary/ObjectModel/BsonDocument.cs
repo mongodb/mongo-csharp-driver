@@ -244,17 +244,6 @@ namespace MongoDB.BsonLibrary {
 
         #region public methods
         public BsonDocument Add(
-            bool condition,
-            string name,
-            BsonValue value
-        ) {
-            if (condition) {
-                Add(name, value);
-            }
-            return this;
-        }
-
-        public BsonDocument Add(
             BsonElement element
         ) {
             if (element != null) {
@@ -310,6 +299,17 @@ namespace MongoDB.BsonLibrary {
         ) {
             if (value != null) {
                 Add(new BsonElement(name, value));
+            }
+            return this;
+        }
+
+        public BsonDocument Add(
+            string name,
+            BsonValue value,
+            bool condition
+        ) {
+            if (condition) {
+                Add(name, value);
             }
             return this;
         }

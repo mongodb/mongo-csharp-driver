@@ -244,7 +244,7 @@ namespace MongoDB.CSharpDriver {
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "update", BsonDocumentWrapper.Create(update) },
                 { "fields", BsonDocumentWrapper.Create(fields) },
-                { returnNew, "new", true }
+                { "new", true, returnNew }
             };
             var result = database.RunCommand(command);
             return result["value"].AsBsonDocument;
