@@ -287,6 +287,12 @@ namespace MongoDB.BsonLibrary {
         }
 
         public static implicit operator BsonValue(
+            ObjectId value
+        ) {
+            return new BsonObjectId(value);
+        }
+
+        public static implicit operator BsonValue(
             Regex value
         ) {
             return BsonRegularExpression.Create(value);
