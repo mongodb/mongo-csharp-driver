@@ -384,8 +384,8 @@ namespace MongoDB.BsonLibrary.IO {
                 if (index != -1) {
                     localPosition += index;
                     var stringLength = localPosition - position;
-                    var value = Encoding.UTF8.GetString(ReadBytes(stringLength));
-                    Position += stringLength + 1;
+                    var value = Encoding.UTF8.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
+                    Position += 1; // skip over null byte at end
                     return value;
                 }
                 localChunkIndex++;

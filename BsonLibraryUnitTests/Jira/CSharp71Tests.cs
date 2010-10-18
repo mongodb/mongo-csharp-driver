@@ -324,5 +324,22 @@ namespace MongoDB.BsonLibrary.Jira.Tests {
             buffer.Length -= 20;
             Assert.Throws<EndOfStreamException>(() => BsonSerializer.DeserializeDocument<BsonDocument>(BsonReader.Create(buffer)));
         }
+
+        [Test]
+        public void TestNameStraddlesBoundary() {
+            // manufacture an approximately 20K document using 200 elements with long names of 100+ characters
+            // it's enough to cause the document to straddle a chunk boundary
+            var document = new BsonDocument();
+            var prefix = new string('x', 100);
+            for (int i = 0; i < 200; i++) {
+                var name = prefix + i.ToString();
+                document.Add(name, "x");
+            }
+
+            // round trip tests
+            var bson = document.ToBson();
+            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
     }
 }
