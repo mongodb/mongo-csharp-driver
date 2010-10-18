@@ -26,7 +26,7 @@ using MongoDB.BsonLibrary.DefaultSerializer;
 
 namespace MongoDB.BsonLibrary.UnitTests.Serialization {
     [TestFixture]
-    public class BsonClassMapSerializerTests {
+    public class BsonDefaultSerializerTests {
         [Test]
         public void TestAnonymousClass() {
             var obj = new {
