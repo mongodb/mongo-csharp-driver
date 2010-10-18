@@ -54,8 +54,8 @@ namespace MongoDB.CSharpDriver.Internal {
             buffer.WriteInt32((int) flags);
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
-            BsonSerializer.Serialize(bsonWriter, query, true); // serializeIdFirst
-            BsonSerializer.Serialize(bsonWriter, update, true); // serializeIdFirst
+            BsonSerializer.SerializeDocument(bsonWriter, query, true); // serializeIdFirst
+            BsonSerializer.SerializeDocument(bsonWriter, update, true); // serializeIdFirst
         }
         #endregion
     }

@@ -104,6 +104,11 @@ namespace MongoDB.BsonLibrary.IO {
             return value;
         }
 
+        public override bool HasElement() {
+            BsonType bsonType;
+            return HasElement(out bsonType);
+        }
+
         public override bool HasElement(
             out BsonType bsonType
         ) {
@@ -535,12 +540,22 @@ namespace MongoDB.BsonLibrary.IO {
         }
 
         public override void SkipElement() {
+            SkipElement(null);
+        }
+
+        public override void SkipElement(
+            string expectedName
+        ) {
             if ((context.ReadState & BsonReadState.Document) == 0) {
                 string message = string.Format("SkipElement cannot be called when ReadState is: {1}", context.ReadState);
                 throw new InvalidOperationException(message);
             }
             var bsonType = buffer.ReadBsonType();
             var name = buffer.ReadCString();
+            if (expectedName != null && name != expectedName) {
+                var message = string.Format("Element name was not: {0}", expectedName);
+                throw new FileFormatException(message);
+            }
             buffer.Position += GetValueSize(bsonType); // skip over value
         }
         #endregion

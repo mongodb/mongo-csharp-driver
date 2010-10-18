@@ -208,18 +208,36 @@ namespace MongoDB.CSharpDriver.Builders {
         #endregion
 
         #region explicit interface implementations
-        void IBsonSerializable.Deserialize(
-            BsonReader bsonReader
+        object IBsonSerializable.DeserializeDocument(
+            BsonReader bsonReader,
+            Type nominalType
         ) {
             throw new InvalidOperationException("Deserialize is not supported for QueryBuilder");
         }
 
-        void IBsonSerializable.Serialize(
-            BsonWriter bsonWriter,
-            bool serializeIdFirst,
-            bool serializeDiscriminator
+        object IBsonSerializable.DeserializeElement(
+            BsonReader bsonReader,
+            Type nominalType,
+            out string name
         ) {
-            document.Serialize(bsonWriter, serializeIdFirst, serializeDiscriminator);
+            throw new InvalidOperationException("Deserialize is not supported for QueryBuilder");
+        }
+
+        void IBsonSerializable.SerializeDocument(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            bool serializeIdFirst
+        ) {
+            document.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
+        }
+
+        void IBsonSerializable.SerializeElement(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            string name,
+            bool useCompactRepresentation
+        ) {
+            document.SerializeElement(bsonWriter, nominalType, name, useCompactRepresentation);
         }
         #endregion
     }

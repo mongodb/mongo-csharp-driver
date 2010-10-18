@@ -18,8 +18,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.BsonLibrary.Serialization {
+namespace MongoDB.BsonLibrary.DefaultSerializer {
     [AttributeUsage(AttributeTargets.Property)]
-    public class BsonRequiredAttribute : Attribute {
+    public class BsonElementAttribute : Attribute {
+        #region private fields
+        private string elementName;
+        private int order = int.MaxValue;
+        #endregion
+
+        #region constructors
+        public BsonElementAttribute(
+            string elementName
+        ) {
+            this.elementName = elementName;
+        }
+        #endregion
+
+        #region public properties
+        public string ElementName {
+            get { return elementName; }
+        }
+
+        public int Order {
+            get { return order; }
+            set { order = value; }
+        }
+        #endregion
     }
 }

@@ -22,6 +22,7 @@ using NUnit.Framework;
 
 using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
+using MongoDB.BsonLibrary.DefaultSerializer;
 
 namespace MongoDB.BsonLibrary.UnitTests.Serialization {
     [TestFixture]
@@ -38,27 +39,44 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            Assert.Throws<InvalidOperationException>(() => BsonSerializer.Deserialize(bson, obj.GetType()));
+            Assert.Throws<InvalidOperationException>(() => BsonSerializer.DeserializeDocument(bson, obj.GetType()));
         }
 
         public class Employee {
-            private class DateOfBirthSerializer : IBsonPropertySerializer {
-                public void DeserializeProperty(
+            private class DateOfBirthSerializer : IBsonSerializer {
+                public object DeserializeDocument(
                     BsonReader bsonReader,
-                    object obj,
-                    BsonPropertyMap propertyMap
+                    Type nominalType
                 ) {
-                    var employee = (Employee) obj;
-                    employee.DateOfBirth = DateTime.Parse(bsonReader.ReadString(propertyMap.ElementName));
+                    throw new InvalidOperationException();
                 }
 
-                public void SerializeProperty(
-                    BsonWriter bsonWriter,
-                    object obj,
-                    BsonPropertyMap propertyMap
+                public object DeserializeElement(
+                    BsonReader bsonReader,
+                    Type nominalType,
+                    out string name
                 ) {
-                    var employee = (Employee) obj;
-                    bsonWriter.WriteString(propertyMap.ElementName, employee.DateOfBirth.ToString("yyyy-MM-dd"));
+                    return DateTime.Parse(bsonReader.ReadString(out name));
+                }
+
+                public void SerializeDocument(
+                    BsonWriter bsonWriter,
+                    Type nominalType,
+                    object document,
+                    bool serializeIdFirst
+                ) {
+                    throw new InvalidOperationException();
+                }
+
+                public void SerializeElement(
+                    BsonWriter bsonWriter,
+                    Type nominalType,
+                    string name,
+                    object obj,
+                    bool useCompactRepresentation
+                ) {
+                    var dateTime = (DateTime) obj;
+                    bsonWriter.WriteString(name, dateTime.ToString("yyyy-MM-dd"));
                 }
             }
 
@@ -69,7 +87,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
                         cm.MapProperty(e => e.FirstName, "fn");
                         cm.MapProperty(e => e.LastName, "ln");
                         cm.MapProperty(e => e.DateOfBirth, "dob")
-                            .SetPropertySerializer(new DateOfBirthSerializer());
+                            .SetSerializer(new DateOfBirthSerializer());
                     }
                 );
             }
@@ -86,7 +104,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             var json = employee.ToJson();
 
             var bson = employee.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<Employee>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<Employee>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -101,7 +119,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             var json = account.ToJson();
 
             var bson = account.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<Account>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<Account>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

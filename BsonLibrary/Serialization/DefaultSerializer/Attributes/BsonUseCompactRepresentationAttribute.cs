@@ -18,30 +18,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.BsonLibrary.Serialization {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonDiscriminatorAttribute : Attribute {
+namespace MongoDB.BsonLibrary.DefaultSerializer {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property)]
+    public class BsonUseCompactRepresentationAttribute : Attribute {
         #region private fields
-        private string discriminator;
-        private bool required;
+        private bool useCompactRepresentation;
         #endregion
 
         #region constructors
-        public BsonDiscriminatorAttribute(
-            string discriminator
+        public BsonUseCompactRepresentationAttribute() : this(true) {
+        }
+
+        public BsonUseCompactRepresentationAttribute(
+            bool useCompactRepresentation
         ) {
-            this.discriminator = discriminator;
+            this.useCompactRepresentation = useCompactRepresentation;
         }
         #endregion
 
         #region public properties
-        public string Discriminator {
-            get { return discriminator; }
-        }
-
-        public bool Required {
-            get { return required; }
-            set { required = value; }
+        public bool UseCompactRepresentation {
+            get { return useCompactRepresentation; }
         }
         #endregion
     }

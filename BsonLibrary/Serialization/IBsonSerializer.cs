@@ -19,7 +19,9 @@ using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.BsonLibrary.Serialization {
     public interface IBsonSerializer {
-        object Deserialize(BsonReader bsonReader, Type type);
-        void Serialize(BsonWriter bsonWriter, object obj, bool serializeIdFirst, bool serializeDiscriminator);
+        object DeserializeDocument(BsonReader bsonReader, Type nominalType);
+        object DeserializeElement(BsonReader bsonReader, Type nominalType, out string name);
+        void SerializeDocument(BsonWriter bsonWriter, Type nominalType, object document, bool serializeIdFirst);
+        void SerializeElement(BsonWriter bsonWriter, Type nominalType, string name, object value, bool useCompactRepresentation);
     }
 }

@@ -14,15 +14,11 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.BsonLibrary.Serialization {
-    public interface IBsonPropertySerializer {
-        void DeserializeProperty(BsonReader bsonReader, object obj, BsonPropertyMap propertyMap);
-        void SerializeProperty(BsonWriter bsonWriter, object obj, BsonPropertyMap propertyMap);
+    public interface IBsonSerializationProvider {
+        IBsonSerializer GetSerializer(Type type);
     }
 }

@@ -20,7 +20,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.BsonLibrary;
-using MongoDB.BsonLibrary.Serialization;
+using MongoDB.BsonLibrary.DefaultSerializer;
 
 namespace MongoDB.BsonLibrary.UnitTests.ObjectModel {
     [TestFixture]

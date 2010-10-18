@@ -294,7 +294,7 @@ namespace MongoDB.BsonLibrary {
                     } else {
                         var documentWrapper = value as BsonDocumentWrapper;
                         if (documentWrapper != null) {
-                            documentWrapper.Serialize(bsonWriter);
+                            documentWrapper.SerializeDocument(bsonWriter, typeof(BsonDocument), false);
                         } else {
                             throw new BsonInternalException("Unexpected class for BsonType document: ", value.GetType().FullName);
                         }

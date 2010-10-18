@@ -58,7 +58,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = a.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<A>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<A>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -70,7 +70,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -82,7 +82,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = a.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<A>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<A>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -94,7 +94,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = b.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<B>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<B>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -106,7 +106,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = d.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<D>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<D>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -118,7 +118,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = a.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<A>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<A>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -130,7 +130,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = b.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<B>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<B>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -142,7 +142,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = e.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<E>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<E>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -154,7 +154,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = t.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
             Assert.IsNull(rehydrated.FT);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
@@ -167,7 +167,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = t.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
             Assert.IsInstanceOf<C>(rehydrated.FT);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
@@ -180,7 +180,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = t.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
             Assert.IsInstanceOf<D>(rehydrated.FT);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
@@ -193,7 +193,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = t.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
             Assert.IsInstanceOf<E>(rehydrated.FT);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }

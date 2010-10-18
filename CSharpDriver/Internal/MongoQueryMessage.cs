@@ -77,10 +77,10 @@ namespace MongoDB.CSharpDriver.Internal {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
             } else {
-                BsonSerializer.Serialize(bsonWriter, query, true); // serializeIdFirst
+                BsonSerializer.SerializeDocument(bsonWriter, query, true); // serializeIdFirst
             }
             if (fields != null) {
-                BsonSerializer.Serialize(bsonWriter, fields);
+                BsonSerializer.SerializeDocument(bsonWriter, fields);
             }
         }
         #endregion

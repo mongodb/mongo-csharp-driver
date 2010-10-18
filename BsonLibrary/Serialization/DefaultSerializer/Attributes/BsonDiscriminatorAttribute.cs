@@ -18,28 +18,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.BsonLibrary.Serialization {
+namespace MongoDB.BsonLibrary.DefaultSerializer {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonIgnoreExtraElementsAttribute : Attribute {
+    public class BsonDiscriminatorAttribute : Attribute {
         #region private fields
-        private bool ignoreExtraElements;
+        private string discriminator;
+        private bool required;
         #endregion
 
         #region constructors
-        public BsonIgnoreExtraElementsAttribute()
-            : this(true) {
-        }
-
-        public BsonIgnoreExtraElementsAttribute(
-            bool ignoreExtraElements
+        public BsonDiscriminatorAttribute(
+            string discriminator
         ) {
-            this.ignoreExtraElements = ignoreExtraElements;
+            this.discriminator = discriminator;
         }
         #endregion
 
         #region public properties
-        public bool IgnoreExtraElements {
-            get { return ignoreExtraElements; }
+        public string Discriminator {
+            get { return discriminator; }
+        }
+
+        public bool Required {
+            get { return required; }
+            set { required = value; }
         }
         #endregion
     }

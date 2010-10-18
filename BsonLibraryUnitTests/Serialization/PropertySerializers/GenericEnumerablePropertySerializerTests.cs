@@ -19,9 +19,10 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
+using MongoDB.BsonLibrary;
 using MongoDB.BsonLibrary.Serialization;
 
-namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.GenericEnumerable {
+namespace MongoDB.BsonLibrary.UnitTests.DefaultSerializer.GenericEnumerable {
     public class Address {
         public string Street { get; set; }
         public string City { get; set; }
@@ -30,8 +31,14 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
     }
 
     [TestFixture]
-    public class HashSetPropertySerializerTests {
+    public class HashSetSerializerTests {
         public class TestClass {
+            static TestClass() {
+                MongoDB.BsonLibrary.DefaultSerializer.BsonClassMap.RegisterClassMap<TestClass>(
+                    cm => { cm.AutoMap(); }
+                );
+            }
+
             public HashSet<Address> Addresses { get; set; }
         }
 
@@ -43,7 +50,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -56,22 +63,22 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
                 }
             };
             var json = obj.ToJson();
-            var expected = "{ 'Addresses' : { '_t' : '#T', 'v' : [#A1, #A2] } }";
-            expected = expected.Replace("#T", "System.Collections.Generic.HashSet`1[[MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.GenericEnumerable.Address, BsonLibraryUnitTests]], System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            var expected = "{ 'Addresses' : { '_t' : '#T', '_v' : [#A1, #A2] } }";
+            expected = expected.Replace("#T", "System.Collections.Generic.HashSet`1[[MongoDB.BsonLibrary.UnitTests.DefaultSerializer.GenericEnumerable.Address, BsonLibraryUnitTests]], System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<TestClass>(bson);
             Assert.IsInstanceOf<HashSet<Address>>(rehydrated.Addresses);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 
     [TestFixture]
-    public class IEnumerablePropertySerializerTests {
+    public class IEnumerableSerializerTests {
         public class TestClass {
             public IEnumerable<Address> Addresses { get; set; }
         }
@@ -84,7 +91,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -97,22 +104,22 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
                 }
             };
             var json = obj.ToJson();
-            var expected = "{ 'Addresses' : { '_t' : '#T', 'v' : [#A1, #A2] } }";
-            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.GenericEnumerable.Address, BsonLibraryUnitTests]]");
+            var expected = "{ 'Addresses' : { '_t' : '#T', '_v' : [#A1, #A2] } }";
+            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonLibrary.UnitTests.DefaultSerializer.GenericEnumerable.Address, BsonLibraryUnitTests]]");
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<TestClass>(bson);
             Assert.IsInstanceOf<List<Address>>(rehydrated.Addresses);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
 
     [TestFixture]
-    public class IListPropertySerializerTests {
+    public class IListSerializerTests {
         public class TestClass {
             public IList<Address> Addresses { get; set; }
         }
@@ -125,7 +132,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -138,15 +145,15 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.Generi
                 }
             };
             var json = obj.ToJson();
-            var expected = "{ 'Addresses' : { '_t' : '#T', 'v' : [#A1, #A2] } }";
-            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonLibrary.UnitTests.Serialization.PropertySerializers.GenericEnumerable.Address, BsonLibraryUnitTests]]");
+            var expected = "{ 'Addresses' : { '_t' : '#T', '_v' : [#A1, #A2] } }";
+            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonLibrary.UnitTests.DefaultSerializer.GenericEnumerable.Address, BsonLibraryUnitTests]]");
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<TestClass>(bson);
             Assert.IsInstanceOf<List<Address>>(rehydrated.Addresses);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }

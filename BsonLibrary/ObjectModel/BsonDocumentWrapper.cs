@@ -63,8 +63,17 @@ namespace MongoDB.BsonLibrary {
             throw new InvalidOperationException("CompareTo not supported for BsonDocumentWrapper");
         }
 
-        public void Deserialize(
-            BsonReader bsonReader
+        public object DeserializeDocument(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
+        }
+
+        public object DeserializeElement(
+            BsonReader bsonReader,
+            Type nominalType,
+            out string name
         ) {
             throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
         }
@@ -79,18 +88,21 @@ namespace MongoDB.BsonLibrary {
             throw new InvalidOperationException("GetHashCode not supported for BsonDocumentWrapper");
         }
 
-        public void Serialize(
-            BsonWriter bsonWriter
+        public void SerializeDocument(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            bool serializeIdFirst
         ) {
-            Serialize(bsonWriter, false, false);
+            BsonSerializer.SerializeDocument(bsonWriter, document, serializeIdFirst);
         }
 
-        public void Serialize(
+        public void SerializeElement(
             BsonWriter bsonWriter,
-            bool serializeIdFirst,
-            bool serializeDiscriminator
+            Type nominalType,
+            string name,
+            bool useCompactRepresentation
         ) {
-            BsonSerializer.Serialize(bsonWriter, document, serializeIdFirst, serializeDiscriminator);
+            BsonSerializer.SerializeElement(bsonWriter, name, document, useCompactRepresentation);
         }
 
         public override string ToString() {

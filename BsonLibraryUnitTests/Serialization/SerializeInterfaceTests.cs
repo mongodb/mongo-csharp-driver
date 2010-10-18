@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
+using MongoDB.BsonLibrary.DefaultSerializer;
 using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
@@ -31,10 +32,16 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
         }
 
         private class A : IX {
+            static A() {
+                BsonSerializer.RegisterSerializer(typeof(IX), BsonDefaultSerializer.Singleton);
+            }
             public string FX { get; set; }
         }
 
         private class B : IX {
+            static B() {
+                BsonSerializer.RegisterSerializer(typeof(IX), BsonDefaultSerializer.Singleton);
+            }
             public string FX { get; set; }
         }
 
@@ -46,7 +53,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = a.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<A>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<A>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -58,7 +65,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = a.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<IX>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<IX>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -70,7 +77,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = b.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<B>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<B>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -82,7 +89,7 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = b.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<IX>(bson);
+            var rehydrated = BsonSerializer.DeserializeDocument<IX>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

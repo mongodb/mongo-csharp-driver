@@ -22,7 +22,10 @@ using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.BsonLibrary.Serialization {
     public interface IBsonSerializable {
-        void Deserialize(BsonReader bsonReader);
-        void Serialize(BsonWriter bsonWriter, bool serializeIdFirst, bool serializeDiscriminator);
+        // DeserializeDocument and DeserializeElement can return a new object if necessary (i.e. a subclass of nominalType)
+        object DeserializeDocument(BsonReader bsonReader, Type nominalType);
+        object DeserializeElement(BsonReader bsonReader, Type nominalType, out string name);
+        void SerializeDocument(BsonWriter bsonWriter, Type nominalType, bool serializeIdFirst);
+        void SerializeElement(BsonWriter bsonWriter, Type nominalType, string name, bool useCompactRepresentation);
     }
 }

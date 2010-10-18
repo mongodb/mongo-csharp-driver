@@ -46,7 +46,7 @@ namespace MongoDB.CSharpDriver.Internal {
         ) {
             lastDocumentStartPosition = buffer.Position;
             var bsonWriter = BsonWriter.Create(buffer);
-            BsonSerializer.Serialize(bsonWriter, document, true); // serializeIdFirst
+            BsonSerializer.SerializeDocument(bsonWriter, document, true); // serializeIdFirst
             BackpatchMessageLength();
         }
 

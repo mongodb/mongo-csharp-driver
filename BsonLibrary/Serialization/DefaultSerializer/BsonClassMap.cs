@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -22,14 +23,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using MongoDB.BsonLibrary.IO;
-using MongoDB.BsonLibrary.Serialization.PropertySerializers;
+using MongoDB.BsonLibrary.Serialization;
 
-namespace MongoDB.BsonLibrary.Serialization {
+namespace MongoDB.BsonLibrary.DefaultSerializer {
     public abstract class BsonClassMap {
         #region private static fields
         private static object staticLock = new object();
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
-        private static Dictionary<Type, IBsonPropertySerializer> propertySerializers = new Dictionary<Type, IBsonPropertySerializer>();
         private static Dictionary<string, List<Type>> discriminatedTypes = new Dictionary<string, List<Type>>();
         #endregion
 
@@ -44,12 +44,6 @@ namespace MongoDB.BsonLibrary.Serialization {
         protected List<BsonPropertyMap> propertyMaps = new List<BsonPropertyMap>();
         protected bool ignoreExtraElements = true;
         protected bool useCompactRepresentation;
-        #endregion
-
-        #region static constructor
-        static BsonClassMap() {
-            AutoRegisterPropertySerializers();
-        }
         #endregion
 
         #region constructors
@@ -163,6 +157,46 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
         }
 
+        public static Type LookupActualType(
+            Type nominalType,
+            string discriminator
+        ) {
+            // TODO: will there be too much contention on staticLock?
+            lock (staticLock) {
+                Type actualType = null;
+
+                List<Type> typeList;
+                if (discriminatedTypes.TryGetValue(discriminator, out typeList)) {
+                    foreach (var type in typeList) {
+                        if (nominalType.IsAssignableFrom(type)) {
+                            if (actualType == null) {
+                                actualType = type;
+                            } else {
+                                string message = string.Format("Ambiguous discriminator: {0}", discriminator);
+                                throw new BsonSerializationException(message);
+                            }
+                        }
+                    }
+                }
+
+                if (actualType == null) {
+                    actualType = Type.GetType(discriminator); // see if it's a Type name
+                }
+
+                if (actualType == null) {
+                    string message = string.Format("Unknown discriminator: {0}", discriminator);
+                    throw new BsonSerializationException(message);
+                }
+
+                if (!nominalType.IsAssignableFrom(actualType)) {
+                    string message = string.Format("Actual type {0} is not assignable to expected type {1}", actualType.FullName, nominalType.FullName);
+                    throw new FileFormatException(message);
+                }
+
+                return actualType;
+            }
+        }
+
         public static BsonClassMap LookupClassMap(
             Type classType
         ) {
@@ -181,59 +215,6 @@ namespace MongoDB.BsonLibrary.Serialization {
                     );
                     var registerClassMapMethodInfo = genericRegisterClassMapMethodInfo.MakeGenericMethod(classType);
                     return (BsonClassMap) registerClassMapMethodInfo.Invoke(null, new object[] { });
-                }
-            }
-        }
-
-        public static IBsonPropertySerializer LookupPropertySerializer(
-            Type propertyType
-        ) {
-            lock (staticLock) {
-                if (propertyType.IsGenericType) {
-                    propertyType = propertyType.GetGenericTypeDefinition();
-                }
-
-                IBsonPropertySerializer propertySerializer;
-                if (!propertySerializers.TryGetValue(propertyType, out propertySerializer)) {
-                    if (!propertyType.IsPrimitive) {
-                        propertySerializer = DefaultPropertySerializer.Singleton;
-                        propertySerializers.Add(propertyType, propertySerializer);
-                    } else {
-                        string message = string.Format("No property serializer found for property type: {0}", propertyType.FullName);
-                        throw new BsonSerializationException(message);
-                    }
-                }
-                return propertySerializer;
-            }
-        }
-
-        public static Type LookupTypeByDiscriminator(
-            Type targetType,
-            string discriminator
-        ) {
-            // TODO: will there be too much contention on staticLock?
-            lock (staticLock) {
-                Type type = null;
-
-                List<Type> typeList;
-                if (discriminatedTypes.TryGetValue(discriminator, out typeList)) {
-                    foreach (var discriminatedType in typeList) {
-                        if (targetType.IsAssignableFrom(discriminatedType)) {
-                            if (type == null) {
-                                type = discriminatedType;
-                            } else {
-                                string message = string.Format("Ambiguous discriminator: {0}", discriminator);
-                                throw new BsonSerializationException(message);
-                            }
-                        }
-                    }
-                }
-
-                if (type != null) {
-                    return type;
-                } else {
-                    string message = string.Format("Unknown discriminator: {0}", discriminator);
-                    throw new BsonSerializationException(message);
                 }
             }
         }
@@ -275,44 +256,11 @@ namespace MongoDB.BsonLibrary.Serialization {
             }
         }
 
-        public static void RegisterPropertySerializer(
-            Type type,
-            IBsonPropertySerializer propertySerializer
-        ) {
-            lock (staticLock) {
-                // note: property serializers CAN be replaced
-                propertySerializers[type] = propertySerializer;
-            }
-        }
-
         public static void UnregisterClassMap(
             Type classType
         ) {
             lock (staticLock) {
                 classMaps.Remove(classType);
-            }
-        }
-
-        public static void UnregisterPropertySerializer(
-            Type propertyType
-        ) {
-            lock (staticLock) {
-                propertySerializers.Remove(propertyType);
-            }
-        }
-        #endregion
-
-        #region private static methods
-        // automatically register all property serializers found in the BsonLibrary
-        private static void AutoRegisterPropertySerializers() {
-            var assembly = Assembly.GetExecutingAssembly();
-            foreach (var type in assembly.GetTypes()) {
-                if (typeof(IBsonPropertySerializer).IsAssignableFrom(type) && type != typeof(IBsonPropertySerializer)) {
-                    var registerPropertySerializerInfo = type.GetMethod("RegisterPropertySerializer", BindingFlags.Public | BindingFlags.Static);
-                    if (registerPropertySerializerInfo != null) {
-                        registerPropertySerializerInfo.Invoke(null, null);
-                    }
-                }
             }
         }
         #endregion

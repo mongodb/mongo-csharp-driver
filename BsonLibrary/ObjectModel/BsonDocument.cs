@@ -211,7 +211,7 @@ namespace MongoDB.BsonLibrary {
             BsonReader bsonReader
         ) {
             BsonDocument document = new BsonDocument();
-            document.Deserialize(bsonReader);
+            document.DeserializeDocument(bsonReader, typeof(BsonDocument));
             return document;
         }
 
@@ -371,8 +371,9 @@ namespace MongoDB.BsonLibrary {
             return clone;
         }
 
-        public void Deserialize(
-            BsonReader bsonReader
+        public object DeserializeDocument(
+            BsonReader bsonReader,
+            Type nominalType
         ) {
             bsonReader.ReadStartDocument();
             BsonElement element;
@@ -380,6 +381,16 @@ namespace MongoDB.BsonLibrary {
                 Add(element);
             }
             bsonReader.ReadEndDocument();
+            return this;
+        }
+
+        public object DeserializeElement(
+            BsonReader bsonReader,
+            Type nominalType,
+            out string name
+        ) {
+            bsonReader.ReadDocumentName(out name);
+            return DeserializeDocument(bsonReader, nominalType);
         }
 
         public bool Equals(
@@ -497,16 +508,10 @@ namespace MongoDB.BsonLibrary {
             RebuildDictionary();
         }
 
-        public void Serialize(
-            BsonWriter bsonWriter
-        ) {
-            Serialize(bsonWriter, false, false);
-        }
-
-        public void Serialize(
+        public void SerializeDocument(
             BsonWriter bsonWriter,
-            bool serializeIdFirst,
-            bool serializeDiscriminator
+            Type nominalType,
+            bool serializeIdFirst
         ) {
             bsonWriter.WriteStartDocument();
 
@@ -517,10 +522,6 @@ namespace MongoDB.BsonLibrary {
                 idIndex = -1; // remember that when TryGetValue returns false it sets idIndex to 0
             }
 
-            if (serializeDiscriminator) {
-                throw new InvalidOperationException("BsonDocument is not polymorphic");
-            }
-
             for (int i = 0; i < elements.Count; i++) {
                 // if serializeIdFirst is false then idIndex will be -1 and no elements will be skipped
                 if (i != idIndex) {
@@ -529,6 +530,16 @@ namespace MongoDB.BsonLibrary {
             }
 
             bsonWriter.WriteEndDocument();
+        }
+
+        public void SerializeElement(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            string name,
+            bool useCompactRepresentation
+        ) {
+            bsonWriter.WriteDocumentName(name);
+            SerializeDocument(bsonWriter, nominalType, false);
         }
 
         // keep name short (Set instead of SetValue) to facilitate use in fluent interface
@@ -600,7 +611,7 @@ namespace MongoDB.BsonLibrary {
         public void WriteTo(
             BsonWriter bsonWriter
         ) {
-            Serialize(bsonWriter);
+            SerializeDocument(bsonWriter, typeof(BsonDocument), false);
         }
 
         public void WriteTo(

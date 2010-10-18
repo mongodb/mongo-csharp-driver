@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+// don't add using statement for MongoDB.BsonLibrary.DefaultSerializer to minimize dependencies on DefaultSerializer
 using MongoDB.BsonLibrary.IO;
 
 namespace MongoDB.BsonLibrary.Serialization {
@@ -26,68 +27,79 @@ namespace MongoDB.BsonLibrary.Serialization {
         #region private static fields
         private static object staticLock = new object();
         private static Dictionary<Type, IBsonSerializer> registry = new Dictionary<Type, IBsonSerializer>();
-        private static Dictionary<Type, IBsonSerializer> cache = new Dictionary<Type, IBsonSerializer>();
-        private static IBsonSerializer defaultSerializer = BsonClassMapSerializer.Singleton;
+        private static IBsonSerializationProvider serializationProvider = null;
         #endregion
 
         #region public static properties
-        public static IBsonSerializer DefaultSerializer {
-            get { return defaultSerializer; }
-            set { defaultSerializer = value; }
+        public static IBsonSerializationProvider SerializationProvider {
+            get { return serializationProvider; }
+            set { serializationProvider = value; }
         }
         #endregion
 
         #region public static methods
-        public static T Deserialize<T>(
+        public static T DeserializeDocument<T>(
             BsonReader bsonReader
         ) {
-            var obj = Deserialize(bsonReader, typeof(T));
-            return (T) obj;
+            return (T) DeserializeDocument(bsonReader, typeof(T));
         }
 
-        public static T Deserialize<T>(
+        public static T DeserializeDocument<T>(
             byte[] bytes
         ) {
-            var obj = Deserialize(bytes, typeof(T));
-            return (T) obj;
+            return (T) DeserializeDocument(bytes, typeof(T));
         }
 
-        public static T Deserialize<T>(
+        public static T DeserializeDocument<T>(
             Stream stream
         ) {
-            var obj = Deserialize(stream, typeof(T));
-            return (T) obj;
+            return (T) DeserializeDocument(stream, typeof(T));
         }
 
-        public static object Deserialize(
+        public static object DeserializeDocument(
             BsonReader bsonReader,
-            Type type
+            Type nominalType
         ) {
-            // optimize for the most common case
-            if (type == typeof(BsonDocument)) {
+            if (nominalType == typeof(BsonDocument)) {
                 return BsonDocument.ReadFrom(bsonReader);
             }
 
-            var serializer = LookupSerializer(type);
-            return serializer.Deserialize(bsonReader, type);
+            var serializer = LookupSerializer(nominalType);
+            return serializer.DeserializeDocument(bsonReader, nominalType);
         }
 
-        public static object Deserialize(
+        public static object DeserializeDocument(
             byte[] bytes,
-            Type type
+            Type nominalType
         ) {
             using (var memoryStream = new MemoryStream(bytes)) {
-                return Deserialize(memoryStream, type);
+                return DeserializeDocument(memoryStream, nominalType);
             }
         }
 
-        public static object Deserialize(
+        public static object DeserializeDocument(
             Stream stream,
-            Type type
+            Type nominalType
         ) {
             using (var bsonReader = BsonReader.Create(stream)) {
-                return Deserialize(bsonReader, type);
+                return DeserializeDocument(bsonReader, nominalType);
             }
+        }
+
+        public static T DeserializeElement<T>(
+            BsonReader bsonReader,
+            out string name
+        ) {
+            return (T) DeserializeElement(bsonReader, typeof(T), out name);
+        }
+
+        public static object DeserializeElement(
+            BsonReader bsonReader,
+            Type nominalType,
+            out string name
+        ) {
+            var serializer = LookupSerializer(nominalType);
+            return serializer.DeserializeElement(bsonReader, nominalType, out name);
         }
 
         public static IBsonSerializer LookupSerializer(
@@ -95,27 +107,29 @@ namespace MongoDB.BsonLibrary.Serialization {
         ) {
             lock (staticLock) {
                 IBsonSerializer serializer;
-                if (cache.TryGetValue(type, out serializer)) {
-                    return serializer;
-                }
+                if (!registry.TryGetValue(type, out serializer)) {
+                    // special case for IBsonSerializable
+                    if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type)) {
+                        serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Singleton;
+                    }
 
-                if (type.GetInterface(typeof(IBsonSerializable).FullName) != null) {
-                    serializer = BsonSerializableSerializer.Singleton;
-                } else {
-                    Type ancestorType = type;
-                    while (ancestorType != null) {
-                        if (registry.TryGetValue(ancestorType, out serializer)) {
-                            break;
-                        }
-                        ancestorType = ancestorType.BaseType;
+                    if (serializer == null && type.IsGenericType) {
+                        var genericType = type.GetGenericTypeDefinition();
+                        registry.TryGetValue(genericType, out serializer);
                     }
 
                     if (serializer == null) {
-                        serializer = defaultSerializer;
+                        if (serializationProvider == null) {
+                            // if no other serialization provider has been configured by now use the default one
+                            DefaultSerializer.BsonDefaultSerializationProvider.Initialize();
+                            serializationProvider = DefaultSerializer.BsonDefaultSerializationProvider.Singleton;
+                        }
+                        serializer = serializationProvider.GetSerializer(type);
                     }
+
+                    registry[type] = serializer;
                 }
 
-                cache[type] = serializer;
                 return serializer;
             }
         }
@@ -126,41 +140,58 @@ namespace MongoDB.BsonLibrary.Serialization {
         ) {
             lock (staticLock) {
                 registry[type] = serializer;
-                cache.Clear();
             }
         }
 
-        public static void Serialize<T>(
+        public static void SerializeDocument<T>(
             BsonWriter bsonWriter,
-            T obj
+            T document
         ) {
-            Serialize(bsonWriter, obj, false);
+            SerializeDocument(bsonWriter, document, false);
         }
 
-        public static void Serialize<T>(
+        public static void SerializeDocument<T>(
             BsonWriter bsonWriter,
-            T obj,
+            T document,
             bool serializeIdFirst
         ) {
-            var serializeDiscriminator = BsonPropertyMap.IsPolymorphicType(typeof(T)) || obj.GetType() != typeof(T);
-            Serialize(bsonWriter, obj, serializeIdFirst, serializeDiscriminator);
+            SerializeDocument(bsonWriter, typeof(T), document, serializeIdFirst);
         }
 
-        public static void Serialize(
+        public static void SerializeDocument(
             BsonWriter bsonWriter,
-            object obj,
-            bool serializeIdFirst,
-            bool serializeDiscriminator
+            Type nominalType,
+            object document,
+            bool serializeIdFirst
         ) {
-            // optimize for the most common case
-            var bsonSerializable = obj as IBsonSerializable;
+            var bsonSerializable = document as IBsonSerializable;
             if (bsonSerializable != null) {
-                bsonSerializable.Serialize(bsonWriter, serializeIdFirst, serializeDiscriminator);
+                bsonSerializable.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
                 return;
             }
 
-            var serializer = LookupSerializer(obj.GetType());
-            serializer.Serialize(bsonWriter, obj, serializeIdFirst, serializeDiscriminator);
+            var serializer = LookupSerializer(document.GetType());
+            serializer.SerializeDocument(bsonWriter, nominalType, document, serializeIdFirst);
+        }
+
+        public static void SerializeElement<T>(
+            BsonWriter bsonWriter,
+            string name,
+            T value,
+            bool useCompactRepresentation
+        ) {
+            SerializeElement(bsonWriter, typeof(T), name, value, useCompactRepresentation);
+        }
+
+        public static void SerializeElement(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            string name,
+            object value,
+            bool useCompactRepresentation
+        ) {
+            var serializer = LookupSerializer(value == null ? nominalType : value.GetType());
+            serializer.SerializeElement(bsonWriter, nominalType, name, value, useCompactRepresentation);
         }
 
         public static void UnregisterSerializer(
@@ -168,7 +199,6 @@ namespace MongoDB.BsonLibrary.Serialization {
         ) {
             lock (staticLock) {
                 registry.Remove(type);
-                cache.Clear();
             }
         }
         #endregion

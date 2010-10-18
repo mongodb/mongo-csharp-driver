@@ -20,8 +20,9 @@ using System.Reflection;
 using System.Text;
 
 using MongoDB.BsonLibrary.IO;
+using MongoDB.BsonLibrary.Serialization;
 
-namespace MongoDB.BsonLibrary.Serialization {
+namespace MongoDB.BsonLibrary.DefaultSerializer {
     public abstract class BsonPropertyMap {
         #region protected fields
         protected string propertyName;
@@ -30,9 +31,8 @@ namespace MongoDB.BsonLibrary.Serialization {
         protected PropertyInfo propertyInfo;
         protected Func<object, object> getter;
         protected Action<object, object> setter;
-        protected IBsonPropertySerializer propertySerializer;
+        protected IBsonSerializer serializer;
         protected bool useCompactRepresentation;
-        protected bool isPolymorphicProperty;
         protected bool isRequired;
         protected bool hasDefaultValue;
         protected bool serializeDefaultValue = true;
@@ -48,13 +48,16 @@ namespace MongoDB.BsonLibrary.Serialization {
             this.propertyName = propertyInfo.Name;
             this.elementName = elementName;
             this.propertyInfo = propertyInfo;
-            this.isPolymorphicProperty = IsPolymorphicType(propertyInfo.PropertyType);
         }
         #endregion
 
         #region public properties
         public string PropertyName {
             get { return propertyName; }
+        }
+
+        public Type PropertyType {
+            get { return propertyInfo.PropertyType; }
         }
 
         public string ElementName {
@@ -77,21 +80,14 @@ namespace MongoDB.BsonLibrary.Serialization {
             get;
         }
 
-        public IBsonPropertySerializer PropertySerializer {
+        public IBsonSerializer Serializer {
             get {
-                if (propertySerializer == null) {
-                    propertySerializer = BsonClassMap.LookupPropertySerializer(propertyInfo.PropertyType);
-                }
-                return propertySerializer;
+                return serializer;
             }
         }
 
         public bool UseCompactRepresentation {
             get { return useCompactRepresentation; }
-        }
-
-        public bool IsPolymorphicProperty {
-            get { return isPolymorphicProperty; }
         }
 
         public bool IsRequired {
@@ -112,18 +108,6 @@ namespace MongoDB.BsonLibrary.Serialization {
 
         public object DefaultValue {
             get { return defaultValue; }
-        }
-        #endregion
-
-        #region public static methods
-        public static bool IsPolymorphicType(
-            Type type
-        ) {
-            if (type.IsAbstract) { return true; }
-            if (type.IsInterface) { return true; }
-            if (type == typeof(object)) { return true; }
-            // TODO: return true if type has derived classes?
-            return false;
         }
         #endregion
 
@@ -174,10 +158,10 @@ namespace MongoDB.BsonLibrary.Serialization {
             return this;
         }
 
-        public BsonPropertyMap SetPropertySerializer(
-            IBsonPropertySerializer propertySerializer
+        public BsonPropertyMap SetSerializer(
+            IBsonSerializer serializer
         ) {
-            this.propertySerializer = propertySerializer;
+            this.serializer = serializer;
             return this;
         }
 

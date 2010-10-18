@@ -85,7 +85,7 @@ namespace MongoDB.CSharpDriver.Internal {
             }
 
             while (buffer.Position - messageStartPosition < messageLength) {
-                var document = BsonSerializer.Deserialize<TDocument>(bsonReader);
+                var document = BsonSerializer.DeserializeDocument<TDocument>(bsonReader);
                 documents.Add(document);
             }
         }

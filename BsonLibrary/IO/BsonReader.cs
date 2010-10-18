@@ -66,6 +66,7 @@ namespace MongoDB.BsonLibrary.IO {
         public abstract string FindString(
             string name
         );
+        public abstract bool HasElement();
         public abstract bool HasElement(
             out BsonType bsonType
         );
@@ -197,6 +198,9 @@ namespace MongoDB.BsonLibrary.IO {
             string expectedName
         );
         public abstract void SkipElement();
+        public abstract void SkipElement(
+            string expectedName
+        );
         public abstract void VerifyString(
             string expectedName,
             string expectedValue

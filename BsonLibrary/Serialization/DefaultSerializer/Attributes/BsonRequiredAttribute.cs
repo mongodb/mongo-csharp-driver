@@ -18,8 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.BsonLibrary.Serialization {
+namespace MongoDB.BsonLibrary.DefaultSerializer {
     [AttributeUsage(AttributeTargets.Property)]
-    public class BsonIgnoreIfNullAttribute : Attribute {
+    public class BsonRequiredAttribute : Attribute {
     }
 }
