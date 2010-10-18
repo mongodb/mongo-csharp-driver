@@ -580,7 +580,14 @@ namespace MongoDB.BsonLibrary.IO {
             int needed
         ) {
             if (length - position < needed) {
-                throw new EndOfStreamException("Not enough input bytes available");
+                var available = length - position;
+                var message = string.Format(
+                    "Not enough input bytes available: {0} needed but only {1} available (at position {2})",
+                    needed,
+                    available,
+                    position
+                );
+                throw new EndOfStreamException(message);
             }
         }
 

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Serialization\DefaultSerializser\Attributes\BsonAttributeTests.cs" />
     <Compile Include="ObjectModel\BsonDocumentTests.cs" />
     <Compile Include="ObjectModel\BsonElementTests.cs" />
