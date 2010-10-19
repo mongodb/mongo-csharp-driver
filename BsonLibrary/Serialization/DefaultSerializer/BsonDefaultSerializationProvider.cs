@@ -71,8 +71,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
 
             if (type.IsEnum) {
-                // TODO: support serialization of enums
-                return null;
+                return GeneralEnumSerializer.Singleton;
             }
 
             if (
