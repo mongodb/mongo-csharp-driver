@@ -65,7 +65,7 @@
     <Compile Include="Serialization\DefaultSerializer\Attributes\BsonRequiredAttribute.cs" />
     <Compile Include="Serialization\DefaultSerializer\Attributes\BsonUseCompactRepresentationAttribute.cs" />
     <Compile Include="Serialization\DefaultSerializer\BsonClassMap.cs" />
-    <Compile Include="Serialization\DefaultSerializer\BsonDefaultSerializer.cs" />
+    <Compile Include="Serialization\DefaultSerializer\BsonClassMapSerializer.cs" />
     <Compile Include="Serialization\DefaultSerializer\BsonPropertyMap.cs" />
     <Compile Include="ObjectModel\BsonArray.cs" />
     <Compile Include="IO\BsonBinaryReader.cs" />
@@ -111,6 +111,7 @@
     <Compile Include="ObjectModel\BsonMinKey.cs" />
     <Compile Include="IO\BsonBuffer.cs" />
     <Compile Include="Serialization\DefaultSerializer\BsonDefaultSerializationProvider.cs" />
+    <Compile Include="Serialization\DefaultSerializer\Serializers\GenericArraySerializer.cs" />
     <Compile Include="Serialization\DefaultSerializer\Serializers\BsonIBsonSerializableSerializer.cs" />
     <Compile Include="Serialization\IBsonSerializable.cs" />
     <Compile Include="Serialization\IBsonSerializer.cs" />

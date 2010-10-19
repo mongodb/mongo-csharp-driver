@@ -62,8 +62,8 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         ) {
             // TODO: verify nominalType is IEnumerable<T>
             var elementType = nominalType.GetGenericArguments()[0];
-            var genericDeserializePropertyHelperInfo = this.GetType().GetMethod("DeserializeDocumentHelper");
-            var deserializePropertyHelperInfo = genericDeserializePropertyHelperInfo.MakeGenericMethod(elementType);
+            var deserializePropertyHelperDefinition = this.GetType().GetMethod("DeserializeDocumentHelper");
+            var deserializePropertyHelperInfo = deserializePropertyHelperDefinition.MakeGenericMethod(elementType);
             return deserializePropertyHelperInfo.Invoke(this, new object[] { bsonReader, nominalType });
         }
 
@@ -117,8 +117,8 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         ) {
             // TODO: verify nominalType is IEnumerable<T>
             var elementType = nominalType.GetGenericArguments()[0];
-            var genericSerializeDocumentHelperInfo = this.GetType().GetMethod("SerializeDocumentHelper");
-            var serializeDocumentHelperInfo = genericSerializeDocumentHelperInfo.MakeGenericMethod(elementType);
+            var serializeDocumentHelperDefinition = this.GetType().GetMethod("SerializeDocumentHelper");
+            var serializeDocumentHelperInfo = serializeDocumentHelperDefinition.MakeGenericMethod(elementType);
             serializeDocumentHelperInfo.Invoke(this, new object[] { bsonWriter, document });
         }
 

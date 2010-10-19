@@ -25,18 +25,18 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.BsonLibrary.DefaultSerializer {
-    public class BsonDefaultSerializer : IBsonSerializer {
+    public class BsonClassMapSerializer : IBsonSerializer {
         #region private static fields
-        private static BsonDefaultSerializer singleton = new BsonDefaultSerializer();
+        private static BsonClassMapSerializer singleton = new BsonClassMapSerializer();
         #endregion
 
         #region constructors
-        private BsonDefaultSerializer() {
+        private BsonClassMapSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static BsonDefaultSerializer Singleton {
+        public static BsonClassMapSerializer Singleton {
             get { return singleton; }
         }
         #endregion
@@ -46,6 +46,8 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
+            VerifyNominalType(nominalType);
+
             // peek at the discriminator (if present) to see what class to create an instance for
             var discriminator = bsonReader.FindString("_t");
             Type actualType;
@@ -112,6 +114,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             Type nominalType,
             out string name
         ) {
+            VerifyNominalType(nominalType);
             var bsonType = bsonReader.PeekBsonType();
             if (bsonType == BsonType.Null) {
                 bsonReader.ReadNull(out name);
@@ -128,12 +131,8 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             object obj,
             bool serializeIdFirst
         ) {
+            VerifyNominalType(nominalType);
             var actualType = obj.GetType();
-            if (actualType.IsPrimitive) {
-                string message = string.Format("BsonDefaultSerializer cannot be used with primitive type: {0}", actualType.FullName);
-                throw new BsonSerializationException(message);
-            }
-
             var classMap = BsonClassMap.LookupClassMap(actualType);
 
             bsonWriter.WriteStartDocument();
@@ -165,6 +164,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             object value,
             bool useCompactRepresentation
         ) {
+            VerifyNominalType(nominalType);
             if (value == null) {
                 bsonWriter.WriteNull(name);
             } else {
@@ -195,6 +195,18 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
                 propertyMap.Serializer.SerializeElement(bsonWriter, nominalType, elementName, value, useCompactRepresentation);
             } else {
                 BsonSerializer.SerializeElement(bsonWriter, nominalType, elementName, value, useCompactRepresentation);
+            }
+        }
+
+        private void VerifyNominalType(
+            Type nominalType
+        ) {
+            if (
+                !(nominalType.IsClass || nominalType.IsInterface) ||
+                typeof(Array).IsAssignableFrom(nominalType)
+            ) {
+                string message = string.Format("BsonClassMapSerializer cannot be used with type: {0}", nominalType.FullName);
+                throw new BsonSerializationException(message);
             }
         }
         #endregion

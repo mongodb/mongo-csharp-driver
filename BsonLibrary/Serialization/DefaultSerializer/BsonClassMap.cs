@@ -206,14 +206,14 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
                     return classMap;
                 } else {
                     // automatically register a class map for classType
-                    var genericRegisterClassMapMethodInfo = typeof(BsonClassMap).GetMethod(
+                    var registerClassMapMethodDefinition = typeof(BsonClassMap).GetMethod(
                         "RegisterClassMap", // name
                         BindingFlags.Public | BindingFlags.Static, // bindingAttr
                         null, // binder
                         new Type[] { }, // types
                         null // modifiers
                     );
-                    var registerClassMapMethodInfo = genericRegisterClassMapMethodInfo.MakeGenericMethod(classType);
+                    var registerClassMapMethodInfo = registerClassMapMethodDefinition.MakeGenericMethod(classType);
                     return (BsonClassMap) registerClassMapMethodInfo.Invoke(null, new object[] { });
                 }
             }
@@ -293,14 +293,14 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
                         continue; // ignore this property
                     }
 
-                    var genericMapPropertyInfo = this.GetType().GetMethod(
+                    var mapPropertyDefinition = this.GetType().GetMethod(
                         "MapProperty", // name
                         BindingFlags.NonPublic | BindingFlags.Instance,
                         null, // binder
                         new Type[] { typeof(PropertyInfo), typeof(string) },
                         null // modifiers
                     );
-                    var mapPropertyInfo = genericMapPropertyInfo.MakeGenericMethod(propertyInfo.PropertyType);
+                    var mapPropertyInfo = mapPropertyDefinition.MakeGenericMethod(propertyInfo.PropertyType);
 
                     var elementName = propertyInfo.Name;
                     var order = int.MaxValue;

@@ -127,6 +127,11 @@ namespace MongoDB.BsonLibrary.Serialization {
                         serializer = serializationProvider.GetSerializer(type);
                     }
 
+                    if (serializer == null) {
+                        var message = string.Format("No serializer found for type: {0}", type.FullName);
+                        throw new BsonSerializationException(message);
+                    }
+
                     registry[type] = serializer;
                 }
 

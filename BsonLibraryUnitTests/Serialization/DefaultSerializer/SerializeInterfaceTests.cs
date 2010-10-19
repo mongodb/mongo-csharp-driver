@@ -33,14 +33,14 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
 
         private class A : IX {
             static A() {
-                BsonSerializer.RegisterSerializer(typeof(IX), BsonDefaultSerializer.Singleton);
+                BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Singleton);
             }
             public string FX { get; set; }
         }
 
         private class B : IX {
             static B() {
-                BsonSerializer.RegisterSerializer(typeof(IX), BsonDefaultSerializer.Singleton);
+                BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Singleton);
             }
             public string FX { get; set; }
         }
