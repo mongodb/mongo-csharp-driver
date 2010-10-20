@@ -170,7 +170,7 @@ namespace MongoDB.CSharpDriver {
             return this;
         }
 
-        public MongoCursor<TQuery, TDocument> SetFields<TFields>(
+        public MongoCursor<TQuery, TDocument> SetFields(
             params string[] fields
         ) {
             if (isFrozen) { ThrowFrozen(); }
