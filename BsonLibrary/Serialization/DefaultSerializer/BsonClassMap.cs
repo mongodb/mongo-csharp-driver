@@ -184,7 +184,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
                 }
 
                 if (actualType == null) {
-                    string message = string.Format("Unknown discriminator: {0}", discriminator);
+                    string message = string.Format("Unknown discriminator value: {0}", discriminator);
                     throw new BsonSerializationException(message);
                 }
 
@@ -267,6 +267,10 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
 
         #region public methods
         public void AutoMap() {
+            foreach (BsonKnownTypeAttribute knownTypeAttribute in classType.GetCustomAttributes(typeof(BsonKnownTypeAttribute), false)) {
+                BsonClassMap.LookupClassMap(knownTypeAttribute.KnownType); // will AutoMap KnownType if necessary
+            }
+
             var discriminatorAttribute = (BsonDiscriminatorAttribute) classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
             if (discriminatorAttribute != null) {
                 discriminator = discriminatorAttribute.Discriminator;

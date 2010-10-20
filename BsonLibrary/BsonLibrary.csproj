@@ -62,6 +62,7 @@
     <Compile Include="Serialization\DefaultSerializer\Attributes\BsonIgnoreAttribute.cs" />
     <Compile Include="Serialization\DefaultSerializer\Attributes\BsonIgnoreExtraElementsAttribute.cs" />
     <Compile Include="Serialization\DefaultSerializer\Attributes\BsonIgnoreIfNullAttribute.cs" />
+    <Compile Include="Serialization\DefaultSerializer\Attributes\BsonKnownTypeAttribute.cs" />
     <Compile Include="Serialization\DefaultSerializer\Attributes\BsonRequiredAttribute.cs" />
     <Compile Include="Serialization\DefaultSerializer\Attributes\BsonUseCompactRepresentationAttribute.cs" />
     <Compile Include="Serialization\DefaultSerializer\BsonClassMap.cs" />
