@@ -133,7 +133,9 @@ namespace MongoDB.BsonLibrary {
             if (TryMapToBsonValue(value, out bsonValue)) {
                 return bsonValue;
             }
-            throw new ArgumentException(".NET type {0} cannot be mapped to a BsonValue", value.GetType().FullName);
+
+            var message = string.Format(".NET type {0} cannot be mapped to a BsonValue", value.GetType().FullName);
+            throw new ArgumentException(message);
         }
 
         public static BsonValue MapToBsonValue(
