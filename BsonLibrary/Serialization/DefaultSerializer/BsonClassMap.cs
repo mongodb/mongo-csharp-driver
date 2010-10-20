@@ -165,6 +165,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             lock (staticLock) {
                 Type actualType = null;
 
+                LookupClassMap(nominalType); // make sure any "known types" of nominal type have been registered
                 List<Type> typeList;
                 if (discriminatedTypes.TryGetValue(discriminator, out typeList)) {
                     foreach (var type in typeList) {
