@@ -57,6 +57,12 @@ namespace MongoDB.BsonLibrary {
         #endregion
 
         #region public methods
+        public bool AssignId(
+            out object existingId
+        ) {
+            throw new InvalidOperationException();
+        }
+
         public override int CompareTo(
             BsonValue other
         ) {
@@ -67,7 +73,7 @@ namespace MongoDB.BsonLibrary {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
+            throw new InvalidOperationException("DeserializeDocument not valid for BsonDocumentWrapper");
         }
 
         public object DeserializeElement(
@@ -75,7 +81,7 @@ namespace MongoDB.BsonLibrary {
             Type nominalType,
             out string name
         ) {
-            throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
+            throw new InvalidOperationException("DeserializeElement not valid for BsonDocumentWrapper");
         }
 
         public override bool Equals(

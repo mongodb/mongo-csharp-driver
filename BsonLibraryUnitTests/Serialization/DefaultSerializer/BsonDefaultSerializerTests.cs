@@ -44,6 +44,14 @@ namespace MongoDB.BsonLibrary.UnitTests.Serialization {
 
         public class Employee {
             private class DateOfBirthSerializer : IBsonSerializer {
+                public bool AssignId(
+                    object document,
+                    out object existingId
+                ) {
+                    existingId = null;
+                    return false;
+                }
+
                 public object DeserializeDocument(
                     BsonReader bsonReader,
                     Type nominalType

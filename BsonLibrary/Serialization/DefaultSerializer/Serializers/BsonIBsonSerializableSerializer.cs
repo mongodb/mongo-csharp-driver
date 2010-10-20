@@ -24,7 +24,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.BsonLibrary.DefaultSerializer {
-    public class BsonIBsonSerializableSerializer : IBsonSerializer {
+    public class BsonIBsonSerializableSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonIBsonSerializableSerializer singleton = new BsonIBsonSerializableSerializer();
         #endregion
@@ -47,7 +47,15 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
+        public override bool AssignId(
+            object document,
+            out object existingId
+        ) {
+            var bsonSerializable = (IBsonSerializable) document;
+            return bsonSerializable.AssignId(out existingId);
+        }
+
+        public override object DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
         ) {
@@ -55,16 +63,16 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             return value.DeserializeDocument(bsonReader, nominalType);
         }
 
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
         ) {
-            bsonReader.ReadDocumentName(out name);
-            return DeserializeDocument(bsonReader, nominalType);
+            var value = (IBsonSerializable) Activator.CreateInstance(nominalType);
+            return value.DeserializeElement(bsonReader, nominalType, out name);
         }
 
-        public void SerializeDocument(
+        public override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             object document,
@@ -74,7 +82,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             value.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
         }
 
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

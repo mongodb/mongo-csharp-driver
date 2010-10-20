@@ -36,5 +36,14 @@ namespace MongoDB.CSharpDriver.Builders {
             return this.ToJson(); // "this." required to access extension method
         }
         #endregion
+
+        #region protected methods
+        // TODO: have BuilderBase implement interfaces
+        public bool AssignId(
+            out object existingId
+        ) {
+            throw new InvalidOperationException();
+        }
+        #endregion
     }
 }

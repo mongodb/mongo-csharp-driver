@@ -24,7 +24,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.BsonLibrary.DefaultSerializer {
-    public class GenericEnumerableSerializer : IBsonSerializer {
+    public class GenericEnumerableSerializer : BsonBaseSerializer {
         #region private static fields
         private static GenericEnumerableSerializer singleton = new GenericEnumerableSerializer();
         #endregion
@@ -56,7 +56,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
+        public override object DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
         ) {
@@ -94,7 +94,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             return value;
         }
 
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type type,
             out string name
@@ -109,7 +109,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
+        public override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             object document,
@@ -143,7 +143,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             bsonWriter.WriteEndDocument();
         }
 
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

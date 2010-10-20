@@ -314,6 +314,24 @@ namespace MongoDB.BsonLibrary {
             return this;
         }
 
+        public bool AssignId(
+            out object existingId
+        ) {
+            existingId = null;
+            int idIndex;
+            if (indexes.TryGetValue("_id", out idIndex)) {
+                var idElement = elements[idIndex];
+                existingId = idElement.Value;
+                if (idElement.Value.IsObjectId && idElement.Value == ObjectId.Empty) {
+                    idElement.Value = ObjectId.GenerateNewId();
+                }
+            } else {
+                var idElement = new BsonElement("_id", BsonObjectId.GenerateNewId());
+                InsertAt(0, idElement);
+            }
+            return true;
+        }
+
         public void Clear() {
             elements.Clear();
             indexes.Clear();
@@ -389,8 +407,14 @@ namespace MongoDB.BsonLibrary {
             Type nominalType,
             out string name
         ) {
-            bsonReader.ReadDocumentName(out name);
-            return DeserializeDocument(bsonReader, nominalType);
+            var bsonType = bsonReader.PeekBsonType();
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(out name);
+                return null;
+            } else {
+                bsonReader.ReadDocumentName(out name);
+                return DeserializeDocument(bsonReader, nominalType);
+            }
         }
 
         public bool Equals(

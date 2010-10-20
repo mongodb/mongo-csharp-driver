@@ -24,7 +24,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.BsonLibrary.DefaultSerializer {
-    public class BsonArraySerializer : IBsonSerializer {
+    public class BsonArraySerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonArraySerializer singleton = new BsonArraySerializer();
         #endregion
@@ -47,14 +47,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -69,16 +62,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -95,7 +79,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonBinaryDataSerializer : IBsonSerializer {
+    public class BsonBinaryDataSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonBinaryDataSerializer singleton = new BsonBinaryDataSerializer();
         #endregion
@@ -118,14 +102,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -142,16 +119,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -168,7 +136,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonBooleanSerializer : IBsonSerializer {
+    public class BsonBooleanSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonBooleanSerializer singleton = new BsonBooleanSerializer();
         #endregion
@@ -191,14 +159,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -212,16 +173,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -238,7 +190,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonDateTimeSerializer : IBsonSerializer {
+    public class BsonDateTimeSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonDateTimeSerializer singleton = new BsonDateTimeSerializer();
         #endregion
@@ -261,14 +213,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -282,16 +227,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -308,7 +244,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonDocumentSerializer : IBsonSerializer {
+    public class BsonDocumentSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonDocumentSerializer singleton = new BsonDocumentSerializer();
         #endregion
@@ -331,14 +267,22 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
+        public override bool AssignId(
+            object document,
+            out object existingId
+        ) {
+            var bsonDocument = (BsonDocument) document;
+            return bsonDocument.AssignId(out existingId);
+        }
+
+        public override object DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
         ) {
             return BsonDocument.ReadFrom(bsonReader);
         }
 
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -353,7 +297,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
+        public override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             object document,
@@ -363,7 +307,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             value.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
         }
 
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -380,7 +324,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonDocumentWrapperSerializer : IBsonSerializer {
+    public class BsonDocumentWrapperSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonDocumentWrapperSerializer singleton = new BsonDocumentWrapperSerializer();
         #endregion
@@ -403,22 +347,15 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException("BsonDocumentWrappers cannot be deserialized");
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
         ) {
-            throw new InvalidOperationException("BsonDocumentWrappers cannot be deserialized");
+            throw new InvalidOperationException();
         }
 
-        public void SerializeDocument(
+        public override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             object document,
@@ -428,7 +365,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             value.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
         }
 
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -446,7 +383,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonDoubleSerializer : IBsonSerializer {
+    public class BsonDoubleSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonDoubleSerializer singleton = new BsonDoubleSerializer();
         #endregion
@@ -469,14 +406,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -490,16 +420,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -516,7 +437,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonInt32Serializer : IBsonSerializer {
+    public class BsonInt32Serializer : BsonBaseSerializer {
         #region private static fields
         private static BsonInt32Serializer singleton = new BsonInt32Serializer();
         #endregion
@@ -539,14 +460,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -560,16 +474,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -586,7 +491,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonInt64Serializer : IBsonSerializer {
+    public class BsonInt64Serializer : BsonBaseSerializer {
         #region private static fields
         private static BsonInt64Serializer singleton = new BsonInt64Serializer();
         #endregion
@@ -609,14 +514,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -630,16 +528,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -656,7 +545,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonJavaScriptSerializer : IBsonSerializer {
+    public class BsonJavaScriptSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonJavaScriptSerializer singleton = new BsonJavaScriptSerializer();
         #endregion
@@ -679,14 +568,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -700,16 +582,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -726,7 +599,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonJavaScriptWithScopeSerializer : IBsonSerializer {
+    public class BsonJavaScriptWithScopeSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonJavaScriptWithScopeSerializer singleton = new BsonJavaScriptWithScopeSerializer();
         #endregion
@@ -749,14 +622,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -772,16 +638,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -799,7 +656,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonMaxKeySerializer : IBsonSerializer {
+    public class BsonMaxKeySerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonMaxKeySerializer singleton = new BsonMaxKeySerializer();
         #endregion
@@ -822,14 +679,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -844,16 +694,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -870,7 +711,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonMinKeySerializer : IBsonSerializer {
+    public class BsonMinKeySerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonMinKeySerializer singleton = new BsonMinKeySerializer();
         #endregion
@@ -893,14 +734,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -915,16 +749,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -941,7 +766,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonNullSerializer : IBsonSerializer {
+    public class BsonNullSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonNullSerializer singleton = new BsonNullSerializer();
         #endregion
@@ -964,14 +789,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -989,16 +807,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new NotImplementedException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -1018,7 +827,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonObjectIdSerializer : IBsonSerializer {
+    public class BsonObjectIdSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonObjectIdSerializer singleton = new BsonObjectIdSerializer();
         #endregion
@@ -1041,14 +850,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -1065,16 +867,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new NotImplementedException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -1091,7 +884,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonRegularExpressionSerializer : IBsonSerializer {
+    public class BsonRegularExpressionSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonRegularExpressionSerializer singleton = new BsonRegularExpressionSerializer();
         #endregion
@@ -1114,14 +907,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -1137,16 +923,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -1163,7 +940,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonStringSerializer : IBsonSerializer {
+    public class BsonStringSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonStringSerializer singleton = new BsonStringSerializer();
         #endregion
@@ -1186,14 +963,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -1207,16 +977,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -1233,7 +994,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonSymbolSerializer : IBsonSerializer {
+    public class BsonSymbolSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonSymbolSerializer singleton = new BsonSymbolSerializer();
         #endregion
@@ -1256,14 +1017,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -1277,16 +1031,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -1303,7 +1048,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonTimestampSerializer : IBsonSerializer {
+    public class BsonTimestampSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonTimestampSerializer singleton = new BsonTimestampSerializer();
         #endregion
@@ -1326,14 +1071,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -1347,16 +1085,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
@@ -1373,7 +1102,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
     }
 
-    public class BsonValueSerializer : IBsonSerializer {
+    public class BsonValueSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonValueSerializer singleton = new BsonValueSerializer();
         #endregion
@@ -1396,14 +1125,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -1420,16 +1142,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

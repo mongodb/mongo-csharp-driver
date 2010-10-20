@@ -111,6 +111,7 @@
     <Compile Include="ObjectModel\BsonMinKey.cs" />
     <Compile Include="IO\BsonBuffer.cs" />
     <Compile Include="Serialization\DefaultSerializer\BsonDefaultSerializationProvider.cs" />
+    <Compile Include="Serialization\DefaultSerializer\Serializers\BsonBaseSerializer.cs" />
     <Compile Include="Serialization\DefaultSerializer\Serializers\GeneralEnumSerializer.cs" />
     <Compile Include="Serialization\DefaultSerializer\Serializers\GenericArraySerializer.cs" />
     <Compile Include="Serialization\DefaultSerializer\Serializers\BsonIBsonSerializableSerializer.cs" />

@@ -24,7 +24,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.BsonLibrary.DefaultSerializer {
-    public class GeneralEnumSerializer : IBsonSerializer {
+    public class GeneralEnumSerializer : BsonBaseSerializer {
         #region private static fields
         private static GeneralEnumSerializer singleton = new GeneralEnumSerializer();
         #endregion
@@ -41,14 +41,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -67,16 +60,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object document,
-            bool serializeIdFirst
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

@@ -25,7 +25,7 @@ using MongoDB.BsonLibrary.IO;
 using MongoDB.BsonLibrary.Serialization;
 
 namespace MongoDB.BsonLibrary.DefaultSerializer {
-    public class BsonClassMapSerializer : IBsonSerializer {
+    public class BsonClassMapSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonClassMapSerializer singleton = new BsonClassMapSerializer();
         #endregion
@@ -42,7 +42,27 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
+        public override bool AssignId(
+            object document,
+            out object existingId
+        ) {
+            existingId = null;
+            var classMap = BsonClassMap.LookupClassMap(document.GetType());
+            var idPropertyMap = classMap.IdPropertyMap;
+            if (idPropertyMap != null) {
+                if (idPropertyMap.PropertyType == typeof(ObjectId)) {
+                    existingId = idPropertyMap.Getter(document);
+                    var objectId = (ObjectId) existingId;
+                    if (objectId == ObjectId.Empty) {
+                        idPropertyMap.Setter(document, ObjectId.GenerateNewId());
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public override object DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
         ) {
@@ -109,7 +129,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             return obj;
         }
 
-        public object DeserializeElement(
+        public override object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -125,7 +145,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
+        public override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             object obj,
@@ -157,7 +177,7 @@ namespace MongoDB.BsonLibrary.DefaultSerializer {
             bsonWriter.WriteEndDocument();
         }
 
-        public void SerializeElement(
+        public override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

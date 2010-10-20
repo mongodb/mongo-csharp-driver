@@ -38,6 +38,14 @@ namespace MongoDB.BsonLibrary.Serialization {
         #endregion
 
         #region public static methods
+        public static bool AssignId(
+            object document,
+            out object existingId
+        ) {
+            var serializer = LookupSerializer(document.GetType());
+            return serializer.AssignId(document, out existingId);
+        }
+
         public static T DeserializeDocument<T>(
             BsonReader bsonReader
         ) {

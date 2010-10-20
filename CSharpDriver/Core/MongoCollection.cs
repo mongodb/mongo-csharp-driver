@@ -31,7 +31,7 @@ namespace MongoDB.CSharpDriver {
         private MongoDatabase database;
         private string name;
         private SafeMode safeMode;
-        private bool assignObjectIdsOnInsert = true;
+        private bool assignIdOnInsert = true;
         private HashSet<string> indexCache = new HashSet<string>(); // serves as its own lock object also
         #endregion
 
@@ -65,9 +65,9 @@ namespace MongoDB.CSharpDriver {
             set { safeMode = value; }
         }
 
-        public bool AssignObjectIdsOnInsert {
-            get { return assignObjectIdsOnInsert; }
-            set { assignObjectIdsOnInsert = value; }
+        public bool AssignIdOnInsert {
+            get { return assignIdOnInsert; }
+            set { assignIdOnInsert = value; }
         }
         #endregion
 
@@ -390,16 +390,12 @@ namespace MongoDB.CSharpDriver {
                 message.WriteToBuffer(); // must be called before AddDocument
 
                 foreach (var document in documents) {
-                    if (assignObjectIdsOnInsert) {
-                        // TODO: find a way to do this more efficiently without creating an intermediate BsonDocument
-                        var bsonDocument = document.ToBsonDocument();
-                        if (!bsonDocument.Contains("_id")) {
-                            bsonDocument.InsertAt(0, new BsonElement("_id", BsonObjectId.GenerateNewId()));
-                        }
-                        message.AddDocument(bsonDocument);
-                    } else {
-                        message.AddDocument(document);
+                    if (assignIdOnInsert) {
+                        object existingId;
+                        BsonSerializer.AssignId(document, out existingId);
                     }
+                    message.AddDocument(document);
+
                     if (message.MessageLength > MongoDefaults.MaxMessageLength) {
                         byte[] lastDocument = message.RemoveLastDocument();
                         var intermediateError = connection.SendMessage(message, safeMode);
@@ -549,16 +545,12 @@ namespace MongoDB.CSharpDriver {
             TDocument document,
             SafeMode safeMode
         ) {
-            // TODO: find a way to do this more efficiently without creating an intermediate BsonDocument
-            var bsonDocument = document.ToBsonDocument();
-            BsonValue id = bsonDocument["_id", null];
-            if (id == null) {
-                id = BsonObjectId.GenerateNewId();
-                bsonDocument.InsertAt(0, new BsonElement("_id", id));
+            object existingId;
+            if (BsonSerializer.AssignId(document, out existingId)) {
                 return Insert(document, safeMode);
             } else {
-                var query = new BsonDocument("_id", id);
-                return Update(query, bsonDocument, UpdateFlags.Upsert, safeMode);
+                var query = new BsonDocument("_id", BsonValue.Create(existingId));
+                return Update(query, document, UpdateFlags.Upsert, safeMode);
             }
         }
 
