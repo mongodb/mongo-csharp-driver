@@ -243,6 +243,17 @@ namespace MongoDB.CSharpDriver {
             return database.RunCommand(command);
         }
 
+        public TDocument FetchAs<TDocument>(
+            MongoDBRef dbRef
+        ) {
+            if (dbRef.DatabaseName == null) {
+                throw new MongoException("MongoDBRef DatabaseName missing");
+            }
+
+            var database = GetDatabase(dbRef.DatabaseName);
+            return database.FetchAs<TDocument>(dbRef);
+        }
+
         public MongoDatabase GetDatabase(
             string databaseName
         ) {

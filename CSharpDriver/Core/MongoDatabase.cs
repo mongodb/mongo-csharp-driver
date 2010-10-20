@@ -198,6 +198,18 @@ namespace MongoDB.CSharpDriver {
             return result["retval"];
         }
 
+        public TDocument FetchAs<TDocument>(
+            MongoDBRef dbRef
+        ) {
+            if (dbRef.DatabaseName != null && dbRef.DatabaseName != name) {
+                return server.FetchAs<TDocument>(dbRef);
+            }
+
+            var collection = GetCollection(dbRef.CollectionName);
+            var query = new BsonDocument("_id", BsonValue.Create(dbRef.Id));
+            return collection.FindOneAs<TDocument>(query);
+        }
+
         public MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {

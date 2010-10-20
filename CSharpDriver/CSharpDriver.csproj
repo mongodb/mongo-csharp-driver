@@ -57,6 +57,7 @@
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
+    <Compile Include="Core\MongoDBRef.cs" />
     <Compile Include="Exceptions\MongoAuthenticationException.cs" />
     <Compile Include="Exceptions\MongoCommandException.cs" />
     <Compile Include="Exceptions\MongoConnectionException.cs" />
