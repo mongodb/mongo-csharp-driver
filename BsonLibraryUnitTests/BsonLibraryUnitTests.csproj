@@ -36,6 +36,9 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -48,6 +51,7 @@
   <ItemGroup>
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
+    <Compile Include="Jira\CSharp74Tests.cs" />
     <Compile Include="Serialization\DefaultSerializer\Attributes\BsonAttributeTests.cs" />
     <Compile Include="ObjectModel\BsonDocumentTests.cs" />
     <Compile Include="ObjectModel\BsonElementTests.cs" />
