@@ -15,11 +15,9 @@ of the work.
 
 10gen          	       	       	       	   samus
 -----					   -----
-using MongoDB.BsonLibrary;                 using MongoDB;
-using MongoDB.MongoDBClient;
-                                           using MongoDB.GridFS
-
-Note that GridFS is included in the 10gen MongoDBClient library.
+using MongoDB.Bson;                        using MongoDB;
+using MongoDB.Driver;
+using MongoDB.Driver.GridFS;               using MongoDB.GridFS;
 
 * Frequently-used classes
 

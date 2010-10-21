@@ -1,0 +1,160 @@
+﻿/* Copyright 2010 10gen Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace MongoDB.Bson.IO {
+    public abstract class BsonWriter : IDisposable {
+        #region constructors
+        protected BsonWriter() {
+        }
+        #endregion
+
+        #region public static methods
+        public static BsonWriter Create(
+            BsonBinaryWriterSettings settings
+        ) {
+            return new BsonBinaryWriter(null, null, settings);
+        }
+
+        public static BsonWriter Create(
+            BsonBuffer buffer
+        ) {
+            return new BsonBinaryWriter(null, buffer, BsonBinaryWriterSettings.Defaults);
+        }
+
+        public static BsonWriter Create(
+            BsonBuffer buffer,
+            BsonBinaryWriterSettings settings
+        ) {
+            return new BsonBinaryWriter(null, buffer, settings);
+        }
+
+        public static BsonWriter Create(
+            Stream stream
+        ) {
+            return Create(stream, BsonBinaryWriterSettings.Defaults);
+        }
+
+        public static BsonWriter Create(
+            Stream stream,
+            BsonBinaryWriterSettings settings
+        ) {
+            return new BsonBinaryWriter(stream, null, BsonBinaryWriterSettings.Defaults);
+        }
+
+        public static BsonWriter Create(
+            TextWriter writer
+        ) {
+            return new BsonJsonWriter(writer, BsonJsonWriterSettings.Defaults);
+        }
+
+        public static BsonWriter Create(
+            TextWriter writer,
+            BsonJsonWriterSettings settings
+        ) {
+            return new BsonJsonWriter(writer, settings);
+        }
+        #endregion
+
+        #region public properties
+        public abstract BsonWriteState WriteState { get; }
+        #endregion
+
+        #region public methods
+        public abstract void Close();
+        public abstract void Dispose();
+        public abstract void Flush();
+        public abstract void WriteArrayName(
+            string name
+        );
+        public abstract void WriteBinaryData(
+            string name,
+            byte[] bytes,
+            BsonBinarySubType subType
+        );
+        public abstract void WriteBoolean(
+            string name,
+            bool value
+        );
+        public abstract void WriteDateTime(
+            string name,
+            DateTime value
+        );
+        public abstract void WriteDocumentName(
+            string name
+        );
+        public abstract void WriteDouble(
+            string name,
+            double value
+        );
+        public abstract void WriteEndDocument();
+        public abstract void WriteInt32(
+            string name,
+            int value
+        );
+        public abstract void WriteInt64(
+            string name,
+            long value
+        );
+        public abstract void WriteJavaScript(
+            string name,
+            string code
+        );
+        public abstract void WriteJavaScriptWithScope(
+            string name,
+            string code
+        );
+        public abstract void WriteMaxKey(
+            string name
+        );
+        public abstract void WriteMinKey(
+            string name
+        );
+        public abstract void WriteNull(
+            string name
+        );
+        public abstract void WriteObjectId(
+            string name,
+            int timestamp,
+            long machinePidIncrement
+        );
+        public abstract void WriteRegularExpression(
+            string name,
+            string pattern,
+            string options
+        );
+        public abstract void WriteStartDocument();
+        public abstract void WriteString(
+            string name,
+            string value
+        );
+        public abstract void WriteSymbol(
+            string name,
+            string value
+        );
+        public abstract void WriteTimestamp(
+            string name,
+            long value
+        );
+        #endregion
+    }
+}

@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MongoDB.Bson</RootNamespace>
+    <AssemblyName>MongoDB.Bson</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BsonExtensionMethods.cs" />
+    <Compile Include="Exceptions\BsonInternalException.cs" />
+    <Compile Include="Exceptions\BsonSerializationException.cs" />
+    <Compile Include="ObjectModel\IConvertibleToBsonDocument.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonDefaultValueAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonDiscriminatorAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonElementAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonIdAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonIgnoreAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonIgnoreExtraElementsAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonIgnoreIfNullAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonKnownTypeAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonRequiredAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonUseCompactRepresentationAttribute.cs" />
+    <Compile Include="DefaultSerializer\BsonClassMap.cs" />
+    <Compile Include="DefaultSerializer\BsonClassMapSerializer.cs" />
+    <Compile Include="DefaultSerializer\BsonPropertyMap.cs" />
+    <Compile Include="ObjectModel\BsonArray.cs" />
+    <Compile Include="IO\BsonBinaryReader.cs" />
+    <Compile Include="IO\BsonBinaryReaderSettings.cs" />
+    <Compile Include="BsonDefaults.cs" />
+    <Compile Include="IO\BsonJsonOutputMode.cs" />
+    <Compile Include="IO\BsonJsonWriter.cs" />
+    <Compile Include="IO\BsonJsonWriterSettings.cs" />
+    <Compile Include="ObjectModel\BsonBoolean.cs" />
+    <Compile Include="ObjectModel\BsonDateTime.cs" />
+    <Compile Include="ObjectModel\BsonDocumentWrapper.cs" />
+    <Compile Include="ObjectModel\BsonInt64.cs" />
+    <Compile Include="ObjectModel\BsonNull.cs" />
+    <Compile Include="ObjectModel\BsonBinaryData.cs" />
+    <Compile Include="ObjectModel\BsonJavaScriptWithScope.cs" />
+    <Compile Include="IO\BsonReader.cs" />
+    <Compile Include="IO\BsonReadState.cs" />
+    <Compile Include="Serialization\BsonSerializer.cs" />
+    <Compile Include="ObjectModel\ObjectId.cs" />
+    <Compile Include="ObjectModel\BsonTypeMapper.cs" />
+    <Compile Include="BsonUtils.cs" />
+    <Compile Include="ObjectModel\BsonDouble.cs" />
+    <Compile Include="ObjectModel\BsonInt32.cs" />
+    <Compile Include="ObjectModel\BsonString.cs" />
+    <Compile Include="ObjectModel\BsonValue.cs" />
+    <Compile Include="IO\BsonWriter.cs" />
+    <Compile Include="IO\BsonBinaryWriterSettings.cs" />
+    <Compile Include="IO\BsonWriteState.cs" />
+    <Compile Include="ObjectModel\BsonJavaScript.cs" />
+    <Compile Include="ObjectModel\BsonTimestamp.cs" />
+    <Compile Include="BsonConstants.cs" />
+    <Compile Include="ObjectModel\BsonBinarySubType.cs" />
+    <Compile Include="ObjectModel\BsonType.cs" />
+    <Compile Include="Exceptions\BsonException.cs" />
+    <Compile Include="ObjectModel\BsonSymbolTable.cs" />
+    <Compile Include="IO\BsonBinaryWriter.cs" />
+    <Compile Include="ObjectModel\BsonDocument.cs" />
+    <Compile Include="ObjectModel\BsonElement.cs" />
+    <Compile Include="ObjectModel\BsonObjectId.cs" />
+    <Compile Include="ObjectModel\BsonRegularExpression.cs" />
+    <Compile Include="ObjectModel\BsonSymbol.cs" />
+    <Compile Include="ObjectModel\BsonMaxKey.cs" />
+    <Compile Include="ObjectModel\BsonMinKey.cs" />
+    <Compile Include="IO\BsonBuffer.cs" />
+    <Compile Include="DefaultSerializer\BsonDefaultSerializationProvider.cs" />
+    <Compile Include="DefaultSerializer\Serializers\BsonBaseSerializer.cs" />
+    <Compile Include="DefaultSerializer\Serializers\GeneralEnumSerializer.cs" />
+    <Compile Include="DefaultSerializer\Serializers\GenericArraySerializer.cs" />
+    <Compile Include="DefaultSerializer\Serializers\BsonIBsonSerializableSerializer.cs" />
+    <Compile Include="Serialization\IBsonSerializable.cs" />
+    <Compile Include="Serialization\IBsonSerializer.cs" />
+    <Compile Include="IO\BsonJsonWriterContext.cs" />
+    <Compile Include="IO\BsonBinaryReaderContext.cs" />
+    <Compile Include="IO\BsonBinaryWriterContext.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DefaultSerializer\Serializers\BsonValueSerializers.cs" />
+    <Compile Include="DefaultSerializer\Serializers\GenericEnumerableSerializer.cs" />
+    <Compile Include="DefaultSerializer\Serializers\NetPrimitiveSerializers.cs" />
+    <Compile Include="DefaultSerializer\Serializers\BsonPrimitiveSerializers.cs" />
+    <Compile Include="Serialization\IBsonSerializationProvider.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

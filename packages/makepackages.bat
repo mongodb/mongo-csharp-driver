@@ -6,15 +6,14 @@ pause
 
 rmdir /s /q %PACKAGES%
 mkdir %PACKAGES%
-xcopy /f /d /y ..\CSharpDriverSetup\Debug\CSharpDriver.msi %PACKAGES%\
+xcopy /f /d /y ..\DriverSetup\Debug\CSharpDriver.msi %PACKAGES%\
 ren %PACKAGES%\CSharpDriver.msi CSharpDriver-%VER%.msi
 
 set ZIPEXE="C:\Program Files\7-Zip\7z.exe"
 set ZIPFILE=%PACKAGES%\CSharpDriver-%VER%.zip
-%ZIPEXE% a %ZIPFILE% ..\CSharpDriver\License.txt
-%ZIPEXE% a %ZIPFILE% ..\CSharpDriver\bin\Debug\MongoDB.BsonLibrary.dll
-%ZIPEXE% a %ZIPFILE% ..\CSharpDriver\bin\Debug\MongoDB.CSharpDriver.dll
-%ZIPEXE% a %ZIPFILE% "..\docs\MongoDB C# Driver Tutorial (Draft 2010-09-30).pdf"
+%ZIPEXE% a %ZIPFILE% ..\License.txt
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.dll
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.dll
 
 echo Created %PACKAGES%
 pause
