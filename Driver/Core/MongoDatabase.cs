@@ -300,7 +300,7 @@ namespace MongoDB.Driver {
             }
             if (!result["ok"].ToBoolean()) {
                 string errmsg = result["errmsg"].AsString;
-                string errorMessage = string.Format("Command failed: {1}", errmsg);
+                string errorMessage = string.Format("Command failed: {0}", errmsg);
                 throw new MongoCommandException(errorMessage);
             }
             return result;
