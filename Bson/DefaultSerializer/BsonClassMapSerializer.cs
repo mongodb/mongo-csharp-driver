@@ -75,12 +75,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                 var propertyMap = classMap.GetPropertyMapForElement(elementName);
                 if (propertyMap != null) {
-                    object value;
-                    if (propertyMap.Serializer != null) {
-                        value = propertyMap.Serializer.DeserializeElement(bsonReader, propertyMap.PropertyType, out elementName);
-                    } else {
-                        value = BsonSerializer.DeserializeElement(bsonReader, propertyMap.PropertyType, out elementName);
-                    }
+                    object value = propertyMap.Serializer.DeserializeElement(bsonReader, propertyMap.PropertyType, out elementName);
                     propertyMap.Setter(obj, value);
                     missingElementPropertyMaps.Remove(propertyMap);
                 } else {
@@ -138,9 +133,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idPropertyMap = classMap.IdPropertyMap;
-            var idGenerator = BsonSerializer.LookupIdGenerator(idPropertyMap.PropertyType);
             existingId = idPropertyMap.Getter(document);
-            return !idGenerator.IsEmpty(existingId);
+            return !idPropertyMap.IdGenerator.IsEmpty(existingId);
         }
 
         public void GenerateDocumentId(
@@ -148,8 +142,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idPropertyMap = classMap.IdPropertyMap;
-            var idGenerator = BsonSerializer.LookupIdGenerator(idPropertyMap.PropertyType);
-            idPropertyMap.Setter(document, idGenerator.GenerateId());
+            idPropertyMap.Setter(document, idPropertyMap.IdGenerator.GenerateId());
         }
 
         public void SerializeDocument(
@@ -218,11 +211,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             var nominalType = propertyMap.PropertyType;
             var elementName = propertyMap.ElementName;
             var useCompactRepresentation = propertyMap.UseCompactRepresentation;
-            if (propertyMap.Serializer != null) {
-                propertyMap.Serializer.SerializeElement(bsonWriter, nominalType, elementName, value, useCompactRepresentation);
-            } else {
-                BsonSerializer.SerializeElement(bsonWriter, nominalType, elementName, value, useCompactRepresentation);
-            }
+            propertyMap.Serializer.SerializeElement(bsonWriter, nominalType, elementName, value, useCompactRepresentation);
         }
 
         private void VerifyNominalType(

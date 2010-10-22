@@ -41,7 +41,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             public string NotCompact { get; set; }
             public string Compact { get; set; }
 
-            [BsonId]
+            [BsonId(IdGenerator=typeof(ObjectIdGenerator))]
             public ObjectId IsId { get; set; }
             public ObjectId IsNotId { get; set; }
 

@@ -309,9 +309,15 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                     var elementName = propertyInfo.Name;
                     var order = int.MaxValue;
+                    IBsonIdGenerator idGenerator = null;
+
                     var idAttribute = (BsonIdAttribute) propertyInfo.GetCustomAttributes(typeof(BsonIdAttribute), false).FirstOrDefault();
                     if (idAttribute != null) {
                         elementName = "_id"; // if BsonIdAttribute is present ignore BsonElementAttribute
+                        var idGeneratorType = idAttribute.IdGenerator;
+                        if (idGeneratorType != null) {
+                            idGenerator = (IBsonIdGenerator) Activator.CreateInstance(idGeneratorType);
+                        }
                     } else {
                         var elementAttribute = (BsonElementAttribute) propertyInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
                         if (elementAttribute != null) {
@@ -327,6 +333,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     }
                     if (idAttribute != null) {
                         idPropertyMap = propertyMap;
+                        idPropertyMap.SetIdGenerator(idGenerator);
                     }
 
                     var defaultValueAttribute = (BsonDefaultValueAttribute) propertyInfo.GetCustomAttributes(typeof(BsonDefaultValueAttribute), false).FirstOrDefault();

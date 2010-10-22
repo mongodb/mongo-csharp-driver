@@ -21,5 +21,20 @@ using System.Text;
 namespace MongoDB.Bson.DefaultSerializer {
     [AttributeUsage(AttributeTargets.Property)]
     public class BsonIdAttribute : Attribute {
+        #region private fields
+        private Type idGenerator;
+        #endregion
+
+        #region constructors
+        public BsonIdAttribute() {
+        }
+        #endregion
+
+        #region public properties
+        public Type IdGenerator {
+            get { return idGenerator; }
+            set { idGenerator = value; }
+        }
+        #endregion
     }
 }

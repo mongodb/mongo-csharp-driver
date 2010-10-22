@@ -68,9 +68,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             // TODO: implement more IdGenerators?
             if (type == typeof(ObjectId)) {
-                return ObjectIdIdGenerator.Singleton;
+                return new ObjectIdGenerator();
             } else if (type == typeof(Guid)) {
-                return GuidIdGenerator.Singleton;
+                return new GuidGenerator();
             } else {
                 return null;
             }

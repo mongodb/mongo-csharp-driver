@@ -25,19 +25,9 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public class GuidIdGenerator : IBsonIdGenerator {
-        #region private static fields
-        private static GuidIdGenerator singleton = new GuidIdGenerator();
-        #endregion
-
+    public class GuidGenerator : IBsonIdGenerator {
         #region constructors
-        private GuidIdGenerator() {
-        }
-        #endregion
-
-        #region public static properties
-        public static GuidIdGenerator Singleton {
-            get { return singleton; }
+        public GuidGenerator() {
         }
         #endregion
 
@@ -54,19 +44,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public class ObjectIdIdGenerator : IBsonIdGenerator {
-        #region private static fields
-        private static ObjectIdIdGenerator singleton = new ObjectIdIdGenerator();
-        #endregion
-
+    public class ObjectIdGenerator : IBsonIdGenerator {
         #region constructors
-        private ObjectIdIdGenerator() {
-        }
-        #endregion
-
-        #region public static properties
-        public static ObjectIdIdGenerator Singleton {
-            get { return singleton; }
+        public ObjectIdGenerator() {
         }
         #endregion
 

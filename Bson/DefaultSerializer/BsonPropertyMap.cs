@@ -32,6 +32,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected Func<object, object> getter;
         protected Action<object, object> setter;
         protected IBsonSerializer serializer;
+        protected IBsonIdGenerator idGenerator;
         protected bool useCompactRepresentation;
         protected bool isRequired;
         protected bool hasDefaultValue;
@@ -82,7 +83,19 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         public IBsonSerializer Serializer {
             get {
+                if (serializer == null) {
+                    serializer = BsonSerializer.LookupSerializer(propertyInfo.PropertyType);
+                }
                 return serializer;
+            }
+        }
+
+        public IBsonIdGenerator IdGenerator {
+            get {
+                if (idGenerator == null) {
+                    idGenerator = BsonSerializer.LookupIdGenerator(propertyInfo.PropertyType);
+                }
+                return idGenerator;
             }
         }
 
@@ -134,6 +147,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             this.hasDefaultValue = true;
             this.serializeDefaultValue = serializeDefaultValue;
             this.defaultValue = defaultValue;
+            return this;
+        }
+
+        public BsonPropertyMap SetIdGenerator(
+            IBsonIdGenerator idGenerator
+        ) {
+            this.idGenerator = idGenerator;
             return this;
         }
 
