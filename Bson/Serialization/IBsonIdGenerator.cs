@@ -18,8 +18,8 @@ using System;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
-    public interface IBsonSerializationProvider {
-        IBsonIdGenerator GetIdGenerator(Type type);
-        IBsonSerializer GetSerializer(Type type);
+    public interface IBsonIdGenerator {
+        object GenerateId();
+        bool IsEmpty(object id);
     }
 }

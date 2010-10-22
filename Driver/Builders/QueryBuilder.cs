@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     [Serializable]
-    public abstract class QueryBuilder : BuilderBase, IConvertibleToBsonDocument, IBsonSerializable {
+    public abstract class QueryBuilder : BuilderBase {
         #region private fields
         protected BsonDocument document;
         #endregion
@@ -202,28 +202,13 @@ namespace MongoDB.Driver.Builders {
         #endregion
 
         #region public methods
-        public BsonDocument ToBsonDocument() {
+        public override BsonDocument ToBsonDocument() {
             return document;
         }
         #endregion
 
-        #region explicit interface implementations
-        object IBsonSerializable.DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException("Deserialize is not supported for QueryBuilder");
-        }
-
-        object IBsonSerializable.DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            throw new InvalidOperationException("Deserialize is not supported for QueryBuilder");
-        }
-
-        void IBsonSerializable.SerializeDocument(
+        #region protected methods
+        protected override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
@@ -231,7 +216,7 @@ namespace MongoDB.Driver.Builders {
             document.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
         }
 
-        void IBsonSerializable.SerializeElement(
+        protected override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

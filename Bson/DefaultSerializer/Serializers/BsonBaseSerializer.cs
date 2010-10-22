@@ -31,13 +31,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public virtual bool AssignId(
-            object document,
-            out object existingId
-        ) {
-            throw new InvalidOperationException();
-        }
-
         public virtual object DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
@@ -58,6 +51,25 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadDocumentName(out name);
                 return DeserializeDocument(bsonReader, nominalType);
             }
+        }
+
+        public virtual bool DocumentHasIdProperty(
+            object document
+        ) {
+            return false;
+        }
+
+        public virtual bool DocumentHasIdValue(
+            object document,
+            out object existingId
+        ) {
+            throw new InvalidOperationException();
+        }
+
+        public virtual void GenerateDocumentId(
+            object document
+        ) {
+            throw new InvalidOperationException();
         }
 
         public virtual void SerializeDocument(

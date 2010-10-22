@@ -314,24 +314,6 @@ namespace MongoDB.Bson {
             return this;
         }
 
-        public bool AssignId(
-            out object existingId
-        ) {
-            existingId = null;
-            int idIndex;
-            if (indexes.TryGetValue("_id", out idIndex)) {
-                var idElement = elements[idIndex];
-                existingId = idElement.Value;
-                if (idElement.Value.IsObjectId && idElement.Value == ObjectId.Empty) {
-                    idElement.Value = ObjectId.GenerateNewId();
-                }
-            } else {
-                var idElement = new BsonElement("_id", BsonObjectId.GenerateNewId());
-                InsertAt(0, idElement);
-            }
-            return true;
-        }
-
         public void Clear() {
             elements.Clear();
             indexes.Clear();
@@ -417,6 +399,24 @@ namespace MongoDB.Bson {
             }
         }
 
+        public bool DocumentHasIdProperty() {
+            return Contains("_id");
+        }
+
+        public bool DocumentHasIdValue(
+            out object existingId
+        ) {
+            existingId = null;
+            BsonElement idElement;
+            if (TryGetElement("_id", out idElement)) {
+                existingId = idElement.Value.RawValue;
+                var idGenerator = BsonSerializer.LookupIdGenerator(existingId.GetType());
+                return !idGenerator.IsEmpty(existingId);
+            } else {
+                return false;
+            }
+        }
+
         public bool Equals(
             BsonDocument rhs
         ) {
@@ -428,6 +428,22 @@ namespace MongoDB.Bson {
             object obj
         ) {
             return Equals(obj as BsonDocument); // works even if obj is null
+        }
+
+        public void GenerateDocumentId() {
+            BsonElement idElement;
+            if (TryGetElement("_id", out idElement)) {
+                IBsonIdGenerator idGenerator;
+                if (idElement.Value.IsBsonNull) {
+                    idGenerator = BsonSerializer.LookupIdGenerator(typeof(ObjectId));
+                } else {
+                    var existingId = idElement.Value.RawValue;
+                    idGenerator = BsonSerializer.LookupIdGenerator(existingId.GetType());
+                }
+                idElement.Value = BsonValue.Create(idGenerator.GenerateId());
+            } else {
+                this["_id"] = ObjectId.GenerateNewId();
+            }
         }
 
         public BsonElement GetElement(

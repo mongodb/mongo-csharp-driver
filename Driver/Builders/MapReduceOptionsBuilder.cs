@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     [Serializable]
-    public class MapReduceOptionsBuilder : BuilderBase, IConvertibleToBsonDocument, IBsonSerializable {
+    public class MapReduceOptionsBuilder : BuilderBase {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -156,15 +156,15 @@ namespace MongoDB.Driver.Builders {
             return SetSortOrder(SortBy.Ascending(keys));
         }
 
-        public BsonDocument ToBsonDocument() {
-            return document;
-        }
-
         public MapReduceOptionsBuilder SetVerbose(
             bool value
         ) {
             document["verbose"] = value;
             return this;
+        }
+
+        public override BsonDocument ToBsonDocument() {
+            return document;
         }
         #endregion
 
@@ -177,23 +177,8 @@ namespace MongoDB.Driver.Builders {
         }
         #endregion
 
-        #region explicit interface implementations
-        object IBsonSerializable.DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException("Deserialize is not supported for MapReduceOptionsBuilder");
-        }
-
-        object IBsonSerializable.DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            throw new InvalidOperationException("Deserialize is not supported for MapReduceOptionsBuilder");
-        }
-
-        void IBsonSerializable.SerializeDocument(
+        #region protected methods
+        protected override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
@@ -201,7 +186,7 @@ namespace MongoDB.Driver.Builders {
             document.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
         }
 
-        void IBsonSerializable.SerializeElement(
+        protected override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

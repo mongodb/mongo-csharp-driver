@@ -86,12 +86,6 @@ namespace MongoDB.Driver {
         #endregion
 
         #region explicit interface implementations
-        bool IBsonSerializable.AssignId(
-            out object existingId
-        ) {
-            throw new InvalidOperationException();
-        }
-
         object IBsonSerializable.DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
@@ -146,6 +140,20 @@ namespace MongoDB.Driver {
                 bsonReader.ReadDocumentName(out name);
                 return ((IBsonSerializable) this).DeserializeDocument(bsonReader, nominalType);
             }
+        }
+
+        bool IBsonSerializable.DocumentHasIdProperty() {
+            return false;
+        }
+
+        bool IBsonSerializable.DocumentHasIdValue(
+            out object existingId
+        ) {
+            throw new InvalidOperationException();
+        }
+
+        void IBsonSerializable.GenerateDocumentId() {
+            throw new InvalidOperationException();
         }
 
         void IBsonSerializable.SerializeDocument(

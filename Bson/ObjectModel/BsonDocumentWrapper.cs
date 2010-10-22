@@ -57,12 +57,6 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
-        public bool AssignId(
-            out object existingId
-        ) {
-            throw new InvalidOperationException();
-        }
-
         public override int CompareTo(
             BsonValue other
         ) {
@@ -84,10 +78,24 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException("DeserializeElement not valid for BsonDocumentWrapper");
         }
 
+        public bool DocumentHasIdProperty() {
+            return false;
+        }
+
+        public bool DocumentHasIdValue(
+            out object existingId
+        ) {
+            throw new InvalidOperationException();
+        }
+
         public override bool Equals(
             object obj
         ) {
             throw new InvalidOperationException("Equals not supported for BsonDocumentWrapper");
+        }
+
+        public void GenerateDocumentId() {
+            throw new InvalidOperationException();
         }
 
         public override int GetHashCode() {

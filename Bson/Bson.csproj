@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BsonExtensionMethods.cs" />
+    <Compile Include="DefaultSerializer\BsonIdGenerators.cs" />
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />
     <Compile Include="ObjectModel\IConvertibleToBsonDocument.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="DefaultSerializer\Serializers\GeneralEnumSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\GenericArraySerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonIBsonSerializableSerializer.cs" />
+    <Compile Include="Serialization\IBsonIdGenerator.cs" />
     <Compile Include="Serialization\IBsonSerializable.cs" />
     <Compile Include="Serialization\IBsonSerializer.cs" />
     <Compile Include="IO\BsonJsonWriterContext.cs" />

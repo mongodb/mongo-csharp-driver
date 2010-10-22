@@ -267,14 +267,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override bool AssignId(
-            object document,
-            out object existingId
-        ) {
-            var bsonDocument = (BsonDocument) document;
-            return bsonDocument.AssignId(out existingId);
-        }
-
         public override object DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
@@ -295,6 +287,28 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadDocumentName(out name);
                 return BsonDocument.ReadFrom(bsonReader);
             }
+        }
+
+        public override bool DocumentHasIdProperty(
+            object document
+        ) {
+            var bsonDocument = (BsonDocument) document;
+            return bsonDocument.DocumentHasIdProperty();
+        }
+
+        public override bool DocumentHasIdValue(
+            object document,
+            out object existingId
+        ) {
+            var bsonDocument = (BsonDocument) document;
+            return bsonDocument.DocumentHasIdValue(out existingId);
+        }
+
+        public override void GenerateDocumentId(
+            object document
+        ) {
+            var bsonDocument = (BsonDocument) document;
+            bsonDocument.GenerateDocumentId();
         }
 
         public override void SerializeDocument(

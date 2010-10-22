@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     [Serializable]
-    public class FieldsBuilder : BuilderBase, IConvertibleToBsonDocument, IBsonSerializable {
+    public class FieldsBuilder : BuilderBase {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -103,28 +103,13 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
-        public BsonDocument ToBsonDocument() {
+        public override BsonDocument ToBsonDocument() {
             return document;
         }
         #endregion
 
-        #region explicit interface implementations
-        object IBsonSerializable.DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException("Deserialize is not supported for FieldsBuilder");
-        }
-
-        object IBsonSerializable.DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            throw new InvalidOperationException("Deserialize is not supported for FieldsBuilder");
-        }
-
-        void IBsonSerializable.SerializeDocument(
+        #region protected methods
+        protected override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
@@ -132,7 +117,7 @@ namespace MongoDB.Driver.Builders {
             document.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
         }
 
-        void IBsonSerializable.SerializeElement(
+        protected override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

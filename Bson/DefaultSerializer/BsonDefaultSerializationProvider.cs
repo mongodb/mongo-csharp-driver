@@ -63,6 +63,19 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
+        public IBsonIdGenerator GetIdGenerator(
+            Type type
+        ) {
+            // TODO: implement more IdGenerators?
+            if (type == typeof(ObjectId)) {
+                return ObjectIdIdGenerator.Singleton;
+            } else if (type == typeof(Guid)) {
+                return GuidIdGenerator.Singleton;
+            } else {
+                return null;
+            }
+        }
+
         public IBsonSerializer GetSerializer(
             Type type
         ) {

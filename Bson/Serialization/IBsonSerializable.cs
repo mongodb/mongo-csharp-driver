@@ -23,9 +23,11 @@ using MongoDB.Bson.IO;
 namespace MongoDB.Bson.Serialization {
     public interface IBsonSerializable {
         // DeserializeDocument and DeserializeElement can return a new object (i.e. a subclass of nominalType) or even null
-        bool AssignId(out object existingId);
         object DeserializeDocument(BsonReader bsonReader, Type nominalType);
         object DeserializeElement(BsonReader bsonReader, Type nominalType, out string name);
+        bool DocumentHasIdProperty();
+        bool DocumentHasIdValue(out object existingId);
+        void GenerateDocumentId();
         void SerializeDocument(BsonWriter bsonWriter, Type nominalType, bool serializeIdFirst);
         void SerializeElement(BsonWriter bsonWriter, Type nominalType, string name, bool useCompactRepresentation);
     }

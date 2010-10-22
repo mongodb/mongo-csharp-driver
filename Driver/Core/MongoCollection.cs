@@ -391,8 +391,16 @@ namespace MongoDB.Driver {
 
                 foreach (var document in documents) {
                     if (assignIdOnInsert) {
-                        object existingId;
-                        BsonSerializer.AssignId(document, out existingId);
+                        var serializer = BsonSerializer.LookupSerializer(document.GetType());
+                        if (serializer.DocumentHasIdProperty(document)) {
+                            object existingId;
+                            if (!serializer.DocumentHasIdValue(document, out existingId)) {
+                                serializer.GenerateDocumentId(document);
+                            }
+                        } else if (document is BsonDocument) {
+                            // even if the BsonDocument didn't have an "_id" element one can be added
+                            serializer.GenerateDocumentId(document);
+                        }
                     }
                     message.AddDocument(document);
 
@@ -545,12 +553,18 @@ namespace MongoDB.Driver {
             TDocument document,
             SafeMode safeMode
         ) {
-            object existingId;
-            if (BsonSerializer.AssignId(document, out existingId)) {
-                return Insert(document, safeMode);
+            var serializer = BsonSerializer.LookupSerializer(document.GetType());
+            if (serializer.DocumentHasIdProperty(document)) {
+                object existingId;
+                if (serializer.DocumentHasIdValue(document, out existingId)) {
+                    var query = new BsonDocument("_id", BsonValue.Create(existingId));
+                    return Update(query, document, UpdateFlags.Upsert, safeMode);
+                } else {
+                    serializer.GenerateDocumentId(document);
+                    return Insert(document, safeMode);
+                }
             } else {
-                var query = new BsonDocument("_id", BsonValue.Create(existingId));
-                return Update(query, document, UpdateFlags.Upsert, safeMode);
+                return Insert(document, safeMode);
             }
         }
 

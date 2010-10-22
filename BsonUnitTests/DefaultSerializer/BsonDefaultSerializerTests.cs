@@ -44,23 +44,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
 
         public class Employee {
-            private class DateOfBirthSerializer : IBsonSerializer {
-                public bool AssignId(
-                    object document,
-                    out object existingId
-                ) {
-                    existingId = null;
-                    return false;
-                }
-
-                public object DeserializeDocument(
-                    BsonReader bsonReader,
-                    Type nominalType
-                ) {
-                    throw new InvalidOperationException();
-                }
-
-                public object DeserializeElement(
+            private class DateOfBirthSerializer : BsonBaseSerializer {
+                public override object DeserializeElement(
                     BsonReader bsonReader,
                     Type nominalType,
                     out string name
@@ -68,16 +53,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                     return DateTime.Parse(bsonReader.ReadString(out name));
                 }
 
-                public void SerializeDocument(
-                    BsonWriter bsonWriter,
-                    Type nominalType,
-                    object document,
-                    bool serializeIdFirst
-                ) {
-                    throw new InvalidOperationException();
-                }
-
-                public void SerializeElement(
+                public override void SerializeElement(
                     BsonWriter bsonWriter,
                     Type nominalType,
                     string name,

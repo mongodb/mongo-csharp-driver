@@ -25,7 +25,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public class BsonClassMapSerializer : BsonBaseSerializer {
+    public class BsonClassMapSerializer : IBsonSerializer {
         #region private static fields
         private static BsonClassMapSerializer singleton = new BsonClassMapSerializer();
         #endregion
@@ -42,27 +42,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override bool AssignId(
-            object document,
-            out object existingId
-        ) {
-            existingId = null;
-            var classMap = BsonClassMap.LookupClassMap(document.GetType());
-            var idPropertyMap = classMap.IdPropertyMap;
-            if (idPropertyMap != null) {
-                if (idPropertyMap.PropertyType == typeof(ObjectId)) {
-                    existingId = idPropertyMap.Getter(document);
-                    var objectId = (ObjectId) existingId;
-                    if (objectId == ObjectId.Empty) {
-                        idPropertyMap.Setter(document, ObjectId.GenerateNewId());
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        public override object DeserializeDocument(
+        public object DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
         ) {
@@ -129,7 +109,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             return obj;
         }
 
-        public override object DeserializeElement(
+        public object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -145,7 +125,34 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public override void SerializeDocument(
+        public bool DocumentHasIdProperty(
+            object document
+        ) {
+            var classMap = BsonClassMap.LookupClassMap(document.GetType());
+            return classMap.IdPropertyMap != null;
+        }
+
+        public bool DocumentHasIdValue(
+            object document,
+            out object existingId
+        ) {
+            var classMap = BsonClassMap.LookupClassMap(document.GetType());
+            var idPropertyMap = classMap.IdPropertyMap;
+            var idGenerator = BsonSerializer.LookupIdGenerator(idPropertyMap.PropertyType);
+            existingId = idPropertyMap.Getter(document);
+            return !idGenerator.IsEmpty(existingId);
+        }
+
+        public void GenerateDocumentId(
+            object document
+        ) {
+            var classMap = BsonClassMap.LookupClassMap(document.GetType());
+            var idPropertyMap = classMap.IdPropertyMap;
+            var idGenerator = BsonSerializer.LookupIdGenerator(idPropertyMap.PropertyType);
+            idPropertyMap.Setter(document, idGenerator.GenerateId());
+        }
+
+        public void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             object obj,
@@ -177,7 +184,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             bsonWriter.WriteEndDocument();
         }
 
-        public override void SerializeElement(
+        public void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

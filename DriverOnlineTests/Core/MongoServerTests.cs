@@ -57,6 +57,7 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        [Explicit] // reconnecting is slow (but why? opening a socket should be faster)
         public void TestReconnect() {
             server.Reconnect();
             Assert.AreEqual(MongoServerState.Connected, server.State);

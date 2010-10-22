@@ -25,24 +25,84 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Builders {
     [Serializable]
-    public abstract class BuilderBase {
+    public abstract class BuilderBase : IBsonSerializable, IConvertibleToBsonDocument {
         #region constructors
         protected BuilderBase() {
         }
         #endregion
 
         #region public methods
+        public abstract BsonDocument ToBsonDocument();
+
         public override string ToString() {
             return this.ToJson(); // "this." required to access extension method
         }
         #endregion
 
         #region protected methods
-        // TODO: have BuilderBase implement interfaces
-        public bool AssignId(
+        protected abstract void SerializeDocument(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            bool serializeIdFirst
+        );
+
+        protected abstract void SerializeElement(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            string name,
+            bool useCompactRepresentation
+        );
+        #endregion
+
+        #region explicit interface implementations
+        object IBsonSerializable.DeserializeDocument(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            throw new InvalidOperationException();
+        }
+
+        object IBsonSerializable.DeserializeElement(
+            BsonReader bsonReader,
+            Type nominalType,
+            out string name
+        ) {
+            throw new InvalidOperationException();
+        }
+
+        bool IBsonSerializable.DocumentHasIdProperty() {
+            return false;
+        }
+
+        bool IBsonSerializable.DocumentHasIdValue(
             out object existingId
         ) {
             throw new InvalidOperationException();
+        }
+
+        void IBsonSerializable.GenerateDocumentId() {
+            throw new InvalidOperationException();
+        }
+
+        void IBsonSerializable.SerializeDocument(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            bool serializeIdFirst
+        ) {
+            SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
+        }
+
+        void IBsonSerializable.SerializeElement(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            string name,
+            bool useCompactRepresentation
+        ) {
+            SerializeElement(bsonWriter, nominalType, name, useCompactRepresentation);
+        }
+
+        BsonDocument IConvertibleToBsonDocument.ToBsonDocument() {
+            return ToBsonDocument();
         }
         #endregion
     }

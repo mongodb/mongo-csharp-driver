@@ -361,8 +361,17 @@ namespace MongoDB.Bson.DefaultSerializer {
                 propertyMaps = new List<BsonPropertyMap>(ordered.Concat(propertyMaps.Where(pm => pm.Order == int.MaxValue)));
             }
 
+            // TODO: improve Id detection algorithm (doesn't have to be perfect since BsonIdAttribute can always pinpoint the Id property)
+            // simple algorithm: first property found that ends in either "Id" or "id" or is of type ObjectId or Guid
             if (idPropertyMap == null) {
-                idPropertyMap = propertyMaps.Where(pm => pm.PropertyName.EndsWith("Id")).FirstOrDefault();
+                idPropertyMap = propertyMaps
+                    .Where(pm =>
+                        pm.PropertyName.EndsWith("Id") ||
+                        pm.PropertyName.EndsWith("id") ||
+                        pm.PropertyType == typeof(ObjectId) ||
+                        pm.PropertyType == typeof(Guid)
+                    )
+                    .FirstOrDefault();
             }
 
             RegisterDiscriminator(classType, discriminator);

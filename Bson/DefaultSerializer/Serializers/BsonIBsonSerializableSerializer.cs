@@ -24,7 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public class BsonIBsonSerializableSerializer : BsonBaseSerializer {
+    public class BsonIBsonSerializableSerializer : IBsonSerializer {
         #region private static fields
         private static BsonIBsonSerializableSerializer singleton = new BsonIBsonSerializableSerializer();
         #endregion
@@ -47,15 +47,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override bool AssignId(
-            object document,
-            out object existingId
-        ) {
-            var bsonSerializable = (IBsonSerializable) document;
-            return bsonSerializable.AssignId(out existingId);
-        }
-
-        public override object DeserializeDocument(
+        public object DeserializeDocument(
             BsonReader bsonReader,
             Type nominalType
         ) {
@@ -63,7 +55,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             return value.DeserializeDocument(bsonReader, nominalType);
         }
 
-        public override object DeserializeElement(
+        public object DeserializeElement(
             BsonReader bsonReader,
             Type nominalType,
             out string name
@@ -72,7 +64,29 @@ namespace MongoDB.Bson.DefaultSerializer {
             return value.DeserializeElement(bsonReader, nominalType, out name);
         }
 
-        public override void SerializeDocument(
+        public bool DocumentHasIdProperty(
+            object document
+        ) {
+            var bsonSerializable = (IBsonSerializable) document;
+            return bsonSerializable.DocumentHasIdProperty();
+        }
+
+        public bool DocumentHasIdValue(
+            object document,
+            out object existingId
+        ) {
+            var bsonSerializable = (IBsonSerializable) document;
+            return bsonSerializable.DocumentHasIdValue(out existingId);
+        }
+
+        public void GenerateDocumentId(
+            object document
+        ) {
+            var bsonSerializable = (IBsonSerializable) document;
+            bsonSerializable.GenerateDocumentId();
+        }
+
+        public void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             object document,
@@ -82,7 +96,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             value.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
         }
 
-        public override void SerializeElement(
+        public void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,

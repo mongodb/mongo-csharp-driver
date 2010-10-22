@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     [Serializable]
-    public class GroupByBuilder : BuilderBase, IConvertibleToBsonDocument, IBsonSerializable {
+    public class GroupByBuilder : BuilderBase {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -58,28 +58,13 @@ namespace MongoDB.Driver.Builders {
         #endregion
 
         #region public methods
-        public BsonDocument ToBsonDocument() {
+        public override BsonDocument ToBsonDocument() {
             return document;
         }
         #endregion
 
         #region explicit interface implementations
-        object IBsonSerializable.DeserializeDocument(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            throw new InvalidOperationException("Deserialize is not supported for GroupByBuilder");
-        }
-
-        object IBsonSerializable.DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            throw new InvalidOperationException("Deserialize is not supported for GroupByBuilder");
-        }
-
-        void IBsonSerializable.SerializeDocument(
+        protected override void SerializeDocument(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
@@ -87,7 +72,7 @@ namespace MongoDB.Driver.Builders {
             document.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
         }
 
-        void IBsonSerializable.SerializeElement(
+        protected override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
