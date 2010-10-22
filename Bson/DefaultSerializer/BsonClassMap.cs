@@ -161,6 +161,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             string discriminator
         ) {
+            if (discriminator == null) {
+                return nominalType;
+            }
+
             // TODO: will there be too much contention on staticLock?
             lock (staticLock) {
                 Type actualType = null;
@@ -356,6 +360,11 @@ namespace MongoDB.Bson.DefaultSerializer {
                     useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) propertyInfo.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
                     if (useCompactRepresentationAttribute != null) {
                         propertyMap.SetUseCompactRepresentation(useCompactRepresentationAttribute.UseCompactRepresentation);
+                    } else {
+                        // default useCompactRepresentation to true for primitive property types
+                        if (propertyMap.PropertyType.IsPrimitive) {
+                            propertyMap.SetUseCompactRepresentation(true);
+                        }
                     }
                 }
             }

@@ -49,11 +49,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefaultSerializer\BsonClassMapTests.cs" />
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonAttributeTests.cs" />
+    <Compile Include="Jira\CSharp78Tests.cs" />
     <Compile Include="ObjectModel\BsonDocumentTests.cs" />
     <Compile Include="ObjectModel\BsonElementTests.cs" />
     <Compile Include="ObjectModel\BsonEqualsTests.cs" />

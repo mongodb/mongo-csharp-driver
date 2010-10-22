@@ -71,15 +71,16 @@ namespace MongoDB.Bson.DefaultSerializer {
            BsonReader bsonReader,
            Type nominalType
        ) {
-            ICollection<T> value;
+            bsonReader.ReadStartDocument();
+            bsonReader.PushBookmark();
             var discriminator = bsonReader.FindString("_t");
+            bsonReader.PopBookmark();
             if (discriminator == null) {
                 throw new FileFormatException("Discriminator missing");
             }
             var actualType = BsonClassMap.LookupActualType(nominalType, discriminator);
-            value = (ICollection<T>) Activator.CreateInstance(actualType); // deserialization requires ICollection<T> instead of IEnumerable<T>
+            var value = (ICollection<T>) Activator.CreateInstance(actualType); // deserialization requires ICollection<T> instead of just IEnumerable<T>
 
-            bsonReader.ReadStartDocument();
             bsonReader.VerifyString("_t", discriminator);
             bsonReader.ReadArrayName("_v");
             bsonReader.ReadStartDocument();

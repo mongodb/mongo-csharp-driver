@@ -25,6 +25,8 @@ namespace MongoDB.Bson.IO {
         private int startPosition;
         private int size;
         private BsonReadState readState;
+        private bool isBookmark;
+        private int bookmarkPosition;
         #endregion
 
         #region constructors
@@ -39,7 +41,21 @@ namespace MongoDB.Bson.IO {
 
         #region internal properties
         internal BsonBinaryReaderContext ParentContext {
-            get { return parentContext; }
+            get {
+                if (isBookmark) {
+                    throw new InvalidOperationException("PushBookmark called without matching PopBookmark");
+                }
+                return parentContext;
+            }
+        }
+
+        internal BsonBinaryReaderContext BookmarkParentContext {
+            get {
+                if (!isBookmark) {
+                    throw new InvalidOperationException("Context is not a bookmark");
+                }
+                return parentContext;
+            }
         }
 
         internal int StartPosition {
@@ -52,8 +68,32 @@ namespace MongoDB.Bson.IO {
             set { size = value; }
         }
 
+        internal int BookmarkPosition {
+            get { return bookmarkPosition; }
+            set { bookmarkPosition = value; }
+        }
+
         internal BsonReadState ReadState {
             get { return readState; }
+        }
+        #endregion
+
+        #region internal methods
+        internal BsonBinaryReaderContext GetBookmark() {
+            for (var context = this; context != null; context = context.parentContext) {
+                if (context.isBookmark) {
+                    return context;
+                }
+            }
+            throw new InvalidOperationException("PopBookmark called without matching PushBookmark");
+        }
+
+        internal BsonBinaryReaderContext CreateBookmark() {
+            var context = new BsonBinaryReaderContext(this, readState);
+            context.startPosition = startPosition;
+            context.size = size;
+            context.isBookmark = true;
+            return context;
         }
         #endregion
     }

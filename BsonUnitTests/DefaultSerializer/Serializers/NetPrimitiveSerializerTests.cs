@@ -29,8 +29,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class ByteSerializerTests {
         public class TestClass {
-            [BsonUseCompactRepresentation]
             public byte C { get; set; }
+            [BsonUseCompactRepresentation(false)]
             public byte F { get; set; }
         }
 
@@ -102,8 +102,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class CharSerializerTests {
         public class TestClass {
-            [BsonUseCompactRepresentation]
             public char C { get; set; }
+            [BsonUseCompactRepresentation(false)]
             public char F { get; set; }
         }
 
@@ -219,8 +219,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class Int16SerializerTests {
         public class TestClass {
-            [BsonUseCompactRepresentation]
             public short C { get; set; }
+            [BsonUseCompactRepresentation(false)]
             public short F { get; set; }
         }
 
@@ -303,8 +303,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class SByteSerializerTests {
         public class TestClass {
-            [BsonUseCompactRepresentation]
             public sbyte C { get; set; }
+            [BsonUseCompactRepresentation(false)]
             public sbyte F { get; set; }
         }
 
@@ -387,8 +387,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class SingleSerializerTests {
         public class TestClass {
-            [BsonUseCompactRepresentation]
             public float C { get; set; }
+            [BsonUseCompactRepresentation(false)]
             public float F { get; set; }
         }
 
@@ -651,8 +651,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class UInt16SerializerTests {
         public class TestClass {
-            [BsonUseCompactRepresentation]
             public ushort C { get; set; }
+            [BsonUseCompactRepresentation(false)]
             public ushort F { get; set; }
         }
 
@@ -720,8 +720,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class UInt32SerializerTests {
         public class TestClass {
-            [BsonUseCompactRepresentation]
             public uint C { get; set; }
+            [BsonUseCompactRepresentation(false)]
             public uint F { get; set; }
         }
 
@@ -808,8 +808,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class UInt64SerializerTests {
         public class TestClass {
-            [BsonUseCompactRepresentation]
             public ulong C { get; set; }
+            [BsonUseCompactRepresentation(false)]
             public ulong F { get; set; }
         }
 

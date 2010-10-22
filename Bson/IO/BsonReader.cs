@@ -75,6 +75,8 @@ namespace MongoDB.Bson.IO {
             out string name
         );
         public abstract BsonType PeekBsonType();
+        public abstract void PopBookmark();
+        public abstract void PushBookmark();
         public abstract void ReadArrayName(
             out string name
         );

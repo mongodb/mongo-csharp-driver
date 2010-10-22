@@ -81,15 +81,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             get;
         }
 
-        public IBsonSerializer Serializer {
-            get {
-                if (serializer == null) {
-                    serializer = BsonSerializer.LookupSerializer(propertyInfo.PropertyType);
-                }
-                return serializer;
-            }
-        }
-
         public IBsonIdGenerator IdGenerator {
             get {
                 if (idGenerator == null) {
@@ -132,6 +123,19 @@ namespace MongoDB.Bson.DefaultSerializer {
                 throw new InvalidOperationException("BsonPropertyMap has no default value");
             }
             this.Setter(obj, defaultValue);
+        }
+
+        public IBsonSerializer GetSerializerForActualType(
+            Type actualType
+        ) {
+            if (actualType == PropertyType) {
+                if (serializer == null) {
+                    serializer = BsonSerializer.LookupSerializer(propertyInfo.PropertyType);
+                }
+                return serializer;
+            } else {
+                return BsonSerializer.LookupSerializer(actualType);
+            }
         }
 
         public BsonPropertyMap SetDefaultValue(

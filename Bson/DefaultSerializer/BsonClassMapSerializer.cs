@@ -48,15 +48,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             VerifyNominalType(nominalType);
 
-            // peek at the discriminator (if present) to see what class to create an instance for
-            var discriminator = bsonReader.FindString("_t");
-            Type actualType;
-            if (discriminator != null) {
-                actualType = BsonClassMap.LookupActualType(nominalType, discriminator);
-            } else {
-                actualType = nominalType;
-            }
-
+            bsonReader.ReadStartDocument();
+            var discriminator = PeekDocumentDiscriminator(bsonReader); // returns null if no discriminator found
+            var actualType = BsonClassMap.LookupActualType(nominalType, discriminator);
             var classMap = BsonClassMap.LookupClassMap(actualType);
             if (classMap.IsAnonymous) {
                 throw new InvalidOperationException("Anonymous classes cannot be deserialized");
@@ -64,7 +58,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             var obj = Activator.CreateInstance(actualType);
 
             var missingElementPropertyMaps = new List<BsonPropertyMap>(classMap.PropertyMaps); // make a copy!
-            bsonReader.ReadStartDocument();
             BsonType bsonType;
             string elementName;
             while (bsonReader.HasElement(out bsonType, out elementName)) {
@@ -75,7 +68,10 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                 var propertyMap = classMap.GetPropertyMapForElement(elementName);
                 if (propertyMap != null) {
-                    object value = propertyMap.Serializer.DeserializeElement(bsonReader, propertyMap.PropertyType, out elementName);
+                    var elementDiscriminator = PeekElementDiscriminator(bsonReader, bsonType, elementName); // returns null if no discriminator found
+                    var actualElementType = BsonClassMap.LookupActualType(propertyMap.PropertyType, elementDiscriminator);
+                    var serializer = propertyMap.GetSerializerForActualType(actualElementType);
+                    object value = serializer.DeserializeElement(bsonReader, propertyMap.PropertyType, out elementName);
                     propertyMap.Setter(obj, value);
                     missingElementPropertyMaps.Remove(propertyMap);
                 } else {
@@ -195,6 +191,32 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private methods
+        private string PeekDocumentDiscriminator(
+            BsonReader bsonReader
+        ) {
+            bsonReader.PushBookmark();
+            var discriminator = bsonReader.FindString("_t");
+            bsonReader.PopBookmark();
+            return discriminator;
+        }
+
+        private string PeekElementDiscriminator(
+            BsonReader bsonReader,
+            BsonType bsonType,
+            string elementName
+        ) {
+            if (bsonType == BsonType.Document) {
+                bsonReader.PushBookmark();
+                bsonReader.ReadDocumentName(elementName);
+                bsonReader.ReadStartDocument();
+                var discriminator = bsonReader.FindString("_t");
+                bsonReader.PopBookmark();
+                return discriminator;
+            } else {
+                return null;
+            }
+        }
+
         private void SerializeProperty(
             BsonWriter bsonWriter,
             object obj,
@@ -209,9 +231,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
 
             var nominalType = propertyMap.PropertyType;
+            var actualType = (value == null) ? nominalType : value.GetType();
+            var serializer = propertyMap.GetSerializerForActualType(actualType);
             var elementName = propertyMap.ElementName;
             var useCompactRepresentation = propertyMap.UseCompactRepresentation;
-            propertyMap.Serializer.SerializeElement(bsonWriter, nominalType, elementName, value, useCompactRepresentation);
+            serializer.SerializeElement(bsonWriter, nominalType, elementName, value, useCompactRepresentation);
         }
 
         private void VerifyNominalType(

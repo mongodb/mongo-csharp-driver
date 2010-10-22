@@ -70,38 +70,26 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        // this is like ReadString but scans ahead to find a string element with the desired name
         public override string FindString(
             string name
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            if (
-                context.ReadState != BsonReadState.Initial &&
-                context.ReadState != BsonReadState.Done &&
-                context.ReadState != BsonReadState.StartDocument
-            ) {
+            if ((context.ReadState & BsonReadState.Document) == 0) {
                 string message = string.Format("FindString cannot be called when ReadState is: {0}", context.ReadState);
                 throw new InvalidOperationException(message);
             }
 
-            string value = null;
-            var initialPosition = buffer.Position;
-            var documentSize = ReadSize();
             BsonType bsonType;
             while ((bsonType = buffer.ReadBsonType()) != BsonType.EndOfDocument) {
-                if (buffer.Position >= initialPosition + documentSize) {
-                    throw new FileFormatException("EndOfDocument missing");
-                }
-
                 var elementName = buffer.ReadCString();
                 if (bsonType == BsonType.String && elementName == name) {
-                    value = buffer.ReadString();
-                    break;
+                    return buffer.ReadString();
                 } else {
                     buffer.Position += GetValueSize(bsonType); // skip over value
                 }
             }
-            buffer.Position = initialPosition;
-            return value;
+            return null;
         }
 
         public override bool HasElement() {
@@ -150,6 +138,17 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
             return buffer.PeekBsonType();
+        }
+
+        public override void PopBookmark() {
+            var bookmark = context.GetBookmark();
+            buffer.Position = bookmark.BookmarkPosition;
+            context = bookmark.BookmarkParentContext;
+        }
+
+        public override void PushBookmark() {
+            context = context.CreateBookmark();
+            context.BookmarkPosition = buffer.Position;
         }
 
         public override void ReadArrayName(

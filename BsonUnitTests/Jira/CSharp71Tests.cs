@@ -295,8 +295,6 @@ namespace MongoDB.BsonUnitTests.Jira {
             };
             #endregion
 
-            document.WriteTo("csharp71.bson");
-
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
