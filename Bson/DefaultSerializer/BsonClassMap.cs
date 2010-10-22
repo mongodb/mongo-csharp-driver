@@ -40,6 +40,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected string discriminator;
         protected bool discriminatorIsRequired;
         protected bool isAnonymous;
+        protected bool idPropertyMapLoaded; // lazy load idPropertyMap
         protected BsonPropertyMap idPropertyMap;
         protected List<BsonPropertyMap> propertyMaps = new List<BsonPropertyMap>();
         protected bool ignoreExtraElements = true;
@@ -82,16 +83,8 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         public BsonPropertyMap IdPropertyMap {
             get {
-                if (idPropertyMap != null) {
-                    return idPropertyMap;
-                } else {
-                    var baseClassMap = BaseClassMap; // call property for lazy loading
-                    if (baseClassMap != null) {
-                        return baseClassMap.IdPropertyMap;
-                    } else {
-                        return null;
-                    }
-                }
+                if (!idPropertyMapLoaded) { LoadIdPropertyMap(); }
+                return idPropertyMap;
             }
         }
 
@@ -377,19 +370,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 propertyMaps = new List<BsonPropertyMap>(ordered.Concat(propertyMaps.Where(pm => pm.Order == int.MaxValue)));
             }
 
-            // TODO: improve Id detection algorithm (doesn't have to be perfect since BsonIdAttribute can always pinpoint the Id property)
-            // simple algorithm: first property found that ends in either "Id" or "id" or is of type ObjectId or Guid
-            if (idPropertyMap == null) {
-                idPropertyMap = propertyMaps
-                    .Where(pm =>
-                        pm.PropertyName.EndsWith("Id") ||
-                        pm.PropertyName.EndsWith("id") ||
-                        pm.PropertyType == typeof(ObjectId) ||
-                        pm.PropertyType == typeof(Guid)
-                    )
-                    .FirstOrDefault();
-            }
-
             RegisterDiscriminator(classType, discriminator);
         }
 
@@ -451,6 +431,32 @@ namespace MongoDB.Bson.DefaultSerializer {
                 }
             }
             baseClassMapLoaded = true;
+        }
+
+        private void LoadIdPropertyMap() {
+            if (idPropertyMap == null) {
+                // the IdPropertyMap should be provided by the highest class possible in the inheritance hierarchy
+                var baseClassMap = BaseClassMap; // call BaseClassMap property for lazy loading
+                if (baseClassMap != null) {
+                    idPropertyMap = baseClassMap.IdPropertyMap;
+                }
+
+                // if no base class provided an idPropertyMap maybe we have one?
+                if (idPropertyMap == null) {
+                    // TODO: improve Id detection algorithm (doesn't have to be perfect since BsonIdAttribute can always pinpoint the Id property)
+                    // simple algorithm: first property found that ends in either "Id" or "id" or is of type ObjectId or Guid
+                    idPropertyMap = propertyMaps
+                        .Where(pm =>
+                            pm.PropertyName.EndsWith("Id") ||
+                            pm.PropertyName.EndsWith("id") ||
+                            pm.PropertyType == typeof(ObjectId) ||
+                            pm.PropertyType == typeof(Guid)
+                        )
+                        .FirstOrDefault();
+                }
+            }
+
+            idPropertyMapLoaded = true;
         }
         #endregion
     }
