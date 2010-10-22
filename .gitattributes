@@ -1,1 +1,2 @@
-*.docx	-text
+*.docx binary
+*.dll binary
