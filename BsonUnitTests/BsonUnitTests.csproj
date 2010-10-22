@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />

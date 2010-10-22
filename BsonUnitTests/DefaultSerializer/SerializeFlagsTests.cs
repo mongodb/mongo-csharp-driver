@@ -27,24 +27,25 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
-    public class SerializeEnumTests {
+    public class SerializeFlagsTests {
         // TODO: add unit tests for other underlying types
-        private enum E {
+        [Flags]
+        private enum F {
             A = 1,
             B = 2
         }
 
         private class C {
             [BsonUseCompactRepresentation]
-            public E CE { get; set; }
-            public E FE { get; set; }
+            public F CF { get; set; }
+            public F FF { get; set; }
         }
 
         [Test]
         public void TestSerializeZero() {
-            C c = new C { CE = 0, FE = 0 };
+            C c = new C { CF = 0, FF = 0 };
             var json = c.ToJson();
-            var expected = ("{ 'CE' : 0, 'FE' : '0' }").Replace("'", "\"");
+            var expected = ("{ 'CF' : 0, 'FF' : '0' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -54,9 +55,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeA() {
-            C c = new C { CE = E.A, FE = E.A };
+            C c = new C { CF = F.A, FF = F.A };
             var json = c.ToJson();
-            var expected = ("{ 'CE' : 1, 'FE' : 'A' }").Replace("'", "\"");
+            var expected = ("{ 'CF' : 1, 'FF' : 'A' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -66,9 +67,21 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeB() {
-            C c = new C { CE = E.B, FE = E.B };
+            C c = new C { CF = F.B, FF = F.B };
             var json = c.ToJson();
-            var expected = ("{ 'CE' : 2, 'FE' : 'B' }").Replace("'", "\"");
+            var expected = ("{ 'CF' : 2, 'FF' : 'B' }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeAB() {
+            C c = new C { CF = F.A | F.B, FF = F.A | F.B };
+            var json = c.ToJson();
+            var expected = ("{ 'CF' : 3, 'FF' : 'A, B' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -78,9 +91,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeInvalid() {
-            C c = new C { CE = (E) 123, FE = (E) 123 };
+            C c = new C { CF = (F) 127, FF = (F) 127 };
             var json = c.ToJson();
-            var expected = ("{ 'CE' : 123, 'FE' : '123' }").Replace("'", "\"");
+            var expected = ("{ 'CF' : 127, 'FF' : '127' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
