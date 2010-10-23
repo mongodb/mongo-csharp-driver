@@ -319,7 +319,7 @@ namespace MongoDB.Bson {
         public static explicit operator double(
             BsonValue value
         ) {
-            return value.AsDouble;
+            return value.ToDouble();
         }
 
         public static explicit operator Guid(
@@ -331,13 +331,13 @@ namespace MongoDB.Bson {
         public static explicit operator int(
             BsonValue value
         ) {
-            return value.AsInt32;
+            return value.ToInt32();
         }
 
         public static explicit operator long(
             BsonValue value
         ) {
-            return value.AsInt64;
+            return value.ToInt64();
         }
 
         public static explicit operator ObjectId(
