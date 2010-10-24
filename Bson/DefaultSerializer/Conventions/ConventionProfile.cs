@@ -14,6 +14,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
         public IIdPropertyConvention IdPropertyConvention { get; private set; }
 
         public IIgnoreExtraElementsConvention IgnoreExtraElementsConvention { get; private set; }
+
+        public IUseCompactRepresentationConvention UseCompactRepresentationConvention { get; private set; }
         #endregion
 
         #region public static methods
@@ -22,7 +24,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
                 .SetBsonIdGeneratorConvention(new BsonSerializerBsonIdGeneratorConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
                 .SetIdPropertyConvention(new NamedIdPropertyConvention("Id"))
-                .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention());
+                .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
+                .SetUseCompactRepresentationConvention(new NeverUseCompactRepresentationConvention());
         }
         #endregion
 
@@ -38,6 +41,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
                 IdPropertyConvention = other.IdPropertyConvention;
             if (IgnoreExtraElementsConvention == null)
                 IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
+            if (UseCompactRepresentationConvention == null)
+                UseCompactRepresentationConvention = other.UseCompactRepresentationConvention;
         }
 
         public ConventionProfile SetBsonIdGeneratorConvention(
@@ -64,6 +69,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
             IIgnoreExtraElementsConvention convention
         ) {
             IgnoreExtraElementsConvention = convention;
+            return this;
+        }
+
+        public ConventionProfile SetUseCompactRepresentationConvention(
+            IUseCompactRepresentationConvention convention
+        ) {
+            UseCompactRepresentationConvention = convention;
             return this;
         }
         #endregion

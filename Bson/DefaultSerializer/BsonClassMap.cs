@@ -329,6 +329,9 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (useCompactRepresentationAttribute != null) {
                 useCompactRepresentation = useCompactRepresentationAttribute.UseCompactRepresentation;
             }
+            else {
+                useCompactRepresentation = conventions.UseCompactRepresentationConvention.UseCompactRepresentation(classType);
+            }
 
             // only auto map properties declared in this class (and not in base classes)
             var hasOrderedElements = false;
