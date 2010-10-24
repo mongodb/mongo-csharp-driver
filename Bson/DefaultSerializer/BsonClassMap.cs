@@ -24,11 +24,13 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.DefaultSerializer.Conventions;
 
 namespace MongoDB.Bson.DefaultSerializer {
     public abstract class BsonClassMap {
         #region private static fields
         private static object staticLock = new object();
+        private static ConventionProfile defaultProfile = ConventionProfile.Default;
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
         private static Dictionary<string, List<Type>> discriminatedTypes = new Dictionary<string, List<Type>>();
         #endregion
@@ -269,6 +271,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 BsonClassMap.LookupClassMap(knownTypeAttribute.KnownType); // will AutoMap KnownType if necessary
             }
 
+            var conventions = GetConventionProfile(classType);
+
             var discriminatorAttribute = (BsonDiscriminatorAttribute) classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
             if (discriminatorAttribute != null) {
                 discriminator = discriminatorAttribute.Discriminator;
@@ -304,7 +308,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     );
                     var mapPropertyInfo = mapPropertyDefinition.MakeGenericMethod(propertyInfo.PropertyType);
 
-                    var elementName = propertyInfo.Name;
+                    var elementName = conventions.ElementNameConvention.GetElementName(propertyInfo);
                     var order = int.MaxValue;
                     IBsonIdGenerator idGenerator = null;
 
@@ -415,6 +419,12 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private methods
+        private ConventionProfile GetConventionProfile(
+            Type type
+        ) {
+            return defaultProfile;
+        }
+
         private bool IsAnonymousType(
             Type type
         ) {
