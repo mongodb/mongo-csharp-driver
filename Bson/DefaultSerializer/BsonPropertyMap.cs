@@ -88,7 +88,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public IBsonIdGenerator IdGenerator {
             get {
                 if (idGenerator == null) {
-                    idGenerator = conventions.BsonIdGeneratorConvention.GetBsonIdGenerator(this.PropertyType);
+                    idGenerator = conventions.BsonIdGeneratorConvention.GetBsonIdGenerator(this.PropertyInfo);
                 }
                 return idGenerator;
             }

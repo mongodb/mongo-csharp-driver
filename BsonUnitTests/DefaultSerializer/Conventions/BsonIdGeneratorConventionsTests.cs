@@ -28,12 +28,22 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions
 {
     [TestFixture]
     public class BsonIdGeneratorConventionsTests {
+        private class TestClass
+        {
+            public Guid GuidId { get; set; }
+
+            public ObjectId ObjectId { get; set; }
+        }
+
         [Test]
         public void TestIdPropertyConvention() {
             var convention = new BsonSerializerBsonIdGeneratorConvention();
 
-            Assert.IsInstanceOf<GuidGenerator>(convention.GetBsonIdGenerator(typeof(Guid)));
-            Assert.IsInstanceOf<ObjectIdGenerator>(convention.GetBsonIdGenerator(typeof(ObjectId)));
+            var guidProperty = typeof(TestClass).GetProperty("GuidId");
+            var objectIdProperty = typeof(TestClass).GetProperty("ObjectId");
+
+            Assert.IsInstanceOf<GuidGenerator>(convention.GetBsonIdGenerator(guidProperty));
+            Assert.IsInstanceOf<ObjectIdGenerator>(convention.GetBsonIdGenerator(objectIdProperty));
         }
     }
 }

@@ -8,14 +8,14 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer.Conventions
 {
     public interface IBsonIdGeneratorConvention {
-        IBsonIdGenerator GetBsonIdGenerator(Type type); 
+        IBsonIdGenerator GetBsonIdGenerator(PropertyInfo property); 
     }
 
     public class BsonSerializerBsonIdGeneratorConvention : IBsonIdGeneratorConvention {
         public IBsonIdGenerator GetBsonIdGenerator(
-            Type type
+            PropertyInfo property
         ) {
-            return BsonSerializer.LookupIdGenerator(type);
+            return BsonSerializer.LookupIdGenerator(property.PropertyType);
         }
     }
 }
