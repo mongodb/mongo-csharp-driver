@@ -15,6 +15,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
 
         public IIgnoreExtraElementsConvention IgnoreExtraElementsConvention { get; private set; }
 
+        public IIgnoreIfNullConvention IgnoreIfNullConvention { get; private set; }
+
         public IUseCompactRepresentationConvention UseCompactRepresentationConvention { get; private set; }
         #endregion
 
@@ -25,6 +27,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
                 .SetElementNameConvention(new MemberNameElementNameConvention())
                 .SetIdPropertyConvention(new NamedIdPropertyConvention("Id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
+                .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
                 .SetUseCompactRepresentationConvention(new NeverUseCompactRepresentationConvention());
         }
         #endregion
@@ -41,6 +44,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
                 IdPropertyConvention = other.IdPropertyConvention;
             if (IgnoreExtraElementsConvention == null)
                 IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
+            if (IgnoreIfNullConvention == null)
+                IgnoreIfNullConvention = other.IgnoreIfNullConvention;
             if (UseCompactRepresentationConvention == null)
                 UseCompactRepresentationConvention = other.UseCompactRepresentationConvention;
         }
@@ -69,6 +74,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
             IIgnoreExtraElementsConvention convention
         ) {
             IgnoreExtraElementsConvention = convention;
+            return this;
+        }
+
+        public ConventionProfile SetIgnoreIfNullConvention(
+            IIgnoreIfNullConvention convention
+        ) {
+            IgnoreIfNullConvention = convention;
             return this;
         }
 

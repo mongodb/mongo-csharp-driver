@@ -391,6 +391,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                     if (ignoreIfNullAttribute != null) {
                         propertyMap.SetIgnoreIfNull(true);
                     }
+                    else {
+                        propertyMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(propertyMap.PropertyInfo));
+                    }
 
                     var requiredAttribute = (BsonRequiredAttribute) propertyInfo.GetCustomAttributes(typeof(BsonRequiredAttribute), false).FirstOrDefault();
                     if (requiredAttribute != null) {
