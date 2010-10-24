@@ -39,6 +39,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected bool baseClassMapLoaded; // lazy load baseClassMap so class maps can be constructed out of order
         protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected Type classType;
+        protected ConventionProfile conventions;
         protected string discriminator;
         protected bool discriminatorIsRequired;
         protected bool isAnonymous;
@@ -54,6 +55,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type classType
         ) {
             this.classType = classType;
+            this.conventions = GetConventionProfile(this.classType);
             this.discriminator = classType.Name;
             this.isAnonymous = IsAnonymousType(classType);
         }
@@ -271,8 +273,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 BsonClassMap.LookupClassMap(knownTypeAttribute.KnownType); // will AutoMap KnownType if necessary
             }
 
-            var conventions = GetConventionProfile(classType);
-
             var discriminatorAttribute = (BsonDiscriminatorAttribute) classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
             if (discriminatorAttribute != null) {
                 discriminator = discriminatorAttribute.Discriminator;
@@ -453,16 +453,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                 // if no base class provided an idPropertyMap maybe we have one?
                 if (idPropertyMap == null) {
-                    // TODO: improve Id detection algorithm (doesn't have to be perfect since BsonIdAttribute can always pinpoint the Id property)
-                    // simple algorithm: first property found that ends in either "Id" or "id" or is of type ObjectId or Guid
-                    idPropertyMap = propertyMaps
-                        .Where(pm =>
-                            pm.PropertyName.EndsWith("Id") ||
-                            pm.PropertyName.EndsWith("id") ||
-                            pm.PropertyType == typeof(ObjectId) ||
-                            pm.PropertyType == typeof(Guid)
-                        )
-                        .FirstOrDefault();
+                    idPropertyMap = conventions.IdPropertyConvention.FindIdPropertyMap(propertyMaps);
                 }
             }
 
