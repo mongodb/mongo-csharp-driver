@@ -9,6 +9,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
         #region public properties
         public IBsonIdGeneratorConvention BsonIdGeneratorConvention { get; private set; }
 
+        public IDefaultValueConvention DefaultValueConvention { get; private set; }
+
         public IElementNameConvention ElementNameConvention { get; private set; }
 
         public IIdPropertyConvention IdPropertyConvention { get; private set; }
@@ -17,6 +19,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
 
         public IIgnoreIfNullConvention IgnoreIfNullConvention { get; private set; }
 
+        public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
+
         public IUseCompactRepresentationConvention UseCompactRepresentationConvention { get; private set; }
         #endregion
 
@@ -24,10 +28,12 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
         public static ConventionProfile GetDefault() {
             return new ConventionProfile() //The default profile always matches...
                 .SetBsonIdGeneratorConvention(new BsonSerializerBsonIdGeneratorConvention())
+                .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
                 .SetIdPropertyConvention(new NamedIdPropertyConvention("Id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
+                .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention())
                 .SetUseCompactRepresentationConvention(new NeverUseCompactRepresentationConvention());
         }
         #endregion
@@ -38,6 +44,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
         ) {
             if (BsonIdGeneratorConvention == null)
                 BsonIdGeneratorConvention = other.BsonIdGeneratorConvention;
+            if (DefaultValueConvention == null)
+                DefaultValueConvention = other.DefaultValueConvention;
             if (ElementNameConvention == null)
                 ElementNameConvention = other.ElementNameConvention;
             if (IdPropertyConvention == null)
@@ -46,6 +54,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
                 IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
             if (IgnoreIfNullConvention == null)
                 IgnoreIfNullConvention = other.IgnoreIfNullConvention;
+            if (SerializeDefaultValueConvention == null)
+                SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
             if (UseCompactRepresentationConvention == null)
                 UseCompactRepresentationConvention = other.UseCompactRepresentationConvention;
         }
@@ -56,6 +66,14 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
             BsonIdGeneratorConvention = convention;
             return this;
         }
+
+        public ConventionProfile SetDefaultValueConvention(
+            IDefaultValueConvention convention
+        ) {
+            DefaultValueConvention = convention;
+            return this;
+        }
+
         public ConventionProfile SetElementNameConvention(
             IElementNameConvention convention
         ) {
@@ -81,6 +99,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
             IIgnoreIfNullConvention convention
         ) {
             IgnoreIfNullConvention = convention;
+            return this;
+        }
+
+        public ConventionProfile SetSerializeDefaultValueConvention(
+            ISerializeDefaultValueConvention convention
+        ) {
+            SerializeDefaultValueConvention = convention;
             return this;
         }
 

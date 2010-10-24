@@ -386,6 +386,10 @@ namespace MongoDB.Bson.DefaultSerializer {
                         propertyMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
                         propertyMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
                     }
+                    else {
+                        propertyMap.SetDefaultValue(conventions.DefaultValueConvention.GetDefaultValue(propertyMap.PropertyInfo));
+                        propertyMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(propertyMap.PropertyInfo));
+                    }
 
                     var ignoreIfNullAttribute = (BsonIgnoreIfNullAttribute) propertyInfo.GetCustomAttributes(typeof(BsonIgnoreIfNullAttribute), false).FirstOrDefault();
                     if (ignoreIfNullAttribute != null) {

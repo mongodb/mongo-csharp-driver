@@ -76,8 +76,13 @@
     <Compile Include="DefaultSerializer\BsonIdGenerators.cs" />
     <Compile Include="DefaultSerializer\Conventions\ConventionProfile.cs" />
     <Compile Include="DefaultSerializer\Conventions\BsonIdGeneratorConventions.cs" />
+    <Compile Include="DefaultSerializer\Conventions\DefaultValueConventions.cs" />
+    <Compile Include="DefaultSerializer\Conventions\SerializeDefaultValueConventions.cs" />
+    <Compile Include="DefaultSerializer\Conventions\IgnoreIfNullConventions.cs" />
+    <Compile Include="DefaultSerializer\Conventions\UseCompactRepresentationConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdPropertyConventions.cs" />
+    <Compile Include="DefaultSerializer\Conventions\IgnoreExtraElementsConventions.cs" />
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />
     <Compile Include="ObjectModel\IConvertibleToBsonDocument.cs" />
