@@ -21,10 +21,12 @@ using System.Text;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.DefaultSerializer.Conventions;
 
 namespace MongoDB.Bson.DefaultSerializer {
     public abstract class BsonPropertyMap {
         #region protected fields
+        protected ConventionProfile conventions;
         protected string propertyName;
         protected string elementName;
         protected int order = int.MaxValue;
@@ -44,11 +46,13 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region constructors
         protected BsonPropertyMap(
             PropertyInfo propertyInfo,
-            string elementName
+            string elementName,
+            ConventionProfile conventions
         ) {
             this.propertyName = propertyInfo.Name;
             this.elementName = elementName;
             this.propertyInfo = propertyInfo;
+            this.conventions = conventions;
         }
         #endregion
 
@@ -84,7 +88,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public IBsonIdGenerator IdGenerator {
             get {
                 if (idGenerator == null) {
-                    idGenerator = BsonSerializer.LookupIdGenerator(propertyInfo.PropertyType);
+                    idGenerator = conventions.BsonIdGeneratorConvention.GetBsonIdGenerator(this.PropertyInfo);
                 }
                 return idGenerator;
             }
@@ -209,9 +213,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region constructors
         public BsonPropertyMap(
             PropertyInfo propertyInfo,
-            string elementName
+            string elementName,
+            ConventionProfile conventions
         )
-            : base(propertyInfo, elementName) {
+            : base(propertyInfo, elementName, conventions) {
         }
         #endregion
 

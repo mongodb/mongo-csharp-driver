@@ -24,11 +24,14 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.DefaultSerializer.Conventions;
 
 namespace MongoDB.Bson.DefaultSerializer {
     public abstract class BsonClassMap {
         #region private static fields
         private static object staticLock = new object();
+        private static List<FilteredConventionProfile> profiles = new List<FilteredConventionProfile>();
+        private static ConventionProfile defaultProfile = ConventionProfile.GetDefault();
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
         private static Dictionary<string, List<Type>> discriminatedTypes = new Dictionary<string, List<Type>>();
         #endregion
@@ -37,6 +40,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected bool baseClassMapLoaded; // lazy load baseClassMap so class maps can be constructed out of order
         protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected Type classType;
+        protected ConventionProfile conventions;
         protected string discriminator;
         protected bool discriminatorIsRequired;
         protected bool isAnonymous;
@@ -52,6 +56,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type classType
         ) {
             this.classType = classType;
+            this.conventions = LookupConventions(classType);
             this.discriminator = classType.Name;
             this.isAnonymous = IsAnonymousType(classType);
         }
@@ -217,6 +222,18 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        public static ConventionProfile LookupConventions(
+            Type type
+        ) {
+            for (int i = 0; i < profiles.Count; i++) {
+                if (profiles[i].Filter(type)) {
+                    return profiles[i].Profile;
+                }
+            }
+
+            return defaultProfile;
+        }
+
         public static BsonClassMap<TClass> RegisterClassMap<TClass>() {
             return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
         }
@@ -236,6 +253,18 @@ namespace MongoDB.Bson.DefaultSerializer {
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
                 classMaps.Add(classMap.ClassType, classMap);
             }
+        }
+
+        public static void RegisterConventions(
+            ConventionProfile conventions,
+            Func<Type, bool> filter
+        ) {
+            conventions.Merge(defaultProfile); // make sure all conventions exists
+            var filtered = new FilteredConventionProfile {
+                Filter = filter,
+                Profile = conventions
+            };
+            profiles.Add(filtered);
         }
 
         public static void RegisterDiscriminator(
@@ -261,6 +290,17 @@ namespace MongoDB.Bson.DefaultSerializer {
                 classMaps.Remove(classType);
             }
         }
+
+        public static void UnregisterConventions(
+            ConventionProfile conventions
+        ) {
+            for (int i = 0; i < profiles.Count; i++) {
+                if (profiles[i].Profile == conventions) {
+                    profiles.RemoveAt(i);
+                    return;
+                }
+            }
+        }
         #endregion
 
         #region public methods
@@ -278,11 +318,15 @@ namespace MongoDB.Bson.DefaultSerializer {
             var ignoreExtraElementsAttribute = (BsonIgnoreExtraElementsAttribute) classType.GetCustomAttributes(typeof(BsonIgnoreExtraElementsAttribute), false).FirstOrDefault();
             if (ignoreExtraElementsAttribute != null) {
                 ignoreExtraElements = ignoreExtraElementsAttribute.IgnoreExtraElements;
+            } else {
+                ignoreExtraElements = conventions.IgnoreExtraElementsConvention.IgnoreExtraElements(classType);
             }
 
             var useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) classType.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
             if (useCompactRepresentationAttribute != null) {
                 useCompactRepresentation = useCompactRepresentationAttribute.UseCompactRepresentation;
+            } else {
+                useCompactRepresentation = conventions.UseCompactRepresentationConvention.UseCompactRepresentation(classType);
             }
 
             // only auto map properties declared in this class (and not in base classes)
@@ -304,7 +348,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     );
                     var mapPropertyInfo = mapPropertyDefinition.MakeGenericMethod(propertyInfo.PropertyType);
 
-                    var elementName = propertyInfo.Name;
+                    var elementName = conventions.ElementNameConvention.GetElementName(propertyInfo);
                     var order = int.MaxValue;
                     IBsonIdGenerator idGenerator = null;
 
@@ -337,11 +381,19 @@ namespace MongoDB.Bson.DefaultSerializer {
                     if (defaultValueAttribute != null) {
                         propertyMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
                         propertyMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
+                    } else {
+                        var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(propertyMap.PropertyInfo);
+                        if (defaultValue != null) {
+                            propertyMap.SetDefaultValue(defaultValue);
+                        }
+                        propertyMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(propertyMap.PropertyInfo));
                     }
 
                     var ignoreIfNullAttribute = (BsonIgnoreIfNullAttribute) propertyInfo.GetCustomAttributes(typeof(BsonIgnoreIfNullAttribute), false).FirstOrDefault();
                     if (ignoreIfNullAttribute != null) {
                         propertyMap.SetIgnoreIfNull(true);
+                    } else {
+                        propertyMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(propertyMap.PropertyInfo));
                     }
 
                     var requiredAttribute = (BsonRequiredAttribute) propertyInfo.GetCustomAttributes(typeof(BsonRequiredAttribute), false).FirstOrDefault();
@@ -443,20 +495,18 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                 // if no base class provided an idPropertyMap maybe we have one?
                 if (idPropertyMap == null) {
-                    // TODO: improve Id detection algorithm (doesn't have to be perfect since BsonIdAttribute can always pinpoint the Id property)
-                    // simple algorithm: first property found that ends in either "Id" or "id" or is of type ObjectId or Guid
-                    idPropertyMap = propertyMaps
-                        .Where(pm =>
-                            pm.PropertyName.EndsWith("Id") ||
-                            pm.PropertyName.EndsWith("id") ||
-                            pm.PropertyType == typeof(ObjectId) ||
-                            pm.PropertyType == typeof(Guid)
-                        )
-                        .FirstOrDefault();
+                    idPropertyMap = conventions.IdPropertyConvention.FindIdPropertyMap(propertyMaps);
                 }
             }
 
             idPropertyMapLoaded = true;
+        }
+        #endregion
+
+        #region private class
+        private class FilteredConventionProfile{
+            public Func<Type, bool> Filter;
+            public ConventionProfile Profile;
         }
         #endregion
     }
@@ -536,7 +586,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             PropertyInfo propertyInfo,
             string elementName
         ) {
-            var propertyMap = new BsonPropertyMap<TClass, TProperty>(propertyInfo, elementName);
+            var propertyMap = new BsonPropertyMap<TClass, TProperty>(propertyInfo, elementName, conventions);
             propertyMaps.Add(propertyMap);
             return propertyMap;
         }
