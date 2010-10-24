@@ -23,22 +23,26 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Driver;
+using MongoDB.Bson.DefaultSerializer.Conventions;
 
 namespace MongoDB.DriverOnlineTests.Jira.CSharp77 {
-    public class Foo {
-        // [BsonId] // no longer required since we have a slightly better Id detection algorithm
-        public ObjectId _id { get; set; }
-        public string Name { get; set; }
-        public string Summary { get; set; }
-    }
-
     [TestFixture]
     public class CSharp77Tests {
+        private class Foo {
+            public ObjectId _id { get; set; }
+            public string Name { get; set; }
+            public string Summary { get; set; }
+        }
+
         [Test]
         public void TestSave() {
             var server = MongoServer.Create();
             var database = server["onlinetests"];
             var collection = database.GetCollection<Foo>("csharp77");
+
+            var conventions = new ConventionProfile()
+                .SetIdPropertyConvention(new NamedIdPropertyConvention("_id"));
+            BsonClassMap.RegisterConventions(conventions, t => t == typeof(Foo));
 
             collection.RemoveAll();
             for (int i = 0; i < 10; i++) {
