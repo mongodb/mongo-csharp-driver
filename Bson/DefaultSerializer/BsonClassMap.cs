@@ -537,7 +537,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             PropertyInfo propertyInfo,
             string elementName
         ) {
-            var propertyMap = new BsonPropertyMap<TClass, TProperty>(propertyInfo, elementName);
+            var propertyMap = new BsonPropertyMap<TClass, TProperty>(propertyInfo, elementName, conventions);
             propertyMaps.Add(propertyMap);
             return propertyMap;
         }
