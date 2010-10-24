@@ -30,7 +30,8 @@ namespace MongoDB.Bson.DefaultSerializer {
     public abstract class BsonClassMap {
         #region private static fields
         private static object staticLock = new object();
-        private static ConventionProfile defaultProfile = ConventionProfile.Default;
+        private static List<FilteredConventionProfile> profiles = new List<FilteredConventionProfile>();
+        private static ConventionProfile defaultProfile = ConventionProfile.GetDefault();
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
         private static Dictionary<string, List<Type>> discriminatedTypes = new Dictionary<string, List<Type>>();
         #endregion
@@ -55,7 +56,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type classType
         ) {
             this.classType = classType;
-            this.conventions = GetConventionProfile(this.classType);
+            this.conventions = LookupConventions(this.classType);
             this.discriminator = classType.Name;
             this.isAnonymous = IsAnonymousType(classType);
         }
@@ -113,6 +114,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public static methods
+
         // this is like the AssemblyQualifiedName but shortened where possible
         public static string GetTypeNameDiscriminator(
             Type type
@@ -221,6 +223,17 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        public static ConventionProfile LookupConventions(
+            Type type
+        ) {
+            for(int i = 0; i < profiles.Count; i++) {
+                if (profiles[i].Filter(type))
+                    return profiles[i].Profile;
+            }
+
+            return defaultProfile;
+        }
+
         public static BsonClassMap<TClass> RegisterClassMap<TClass>() {
             return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
         }
@@ -240,6 +253,19 @@ namespace MongoDB.Bson.DefaultSerializer {
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
                 classMaps.Add(classMap.ClassType, classMap);
             }
+        }
+
+        public static void RegisterConventions(
+            ConventionProfile conventions,
+            Func<Type, bool> filter
+        ) {
+            conventions.Merge(defaultProfile); //make sure all conventions exists
+            var filtered = new FilteredConventionProfile
+            {
+                Filter = filter,
+                Profile = conventions
+            };
+            profiles.Add(filtered);
         }
 
         public static void RegisterDiscriminator(
@@ -265,10 +291,22 @@ namespace MongoDB.Bson.DefaultSerializer {
                 classMaps.Remove(classType);
             }
         }
+
+        public static void UnregisterConventions(
+            ConventionProfile conventions
+        ) {
+            for(int i = 0; i < profiles.Count; i++) {
+                if (profiles[i].Profile == conventions) {
+                    profiles.RemoveAt(i);
+                    return;
+                }
+            }
+        }
         #endregion
 
         #region public methods
-        public void AutoMap() {
+        public void AutoMap()
+        {
             foreach (BsonKnownTypeAttribute knownTypeAttribute in classType.GetCustomAttributes(typeof(BsonKnownTypeAttribute), false)) {
                 BsonClassMap.LookupClassMap(knownTypeAttribute.KnownType); // will AutoMap KnownType if necessary
             }
@@ -458,6 +496,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
 
             idPropertyMapLoaded = true;
+        }
+        #endregion
+
+        #region private class
+        private class FilteredConventionProfile{
+            public Func<Type, bool> Filter;
+            public ConventionProfile Profile;
         }
         #endregion
     }
