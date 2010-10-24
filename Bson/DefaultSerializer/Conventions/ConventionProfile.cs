@@ -12,6 +12,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
         public IElementNameConvention ElementNameConvention { get; private set; }
 
         public IIdPropertyConvention IdPropertyConvention { get; private set; }
+
+        public IIgnoreExtraElementsConvention IgnoreExtraElementsConvention { get; private set; }
         #endregion
 
         #region public static methods
@@ -19,7 +21,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
             return new ConventionProfile() //The default profile always matches...
                 .SetBsonIdGeneratorConvention(new BsonSerializerBsonIdGeneratorConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
-                .SetIdPropertyConvention(new NamedIdPropertyConvention("Id"));
+                .SetIdPropertyConvention(new NamedIdPropertyConvention("Id"))
+                .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention());
         }
         #endregion
 
@@ -33,6 +36,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
                 ElementNameConvention = other.ElementNameConvention;
             if (IdPropertyConvention == null)
                 IdPropertyConvention = other.IdPropertyConvention;
+            if (IgnoreExtraElementsConvention == null)
+                IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
         }
 
         public ConventionProfile SetBsonIdGeneratorConvention(
@@ -52,6 +57,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
             IIdPropertyConvention convention
         ) {
             IdPropertyConvention = convention;
+            return this;
+        }
+
+        public ConventionProfile SetIgnoreExtraElementsConvention(
+            IIgnoreExtraElementsConvention convention
+        ) {
+            IgnoreExtraElementsConvention = convention;
             return this;
         }
         #endregion

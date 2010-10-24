@@ -321,6 +321,9 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (ignoreExtraElementsAttribute != null) {
                 ignoreExtraElements = ignoreExtraElementsAttribute.IgnoreExtraElements;
             }
+            else {
+                ignoreExtraElements = conventions.IgnoreExtraElementsConvention.IgnoreExtraElements(classType);
+            }
 
             var useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) classType.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
             if (useCompactRepresentationAttribute != null) {
