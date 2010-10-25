@@ -40,14 +40,12 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions {
         public void TestIdPropertyConvention() {
             var convention = new NamedIdPropertyConvention("Id");
 
-            var classAMap = BsonClassMap.RegisterClassMap<TestClassA>();
-            var idMap = convention.FindIdPropertyMap(classAMap.PropertyMaps);
-            Assert.IsNotNull(idMap);
-            Assert.AreEqual("Id", idMap.PropertyName);
+            var idProperty = convention.FindIdPropertyMap(typeof(TestClassA));
+            Assert.IsNotNull(idProperty);
+            Assert.AreEqual("Id", idProperty.Name);
 
-            var classBMap = BsonClassMap.RegisterClassMap<TestClassB>();
-            idMap = convention.FindIdPropertyMap(classBMap.PropertyMaps);
-            Assert.IsNull(idMap);
+            idProperty = convention.FindIdPropertyMap(typeof(TestClassB));
+            Assert.IsNull(idProperty);
         }
     }
 }

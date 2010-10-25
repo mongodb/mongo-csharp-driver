@@ -495,7 +495,10 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                 // if no base class provided an idPropertyMap maybe we have one?
                 if (idPropertyMap == null) {
-                    idPropertyMap = conventions.IdPropertyConvention.FindIdPropertyMap(propertyMaps);
+                    var propertyInfo = conventions.IdPropertyConvention.FindIdPropertyMap(classType);
+                    idPropertyMap = propertyMaps.SingleOrDefault(x => x.PropertyInfo == propertyInfo);
+                    if (idPropertyMap != null)
+                        idPropertyMap.SetElementName("_id");
                 }
             }
 

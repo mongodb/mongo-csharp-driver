@@ -21,7 +21,7 @@ using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public interface IIdPropertyConvention {
-        BsonPropertyMap FindIdPropertyMap(IEnumerable<BsonPropertyMap> propertyMaps); 
+        PropertyInfo FindIdPropertyMap(Type type); 
     }
 
     public class NamedIdPropertyConvention : IIdPropertyConvention {
@@ -33,10 +33,10 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             Name = name;
         }
 
-        public BsonPropertyMap FindIdPropertyMap(
-            IEnumerable<BsonPropertyMap> propertyMaps
+        public PropertyInfo FindIdPropertyMap(
+            Type type
         ) {
-            return propertyMaps.FirstOrDefault(x => x.PropertyName == Name);
+            return type.GetProperty(Name);
         }
     }
 }

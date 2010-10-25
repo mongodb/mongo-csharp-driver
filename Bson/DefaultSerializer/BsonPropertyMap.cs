@@ -158,6 +158,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        public BsonPropertyMap SetElementName(
+            string elementName
+        ) {
+            this.elementName = elementName;
+            return this;
+        }
+
         public BsonPropertyMap SetIdGenerator(
             IBsonIdGenerator idGenerator
         ) {
