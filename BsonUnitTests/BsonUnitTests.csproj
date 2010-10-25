@@ -80,6 +80,7 @@
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
+    <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonAttributeTests.cs" />
