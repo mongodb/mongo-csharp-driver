@@ -33,6 +33,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
 
         public IIgnoreIfNullConvention IgnoreIfNullConvention { get; private set; }
 
+        public IPropertyFinderConvention PropertyFinderConvention { get; private set; }
+
         public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
 
         public IUseCompactRepresentationConvention UseCompactRepresentationConvention { get; private set; }
@@ -47,6 +49,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 .SetIdPropertyConvention(new NamedIdPropertyConvention("Id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
+                .SetPropertyFinderConvention(new PublicPropertyFinderConvention())
                 .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention())
                 .SetUseCompactRepresentationConvention(new NeverUseCompactRepresentationConvention());
         }
@@ -73,6 +76,9 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             }
             if (IgnoreIfNullConvention == null) {
                 IgnoreIfNullConvention = other.IgnoreIfNullConvention;
+            }
+            if(PropertyFinderConvention == null) {
+                PropertyFinderConvention = other.PropertyFinderConvention;
             }
             if (SerializeDefaultValueConvention == null) {
                 SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
@@ -121,6 +127,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             IIgnoreIfNullConvention convention
         ) {
             IgnoreIfNullConvention = convention;
+            return this;
+        }
+
+        public ConventionProfile SetPropertyFinderConvention(
+            IPropertyFinderConvention convention
+        ) {
+            PropertyFinderConvention = convention;
             return this;
         }
 

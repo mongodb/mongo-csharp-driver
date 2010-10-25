@@ -331,8 +331,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
             // only auto map properties declared in this class (and not in base classes)
             var hasOrderedElements = false;
-            var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-            foreach (var propertyInfo in classType.GetProperties(bindingFlags)) {
+            foreach (var propertyInfo in conventions.PropertyFinderConvention.FindProperties(classType)) {
                 if (propertyInfo.CanRead && (propertyInfo.CanWrite || isAnonymous)) {
                     var ignoreAttribute = (BsonIgnoreAttribute) propertyInfo.GetCustomAttributes(typeof(BsonIgnoreAttribute), false).FirstOrDefault();
                     if (ignoreAttribute != null) {
