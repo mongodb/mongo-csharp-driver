@@ -231,7 +231,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public override Func<object, object> Getter {
             get {
                 if (getter == null) {
-                    var getMethodInfo = propertyInfo.GetGetMethod();
+                    var getMethodInfo = propertyInfo.GetGetMethod(true);
                     var getMethodDelegate = (Func<TClass, TProperty>) Delegate.CreateDelegate(typeof(Func<TClass, TProperty>), getMethodInfo);
                     getter = obj => getMethodDelegate((TClass) obj);
                 }
@@ -242,7 +242,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public override Action<object, object> Setter {
             get {
                 if (setter == null) {
-                    var setMethodInfo = propertyInfo.GetSetMethod();
+                    var setMethodInfo = propertyInfo.GetSetMethod(true);
                     var setMethodDelegate = (Action<TClass, TProperty>) Delegate.CreateDelegate(typeof(Action<TClass, TProperty>), setMethodInfo);
                     setter = (obj, value) => setMethodDelegate((TClass) obj, (TProperty) value);
                 }
