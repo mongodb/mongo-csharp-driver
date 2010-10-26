@@ -23,6 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.DefaultSerializer.Conventions;
 using System.Linq.Expressions;
+using System.Reflection.Emit;
 
 namespace MongoDB.Bson.DefaultSerializer {
     public abstract class BsonMemberMap {
@@ -264,7 +265,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         #region private methods
         private Action<object, object> GetFieldSetter() {
-            throw new NotImplementedException();
+            var fieldInfo = (FieldInfo)memberInfo;
+
+            if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+                throw new InvalidOperationException("Cannot create a setter for a readonly field.");
+
+            var sourceType = fieldInfo.DeclaringType;
+            var method = new DynamicMethod("Set" + fieldInfo.Name, null, new[] { typeof(object), typeof(object) }, true);
+            var gen = method.GetILGenerator();
+
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Castclass, sourceType);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Unbox_Any, fieldInfo.FieldType);
+            gen.Emit(OpCodes.Stfld, fieldInfo);
+            gen.Emit(OpCodes.Ret);
+
+            return (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
         }
 
         private Action<object, object> GetPropertySetter() {
