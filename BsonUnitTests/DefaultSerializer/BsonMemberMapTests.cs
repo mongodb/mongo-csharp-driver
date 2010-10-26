@@ -30,9 +30,16 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer
     [TestFixture]
     public class BsonMemberMapTests {
         private class TestClass {
-            public int Field { get; set; }
+            public int Field;
 
             public int Property { get; set; }
+
+            public int ReadOnlyProperty { get; private set; }
+
+            public TestClass()
+            {
+                ReadOnlyProperty = 10;
+            }
         }
 
         [Test]
@@ -77,6 +84,30 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer
             memberMap.Setter(instance, 42);
 
             Assert.AreEqual(42, instance.Property);
+        }
+
+        [Test]
+        public void TestGettingAReadOnlyProperty()
+        {
+            var instance = new TestClass();
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+            var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
+
+            int value = (int)memberMap.Getter(instance);
+
+            Assert.AreEqual(10, value);
+        }
+
+        [Test]
+        public void TestSettingAReadOnlyProperty()
+        {
+            var instance = new TestClass();
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+            var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
+
+            memberMap.Setter(instance, 42);
+
+            Assert.AreEqual(42, instance.ReadOnlyProperty);
         }
     }
 }
