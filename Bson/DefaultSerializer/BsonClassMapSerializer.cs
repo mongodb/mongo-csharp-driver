@@ -57,7 +57,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
             var obj = Activator.CreateInstance(actualType);
 
-            var missingElementPropertyMaps = new List<BsonPropertyMap>(classMap.PropertyMaps); // make a copy!
+            var missingElementPropertyMaps = new List<BsonMemberMap>(classMap.MemberMaps); // make a copy!
             BsonType bsonType;
             string elementName;
             while (bsonReader.HasElement(out bsonType, out elementName)) {
@@ -66,12 +66,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                     continue;
                 }
 
-                var propertyMap = classMap.GetPropertyMapForElement(elementName);
+                var propertyMap = classMap.GetMemberMapForElement(elementName);
                 if (propertyMap != null) {
                     var elementDiscriminator = PeekElementDiscriminator(bsonReader, bsonType, elementName); // returns null if no discriminator found
-                    var actualElementType = BsonClassMap.LookupActualType(propertyMap.PropertyType, elementDiscriminator);
+                    var actualElementType = BsonClassMap.LookupActualType(propertyMap.MemberType, elementDiscriminator);
                     var serializer = propertyMap.GetSerializerForActualType(actualElementType);
-                    object value = serializer.DeserializeElement(bsonReader, propertyMap.PropertyType, out elementName);
+                    object value = serializer.DeserializeElement(bsonReader, propertyMap.MemberType, out elementName);
                     propertyMap.Setter(obj, value);
                     missingElementPropertyMaps.Remove(propertyMap);
                 } else {
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             object document
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
-            return classMap.IdPropertyMap != null;
+            return classMap.IdMemberMap != null;
         }
 
         public bool DocumentHasIdValue(
@@ -128,7 +128,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             out object existingId
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
-            var idPropertyMap = classMap.IdPropertyMap;
+            var idPropertyMap = classMap.IdMemberMap;
             existingId = idPropertyMap.Getter(document);
             return !idPropertyMap.IdGenerator.IsEmpty(existingId);
         }
@@ -137,7 +137,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             object document
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
-            var idPropertyMap = classMap.IdPropertyMap;
+            var idPropertyMap = classMap.IdMemberMap;
             idPropertyMap.Setter(document, idPropertyMap.IdGenerator.GenerateId());
         }
 
@@ -152,9 +152,9 @@ namespace MongoDB.Bson.DefaultSerializer {
             var classMap = BsonClassMap.LookupClassMap(actualType);
 
             bsonWriter.WriteStartDocument();
-            BsonPropertyMap idPropertyMap = null;
+            BsonMemberMap idPropertyMap = null;
             if (serializeIdFirst) {
-                idPropertyMap = classMap.IdPropertyMap;
+                idPropertyMap = classMap.IdMemberMap;
                 if (idPropertyMap != null) {
                     SerializeProperty(bsonWriter, obj, idPropertyMap);
                 }
@@ -164,7 +164,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteString("_t", classMap.Discriminator);
             }
 
-            foreach (var propertyMap in classMap.PropertyMaps) {
+            foreach (var propertyMap in classMap.MemberMaps) {
                 // note: if serializeIdFirst is false then idPropertyMap will be null (so no property will be skipped)
                 if (propertyMap != idPropertyMap) {
                     SerializeProperty(bsonWriter, obj, propertyMap);
@@ -220,7 +220,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         private void SerializeProperty(
             BsonWriter bsonWriter,
             object obj,
-            BsonPropertyMap propertyMap
+            BsonMemberMap propertyMap
         ) {
             var value = propertyMap.Getter(obj);
             if (value == null && propertyMap.IgnoreIfNull) {
@@ -230,7 +230,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 return; // don't serialize default value
             }
 
-            var nominalType = propertyMap.PropertyType;
+            var nominalType = propertyMap.MemberType;
             var actualType = (value == null) ? nominalType : value.GetType();
             var serializer = propertyMap.GetSerializerForActualType(actualType);
             var elementName = propertyMap.ElementName;

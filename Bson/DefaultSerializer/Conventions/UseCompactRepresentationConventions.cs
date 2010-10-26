@@ -35,7 +35,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         public bool UseCompactRepresentation(
             Type type
         ) {
-            return true ;
+            return true;
         }
     }
 }

@@ -22,14 +22,14 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public interface IBsonIdGeneratorConvention {
-        IBsonIdGenerator GetBsonIdGenerator(PropertyInfo property); 
+        IBsonIdGenerator GetBsonIdGenerator(MemberInfo memberInfo); 
     }
 
     public class BsonSerializerBsonIdGeneratorConvention : IBsonIdGeneratorConvention {
         public IBsonIdGenerator GetBsonIdGenerator(
-            PropertyInfo property
+           MemberInfo memberInfo
         ) {
-            return BsonSerializer.LookupIdGenerator(property.PropertyType);
+            return BsonSerializer.LookupIdGenerator(BsonUtils.GetMemberInfoType(memberInfo));
         }
     }
 }

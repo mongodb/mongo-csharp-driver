@@ -21,6 +21,7 @@ using System.Text;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using System.Reflection;
 
 namespace MongoDB.Bson {
     public static class BsonUtils {
@@ -62,6 +63,19 @@ namespace MongoDB.Bson {
                 }
             }
             return true;
+        }
+
+        public static Type GetMemberInfoType(
+            MemberInfo memberInfo
+        ) {
+            if (memberInfo.MemberType == MemberTypes.Field) {
+                return ((FieldInfo)memberInfo).FieldType;
+            }
+            else if(memberInfo.MemberType == MemberTypes.Property) {
+                return ((PropertyInfo)memberInfo).PropertyType;
+            }
+
+            throw new NotSupportedException("Only field and properties are supported at this time.");
         }
         #endregion
     }

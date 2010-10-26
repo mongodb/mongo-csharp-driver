@@ -98,7 +98,7 @@
     <Compile Include="DefaultSerializer\Attributes\BsonUseCompactRepresentationAttribute.cs" />
     <Compile Include="DefaultSerializer\BsonClassMap.cs" />
     <Compile Include="DefaultSerializer\BsonClassMapSerializer.cs" />
-    <Compile Include="DefaultSerializer\BsonPropertyMap.cs" />
+    <Compile Include="DefaultSerializer\BsonMemberMap.cs" />
     <Compile Include="ObjectModel\BsonArray.cs" />
     <Compile Include="IO\BsonBinaryReader.cs" />
     <Compile Include="IO\BsonBinaryReaderSettings.cs" />

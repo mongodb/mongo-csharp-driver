@@ -21,12 +21,12 @@ using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public interface IDefaultValueConvention {
-        object GetDefaultValue(PropertyInfo property);
+        object GetDefaultValue(MemberInfo memberInfo);
     }
 
     public class NullDefaultValueConvention : IDefaultValueConvention {
         public object GetDefaultValue(
-            PropertyInfo property
+            MemberInfo memberInfo
         ) {
             return null;
         }

@@ -22,15 +22,16 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.DefaultSerializer.Conventions;
+using System.Linq.Expressions;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public abstract class BsonPropertyMap {
+    public abstract class BsonMemberMap {
         #region protected fields
         protected ConventionProfile conventions;
-        protected string propertyName;
         protected string elementName;
         protected int order = int.MaxValue;
-        protected PropertyInfo propertyInfo;
+        protected MemberInfo memberInfo;
+        protected Type memberType;
         protected Func<object, object> getter;
         protected Action<object, object> setter;
         protected IBsonSerializer serializer;
@@ -44,25 +45,25 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
-        protected BsonPropertyMap(
-            PropertyInfo propertyInfo,
+        protected BsonMemberMap(
+            MemberInfo memberInfo,
             string elementName,
             ConventionProfile conventions
         ) {
-            this.propertyName = propertyInfo.Name;
             this.elementName = elementName;
-            this.propertyInfo = propertyInfo;
+            this.memberInfo = memberInfo;
+            this.memberType = BsonUtils.GetMemberInfoType(memberInfo);
             this.conventions = conventions;
         }
         #endregion
 
         #region public properties
-        public string PropertyName {
-            get { return propertyName; }
+        public string MemberName {
+            get { return memberInfo.Name; }
         }
 
-        public Type PropertyType {
-            get { return propertyInfo.PropertyType; }
+        public Type MemberType {
+            get { return memberType; }
         }
 
         public string ElementName {
@@ -73,8 +74,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             get { return order; }
         }
 
-        public PropertyInfo PropertyInfo {
-            get { return propertyInfo; }
+        public MemberInfo MemberInfo {
+            get { return memberInfo; }
         }
 
         public abstract Func<object, object> Getter {
@@ -88,7 +89,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public IBsonIdGenerator IdGenerator {
             get {
                 if (idGenerator == null) {
-                    idGenerator = conventions.BsonIdGeneratorConvention.GetBsonIdGenerator(this.PropertyInfo);
+                    idGenerator = conventions.BsonIdGeneratorConvention.GetBsonIdGenerator(memberInfo);
                 }
                 return idGenerator;
             }
@@ -132,9 +133,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         public IBsonSerializer GetSerializerForActualType(
             Type actualType
         ) {
-            if (actualType == PropertyType) {
+            if (actualType == memberType) {
                 if (serializer == null) {
-                    serializer = BsonSerializer.LookupSerializer(propertyInfo.PropertyType);
+                    serializer = BsonSerializer.LookupSerializer(memberType);
                 }
                 return serializer;
             } else {
@@ -142,13 +143,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public BsonPropertyMap SetDefaultValue(
+        public BsonMemberMap SetDefaultValue(
             object defaultValue
         ) {
             return SetDefaultValue(defaultValue, true); // serializeDefaultValue
         }
 
-        public BsonPropertyMap SetDefaultValue(
+        public BsonMemberMap SetDefaultValue(
             object defaultValue,
             bool serializeDefaultValue
         ) {
@@ -158,56 +159,56 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
-        public BsonPropertyMap SetElementName(
+        public BsonMemberMap SetElementName(
             string elementName
         ) {
             this.elementName = elementName;
             return this;
         }
 
-        public BsonPropertyMap SetIdGenerator(
+        public BsonMemberMap SetIdGenerator(
             IBsonIdGenerator idGenerator
         ) {
             this.idGenerator = idGenerator;
             return this;
         }
 
-        public BsonPropertyMap SetIgnoreIfNull(
+        public BsonMemberMap SetIgnoreIfNull(
             bool ignoreIfNull
         ) {
             this.ignoreIfNull = ignoreIfNull;
             return this;
         }
 
-        public BsonPropertyMap SetIsRequired(
+        public BsonMemberMap SetIsRequired(
             bool isRequired
         ) {
             this.isRequired = isRequired;
             return this;
         }
 
-        public BsonPropertyMap SetOrder(
+        public BsonMemberMap SetOrder(
             int order
         ) {
             this.order = order;
             return this;
         }
 
-        public BsonPropertyMap SetSerializer(
+        public BsonMemberMap SetSerializer(
             IBsonSerializer serializer
         ) {
             this.serializer = serializer;
             return this;
         }
 
-        public BsonPropertyMap SetSerializeDefaultValue(
+        public BsonMemberMap SetSerializeDefaultValue(
             bool serializeDefaultValue
         ) {
             this.serializeDefaultValue = serializeDefaultValue;
             return this;
         }
 
-        public BsonPropertyMap SetUseCompactRepresentation(
+        public BsonMemberMap SetUseCompactRepresentation(
             bool useCompactRepresentation
         ) {
             this.useCompactRepresentation = useCompactRepresentation;
@@ -216,14 +217,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public class BsonPropertyMap<TClass, TProperty> : BsonPropertyMap {
+    public class BsonMemberMap<TClass, TMember> : BsonMemberMap {
         #region constructors
-        public BsonPropertyMap(
-            PropertyInfo propertyInfo,
+        public BsonMemberMap(
+            MemberInfo memberInfo,
             string elementName,
             ConventionProfile conventions
         )
-            : base(propertyInfo, elementName, conventions) {
+            : base(memberInfo, elementName, conventions) {
         }
         #endregion
 
@@ -231,9 +232,16 @@ namespace MongoDB.Bson.DefaultSerializer {
         public override Func<object, object> Getter {
             get {
                 if (getter == null) {
-                    var getMethodInfo = propertyInfo.GetGetMethod();
-                    var getMethodDelegate = (Func<TClass, TProperty>) Delegate.CreateDelegate(typeof(Func<TClass, TProperty>), getMethodInfo);
-                    getter = obj => getMethodDelegate((TClass) obj);
+                    var instance = Expression.Parameter(typeof(object), "obj");
+                    var lambda = Expression.Lambda<Func<object, object>>(
+                        Expression.Convert(
+                            Expression.MakeMemberAccess(
+                                Expression.Convert(instance, memberInfo.DeclaringType),
+                                memberInfo),
+                            typeof(object)),
+                        instance);
+
+                    getter = lambda.Compile();
                 }
                 return getter;
             }
@@ -242,12 +250,36 @@ namespace MongoDB.Bson.DefaultSerializer {
         public override Action<object, object> Setter {
             get {
                 if (setter == null) {
-                    var setMethodInfo = propertyInfo.GetSetMethod();
-                    var setMethodDelegate = (Action<TClass, TProperty>) Delegate.CreateDelegate(typeof(Action<TClass, TProperty>), setMethodInfo);
-                    setter = (obj, value) => setMethodDelegate((TClass) obj, (TProperty) value);
+                    if (memberInfo.MemberType == MemberTypes.Field) {
+                        setter = GetFieldSetter();
+                    }
+                    else {
+                        setter = GetPropertySetter();
+                    }
                 }
                 return setter;
             }
+        }
+        #endregion
+
+        #region private methods
+        private Action<object, object> GetFieldSetter() {
+            throw new NotImplementedException();
+        }
+
+        private Action<object, object> GetPropertySetter() {
+            var setMethodInfo = ((PropertyInfo)memberInfo).GetSetMethod(true);
+            var instance = Expression.Parameter(typeof(object), "obj");
+            var argument = Expression.Parameter(typeof(object), "a");
+            var lambda = Expression.Lambda<Action<object, object>>(
+                Expression.Call(
+                    Expression.Convert(instance, memberInfo.DeclaringType), 
+                    setMethodInfo,
+                    Expression.Convert(argument, memberType)),
+                instance, 
+                argument);
+
+            return lambda.Compile();
         }
         #endregion
     }

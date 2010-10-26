@@ -21,12 +21,12 @@ using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public interface IIgnoreIfNullConvention {
-        bool IgnoreIfNull(PropertyInfo property);
+        bool IgnoreIfNull(MemberInfo memberInfo);
     }
 
     public class NeverIgnoreIfNullConvention : IIgnoreIfNullConvention {
         public bool IgnoreIfNull(
-            PropertyInfo property
+            MemberInfo memberInfo
         ) {
             return false;
         }
@@ -34,9 +34,9 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
 
     public class AlwaysIgnoreIfNullConvention : IIgnoreIfNullConvention {
         public bool IgnoreIfNull(
-            PropertyInfo property
+            MemberInfo memberInfo
         ) {
-            return true ;
+            return true;
         }
     }
 }

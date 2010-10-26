@@ -44,9 +44,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected string discriminator;
         protected bool discriminatorIsRequired;
         protected bool isAnonymous;
-        protected bool idPropertyMapLoaded; // lazy load idPropertyMap
-        protected BsonPropertyMap idPropertyMap;
-        protected List<BsonPropertyMap> propertyMaps = new List<BsonPropertyMap>();
+        protected bool idMemberMapLoaded; // lazy load idPropertyMap
+        protected BsonMemberMap idMemberMap;
+        protected List<BsonMemberMap> memberMaps = new List<BsonMemberMap>();
         protected bool ignoreExtraElements = true;
         protected bool useCompactRepresentation;
         #endregion
@@ -86,20 +86,20 @@ namespace MongoDB.Bson.DefaultSerializer {
             get { return isAnonymous; }
         }
 
-        public BsonPropertyMap IdPropertyMap {
+        public BsonMemberMap IdMemberMap {
             get {
-                if (!idPropertyMapLoaded) { LoadIdPropertyMap(); }
-                return idPropertyMap;
+                if (!idMemberMapLoaded) { LoadIdMemberMap(); }
+                return idMemberMap;
             }
         }
 
-        public IEnumerable<BsonPropertyMap> PropertyMaps {
+        public IEnumerable<BsonMemberMap> MemberMaps {
             get {
                 var baseClassMap = BaseClassMap; // call property for lazy loading
                 if (baseClassMap != null) {
-                    return baseClassMap.PropertyMaps.Concat(propertyMaps);
+                    return baseClassMap.MemberMaps.Concat(memberMaps);
                 } else {
-                    return propertyMaps;
+                    return memberMaps;
                 }
             }
         }
@@ -339,14 +339,14 @@ namespace MongoDB.Bson.DefaultSerializer {
                         continue; // ignore this property
                     }
 
-                    var mapPropertyDefinition = this.GetType().GetMethod(
-                        "MapProperty", // name
+                    var mapMemberDefinition = this.GetType().GetMethod(
+                        "MapMember", // name
                         BindingFlags.NonPublic | BindingFlags.Instance,
                         null, // binder
-                        new Type[] { typeof(PropertyInfo), typeof(string) },
+                        new Type[] { typeof(MemberInfo), typeof(string) },
                         null // modifiers
                     );
-                    var mapPropertyInfo = mapPropertyDefinition.MakeGenericMethod(propertyInfo.PropertyType);
+                    var mapMethodInfo = mapMemberDefinition.MakeGenericMethod(propertyInfo.PropertyType);
 
                     var elementName = conventions.ElementNameConvention.GetElementName(propertyInfo);
                     var order = int.MaxValue;
@@ -367,48 +367,48 @@ namespace MongoDB.Bson.DefaultSerializer {
                         }
                     }
 
-                    var propertyMap = (BsonPropertyMap) mapPropertyInfo.Invoke(this, new object[] { propertyInfo, elementName });
+                    var memberMap = (BsonMemberMap) mapMethodInfo.Invoke(this, new object[] { propertyInfo, elementName });
                     if (order != int.MaxValue) {
-                        propertyMap.SetOrder(order);
+                        memberMap.SetOrder(order);
                         hasOrderedElements = true;
                     }
                     if (idAttribute != null) {
-                        idPropertyMap = propertyMap;
-                        idPropertyMap.SetIdGenerator(idGenerator);
+                        idMemberMap = memberMap;
+                        idMemberMap.SetIdGenerator(idGenerator);
                     }
 
                     var defaultValueAttribute = (BsonDefaultValueAttribute) propertyInfo.GetCustomAttributes(typeof(BsonDefaultValueAttribute), false).FirstOrDefault();
                     if (defaultValueAttribute != null) {
-                        propertyMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
-                        propertyMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
+                        memberMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
+                        memberMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
                     } else {
-                        var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(propertyMap.PropertyInfo);
+                        var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(memberMap.MemberInfo);
                         if (defaultValue != null) {
-                            propertyMap.SetDefaultValue(defaultValue);
+                            memberMap.SetDefaultValue(defaultValue);
                         }
-                        propertyMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(propertyMap.PropertyInfo));
+                        memberMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberMap.MemberInfo));
                     }
 
                     var ignoreIfNullAttribute = (BsonIgnoreIfNullAttribute) propertyInfo.GetCustomAttributes(typeof(BsonIgnoreIfNullAttribute), false).FirstOrDefault();
                     if (ignoreIfNullAttribute != null) {
-                        propertyMap.SetIgnoreIfNull(true);
+                        memberMap.SetIgnoreIfNull(true);
                     } else {
-                        propertyMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(propertyMap.PropertyInfo));
+                        memberMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(memberMap.MemberInfo));
                     }
 
                     var requiredAttribute = (BsonRequiredAttribute) propertyInfo.GetCustomAttributes(typeof(BsonRequiredAttribute), false).FirstOrDefault();
                     if (requiredAttribute != null) {
-                        propertyMap.SetIsRequired(true);
+                        memberMap.SetIsRequired(true);
                     }
 
-                    propertyMap.SetUseCompactRepresentation(useCompactRepresentation);
+                    memberMap.SetUseCompactRepresentation(useCompactRepresentation);
                     useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) propertyInfo.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
                     if (useCompactRepresentationAttribute != null) {
-                        propertyMap.SetUseCompactRepresentation(useCompactRepresentationAttribute.UseCompactRepresentation);
+                        memberMap.SetUseCompactRepresentation(useCompactRepresentationAttribute.UseCompactRepresentation);
                     } else {
                         // default useCompactRepresentation to true for primitive property types
-                        if (propertyMap.PropertyType.IsPrimitive) {
-                            propertyMap.SetUseCompactRepresentation(true);
+                        if (memberMap.MemberType.IsPrimitive) {
+                            memberMap.SetUseCompactRepresentation(true);
                         }
                     }
                 }
@@ -417,24 +417,24 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (hasOrderedElements) {
                 // split out the items with a value for Order and sort them separately (because Sort is unstable, see online help)
                 // and then concatenate any items with no value for Order at the end (in their original order)
-                var ordered = new List<BsonPropertyMap>(propertyMaps.Where(pm => pm.Order != int.MaxValue));
+                var ordered = new List<BsonMemberMap>(memberMaps.Where(pm => pm.Order != int.MaxValue));
                 ordered.Sort((x, y) => x.Order.CompareTo(y.Order));
-                propertyMaps = new List<BsonPropertyMap>(ordered.Concat(propertyMaps.Where(pm => pm.Order == int.MaxValue)));
+                memberMaps = new List<BsonMemberMap>(ordered.Concat(memberMaps.Where(pm => pm.Order == int.MaxValue)));
             }
 
             RegisterDiscriminator(classType, discriminator);
         }
 
-        public BsonPropertyMap GetPropertyMap(
-            string propertyName
+        public BsonMemberMap GetMemberMap(
+            string memberName
         ) {
-            return PropertyMaps.FirstOrDefault(pm => pm.PropertyName == propertyName);
+            return MemberMaps.FirstOrDefault(pm => pm.MemberName == memberName);
         }
 
-        public BsonPropertyMap GetPropertyMapForElement(
+        public BsonMemberMap GetMemberMapForElement(
             string elementName
         ) {
-            return PropertyMaps.FirstOrDefault(pm => pm.ElementName == elementName);
+            return MemberMaps.FirstOrDefault(pm => pm.ElementName == elementName);
         }
 
         public BsonClassMap SetDiscriminator(
@@ -485,27 +485,27 @@ namespace MongoDB.Bson.DefaultSerializer {
             baseClassMapLoaded = true;
         }
 
-        private void LoadIdPropertyMap() {
-            if (idPropertyMap == null) {
+        private void LoadIdMemberMap() {
+            if (idMemberMap == null) {
                 // the IdPropertyMap should be provided by the highest class possible in the inheritance hierarchy
                 var baseClassMap = BaseClassMap; // call BaseClassMap property for lazy loading
                 if (baseClassMap != null) {
-                    idPropertyMap = baseClassMap.IdPropertyMap;
+                    idMemberMap = baseClassMap.IdMemberMap;
                 }
 
                 // if no base class provided an idPropertyMap maybe we have one?
-                if (idPropertyMap == null) {
+                if (idMemberMap == null) {
                     var propertyName = conventions.IdPropertyConvention.FindIdProperty(classType);
                     if (propertyName != null) {
-                        idPropertyMap = GetPropertyMap(propertyName);
-                        if (idPropertyMap != null) {
-                            idPropertyMap.SetElementName("_id");
+                        idMemberMap = GetMemberMap(propertyName);
+                        if (idMemberMap != null) {
+                            idMemberMap.SetElementName("_id");
                         }
                     }
                 }
             }
 
-            idPropertyMapLoaded = true;
+            idMemberMapLoaded = true;
         }
         #endregion
 
@@ -528,51 +528,51 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public BsonPropertyMap GetPropertyMap<TProperty>(
-            Expression<Func<TClass, TProperty>> propertyLambda
+        public BsonMemberMap GetMemberMap<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
         ) {
-            var propertyName = GetPropertyNameFromLambda(propertyLambda);
-            return propertyMaps.FirstOrDefault(pm => pm.PropertyInfo.Name == propertyName);
+            var memberName = GetMemberNameFromLambda(memberLambda);
+            return memberMaps.FirstOrDefault(mm => mm.MemberInfo.Name == memberName);
         }
 
-        public BsonPropertyMap MapId<TProperty>(
-            Expression<Func<TClass, TProperty>> propertyLambda
+        public BsonMemberMap MapId<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
         ) {
-            var propertyInfo = GetPropertyInfoFromLambda(propertyLambda);
+            var memberInfo = GetMemberInfoFromLambda(memberLambda);
             var elementName = "_id";
-            idPropertyMap = MapProperty<TProperty>(propertyInfo, elementName);
-            return idPropertyMap;
+            idMemberMap = MapMember<TMember>(memberInfo, elementName);
+            return idMemberMap;
         }
 
-        public BsonPropertyMap MapProperty<TProperty>(
-            Expression<Func<TClass, TProperty>> propertyLambda
+        public BsonMemberMap MapMember<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
         ) {
-            var propertyInfo = GetPropertyInfoFromLambda(propertyLambda);
-            var elementName = propertyInfo.Name;
-            return MapProperty<TProperty>(propertyInfo, elementName);
+            var memberInfo = GetMemberInfoFromLambda(memberLambda);
+            var elementName = memberInfo.Name;
+            return MapMember<TMember>(memberInfo, elementName);
         }
 
-        public BsonPropertyMap MapProperty<TProperty>(
-            Expression<Func<TClass, TProperty>> propertyLambda,
+        public BsonMemberMap MapMember<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda,
             string elementName
         ) {
-            var propertyInfo = GetPropertyInfoFromLambda(propertyLambda);
-            return MapProperty<TProperty>(propertyInfo, elementName);
+            var memberInfo = GetMemberInfoFromLambda(memberLambda);
+            return MapMember<TMember>(memberInfo, elementName);
         }
         #endregion
 
         #region private methods
-        private PropertyInfo GetPropertyInfoFromLambda<TProperty>(
-            Expression<Func<TClass, TProperty>> propertyLambda
+        private PropertyInfo GetMemberInfoFromLambda<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
         ) {
-            var propertyName = GetPropertyNameFromLambda(propertyLambda);
-            return classType.GetProperty(propertyName);
+            var memberName = GetMemberNameFromLambda(memberLambda);
+            return classType.GetProperty(memberName);
         }
 
-        private string GetPropertyNameFromLambda<TProperty>(
-            Expression<Func<TClass, TProperty>> propertyLambda
+        private string GetMemberNameFromLambda<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
         ) {
-            var body = propertyLambda.Body;
+            var body = memberLambda.Body;
             MemberExpression memberExpression;
             switch (body.NodeType) {
                 case ExpressionType.MemberAccess:
@@ -588,13 +588,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberExpression.Member.Name;
         }
 
-        private BsonPropertyMap MapProperty<TProperty>(
-            PropertyInfo propertyInfo,
+        private BsonMemberMap MapMember<TMember>(
+            MemberInfo memberInfo,
             string elementName
         ) {
-            var propertyMap = new BsonPropertyMap<TClass, TProperty>(propertyInfo, elementName, conventions);
-            propertyMaps.Add(propertyMap);
-            return propertyMap;
+            var memberMap = new BsonMemberMap<TClass, TMember>(memberInfo, elementName, conventions);
+            memberMaps.Add(memberMap);
+            return memberMap;
         }
         #endregion
     }
