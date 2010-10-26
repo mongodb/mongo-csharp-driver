@@ -154,7 +154,7 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException("WriteDouble can only be called when WriteState is one of the document states");
             }
             WriteName(name);
-            textWriter.Write(value);
+            textWriter.Write(value.ToString(CultureInfo.InvariantCulture));
         }
 
         public override void WriteEndDocument() {
