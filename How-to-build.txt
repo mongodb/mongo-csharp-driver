@@ -1,0 +1,28 @@
+== How to build ==
+
+=== general ===
+within the project's root you'll find the file "Build.bat"
+it will call the Phantom build system, with build.boo as the input file.
+
+you do not need to know anything about Phantom or boo. Just use the Build.bat file and you'll be good
+
+=== The simple case ===
+> build
+This will build the whole solution in Debug, and run all tests
+
+=== Compile only, no tests ===
+> build compile
+Will compile the solution in Debug, without running the tests
+
+=== run tests ===
+> build tests
+will compile and run tests
+
+=== Release mode ===
+just add the `release` target. e.g.:
+
+> build release compile
+will build the solution in release mode
+
+> build release test
+will build the solution in release mode and run the tests
