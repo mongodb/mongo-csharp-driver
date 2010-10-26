@@ -125,7 +125,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             object obj
         ) {
             if (!hasDefaultValue) {
-                throw new InvalidOperationException("BsonPropertyMap has no default value");
+                throw new InvalidOperationException("BsonMemberMap has no default value");
             }
             this.Setter(obj, defaultValue);
         }

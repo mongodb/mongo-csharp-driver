@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization {
         // DeserializeDocument and DeserializeElement can return a new object (i.e. a subclass of nominalType) or even null
         object DeserializeDocument(BsonReader bsonReader, Type nominalType);
         object DeserializeElement(BsonReader bsonReader, Type nominalType, out string name);
-        bool DocumentHasIdProperty();
+        bool DocumentHasIdMember();
         bool DocumentHasIdValue(out object existingId);
         void GenerateDocumentId();
         void SerializeDocument(BsonWriter bsonWriter, Type nominalType, bool serializeIdFirst);

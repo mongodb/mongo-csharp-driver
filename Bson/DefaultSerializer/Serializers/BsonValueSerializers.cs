@@ -289,11 +289,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public override bool DocumentHasIdProperty(
+        public override bool DocumentHasIdMember(
             object document
         ) {
             var bsonDocument = (BsonDocument) document;
-            return bsonDocument.DocumentHasIdProperty();
+            return bsonDocument.DocumentHasIdMember();
         }
 
         public override bool DocumentHasIdValue(

@@ -40,12 +40,12 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestIdProperty() {
+        public void TestIdMember() {
             var u = new User { Id = ObjectId.Empty, FriendId = ObjectId.Empty };
 
             var classMap = BsonClassMap.LookupClassMap(typeof(User));
-            var idPropertyMap = classMap.IdMemberMap;
-            Assert.AreEqual("Id", idPropertyMap.MemberName);
+            var idMemberMap = classMap.IdMemberMap;
+            Assert.AreEqual("Id", idMemberMap.MemberName);
 
             var serializer = BsonSerializer.LookupSerializer(typeof(User));
             var idGenerator = BsonSerializer.LookupIdGenerator(typeof(ObjectId));

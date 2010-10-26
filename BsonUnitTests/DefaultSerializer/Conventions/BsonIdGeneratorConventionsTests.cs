@@ -33,7 +33,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions {
         }
 
         [Test]
-        public void TestIdPropertyConvention() {
+        public void TestBsonIdGeneratorConvention() {
             var convention = new BsonSerializerBsonIdGeneratorConvention();
 
             var guidProperty = typeof(TestClass).GetProperty("GuidId");

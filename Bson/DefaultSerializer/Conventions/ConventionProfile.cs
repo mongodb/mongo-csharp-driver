@@ -27,7 +27,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
 
         public IElementNameConvention ElementNameConvention { get; private set; }
 
-        public IIdPropertyConvention IdPropertyConvention { get; private set; }
+        public IIdMemberConvention IdMemberConvention { get; private set; }
 
         public IIgnoreExtraElementsConvention IgnoreExtraElementsConvention { get; private set; }
 
@@ -44,7 +44,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 .SetBsonIdGeneratorConvention(new BsonSerializerBsonIdGeneratorConvention())
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
-                .SetIdPropertyConvention(new NamedIdPropertyConvention("Id"))
+                .SetIdMemberConvention(new NamedIdMemberConvention("Id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
                 .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention())
@@ -65,8 +65,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             if (ElementNameConvention == null) {
                 ElementNameConvention = other.ElementNameConvention;
             }
-            if (IdPropertyConvention == null) {
-                IdPropertyConvention = other.IdPropertyConvention;
+            if (IdMemberConvention == null) {
+                IdMemberConvention = other.IdMemberConvention;
             }
             if (IgnoreExtraElementsConvention == null) {
                 IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
@@ -103,10 +103,10 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             return this;
         }
 
-        public ConventionProfile SetIdPropertyConvention(
-            IIdPropertyConvention convention
+        public ConventionProfile SetIdMemberConvention(
+            IIdMemberConvention convention
         ) {
-            IdPropertyConvention = convention;
+            IdMemberConvention = convention;
             return this;
         }
 

@@ -39,12 +39,12 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestInt16UseCompactRepresentation() {
             var classMap = BsonClassMap.RegisterClassMap<C>();
-            var sdPropertyMap = classMap.GetMemberMap("SD");
-            var sfPropertyMap = classMap.GetMemberMap("SF");
-            var scPropertyMap = classMap.GetMemberMap("SC");
-            Assert.AreEqual(true, sdPropertyMap.UseCompactRepresentation);
-            Assert.AreEqual(false, sfPropertyMap.UseCompactRepresentation);
-            Assert.AreEqual(true, scPropertyMap.UseCompactRepresentation);
+            var sdMemberMap = classMap.GetMemberMap("SD");
+            var sfMemberMap = classMap.GetMemberMap("SF");
+            var scMemberMap = classMap.GetMemberMap("SC");
+            Assert.AreEqual(true, sdMemberMap.UseCompactRepresentation);
+            Assert.AreEqual(false, sfMemberMap.UseCompactRepresentation);
+            Assert.AreEqual(true, scMemberMap.UseCompactRepresentation);
         }
     }
 }

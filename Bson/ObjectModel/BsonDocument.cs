@@ -399,7 +399,7 @@ namespace MongoDB.Bson {
             }
         }
 
-        public bool DocumentHasIdProperty() {
+        public bool DocumentHasIdMember() {
             return Contains("_id");
         }
 

@@ -78,7 +78,7 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException("DeserializeElement not valid for BsonDocumentWrapper");
         }
 
-        public bool DocumentHasIdProperty() {
+        public bool DocumentHasIdMember() {
             return false;
         }
 

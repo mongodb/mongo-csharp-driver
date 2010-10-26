@@ -20,24 +20,24 @@ using System.Text;
 using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
-    public interface IIdPropertyConvention {
-        string FindIdProperty(Type type); 
+    public interface IIdMemberConvention {
+        string FindIdMember(Type type); 
     }
 
-    public class NamedIdPropertyConvention : IIdPropertyConvention {
+    public class NamedIdMemberConvention : IIdMemberConvention {
         public string Name { get; private set; }
 
-        public NamedIdPropertyConvention(
+        public NamedIdMemberConvention(
             string name
         ) {
             Name = name;
         }
 
-        public string FindIdProperty(
+        public string FindIdMember(
             Type type
         ) {
-            var propertyInfo = type.GetProperty(Name);
-            return (propertyInfo != null) ? Name : null;
+            var memberInfo = type.GetMember(Name).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
+            return (memberInfo != null) ? Name : null;
         }
     }
 }

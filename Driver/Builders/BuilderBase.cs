@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Builders {
             throw new InvalidOperationException();
         }
 
-        bool IBsonSerializable.DocumentHasIdProperty() {
+        bool IBsonSerializable.DocumentHasIdMember() {
             return false;
         }
 

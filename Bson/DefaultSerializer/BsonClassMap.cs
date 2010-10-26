@@ -44,7 +44,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected string discriminator;
         protected bool discriminatorIsRequired;
         protected bool isAnonymous;
-        protected bool idMemberMapLoaded; // lazy load idPropertyMap
+        protected bool idMemberMapLoaded; // lazy load idMemberMap
         protected BsonMemberMap idMemberMap;
         protected List<BsonMemberMap> memberMaps = new List<BsonMemberMap>();
         protected bool ignoreExtraElements = true;
@@ -487,17 +487,17 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         private void LoadIdMemberMap() {
             if (idMemberMap == null) {
-                // the IdPropertyMap should be provided by the highest class possible in the inheritance hierarchy
+                // the IdMemberMap should be provided by the highest class possible in the inheritance hierarchy
                 var baseClassMap = BaseClassMap; // call BaseClassMap property for lazy loading
                 if (baseClassMap != null) {
                     idMemberMap = baseClassMap.IdMemberMap;
                 }
 
-                // if no base class provided an idPropertyMap maybe we have one?
+                // if no base class provided an idMemberMap maybe we have one?
                 if (idMemberMap == null) {
-                    var propertyName = conventions.IdPropertyConvention.FindIdProperty(classType);
-                    if (propertyName != null) {
-                        idMemberMap = GetMemberMap(propertyName);
+                    var memberName = conventions.IdMemberConvention.FindIdMember(classType);
+                    if (memberName != null) {
+                        idMemberMap = GetMemberMap(memberName);
                         if (idMemberMap != null) {
                             idMemberMap.SetElementName("_id");
                         }
@@ -562,11 +562,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private methods
-        private PropertyInfo GetMemberInfoFromLambda<TMember>(
+        private MemberInfo GetMemberInfoFromLambda<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
             var memberName = GetMemberNameFromLambda(memberLambda);
-            return classType.GetProperty(memberName);
+            return classType.GetMember(memberName).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
         }
 
         private string GetMemberNameFromLambda<TMember>(

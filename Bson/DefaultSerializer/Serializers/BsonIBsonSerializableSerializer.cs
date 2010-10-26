@@ -64,11 +64,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return value.DeserializeElement(bsonReader, nominalType, out name);
         }
 
-        public bool DocumentHasIdProperty(
+        public bool DocumentHasIdMember(
             object document
         ) {
             var bsonSerializable = (IBsonSerializable) document;
-            return bsonSerializable.DocumentHasIdProperty();
+            return bsonSerializable.DocumentHasIdMember();
         }
 
         public bool DocumentHasIdValue(
