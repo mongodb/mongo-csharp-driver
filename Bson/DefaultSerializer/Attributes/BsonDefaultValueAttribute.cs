@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonDefaultValueAttribute : Attribute {
         #region private fields
         private object defaultValue;
