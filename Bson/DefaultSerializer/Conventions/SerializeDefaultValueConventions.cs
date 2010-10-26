@@ -21,12 +21,12 @@ using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public interface ISerializeDefaultValueConvention {
-        bool SerializeDefaultValue(PropertyInfo property);
+        bool SerializeDefaultValue(MemberInfo memberInfo);
     }
 
     public class NeverSerializeDefaultValueConvention : ISerializeDefaultValueConvention {
         public bool SerializeDefaultValue(
-            PropertyInfo property
+            MemberInfo memberInfo
         ) {
             return false;
         }
@@ -34,9 +34,9 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
 
     public class AlwaysSerializeDefaultValueConvention : ISerializeDefaultValueConvention {
         public bool SerializeDefaultValue(
-            PropertyInfo property
+            MemberInfo memberInfo
         ) {
-            return true ;
+            return true;
         }
     }
 }

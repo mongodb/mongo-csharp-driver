@@ -27,13 +27,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
 
         public IElementNameConvention ElementNameConvention { get; private set; }
 
-        public IIdPropertyConvention IdPropertyConvention { get; private set; }
+        public IIdMemberConvention IdMemberConvention { get; private set; }
 
         public IIgnoreExtraElementsConvention IgnoreExtraElementsConvention { get; private set; }
 
         public IIgnoreIfNullConvention IgnoreIfNullConvention { get; private set; }
 
-        public IPropertyFinderConvention PropertyFinderConvention { get; private set; }
+        public IMemberFinderConvention MemberFinderConvention { get; private set; }
 
         public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
 
@@ -46,10 +46,10 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 .SetBsonIdGeneratorConvention(new BsonSerializerBsonIdGeneratorConvention())
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
-                .SetIdPropertyConvention(new NamedIdPropertyConvention("Id"))
+                .SetIdMemberConvention(new NamedIdMemberConvention("Id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
-                .SetPropertyFinderConvention(new PublicPropertyFinderConvention())
+                .SetMemberFinderConvention(new PublicMemberFinderConvention())
                 .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention())
                 .SetUseCompactRepresentationConvention(new NeverUseCompactRepresentationConvention());
         }
@@ -68,8 +68,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             if (ElementNameConvention == null) {
                 ElementNameConvention = other.ElementNameConvention;
             }
-            if (IdPropertyConvention == null) {
-                IdPropertyConvention = other.IdPropertyConvention;
+            if (IdMemberConvention == null) {
+                IdMemberConvention = other.IdMemberConvention;
             }
             if (IgnoreExtraElementsConvention == null) {
                 IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
@@ -77,8 +77,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             if (IgnoreIfNullConvention == null) {
                 IgnoreIfNullConvention = other.IgnoreIfNullConvention;
             }
-            if(PropertyFinderConvention == null) {
-                PropertyFinderConvention = other.PropertyFinderConvention;
+            if(MemberFinderConvention == null) {
+                MemberFinderConvention = other.MemberFinderConvention;
             }
             if (SerializeDefaultValueConvention == null) {
                 SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
@@ -109,10 +109,10 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             return this;
         }
 
-        public ConventionProfile SetIdPropertyConvention(
-            IIdPropertyConvention convention
+        public ConventionProfile SetIdMemberConvention(
+            IIdMemberConvention convention
         ) {
-            IdPropertyConvention = convention;
+            IdMemberConvention = convention;
             return this;
         }
 
@@ -130,10 +130,10 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             return this;
         }
 
-        public ConventionProfile SetPropertyFinderConvention(
-            IPropertyFinderConvention convention
+        public ConventionProfile SetMemberFinderConvention(
+            IMemberFinderConvention convention
         ) {
-            PropertyFinderConvention = convention;
+            MemberFinderConvention = convention;
             return this;
         }
 

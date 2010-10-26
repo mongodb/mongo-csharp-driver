@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization {
     public interface IBsonSerializer {
         object DeserializeDocument(BsonReader bsonReader, Type nominalType);
         object DeserializeElement(BsonReader bsonReader, Type nominalType, out string name);
-        bool DocumentHasIdProperty(object document);
+        bool DocumentHasIdMember(object document);
         bool DocumentHasIdValue(object document, out object existingId);
         void GenerateDocumentId(object document);
         void SerializeDocument(BsonWriter bsonWriter, Type nominalType, object document, bool serializeIdFirst);

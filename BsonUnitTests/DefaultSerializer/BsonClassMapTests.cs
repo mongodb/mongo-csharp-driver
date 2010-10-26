@@ -39,12 +39,36 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestInt16UseCompactRepresentation() {
             var classMap = BsonClassMap.RegisterClassMap<C>();
-            var sdPropertyMap = classMap.GetPropertyMap("SD");
-            var sfPropertyMap = classMap.GetPropertyMap("SF");
-            var scPropertyMap = classMap.GetPropertyMap("SC");
-            Assert.AreEqual(true, sdPropertyMap.UseCompactRepresentation);
-            Assert.AreEqual(false, sfPropertyMap.UseCompactRepresentation);
-            Assert.AreEqual(true, scPropertyMap.UseCompactRepresentation);
+            var sdMemberMap = classMap.GetMemberMap("SD");
+            var sfMemberMap = classMap.GetMemberMap("SF");
+            var scMemberMap = classMap.GetMemberMap("SC");
+            Assert.AreEqual(true, sdMemberMap.UseCompactRepresentation);
+            Assert.AreEqual(false, sfMemberMap.UseCompactRepresentation);
+            Assert.AreEqual(true, scMemberMap.UseCompactRepresentation);
+        }
+
+        private class A {
+            private int fieldNotMapped;
+            public readonly int FieldNotMapped2;
+            public int FieldMapped;
+            [BsonElement("FieldMappedByAttribute")]
+            private int fieldMappedByAttribute;
+            
+            public int PropertyMapped { get; set; }
+            public int PropertyMapped2 { get; private set; }
+            public int PropertyMapped3 { private get; set; }
+
+            private int PropertyNotMapped { get; set; }
+
+            [BsonElement("PropertyMappedByAttribute")]
+            private int PropertyMappedByAttribute { get; set; }
+        }
+
+        [Test]
+        public void TestMappingPicksUpAllMembersWithAttributes() {
+            var classMap = new BsonClassMap<A>(c => c.AutoMap());
+
+            Assert.AreEqual(6, classMap.MemberMaps.Count());
         }
     }
 }

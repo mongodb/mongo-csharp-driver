@@ -53,7 +53,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public virtual bool DocumentHasIdProperty(
+        public virtual bool DocumentHasIdMember(
             object document
         ) {
             return false;

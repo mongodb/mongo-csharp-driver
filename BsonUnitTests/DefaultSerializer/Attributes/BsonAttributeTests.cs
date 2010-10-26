@@ -81,22 +81,22 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestDefaultValue() {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
-            var serializedDefaultValue1 = classMap.GetPropertyMap("SerializedDefaultValue1");
+            var serializedDefaultValue1 = classMap.GetMemberMap("SerializedDefaultValue1");
             Assert.AreEqual(true, serializedDefaultValue1.HasDefaultValue);
             Assert.AreEqual(true, serializedDefaultValue1.SerializeDefaultValue);
             Assert.AreEqual("default1", serializedDefaultValue1.DefaultValue);
 
-            var serializedDefaultValue2 = classMap.GetPropertyMap("SerializedDefaultValue2");
+            var serializedDefaultValue2 = classMap.GetMemberMap("SerializedDefaultValue2");
             Assert.AreEqual(true, serializedDefaultValue2.HasDefaultValue);
             Assert.AreEqual(true, serializedDefaultValue2.SerializeDefaultValue);
             Assert.AreEqual("default2", serializedDefaultValue2.DefaultValue);
 
-            var notSerializedDefaultValue = classMap.GetPropertyMap("NotSerializedDefaultValue");
+            var notSerializedDefaultValue = classMap.GetMemberMap("NotSerializedDefaultValue");
             Assert.AreEqual(true, notSerializedDefaultValue.HasDefaultValue);
             Assert.AreEqual(false, notSerializedDefaultValue.SerializeDefaultValue);
             Assert.AreEqual("default3", notSerializedDefaultValue.DefaultValue);
 
-            var noDefaultValue = classMap.GetPropertyMap("NoDefaultValue");
+            var noDefaultValue = classMap.GetMemberMap("NoDefaultValue");
             Assert.AreEqual(false, noDefaultValue.HasDefaultValue);
             Assert.AreEqual(true, noDefaultValue.SerializeDefaultValue);
             Assert.IsNull(noDefaultValue.DefaultValue);
@@ -107,10 +107,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.AreEqual(true, classMap.UseCompactRepresentation);
 
-            var notCompact = classMap.GetPropertyMap("NotCompact");
+            var notCompact = classMap.GetMemberMap("NotCompact");
             Assert.AreEqual(false, notCompact.UseCompactRepresentation);
 
-            var compact = classMap.GetPropertyMap("Compact");
+            var compact = classMap.GetMemberMap("Compact");
             Assert.AreEqual(true, compact.UseCompactRepresentation);
         }
 
@@ -118,23 +118,23 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestId() {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
-            var isId = classMap.GetPropertyMap("IsId");
+            var isId = classMap.GetMemberMap("IsId");
             Assert.AreEqual("_id", isId.ElementName);
-            Assert.AreSame(classMap.IdPropertyMap, isId);
+            Assert.AreSame(classMap.IdMemberMap, isId);
 
-            var isNotId = classMap.GetPropertyMap("IsNotId");
+            var isNotId = classMap.GetMemberMap("IsNotId");
             Assert.AreEqual("IsNotId", isNotId.ElementName);
-            Assert.AreNotSame(classMap.IdPropertyMap, isNotId);
+            Assert.AreNotSame(classMap.IdMemberMap, isNotId);
         }
 
         [Test]
         public void TestIgnored() {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
-            var ignored = classMap.GetPropertyMap("Ignored");
+            var ignored = classMap.GetMemberMap("Ignored");
             Assert.IsNull(ignored);
 
-            var notIgnored = classMap.GetPropertyMap("NotIgnored");
+            var notIgnored = classMap.GetMemberMap("NotIgnored");
             Assert.IsNotNull(notIgnored);
         }
 
@@ -142,10 +142,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestIgnoredIfNull() {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
-            var ignoredIfNull = classMap.GetPropertyMap("IgnoredIfNull");
+            var ignoredIfNull = classMap.GetMemberMap("IgnoredIfNull");
             Assert.AreEqual(true, ignoredIfNull.IgnoreIfNull);
 
-            var notIgnoredIfNull = classMap.GetPropertyMap("NotIgnoredIfNull");
+            var notIgnoredIfNull = classMap.GetMemberMap("NotIgnoredIfNull");
             Assert.AreEqual(false, notIgnoredIfNull.IgnoreIfNull);
         }
 
@@ -153,10 +153,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestRequired() {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
-            var required = classMap.GetPropertyMap("Required");
+            var required = classMap.GetMemberMap("Required");
             Assert.AreEqual(true, required.IsRequired);
 
-            var notRequired = classMap.GetPropertyMap("NotRequired");
+            var notRequired = classMap.GetMemberMap("NotRequired");
             Assert.AreEqual(false, notRequired.IsRequired);
         }
 
@@ -164,16 +164,16 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestElement() {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
-            var notOrdered = classMap.GetPropertyMap("NotOrdered");
+            var notOrdered = classMap.GetMemberMap("NotOrdered");
             Assert.AreEqual("notordered", notOrdered.ElementName);
             Assert.AreEqual(int.MaxValue, notOrdered.Order);
 
-            var ordered = classMap.GetPropertyMap("Ordered");
+            var ordered = classMap.GetMemberMap("Ordered");
             Assert.AreEqual("ordered", ordered.ElementName);
             Assert.AreEqual(1, ordered.Order);
-            Assert.AreSame(classMap.PropertyMaps.First(), ordered);
+            Assert.AreSame(classMap.MemberMaps.First(), ordered);
 
-            var noElement = classMap.GetPropertyMap("NoElement");
+            var noElement = classMap.GetMemberMap("NoElement");
             Assert.AreEqual("NoElement", noElement.ElementName);
             Assert.AreEqual(int.MaxValue, noElement.Order);
         }

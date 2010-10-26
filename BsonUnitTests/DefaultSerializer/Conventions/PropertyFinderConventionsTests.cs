@@ -36,9 +36,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions {
 
         [Test]
         public void TestPublicPropertyFinderConvention() {
-            var convention = new PublicPropertyFinderConvention();
+            var convention = new PublicMemberFinderConvention();
 
-            var properties = convention.FindProperties(typeof(TestClass)).ToList();
+            var properties = convention.FindMembers(typeof(TestClass)).ToList();
 
             Assert.AreEqual(3, properties.Count);
             Assert.IsTrue(properties.Any(x => x.Name == "Public"));

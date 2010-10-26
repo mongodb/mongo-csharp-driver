@@ -392,7 +392,7 @@ namespace MongoDB.Driver {
                 foreach (var document in documents) {
                     if (assignIdOnInsert) {
                         var serializer = BsonSerializer.LookupSerializer(document.GetType());
-                        if (serializer.DocumentHasIdProperty(document)) {
+                        if (serializer.DocumentHasIdMember(document)) {
                             object existingId;
                             if (!serializer.DocumentHasIdValue(document, out existingId)) {
                                 serializer.GenerateDocumentId(document);
@@ -554,7 +554,7 @@ namespace MongoDB.Driver {
             SafeMode safeMode
         ) {
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
-            if (serializer.DocumentHasIdProperty(document)) {
+            if (serializer.DocumentHasIdMember(document)) {
                 object existingId;
                 if (serializer.DocumentHasIdValue(document, out existingId)) {
                     var query = new BsonDocument("_id", BsonValue.Create(existingId));

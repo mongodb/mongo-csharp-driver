@@ -26,7 +26,7 @@ using MongoDB.Bson.DefaultSerializer.Conventions;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions {
     [TestFixture]
-    public class IdPropertyConventionsTests {
+    public class IdMemberConventionsTests {
         private class TestClassA {
             public Guid Id { get; set; }
             public ObjectId OtherId { get; set; }
@@ -37,15 +37,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions {
         }
 
         [Test]
-        public void TestIdPropertyConvention() {
-            var convention = new NamedIdPropertyConvention("Id");
+        public void TestNamedIdMemberConvention() {
+            var convention = new NamedIdMemberConvention("Id");
 
-            var idPropertyName = convention.FindIdProperty(typeof(TestClassA));
-            Assert.IsNotNull(idPropertyName);
-            Assert.AreEqual("Id", idPropertyName);
+            var idMemberName = convention.FindIdMember(typeof(TestClassA));
+            Assert.IsNotNull(idMemberName);
+            Assert.AreEqual("Id", idMemberName);
 
-            idPropertyName = convention.FindIdProperty(typeof(TestClassB));
-            Assert.IsNull(idPropertyName);
+            idMemberName = convention.FindIdMember(typeof(TestClassB));
+            Assert.IsNull(idMemberName);
         }
     }
 }

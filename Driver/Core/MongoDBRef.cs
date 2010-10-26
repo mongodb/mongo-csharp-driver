@@ -142,7 +142,7 @@ namespace MongoDB.Driver {
             }
         }
 
-        bool IBsonSerializable.DocumentHasIdProperty() {
+        bool IBsonSerializable.DocumentHasIdMember() {
             return false;
         }
 

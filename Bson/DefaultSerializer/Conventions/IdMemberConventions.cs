@@ -19,19 +19,25 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MongoDB.Bson.DefaultSerializer.Conventions
-{
-    public interface IPropertyFinderConvention{
-        IEnumerable<PropertyInfo> FindProperties(Type type);
+namespace MongoDB.Bson.DefaultSerializer.Conventions {
+    public interface IIdMemberConvention {
+        string FindIdMember(Type type); 
     }
 
-    public class PublicPropertyFinderConvention : IPropertyFinderConvention {
-        public IEnumerable<PropertyInfo> FindProperties(
+    public class NamedIdMemberConvention : IIdMemberConvention {
+        public string Name { get; private set; }
+
+        public NamedIdMemberConvention(
+            string name
+        ) {
+            Name = name;
+        }
+
+        public string FindIdMember(
             Type type
         ) {
-            var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-            return type.GetProperties(bindingFlags);
+            var memberInfo = type.GetMember(Name).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
+            return (memberInfo != null) ? Name : null;
         }
     }
-
 }

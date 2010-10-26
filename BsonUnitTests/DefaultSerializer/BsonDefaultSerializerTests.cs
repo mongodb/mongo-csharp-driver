@@ -69,9 +69,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 BsonClassMap.RegisterClassMap<Employee>(
                     cm => {
                         cm.MapId(e => e.EmployeeId);
-                        cm.MapProperty(e => e.FirstName, "fn");
-                        cm.MapProperty(e => e.LastName, "ln");
-                        cm.MapProperty(e => e.DateOfBirth, "dob")
+                        cm.MapMember(e => e.FirstName, "fn");
+                        cm.MapMember(e => e.LastName, "ln");
+                        cm.MapMember(e => e.DateOfBirth, "dob")
                             .SetSerializer(new DateOfBirthSerializer());
                     }
                 );

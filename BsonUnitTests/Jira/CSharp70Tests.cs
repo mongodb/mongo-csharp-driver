@@ -37,14 +37,14 @@ namespace MongoDB.BsonUnitTests.Jira {
         public void TestThatPrivateSettersAreValid() {
             var classMap = new BsonClassMap<TestClass>(c => c.AutoMap());
 
-            var setter = classMap.GetPropertyMap(x => x.PrivateSetter).Setter;
+            var setter = classMap.GetMemberMap(x => x.PrivateSetter).Setter;
         }
 
         [Test]
         public void TestThatPrivateGettersAreValid(){
             var classMap = new BsonClassMap<TestClass>(c => c.AutoMap());
 
-            var getter = classMap.GetPropertyMap("PrivateGetter").Getter;
+            var getter = classMap.GetMemberMap("PrivateGetter").Getter;
         }
     }
 }

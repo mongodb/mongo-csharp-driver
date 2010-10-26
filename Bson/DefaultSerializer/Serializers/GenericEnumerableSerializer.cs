@@ -62,9 +62,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             // TODO: verify nominalType is IEnumerable<T>
             var elementType = nominalType.GetGenericArguments()[0];
-            var deserializePropertyHelperDefinition = this.GetType().GetMethod("DeserializeDocumentHelper");
-            var deserializePropertyHelperInfo = deserializePropertyHelperDefinition.MakeGenericMethod(elementType);
-            return deserializePropertyHelperInfo.Invoke(this, new object[] { bsonReader, nominalType });
+            var deserializeDocumentHelperDefinition = this.GetType().GetMethod("DeserializeDocumentHelper");
+            var deserializeDocumentHelperInfo = deserializeDocumentHelperDefinition.MakeGenericMethod(elementType);
+            return deserializeDocumentHelperInfo.Invoke(this, new object[] { bsonReader, nominalType });
         }
 
         public object DeserializeDocumentHelper<T>(
