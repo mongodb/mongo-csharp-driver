@@ -28,8 +28,7 @@ using MongoDB.Bson.DefaultSerializer;
 namespace MongoDB.BsonUnitTests.Jira {
     [TestFixture]
     public class CSharp70Tests {
-        private class TestClass
-        {
+        private class TestClass {
             public string PrivateSetter { get; private set; }
             public string PrivateGetter { private get; set; }
         }
