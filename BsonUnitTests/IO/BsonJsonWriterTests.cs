@@ -102,16 +102,17 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestDateTime() {
             DateTime jan_1_2010 = new DateTime(2010, 1, 1);
+        	double expectedValue = (jan_1_2010.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             BsonDocument document = new BsonDocument() {
                 { "date", jan_1_2010 }
             };
             var settings = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.Strict };
             string json = document.ToJson(settings);
-            string expected = "{ \"date\" : { \"$date\" : 1262322000000 } }";
+        	string expected = "{ \"date\" : { \"$date\" : # } }".Replace("#", expectedValue.ToString());
             Assert.AreEqual(expected, json);
             settings = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.JavaScript };
             json = document.ToJson(settings);
-            expected = "{ \"date\" : Date(1262322000000) }";
+			expected = "{ \"date\" : Date(#) }".Replace("#", expectedValue.ToString());
             Assert.AreEqual(expected, json);
         }
 
