@@ -24,6 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.DefaultSerializer;
+using System.Reflection;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
@@ -69,6 +70,132 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var classMap = new BsonClassMap<A>(c => c.AutoMap());
 
             Assert.AreEqual(6, classMap.MemberMaps.Count());
+        }
+    }
+
+    [TestFixture]
+    public class BsonClassMapMapByNameTests {
+        private class C {
+            private string f;
+            private string p { get; set; }
+        }
+
+        [Test]
+        public void TestMapField() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapField("f"));
+            var memberMap = classMap.GetMemberMap("f");
+            Assert.IsNotNull(memberMap);
+            Assert.AreEqual("f", memberMap.ElementName);
+            Assert.AreEqual("f", memberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapIdField() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdField("f"));
+            var idMemberMap = classMap.IdMemberMap;
+            Assert.IsNotNull(idMemberMap);
+            Assert.AreEqual("_id", idMemberMap.ElementName);
+            Assert.AreEqual("f", idMemberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapIdMember() {
+            var fieldInfo = typeof(C).GetField("f", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdMember(fieldInfo));
+            var idMemberMap = classMap.IdMemberMap;
+            Assert.IsNotNull(idMemberMap);
+            Assert.AreEqual("_id", idMemberMap.ElementName);
+            Assert.AreEqual("f", idMemberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapIdProperty() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty("p"));
+            var idMemberMap = classMap.IdMemberMap;
+            Assert.IsNotNull(idMemberMap);
+            Assert.AreEqual("_id", idMemberMap.ElementName);
+            Assert.AreEqual("p", idMemberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapMember() {
+            var fieldInfo = typeof(C).GetField("f", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            var classMap = new BsonClassMap<C>(cm => cm.MapMember(fieldInfo));
+            var memberMap = classMap.GetMemberMap("f");
+            Assert.IsNotNull(memberMap);
+            Assert.AreEqual("f", memberMap.ElementName);
+            Assert.AreEqual("f", memberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapProperty() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapProperty("p"));
+            var memberMap = classMap.GetMemberMap("p");
+            Assert.IsNotNull(memberMap);
+            Assert.AreEqual("p", memberMap.ElementName);
+            Assert.AreEqual("p", memberMap.MemberName);
+        }
+    }
+
+    [TestFixture]
+    public class BsonClassMapMapByLamdaTests {
+        private class C {
+            public string F;
+            public string P { get; set; }
+        }
+
+        [Test]
+        public void TestMapField() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapField(c => c.F));
+            var memberMap = classMap.GetMemberMap("F");
+            Assert.IsNotNull(memberMap);
+            Assert.AreEqual("F", memberMap.ElementName);
+            Assert.AreEqual("F", memberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapIdField() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdField(c => c.F));
+            var idMemberMap = classMap.IdMemberMap;
+            Assert.IsNotNull(idMemberMap);
+            Assert.AreEqual("_id", idMemberMap.ElementName);
+            Assert.AreEqual("F", idMemberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapIdMember() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdMember(c => c.F));
+            var idMemberMap = classMap.IdMemberMap;
+            Assert.IsNotNull(idMemberMap);
+            Assert.AreEqual("_id", idMemberMap.ElementName);
+            Assert.AreEqual("F", idMemberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapIdProperty() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty(c => c.P));
+            var idMemberMap = classMap.IdMemberMap;
+            Assert.IsNotNull(idMemberMap);
+            Assert.AreEqual("_id", idMemberMap.ElementName);
+            Assert.AreEqual("P", idMemberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapMember() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapMember(c => c.F));
+            var memberMap = classMap.GetMemberMap("F");
+            Assert.IsNotNull(memberMap);
+            Assert.AreEqual("F", memberMap.ElementName);
+            Assert.AreEqual("F", memberMap.MemberName);
+        }
+
+        [Test]
+        public void TestMapProperty() {
+            var classMap = new BsonClassMap<C>(cm => cm.MapProperty(c => c.P));
+            var memberMap = classMap.GetMemberMap("P");
+            Assert.IsNotNull(memberMap);
+            Assert.AreEqual("P", memberMap.ElementName);
+            Assert.AreEqual("P", memberMap.MemberName);
         }
     }
 }

@@ -333,6 +333,52 @@ namespace MongoDB.Bson.DefaultSerializer {
             return MemberMaps.FirstOrDefault(pm => pm.ElementName == elementName);
         }
 
+        public BsonMemberMap MapField(
+            string fieldName
+        ) {
+            var fieldInfo = classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            return MapMember(fieldInfo);
+        }
+
+        public BsonMemberMap MapIdField(
+            string fieldName
+        ) {
+            var fieldMap = MapField(fieldName);
+            SetIdMember(fieldMap);
+            return fieldMap;
+        }
+
+        public BsonMemberMap MapIdMember(
+            MemberInfo memberInfo
+        ) {
+            var memberMap = MapMember(memberInfo);
+            SetIdMember(memberMap);
+            return memberMap;
+        }
+
+        public BsonMemberMap MapIdProperty(
+            string propertyName
+        ) {
+            var propertyMap = MapProperty(propertyName);
+            SetIdMember(propertyMap);
+            return propertyMap;
+        }
+
+        public BsonMemberMap MapMember(
+            MemberInfo memberInfo
+        ) {
+            var memberMap = new BsonMemberMap(memberInfo, conventions);
+            memberMaps.Add(memberMap);
+            return memberMap;
+        }
+
+        public BsonMemberMap MapProperty(
+            string propertyName
+        ) {
+            var propertyInfo = classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            return MapMember(propertyInfo);
+        }
+
         public BsonClassMap SetDiscriminator(
             string discriminator
         ) {
@@ -359,6 +405,23 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             this.useCompactRepresentation = useCompactRepresentation;
             return this;
+        }
+        #endregion
+
+        #region protected methods
+        protected void SetIdMember(
+            BsonMemberMap memberMap
+        ) {
+            if (idMemberMap != null) {
+                var message = string.Format("Class {0} already has an Id", classType.FullName);
+                throw new InvalidOperationException(message);
+            }
+            if (!memberMaps.Contains(memberMap)) {
+                throw new BsonInternalException("Invalid memberMap");
+            }
+
+            memberMap.SetElementName("_id");
+            idMemberMap = memberMap;
         }
         #endregion
 
@@ -411,16 +474,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         private BsonMemberMap AutoMapMember(
             MemberInfo memberInfo
         ) {
-            var mapMemberDefinition = this.GetType().GetMethod(
-                    "MapMember", // name
-                    BindingFlags.NonPublic | BindingFlags.Instance,
-                    null, // binder
-                    new Type[] { typeof(MemberInfo), typeof(string) },
-                    null // modifiers
-                );
-
-            var mapMethodInfo = mapMemberDefinition.MakeGenericMethod(BsonClassMap.GetMemberInfoType(memberInfo));
-
             var elementName = conventions.ElementNameConvention.GetElementName(memberInfo);
             var order = int.MaxValue;
             IBsonIdGenerator idGenerator = null;
@@ -440,13 +493,14 @@ namespace MongoDB.Bson.DefaultSerializer {
                 }
             }
 
-            var memberMap = (BsonMemberMap) mapMethodInfo.Invoke(this, new object[] { memberInfo, elementName });
+            var memberMap = MapMember(memberInfo);
+            memberMap.SetElementName(elementName);
             if (order != int.MaxValue) {
                 memberMap.SetOrder(order);
             }
             if (idAttribute != null) {
-                idMemberMap = memberMap;
-                idMemberMap.SetIdGenerator(idGenerator);
+                memberMap.SetIdGenerator(idGenerator);
+                SetIdMember(memberMap);
             }
 
             var defaultValueAttribute = (BsonDefaultValueAttribute) memberInfo.GetCustomAttributes(typeof(BsonDefaultValueAttribute), false).FirstOrDefault();
@@ -549,16 +603,16 @@ namespace MongoDB.Bson.DefaultSerializer {
                 // the IdMemberMap should be provided by the highest class possible in the inheritance hierarchy
                 var baseClassMap = BaseClassMap; // call BaseClassMap property for lazy loading
                 if (baseClassMap != null) {
-                    idMemberMap = baseClassMap.IdMemberMap;
+                    idMemberMap = baseClassMap.IdMemberMap; // note: don't call SetIdMember because base class already did
                 }
 
                 // if no base class provided an idMemberMap maybe we have one?
                 if (idMemberMap == null) {
                     var memberName = conventions.IdMemberConvention.FindIdMember(classType);
                     if (memberName != null) {
-                        idMemberMap = GetMemberMap(memberName);
-                        if (idMemberMap != null) {
-                            idMemberMap.SetElementName("_id");
+                        var memberMap = GetMemberMap(memberName);
+                        if (memberMap != null) {
+                            SetIdMember(memberMap);
                         }
                     }
                 }
@@ -594,29 +648,47 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMaps.FirstOrDefault(mm => mm.MemberInfo.Name == memberName);
         }
 
-        public BsonMemberMap MapId<TMember>(
+        public BsonMemberMap MapField<TMember>(
+            Expression<Func<TClass, TMember>> fieldLambda
+        ) {
+            return MapMember(fieldLambda);
+        }
+
+        public BsonMemberMap MapIdField<TMember>(
+            Expression<Func<TClass, TMember>> fieldLambda
+        ) {
+            var fieldMap = MapField(fieldLambda);
+            SetIdMember(fieldMap);
+            return fieldMap;
+        }
+
+        public BsonMemberMap MapIdMember<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
-            var memberInfo = GetMemberInfoFromLambda(memberLambda);
-            var elementName = "_id";
-            idMemberMap = MapMember<TMember>(memberInfo, elementName);
-            return idMemberMap;
+            var memberMap = MapMember(memberLambda);
+            SetIdMember(memberMap);
+            return memberMap;
+        }
+
+        public BsonMemberMap MapIdProperty<TMember>(
+            Expression<Func<TClass, TMember>> propertyLambda
+        ) {
+            var propertyMap = MapProperty(propertyLambda);
+            SetIdMember(propertyMap);
+            return propertyMap;
         }
 
         public BsonMemberMap MapMember<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
             var memberInfo = GetMemberInfoFromLambda(memberLambda);
-            var elementName = memberInfo.Name;
-            return MapMember<TMember>(memberInfo, elementName);
+            return MapMember(memberInfo);
         }
 
-        public BsonMemberMap MapMember<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda,
-            string elementName
+        public BsonMemberMap MapProperty<TMember>(
+            Expression<Func<TClass, TMember>> propertyLambda
         ) {
-            var memberInfo = GetMemberInfoFromLambda(memberLambda);
-            return MapMember<TMember>(memberInfo, elementName);
+            return MapMember(propertyLambda);
         }
         #endregion
 
@@ -633,28 +705,18 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             var body = memberLambda.Body;
             MemberExpression memberExpression;
-            switch (body.NodeType)
-            {
+            switch (body.NodeType) {
                 case ExpressionType.MemberAccess:
-                    memberExpression = (MemberExpression)body;
+                    memberExpression = (MemberExpression) body;
                     break;
                 case ExpressionType.Convert:
-                    var convertExpression = (UnaryExpression)body;
-                    memberExpression = (MemberExpression)convertExpression.Operand;
+                    var convertExpression = (UnaryExpression) body;
+                    memberExpression = (MemberExpression) convertExpression.Operand;
                     break;
                 default:
                     throw new BsonSerializationException("Invalid propertyLambda");
             }
             return memberExpression.Member.Name;
-        }
-
-        private BsonMemberMap MapMember<TMember>(
-            MemberInfo memberInfo,
-            string elementName
-        ) {
-            var memberMap = new BsonMemberMap<TClass, TMember>(memberInfo, elementName, conventions);
-            memberMaps.Add(memberMap);
-            return memberMap;
         }
         #endregion
     }

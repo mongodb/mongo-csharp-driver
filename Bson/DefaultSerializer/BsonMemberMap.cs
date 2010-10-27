@@ -26,32 +26,30 @@ using System.Linq.Expressions;
 using System.Reflection.Emit;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public abstract class BsonMemberMap {
-        #region protected fields
-        protected ConventionProfile conventions;
-        protected string elementName;
-        protected int order = int.MaxValue;
-        protected MemberInfo memberInfo;
-        protected Type memberType;
-        protected Func<object, object> getter;
-        protected Action<object, object> setter;
-        protected IBsonSerializer serializer;
-        protected IBsonIdGenerator idGenerator;
-        protected bool useCompactRepresentation;
-        protected bool isRequired;
-        protected bool hasDefaultValue;
-        protected bool serializeDefaultValue = true;
-        protected bool ignoreIfNull;
-        protected object defaultValue;
+    public class BsonMemberMap {
+        #region private fields
+        private ConventionProfile conventions;
+        private string elementName;
+        private int order = int.MaxValue;
+        private MemberInfo memberInfo;
+        private Type memberType;
+        private Func<object, object> getter;
+        private Action<object, object> setter;
+        private IBsonSerializer serializer;
+        private IBsonIdGenerator idGenerator;
+        private bool useCompactRepresentation;
+        private bool isRequired;
+        private bool hasDefaultValue;
+        private bool serializeDefaultValue = true;
+        private bool ignoreIfNull;
+        private object defaultValue;
         #endregion
 
         #region constructors
-        protected BsonMemberMap(
+        public BsonMemberMap(
             MemberInfo memberInfo,
-            string elementName,
             ConventionProfile conventions
         ) {
-            this.elementName = elementName;
             this.memberInfo = memberInfo;
             this.memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             this.conventions = conventions;
@@ -68,7 +66,12 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         public string ElementName {
-            get { return elementName; }
+            get {
+                if (elementName == null) {
+                    elementName = conventions.ElementNameConvention.GetElementName(memberInfo);
+                }
+                return elementName;
+            }
         }
 
         public int Order {
@@ -79,12 +82,38 @@ namespace MongoDB.Bson.DefaultSerializer {
             get { return memberInfo; }
         }
 
-        public abstract Func<object, object> Getter {
-            get;
+        public Func<object, object> Getter {
+            get {
+                if (getter == null) {
+                    var instance = Expression.Parameter(typeof(object), "obj");
+                    var lambda = Expression.Lambda<Func<object, object>>(
+                        Expression.Convert(
+                            Expression.MakeMemberAccess(
+                                Expression.Convert(instance, memberInfo.DeclaringType),
+                                memberInfo
+                            ),
+                            typeof(object)
+                        ),
+                        instance
+                    );
+
+                    getter = lambda.Compile();
+                }
+                return getter;
+            }
         }
 
-        public abstract Action<object, object> Setter {
-            get;
+        public Action<object, object> Setter {
+            get {
+                if (setter == null) {
+                    if (memberInfo.MemberType == MemberTypes.Field) {
+                        setter = GetFieldSetter();
+                    } else {
+                        setter = GetPropertySetter();
+                    }
+                }
+                return setter;
+            }
         }
 
         public IBsonIdGenerator IdGenerator {
@@ -216,54 +245,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
         #endregion
-    }
-
-    public class BsonMemberMap<TClass, TMember> : BsonMemberMap {
-        #region constructors
-        public BsonMemberMap(
-            MemberInfo memberInfo,
-            string elementName,
-            ConventionProfile conventions
-        )
-            : base(memberInfo, elementName, conventions) {
-        }
-        #endregion
-
-        #region public properties
-        public override Func<object, object> Getter {
-            get {
-                if (getter == null) {
-                    var instance = Expression.Parameter(typeof(object), "obj");
-                    var lambda = Expression.Lambda<Func<object, object>>(
-                        Expression.Convert(
-                            Expression.MakeMemberAccess(
-                                Expression.Convert(instance, memberInfo.DeclaringType),
-                                memberInfo
-                            ),
-                            typeof(object)
-                        ),
-                        instance
-                    );
-
-                    getter = lambda.Compile();
-                }
-                return getter;
-            }
-        }
-
-        public override Action<object, object> Setter {
-            get {
-                if (setter == null) {
-                    if (memberInfo.MemberType == MemberTypes.Field) {
-                        setter = GetFieldSetter();
-                    } else {
-                        setter = GetPropertySetter();
-                    }
-                }
-                return setter;
-            }
-        }
-        #endregion
 
         #region private methods
         private Action<object, object> GetFieldSetter() {
@@ -284,7 +265,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             gen.Emit(OpCodes.Stfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
+            return (Action<object, object>) method.CreateDelegate(typeof(Action<object, object>));
         }
 
         private Action<object, object> GetPropertySetter() {
@@ -293,11 +274,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             var argument = Expression.Parameter(typeof(object), "a");
             var lambda = Expression.Lambda<Action<object, object>>(
                 Expression.Call(
-                    Expression.Convert(instance, memberInfo.DeclaringType), 
+                    Expression.Convert(instance, memberInfo.DeclaringType),
                     setMethodInfo,
                     Expression.Convert(argument, memberType)
                 ),
-                instance, 
+                instance,
                 argument
             );
 
