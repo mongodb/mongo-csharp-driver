@@ -19,8 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MongoDB.Bson.DefaultSerializer.Conventions
-{
+namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public interface IMemberFinderConvention{
         IEnumerable<MemberInfo> FindMembers(Type type);
     }
@@ -30,7 +29,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
             Type type
         ) {
             foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)) {
-                if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) {//we can't write
+                if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) { // we can't write
                     continue;
                 }
 
@@ -38,7 +37,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions
             }
 
             foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)) {
-                if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && type.Namespace != null)) {  //we can't write or it is anonymous...
+                if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && type.Namespace != null)) { // we can't write or it is anonymous...
                     continue;
                 }
 

@@ -53,7 +53,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             this.elementName = elementName;
             this.memberInfo = memberInfo;
-            this.memberType = BsonUtils.GetMemberInfoType(memberInfo);
+            this.memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             this.conventions = conventions;
         }
         #endregion
@@ -238,9 +238,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                         Expression.Convert(
                             Expression.MakeMemberAccess(
                                 Expression.Convert(instance, memberInfo.DeclaringType),
-                                memberInfo),
-                            typeof(object)),
-                        instance);
+                                memberInfo
+                            ),
+                            typeof(object)
+                        ),
+                        instance
+                    );
 
                     getter = lambda.Compile();
                 }
@@ -253,8 +256,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 if (setter == null) {
                     if (memberInfo.MemberType == MemberTypes.Field) {
                         setter = GetFieldSetter();
-                    }
-                    else {
+                    } else {
                         setter = GetPropertySetter();
                     }
                 }
@@ -265,10 +267,11 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         #region private methods
         private Action<object, object> GetFieldSetter() {
-            var fieldInfo = (FieldInfo)memberInfo;
+            var fieldInfo = (FieldInfo) memberInfo;
 
-            if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+            if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) {
                 throw new InvalidOperationException("Cannot create a setter for a readonly field.");
+            }
 
             var sourceType = fieldInfo.DeclaringType;
             var method = new DynamicMethod("Set" + fieldInfo.Name, null, new[] { typeof(object), typeof(object) }, true);
@@ -285,16 +288,18 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         private Action<object, object> GetPropertySetter() {
-            var setMethodInfo = ((PropertyInfo)memberInfo).GetSetMethod(true);
+            var setMethodInfo = ((PropertyInfo) memberInfo).GetSetMethod(true);
             var instance = Expression.Parameter(typeof(object), "obj");
             var argument = Expression.Parameter(typeof(object), "a");
             var lambda = Expression.Lambda<Action<object, object>>(
                 Expression.Call(
                     Expression.Convert(instance, memberInfo.DeclaringType), 
                     setMethodInfo,
-                    Expression.Convert(argument, memberType)),
+                    Expression.Convert(argument, memberType)
+                ),
                 instance, 
-                argument);
+                argument
+            );
 
             return lambda.Compile();
         }

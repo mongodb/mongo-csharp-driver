@@ -29,7 +29,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         public IBsonIdGenerator GetBsonIdGenerator(
            MemberInfo memberInfo
         ) {
-            return BsonSerializer.LookupIdGenerator(BsonUtils.GetMemberInfoType(memberInfo));
+            return BsonSerializer.LookupIdGenerator(BsonClassMap.GetMemberInfoType(memberInfo));
         }
     }
 }
