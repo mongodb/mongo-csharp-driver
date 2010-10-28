@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -406,6 +407,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             this.useCompactRepresentation = useCompactRepresentation;
             return this;
         }
+
+        public virtual object CreateInstance()
+        {
+            return Activator.CreateInstance(classType);
+        }
         #endregion
 
         #region protected methods
@@ -583,9 +589,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         private bool IsAnonymousType(
             Type type
         ) {
-            // TODO: figure out if this is a reliable test
-            return type.Namespace == null;
-        }
+            return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+                   && type.IsGenericType && type.Name.Contains("AnonymousType")
+                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                   && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
+        }        
 
         private void LoadBaseClassMap() {
             var baseType = classType.BaseType;
@@ -631,7 +639,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public class BsonClassMap<TClass> : BsonClassMap {
+    public class BsonClassMap<TClass> : BsonClassMap
+    {
+
+        private Func<object> creatorDelegate;
         #region constructors
         public BsonClassMap(
             Action<BsonClassMap<TClass>> classMapInitializer
@@ -690,9 +701,31 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             return MapMember(propertyLambda);
         }
+
+        public override object CreateInstance()
+        {
+            var creator = GetCreatorDelegate();
+            return creator.Invoke();
+        }
+
         #endregion
 
         #region private methods
+        private Func<object> GetCreatorDelegate()
+        {
+            if (creatorDelegate == null)
+            {
+                var defaultConstructor = classType.GetConstructor(new Type[0]);
+                if (defaultConstructor==null)
+                {
+                    throw new BsonSerializationException("Cannot find default constructor for type: "+classType.Name);
+                }
+                var expression = Expression.New(defaultConstructor);
+                creatorDelegate = Expression.Lambda < Func<object>>(expression).Compile();
+            }
+            return creatorDelegate;
+        }
+
         private MemberInfo GetMemberInfoFromLambda<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {

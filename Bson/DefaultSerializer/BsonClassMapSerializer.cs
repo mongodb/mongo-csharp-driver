@@ -55,9 +55,9 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (classMap.IsAnonymous) {
                 throw new InvalidOperationException("Anonymous classes cannot be deserialized");
             }
-            var obj = Activator.CreateInstance(actualType);
+            var obj = classMap.CreateInstance();
 
-            var missingElementMemberMaps = new List<BsonMemberMap>(classMap.MemberMaps); // make a copy!
+            var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.MemberMaps); // make a copy!
             BsonType bsonType;
             string elementName;
             while (bsonReader.HasElement(out bsonType, out elementName)) {

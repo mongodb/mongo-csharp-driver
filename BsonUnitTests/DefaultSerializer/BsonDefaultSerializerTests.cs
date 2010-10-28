@@ -106,5 +106,35 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var rehydrated = BsonSerializer.DeserializeDocument<Account>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        public class Order {
+            public string Customer { get; set; }
+            public OrderDetail[] OrderDetails { get; set; }
+        }
+
+        public class OrderDetail {
+            public string Product { get; set; }
+            public int Quantity { get; set; }
+        }
+
+        [Test]
+        public void TestSerializeOrder()
+        {
+            var order = new Order
+                            {
+                                Customer = "John",
+                                OrderDetails = new[]
+                                                   {
+                                                       new OrderDetail {Product = "Pen", Quantity = 1},
+                                                       new OrderDetail {Product = "Ruler", Quantity = 2}
+                                                   }
+                            };
+            var json = order.ToJson();
+
+            var bson = order.ToBson();
+            var rehydrated = BsonSerializer.DeserializeDocument<Order>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
     }
 }
