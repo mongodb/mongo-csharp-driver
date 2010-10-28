@@ -22,5 +22,7 @@ see also: BreakingChanges.txt
 
 ### Contributors:
 * Justin Dearing        zippy1981@gmail.com
+* Ken Egozi             mail@kenegozi.com
 * Richard Kreuter       richard@10gen.com
+* Testo                 test1@doramail.com   
 * Craig Wilson          craiggwilson@gmail.com
