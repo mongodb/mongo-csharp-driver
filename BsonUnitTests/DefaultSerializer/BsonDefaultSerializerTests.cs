@@ -118,23 +118,23 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
 
         [Test]
-        public void TestSerializeOrder()
-        {
-            var order = new Order
-                            {
-                                Customer = "John",
-                                OrderDetails = new[]
-                                                   {
-                                                       new OrderDetail {Product = "Pen", Quantity = 1},
-                                                       new OrderDetail {Product = "Ruler", Quantity = 2}
-                                                   }
-                            };
+        public void TestSerializeOrder() {
+            var order = new Order {
+                Customer = "John",
+                OrderDetails = new[] {
+                    new OrderDetail { Product = "Pen", Quantity = 1 },
+                    new OrderDetail { Product = "Ruler", Quantity = 2 }
+                }
+            };
             var json = order.ToJson();
+            var expected = "{ 'Customer' : 'John', 'OrderDetails' : # }";
+            expected = expected.Replace("#", "[{ 'Product' : 'Pen', 'Quantity' : 1 }, { 'Product' : 'Ruler', 'Quantity' : 2 }]");
+            expected = expected.Replace("'", "\"");
+            Assert.AreEqual(expected, json);
 
             var bson = order.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<Order>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
-
     }
 }

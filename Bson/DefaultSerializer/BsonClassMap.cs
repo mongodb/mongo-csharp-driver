@@ -41,6 +41,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected bool baseClassMapLoaded; // lazy load baseClassMap so class maps can be constructed out of order
         protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected Type classType;
+        private Func<object> creator;
         protected ConventionProfile conventions;
         protected string discriminator;
         protected bool discriminatorIsRequired;
@@ -322,6 +323,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             RegisterDiscriminator(classType, discriminator);
         }
 
+        public object CreateInstance() {
+            var creator = GetCreator();
+            return creator.Invoke();
+        }
+
         public BsonMemberMap GetMemberMap(
             string memberName
         ) {
@@ -406,11 +412,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             this.useCompactRepresentation = useCompactRepresentation;
             return this;
-        }
-
-        public virtual object CreateInstance()
-        {
-            return Activator.CreateInstance(classType);
         }
         #endregion
 
@@ -586,13 +587,28 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        private Func<object> GetCreator() {
+            if (creator == null) {
+                var defaultConstructor = classType.GetConstructor(new Type[0]);
+                if (defaultConstructor == null) {
+                    throw new BsonSerializationException("Cannot find default constructor for type: " + classType.Name);
+                }
+                var expression = Expression.New(defaultConstructor);
+                var lambda = Expression.Lambda<Func<object>>(expression);
+                creator = lambda.Compile();
+            }
+            return creator;
+        }
+
         private bool IsAnonymousType(
             Type type
         ) {
-            return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                   && type.IsGenericType && type.Name.Contains("AnonymousType")
-                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-                   && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
+            // don't test for too many things in case implementation details change in the future
+            return 
+                Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) && 
+                type.IsGenericType &&
+                type.Name.Contains("AnonymousType") &&
+                (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"));
         }        
 
         private void LoadBaseClassMap() {
@@ -639,10 +655,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public class BsonClassMap<TClass> : BsonClassMap
-    {
-
-        private Func<object> creatorDelegate;
+    public class BsonClassMap<TClass> : BsonClassMap {
         #region constructors
         public BsonClassMap(
             Action<BsonClassMap<TClass>> classMapInitializer
@@ -701,31 +714,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             return MapMember(propertyLambda);
         }
-
-        public override object CreateInstance()
-        {
-            var creator = GetCreatorDelegate();
-            return creator.Invoke();
-        }
-
         #endregion
 
         #region private methods
-        private Func<object> GetCreatorDelegate()
-        {
-            if (creatorDelegate == null)
-            {
-                var defaultConstructor = classType.GetConstructor(new Type[0]);
-                if (defaultConstructor==null)
-                {
-                    throw new BsonSerializationException("Cannot find default constructor for type: "+classType.Name);
-                }
-                var expression = Expression.New(defaultConstructor);
-                creatorDelegate = Expression.Lambda < Func<object>>(expression).Compile();
-            }
-            return creatorDelegate;
-        }
-
         private MemberInfo GetMemberInfoFromLambda<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
