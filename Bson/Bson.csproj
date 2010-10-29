@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BsonExtensionMethods.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="DefaultSerializer\BsonIdGenerators.cs" />
     <Compile Include="DefaultSerializer\Conventions\ConventionProfile.cs" />
     <Compile Include="DefaultSerializer\Conventions\BsonIdGeneratorConventions.cs" />
@@ -80,7 +81,6 @@
     <Compile Include="DefaultSerializer\Conventions\MemberFinderConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\SerializeDefaultValueConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IgnoreIfNullConventions.cs" />
-    <Compile Include="DefaultSerializer\Conventions\UseCompactRepresentationConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdMemberConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IgnoreExtraElementsConventions.cs" />
@@ -96,7 +96,6 @@
     <Compile Include="DefaultSerializer\Attributes\BsonIgnoreIfNullAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonKnownTypeAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRequiredAttribute.cs" />
-    <Compile Include="DefaultSerializer\Attributes\BsonUseCompactRepresentationAttribute.cs" />
     <Compile Include="DefaultSerializer\BsonClassMap.cs" />
     <Compile Include="DefaultSerializer\BsonClassMapSerializer.cs" />
     <Compile Include="DefaultSerializer\BsonMemberMap.cs" />

@@ -66,8 +66,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             if (value == null) {
                 bsonWriter.WriteNull(name);
@@ -123,8 +122,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonBinaryData) obj;
             if (value == null) {
@@ -177,8 +175,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonBoolean) obj;
             if (value == null) {
@@ -231,8 +228,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonDateTime) obj;
             if (value == null) {
@@ -325,14 +321,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonDocument) obj;
             if (value == null) {
                 bsonWriter.WriteNull(name);
             } else {
-                value.SerializeElement(bsonWriter, nominalType, name, useCompactRepresentation);
+                value.SerializeElement(bsonWriter, nominalType, name);
             }
         }
         #endregion
@@ -383,8 +378,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonDocumentWrapper) obj;
             if (value == null) {
@@ -438,8 +432,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonDouble) obj;
             if (value == null) {
@@ -492,8 +485,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonInt32) obj;
             if (value == null) {
@@ -546,8 +538,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonInt64) obj;
             if (value == null) {
@@ -600,8 +591,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonJavaScript) obj;
             if (value == null) {
@@ -656,8 +646,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonJavaScriptWithScope) obj;
             if (value == null) {
@@ -712,8 +701,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonMaxKey) obj;
             if (value == null) {
@@ -767,8 +755,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonMinKey) obj;
             if (value == null) {
@@ -825,8 +812,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonNull) obj;
             if (value == null) {
@@ -885,8 +871,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonObjectId) obj;
             if (value == null) {
@@ -941,8 +926,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonRegularExpression) obj;
             if (value == null) {
@@ -995,8 +979,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonString) obj;
             if (value == null) {
@@ -1049,8 +1032,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonSymbol) obj;
             if (value == null) {
@@ -1103,8 +1085,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonTimestamp) obj;
             if (value == null) {
@@ -1160,8 +1141,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (BsonValue) obj;
             if (value == null) {

@@ -27,7 +27,6 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     public class BsonAttributeTests {
         [BsonDiscriminator("discriminator", Required=true)]
         [BsonIgnoreExtraElements(false)]
-        [BsonUseCompactRepresentation]
         public class Test {
             [BsonDefaultValue("default1")]
             public string SerializedDefaultValue1 { get; set; }
@@ -36,10 +35,6 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             [BsonDefaultValue("default3", SerializeDefaultValue=false)]
             public string NotSerializedDefaultValue { get; set; }
             public string NoDefaultValue { get; set; }
-
-            [BsonUseCompactRepresentation(false)]
-            public string NotCompact { get; set; }
-            public string Compact { get; set; }
 
             [BsonId(IdGenerator=typeof(ObjectIdGenerator))]
             public ObjectId IsId { get; set; }
@@ -100,18 +95,6 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(false, noDefaultValue.HasDefaultValue);
             Assert.AreEqual(true, noDefaultValue.SerializeDefaultValue);
             Assert.IsNull(noDefaultValue.DefaultValue);
-        }
-
-        [Test]
-        public void TestUseCompactRepresentation() {
-            var classMap = BsonClassMap.LookupClassMap(typeof(Test));
-            Assert.AreEqual(true, classMap.UseCompactRepresentation);
-
-            var notCompact = classMap.GetMemberMap("NotCompact");
-            Assert.AreEqual(false, notCompact.UseCompactRepresentation);
-
-            var compact = classMap.GetMemberMap("Compact");
-            Assert.AreEqual(true, compact.UseCompactRepresentation);
         }
 
         [Test]

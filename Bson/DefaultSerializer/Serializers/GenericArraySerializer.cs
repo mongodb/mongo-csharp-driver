@@ -82,21 +82,19 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             VerifyNominalType(nominalType);
             var elementType = nominalType.GetElementType();
             var serializeElementHelperDefinition = this.GetType().GetMethod("SerializeElementHelper");
             var serializeElementHelperInfo = serializeElementHelperDefinition.MakeGenericMethod(elementType);
-            serializeElementHelperInfo.Invoke(this, new object[] { bsonWriter, name, value, useCompactRepresentation });
+            serializeElementHelperInfo.Invoke(this, new object[] { bsonWriter, name, value });
         }
 
         public void SerializeElementHelper<T>(
             BsonWriter bsonWriter,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             if (value == null) {
                 bsonWriter.WriteNull(name);
@@ -107,7 +105,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 for (int index = 0; index < array.Length; index++) {
                     var elementName = index.ToString();
                     var elementValue = array[index];
-                    BsonSerializer.SerializeElement(bsonWriter, elementName, elementValue, useCompactRepresentation);
+                    BsonSerializer.SerializeElement(bsonWriter, elementName, elementValue);
                 }
                 bsonWriter.WriteEndDocument();
             }

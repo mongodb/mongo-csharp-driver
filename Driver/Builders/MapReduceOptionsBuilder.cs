@@ -189,10 +189,9 @@ namespace MongoDB.Driver.Builders {
         protected override void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            bool useCompactRepresentation
+            string name
         ) {
-            document.SerializeElement(bsonWriter, nominalType, name, useCompactRepresentation);
+            document.SerializeElement(bsonWriter, nominalType, name);
         }
         #endregion
     }

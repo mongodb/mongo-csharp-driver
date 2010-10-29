@@ -60,8 +60,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             bsonWriter.WriteBoolean(name, (bool) value);
         }
@@ -103,8 +102,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             bsonWriter.WriteDateTime(name, (DateTime) value);
         }
@@ -146,8 +144,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             bsonWriter.WriteDouble(name, (double) value);
         }
@@ -198,8 +195,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (Guid) obj;
             bsonWriter.WriteBinaryData(name, value.ToByteArray(), BsonBinarySubType.Uuid);
@@ -242,8 +238,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             bsonWriter.WriteInt32(name, (int) value);
         }
@@ -285,8 +280,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             bsonWriter.WriteInt64(name, (long) value);
         }
@@ -331,8 +325,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object obj,
-            bool useCompactRepresentation
+            object obj
         ) {
             var value = (ObjectId) obj;
             bsonWriter.WriteObjectId(name, value.Timestamp, value.MachinePidIncrement);
@@ -381,8 +374,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             if (value == null) {
                 bsonWriter.WriteNull(name);

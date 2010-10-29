@@ -29,25 +29,6 @@ using System.Reflection;
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class BsonClassMapTests {
-        private class C {
-            public short SD { get; set; }
-            [BsonUseCompactRepresentation(false)]
-            public short SF { get; set; }
-            [BsonUseCompactRepresentation(true)]
-            public short SC { get; set; }
-        }
-
-        [Test]
-        public void TestInt16UseCompactRepresentation() {
-            var classMap = BsonClassMap.RegisterClassMap<C>();
-            var sdMemberMap = classMap.GetMemberMap("SD");
-            var sfMemberMap = classMap.GetMemberMap("SF");
-            var scMemberMap = classMap.GetMemberMap("SC");
-            Assert.AreEqual(true, sdMemberMap.UseCompactRepresentation);
-            Assert.AreEqual(false, sfMemberMap.UseCompactRepresentation);
-            Assert.AreEqual(true, scMemberMap.UseCompactRepresentation);
-        }
-
         private class A {
             private int fieldNotMapped;
             public readonly int FieldNotMapped2;

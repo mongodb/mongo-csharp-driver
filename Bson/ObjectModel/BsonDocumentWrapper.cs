@@ -113,10 +113,9 @@ namespace MongoDB.Bson {
         public void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            bool useCompactRepresentation
+            string name
         ) {
-            BsonSerializer.SerializeElement(bsonWriter, name, document, useCompactRepresentation);
+            BsonSerializer.SerializeElement(bsonWriter, name, document);
         }
 
         public override string ToString() {

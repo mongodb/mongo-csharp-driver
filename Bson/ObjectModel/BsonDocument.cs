@@ -575,8 +575,7 @@ namespace MongoDB.Bson {
         public void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            bool useCompactRepresentation
+            string name
         ) {
             bsonWriter.WriteDocumentName(name);
             SerializeDocument(bsonWriter, nominalType, false);

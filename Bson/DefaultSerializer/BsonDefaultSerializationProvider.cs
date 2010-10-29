@@ -77,14 +77,15 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         public IBsonSerializer GetSerializer(
-            Type type
+            Type type,
+            object serializationOptions
         ) {
             if (type.IsArray) {
                 return GenericArraySerializer.Singleton;
             }
 
             if (type.IsEnum) {
-                return GeneralEnumSerializer.Singleton;
+                return GeneralEnumSerializer.GetSerializer(serializationOptions);
             }
 
             if (

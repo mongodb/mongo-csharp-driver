@@ -177,8 +177,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             VerifyNominalType(nominalType);
             if (value == null) {
@@ -234,8 +233,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             var actualType = (value == null) ? nominalType : value.GetType();
             var serializer = memberMap.GetSerializerForActualType(actualType);
             var elementName = memberMap.ElementName;
-            var useCompactRepresentation = memberMap.UseCompactRepresentation;
-            serializer.SerializeElement(bsonWriter, nominalType, elementName, value, useCompactRepresentation);
+            serializer.SerializeElement(bsonWriter, nominalType, elementName, value);
         }
 
         private void VerifyNominalType(

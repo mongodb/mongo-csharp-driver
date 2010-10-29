@@ -57,8 +57,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                     BsonWriter bsonWriter,
                     Type nominalType,
                     string name,
-                    object obj,
-                    bool useCompactRepresentation
+                    object obj
                 ) {
                     var dateTime = (DateTime) obj;
                     bsonWriter.WriteString(name, dateTime.ToString("yyyy-MM-dd"));

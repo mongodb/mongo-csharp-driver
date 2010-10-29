@@ -35,9 +35,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         private Type memberType;
         private Func<object, object> getter;
         private Action<object, object> setter;
+        private object serializationOptions;
         private IBsonSerializer serializer;
         private IBsonIdGenerator idGenerator;
-        private bool useCompactRepresentation;
         private bool isRequired;
         private bool hasDefaultValue;
         private bool serializeDefaultValue = true;
@@ -103,6 +103,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        public object SerializationOptions {
+            get { return serializationOptions; }
+        }
+
         public Action<object, object> Setter {
             get {
                 if (setter == null) {
@@ -123,10 +127,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 }
                 return idGenerator;
             }
-        }
-
-        public bool UseCompactRepresentation {
-            get { return useCompactRepresentation; }
         }
 
         public bool IsRequired {
@@ -165,11 +165,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             if (actualType == memberType) {
                 if (serializer == null) {
-                    serializer = BsonSerializer.LookupSerializer(memberType);
+                    serializer = BsonSerializer.LookupSerializer(memberType, serializationOptions);
                 }
                 return serializer;
             } else {
-                return BsonSerializer.LookupSerializer(actualType);
+                return BsonSerializer.LookupSerializer(actualType, serializationOptions);
             }
         }
 
@@ -224,6 +224,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        public BsonMemberMap SetSerializationOptions(
+            object serializationOptions
+        ) {
+            this.serializationOptions = serializationOptions;
+            return this;
+        }
+
         public BsonMemberMap SetSerializer(
             IBsonSerializer serializer
         ) {
@@ -235,13 +242,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             bool serializeDefaultValue
         ) {
             this.serializeDefaultValue = serializeDefaultValue;
-            return this;
-        }
-
-        public BsonMemberMap SetUseCompactRepresentation(
-            bool useCompactRepresentation
-        ) {
-            this.useCompactRepresentation = useCompactRepresentation;
             return this;
         }
         #endregion

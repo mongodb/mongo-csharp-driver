@@ -29,6 +29,6 @@ namespace MongoDB.Bson.Serialization {
         bool DocumentHasIdValue(out object existingId);
         void GenerateDocumentId();
         void SerializeDocument(BsonWriter bsonWriter, Type nominalType, bool serializeIdFirst);
-        void SerializeElement(BsonWriter bsonWriter, Type nominalType, string name, bool useCompactRepresentation);
+        void SerializeElement(BsonWriter bsonWriter, Type nominalType, string name);
     }
 }

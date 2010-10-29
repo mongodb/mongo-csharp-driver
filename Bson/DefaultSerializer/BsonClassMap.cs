@@ -50,7 +50,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected BsonMemberMap idMemberMap;
         protected List<BsonMemberMap> memberMaps = new List<BsonMemberMap>();
         protected bool ignoreExtraElements = true;
-        protected bool useCompactRepresentation;
         #endregion
 
         #region constructors
@@ -108,10 +107,6 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         public bool IgnoreExtraElements {
             get { return ignoreExtraElements; }
-        }
-
-        public bool UseCompactRepresentation {
-            get { return useCompactRepresentation; }
         }
         #endregion
 
@@ -406,13 +401,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             this.ignoreExtraElements = ignoreExtraElements;
             return this;
         }
-
-        public BsonClassMap SetUseCompactRepresentation(
-            bool useCompactRepresentation
-        ) {
-            this.useCompactRepresentation = useCompactRepresentation;
-            return this;
-        }
         #endregion
 
         #region protected methods
@@ -449,13 +437,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 ignoreExtraElements = ignoreExtraElementsAttribute.IgnoreExtraElements;
             } else {
                 ignoreExtraElements = conventions.IgnoreExtraElementsConvention.IgnoreExtraElements(classType);
-            }
-
-            var useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) classType.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
-            if (useCompactRepresentationAttribute != null) {
-                useCompactRepresentation = useCompactRepresentationAttribute.UseCompactRepresentation;
-            } else {
-                useCompactRepresentation = conventions.UseCompactRepresentationConvention.UseCompactRepresentation(classType);
             }
 
             AutoMapMembers();
@@ -534,15 +515,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                 memberMap.SetIsRequired(true);
             }
 
-            memberMap.SetUseCompactRepresentation(useCompactRepresentation);
-            var useCompactRepresentationAttribute = (BsonUseCompactRepresentationAttribute) memberInfo.GetCustomAttributes(typeof(BsonUseCompactRepresentationAttribute), false).FirstOrDefault();
-            if (useCompactRepresentationAttribute != null) {
-                memberMap.SetUseCompactRepresentation(useCompactRepresentationAttribute.UseCompactRepresentation);
-            } else {
-                // default useCompactRepresentation to true for primitive property types
-                if (memberMap.MemberType.IsPrimitive) {
-                    memberMap.SetUseCompactRepresentation(true);
-                }
+            var representationAttribute = (BsonRepresentationAttribute) memberInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).FirstOrDefault();
+            if (representationAttribute != null) {
+                memberMap.SetSerializationOptions(representationAttribute.Representation);
             }
 
             return memberMap;

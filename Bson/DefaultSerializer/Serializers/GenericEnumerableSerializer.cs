@@ -137,7 +137,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             int index = 0;
             foreach (var item in value) {
                 var elementName = index.ToString();
-                BsonSerializer.SerializeElement(bsonWriter, elementName, item, false);
+                BsonSerializer.SerializeElement(bsonWriter, elementName, item);
                 index++;
             }
             bsonWriter.WriteEndDocument();
@@ -148,8 +148,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             if (value == null) {
                 bsonWriter.WriteNull(name);

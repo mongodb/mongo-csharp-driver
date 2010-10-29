@@ -35,16 +35,17 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
 
         private class C {
-            [BsonUseCompactRepresentation]
-            public E CE { get; set; }
-            public E FE { get; set; }
+            [BsonRepresentation(BsonType.Int32)]
+            public E I { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public E S { get; set; }
         }
 
         [Test]
         public void TestSerializeZero() {
-            C c = new C { CE = 0, FE = 0 };
+            C c = new C { I = 0, S = 0 };
             var json = c.ToJson();
-            var expected = ("{ 'CE' : 0, 'FE' : '0' }").Replace("'", "\"");
+            var expected = ("{ 'I' : 0, 'S' : '0' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -54,9 +55,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeA() {
-            C c = new C { CE = E.A, FE = E.A };
+            C c = new C { I = E.A, S = E.A };
             var json = c.ToJson();
-            var expected = ("{ 'CE' : 1, 'FE' : 'A' }").Replace("'", "\"");
+            var expected = ("{ 'I' : 1, 'S' : 'A' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -66,9 +67,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeB() {
-            C c = new C { CE = E.B, FE = E.B };
+            C c = new C { I = E.B, S = E.B };
             var json = c.ToJson();
-            var expected = ("{ 'CE' : 2, 'FE' : 'B' }").Replace("'", "\"");
+            var expected = ("{ 'I' : 2, 'S' : 'B' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -78,9 +79,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeInvalid() {
-            C c = new C { CE = (E) 123, FE = (E) 123 };
+            C c = new C { I = (E) 123, S = (E) 123 };
             var json = c.ToJson();
-            var expected = ("{ 'CE' : 123, 'FE' : '123' }").Replace("'", "\"");
+            var expected = ("{ 'I' : 123, 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

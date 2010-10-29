@@ -36,16 +36,17 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
 
         private class C {
-            [BsonUseCompactRepresentation]
-            public F CF { get; set; }
-            public F FF { get; set; }
+            [BsonRepresentation(BsonType.Int32)]
+            public F IF { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public F SF { get; set; }
         }
 
         [Test]
         public void TestSerializeZero() {
-            C c = new C { CF = 0, FF = 0 };
+            C c = new C { IF = 0, SF = 0 };
             var json = c.ToJson();
-            var expected = ("{ 'CF' : 0, 'FF' : '0' }").Replace("'", "\"");
+            var expected = ("{ 'IF' : 0, 'SF' : '0' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -55,9 +56,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeA() {
-            C c = new C { CF = F.A, FF = F.A };
+            C c = new C { IF = F.A, SF = F.A };
             var json = c.ToJson();
-            var expected = ("{ 'CF' : 1, 'FF' : 'A' }").Replace("'", "\"");
+            var expected = ("{ 'IF' : 1, 'SF' : 'A' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -67,9 +68,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeB() {
-            C c = new C { CF = F.B, FF = F.B };
+            C c = new C { IF = F.B, SF = F.B };
             var json = c.ToJson();
-            var expected = ("{ 'CF' : 2, 'FF' : 'B' }").Replace("'", "\"");
+            var expected = ("{ 'IF' : 2, 'SF' : 'B' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -79,9 +80,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeAB() {
-            C c = new C { CF = F.A | F.B, FF = F.A | F.B };
+            C c = new C { IF = F.A | F.B, SF = F.A | F.B };
             var json = c.ToJson();
-            var expected = ("{ 'CF' : 3, 'FF' : 'A, B' }").Replace("'", "\"");
+            var expected = ("{ 'IF' : 3, 'SF' : 'A, B' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -91,9 +92,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSerializeInvalid() {
-            C c = new C { CF = (F) 127, FF = (F) 127 };
+            C c = new C { IF = (F) 127, SF = (F) 127 };
             var json = c.ToJson();
-            var expected = ("{ 'CF' : 127, 'FF' : '127' }").Replace("'", "\"");
+            var expected = ("{ 'IF' : 127, 'SF' : '127' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

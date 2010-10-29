@@ -188,8 +188,7 @@ namespace MongoDB.Driver {
         void IBsonSerializable.SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            bool useCompactRepresentation
+            string name
         ) {
             bsonWriter.WriteDocumentName(name);
             ((IBsonSerializable) this).SerializeDocument(bsonWriter, nominalType, false);

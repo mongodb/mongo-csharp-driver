@@ -49,8 +49,7 @@ namespace MongoDB.Driver.Builders {
         protected abstract void SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            bool useCompactRepresentation
+            string name
         );
         #endregion
 
@@ -95,10 +94,9 @@ namespace MongoDB.Driver.Builders {
         void IBsonSerializable.SerializeElement(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            bool useCompactRepresentation
+            string name
         ) {
-            SerializeElement(bsonWriter, nominalType, name, useCompactRepresentation);
+            SerializeElement(bsonWriter, nominalType, name);
         }
 
         BsonDocument IConvertibleToBsonDocument.ToBsonDocument() {

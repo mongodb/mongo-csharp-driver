@@ -36,8 +36,6 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         public IMemberFinderConvention MemberFinderConvention { get; private set; }
 
         public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
-
-        public IUseCompactRepresentationConvention UseCompactRepresentationConvention { get; private set; }
         #endregion
 
         #region public static methods
@@ -50,8 +48,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
                 .SetMemberFinderConvention(new PublicMemberFinderConvention())
-                .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention())
-                .SetUseCompactRepresentationConvention(new NeverUseCompactRepresentationConvention());
+                .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention());
         }
         #endregion
 
@@ -82,9 +79,6 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             }
             if (SerializeDefaultValueConvention == null) {
                 SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
-            }
-            if (UseCompactRepresentationConvention == null) {
-                UseCompactRepresentationConvention = other.UseCompactRepresentationConvention;
             }
         }
 
@@ -141,13 +135,6 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             ISerializeDefaultValueConvention convention
         ) {
             SerializeDefaultValueConvention = convention;
-            return this;
-        }
-
-        public ConventionProfile SetUseCompactRepresentationConvention(
-            IUseCompactRepresentationConvention convention
-        ) {
-            UseCompactRepresentationConvention = convention;
             return this;
         }
         #endregion

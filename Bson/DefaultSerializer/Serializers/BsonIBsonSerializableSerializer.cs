@@ -100,8 +100,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             string name,
-            object value,
-            bool useCompactRepresentation
+            object value
         ) {
             bsonWriter.WriteDocumentName(name);
             SerializeDocument(bsonWriter, nominalType, value, false);
