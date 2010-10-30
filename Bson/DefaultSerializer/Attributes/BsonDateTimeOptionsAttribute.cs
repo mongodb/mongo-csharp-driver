@@ -20,28 +20,38 @@ using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
     // [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonRepresentationAttribute : BsonSerializationOptionsAttribute {
+    public class BsonDateTimeOptionsAttribute : BsonSerializationOptionsAttribute {
         #region private fields
-        private BsonType representation;
+        private bool dateOnly = false;
+        private DateTimeKind kind = DateTimeKind.Utc;
+        private BsonType representation = BsonType.DateTime;
         #endregion
 
         #region constructors
-        public BsonRepresentationAttribute(
-            BsonType representation
-        ) {
-            this.representation = representation;
+        public BsonDateTimeOptionsAttribute() {
         }
         #endregion
 
         #region public properties
+        public bool DateOnly {
+            get { return dateOnly; }
+            set { dateOnly = value; }
+        }
+
+        public DateTimeKind Kind {
+            get { return kind; }
+            set { kind = value; }
+        }
+
         public BsonType Representation {
             get { return representation; }
+            set { representation = value; }
         }
         #endregion
 
         #region public methods
         public override object GetOptions() {
-            return representation;
+            return new DateTimeSerializationOptions { DateOnly = dateOnly, Kind = kind, Representation = representation };
         }
         #endregion
     }

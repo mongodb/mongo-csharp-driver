@@ -462,62 +462,59 @@ namespace MongoDB.Bson.DefaultSerializer {
         private BsonMemberMap AutoMapMember(
             MemberInfo memberInfo
         ) {
-            var elementName = conventions.ElementNameConvention.GetElementName(memberInfo);
-            var order = int.MaxValue;
-            IBsonIdGenerator idGenerator = null;
-
-            var idAttribute = (BsonIdAttribute) memberInfo.GetCustomAttributes(typeof(BsonIdAttribute), false).FirstOrDefault();
-            if (idAttribute != null) {
-                elementName = "_id"; // if BsonIdAttribute is present ignore BsonElementAttribute
-                var idGeneratorType = idAttribute.IdGenerator;
-                if (idGeneratorType != null) {
-                    idGenerator = (IBsonIdGenerator) Activator.CreateInstance(idGeneratorType);
-                }
-            } else {
-                var elementAttribute = (BsonElementAttribute) memberInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
-                if (elementAttribute != null) {
-                    elementName = elementAttribute.ElementName;
-                    order = elementAttribute.Order;
-                }
-            }
-
             var memberMap = MapMember(memberInfo);
-            memberMap.SetElementName(elementName);
-            if (order != int.MaxValue) {
-                memberMap.SetOrder(order);
-            }
-            if (idAttribute != null) {
-                memberMap.SetIdGenerator(idGenerator);
-                SetIdMember(memberMap);
+
+            memberMap.SetElementName(conventions.ElementNameConvention.GetElementName(memberInfo));
+            memberMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(memberInfo));
+            memberMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberInfo));
+
+            var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(memberInfo);
+            if (defaultValue != null) {
+                memberMap.SetDefaultValue(defaultValue);
             }
 
-            var defaultValueAttribute = (BsonDefaultValueAttribute) memberInfo.GetCustomAttributes(typeof(BsonDefaultValueAttribute), false).FirstOrDefault();
-            if (defaultValueAttribute != null) {
-                memberMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
-                memberMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
-            } else {
-                var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(memberMap.MemberInfo);
-                if (defaultValue != null) {
-                    memberMap.SetDefaultValue(defaultValue);
+            foreach (var attribute in memberInfo.GetCustomAttributes(false)) {
+                var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
+                if (defaultValueAttribute != null) {
+                    memberMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
+                    memberMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
                 }
-                memberMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberMap.MemberInfo));
-            }
 
-            var ignoreIfNullAttribute = (BsonIgnoreIfNullAttribute) memberInfo.GetCustomAttributes(typeof(BsonIgnoreIfNullAttribute), false).FirstOrDefault();
-            if (ignoreIfNullAttribute != null) {
-                memberMap.SetIgnoreIfNull(true);
-            } else {
-                memberMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(memberMap.MemberInfo));
-            }
+                var elementAttribute = attribute as BsonElementAttribute;
+                if (elementAttribute != null) {
+                    memberMap.SetElementName(elementAttribute.ElementName);
+                    memberMap.SetOrder(elementAttribute.Order);
+                    continue;
+                }
 
-            var requiredAttribute = (BsonRequiredAttribute) memberInfo.GetCustomAttributes(typeof(BsonRequiredAttribute), false).FirstOrDefault();
-            if (requiredAttribute != null) {
-                memberMap.SetIsRequired(true);
-            }
+                var idAttribute = attribute as BsonIdAttribute;
+                if (idAttribute != null) {
+                    memberMap.SetElementName("_id");
+                    memberMap.SetOrder(idAttribute.Order);
+                    var idGeneratorType = idAttribute.IdGenerator;
+                    if (idGeneratorType != null) {
+                        var idGenerator = (IBsonIdGenerator) Activator.CreateInstance(idGeneratorType);
+                        memberMap.SetIdGenerator(idGenerator);
+                    }
+                    SetIdMember(memberMap);
+                    continue;
+                }
 
-            var representationAttribute = (BsonRepresentationAttribute) memberInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false).FirstOrDefault();
-            if (representationAttribute != null) {
-                memberMap.SetSerializationOptions(representationAttribute.Representation);
+                var ignoreIfNullAttribute = attribute as BsonIgnoreIfNullAttribute;
+                if (ignoreIfNullAttribute != null) {
+                    memberMap.SetIgnoreIfNull(true);
+                }
+
+                var requiredAttribute = attribute as BsonRequiredAttribute;
+                if (requiredAttribute != null) {
+                    memberMap.SetIsRequired(true);
+                }
+
+                // note: this handles subclasses of BsonSerializationOptionsAttribute also
+                var serializationOptionsAttribute = attribute as BsonSerializationOptionsAttribute;
+                if (serializationOptionsAttribute != null) {
+                    memberMap.SetSerializationOptions(serializationOptionsAttribute.GetOptions());
+                }
             }
 
             return memberMap;

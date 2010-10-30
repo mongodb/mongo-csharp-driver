@@ -73,7 +73,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BsonExtensionMethods.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonSerializationOptionsAttribute.cs" />
     <Compile Include="DefaultSerializer\BsonIdGenerators.cs" />
     <Compile Include="DefaultSerializer\Conventions\ConventionProfile.cs" />
     <Compile Include="DefaultSerializer\Conventions\BsonIdGeneratorConventions.cs" />

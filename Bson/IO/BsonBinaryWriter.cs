@@ -158,6 +158,9 @@ namespace MongoDB.Bson.IO {
             if ((context.WriteState & BsonWriteState.Document) == 0) {
                 throw new InvalidOperationException("WriteDateTime can only be called when WriteState is one of the document states");
             }
+            if (value.Kind != DateTimeKind.Utc) {
+                throw new ArgumentException("DateTime value must be in UTC");
+            }
             buffer.WriteByte((byte) BsonType.DateTime);
             buffer.WriteCString(name);
             long milliseconds = (long) Math.Floor((value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds);

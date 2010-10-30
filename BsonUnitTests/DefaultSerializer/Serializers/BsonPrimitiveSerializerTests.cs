@@ -21,6 +21,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
+using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
@@ -63,6 +64,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class DateTimeSerializerTests {
         public class TestClass {
+            [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
             public DateTime DateTime { get; set; }
         }
 
@@ -71,7 +73,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var obj = new TestClass {
                 DateTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local)
             };
-            long milliseconds = (long) (obj.DateTime.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
+            long milliseconds = (long) (DateTime.MinValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
             var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -86,7 +88,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var obj = new TestClass {
                 DateTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified)
             };
-            long milliseconds = (long) (obj.DateTime.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
+            long milliseconds = (long) (DateTime.MinValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
             var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -101,7 +103,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var obj = new TestClass {
                 DateTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc)
             };
-            long milliseconds = (long) (obj.DateTime - BsonConstants.UnixEpoch).TotalMilliseconds;
+            long milliseconds = (long) (DateTime.MinValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
             var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -116,7 +118,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var obj = new TestClass {
                 DateTime = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local)
             };
-            long milliseconds = (long) (obj.DateTime.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
+            long milliseconds = (long) (DateTime.MaxValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
             var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -131,7 +133,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var obj = new TestClass {
                 DateTime = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified)
             };
-            long milliseconds = (long) (obj.DateTime.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
+            long milliseconds = (long) (DateTime.MaxValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
             var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -146,7 +148,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var obj = new TestClass {
                 DateTime = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc)
             };
-            long milliseconds = (long) (obj.DateTime - BsonConstants.UnixEpoch).TotalMilliseconds;
+            long milliseconds = (long) (DateTime.MaxValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
             var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
             Assert.AreEqual(expected, json);

@@ -20,27 +20,14 @@ using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonIdAttribute : Attribute {
-        #region private fields
-        private Type idGenerator;
-        private int order = int.MaxValue;
-        #endregion
-
+    public abstract class BsonSerializationOptionsAttribute : Attribute {
         #region constructors
-        public BsonIdAttribute() {
+        protected  BsonSerializationOptionsAttribute() {
         }
         #endregion
 
-        #region public properties
-        public Type IdGenerator {
-            get { return idGenerator; }
-            set { idGenerator = value; }
-        }
-
-        public int Order {
-            get { return order; }
-            set { order = value; }
-        }
+        #region public methods
+        public abstract object GetOptions();
         #endregion
     }
 }

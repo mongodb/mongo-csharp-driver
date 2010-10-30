@@ -67,25 +67,128 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    public class DateTimeSerializationOptions {
+        #region private fields
+        private bool dateOnly = false;
+        private DateTimeKind kind = DateTimeKind.Utc;
+        private BsonType representation = BsonType.DateTime;
+        #endregion
+
+        #region public properties
+        public bool DateOnly {
+            get { return dateOnly; }
+            set { dateOnly = value; }
+        }
+
+        public DateTimeKind Kind {
+            get { return kind; }
+            set { kind = value; }
+        }
+
+        public BsonType Representation {
+            get { return representation; }
+            set { representation = value; }
+        }
+        #endregion
+
+        #region public methods
+        public override bool Equals(
+            object obj
+        ) {
+            if (obj == null || obj.GetType() != typeof(DateTimeSerializationOptions)) {
+                return false;
+            }
+            var other = (DateTimeSerializationOptions) obj;
+            return
+                this.dateOnly == other.dateOnly &&
+                this.kind == other.kind &&
+                this.representation == other.representation;
+        }
+
+        public override int GetHashCode() {
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + dateOnly.GetHashCode();
+            hash = 37 * hash + kind.GetHashCode();
+            hash = 37 * hash + representation.GetHashCode();
+            return hash;
+        }
+
+        public override string ToString() {
+            return string.Format("DateOnly={0}, Kind={1}, Representation={2}", dateOnly, kind, representation);
+        }
+        #endregion
+    }
+
     public class DateTimeSerializer : BsonBaseSerializer {
         #region private static fields
-        private static DateTimeSerializer singleton = new DateTimeSerializer();
+        private static DateTimeSerializer local = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Local });
+        private static DateTimeSerializer localDateOnly = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Local, DateOnly = true });
+        private static DateTimeSerializer stringDateOnly = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.String, DateOnly = true });
+        private static DateTimeSerializer stringRepresentation = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.String });
+        private static DateTimeSerializer unspecified = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Unspecified });
+        private static DateTimeSerializer unspecifiedDateOnly = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Unspecified, DateOnly = true });
+        private static DateTimeSerializer utc = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Utc });
+        private static DateTimeSerializer utcDateOnly = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Utc, DateOnly = true });
+        #endregion
+
+        #region private fields
+        private DateTimeSerializationOptions options;
         #endregion
 
         #region constructors
-        private DateTimeSerializer() {
+        private DateTimeSerializer(
+            DateTimeSerializationOptions options
+        ) {
+            this.options = options;
         }
         #endregion
 
         #region public static properties
-        public static DateTimeSerializer Singleton {
-            get { return singleton; }
+        public static DateTimeSerializer Local {
+            get { return local; }
+        }
+
+        public static DateTimeSerializer LocalDateOnly {
+            get { return localDateOnly; }
+        }
+
+        public static DateTimeSerializer StringDateOnly {
+            get { return stringDateOnly; }
+        }
+
+        public static DateTimeSerializer StringRepresentation {
+            get { return stringRepresentation; }
+        }
+
+        public static DateTimeSerializer Unspecified {
+            get { return unspecified; }
+        }
+
+        public static DateTimeSerializer UnspecifiedDateOnly {
+            get { return unspecifiedDateOnly; }
+        }
+
+        public static DateTimeSerializer Utc {
+            get { return utc; }
+        }
+
+        public static DateTimeSerializer UtcDateOnly {
+            get { return utcDateOnly; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(DateTime), singleton);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), utc); // default options
+            BsonSerializer.RegisterSerializer(typeof(DateTime), local.options, local);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), localDateOnly.options, localDateOnly);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), stringDateOnly.options, stringDateOnly);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), stringRepresentation.options, stringRepresentation);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), unspecified.options, unspecified);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), unspecifiedDateOnly.options, unspecifiedDateOnly);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), utc.options, utc);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), utcDateOnly.options, utcDateOnly);
         }
         #endregion
 
@@ -95,7 +198,41 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             out string name
         ) {
-            return bsonReader.ReadDateTime(out name);
+            var bsonType = bsonReader.PeekBsonType();
+            DateTime value;
+            switch (bsonType) {
+                case BsonType.DateTime:
+                    value = bsonReader.ReadDateTime(out name);
+                    break;
+                case BsonType.String:
+                    if (options.DateOnly) {
+                        value = DateTime.SpecifyKind(DateTime.Parse(bsonReader.ReadString(out name)), DateTimeKind.Utc);
+                    } else {
+                        value = XmlConvert.ToDateTime(bsonReader.ReadString(out name), XmlDateTimeSerializationMode.RoundtripKind);
+                    }
+                    break;
+                default:
+                    var message = string.Format("Can't deserialize DateTime from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
+            }
+
+            if (options.DateOnly) {
+                if (value.TimeOfDay != TimeSpan.Zero) {
+                    throw new FileFormatException("TimeOfDay component for DateOnly DateTime value is not zero");
+                }
+                value = DateTime.SpecifyKind(value, options.Kind); // not ToLocalTime or ToUniversalTime!
+            } else {
+                switch (options.Kind) {
+                    case DateTimeKind.Local:
+                    case DateTimeKind.Unspecified:
+                        value = ToLocalTimeHelper(value, options.Kind);
+                        break;
+                    case DateTimeKind.Utc:
+                        value = ToUniversalTimeHelper(value);
+                        break;
+                }
+            }
+            return value;
         }
 
         public override void SerializeElement(
@@ -104,7 +241,59 @@ namespace MongoDB.Bson.DefaultSerializer {
             string name,
             object value
         ) {
-            bsonWriter.WriteDateTime(name, (DateTime) value);
+            var dateTimeValue = (DateTime) value;
+            if (options.DateOnly) {
+                if (dateTimeValue.TimeOfDay != TimeSpan.Zero) {
+                    throw new BsonSerializationException("TimeOfDay component for DateOnly DateTime value is not zero");
+                }
+            }
+
+            switch (options.Representation) {
+                case BsonType.DateTime:
+                    if (dateTimeValue.Kind != DateTimeKind.Utc) {
+                        if (options.DateOnly) {
+                            dateTimeValue = DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Utc); // not ToUniversalTime!
+                        } else {
+                            dateTimeValue = ToUniversalTimeHelper(dateTimeValue);
+                        }
+                    }
+                    bsonWriter.WriteDateTime(name, dateTimeValue);
+                    break;
+                case BsonType.String:
+                    if (options.DateOnly) {
+                        bsonWriter.WriteString(name, dateTimeValue.ToString("yyyy-MM-dd"));
+                    } else {
+                        if (dateTimeValue == DateTime.MinValue || dateTimeValue == DateTime.MaxValue) {
+                            dateTimeValue = DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Utc);
+                        }
+                        bsonWriter.WriteString(name, XmlConvert.ToString(dateTimeValue, XmlDateTimeSerializationMode.RoundtripKind));
+                    }
+                    break;
+                default:
+                    var message = string.Format("Invalid representation for DateTime: {0}", options.Representation);
+                    throw new BsonSerializationException(message);
+            }
+        }
+        #endregion
+
+        #region private methods
+        private DateTime ToLocalTimeHelper(
+            DateTime value,
+            DateTimeKind kind
+        ) {
+            if (value != DateTime.MinValue && value != DateTime.MaxValue) {
+                value = value.ToLocalTime();
+            }
+            return value = DateTime.SpecifyKind(value, kind);
+        }
+
+        private DateTime ToUniversalTimeHelper(
+            DateTime value
+        ) {
+            if (value != DateTime.MinValue && value != DateTime.MaxValue) {
+                value = value.ToUniversalTime();
+            }
+            return value = DateTime.SpecifyKind(value, DateTimeKind.Utc);
         }
         #endregion
     }
