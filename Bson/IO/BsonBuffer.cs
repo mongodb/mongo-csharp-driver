@@ -24,8 +24,8 @@ namespace MongoDB.Bson.IO {
     public class BsonBuffer : IDisposable {
         #region private static fields
         private static Stack<byte[]> chunkPool = new Stack<byte[]>();
-        private static readonly bool[] validBsonTypes = new bool[256];
         private const int chunkSize = 16 * 1024; // 16KB
+        private static readonly bool[] validBsonTypes = new bool[256];
         #endregion
 
         #region private fields
@@ -39,14 +39,15 @@ namespace MongoDB.Bson.IO {
         private byte[] chunk;
         #endregion
 
-        #region constructors
+        #region static constructor
         static BsonBuffer() {
-           foreach(BsonType type in Enum.GetValues(typeof(BsonType)))
-           {
-               validBsonTypes[(byte)type] = true;
-           }
+            foreach (BsonType bsonType in Enum.GetValues(typeof(BsonType))) {
+                validBsonTypes[(byte) bsonType] = true;
+            }
         }
+        #endregion
 
+        #region constructors
         public BsonBuffer() {
             // let EnsureAvailable get the first chunk
         }
@@ -93,19 +94,19 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region private static methods
-        private static bool IsValidBsonType(BsonType bsonType)
-        {
-            return validBsonTypes[(byte)bsonType];
-        }
-
-        private static byte[] GetChunk()
-        {
+        private static byte[] GetChunk() {
             lock (chunkPool) {
                 if (chunkPool.Count > 0) {
                     return chunkPool.Pop();
                 }
             }
             return new byte[chunkSize]; // release the lock before allocating memory
+        }
+
+        private static bool IsValidBsonType(
+            BsonType bsonType
+        ) {
+            return validBsonTypes[(byte) bsonType];
         }
 
         private static void ReleaseChunk(
