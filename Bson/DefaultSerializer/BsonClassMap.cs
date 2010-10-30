@@ -428,7 +428,9 @@ namespace MongoDB.Bson.DefaultSerializer {
 
             var discriminatorAttribute = (BsonDiscriminatorAttribute) classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
             if (discriminatorAttribute != null) {
-                discriminator = discriminatorAttribute.Discriminator;
+                if (discriminatorAttribute.Discriminator != null) {
+                    discriminator = discriminatorAttribute.Discriminator;
+                }
                 discriminatorIsRequired = discriminatorAttribute.Required;
             }
 

@@ -27,6 +27,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        public BsonDiscriminatorAttribute() {
+        }
+
         public BsonDiscriminatorAttribute(
             string discriminator
         ) {

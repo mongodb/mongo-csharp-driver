@@ -21,6 +21,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
+using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
@@ -31,6 +32,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             public string FA { get; set; }
         }
 
+        [BsonDiscriminator(Required = true)]
         private abstract class B : A {
             public string FB { get; set; }
         }
@@ -103,7 +105,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestSerializeDasD() {
             D d = new D { FA = "a", FB = "b", FD = "d" };
             var json = d.ToJson();
-            var expected = ("{ 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\""); // no discriminator
+            var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\""); // has discriminator because B has DiscriminatorIsRequired true
             Assert.AreEqual(expected, json);
 
             var bson = d.ToBson();
@@ -139,7 +141,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestSerializeEasE() {
             E e = new E { FA = "a", FB = "b", FE = "e" };
             var json = e.ToJson();
-            var expected = ("{ 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\""); // no discriminator
+            var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\""); // has discriminator because B has DiscriminatorIsRequired true
             Assert.AreEqual(expected, json);
 
             var bson = e.ToBson();
