@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
 using MongoDB.Bson;
@@ -63,5 +64,32 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual("_id", result.GetElement(0).Name);
             Assert.AreEqual("x", result.GetElement(1).Name);
         }
+
+        [Test]
+        public void TestSortAndLimit()
+        {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = collection.FindAll().SetSortOrder("x").SetLimit(3).Select(x=>x["x"].AsInt32);
+            Assert.AreEqual(3, result.Count());
+            CollectionAssert.AreEqual(new[] {1, 2, 3}, result);
+        }
+
+        [Test]
+        public void TestFind()
+        {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = collection.Find(Query.GT("x", BsonValue.Create(3)));
+            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(4, result.Select(x=>x["x"].AsInt32).FirstOrDefault());
+        }
+
     }
 }
