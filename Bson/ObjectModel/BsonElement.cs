@@ -217,8 +217,8 @@ namespace MongoDB.Bson {
                 throw new ArgumentNullException("name");
             }
             if (
-                name == "" ||
-                name.Contains('\0')
+                name.Length==0 ||
+                name.IndexOf('\0')>=0
             ) {
                 throw new ArgumentException("Invalid element name", "name");
             }
