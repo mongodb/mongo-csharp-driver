@@ -24,7 +24,8 @@ namespace MongoDB.Bson.IO {
     public class BsonBuffer : IDisposable {
         #region private static fields
         private static Stack<byte[]> chunkPool = new Stack<byte[]>();
-        private static int chunkSize = 16 * 1024; // 16KB
+        private static readonly bool[] validBsonTypes = new bool[256];
+        private const int chunkSize = 16 * 1024; // 16KB
         #endregion
 
         #region private fields
@@ -39,6 +40,13 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        static BsonBuffer() {
+           foreach(BsonType type in Enum.GetValues(typeof(BsonType)))
+           {
+               validBsonTypes[(byte)type] = true;
+           }
+        }
+
         public BsonBuffer() {
             // let EnsureAvailable get the first chunk
         }
@@ -85,7 +93,13 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region private static methods
-        private static byte[] GetChunk() {
+        private static bool IsValidBsonType(BsonType bsonType)
+        {
+            return validBsonTypes[(byte)bsonType];
+        }
+
+        private static byte[] GetChunk()
+        {
             lock (chunkPool) {
                 if (chunkPool.Count > 0) {
                     return chunkPool.Pop();
@@ -201,7 +215,7 @@ namespace MongoDB.Bson.IO {
                     var bytesRead = stream.Read(localChunk, localChunkOffset, bytesPending);
                     if (bytesRead == 0) {
                         // TODO: timeout?
-                        Thread.Sleep(TimeSpan.FromMilliseconds(5)); // just enough to not be busy waiting
+                        Thread.Sleep(5); // just enough to not be busy waiting
                     } else {
                         localChunkOffset += bytesRead;
                         bytesPending -= bytesRead;
@@ -218,7 +232,7 @@ namespace MongoDB.Bson.IO {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
             var bsonType = (BsonType) chunk[chunkOffset];
-            if (!Enum.IsDefined(typeof(BsonType), bsonType)) {
+            if (!IsValidBsonType(bsonType)) {
                 string message = string.Format("Invalid BsonType: {0}", (int) bsonType);
                 throw new FileFormatException(message);
             }
@@ -237,7 +251,7 @@ namespace MongoDB.Bson.IO {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
             var bsonType = (BsonType) chunk[chunkOffset];
-            if (!Enum.IsDefined(typeof(BsonType), bsonType)) {
+            if (!IsValidBsonType(bsonType)) {
                 string message = string.Format("Invalid BsonType: {0}", (int) bsonType);
                 throw new FileFormatException(message);
             }
