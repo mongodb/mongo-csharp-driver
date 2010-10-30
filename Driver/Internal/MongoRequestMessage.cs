@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Internal {
 
         #region protected methods
         protected void BackpatchMessageLength() {
-            int messageLength = buffer.Position - messageStartPosition;
+            messageLength = buffer.Position - messageStartPosition;
             buffer.Backpatch(messageStartPosition, messageLength);
         }
 
