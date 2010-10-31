@@ -239,7 +239,7 @@ namespace MongoDB.Driver {
                 string collectionName = @namespace["name"].AsString;
                 if (!collectionName.StartsWith(prefix)) { continue; }
                 if (collectionName.Contains('$')) { continue; }
-                collectionNames.Add(collectionName);
+                collectionNames.Add(collectionName.Substring(prefix.Length));
             }
             collectionNames.Sort();
             return collectionNames;
@@ -274,6 +274,17 @@ namespace MongoDB.Driver {
         ) {
             var users = GetCollection("system.users");
             users.Remove(new BsonDocument("user", username));
+        }
+
+        public BsonDocument RenameCollection(
+            string oldCollectionName,
+            string newCollectionName
+        ) {
+            var command = new BsonDocument {
+                { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
+                { "to", string.Format("{0}.{1}", name, newCollectionName) }
+            };
+            return server.RunAdminCommand(command);
         }
 
         public void RequestDone() {

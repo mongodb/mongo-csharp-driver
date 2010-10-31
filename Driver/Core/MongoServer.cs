@@ -303,17 +303,6 @@ namespace MongoDB.Driver {
             }
         }
 
-        public BsonDocument RenameCollection(
-            string oldCollectionName,
-            string newCollectionName
-        ) {
-            var command = new BsonDocument {
-                { "renameCollection", oldCollectionName },
-                { "to", newCollectionName }
-            };
-            return AdminDatabase.RunCommand(command);
-        }
-
         public BsonDocument RunAdminCommand<TCommand>(
             TCommand command
         ) {

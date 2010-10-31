@@ -32,6 +32,7 @@ namespace MongoDB.DriverOnlineTests {
         public void Setup() {
             server = MongoServer.Create();
             server.Connect();
+            server.DropDatabase("onlinetests");
             database = server["onlinetests"];
         }
 
@@ -61,26 +62,6 @@ namespace MongoDB.DriverOnlineTests {
         public void TestReconnect() {
             server.Reconnect();
             Assert.AreEqual(MongoServerState.Connected, server.State);
-        }
-
-        [Test]
-        public void TestRenameCollection() {
-            var collectionNames = database.GetCollectionNames();
-            if (collectionNames.Contains("testrenamecollection1")) { database.DropCollection("testrenamecollection1"); }
-            if (collectionNames.Contains("testrenamecollection2")) { database.DropCollection("testrenamecollection2"); }
-            
-            var collection1 = database["testrenamecollection1"];
-            collection1.Insert(new BsonDocument("x", 1));
-            collectionNames = database.GetCollectionNames();
-            Assert.IsTrue(collectionNames.Contains("onlinetests.testrenamecollection1"));
-            Assert.IsFalse(collectionNames.Contains("onlinetests.testrenamecollection2"));
-
-            server.RenameCollection("onlinetests.testrenamecollection1", "onlinetests.testrenamecollection2");
-            collectionNames = database.GetCollectionNames();
-            Assert.IsFalse(collectionNames.Contains("onlinetests.testrenamecollection1"));
-            Assert.IsTrue(collectionNames.Contains("onlinetests.testrenamecollection2"));
-
-            database.DropCollection("testrenamecollection2");
         }
     }
 }

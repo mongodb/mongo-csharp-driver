@@ -32,27 +32,77 @@ namespace MongoDB.DriverOnlineTests {
         public void Setup() {
             server = MongoServer.Create();
             server.Connect();
+            server.DropDatabase("onlinetests");
             database = server["onlinetests"];
         }
 
         // TODO: more tests for MongoDatabase
 
         [Test]
+        public void TestCollectionExists() {
+            var collectionName = "testcollectionexists";
+            Assert.IsFalse(database.CollectionExists(collectionName));
+
+            database[collectionName].Insert(new BsonDocument());
+            Assert.IsTrue(database.CollectionExists(collectionName));
+        }
+
+        [Test]
+        public void TestCreateCollection() {
+            var collectionName = "testcreatecollection";
+            Assert.IsFalse(database.CollectionExists(collectionName));
+
+            var options = new BsonDocument();
+            database.CreateCollection(collectionName, options);
+            Assert.IsTrue(database.CollectionExists(collectionName));
+        }
+
+        [Test]
         public void TestDropCollection() {
             var collectionName = "testdropcollection";
-            var collection = database[collectionName];
-            collection.Insert(new BsonDocument());
-            var collectionNames = database.GetCollectionNames();
-            Assert.IsTrue(collectionNames.Contains(collection.FullName));
+            Assert.IsFalse(database.CollectionExists(collectionName));
+
+            database[collectionName].Insert(new BsonDocument());
+            Assert.IsTrue(database.CollectionExists(collectionName));
 
             database.DropCollection(collectionName);
-            collectionNames = database.GetCollectionNames();
-            Assert.IsFalse(collectionNames.Contains(collection.FullName));
-       }
+            Assert.IsFalse(database.CollectionExists(collectionName));
+        }
+
+        [Test]
+        public void TestGetCollection() {
+            var collectionName = "testgetcollection";
+            var collection = database.GetCollection(collectionName);
+            Assert.AreSame(database, collection.Database);
+            Assert.AreEqual(database.Name + "." + collectionName, collection.FullName);
+            Assert.AreEqual(collectionName, collection.Name);
+            Assert.AreEqual(database.SafeMode, collection.SafeMode);
+        }
 
         [Test]
         public void TestGetCollectionNames() {
+            server.DropDatabase("onlinetests");
+            database["a"].Insert(new BsonDocument("a", 1));
+            database["b"].Insert(new BsonDocument("b", 1));
+            database["c"].Insert(new BsonDocument("c", 1));
             var collectionNames = database.GetCollectionNames();
+            Assert.AreEqual(new[] { "a", "b", "c", "system.indexes" }, collectionNames);
+        }
+
+        [Test]
+        public void TestRenameCollection() {
+            var collectionName1 = "testrenamecollection1";
+            var collectionName2 = "testrenamecollection2";
+            Assert.IsFalse(database.CollectionExists(collectionName1));
+            Assert.IsFalse(database.CollectionExists(collectionName2));
+
+            database[collectionName1].Insert(new BsonDocument());
+            Assert.IsTrue(database.CollectionExists(collectionName1));
+            Assert.IsFalse(database.CollectionExists(collectionName2));
+
+            database.RenameCollection(collectionName1, collectionName2);
+            Assert.IsFalse(database.CollectionExists(collectionName1));
+            Assert.IsTrue(database.CollectionExists(collectionName2));
         }
     }
 }
