@@ -33,8 +33,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        // see also BsonConstants.MinKey (a convenient alternative to BsonMinKey.Singleton)
+        [Obsolete("Use BsonMinKey.Value instead (BsonMinKey.Singleton will be removed in version 0.9)")]
         public static BsonMinKey Singleton { get { return singleton; } }
+
+        public static BsonMinKey Value { get { return singleton; } }
         #endregion
 
         #region public methods

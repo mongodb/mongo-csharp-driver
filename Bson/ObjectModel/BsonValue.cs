@@ -131,6 +131,34 @@ namespace MongoDB.Bson {
             get { return ((BsonInt64) this).Value; }
         }
 
+        public bool? AsNullableBoolean {
+            get { return (bsonType == BsonType.Null) ? null : (bool?) AsBoolean; }
+        }
+
+        public DateTime? AsNullableDateTime {
+            get { return (bsonType == BsonType.Null) ? null : (DateTime?) AsDateTime; }
+        }
+
+        public double? AsNullableDouble {
+            get { return (bsonType == BsonType.Null) ? null : (double?) AsDouble; }
+        }
+
+        public Guid? AsNullableGuid {
+            get { return (bsonType == BsonType.Null) ? null : (Guid?) AsGuid; }
+        }
+
+        public int? AsNullableInt32 {
+            get { return (bsonType == BsonType.Null) ? null : (int?) AsInt32; }
+        }
+
+        public long? AsNullableInt64 {
+            get { return (bsonType == BsonType.Null) ? null : (long?) AsInt64; }
+        }
+
+        public ObjectId? AsNullableObjectId {
+            get { return (bsonType == BsonType.Null) ? null : (ObjectId?) AsObjectId; }
+        }
+
         public ObjectId AsObjectId {
             get { return ((BsonObjectId) this).Value; }
         }
@@ -244,10 +272,22 @@ namespace MongoDB.Bson {
             return value.AsBoolean;
         }
 
+        public static explicit operator bool?(
+            BsonValue value
+        ) {
+            return (value == null) ? null : value.AsNullableBoolean;
+        }
+
         public static implicit operator BsonValue(
             bool value
         ) {
             return BsonBoolean.Create(value);
+        }
+
+        public static implicit operator BsonValue(
+            bool? value
+        ) {
+            return value.HasValue ? (BsonValue) BsonBoolean.Create(value.Value) : BsonNull.Value;
         }
 
         public static implicit operator BsonValue(
@@ -263,9 +303,21 @@ namespace MongoDB.Bson {
         }
 
         public static implicit operator BsonValue(
+            DateTime? value
+        ) {
+            return value.HasValue ? (BsonValue) BsonDateTime.Create(value.Value) : BsonNull.Value;
+        }
+
+        public static implicit operator BsonValue(
             double value
         ) {
             return new BsonDouble(value);
+        }
+
+        public static implicit operator BsonValue(
+            double? value
+        ) {
+            return value.HasValue ? (BsonValue) BsonDouble.Create(value.Value) : BsonNull.Value;
         }
 
         public static implicit operator BsonValue(
@@ -275,9 +327,21 @@ namespace MongoDB.Bson {
         }
 
         public static implicit operator BsonValue(
+            Guid? value
+        ) {
+            return value.HasValue ? (BsonValue) BsonBinaryData.Create(value.Value) : BsonNull.Value;
+        }
+
+        public static implicit operator BsonValue(
             int value
         ) {
             return BsonInt32.Create(value);
+        }
+
+        public static implicit operator BsonValue(
+            int? value
+        ) {
+            return value.HasValue ? (BsonValue) BsonInt32.Create(value.Value) : BsonNull.Value;
         }
 
         public static implicit operator BsonValue(
@@ -287,9 +351,21 @@ namespace MongoDB.Bson {
         }
 
         public static implicit operator BsonValue(
+            long? value
+        ) {
+            return value.HasValue ? (BsonValue) BsonInt64.Create(value.Value) : BsonNull.Value;
+        }
+
+        public static implicit operator BsonValue(
             ObjectId value
         ) {
             return new BsonObjectId(value);
+        }
+
+        public static implicit operator BsonValue(
+            ObjectId? value
+        ) {
+            return value.HasValue ? (BsonValue) BsonObjectId.Create(value.Value) : BsonNull.Value;
         }
 
         public static implicit operator BsonValue(
@@ -316,10 +392,22 @@ namespace MongoDB.Bson {
             return value.AsDateTime;
         }
 
+        public static explicit operator DateTime?(
+            BsonValue value
+        ) {
+            return (value == null) ? null : value.AsNullableDateTime;
+        }
+
         public static explicit operator double(
             BsonValue value
         ) {
             return value.AsDouble;
+        }
+
+        public static explicit operator double?(
+            BsonValue value
+        ) {
+            return (value == null) ? null : value.AsNullableDouble;
         }
 
         public static explicit operator Guid(
@@ -328,10 +416,22 @@ namespace MongoDB.Bson {
             return value.AsGuid;
         }
 
+        public static explicit operator Guid?(
+            BsonValue value
+        ) {
+            return (value == null) ? null : value.AsNullableGuid;
+        }
+
         public static explicit operator int(
             BsonValue value
         ) {
             return value.AsInt32;
+        }
+
+        public static explicit operator int?(
+            BsonValue value
+        ) {
+            return value == null ? null : value.AsNullableInt32;
         }
 
         public static explicit operator long(
@@ -340,10 +440,22 @@ namespace MongoDB.Bson {
             return value.AsInt64;
         }
 
+        public static explicit operator long?(
+            BsonValue value
+        ) {
+            return (value == null) ? null : value.AsNullableInt64;
+        }
+
         public static explicit operator ObjectId(
             BsonValue value
         ) {
             return value.AsObjectId;
+        }
+
+        public static explicit operator ObjectId?(
+            BsonValue value
+        ) {
+            return (value == null) ? null : value.AsNullableObjectId;
         }
 
         public static explicit operator Regex(
@@ -473,7 +585,7 @@ namespace MongoDB.Bson {
         }
 
         // ToBoolean follows the JavaScript definition of truthiness
-        public virtual bool ToBoolean() {
+        public bool ToBoolean() {
             switch (bsonType) {
                 case BsonType.Boolean: return ((BsonBoolean) this).Value;
                 case BsonType.Double: var d = ((BsonDouble) this).Value; return !(double.IsNaN(d) || d == 0.0);

@@ -33,8 +33,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        // see also BsonConstants.Null (a convenient alternative to BsonNull.Singleton)
+        [Obsolete("Use BsonNull.Value instead (BsonNull.Singleton will be removed in version 0.9)")]
         public static BsonNull Singleton { get { return singleton; } }
+
+        public static BsonNull Value { get { return singleton; } }
         #endregion
 
         #region public methods

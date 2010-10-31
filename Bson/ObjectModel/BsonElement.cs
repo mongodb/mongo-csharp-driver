@@ -55,7 +55,12 @@ namespace MongoDB.Bson {
 
         public BsonValue Value {
             get { return value; }
-            set { this.value = value; }
+            set {
+                if (value == null) {
+                    throw new ArgumentNullException("value");
+                }
+                this.value = value;
+            }
         }
         #endregion
 

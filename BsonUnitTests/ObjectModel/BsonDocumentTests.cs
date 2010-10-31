@@ -148,6 +148,121 @@ namespace MongoDB.BsonUnitTests {
             AssertAreEqual(@"1\x00\x00\x00\x04BSON\x00&\x00\x00\x00\x020\x00\x08\x00\x00\x00awesome\x00\x011\x00333333\x14@\x102\x00\xc2\x07\x00\x00\x00\x00", bson);
         }
 
+        [Test]
+        public void TestNullableBoolean() {
+            var document = new BsonDocument { { "v", true }, { "n", BsonNull.Value }, { "s", "" } };
+            Assert.AreEqual(true, (bool?) document["v"]);
+            Assert.AreEqual(null, (bool?) document["n"]);
+            Assert.AreEqual(null, (bool?) document["x", null]);
+            Assert.AreEqual(null, (bool?) document["x", (bool?) null]);
+            Assert.AreEqual(null, (bool?) document["x", BsonNull.Value]);
+            Assert.AreEqual(true, document["v"].AsNullableBoolean);
+            Assert.AreEqual(null, document["n"].AsNullableBoolean);
+            Assert.AreEqual(null, document["x", (bool?) null].AsNullableBoolean);
+            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableBoolean);
+            Assert.Throws<InvalidCastException>(() => { var v = (bool?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableBoolean; });
+        }
+
+        [Test]
+        public void TestNullableDateTime() {
+            var utcNow = DateTime.UtcNow;
+            var document = new BsonDocument { { "v", utcNow }, { "n", BsonNull.Value }, { "s", "" } };
+            Assert.AreEqual(utcNow, (DateTime?) document["v"]);
+            Assert.AreEqual(null, (DateTime?) document["n"]);
+            Assert.AreEqual(null, (DateTime?) document["x", null]);
+            Assert.AreEqual(null, (DateTime?) document["x", (DateTime?) null]);
+            Assert.AreEqual(null, (DateTime?) document["x", BsonNull.Value]);
+            Assert.AreEqual(utcNow, document["v"].AsNullableDateTime);
+            Assert.AreEqual(null, document["n"].AsNullableDateTime);
+            Assert.AreEqual(null, document["x", (DateTime?) null].AsNullableDateTime);
+            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableDateTime);
+            Assert.Throws<InvalidCastException>(() => { var v = (DateTime?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDateTime; });
+        }
+
+        [Test]
+        public void TestNullableDouble() {
+            var document = new BsonDocument { { "v", 1.5 }, { "n", BsonNull.Value }, { "s", "" } };
+            Assert.AreEqual(1.5, (double?) document["v"]);
+            Assert.AreEqual(null, (double?) document["n"]);
+            Assert.AreEqual(null, (double?) document["x", null]);
+            Assert.AreEqual(null, (double?) document["x", (double?) null]);
+            Assert.AreEqual(null, (double?) document["x", BsonNull.Value]);
+            Assert.AreEqual(1.5, document["v"].AsNullableDouble);
+            Assert.AreEqual(null, document["n"].AsNullableDouble);
+            Assert.AreEqual(null, document["x", (double?) null].AsNullableDouble);
+            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableDouble);
+            Assert.Throws<InvalidCastException>(() => { var v = (double?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDouble; });
+        }
+
+        [Test]
+        public void TestNullableGuid() {
+            var guid = Guid.NewGuid();
+            var document = new BsonDocument { { "v", guid }, { "n", BsonNull.Value }, { "s", "" } };
+            Assert.AreEqual(guid, (Guid?) document["v"]);
+            Assert.AreEqual(null, (Guid?) document["n"]);
+            Assert.AreEqual(null, (Guid?) document["x", null]);
+            Assert.AreEqual(null, (Guid?) document["x", (Guid?) null]);
+            Assert.AreEqual(null, (Guid?) document["x", BsonNull.Value]);
+            Assert.AreEqual(guid, document["v"].AsNullableGuid);
+            Assert.AreEqual(null, document["n"].AsNullableGuid);
+            Assert.AreEqual(null, document["x", (Guid?) null].AsNullableGuid);
+            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableGuid);
+            Assert.Throws<InvalidCastException>(() => { var v = (Guid?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableGuid; });
+        }
+
+        [Test]
+        public void TestNullableInt32() {
+            var document = new BsonDocument { { "v", 1 }, { "n", BsonNull.Value }, { "s", "" } };
+            Assert.AreEqual(1, (int?) document["v"]);
+            Assert.AreEqual(null, (int?) document["n"]);
+            Assert.AreEqual(null, (int?) document["x", null]);
+            Assert.AreEqual(null, (int?) document["x", (int?) null]);
+            Assert.AreEqual(null, (int?) document["x", BsonNull.Value]);
+            Assert.AreEqual(1, document["v"].AsNullableInt32);
+            Assert.AreEqual(null, document["n"].AsNullableInt32);
+            Assert.AreEqual(null, document["x", (int?) null].AsNullableInt32);
+            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableInt32);
+            Assert.Throws<InvalidCastException>(() => { var v = (int?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableInt32; });
+        }
+
+        [Test]
+        public void TestNullableInt64() {
+            var document = new BsonDocument { { "v", 1L }, { "n", BsonNull.Value }, { "s", "" } };
+            Assert.AreEqual(1L, (long?) document["v"]);
+            Assert.AreEqual(null, (long?) document["n"]);
+            Assert.AreEqual(null, (long?) document["x", null]);
+            Assert.AreEqual(null, (long?) document["x", (long?) null]);
+            Assert.AreEqual(null, (long?) document["x", BsonNull.Value]);
+            Assert.AreEqual(1L, document["v"].AsNullableInt64);
+            Assert.AreEqual(null, document["n"].AsNullableInt64);
+            Assert.AreEqual(null, document["x", (long?) null].AsNullableInt64);
+            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableInt64);
+            Assert.Throws<InvalidCastException>(() => { var v = (long?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableInt64; });
+        }
+
+        [Test]
+        public void TestNullableObjectId() {
+            var objectId = ObjectId.GenerateNewId();
+            var document = new BsonDocument { { "v", objectId }, { "n", BsonNull.Value }, { "s", "" } };
+            Assert.AreEqual(objectId, (ObjectId?) document["v"]);
+            Assert.AreEqual(null, (ObjectId?) document["n"]);
+            Assert.AreEqual(null, (ObjectId?) document["x", null]);
+            Assert.AreEqual(null, (ObjectId?) document["x", (ObjectId?) null]);
+            Assert.AreEqual(null, (ObjectId?) document["x", BsonNull.Value]);
+            Assert.AreEqual(objectId, document["v"].AsNullableObjectId);
+            Assert.AreEqual(null, document["n"].AsNullableObjectId);
+            Assert.AreEqual(null, document["x", (ObjectId?) null].AsNullableObjectId);
+            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableObjectId);
+            Assert.Throws<InvalidCastException>(() => { var v = (ObjectId?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableObjectId; });
+        }
+
         private void AssertAreEqual(
             string expected,
             byte[] actual
