@@ -27,7 +27,9 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class BsonDefaultSerializationProvider : IBsonSerializationProvider {
         #region private static fields
+        private static object staticLock = new object();
         private static BsonDefaultSerializationProvider singleton = new BsonDefaultSerializationProvider();
+        private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
         #endregion
 
         #region constructors
@@ -44,10 +46,38 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public static methods
         public static void Initialize() {
             RegisterSerializers();
+            RegisterGenericSerializerDefinitions();
+        }
+
+        public static Type LookupGenericSerializerDefinition(
+            Type genericTypeDefinition
+        ) {
+            lock (staticLock) {
+                Type genericSerializerDefinition;
+                genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition);
+                return genericSerializerDefinition;
+            }
+        }
+
+        public static void RegisterGenericSerializerDefinition(
+            Type genericTypeDefinition,
+            Type genericSerializerDefinition
+        ) {
+            lock (staticLock) {
+                genericSerializerDefinitions[genericTypeDefinition] = genericSerializerDefinition;
+            }
         }
         #endregion
 
         #region private static methods
+        private static void RegisterGenericSerializerDefinitions() {
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(HashSet<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(List<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(ICollection<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(IEnumerable<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(IList<>), typeof(EnumerableSerializer<>));
+        }
+ 
         // automatically register all BsonSerializers found in the Bson library
         private static void RegisterSerializers() {
             var assembly = Assembly.GetExecutingAssembly();
@@ -93,6 +123,15 @@ namespace MongoDB.Bson.DefaultSerializer {
                 type.GetGenericTypeDefinition() == typeof(Nullable<>)
             ) {
                 return NullableTypeSerializer.Singleton;
+            }
+
+            if (type.IsGenericType) {
+                var genericTypeDefinition = type.GetGenericTypeDefinition();
+                var genericSerializerDefinition = LookupGenericSerializerDefinition(genericTypeDefinition);
+                if (genericSerializerDefinition != null) {
+                    var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
+                    return (IBsonSerializer) Activator.CreateInstance(genericSerializerType);
+                }
             }
 
             if (

@@ -160,7 +160,6 @@
     <Compile Include="IO\BsonBinaryWriterContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonValueSerializers.cs" />
-    <Compile Include="DefaultSerializer\Serializers\GenericEnumerableSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\NetPrimitiveSerializers.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonPrimitiveSerializers.cs" />
     <Compile Include="Serialization\IBsonSerializationProvider.cs" />

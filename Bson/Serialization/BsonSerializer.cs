@@ -147,12 +147,6 @@ namespace MongoDB.Bson.Serialization {
                         serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Singleton;
                     }
 
-                    if (serializer == null && type.IsGenericType) {
-                        var genericType = type.GetGenericTypeDefinition();
-                        var genericKey = new SerializerKey(genericType, serializationOptions);
-                        serializers.TryGetValue(genericKey, out serializer);
-                    }
-
                     if (serializer == null) {
                         if (serializationProvider == null) {
                             serializationProvider = GetDefaultSerializationProvider();

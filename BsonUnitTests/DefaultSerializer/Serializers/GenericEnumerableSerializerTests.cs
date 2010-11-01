@@ -63,8 +63,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable {
                 }
             };
             var json = obj.ToJson();
-            var expected = "{ 'Addresses' : { '_t' : '#T', '_v' : [#A1, #A2] } }";
-            expected = expected.Replace("#T", "System.Collections.Generic.HashSet`1[[MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable.Address, MongoDB.BsonUnitTests]], System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            var expected = "{ 'Addresses' : [#A1, #A2] }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
             expected = expected.Replace("'", "\"");
@@ -104,8 +103,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable {
                 }
             };
             var json = obj.ToJson();
-            var expected = "{ 'Addresses' : { '_t' : '#T', '_v' : [#A1, #A2] } }";
-            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable.Address, MongoDB.BsonUnitTests]]");
+            var expected = "{ 'Addresses' : [#A1, #A2] }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
             expected = expected.Replace("'", "\"");
@@ -142,9 +140,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable {
                 Addresses = new List<Address>()
             };
             var json = obj.ToJson();
-            var expected = "{ 'Addresses' : { '_t' : '#T', '_v' : [] } }";
-            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable.Address, MongoDB.BsonUnitTests]]");
-            expected = expected.Replace("'", "\"");
+            var expected = "{ 'Addresses' : [] }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -161,8 +157,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable {
                 }
             };
             var json = obj.ToJson();
-            var expected = "{ 'Addresses' : { '_t' : '#T', '_v' : [#A1] } }";
-            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable.Address, MongoDB.BsonUnitTests]]");
+            var expected = "{ 'Addresses' : [#A1] }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -182,8 +177,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable {
                 }
             };
             var json = obj.ToJson();
-            var expected = "{ 'Addresses' : { '_t' : '#T', '_v' : [#A1, #A2] } }";
-            expected = expected.Replace("#T", "System.Collections.Generic.List`1[[MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable.Address, MongoDB.BsonUnitTests]]");
+            var expected = "{ 'Addresses' : [#A1, #A2] }";
             expected = expected.Replace("#A1", "{ 'Street' : '123 Main', 'City' : 'Smithtown', 'State' : 'PA', 'Zip' : 12345 }");
             expected = expected.Replace("#A2", "{ 'Street' : '456 First', 'City' : 'Johnstown', 'State' : 'MD', 'Zip' : 45678 }");
             expected = expected.Replace("'", "\"");

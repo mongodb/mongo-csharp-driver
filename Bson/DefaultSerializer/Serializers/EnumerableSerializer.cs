@@ -91,7 +91,66 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteStartDocument();
                 int index = 0;
                 foreach (var element in (IEnumerable) value) {
-                    BsonSerializer.SerializeElement(bsonWriter, typeof(object), index.ToString(), element);
+                    var elementName = index.ToString();
+                    BsonSerializer.SerializeElement(bsonWriter, typeof(object), elementName, element);
+                    index++;
+                }
+                bsonWriter.WriteEndDocument();
+            }
+        }
+        #endregion
+    }
+
+    public class EnumerableSerializer<T> : BsonBaseSerializer {
+        #region constructors
+        public EnumerableSerializer() {
+        }
+        #endregion
+
+        #region public methods
+        public override object DeserializeElement(
+            BsonReader bsonReader,
+            Type nominalType,
+            out string name
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(out name);
+                return null;
+            } else if (bsonType == BsonType.Array) {
+                bsonReader.ReadArrayName(out name);
+                bsonReader.ReadStartDocument();
+                var list = (nominalType.IsInterface) ? new List<T>() : (ICollection<T>) Activator.CreateInstance(nominalType);
+                while (bsonReader.HasElement()) {
+                    var elementType = BsonClassMapSerializer.GetActualElementType(bsonReader, typeof(T));
+                    var serializer = BsonSerializer.LookupSerializer(elementType);
+                    string elementName; // elementNames are ignored on input
+                    var element = (T) serializer.DeserializeElement(bsonReader, typeof(T), out elementName);
+                    list.Add(element);
+                }
+                bsonReader.ReadEndDocument();
+                return list;
+            } else {
+                var message = string.Format("Can't deserialize a {0} from BsonType {1}", nominalType.FullName, bsonType);
+                throw new FileFormatException(message);
+            }
+        }
+
+        public override void SerializeElement(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            string name,
+            object value
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull(name);
+            } else {
+                bsonWriter.WriteArrayName(name);
+                bsonWriter.WriteStartDocument();
+                int index = 0;
+                foreach (var element in (IEnumerable<T>) value) {
+                    var elementName = index.ToString();
+                    BsonSerializer.SerializeElement(bsonWriter, typeof(T), elementName, element);
                     index++;
                 }
                 bsonWriter.WriteEndDocument();
