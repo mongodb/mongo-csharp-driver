@@ -29,7 +29,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region private static fields
         private static object staticLock = new object();
         private static BsonDefaultSerializer singleton = new BsonDefaultSerializer();
-        private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
         #endregion
 
         #region constructors
@@ -47,25 +46,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         public static void Initialize() {
             RegisterSerializers();
         }
-
-        public static Type LookupGenericSerializerDefinition(
-            Type genericTypeDefinition
-        ) {
-            lock (staticLock) {
-                Type genericSerializerDefinition;
-                genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition);
-                return genericSerializerDefinition;
-            }
-        }
-
-        public static void RegisterGenericSerializerDefinition(
-            Type genericTypeDefinition,
-            Type genericSerializerDefinition
-        ) {
-            lock (staticLock) {
-                genericSerializerDefinitions[genericTypeDefinition] = genericSerializerDefinition;
-            }
-        }
         #endregion
 
         #region private static methods
@@ -76,7 +56,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 if (typeof(IBsonSerializer).IsAssignableFrom(type) && type != typeof(IBsonSerializer)) {
                     if (type.IsGenericType) {
                         // static methods in generic type definitions don't really work
-                        // so every generic serializer definition has a matching Registration class
+                        // so every generic serializer definition has a matching static Registration class to hold the registration method
                         var registrationTypeName = Regex.Replace(type.FullName, @"`\d+$", "Registration");
                         var registrationType = type.Assembly.GetType(registrationTypeName);
                         if (registrationType != null) {
@@ -127,15 +107,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 type.GetGenericTypeDefinition() == typeof(Nullable<>)
             ) {
                 return NullableTypeSerializer.Singleton;
-            }
-
-            if (type.IsGenericType) {
-                var genericTypeDefinition = type.GetGenericTypeDefinition();
-                var genericSerializerDefinition = LookupGenericSerializerDefinition(genericTypeDefinition);
-                if (genericSerializerDefinition != null) {
-                    var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
-                    return (IBsonSerializer) Activator.CreateInstance(genericSerializerType);
-                }
             }
 
             if (
