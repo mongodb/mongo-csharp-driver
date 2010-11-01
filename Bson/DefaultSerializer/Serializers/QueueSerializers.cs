@@ -101,7 +101,7 @@ namespace MongoDB.Bson.DefaultSerializer {
     public static class QueueSerializerRegistration {
         #region public static methods
         public static void RegisterGenericSerializerDefinitions() {
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(Queue<>), typeof(QueueSerializer<>));
+            BsonDefaultSerializer.RegisterGenericSerializerDefinition(typeof(Queue<>), typeof(QueueSerializer<>));
         }
         #endregion
     }

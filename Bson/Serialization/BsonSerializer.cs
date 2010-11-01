@@ -274,8 +274,8 @@ namespace MongoDB.Bson.Serialization {
 
         #region private static methods
         private static IBsonSerializationProvider GetDefaultSerializationProvider() {
-            DefaultSerializer.BsonDefaultSerializationProvider.Initialize();
-            return DefaultSerializer.BsonDefaultSerializationProvider.Singleton;
+            DefaultSerializer.BsonDefaultSerializer.Initialize();
+            return DefaultSerializer.BsonDefaultSerializer.Singleton;
         }
         #endregion
 

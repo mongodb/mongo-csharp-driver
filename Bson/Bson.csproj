@@ -149,7 +149,7 @@
     <Compile Include="ObjectModel\BsonMaxKey.cs" />
     <Compile Include="ObjectModel\BsonMinKey.cs" />
     <Compile Include="IO\BsonBuffer.cs" />
-    <Compile Include="DefaultSerializer\BsonDefaultSerializationProvider.cs" />
+    <Compile Include="DefaultSerializer\BsonDefaultSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonBaseSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\GeneralEnumSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\GenericArraySerializer.cs" />

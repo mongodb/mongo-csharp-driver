@@ -103,7 +103,7 @@ namespace MongoDB.Bson.DefaultSerializer {
     public static class StackSerializerRegistration {
         #region public static methods
         public static void RegisterGenericSerializerDefinitions() {
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(Stack<>), typeof(StackSerializer<>));
+            BsonDefaultSerializer.RegisterGenericSerializerDefinition(typeof(Stack<>), typeof(StackSerializer<>));
         }
         #endregion
     }

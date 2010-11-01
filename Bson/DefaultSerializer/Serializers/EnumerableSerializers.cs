@@ -104,11 +104,11 @@ namespace MongoDB.Bson.DefaultSerializer {
     public static class EnumerableSerializerRegistration {
         #region public static methods
         public static void RegisterGenericSerializerDefinitions() {
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(HashSet<>), typeof(EnumerableSerializer<>));
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(List<>), typeof(EnumerableSerializer<>));
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(ICollection<>), typeof(EnumerableSerializer<>));
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(IEnumerable<>), typeof(EnumerableSerializer<>));
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(IList<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializer.RegisterGenericSerializerDefinition(typeof(HashSet<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializer.RegisterGenericSerializerDefinition(typeof(List<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializer.RegisterGenericSerializerDefinition(typeof(ICollection<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializer.RegisterGenericSerializerDefinition(typeof(IEnumerable<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializer.RegisterGenericSerializerDefinition(typeof(IList<>), typeof(EnumerableSerializer<>));
         }
         #endregion
     }

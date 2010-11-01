@@ -25,20 +25,20 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public class BsonDefaultSerializationProvider : IBsonSerializationProvider {
+    public class BsonDefaultSerializer : IBsonSerializationProvider {
         #region private static fields
         private static object staticLock = new object();
-        private static BsonDefaultSerializationProvider singleton = new BsonDefaultSerializationProvider();
+        private static BsonDefaultSerializer singleton = new BsonDefaultSerializer();
         private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
         #endregion
 
         #region constructors
-        private BsonDefaultSerializationProvider() {
+        private BsonDefaultSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static BsonDefaultSerializationProvider Singleton {
+        public static BsonDefaultSerializer Singleton {
             get { return singleton; }
         }
         #endregion
