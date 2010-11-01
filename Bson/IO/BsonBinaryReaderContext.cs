@@ -43,7 +43,7 @@ namespace MongoDB.Bson.IO {
         internal BsonBinaryReaderContext ParentContext {
             get {
                 if (isBookmark) {
-                    throw new InvalidOperationException("PushBookmark called without matching PopBookmark");
+                    throw new BsonInternalException("ParentContext called and context is a bookmark");
                 }
                 return parentContext;
             }
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.IO {
         internal BsonBinaryReaderContext BookmarkParentContext {
             get {
                 if (!isBookmark) {
-                    throw new InvalidOperationException("Context is not a bookmark");
+                    throw new BsonInternalException("BookmarkParentContext called and context is not a bookmark");
                 }
                 return parentContext;
             }

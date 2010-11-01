@@ -94,7 +94,7 @@ namespace MongoDB.BsonUnitTests {
                 { "title", "For Whom the Bell Tolls" },
                 { "pages", 123 },
                 { "price", 9.95 },
-                { "ok", BsonConstants.Null }
+                { "ok", BsonNull.Value }
             };
             Assert.AreEqual("Ernest Hemingway", book["author"].AsString);
             Assert.AreEqual(123, book["pages"].AsInt32);

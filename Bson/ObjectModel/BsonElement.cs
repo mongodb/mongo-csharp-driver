@@ -149,7 +149,7 @@ namespace MongoDB.Bson {
                         break;
                     case BsonType.Null:
                         bsonReader.ReadNull(out name);
-                        value = BsonConstants.Null;
+                        value = BsonNull.Value;
                         break;
                     case BsonType.RegularExpression:
                         string pattern;
@@ -179,11 +179,11 @@ namespace MongoDB.Bson {
                         break;
                     case BsonType.MinKey:
                         bsonReader.ReadMinKey(out name);
-                        value = BsonConstants.MinKey;
+                        value = BsonMinKey.Value;
                         break;
                     case BsonType.MaxKey:
                         bsonReader.ReadMaxKey(out name);
-                        value = BsonConstants.MaxKey;
+                        value = BsonMaxKey.Value;
                         break;
                     default:
                         throw new BsonInternalException("Unexpected BsonType");

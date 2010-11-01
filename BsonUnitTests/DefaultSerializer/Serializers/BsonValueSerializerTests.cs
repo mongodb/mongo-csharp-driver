@@ -862,7 +862,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSingleton() {
-            var obj = new TestClass(BsonConstants.MaxKey);
+            var obj = new TestClass(BsonMaxKey.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$maxkey' : 1 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -904,7 +904,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSingleton() {
-            var obj = new TestClass(BsonConstants.MinKey);
+            var obj = new TestClass(BsonMinKey.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$minkey' : 1 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -946,7 +946,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestSingleton() {
-            var obj = new TestClass(BsonConstants.Null);
+            var obj = new TestClass(BsonNull.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
             Assert.AreEqual(expected, json);

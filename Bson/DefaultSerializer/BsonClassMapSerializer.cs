@@ -41,6 +41,54 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
         #endregion
 
+        #region public static methods
+        public static Type GetActualDocumentType(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            bsonReader.PushBookmark();
+            var discriminator = bsonReader.FindString("_t");
+            var actualType = BsonClassMap.LookupActualType(nominalType, discriminator);
+            bsonReader.PopBookmark();
+            return actualType;
+        }
+
+        public static Type GetActualElementType(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+
+            Type primitiveType = null;
+            switch (bsonType) {
+                case BsonType.Boolean: primitiveType = typeof(bool); break;
+                case BsonType.DateTime: primitiveType = typeof(DateTime); break;
+                case BsonType.Double: primitiveType = typeof(double); break;
+                case BsonType.Int32: primitiveType = typeof(int); break;
+                case BsonType.Int64: primitiveType = typeof(long); break;
+                case BsonType.ObjectId: primitiveType = typeof(ObjectId); break;
+                case BsonType.String: primitiveType = typeof(string); break;
+            }
+
+            if (primitiveType != null && nominalType.IsAssignableFrom(primitiveType)) {
+                return primitiveType;
+            }
+
+            if (bsonType == BsonType.Document) {
+                bsonReader.PushBookmark();
+                string elementName;
+                bsonReader.ReadDocumentName(out elementName);
+                bsonReader.ReadStartDocument();
+                var discriminator = bsonReader.FindString("_t");
+                var actualType = BsonClassMap.LookupActualType(nominalType, discriminator);
+                bsonReader.PopBookmark();
+                return actualType;
+            }
+
+            return nominalType;
+        }
+        #endregion
+
         #region public methods
         public object DeserializeDocument(
             BsonReader bsonReader,
@@ -49,8 +97,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             VerifyNominalType(nominalType);
 
             bsonReader.ReadStartDocument();
-            var discriminator = PeekDocumentDiscriminator(bsonReader); // returns null if no discriminator found
-            var actualType = BsonClassMap.LookupActualType(nominalType, discriminator);
+            var actualType = GetActualDocumentType(bsonReader, nominalType);
             var classMap = BsonClassMap.LookupClassMap(actualType);
             if (classMap.IsAnonymous) {
                 throw new InvalidOperationException("Anonymous classes cannot be deserialized");
@@ -68,8 +115,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                 var memberMap = classMap.GetMemberMapForElement(elementName);
                 if (memberMap != null) {
-                    var elementDiscriminator = PeekElementDiscriminator(bsonReader, bsonType, elementName); // returns null if no discriminator found
-                    var actualElementType = BsonClassMap.LookupActualType(memberMap.MemberType, elementDiscriminator);
+                    var actualElementType = GetActualElementType(bsonReader, memberMap.MemberType); // returns null if no discriminator found
                     var serializer = memberMap.GetSerializerForActualType(actualElementType);
                     object value = serializer.DeserializeElement(bsonReader, memberMap.MemberType, out elementName);
                     memberMap.Setter(obj, value);
@@ -190,32 +236,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private methods
-        private string PeekDocumentDiscriminator(
-            BsonReader bsonReader
-        ) {
-            bsonReader.PushBookmark();
-            var discriminator = bsonReader.FindString("_t");
-            bsonReader.PopBookmark();
-            return discriminator;
-        }
-
-        private string PeekElementDiscriminator(
-            BsonReader bsonReader,
-            BsonType bsonType,
-            string elementName
-        ) {
-            if (bsonType == BsonType.Document) {
-                bsonReader.PushBookmark();
-                bsonReader.ReadDocumentName(elementName);
-                bsonReader.ReadStartDocument();
-                var discriminator = bsonReader.FindString("_t");
-                bsonReader.PopBookmark();
-                return discriminator;
-            } else {
-                return null;
-            }
-        }
-
         private void SerializeMember(
             BsonWriter bsonWriter,
             object obj,

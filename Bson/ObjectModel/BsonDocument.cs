@@ -134,7 +134,7 @@ namespace MongoDB.Bson {
         //     string name = car["brand"].AsBsonSymbol.Name;
         //     string name = ((BsonSymbol) car["brand"]).Name; // the extra parenthesis are required and harder to read
         // there are also some conversion methods (and note that ToBoolean uses the JavaScript definition of truthiness)
-        //     bool ok = result["ok"].ToBoolean(); // works whether ok is false, true, 0, 0.0, 1, 1.0, "", "xyz", BsonConstants.Null, etc...
+        //     bool ok = result["ok"].ToBoolean(); // works whether ok is false, true, 0, 0.0, 1, 1.0, "", "xyz", BsonNull.Value, etc...
         //     bool ok = result["ok", false].ToBoolean(); // defaults to false if ok element is not found
         //     int n = result["n"].ToInt32(); // works whether n is Int32, Int64, Double or String (if it can be parsed)
         //     long n = result["n"].ToInt64(); // works whether n is Int32, Int64, Double or String (if it can be parsed)

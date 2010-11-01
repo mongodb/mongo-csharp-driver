@@ -159,7 +159,7 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestMaxKey() {
             var document = new BsonDocument {
-                { "maxkey", BsonConstants.MaxKey }
+                { "maxkey", BsonMaxKey.Value }
             };
             string expected = "{ \"maxkey\" : { \"$maxkey\" : 1 } }";
             string actual = document.ToJson();
@@ -169,7 +169,7 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestMinKey() {
             var document = new BsonDocument {
-                { "minkey", BsonConstants.MinKey }
+                { "minkey", BsonMinKey.Value }
             };
             string expected = "{ \"minkey\" : { \"$minkey\" : 1 } }";
             string actual = document.ToJson();
@@ -179,7 +179,7 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestNull() {
             var document = new BsonDocument {
-                { "maxkey", BsonConstants.Null }
+                { "maxkey", BsonNull.Value }
             };
             string expected = "{ \"maxkey\" : null }";
             string actual = document.ToJson();

@@ -81,6 +81,7 @@
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\DateTimeSerializerTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\EnumerableSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />

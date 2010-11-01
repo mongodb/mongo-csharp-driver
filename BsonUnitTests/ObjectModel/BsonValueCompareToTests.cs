@@ -27,8 +27,8 @@ namespace MongoDB.BsonUnitTests {
         [Test]
         public void TestCompareTypeTo() {
             BsonValue[] values = {
-                BsonConstants.MinKey,
-                BsonConstants.Null,
+                BsonMinKey.Value,
+                BsonNull.Value,
                 BsonInt32.Zero,
                 BsonString.Empty,
                 new BsonDocument(),
@@ -66,32 +66,32 @@ namespace MongoDB.BsonUnitTests {
 
         [Test]
         public void TestCompareTwoMaxKeys() {
-            Assert.IsFalse(BsonConstants.MaxKey < BsonConstants.MaxKey);
-            Assert.IsTrue(BsonConstants.MaxKey <= BsonConstants.MaxKey);
-            Assert.IsFalse(BsonConstants.MaxKey != BsonConstants.MaxKey);
-            Assert.IsTrue(BsonConstants.MaxKey == BsonConstants.MaxKey);
-            Assert.IsFalse(BsonConstants.MaxKey > BsonConstants.MaxKey);
-            Assert.IsTrue(BsonConstants.MaxKey >= BsonConstants.MaxKey);
+            Assert.IsFalse(BsonMaxKey.Value < BsonMaxKey.Value);
+            Assert.IsTrue(BsonMaxKey.Value <= BsonMaxKey.Value);
+            Assert.IsFalse(BsonMaxKey.Value != BsonMaxKey.Value);
+            Assert.IsTrue(BsonMaxKey.Value == BsonMaxKey.Value);
+            Assert.IsFalse(BsonMaxKey.Value > BsonMaxKey.Value);
+            Assert.IsTrue(BsonMaxKey.Value >= BsonMaxKey.Value);
         }
 
         [Test]
         public void TestCompareTwoMinKeys() {
-            Assert.IsFalse(BsonConstants.MinKey < BsonConstants.MinKey);
-            Assert.IsTrue(BsonConstants.MinKey <= BsonConstants.MinKey);
-            Assert.IsFalse(BsonConstants.MinKey != BsonConstants.MinKey);
-            Assert.IsTrue(BsonConstants.MinKey == BsonConstants.MinKey);
-            Assert.IsFalse(BsonConstants.MinKey > BsonConstants.MinKey);
-            Assert.IsTrue(BsonConstants.MinKey >= BsonConstants.MinKey);
+            Assert.IsFalse(BsonMinKey.Value < BsonMinKey.Value);
+            Assert.IsTrue(BsonMinKey.Value <= BsonMinKey.Value);
+            Assert.IsFalse(BsonMinKey.Value != BsonMinKey.Value);
+            Assert.IsTrue(BsonMinKey.Value == BsonMinKey.Value);
+            Assert.IsFalse(BsonMinKey.Value > BsonMinKey.Value);
+            Assert.IsTrue(BsonMinKey.Value >= BsonMinKey.Value);
         }
 
         [Test]
         public void TestCompareTwoBsonNulls() {
-            Assert.IsFalse(BsonConstants.Null < BsonConstants.Null);
-            Assert.IsTrue(BsonConstants.Null <= BsonConstants.Null);
-            Assert.IsFalse(BsonConstants.Null != BsonConstants.Null);
-            Assert.IsTrue(BsonConstants.Null == BsonConstants.Null);
-            Assert.IsFalse(BsonConstants.Null > BsonConstants.Null);
-            Assert.IsTrue(BsonConstants.Null >= BsonConstants.Null);
+            Assert.IsFalse(BsonNull.Value < BsonNull.Value);
+            Assert.IsTrue(BsonNull.Value <= BsonNull.Value);
+            Assert.IsFalse(BsonNull.Value != BsonNull.Value);
+            Assert.IsTrue(BsonNull.Value == BsonNull.Value);
+            Assert.IsFalse(BsonNull.Value > BsonNull.Value);
+            Assert.IsTrue(BsonNull.Value >= BsonNull.Value);
         }
 
         [Test]

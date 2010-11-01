@@ -693,7 +693,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 return null;
             } else {
                 bsonReader.ReadMaxKey(out name);
-                return BsonConstants.MaxKey;
+                return BsonMaxKey.Value;
             }
         }
 
@@ -747,7 +747,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 return null;
             } else {
                 bsonReader.ReadMinKey(out name);
-                return BsonConstants.MinKey;
+                return BsonMinKey.Value;
             }
         }
 
@@ -804,7 +804,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 return null;
             } else {
                 bsonReader.ReadNull(out name);
-                return BsonConstants.Null;
+                return BsonNull.Value;
             }
         }
 
