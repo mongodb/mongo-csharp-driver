@@ -30,7 +30,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.EnumerableSerializer {
     }
 
     [TestFixture]
-    public class IListSerializerTests {
+    public class EnumerableSerializerTests {
         public class T {
             public ArrayList AL { get; set; }
             public ICollection IC { get; set; }

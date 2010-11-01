@@ -46,7 +46,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public static methods
         public static void Initialize() {
             RegisterSerializers();
-            RegisterGenericSerializerDefinitions();
         }
 
         public static Type LookupGenericSerializerDefinition(
@@ -70,22 +69,27 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private static methods
-        private static void RegisterGenericSerializerDefinitions() {
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(HashSet<>), typeof(EnumerableSerializer<>));
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(List<>), typeof(EnumerableSerializer<>));
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(ICollection<>), typeof(EnumerableSerializer<>));
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(IEnumerable<>), typeof(EnumerableSerializer<>));
-            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(IList<>), typeof(EnumerableSerializer<>));
-        }
- 
         // automatically register all BsonSerializers found in the Bson library
         private static void RegisterSerializers() {
             var assembly = Assembly.GetExecutingAssembly();
             foreach (var type in assembly.GetTypes()) {
                 if (typeof(IBsonSerializer).IsAssignableFrom(type) && type != typeof(IBsonSerializer)) {
-                    var registerSerializersInfo = type.GetMethod("RegisterSerializers", BindingFlags.Public | BindingFlags.Static);
-                    if (registerSerializersInfo != null) {
-                        registerSerializersInfo.Invoke(null, null);
+                    if (type.IsGenericType) {
+                        // static methods in generic type definitions don't really work
+                        // so every generic serializer definition has a matching Registration class
+                        var registrationTypeName = Regex.Replace(type.FullName, @"`\d+$", "Registration");
+                        var registrationType = type.Assembly.GetType(registrationTypeName);
+                        if (registrationType != null) {
+                            var registerGenericSerializerDefinitionsInfo = registrationType.GetMethod("RegisterGenericSerializerDefinitions", BindingFlags.Public | BindingFlags.Static);
+                            if (registerGenericSerializerDefinitionsInfo != null) {
+                                registerGenericSerializerDefinitionsInfo.Invoke(null, null);
+                            }
+                        }
+                    } else {
+                        var registerSerializersInfo = type.GetMethod("RegisterSerializers", BindingFlags.Public | BindingFlags.Static);
+                        if (registerSerializersInfo != null) {
+                            registerSerializersInfo.Invoke(null, null);
+                        }
                     }
                 }
             }

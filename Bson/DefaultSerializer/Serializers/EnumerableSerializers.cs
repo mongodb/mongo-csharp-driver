@@ -101,6 +101,18 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    public static class EnumerableSerializerRegistration {
+        #region public static methods
+        public static void RegisterGenericSerializerDefinitions() {
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(HashSet<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(List<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(ICollection<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(IEnumerable<>), typeof(EnumerableSerializer<>));
+            BsonDefaultSerializationProvider.RegisterGenericSerializerDefinition(typeof(IList<>), typeof(EnumerableSerializer<>));
+        }
+        #endregion
+    }
+
     public class EnumerableSerializer<T> : BsonBaseSerializer {
         #region constructors
         public EnumerableSerializer() {
