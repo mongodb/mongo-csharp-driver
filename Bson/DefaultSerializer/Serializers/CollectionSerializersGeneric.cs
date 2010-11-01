@@ -32,6 +32,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonSerializer.RegisterGenericSerializerDefinition(typeof(IEnumerable<>), typeof(EnumerableSerializer<>));
             BsonSerializer.RegisterGenericSerializerDefinition(typeof(IList<>), typeof(EnumerableSerializer<>));
             BsonSerializer.RegisterGenericSerializerDefinition(typeof(List<>), typeof(EnumerableSerializer<>));
+            BsonSerializer.RegisterGenericSerializerDefinition(typeof(LinkedList<>), typeof(EnumerableSerializer<>));
         }
         #endregion
     }

@@ -39,14 +39,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             public Queue<object> Q { get; set; }
             public Stack<object> S { get; set; }
             public HashSet<object> H { get; set; }
-        }
+            public LinkedList<object> LL { get; set; }
+       }
 
         [Test]
         public void TestNull() {
-            var obj = new T { L = null, IC = null, IE = null, IL = null, Q = null, S = null, H = null };
+            var obj = new T { L = null, IC = null, IE = null, IL = null, Q = null, S = null, H = null, LL = null };
             var json = obj.ToJson();
             var rep = "null";
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -63,10 +64,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
         [Test]
         public void TestEmpty() {
             var list = new List<object>();
-            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list) };
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
             var json = obj.ToJson();
             var rep = "[]";
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -83,10 +84,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
         [Test]
         public void TestOneC() {
             var list = new List<object>(new[] { new C { P = "x" } });
-            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list) };
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
             var json = obj.ToJson();
             var rep = "[{ '_t' : 'CollectionSerializersGeneric.C', 'P' : 'x' }]";
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -103,10 +104,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
         [Test]
         public void TestOneInt() {
             var list = new List<object>(new object[] { 1 });
-            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list) };
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
             var json = obj.ToJson();
             var rep = "[1]";
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -123,10 +124,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
         [Test]
         public void TestOneString() {
             var list = new List<object>(new[] { "x" });
-            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list) };
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
             var json = obj.ToJson();
             var rep = "['x']";
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -143,10 +144,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
         [Test]
         public void TestTwoCs() {
             var list = new List<object>(new[] { new C { P = "x" }, new C { P = "y" } });
-            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list) };
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
             var json = obj.ToJson();
             var rep = "[{ '_t' : 'CollectionSerializersGeneric.C', 'P' : 'x' }, { '_t' : 'CollectionSerializersGeneric.C', 'P' : 'y' }]";
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -163,10 +164,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
         [Test]
         public void TestTwoInts() {
             var list = new List<object>(new object[] { 1, 2 });
-            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list) };
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
             var json = obj.ToJson();
             var rep = "[1, 2]";
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -183,10 +184,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
         [Test]
         public void TestTwoStrings() {
             var list = new List<object>(new[] { "x", "y" });
-            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list) };
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
             var json = obj.ToJson();
             var rep = "['x', 'y']";
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -207,13 +208,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var list = new List<object>(new object[] { true, dateTime, 1.5, 1, 2L, guid, objectId, "x" });
-            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list) };
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
             var json = obj.ToJson();
             var rep = "[true, #Date, 1.5, 1, 2, #Guid, #ObjectId, 'x']";
             rep = rep.Replace("#Date", "{ '$date' : #ms }".Replace("#ms", millis.ToString()));
             rep = rep.Replace("#Guid", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }");
             rep = rep.Replace("#ObjectId", "{ '$oid' : '000000000000000000000000' }");
-            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R }".Replace("#R", rep).Replace("'", "\"");
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
