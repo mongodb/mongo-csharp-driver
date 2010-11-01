@@ -24,6 +24,83 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    public class EnumerableSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static EnumerableSerializer singleton = new EnumerableSerializer();
+        #endregion
+
+        #region constructors
+        private EnumerableSerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static EnumerableSerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public static methods
+        public static void RegisterSerializers() {
+            BsonSerializer.RegisterSerializer(typeof(ArrayList), singleton);
+            BsonSerializer.RegisterSerializer(typeof(ICollection), singleton);
+            BsonSerializer.RegisterSerializer(typeof(IEnumerable), singleton);
+            BsonSerializer.RegisterSerializer(typeof(IList), singleton);
+        }
+        #endregion
+
+        #region public methods
+        public override object DeserializeElement(
+            BsonReader bsonReader,
+            Type nominalType,
+            out string name
+        ) {
+            var bsonType = bsonReader.PeekBsonType();
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull(out name);
+                return null;
+            } else if (bsonType == BsonType.Array) {
+                bsonReader.ReadArrayName(out name);
+                bsonReader.ReadStartDocument();
+                var list = new ArrayList();
+                while (bsonReader.HasElement()) {
+                    var elementType = BsonClassMapSerializer.GetActualElementType(bsonReader, typeof(object));
+                    var serializer = BsonSerializer.LookupSerializer(elementType);
+                    string elementName; // elementNames are ignored on input
+                    var element = serializer.DeserializeElement(bsonReader, typeof(object), out elementName);
+                    list.Add(element);
+                }
+                bsonReader.ReadEndDocument();
+                return list;
+            } else {
+                var message = string.Format("Can't deserialize a {0} from BsonType {1}", nominalType.FullName, bsonType);
+                throw new FileFormatException(message);
+            }
+        }
+
+        public override void SerializeElement(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            string name,
+            object value
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull(name);
+            } else {
+                bsonWriter.WriteArrayName(name);
+                bsonWriter.WriteStartDocument();
+                int index = 0;
+                foreach (var element in (IEnumerable) value) {
+                    var elementName = index.ToString();
+                    BsonSerializer.SerializeElement(bsonWriter, typeof(object), elementName, element);
+                    index++;
+                }
+                bsonWriter.WriteEndDocument();
+            }
+        }
+        #endregion
+    }
+
     public class QueueSerializer : BsonBaseSerializer {
         #region private static fields
         private static QueueSerializer singleton = new QueueSerializer();
@@ -98,17 +175,25 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public static class QueueSerializerRegistration {
-        #region public static methods
-        public static void RegisterGenericSerializerDefinitions() {
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(Queue<>), typeof(QueueSerializer<>));
+    public class StackSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static StackSerializer singleton = new StackSerializer();
+        #endregion
+
+        #region constructors
+        private StackSerializer() {
         }
         #endregion
-    }
 
-    public class QueueSerializer<T> : BsonBaseSerializer {
-        #region constructors
-        public QueueSerializer() {
+        #region public static properties
+        public static StackSerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public static methods
+        public static void RegisterSerializers() {
+            BsonSerializer.RegisterSerializer(typeof(Stack), singleton);
         }
         #endregion
 
@@ -125,16 +210,16 @@ namespace MongoDB.Bson.DefaultSerializer {
             } else if (bsonType == BsonType.Array) {
                 bsonReader.ReadArrayName(out name);
                 bsonReader.ReadStartDocument();
-                var queue = new Queue<T>();
+                var stack = new Stack();
                 while (bsonReader.HasElement()) {
-                    var elementType = BsonClassMapSerializer.GetActualElementType(bsonReader, typeof(T));
+                    var elementType = BsonClassMapSerializer.GetActualElementType(bsonReader, typeof(object));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     string elementName; // elementNames are ignored on input
-                    var element = (T) serializer.DeserializeElement(bsonReader, typeof(T), out elementName);
-                    queue.Enqueue(element);
+                    var element = serializer.DeserializeElement(bsonReader, typeof(object), out elementName);
+                    stack.Push(element);
                 }
                 bsonReader.ReadEndDocument();
-                return queue;
+                return stack;
             } else {
                 var message = string.Format("Can't deserialize a {0} from BsonType {1}", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
@@ -152,10 +237,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             } else {
                 bsonWriter.WriteArrayName(name);
                 bsonWriter.WriteStartDocument();
+                var outputOrder = new ArrayList((Stack) value); // serialize first pushed item first (reverse of enumerator order)
+                outputOrder.Reverse();
                 int index = 0;
-                foreach (var element in (Queue<T>) value) {
+                foreach (var element in outputOrder) {
                     var elementName = index.ToString();
-                    BsonSerializer.SerializeElement(bsonWriter, typeof(T), elementName, element);
+                    BsonSerializer.SerializeElement(bsonWriter, typeof(object), elementName, element);
                     index++;
                 }
                 bsonWriter.WriteEndDocument();

@@ -81,11 +81,9 @@
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\DateTimeSerializerTests.cs" />
-    <Compile Include="DefaultSerializer\Serializers\EnumerableSerializerGenericTests.cs" />
-    <Compile Include="DefaultSerializer\Serializers\EnumerableSerializerTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\CollectionSerializerGenericTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\CollectionSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializerTests.cs" />
-    <Compile Include="DefaultSerializer\Serializers\QueueSerializerTests.cs" />
-    <Compile Include="DefaultSerializer\Serializers\StackSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />

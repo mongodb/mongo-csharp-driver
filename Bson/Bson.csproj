@@ -86,12 +86,10 @@
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdMemberConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IgnoreExtraElementsConventions.cs" />
-    <Compile Include="DefaultSerializer\Serializers\EnumerableSerializerGeneric.cs" />
-    <Compile Include="DefaultSerializer\Serializers\EnumerableSerializer.cs" />
+    <Compile Include="DefaultSerializer\Serializers\CollectionSerializersGeneric.cs" />
+    <Compile Include="DefaultSerializer\Serializers\CollectionSerializers.cs" />
     <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\ObjectSerializer.cs" />
-    <Compile Include="DefaultSerializer\Serializers\QueueSerializers.cs" />
-    <Compile Include="DefaultSerializer\Serializers\StackSerializers.cs" />
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />
     <Compile Include="ObjectModel\IConvertibleToBsonDocument.cs" />
