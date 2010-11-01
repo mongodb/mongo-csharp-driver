@@ -84,6 +84,7 @@
     <Compile Include="DefaultSerializer\Serializers\EnumerableSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\QueueSerializerTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\StackSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
