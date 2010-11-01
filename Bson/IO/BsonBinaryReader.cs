@@ -638,7 +638,7 @@ namespace MongoDB.Bson.IO {
             }
             var bsonType = buffer.ReadBsonType();
             if (bsonType != requiredBsonType) {
-                string message = string.Format("BSON type is not {0}", requiredBsonType);
+                var message = string.Format("Expected BSON type {0} but found {1}", requiredBsonType, bsonType);
                 throw new FileFormatException(message);
             }
         }

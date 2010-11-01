@@ -60,8 +60,19 @@ namespace MongoDB.Bson.DefaultSerializer {
             var bsonType = bsonReader.PeekBsonType();
 
             Type primitiveType = null;
+            string elementName;
             switch (bsonType) {
                 case BsonType.Boolean: primitiveType = typeof(bool); break;
+                case BsonType.Binary:
+                    bsonReader.PushBookmark();
+                    byte[] bytes;
+                    BsonBinarySubType subType;
+                    bsonReader.ReadBinaryData(out elementName, out bytes, out subType);
+                    if (subType == BsonBinarySubType.Uuid && bytes.Length == 16) {
+                        primitiveType = typeof(Guid);
+                    }
+                    bsonReader.PopBookmark();
+                    break;
                 case BsonType.DateTime: primitiveType = typeof(DateTime); break;
                 case BsonType.Double: primitiveType = typeof(double); break;
                 case BsonType.Int32: primitiveType = typeof(int); break;
@@ -76,7 +87,6 @@ namespace MongoDB.Bson.DefaultSerializer {
 
             if (bsonType == BsonType.Document) {
                 bsonReader.PushBookmark();
-                string elementName;
                 bsonReader.ReadDocumentName(out elementName);
                 bsonReader.ReadStartDocument();
                 var discriminator = bsonReader.FindString("_t");

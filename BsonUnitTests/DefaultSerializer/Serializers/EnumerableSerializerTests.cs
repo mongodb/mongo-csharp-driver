@@ -20,9 +20,11 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
+using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer.EnumerableSerializer {
+    [BsonDiscriminator("EnumerableSerializer.C")] // "C" is an ambiguous discriminator when nominalType is System.Object
     public class C {
         public string P { get; set; }
     }
@@ -30,115 +32,153 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.EnumerableSerializer {
     [TestFixture]
     public class IListSerializerTests {
         public class T {
-            public IList E { get; set; }
+            public ArrayList AL { get; set; }
+            public ICollection IC { get; set; }
+            public IEnumerable IE { get; set; }
+            public IList IL { get; set; }
         }
 
         [Test]
         public void TestNull() {
-            var obj = new T { E = null };
+            ArrayList list = null;
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : null }".Replace("'", "\"");
+            var rep = "null";
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            Assert.IsNull(rehydrated.AL);
+            Assert.IsNull(rehydrated.IC);
+            Assert.IsNull(rehydrated.IE);
+            Assert.IsNull(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]
         public void TestEmpty() {
-            var obj = new T { E = new ArrayList() };
+            var list = new ArrayList();
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : [] }";
-            expected = expected.Replace("'", "\"");
+            var rep = "[]";
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
-            Assert.IsInstanceOf<ArrayList>(rehydrated.E);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.AL);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IC);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IE);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]
         public void TestOneC() {
-            var obj = new T { E = new ArrayList(new [] { new C { P = "x" } }) };
+            var list = new ArrayList(new [] { new C { P = "x" } });
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : [#C1] }";
-            expected = expected.Replace("#C1", "{ '_t' : 'C', 'P' : 'x' }");
-            expected = expected.Replace("'", "\"");
+            var rep = "[{ '_t' : 'EnumerableSerializer.C', 'P' : 'x' }]";
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
-            Assert.IsInstanceOf<ArrayList>(rehydrated.E);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.AL);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IC);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IE);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]
         public void TestOneInt() {
-            var obj = new T { E = new ArrayList(new[] { 1 }) };
+            var list = new ArrayList(new[] { 1 });
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : [1] }".Replace("'", "\"");
+            var rep = "[1]";
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
-            Assert.IsInstanceOf<ArrayList>(rehydrated.E);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.AL);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IC);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IE);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]
         public void TestOneString() {
-            var obj = new T { E = new ArrayList(new[] { "x" }) };
+            var list = new ArrayList(new[] { "x" });
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : ['x'] }".Replace("'", "\"");
+            var rep = "['x']";
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
-            Assert.IsInstanceOf<ArrayList>(rehydrated.E);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.AL);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IC);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IE);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]
         public void TestTwoCs() {
-            var obj = new T { E = new ArrayList(new[] { new C { P = "x" }, new C { P = "y" } }) };
+            var list = new ArrayList(new[] { new C { P = "x" }, new C { P = "y" } });
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : [#C1, #C2] }";
-            expected = expected.Replace("#C1", "{ '_t' : 'C', 'P' : 'x' }");
-            expected = expected.Replace("#C2", "{ '_t' : 'C', 'P' : 'y' }");
-            expected = expected.Replace("'", "\"");
+            var rep = "[{ '_t' : 'EnumerableSerializer.C', 'P' : 'x' }, { '_t' : 'EnumerableSerializer.C', 'P' : 'y' }]";
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
-            Assert.IsInstanceOf<ArrayList>(rehydrated.E);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.AL);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IC);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IE);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]
         public void TestTwoInts() {
-            var obj = new T { E = new ArrayList(new[] { 1, 2 }) };
+            var list = new ArrayList(new[] { 1, 2 });
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : [1, 2] }".Replace("'", "\"");
+            var rep = "[1, 2]";
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
-            Assert.IsInstanceOf<ArrayList>(rehydrated.E);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.AL);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IC);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IE);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]
         public void TestTwoStrings() {
-            var obj = new T { E = new ArrayList(new[] { "x", "y" }) };
+            var list = new ArrayList(new[] { "x", "y" });
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : ['x', 'y'] }".Replace("'", "\"");
+            var rep = "['x', 'y']";
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
-            Assert.IsInstanceOf<ArrayList>(rehydrated.E);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.AL);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IC);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IE);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -146,17 +186,24 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.EnumerableSerializer {
         public void TestMixedPrimitiveTypes() {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
             var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
-            var obj = new T { E = new ArrayList(new object[] { true, dateTime, 1.5, 1, 2L, objectId, "x" }) };
+            var list = new ArrayList(new object[] { true, dateTime, 1.5, 1, 2L, guid, objectId, "x" });
+            var obj = new T { AL = list, IC = list, IE = list, IL = list };
             var json = obj.ToJson();
-            var expected = "{ 'E' : [true, { '$date' : #ms }, 1.5, 1, 2, { '$oid' : '000000000000000000000000' }, 'x'] }";
-            expected = expected.Replace("#ms", millis.ToString());
-            expected = expected.Replace("'", "\"");
+            var rep = "[true, #Date, 1.5, 1, 2, #Guid, #ObjectId, 'x']";
+            rep = rep.Replace("#Date", "{ '$date' : #ms }".Replace("#ms", millis.ToString()));
+            rep = rep.Replace("#Guid", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }");
+            rep = rep.Replace("#ObjectId", "{ '$oid' : '000000000000000000000000' }");
+            var expected = "{ 'AL' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
-            Assert.IsInstanceOf<ArrayList>(rehydrated.E);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.AL);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IC);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IE);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
