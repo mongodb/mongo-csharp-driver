@@ -70,6 +70,31 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        // looks for an element of the given name and leave the reader positioned at the element
+        public override bool FindElement(
+            string name
+        ) {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if ((context.ReadState & BsonReadState.Document) == 0) {
+                string message = string.Format("FindElement cannot be called when ReadState is: {0}", context.ReadState);
+                throw new InvalidOperationException(message);
+            }
+
+            BsonType bsonType;
+            string elementName;
+            while (HasElement(out bsonType, out elementName)) {
+                if (elementName == name) {
+                    return true;
+                }
+
+                buffer.ReadBsonType(); // skip BsonType
+                buffer.ReadCString(); // skip element name
+                buffer.Position += GetValueSize(bsonType); // skip over value
+            }
+
+            return false;
+        }
+
         // this is like ReadString but scans ahead to find a string element with the desired name
         public override string FindString(
             string name

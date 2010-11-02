@@ -23,12 +23,15 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.DefaultSerializer.Conventions;
 
 namespace MongoDB.Bson.DefaultSerializer {
     public class BsonDefaultSerializer : IBsonSerializationProvider {
         #region private static fields
         private static object staticLock = new object();
         private static BsonDefaultSerializer singleton = new BsonDefaultSerializer();
+        private static Dictionary<Type, IDiscriminatorConvention> discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
+        private static Dictionary<BsonValue, HashSet<Type>> discriminators = new Dictionary<BsonValue, HashSet<Type>>();
         #endregion
 
         #region constructors
@@ -43,8 +46,142 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public static methods
+        public static Type GetActualDocumentType(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            var discriminatorConvention = LookupDiscriminatorConvention(nominalType);
+            return discriminatorConvention.GetActualDocumentType(bsonReader, nominalType);
+        }
+
+        public static Type GetActualElementType(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            var discriminatorConvention = LookupDiscriminatorConvention(nominalType);
+            return discriminatorConvention.GetActualElementType(bsonReader, nominalType);
+        }
+
         public static void Initialize() {
             RegisterSerializers();
+        }
+
+        public static Type LookupActualType(
+            Type nominalType,
+            BsonValue discriminator
+        ) {
+            if (discriminator == null) {
+                return nominalType;
+            }
+
+            // TODO: will there be too much contention on staticLock?
+            lock (staticLock) {
+                Type actualType = null;
+
+                // TODO: I'm not sure this is quite right, what if nominalType doesn't use class maps?
+                BsonClassMap.LookupClassMap(nominalType); // make sure any "known types" of nominal type have been registered
+
+                HashSet<Type> hashSet;
+                if (discriminators.TryGetValue(discriminator, out hashSet)) {
+                    foreach (var type in hashSet) {
+                        if (nominalType.IsAssignableFrom(type)) {
+                            if (actualType == null) {
+                                actualType = type;
+                            } else {
+                                string message = string.Format("Ambiguous discriminator: {0}", discriminator);
+                                throw new BsonSerializationException(message);
+                            }
+                        }
+                    }
+                }
+
+                if (actualType == null && discriminator.IsString) {
+                    actualType = Type.GetType(discriminator.AsString); // see if it's a Type name
+                }
+
+                if (actualType == null) {
+                    string message = string.Format("Unknown discriminator value: {0}", discriminator);
+                    throw new BsonSerializationException(message);
+                }
+
+                if (!nominalType.IsAssignableFrom(actualType)) {
+                    string message = string.Format("Actual type {0} is not assignable to expected type {1}", actualType.FullName, nominalType.FullName);
+                    throw new FileFormatException(message);
+                }
+
+                return actualType;
+            }
+        }
+
+        public static IDiscriminatorConvention LookupDiscriminatorConvention(
+            Type type
+        ) {
+            lock (staticLock) {
+                IDiscriminatorConvention convention;
+                if (!discriminatorConventions.TryGetValue(type, out convention)) {
+                    // if there is no convention registered for object register the default one
+                    if (!discriminatorConventions.ContainsKey(typeof(object))) {
+                        var defaultConvention = new ScalarDiscriminatorConvention("_t");
+                        discriminatorConventions.Add(typeof(object), defaultConvention);
+                    }
+
+                    if (type.IsInterface) {
+                        // TODO: should convention for interfaces be inherited from parent interfaces?
+                        convention = discriminatorConventions[typeof(object)];
+                        discriminatorConventions[type] = convention;
+                    } else {
+                        // inherit the discriminator convention from the closest parent that has one
+                        Type parentType = type.BaseType;
+                        while (convention == null) {
+                            if (parentType == null) {
+                                var message = string.Format("No discriminator convention found for type: {0}", type.FullName);
+                                throw new BsonSerializationException(message);
+                            }
+                            if (discriminatorConventions.TryGetValue(parentType, out convention)) {
+                                break;
+                            }
+                            parentType = parentType.BaseType;
+                        }
+
+                        // register this convention for all types between this and the parent type where we found the convention
+                        var unregisteredType = type;
+                        while (unregisteredType != parentType) {
+                            BsonDefaultSerializer.RegisterDiscriminatorConvention(unregisteredType, convention);
+                            unregisteredType = unregisteredType.BaseType;
+                        }
+                    }
+                }
+                return convention;
+            }
+        }
+
+        public static void RegisterDiscriminator(
+            Type type,
+            BsonValue discriminator
+        ) {
+            lock (staticLock) {
+                HashSet<Type> hashSet;
+                if (!discriminators.TryGetValue(discriminator, out hashSet)) {
+                    hashSet = new HashSet<Type>();
+                    discriminators.Add(discriminator, hashSet);
+                }
+
+                hashSet.Add(type);
+            }
+        }
+
+        public static void RegisterDiscriminatorConvention(
+            Type type,
+            IDiscriminatorConvention convention
+        ) {
+            lock (staticLock) {
+                if (!discriminatorConventions.ContainsKey(type)) {
+                    discriminatorConventions.Add(type, convention);
+                } else {
+                    var message = string.Format("There is already a discriminator convention registered for type: {0}", type.FullName);
+                    throw new BsonSerializationException(message);
+                }
+            }
         }
         #endregion
 

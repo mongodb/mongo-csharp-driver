@@ -34,7 +34,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         private static List<FilteredConventionProfile> profiles = new List<FilteredConventionProfile>();
         private static ConventionProfile defaultProfile = ConventionProfile.GetDefault();
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
-        private static Dictionary<string, List<Type>> discriminatedTypes = new Dictionary<string, List<Type>>();
         #endregion
 
         #region protected fields
@@ -164,51 +163,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public static Type LookupActualType(
-            Type nominalType,
-            string discriminator
-        ) {
-            if (discriminator == null) {
-                return nominalType;
-            }
-
-            // TODO: will there be too much contention on staticLock?
-            lock (staticLock) {
-                Type actualType = null;
-
-                LookupClassMap(nominalType); // make sure any "known types" of nominal type have been registered
-                List<Type> typeList;
-                if (discriminatedTypes.TryGetValue(discriminator, out typeList)) {
-                    foreach (var type in typeList) {
-                        if (nominalType.IsAssignableFrom(type)) {
-                            if (actualType == null) {
-                                actualType = type;
-                            } else {
-                                string message = string.Format("Ambiguous discriminator: {0}", discriminator);
-                                throw new BsonSerializationException(message);
-                            }
-                        }
-                    }
-                }
-
-                if (actualType == null) {
-                    actualType = Type.GetType(discriminator); // see if it's a Type name
-                }
-
-                if (actualType == null) {
-                    string message = string.Format("Unknown discriminator value: {0}", discriminator);
-                    throw new BsonSerializationException(message);
-                }
-
-                if (!nominalType.IsAssignableFrom(actualType)) {
-                    string message = string.Format("Actual type {0} is not assignable to expected type {1}", actualType.FullName, nominalType.FullName);
-                    throw new FileFormatException(message);
-                }
-
-                return actualType;
-            }
-        }
-
         public static BsonClassMap LookupClassMap(
             Type classType
         ) {
@@ -276,22 +230,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             profiles.Add(filtered);
         }
 
-        public static void RegisterDiscriminator(
-            Type type,
-            string discriminator
-        ) {
-            lock (staticLock) {
-                List<Type> typeList;
-                if (!discriminatedTypes.TryGetValue(discriminator, out typeList)) {
-                    typeList = new List<Type>();
-                    discriminatedTypes.Add(discriminator, typeList);
-                }
-                if (!typeList.Contains(type)) {
-                    typeList.Add(type);
-                }
-            }
-        }
-
         public static void UnregisterClassMap(
             Type classType
         ) {
@@ -315,7 +253,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public void AutoMap() {
             AutoMapClass();
-            RegisterDiscriminator(classType, discriminator);
+            BsonDefaultSerializer.RegisterDiscriminator(classType, discriminator);
         }
 
         public object CreateInstance() {

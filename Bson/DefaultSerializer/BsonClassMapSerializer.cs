@@ -41,64 +41,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
         #endregion
 
-        #region public static methods
-        public static Type GetActualDocumentType(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            bsonReader.PushBookmark();
-            var discriminator = bsonReader.FindString("_t");
-            var actualType = BsonClassMap.LookupActualType(nominalType, discriminator);
-            bsonReader.PopBookmark();
-            return actualType;
-        }
-
-        public static Type GetActualElementType(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            var bsonType = bsonReader.PeekBsonType();
-
-            Type primitiveType = null;
-            string elementName;
-            switch (bsonType) {
-                case BsonType.Boolean: primitiveType = typeof(bool); break;
-                case BsonType.Binary:
-                    bsonReader.PushBookmark();
-                    byte[] bytes;
-                    BsonBinarySubType subType;
-                    bsonReader.ReadBinaryData(out elementName, out bytes, out subType);
-                    if (subType == BsonBinarySubType.Uuid && bytes.Length == 16) {
-                        primitiveType = typeof(Guid);
-                    }
-                    bsonReader.PopBookmark();
-                    break;
-                case BsonType.DateTime: primitiveType = typeof(DateTime); break;
-                case BsonType.Double: primitiveType = typeof(double); break;
-                case BsonType.Int32: primitiveType = typeof(int); break;
-                case BsonType.Int64: primitiveType = typeof(long); break;
-                case BsonType.ObjectId: primitiveType = typeof(ObjectId); break;
-                case BsonType.String: primitiveType = typeof(string); break;
-            }
-
-            if (primitiveType != null && nominalType.IsAssignableFrom(primitiveType)) {
-                return primitiveType;
-            }
-
-            if (bsonType == BsonType.Document) {
-                bsonReader.PushBookmark();
-                bsonReader.ReadDocumentName(out elementName);
-                bsonReader.ReadStartDocument();
-                var discriminator = bsonReader.FindString("_t");
-                var actualType = BsonClassMap.LookupActualType(nominalType, discriminator);
-                bsonReader.PopBookmark();
-                return actualType;
-            }
-
-            return nominalType;
-        }
-        #endregion
-
         #region public methods
         public object DeserializeDocument(
             BsonReader bsonReader,
@@ -107,7 +49,9 @@ namespace MongoDB.Bson.DefaultSerializer {
             VerifyNominalType(nominalType);
 
             bsonReader.ReadStartDocument();
-            var actualType = GetActualDocumentType(bsonReader, nominalType);
+            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+            var actualType = discriminatorConvention.GetActualDocumentType(bsonReader, nominalType);
+
             var classMap = BsonClassMap.LookupClassMap(actualType);
             if (classMap.IsAnonymous) {
                 throw new InvalidOperationException("Anonymous classes cannot be deserialized");
@@ -118,14 +62,14 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonType bsonType;
             string elementName;
             while (bsonReader.HasElement(out bsonType, out elementName)) {
-                if (elementName == "_t") {
-                    bsonReader.SkipElement("_t"); // skip over discriminator
+                if (elementName == discriminatorConvention.ElementName) {
+                    bsonReader.SkipElement(elementName); // skip over discriminator
                     continue;
                 }
 
                 var memberMap = classMap.GetMemberMapForElement(elementName);
                 if (memberMap != null) {
-                    var actualElementType = GetActualElementType(bsonReader, memberMap.MemberType); // returns null if no discriminator found
+                    var actualElementType = BsonDefaultSerializer.GetActualElementType(bsonReader, memberMap.MemberType); // returns null if no discriminator found
                     var serializer = memberMap.GetSerializerForActualType(actualElementType);
                     object value = serializer.DeserializeElement(bsonReader, memberMap.MemberType, out elementName);
                     memberMap.Setter(obj, value);
@@ -217,7 +161,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
 
             if (classMap.DiscriminatorIsRequired || actualType != nominalType) {
-                bsonWriter.WriteString("_t", classMap.Discriminator);
+                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(actualType);
+                var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                if (discriminator != null) {
+                    var element = new BsonElement(discriminatorConvention.ElementName, discriminator);
+                    element.WriteTo(bsonWriter);
+                }
             }
 
             foreach (var memberMap in classMap.MemberMaps) {

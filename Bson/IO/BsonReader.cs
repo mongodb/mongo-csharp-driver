@@ -63,6 +63,9 @@ namespace MongoDB.Bson.IO {
         #region public methods
         public abstract void Close();
         public abstract void Dispose();
+        public abstract bool FindElement(
+            string name
+        );
         public abstract string FindString(
             string name
         );

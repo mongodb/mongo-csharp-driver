@@ -57,8 +57,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadArrayName(out name);
                 bsonReader.ReadStartDocument();
                 var list = (nominalType.IsInterface) ? new List<T>() : (ICollection<T>) Activator.CreateInstance(nominalType);
+                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
                 while (bsonReader.HasElement()) {
-                    var elementType = BsonClassMapSerializer.GetActualElementType(bsonReader, typeof(T));
+                    var elementType = discriminatorConvention.GetActualElementType(bsonReader, typeof(T));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     string elementName; // elementNames are ignored on input
                     var element = (T) serializer.DeserializeElement(bsonReader, typeof(T), out elementName);
@@ -123,8 +124,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadArrayName(out name);
                 bsonReader.ReadStartDocument();
                 var queue = new Queue<T>();
+                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
                 while (bsonReader.HasElement()) {
-                    var elementType = BsonClassMapSerializer.GetActualElementType(bsonReader, typeof(T));
+                    var elementType = discriminatorConvention.GetActualElementType(bsonReader, typeof(T));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     string elementName; // elementNames are ignored on input
                     var element = (T) serializer.DeserializeElement(bsonReader, typeof(T), out elementName);
@@ -189,8 +191,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadArrayName(out name);
                 bsonReader.ReadStartDocument();
                 var stack = new Stack<T>();
+                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
                 while (bsonReader.HasElement()) {
-                    var elementType = BsonClassMapSerializer.GetActualElementType(bsonReader, typeof(T));
+                    var elementType = discriminatorConvention.GetActualElementType(bsonReader, typeof(T));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     string elementName; // elementNames are ignored on input
                     var element = (T) serializer.DeserializeElement(bsonReader, typeof(T), out elementName);
