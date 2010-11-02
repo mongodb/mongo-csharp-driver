@@ -51,7 +51,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            var value = (IBsonSerializable) Activator.CreateInstance(nominalType);
+            var value = (IBsonSerializable) Activator.CreateInstance(nominalType, true); // private default constructor OK
             return value.DeserializeDocument(bsonReader, nominalType);
         }
 
@@ -60,7 +60,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             out string name
         ) {
-            var value = (IBsonSerializable) Activator.CreateInstance(nominalType);
+            var value = (IBsonSerializable) Activator.CreateInstance(nominalType, true); // private default constructor OK
             return value.DeserializeElement(bsonReader, nominalType, out name);
         }
 

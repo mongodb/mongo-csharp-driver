@@ -39,7 +39,9 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class EnumerableSerializer<T> : BsonBaseSerializer {
         #region constructors
-        public EnumerableSerializer() {
+        public EnumerableSerializer(
+            object serializationOptions
+        ) {
         }
         #endregion
 
@@ -56,7 +58,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             } else if (bsonType == BsonType.Array) {
                 bsonReader.ReadArrayName(out name);
                 bsonReader.ReadStartDocument();
-                var list = (nominalType.IsInterface) ? new List<T>() : (ICollection<T>) Activator.CreateInstance(nominalType);
+                var list = (nominalType == typeof(List<T>) || nominalType.IsInterface) ? new List<T>() : (ICollection<T>) Activator.CreateInstance(nominalType);
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
                 while (bsonReader.HasElement()) {
                     var elementType = discriminatorConvention.GetActualElementType(bsonReader, typeof(T));
@@ -106,7 +108,9 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class QueueSerializer<T> : BsonBaseSerializer {
         #region constructors
-        public QueueSerializer() {
+        public QueueSerializer(
+            object serializationOptions
+        ) {
         }
         #endregion
 
@@ -173,7 +177,9 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class StackSerializer<T> : BsonBaseSerializer {
         #region constructors
-        public StackSerializer() {
+        public StackSerializer(
+            object serializationOptions
+        ) {
         }
         #endregion
 

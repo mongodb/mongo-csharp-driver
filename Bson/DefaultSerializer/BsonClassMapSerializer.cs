@@ -51,6 +51,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             bsonReader.ReadStartDocument();
             var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
             var actualType = discriminatorConvention.GetActualDocumentType(bsonReader, nominalType);
+            if (actualType != nominalType) {
+                var serializer = BsonSerializer.LookupSerializer(actualType);
+                if (serializer != this) {
+                    // in rare cases a concrete actualType might have a more specialized serializer
+                    return serializer.DeserializeDocument(bsonReader, actualType);
+                }
+            }
 
             var classMap = BsonClassMap.LookupClassMap(actualType);
             if (classMap.IsAnonymous) {

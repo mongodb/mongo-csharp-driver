@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.DefaultSerializer.Conventions;
+using System.Runtime.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
     public abstract class BsonClassMap {
@@ -433,7 +434,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     memberMap.SetOrder(idAttribute.Order);
                     var idGeneratorType = idAttribute.IdGenerator;
                     if (idGeneratorType != null) {
-                        var idGenerator = (IBsonIdGenerator) Activator.CreateInstance(idGeneratorType);
+                        var idGenerator = (IBsonIdGenerator) Activator.CreateInstance(idGeneratorType); // public default constructor required
                         memberMap.SetIdGenerator(idGenerator);
                     }
                     SetIdMember(memberMap);
@@ -501,11 +502,15 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         private Func<object> GetCreator() {
             if (creator == null) {
-                var defaultConstructor = classType.GetConstructor(new Type[0]);
-                if (defaultConstructor == null) {
-                    throw new BsonSerializationException("Cannot find default constructor for type: " + classType.Name);
+                Expression expression;
+                var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                var defaultConstructor = classType.GetConstructor(bindingFlags, null, new Type[0], null);
+                if (defaultConstructor != null) {
+                    expression = Expression.New(defaultConstructor);
+                } else {
+                    var getUnitializedObjectInfo = typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Public | BindingFlags.Static);
+                    expression = Expression.Call(getUnitializedObjectInfo, Expression.Constant(classType));
                 }
-                var expression = Expression.New(defaultConstructor);
                 var lambda = Expression.Lambda<Func<object>>(expression);
                 creator = lambda.Compile();
             }

@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Serialization {
                         var genericSerializerDefinition = LookupGenericSerializerDefinition(genericTypeDefinition);
                         if (genericSerializerDefinition != null) {
                             var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
-                            serializer = (IBsonSerializer) Activator.CreateInstance(genericSerializerType);
+                            serializer = (IBsonSerializer) Activator.CreateInstance(genericSerializerType, serializationOptions);
                         }
                     }
 
