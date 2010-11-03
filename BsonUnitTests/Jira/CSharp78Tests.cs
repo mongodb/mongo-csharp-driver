@@ -35,16 +35,19 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        [Ignore] // TODO: this test is failing right now (Int16 is an unknown discriminator)
         public void TestShortSerialization() {
-            var c = new C { S = 1, O = (short) 1 };
+            var c = new C { S = 1, O = (short) 2 };
             var json = c.ToJson();
-            var expected = "{ 'S' : 1, 'O' : { '_t' : 'Int16', '_v' : 1 } }".Replace("'", "\"");
+            var expected = "{ 'S' : 1, 'O' : 2 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsInstanceOf<C>(rehydrated);
+            Assert.IsInstanceOf<short>(rehydrated.S);
+            Assert.IsInstanceOf<int>(rehydrated.O); // the short became an int after deserialization
+            Assert.AreEqual(1, rehydrated.S);
+            Assert.AreEqual(2, rehydrated.O);
         }
     }
 }

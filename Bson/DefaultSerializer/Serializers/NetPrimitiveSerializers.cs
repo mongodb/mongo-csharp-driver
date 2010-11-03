@@ -418,15 +418,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             string name,
             object obj
         ) {
-            if (nominalType == typeof(short)) {
-                bsonWriter.WriteInt32(name, (short) obj);
-            } else {
-                bsonWriter.WriteDocumentName(name);
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteString("_t", "Int16"); // TODO: is it OK that the discriminator is hard coded? what should it be?
-                bsonWriter.WriteInt32("_v", (short) obj);
-                bsonWriter.WriteEndDocument();
-            }
+            bsonWriter.WriteInt32(name, (short) obj);
         }
         #endregion
     }
