@@ -70,6 +70,25 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestFetchDBRef() {
+            var collectionName = "testdbref";
+            var collection = database.GetCollection(collectionName);
+            var document = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "P", "x" } };
+            collection.Insert(document);
+
+            var dbRef = new MongoDBRef(collectionName, document["_id"].AsObjectId);
+            var fetched = database.FetchDBRef(dbRef);
+            Assert.AreEqual(document, fetched);
+            Assert.AreEqual(document.ToJson(), fetched.ToJson());
+
+            var dbRefWithDatabaseName = new MongoDBRef(database.Name, collectionName, document["_id"].AsObjectId);
+            fetched = server.FetchDBRef(dbRefWithDatabaseName);
+            Assert.AreEqual(document, fetched);
+            Assert.AreEqual(document.ToJson(), fetched.ToJson());
+            Assert.Throws<ArgumentException>(() => { server.FetchDBRef(dbRef); });
+        }
+
+        [Test]
         public void TestGetCollection() {
             var collectionName = "testgetcollection";
             var collection = database.GetCollection(collectionName);

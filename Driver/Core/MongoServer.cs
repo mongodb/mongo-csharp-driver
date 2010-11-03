@@ -253,7 +253,7 @@ namespace MongoDB.Driver {
             MongoDBRef dbRef
         ) {
             if (dbRef.DatabaseName == null) {
-                throw new MongoException("MongoDBRef DatabaseName missing");
+                throw new ArgumentException("MongoDBRef DatabaseName missing");
             }
 
             var database = GetDatabase(dbRef.DatabaseName);
