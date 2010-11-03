@@ -23,7 +23,7 @@ namespace MongoDB.Driver {
     public static class MongoDefaults {
         #region public static fields
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
-        private static int maxMessageLength = 4 * 1024 * 1204; // 4MB
+        private static int maxMessageLength = 16 * 1024 * 1204; // 16MB
         private static int tcpReceiveBufferSize = 4 * 1024 * 1204; // 4MB
         private static int tcpSendBufferSize = 4 * 1024 * 1204; // 4MB
         #endregion
