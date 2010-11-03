@@ -101,7 +101,7 @@
     <Compile Include="DefaultSerializer\Attributes\BsonIgnoreAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonIgnoreExtraElementsAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonIgnoreIfNullAttribute.cs" />
-    <Compile Include="DefaultSerializer\Attributes\BsonKnownTypeAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonKnownTypesAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRequiredAttribute.cs" />
     <Compile Include="DefaultSerializer\BsonClassMap.cs" />
     <Compile Include="DefaultSerializer\BsonClassMapSerializer.cs" />

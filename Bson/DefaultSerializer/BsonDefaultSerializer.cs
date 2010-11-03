@@ -121,8 +121,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 if (!discriminatorConventions.TryGetValue(type, out convention)) {
                     // if there is no convention registered for object register the default one
                     if (!discriminatorConventions.ContainsKey(typeof(object))) {
-                        var defaultConvention = new ScalarDiscriminatorConvention("_t");
-                        discriminatorConventions.Add(typeof(object), defaultConvention);
+                        var defaultDiscriminatorConvention = StandardDiscriminatorConvention.Hierarchical;
+                        discriminatorConventions.Add(typeof(object), defaultDiscriminatorConvention);
                     }
 
                     if (type.IsInterface) {

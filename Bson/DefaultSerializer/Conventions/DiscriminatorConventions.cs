@@ -29,16 +29,31 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         BsonValue GetDiscriminator(Type nominalType, Type actualType);
     }
 
-    public class ScalarDiscriminatorConvention : IDiscriminatorConvention {
+    public abstract class StandardDiscriminatorConvention : IDiscriminatorConvention {
+        #region private static fields
+        private static ScalarDiscriminatorConvention scalar = new ScalarDiscriminatorConvention("_t");
+        private static HierarchicalDiscriminatorConvention hierarchical = new HierarchicalDiscriminatorConvention("_t");
+        #endregion
+
         #region private fields
         private string elementName;
         #endregion
 
         #region constructors
-        public ScalarDiscriminatorConvention(
+        protected StandardDiscriminatorConvention(
             string elementName
         ) {
             this.elementName = elementName;
+        }
+        #endregion
+
+        #region public static properties
+        public static ScalarDiscriminatorConvention Scalar {
+            get { return scalar; }
+        }
+
+        public static HierarchicalDiscriminatorConvention Hierarchical {
+            get { return hierarchical; }
         }
         #endregion
 
@@ -119,7 +134,24 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             return nominalType;
         }
 
-        public virtual BsonValue GetDiscriminator(
+        public abstract BsonValue GetDiscriminator(
+            Type nominalType,
+            Type actualType
+        );
+        #endregion
+    }
+
+    public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention {
+        #region constructors
+        public ScalarDiscriminatorConvention(
+            string elementName
+        )
+            : base(elementName) {
+        }
+        #endregion
+
+        #region public methods
+        public override BsonValue GetDiscriminator(
             Type nominalType,
             Type actualType
         ) {
@@ -129,7 +161,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #endregion
     }
 
-    public class HierarchicalDiscriminatorConvention : ScalarDiscriminatorConvention {
+    public class HierarchicalDiscriminatorConvention : StandardDiscriminatorConvention {
         #region constructors
         public HierarchicalDiscriminatorConvention(
             string elementName
@@ -143,23 +175,21 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             Type nominalType,
             Type actualType
         ) {
-            if (actualType == nominalType) {
-                return null;
+            var classMap = BsonClassMap.LookupClassMap(actualType);
+            if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass) {
+                if (classMap.HasRootClass && !classMap.IsRootClass) {
+                    var values = new List<BsonValue>();
+                    for (; !classMap.IsRootClass; classMap = classMap.BaseClassMap) {
+                        values.Add(classMap.Discriminator);
+                    }
+                    values.Add(classMap.Discriminator); // add the root class's discriminator
+                    return new BsonArray(values.Reverse<BsonValue>()); // reverse to put leaf class last
+                } else {
+                    return classMap.Discriminator;
+                }
             }
 
-            var values = new List<BsonValue>();
-            var hierarchicalType = actualType;
-            while (hierarchicalType != typeof(object) && hierarchicalType != nominalType) {
-                var classMap = BsonClassMap.LookupClassMap(hierarchicalType);
-                values.Add(classMap.Discriminator);
-                hierarchicalType = hierarchicalType.BaseType;
-            }
-
-            if (values.Count == 1) {
-                return values[0];
-            } else {
-                return new BsonArray(values.Reverse<BsonValue>()); // reverse to put leaf class last
-            }
+            return null;
         }
         #endregion
     }

@@ -51,13 +51,31 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            if (nominalType == typeof(object)) {
+            if (nominalType != typeof(object)) {
+                var message = string.Format("ObjectSerializer called for type: {0}", nominalType.FullName);
+                throw new InvalidOperationException(message);
+            }
+
+            // if it's not an empty document it should have a discriminator
+            bsonReader.PushBookmark();
+            bsonReader.ReadStartDocument();
+            Type actualType = nominalType;
+            if (bsonReader.HasElement()) {
+                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                actualType = discriminatorConvention.GetActualDocumentType(bsonReader, nominalType);
+                if (actualType == nominalType) {
+                    throw new BsonSerializationException("Unable to determine actual type of document to deserialize");
+                }
+            }
+            bsonReader.PopBookmark();
+
+            if (actualType == nominalType) {
                 bsonReader.ReadStartDocument();
                 bsonReader.ReadEndDocument();
                 return new object();
             } else {
-                var message = string.Format("ObjectSerializer called for type: {0}", nominalType.FullName);
-                throw new InvalidOperationException(message);
+                var serializer = BsonSerializer.LookupSerializer(actualType);
+                return serializer.DeserializeDocument(bsonReader, nominalType);
             }
         }
 
@@ -68,13 +86,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             bool serializeIdFirst
         ) {
             var actualType = document.GetType();
-            if (actualType == typeof(object)) {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteEndDocument();
-            } else {
+            if (actualType != typeof(object)) {
                 var message = string.Format("ObjectSerializer called for type: {0}", actualType.FullName);
                 throw new InvalidOperationException(message);
             }
+
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteEndDocument();
         }
         #endregion
     }

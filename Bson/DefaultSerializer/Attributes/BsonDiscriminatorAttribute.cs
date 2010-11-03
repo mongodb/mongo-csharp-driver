@@ -24,6 +24,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region private fields
         private string discriminator;
         private bool required;
+        private bool rootClass;
         #endregion
 
         #region constructors
@@ -45,6 +46,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         public bool Required {
             get { return required; }
             set { required = value; }
+        }
+
+        public bool RootClass {
+            get { return rootClass; }
+            set { rootClass = value; }
         }
         #endregion
     }

@@ -20,22 +20,22 @@ using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
-    public class BsonKnownTypeAttribute : Attribute {
+    public class BsonKnownTypesAttribute : Attribute {
         #region private fields
-        private Type knownType;
+        private Type[] knownTypes;
         #endregion
 
         #region constructors
-        public BsonKnownTypeAttribute(
-            Type knownType
+        public BsonKnownTypesAttribute(
+            params Type[] knownTypes
         ) {
-            this.knownType = knownType;
+            this.knownTypes = knownTypes;
         }
         #endregion
 
         #region public properties
-        public Type KnownType {
-            get { return knownType; }
+        public Type[] KnownTypes {
+            get { return knownTypes; }
         }
         #endregion
     }

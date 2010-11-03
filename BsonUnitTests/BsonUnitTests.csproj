@@ -80,10 +80,14 @@
     <Compile Include="DefaultSerializer\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithAttributesTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithoutAttributesTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\DateTimeSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\CollectionSerializerGenericTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\CollectionSerializerTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\KnownTypesTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializerTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\DiscriminatorTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />

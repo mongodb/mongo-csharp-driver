@@ -167,7 +167,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 }
             }
 
-            if (classMap.DiscriminatorIsRequired || actualType != nominalType) {
+            if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass) {
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(actualType);
                 var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
                 if (discriminator != null) {

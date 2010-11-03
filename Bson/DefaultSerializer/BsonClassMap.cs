@@ -45,6 +45,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected ConventionProfile conventions;
         protected string discriminator;
         protected bool discriminatorIsRequired;
+        protected bool hasRootClass;
+        protected bool isRootClass;
         protected bool isAnonymous;
         protected bool idMemberMapLoaded; // lazy load idMemberMap
         protected BsonMemberMap idMemberMap;
@@ -80,11 +82,25 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         public bool DiscriminatorIsRequired {
-            get { return discriminatorIsRequired; }
+            get {
+                if (!baseClassMapLoaded) { LoadBaseClassMap(); }
+                return discriminatorIsRequired;
+            }
+        }
+
+        public bool HasRootClass {
+            get {
+                if (!baseClassMapLoaded) { LoadBaseClassMap(); }
+                return hasRootClass;
+            }
         }
 
         public bool IsAnonymous {
             get { return isAnonymous; }
+        }
+
+        public bool IsRootClass {
+            get { return isRootClass; }
         }
 
         public BsonMemberMap IdMemberMap {
@@ -340,6 +356,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             this.ignoreExtraElements = ignoreExtraElements;
             return this;
         }
+
+        public BsonClassMap SetIsRootClass(
+            bool isRootClass
+        ) {
+            this.isRootClass = isRootClass;
+            return this;
+        }
         #endregion
 
         #region protected methods
@@ -361,8 +384,10 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         #region private methods
         private void AutoMapClass() {
-            foreach (BsonKnownTypeAttribute knownTypeAttribute in classType.GetCustomAttributes(typeof(BsonKnownTypeAttribute), false)) {
-                BsonClassMap.LookupClassMap(knownTypeAttribute.KnownType); // will AutoMap KnownType if necessary
+            foreach (BsonKnownTypesAttribute knownTypesAttribute in classType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false)) {
+                foreach (var knownType in knownTypesAttribute.KnownTypes) {
+                    BsonClassMap.LookupClassMap(knownType); // will AutoMap KnownType if necessary
+                }
             }
 
             var discriminatorAttribute = (BsonDiscriminatorAttribute) classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
@@ -371,6 +396,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     discriminator = discriminatorAttribute.Discriminator;
                 }
                 discriminatorIsRequired = discriminatorAttribute.Required;
+                isRootClass = discriminatorAttribute.RootClass;
             }
 
             var ignoreExtraElementsAttribute = (BsonIgnoreExtraElementsAttribute) classType.GetCustomAttributes(typeof(BsonIgnoreExtraElementsAttribute), false).FirstOrDefault();
@@ -532,9 +558,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             var baseType = classType.BaseType;
             if (baseType != null) {
                 baseClassMap = LookupClassMap(baseType);
-                if (baseClassMap.DiscriminatorIsRequired) {
-                    discriminatorIsRequired = true; // only inherit true values
-                }
+                discriminatorIsRequired |= baseClassMap.discriminatorIsRequired;
+                hasRootClass |= (isRootClass || baseClassMap.HasRootClass);
             }
             baseClassMapLoaded = true;
         }
