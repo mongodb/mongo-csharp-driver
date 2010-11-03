@@ -400,7 +400,7 @@ namespace MongoDB.Bson {
         }
 
         public bool DocumentHasIdMember() {
-            return Contains("_id");
+            return true; // if necessary one will be created in GenerateDocumentId
         }
 
         public bool DocumentHasIdValue(
@@ -442,7 +442,8 @@ namespace MongoDB.Bson {
                 }
                 idElement.Value = BsonValue.Create(idGenerator.GenerateId());
             } else {
-                this["_id"] = ObjectId.GenerateNewId();
+                idElement = new BsonElement("_id", ObjectId.GenerateNewId());
+                InsertAt(0, idElement);
             }
         }
 

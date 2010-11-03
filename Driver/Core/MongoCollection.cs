@@ -397,9 +397,6 @@ namespace MongoDB.Driver {
                             if (!serializer.DocumentHasIdValue(document, out existingId)) {
                                 serializer.GenerateDocumentId(document);
                             }
-                        } else if (document is BsonDocument) {
-                            // even if the BsonDocument didn't have an "_id" element one can be added
-                            serializer.GenerateDocumentId(document);
                         }
                     }
                     message.AddDocument(document);

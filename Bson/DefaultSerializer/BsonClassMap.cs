@@ -589,8 +589,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private class
-        private class FilteredConventionProfile
-        {
+        private class FilteredConventionProfile {
             public Func<Type, bool> Filter;
             public ConventionProfile Profile;
         }

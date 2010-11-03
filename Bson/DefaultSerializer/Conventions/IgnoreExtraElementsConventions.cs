@@ -35,7 +35,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         public bool IgnoreExtraElements(
             Type type
         ) {
-            return true ;
+            return true;
         }
     }
 }
