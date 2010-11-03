@@ -49,10 +49,6 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public class Lion : Cat {
         }
 
-        static AnimalHierarchyWithAttributesTests() {
-            BsonClassMap.RegisterClassMap<Animal>();
-        }
-
         [Test]
         public void TestDeserializeBear() {
             var document = new BsonDocument {
