@@ -199,11 +199,17 @@ namespace MongoDB.Driver {
             return result["retval"];
         }
 
-        public TDocument FetchAs<TDocument>(
+        public BsonDocument FetchDBRef(
+            MongoDBRef dbRef
+        ) {
+            return FetchDBRefAs<BsonDocument>(dbRef);
+        }
+
+        public TDocument FetchDBRefAs<TDocument>(
             MongoDBRef dbRef
         ) {
             if (dbRef.DatabaseName != null && dbRef.DatabaseName != name) {
-                return server.FetchAs<TDocument>(dbRef);
+                return server.FetchDBRefAs<TDocument>(dbRef);
             }
 
             var collection = GetCollection(dbRef.CollectionName);

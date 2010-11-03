@@ -243,7 +243,13 @@ namespace MongoDB.Driver {
             return database.RunCommand(command);
         }
 
-        public TDocument FetchAs<TDocument>(
+        public BsonDocument FetchDBRef(
+            MongoDBRef dbRef
+        ) {
+            return FetchDBRefAs<BsonDocument>(dbRef);
+        }
+
+        public TDocument FetchDBRefAs<TDocument>(
             MongoDBRef dbRef
         ) {
             if (dbRef.DatabaseName == null) {
@@ -251,7 +257,7 @@ namespace MongoDB.Driver {
             }
 
             var database = GetDatabase(dbRef.DatabaseName);
-            return database.FetchAs<TDocument>(dbRef);
+            return database.FetchDBRefAs<TDocument>(dbRef);
         }
 
         public MongoDatabase GetDatabase(
