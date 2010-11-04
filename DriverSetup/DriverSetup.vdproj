@@ -15,6 +15,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_06171FA0295C4177BFB9208A8151317A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0AB07507856449E9923AB56E5FAA7BB2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -148,6 +154,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_06171FA0295C4177BFB9208A8151317A"
+            {
+            "SourcePath" = "8:..\\Release Notes v0.7.txt"
+            "TargetName" = "8:Release Notes v0.7.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0AB07507856449E9923AB56E5FAA7BB2"
             {
             "SourcePath" = "8:..\\License.rtf"
@@ -175,11 +201,6 @@
             "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=0.7.0.3959, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_68791BFCA02EDE379F08E6AC19E7F96F"
-                    {
-                    "Name" = "8:MongoDB.Bson.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:MongoDB.Bson.dll"
             "TargetName" = "8:"
@@ -476,6 +497,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4FA2BFFD52574B3A95D5E3D4B58038A0"
+            {
+            "Name" = "8:Release Notes v0.7.txt"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_06171FA0295C4177BFB9208A8151317A"
+            "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
+            "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {
