@@ -1,0 +1,51 @@
+Changes in Version 0.7
+
+Most of the changes in Version 0.7 are related to support for serialization of POCOs. The core driver remains essentially unchanged from Version 0.5.
+
+Breaking changes:
+
+Renamed MongoDB.BsonLibrary namespace to MongoDB.Bson (same for DLL name)
+Renamed MongoDB.CSharpDriver namespace to MongoDB.Driver (same for DLL name)
+
+Serialization related changes:
+
+Added IBsonSerializationProvider and created the DefaultSerializer
+Added BsonDateTimeOptionsAttribute (with Representation, DateOnly and Kind parameters)
+Added RootClass parameter to BsonDiscriminatorAttribute
+Added IdGenerator and Order parameters to BsonIdAttribute
+Added BsonKnownTypesAttribute
+Replace BsonUseCompactRepresentationAttribute with more general BsonRepresentationAttribute
+Added a number of convention interfaces and a ConventionProfile class
+Removed IBsonPropertySerializer (but added Serialize/DeserializeElement to IBsonSerializer)
+Implemented serializer for Arrays (one dimensional for now)
+Implemented serializers for Collection classes (legacy and generic)
+Implemented serializers for Nullable types
+Implemented serializer for object (primarily to handle reading the discriminator on deserialization)
+Modified BsonClassMap to support fields as well as properties
+Added MapField and MapMember to BsonClassMap (in addition to existing MapProperty)
+Added MapIdField, MapIdMember and MapIdProperty to BsonClassMap
+Added IDiscriminatorConvention and two standard implementations (Scalar- and HierarachicalDiscriminatorConvention)
+Removed requirement that POCO class have a public default constructor for deserialization
+Added IIdGenerator convention
+Added DocumentHasIdMember, DocumentHasIdValue and GenerateDocumentId to IBsonSerializer
+Added support for generic serializer definitions (closed types created as needed at runtime)
+RegisterSerializer now registers serializers using a Type/SerializationOptions pair as the key
+Renamed Bson class to BsonConstants (to work around clash with new Bson namespace)
+Recommended name for BsonNull constant is now BsonNull.Value (patterned after DBNull.Value in .NET)
+
+Driver related changes:
+
+Insert/Save now handle Id field detection/assignment in POCO classes
+Implemented MongoDBRef class
+Implemented FetchDBRef and FetchDBRefAs
+Moved RenameCollection method from MongoServer to MongoDatabase
+
+Roadmap for Version 0.9
+
+Add support for gathering unmapped elements into a catch-all property
+Improve support for connecting to replica sets, SlaveOk and handling failover
+Support tailable cursors
+Finish implementing GridFS (including Stream support)
+Implement dictionary serializers (legacy and generic)
+Implement misc serializers (Uri, Version, byte[], etc...)
+Write doc comments for Intellisense (and find tool to process doc comments to create HTML API documentation)

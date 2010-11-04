@@ -1,4 +1,4 @@
-set VER=0.5.0.3940
+set VER=0.7.0.3959
 set PACKAGES=packages-%VER%
 
 echo Creating %PACKAGES%

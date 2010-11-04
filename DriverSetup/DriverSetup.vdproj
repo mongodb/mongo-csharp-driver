@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0184AF5C75A0FBAD891635918630CB9A"
-        "OwnerKey" = "8:_22DFE61C26514E45B3D98A03CFA1E240"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0AB07507856449E9923AB56E5FAA7BB2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -33,6 +27,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
+        "OwnerKey" = "8:_22DFE61C26514E45B3D98A03CFA1E240"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_22DFE61C26514E45B3D98A03CFA1E240"
         "MsmSig" = "8:_UNDEFINED"
@@ -40,7 +40,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0184AF5C75A0FBAD891635918630CB9A"
+        "OwnerKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -140,7 +140,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "Version" = "8:3.5.30729"
+                "FrameworkVersion" = "8:.NETFramework,Version=v3.5"
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=76617"
                 }
@@ -148,14 +148,34 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0184AF5C75A0FBAD891635918630CB9A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0AB07507856449E9923AB56E5FAA7BB2"
+            {
+            "SourcePath" = "8:..\\License.rtf"
+            "TargetName" = "8:License.rtf"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_68791BFCA02EDE379F08E6AC19E7F96F"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=0.5.0.16268, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=0.7.0.3959, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_0184AF5C75A0FBAD891635918630CB9A"
+                    "_68791BFCA02EDE379F08E6AC19E7F96F"
                     {
                     "Name" = "8:MongoDB.Bson.dll"
                     "Attributes" = "3:512"
@@ -177,26 +197,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0AB07507856449E9923AB56E5FAA7BB2"
-            {
-            "SourcePath" = "8:..\\License.rtf"
-            "TargetName" = "8:License.rtf"
-            "Tag" = "8:"
-            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
         }
@@ -236,7 +236,7 @@
                         {
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_714AC4AABA3743F280D3824A1345875C"
                             {
-                            "Name" = "8:CSharpDriver"
+                            "Name" = "8:CSharpDriver 0.7"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
@@ -251,7 +251,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_D4C7539AEF6E411F98A857872FF5F2FC"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]\\MongoDB\\CSharpDriver"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\MongoDB\\CSharpDriver 0.7"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -276,15 +276,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:MongoDB CSharpDriver 0.5.0"
-        "ProductCode" = "8:{28913A17-E690-40F2-BB19-A46C28BAAFAC}"
-        "PackageCode" = "8:{04F9438F-26D9-4240-854F-B6270B9355D3}"
-        "UpgradeCode" = "8:{47C43F79-8FCD-470F-8B69-61818E314CC2}"
+        "ProductName" = "8:MongoDB CSharpDriver 0.7"
+        "ProductCode" = "8:{0240B29D-02E1-40FE-AC46-EDD51CB2787A}"
+        "PackageCode" = "8:{E69BF95A-BA98-4E35-8306-E0EE27EDDCB1}"
+        "UpgradeCode" = "8:{1A153086-2CAF-42FA-B2F0-2659C64A7DA2}"
+        "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.5.0"
+        "ProductVersion" = "8:0.7"
         "Manufacturer" = "8:10gen Inc."
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
