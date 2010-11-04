@@ -12,6 +12,7 @@ ren %PACKAGES%\CSharpDriver.msi CSharpDriver-%VER%.msi
 set ZIPEXE="C:\Program Files\7-Zip\7z.exe"
 set ZIPFILE=%PACKAGES%\CSharpDriver-%VER%.zip
 %ZIPEXE% a %ZIPFILE% ..\License.txt
+%ZIPEXE% a %ZIPFILE% "..\Release Notes v0.7.txt"
 %ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.dll
 %ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.dll
 
