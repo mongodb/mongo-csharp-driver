@@ -38,7 +38,11 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             public int? Int32 { get; set; }
             public long? Int64 { get; set; }
             public ObjectId? ObjectId { get; set; }
+            public Struct? Struct { get; set; }
+        }
 
+        private struct Struct {
+            public string StructP { get; set; }
         }
 
         private const string template =
@@ -50,7 +54,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             "'Guid' : null, " +
             "'Int32' : null, " +
             "'Int64' : null, " +
-            "'ObjectId' : null" +
+            "'ObjectId' : null, " +
+            "'Struct' : null" +
             " }";
 
         [Test]
@@ -154,6 +159,18 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             C c = new C { ObjectId = ObjectId.Empty };
             var json = c.ToJson();
             var expected = template.Replace("'ObjectId' : null", "'ObjectId' : { '$oid' : '000000000000000000000000' }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestS() {
+            C c = new C { Struct = new Struct { StructP = "x" } };
+            var json = c.ToJson();
+            var expected = template.Replace("'Struct' : null", "'Struct' : { 'StructP' : 'x' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

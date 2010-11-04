@@ -88,6 +88,7 @@
     <Compile Include="DefaultSerializer\Serializers\KnownTypesTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\DiscriminatorTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\StructSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />

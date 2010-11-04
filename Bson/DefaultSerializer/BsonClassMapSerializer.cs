@@ -76,7 +76,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                 var memberMap = classMap.GetMemberMapForElement(elementName);
                 if (memberMap != null) {
-                    var actualElementType = BsonDefaultSerializer.GetActualElementType(bsonReader, memberMap.MemberType); // returns null if no discriminator found
+                    var actualElementType = BsonDefaultSerializer.GetActualElementType(bsonReader, memberMap.MemberType); // returns nominalType if no discriminator found
                     var serializer = memberMap.GetSerializerForActualType(actualElementType);
                     object value = serializer.DeserializeElement(bsonReader, memberMap.MemberType, out elementName);
                     memberMap.Setter(obj, value);
@@ -154,6 +154,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             object obj,
             bool serializeIdFirst
         ) {
+            // Nullable types are weird because they get boxed as their underlying value type
+            // we can best handle that by switching the nominalType to the underlying value type
+            // (so VerifyNominalType doesn't fail and we don't get an unnecessary discriminator)
+            if (nominalType.IsGenericType && nominalType.GetGenericTypeDefinition() == typeof(Nullable<>)) {
+                nominalType = nominalType.GetGenericArguments()[0];
+            }
+
             VerifyNominalType(nominalType);
             var actualType = obj.GetType();
             var classMap = BsonClassMap.LookupClassMap(actualType);
@@ -226,7 +233,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType
         ) {
             if (
-                !(nominalType.IsClass || nominalType.IsInterface) ||
+                !(nominalType.IsClass || (nominalType.IsValueType && !nominalType.IsPrimitive) || nominalType.IsInterface) ||
                 typeof(Array).IsAssignableFrom(nominalType)
             ) {
                 string message = string.Format("BsonClassMapSerializer cannot be used with type: {0}", nominalType.FullName);

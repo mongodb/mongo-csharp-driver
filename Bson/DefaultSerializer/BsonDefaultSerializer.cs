@@ -247,7 +247,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
 
             if (
-                type.IsClass &&
+                (type.IsClass || (type.IsValueType && !type.IsPrimitive)) &&
                 !typeof(Array).IsAssignableFrom(type) &&
                 !typeof(Enum).IsAssignableFrom(type)
             ) {
