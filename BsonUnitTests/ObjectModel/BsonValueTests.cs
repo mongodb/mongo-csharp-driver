@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 
 using MongoDB.Bson;
@@ -95,6 +96,34 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual(objectId, v.AsNullableObjectId);
             Assert.AreEqual(null, n.AsNullableObjectId);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableObjectId; });
+        }
+
+        [Test]
+        public void TestBsonRegularExpressionConstructors() {
+            var regex = BsonRegularExpression.Create("pattern");
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("", regex.Options);
+
+            regex = BsonRegularExpression.Create("/pattern/i");
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("i", regex.Options);
+
+            regex = BsonRegularExpression.Create("pattern", "i");
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("i", regex.Options);
+
+            regex = BsonRegularExpression.Create(new Regex("pattern"));
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("", regex.Options);
+
+            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.IgnoreCase));
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("i", regex.Options);
         }
 
         [Test]

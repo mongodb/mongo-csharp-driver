@@ -32,8 +32,14 @@ namespace MongoDB.Bson {
             string pattern
         )
             : base(BsonType.RegularExpression) {
-            this.pattern = pattern;
-            this.options = "";
+            if (pattern[0] == '/') {
+                var index = pattern.IndexOf('/', 1);
+                this.pattern = pattern.Substring(1, index - 1);
+                this.options = pattern.Substring(index + 1);
+            } else {
+                this.pattern = pattern;
+                this.options = "";
+            }
         }
 
         public BsonRegularExpression(
