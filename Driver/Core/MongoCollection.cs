@@ -142,7 +142,7 @@ namespace MongoDB.Driver {
         }
 
         public BsonDocument DropAllIndexes() {
-            return DropIndex("*");
+            return DropIndexByName("*");
         }
 
         public BsonDocument DropIndex<TIndexKeys>(
@@ -150,14 +150,14 @@ namespace MongoDB.Driver {
         ) {
             var keysDocument = keys.ToBsonDocument();
             string indexName = GetIndexName(keysDocument);
-            return DropIndex(indexName);
+            return DropIndexByName(indexName);
         }
 
         public BsonDocument DropIndex(
             params string[] keyNames
         ) {
             string indexName = GetIndexName(keyNames);
-            return DropIndex(indexName);
+            return DropIndexByName(indexName);
         }
 
         public BsonDocument DropIndexByName(
