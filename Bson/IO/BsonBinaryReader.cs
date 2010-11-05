@@ -59,6 +59,11 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        public override void DiscardBookmark() {
+            var bookmark = context.GetBookmark();
+            context = bookmark.BookmarkParentContext;
+        }
+
         public override void Dispose() {
             if (!disposed) {
                 Close();
@@ -70,7 +75,7 @@ namespace MongoDB.Bson.IO {
             }
         }
 
-        // looks for an element of the given name and leave the reader positioned at the element
+        // looks for an element of the given name and leaves the reader positioned at the element
         public override bool FindElement(
             string name
         ) {
@@ -80,17 +85,18 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
+            PushBookmark();
             BsonType bsonType;
-            string elementName;
-            while (HasElement(out bsonType, out elementName)) {
+            while ((bsonType = buffer.ReadBsonType()) != BsonType.EndOfDocument) {
+                var elementName = buffer.ReadCString();
                 if (elementName == name) {
+                    PopBookmark();
                     return true;
                 }
-
-                buffer.ReadBsonType(); // skip BsonType
-                buffer.ReadCString(); // skip element name
                 buffer.Position += GetValueSize(bsonType); // skip over value
+                MoveBookmark();
             }
+            DiscardBookmark();
 
             return false;
         }
@@ -154,6 +160,13 @@ namespace MongoDB.Bson.IO {
             buffer.Position = currentPosition;
 
             return bsonType != BsonType.EndOfDocument;
+        }
+
+        public override void MoveBookmark() {
+            if (!context.IsBookmark) {
+                throw new InvalidOperationException("Context is not a bookmark");
+            }
+            context.BookmarkPosition = buffer.Position;
         }
 
         public override BsonType PeekBsonType() {

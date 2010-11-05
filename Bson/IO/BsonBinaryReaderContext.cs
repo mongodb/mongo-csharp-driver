@@ -58,6 +58,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        internal bool IsBookmark {
+            get { return isBookmark; }
+        }
+
         internal int StartPosition {
             get { return startPosition; }
             set { startPosition = value; }

@@ -62,6 +62,7 @@ namespace MongoDB.Bson.IO {
 
         #region public methods
         public abstract void Close();
+        public abstract void DiscardBookmark();
         public abstract void Dispose();
         public abstract bool FindElement(
             string name
@@ -77,6 +78,7 @@ namespace MongoDB.Bson.IO {
             out BsonType bsonType,
             out string name
         );
+        public abstract void MoveBookmark();
         public abstract BsonType PeekBsonType();
         public abstract void PopBookmark();
         public abstract void PushBookmark();
