@@ -56,6 +56,133 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestCountWithQuery() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 2));
+            var query = Query.EQ("x", 1);
+            var count = collection.Count(query);
+            Assert.AreEqual(1, count);
+        }
+
+        [Test]
+        public void TestCreateIndex() {
+            collection.DropAllIndexes();
+            var indexes = collection.GetIndexes().ToArray();
+            Assert.AreEqual(1, indexes.Length);
+            Assert.AreEqual("_id_", indexes[0]["name"].AsString);
+
+            collection.DropAllIndexes();
+            collection.CreateIndex("x");
+            indexes = collection.GetIndexes().ToArray();
+            Assert.AreEqual(2, indexes.Length);
+            Assert.AreEqual("_id_", indexes[0]["name"].AsString);
+            Assert.AreEqual("x_1", indexes[1]["name"].AsString);
+
+            collection.DropAllIndexes();
+            collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), IndexOptions.SetUnique(true));
+            indexes = collection.GetIndexes().ToArray();
+            Assert.AreEqual(2, indexes.Length);
+            Assert.AreEqual("_id_", indexes[0]["name"].AsString);
+            Assert.AreEqual("x_1_y_-1", indexes[1]["name"].AsString);
+            Assert.AreEqual(true, indexes[1]["unique"].ToBoolean());
+        }
+
+        [Test]
+        public void TestDataSize() {
+            var dataSize = collection.DataSize();
+        }
+
+        [Test]
+        public void TestDistinct() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 2));
+            collection.Insert(new BsonDocument("x", 3));
+            collection.Insert(new BsonDocument("x", 3));
+            var values = new HashSet<BsonValue>(collection.Distinct("x"));
+            Assert.AreEqual(3, values.Count);
+            Assert.AreEqual(true, values.Contains(1));
+            Assert.AreEqual(true, values.Contains(2));
+            Assert.AreEqual(true, values.Contains(3));
+            Assert.AreEqual(false, values.Contains(4));
+        }
+
+        [Test]
+        public void TestDistinctWithQuery() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 2));
+            collection.Insert(new BsonDocument("x", 3));
+            collection.Insert(new BsonDocument("x", 3));
+            var query = Query.LTE("x", 2);
+            var values = new HashSet<BsonValue>(collection.Distinct("x", query));
+            Assert.AreEqual(2, values.Count);
+            Assert.AreEqual(true, values.Contains(1));
+            Assert.AreEqual(true, values.Contains(2));
+            Assert.AreEqual(false, values.Contains(3));
+            Assert.AreEqual(false, values.Contains(4));
+        }
+
+        [Test]
+        public void TestDropAllIndexes() {
+            collection.DropAllIndexes();
+        }
+
+        [Test]
+        public void TestDropIndex() {
+            collection.DropAllIndexes();
+            Assert.AreEqual(1, collection.GetIndexes().Count());
+            Assert.Throws<MongoCommandException>(() => collection.DropIndex("x"));
+
+            collection.CreateIndex("x");
+            Assert.AreEqual(2, collection.GetIndexes().Count());
+            collection.DropIndex("x");
+            Assert.AreEqual(1, collection.GetIndexes().Count());
+        }
+
+        [Test]
+        public void TestFind() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = collection.Find(Query.GT("x", 3));
+            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(4, result.Select(x => x["x"].AsInt32).FirstOrDefault());
+        }
+
+        [Test]
+        public void TestGetIndexes() {
+            collection.DropAllIndexes();
+            var indexes = collection.GetIndexes().ToArray();
+            Assert.AreEqual(1, indexes.Length);
+            Assert.AreEqual("_id_", indexes[0]["name"].AsString);
+        }
+
+        [Test]
+        public void TestGroup() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 2));
+            collection.Insert(new BsonDocument("x", 3));
+            collection.Insert(new BsonDocument("x", 3));
+            collection.Insert(new BsonDocument("x", 3));
+            var initial = new BsonDocument("count", 0);
+            var reduce = "function(doc, prev) { prev.count += 1 }";
+            var results = collection.Group("x", (BsonDocument) null, initial, reduce, null).ToArray();
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual(1, results[0]["x"].ToInt32());
+            Assert.AreEqual(2, results[0]["count"].ToInt32());
+            Assert.AreEqual(2, results[1]["x"].ToInt32());
+            Assert.AreEqual(1, results[1]["count"].ToInt32());
+            Assert.AreEqual(3, results[2]["x"].ToInt32());
+            Assert.AreEqual(3, results[2]["count"].ToInt32());
+        }
+
+        [Test]
         public void TestSetFields() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
@@ -78,15 +205,28 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestFind() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            var result = collection.Find(Query.GT("x", 3));
-            Assert.AreEqual(1, result.Count());
-            Assert.AreEqual(4, result.Select(x => x["x"].AsInt32).FirstOrDefault());
+        public void TestStats() {
+            var dataSize = collection.Stats();
+        }
+
+        [Test]
+        public void TestStorageSize() {
+            var dataSize = collection.StorageSize();
+        }
+
+        [Test]
+        public void TestTotalIndexSize() {
+            var dataSize = collection.TotalIndexSize();
+        }
+
+        [Test]
+        public void TestTotalSize() {
+            var dataSize = collection.TotalSize();
+        }
+
+        [Test]
+        public void Validate() {
+            var result = collection.Validate();
         }
     }
 }
