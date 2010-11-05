@@ -33,7 +33,7 @@ namespace MongoDB.Bson {
         )
             : base(BsonType.RegularExpression) {
             if (pattern[0] == '/') {
-                var index = pattern.IndexOf('/', 1);
+                var index = pattern.LastIndexOf('/');
                 this.pattern = pattern.Substring(1, index - 1);
                 this.options = pattern.Substring(index + 1);
             } else {
