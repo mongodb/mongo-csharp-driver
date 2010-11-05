@@ -50,7 +50,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected bool isAnonymous;
         protected bool idMemberMapLoaded; // lazy load idMemberMap
         protected BsonMemberMap idMemberMap;
-        protected List<BsonMemberMap> memberMaps = new List<BsonMemberMap>();
+        protected List<BsonMemberMap> allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
+        protected List<BsonMemberMap> declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
+        protected Dictionary<string, BsonMemberMap> elementDictionary = new Dictionary<string, BsonMemberMap>();
+        protected Dictionary<string, BsonMemberMap> memberDictionary = new Dictionary<string, BsonMemberMap>();
         protected bool ignoreExtraElements = true;
         #endregion
 
@@ -112,12 +115,8 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         public IEnumerable<BsonMemberMap> MemberMaps {
             get {
-                var baseClassMap = BaseClassMap; // call property for lazy loading
-                if (baseClassMap != null) {
-                    return baseClassMap.MemberMaps.Concat(memberMaps);
-                } else {
-                    return memberMaps;
-                }
+                if (!baseClassMapLoaded) { LoadBaseClassMap(); }
+                return allMemberMaps;
             }
         }
 
@@ -281,13 +280,19 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonMemberMap GetMemberMap(
             string memberName
         ) {
-            return MemberMaps.FirstOrDefault(pm => pm.MemberName == memberName);
+            if (!baseClassMapLoaded) { LoadBaseClassMap(); }
+            BsonMemberMap memberMap;
+            memberDictionary.TryGetValue(memberName, out memberMap);
+            return memberMap;
         }
 
         public BsonMemberMap GetMemberMapForElement(
             string elementName
         ) {
-            return MemberMaps.FirstOrDefault(pm => pm.ElementName == elementName);
+            if (!baseClassMapLoaded) { LoadBaseClassMap(); }
+            BsonMemberMap memberMap;
+            elementDictionary.TryGetValue(elementName, out memberMap);
+            return memberMap;
         }
 
         public BsonMemberMap MapField(
@@ -325,7 +330,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             MemberInfo memberInfo
         ) {
             var memberMap = new BsonMemberMap(memberInfo, conventions);
-            memberMaps.Add(memberMap);
+            declaredMemberMaps.Add(memberMap);
             return memberMap;
         }
 
@@ -373,7 +378,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var message = string.Format("Class {0} already has an Id", classType.FullName);
                 throw new InvalidOperationException(message);
             }
-            if (!memberMaps.Contains(memberMap)) {
+            if (!declaredMemberMaps.Contains(memberMap)) {
                 throw new BsonInternalException("Invalid memberMap");
             }
 
@@ -420,9 +425,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (hasOrderedElements) {
                 // split out the items with a value for Order and sort them separately (because Sort is unstable, see online help)
                 // and then concatenate any items with no value for Order at the end (in their original order)
-                var ordered = new List<BsonMemberMap>(memberMaps.Where(pm => pm.Order != int.MaxValue));
-                ordered.Sort((x, y) => x.Order.CompareTo(y.Order));
-                memberMaps = new List<BsonMemberMap>(ordered.Concat(memberMaps.Where(pm => pm.Order == int.MaxValue)));
+                var sorted = new List<BsonMemberMap>(declaredMemberMaps.Where(pm => pm.Order != int.MaxValue));
+                var unsorted = new List<BsonMemberMap>(declaredMemberMaps.Where(pm => pm.Order == int.MaxValue));
+                sorted.Sort((x, y) => x.Order.CompareTo(y.Order));
+                declaredMemberMaps = sorted.Concat(unsorted).ToList();
             }
         }
 
@@ -560,6 +566,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                 baseClassMap = LookupClassMap(baseType);
                 discriminatorIsRequired |= baseClassMap.discriminatorIsRequired;
                 hasRootClass |= (isRootClass || baseClassMap.HasRootClass);
+                allMemberMaps.AddRange(baseClassMap.MemberMaps);
+                allMemberMaps.AddRange(declaredMemberMaps);
+                foreach (var memberMap in allMemberMaps) {
+                    elementDictionary.Add(memberMap.ElementName, memberMap);
+                    memberDictionary.Add(memberMap.MemberName, memberMap);
+                }
             }
             baseClassMapLoaded = true;
         }
@@ -610,7 +622,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Expression<Func<TClass, TMember>> memberLambda
         ) {
             var memberName = GetMemberNameFromLambda(memberLambda);
-            return memberMaps.FirstOrDefault(mm => mm.MemberInfo.Name == memberName);
+            return GetMemberMap(memberName);
         }
 
         public BsonMemberMap MapField<TMember>(
