@@ -183,6 +183,18 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestIndexExists() {
+            collection.DropAllIndexes();
+            Assert.AreEqual(false, collection.IndexExists("x"));
+
+            collection.CreateIndex("x");
+            Assert.AreEqual(true, collection.IndexExists("x"));
+
+            collection.CreateIndex(IndexKeys.Ascending("y"));
+            Assert.AreEqual(true, collection.IndexExists(IndexKeys.Ascending("y")));
+        }
+
+        [Test]
         public void TestSetFields() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });

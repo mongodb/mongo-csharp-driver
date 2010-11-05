@@ -352,6 +352,32 @@ namespace MongoDB.Driver {
             return Group(GroupBy.Keys(key), query, initial, reduce, finalize);
         }
 
+        public bool IndexExists<TIndexKeys>(
+            TIndexKeys keys
+        ) {
+            var keysDocument = keys.ToBsonDocument();
+            string indexName = GetIndexName(keysDocument);
+            return IndexExistsByName(indexName);
+        }
+
+        public bool IndexExists(
+            params string[] keyNames
+        ) {
+            string indexName = GetIndexName(keyNames);
+            return IndexExistsByName(indexName);
+        }
+
+        public bool IndexExistsByName(
+            string indexName
+        ) {
+            var indexes = database.GetCollection("system.indexes");
+            var query = Query.And(
+                Query.EQ("name", indexName),
+                Query.EQ("ns", FullName)
+            );
+            return indexes.Count(query) != 0;
+        }
+
         // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
         // it's very easy for the compiler to end up inferring the wrong type for TDocument!
         // that's also why Insert and InsertBatch have to have different names
