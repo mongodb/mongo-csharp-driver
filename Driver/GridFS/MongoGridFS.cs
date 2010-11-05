@@ -58,16 +58,49 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region public methods
+        public StreamWriter AppendText(
+            string remoteFileName
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.AppendText();
+        }
+
+        public MongoGridFSFileInfo CopyTo(
+            string sourceFileName,
+            string destFileName
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, sourceFileName);
+            return fileInfo.CopyTo(destFileName);
+        }
+
+        public MongoGridFSFileInfo CopyTo(
+            string sourceFileName,
+            string destFileName,
+            bool overwrite
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, sourceFileName);
+            return fileInfo.CopyTo(destFileName, overwrite);
+        }
+
+        public MongoGridFSStream Create(
+            string remoteFileName
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.Create();
+        }
+
+        public StreamWriter CreateText(
+            string remoteFileName
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.CreateText();
+        }
+
         public void Delete<TQuery>(
             TQuery query
         ) {
-            using (database.RequestStart()) {
-                var files = database.GetCollection(settings.FilesCollectionName);
-                var chunks = database.GetCollection(settings.ChunksCollectionName);
-                foreach (var file in files.Find(query)) {
-                    files.Remove(new BsonDocument("_id", file["_id"]), safeMode);
-                    chunks.Remove(new BsonDocument("files_id", file["_id"]), safeMode);
-                }
+            foreach (var fileInfo in Find(query)) {
+                fileInfo.Delete();
             }
         }
 
@@ -216,16 +249,16 @@ namespace MongoDB.Driver.GridFS {
         }
 
         public bool Exists(
-            BsonObjectId id
-        ) {
-            var query = new BsonDocument("_id", id);
-            return Exists(query);
-        }
-
-        public bool Exists(
             string fileName
         ) {
             var query = new BsonDocument("filename", fileName);
+            return Exists(query);
+        }
+
+        public bool ExistsById(
+            BsonValue id
+        ) {
+            var query = new BsonDocument("_id", id);
             return Exists(query);
         }
 
@@ -238,20 +271,20 @@ namespace MongoDB.Driver.GridFS {
             TQuery query
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
-            return files.Find(query).Select(d => new MongoGridFSFileInfo(this, d));
-        }
-
-        public IEnumerable<MongoGridFSFileInfo> Find(
-            BsonObjectId id
-        ) {
-            var query = new BsonDocument("_id", id);
-            return Find(query);
+            return files.Find(query).Select(fileInfo => new MongoGridFSFileInfo(this, fileInfo));
         }
 
         public IEnumerable<MongoGridFSFileInfo> Find(
             string fileName
         ) {
             var query = new BsonDocument("filename", fileName);
+            return Find(query);
+        }
+
+        public IEnumerable<MongoGridFSFileInfo> FindById(
+            BsonValue id
+        ) {
+            var query = new BsonDocument("_id", id);
             return Find(query);
         }
 
@@ -266,27 +299,20 @@ namespace MongoDB.Driver.GridFS {
             int version // 1 is oldest, -1 is newest, 0 is no sort
         ) {
             var files = database.GetCollection(settings.FilesCollectionName);
-            BsonDocument fileInfoDocument;
+            BsonDocument fileInfo;
             if (version > 0) {
-                fileInfoDocument = files.Find(query).SetSortOrder("uploadDate").SetSkip(version - 1).SetLimit(1).FirstOrDefault();
+                fileInfo = files.Find(query).SetSortOrder("uploadDate").SetSkip(version - 1).SetLimit(1).FirstOrDefault();
             } else if (version < 0) {
-                fileInfoDocument = files.Find(query).SetSortOrder(SortBy.Descending("uploadDate")).SetSkip(-version - 1).SetLimit(1).FirstOrDefault();
+                fileInfo = files.Find(query).SetSortOrder(SortBy.Descending("uploadDate")).SetSkip(-version - 1).SetLimit(1).FirstOrDefault();
             } else {
-                fileInfoDocument = files.FindOne(query);
+                fileInfo = files.FindOne(query);
             }
 
-            if (fileInfoDocument != null) {
-                return new MongoGridFSFileInfo(this, fileInfoDocument);
+            if (fileInfo != null) {
+                return new MongoGridFSFileInfo(this, fileInfo);
             } else {
                 return null;
             }
-        }
-
-        public MongoGridFSFileInfo FindOne(
-            BsonObjectId id
-        ) {
-            var query = new BsonDocument("_id", id);
-            return FindOne(query);
         }
 
         public MongoGridFSFileInfo FindOne(
@@ -301,6 +327,59 @@ namespace MongoDB.Driver.GridFS {
         ) {
             var query = new BsonDocument("filename", remoteFileName);
             return FindOne(query, version);
+        }
+
+        public MongoGridFSFileInfo FindOneById(
+            BsonValue id
+        ) {
+            var query = new BsonDocument("_id", id);
+            return FindOne(query);
+        }
+
+        public void MoveTo(
+            string sourceFileName,
+            string destFileName
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, sourceFileName);
+            fileInfo.MoveTo(destFileName);
+        }
+
+        public MongoGridFSStream Open(
+            string remoteFileName,
+            FileMode mode
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.Open(mode);
+        }
+
+        public MongoGridFSStream Open(
+            string remoteFileName,
+            FileMode mode,
+            FileAccess access
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.Open(mode, access);
+        }
+
+        public MongoGridFSStream OpenRead(
+            string remoteFileName
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.OpenRead();
+        }
+
+        public StreamReader OpenText(
+            string remoteFileName
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.OpenText();
+        }
+
+        public MongoGridFSStream OpenWrite(
+            string remoteFileName
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.OpenWrite();
         }
 
         public MongoGridFSFileInfo Upload(

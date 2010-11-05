@@ -20,13 +20,82 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver.GridFS {
-    // when implemented this class will allow the client to read and write GridFS files as if they were regular streams
     public class MongoGridFSStream : Stream {
         #region private fields
+        private MongoGridFSFileInfo fileInfo;
+        private FileMode mode;
+        private FileAccess access;
         #endregion
 
         #region constructors
-        public MongoGridFSStream() {
+        public MongoGridFSStream(
+            MongoGridFSFileInfo fileInfo,
+            FileMode mode
+        )
+            : this(fileInfo, mode, FileAccess.ReadWrite) {
+        }
+
+        public MongoGridFSStream(
+            MongoGridFSFileInfo fileInfo,
+            FileMode mode,
+            FileAccess access
+        ) {
+            this.fileInfo = fileInfo;
+            this.mode = mode;
+            this.access = access;
+
+            var exists = fileInfo.Exists;
+            string message;
+            switch (mode) {
+                case FileMode.Append:
+                    if (exists) {
+                        Append();
+                    } else {
+                        Create();
+                    }
+                    break;
+                case FileMode.Create:
+                    if (exists) {
+                        Truncate();
+                    } else {
+                        Create();
+                    }
+                    break;
+                case FileMode.CreateNew:
+                    if (exists) {
+                        message = string.Format("File already exists: {0}", fileInfo.Name);
+                        throw new IOException(message);
+                    } else {
+                        Create();
+                    }
+                    break;
+                case FileMode.Open:
+                    if (exists) {
+                        Open();
+                    } else {
+                        message = string.Format("File not found: {0}", fileInfo.Name);
+                        throw new FileNotFoundException(message);
+                    }
+                    break;
+                case FileMode.OpenOrCreate:
+                    if (exists) {
+                        Open();
+                    } else {
+                        Create();
+                    }
+                    break;
+                case FileMode.Truncate:
+                    if (exists) {
+                        Truncate();
+                    } else {
+                        message = string.Format("File not found: {0}", fileInfo.Name);
+                        throw new FileNotFoundException(message);
+                    }
+                    break;
+                default:
+                    message = string.Format("Invalid FileMode: {0}", fileInfo.Name);
+                    throw new ArgumentException(message, "mode");
+            }
         }
         #endregion
 
@@ -99,7 +168,9 @@ namespace MongoDB.Driver.GridFS {
             throw new NotImplementedException();
         }
 
-        public override void WriteByte(byte value) {
+        public override void WriteByte(
+            byte value
+        ) {
             base.WriteByte(value);
         }
         #endregion
@@ -109,6 +180,24 @@ namespace MongoDB.Driver.GridFS {
             bool disposing
         ) {
             base.Dispose(disposing);
+        }
+        #endregion
+
+        #region private methods
+        private void Append() {
+            throw new NotImplementedException();
+        }
+
+        private void Create() {
+            throw new NotImplementedException();
+        }
+
+        private void Open() {
+            throw new NotImplementedException();
+        }
+
+        private void Truncate() {
+            throw new NotImplementedException();
         }
         #endregion
     }
