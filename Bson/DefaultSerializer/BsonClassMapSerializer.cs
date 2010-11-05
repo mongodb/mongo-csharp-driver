@@ -137,7 +137,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idMemberMap = classMap.IdMemberMap;
             existingId = idMemberMap.Getter(document);
-            return !idMemberMap.IdGenerator.IsEmpty(existingId);
+            var idGenerator = idMemberMap.IdGenerator;
+            return idGenerator != null && !idGenerator.IsEmpty(existingId);
         }
 
         public void GenerateDocumentId(
@@ -145,7 +146,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idMemberMap = classMap.IdMemberMap;
-            idMemberMap.Setter(document, idMemberMap.IdGenerator.GenerateId());
+            var idGenerator = idMemberMap.IdGenerator;
+            if (idGenerator != null) {
+                idMemberMap.Setter(document, idGenerator.GenerateId());
+            }
         }
 
         public void SerializeDocument(

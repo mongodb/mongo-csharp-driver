@@ -74,6 +74,7 @@
     <Compile Include="Core\MongoDatabaseTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />
     <Compile Include="Jira\CSharp77Tests.cs" />
+    <Compile Include="Jira\CSharp92Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

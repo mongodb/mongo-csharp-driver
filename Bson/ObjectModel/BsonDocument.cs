@@ -411,7 +411,7 @@ namespace MongoDB.Bson {
             if (TryGetElement("_id", out idElement)) {
                 existingId = idElement.Value.RawValue;
                 var idGenerator = BsonSerializer.LookupIdGenerator(existingId.GetType());
-                return !idGenerator.IsEmpty(existingId);
+                return idGenerator != null && !idGenerator.IsEmpty(existingId);
             } else {
                 return false;
             }
@@ -440,7 +440,9 @@ namespace MongoDB.Bson {
                     var existingId = idElement.Value.RawValue;
                     idGenerator = BsonSerializer.LookupIdGenerator(existingId.GetType());
                 }
-                idElement.Value = BsonValue.Create(idGenerator.GenerateId());
+                if (idGenerator != null) {
+                    idElement.Value = BsonValue.Create(idGenerator.GenerateId());
+                }
             } else {
                 idElement = new BsonElement("_id", ObjectId.GenerateNewId());
                 InsertAt(0, idElement);

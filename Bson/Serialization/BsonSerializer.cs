@@ -127,12 +127,7 @@ namespace MongoDB.Bson.Serialization {
                         idGenerator = serializationProvider.GetIdGenerator(type);
                     }
 
-                    if (idGenerator == null) {
-                        var message = string.Format("No idGenerator found for type: {0}", type.FullName);
-                        throw new BsonSerializationException(message);
-                    }
-
-                    idGenerators[type] = idGenerator;
+                    idGenerators[type] = idGenerator; // remember it even if it's null
                 }
 
                 return idGenerator;
