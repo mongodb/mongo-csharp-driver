@@ -80,12 +80,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                     var memberMap = classMap.GetMemberMapForElement(elementName);
                     if (memberMap != null) {
-                        var nominalElementType = memberMap.MemberType;
-                        var elementDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalElementType);
-                        var actualElementType = elementDiscriminatorConvention.GetActualType(bsonReader, nominalElementType); // returns nominalType if no discriminator found
-                        var serializer = memberMap.GetSerializerForActualType(actualElementType);
-                        object value = serializer.Deserialize(bsonReader, memberMap.MemberType);
-                        memberMap.Setter(obj, value);
+                        DeserializeMember(bsonReader, obj, memberMap);
                         missingElementMemberMaps.Remove(memberMap);
                     } else {
                         // TODO: send extra elements to a catch-all property
@@ -193,6 +188,19 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private methods
+        private void DeserializeMember(
+            BsonReader bsonReader,
+            object obj,
+            BsonMemberMap memberMap
+        ) {
+            var nominalType = memberMap.MemberType;
+            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+            var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
+            var serializer = memberMap.GetSerializerForActualType(actualType);
+            object value = serializer.Deserialize(bsonReader, memberMap.MemberType);
+            memberMap.Setter(obj, value);
+        }
+
         private void SerializeMember(
             BsonWriter bsonWriter,
             object obj,
