@@ -367,6 +367,11 @@ namespace MongoDB.Driver {
 
                 if (!started) {
                     reply = GetFirst(); // sets connection if successfull
+                    if (reply.Documents.Count == 0) {
+                        reply = null;
+                        done = true;
+                        return false;
+                    }
                     replyIndex = -1;
                     started = true;
                 }
@@ -383,6 +388,11 @@ namespace MongoDB.Driver {
                 } else {
                     if (openCursorId != 0) {
                         reply = GetMore(); // uses connection set by GetFirst
+                        if (reply.Documents.Count == 0) {
+                            reply = null;
+                            done = true;
+                            return false;
+                        }
                         replyIndex = 0;
                     } else {
                         reply = null;
