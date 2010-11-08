@@ -80,8 +80,9 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                     var memberMap = classMap.GetMemberMapForElement(elementName);
                     if (memberMap != null) {
-                        var elementDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
-                        var actualElementType = elementDiscriminatorConvention.GetActualType(bsonReader, memberMap.MemberType); // returns nominalType if no discriminator found
+                        var nominalElementType = memberMap.MemberType;
+                        var elementDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalElementType);
+                        var actualElementType = elementDiscriminatorConvention.GetActualType(bsonReader, nominalElementType); // returns nominalType if no discriminator found
                         var serializer = memberMap.GetSerializerForActualType(actualElementType);
                         object value = serializer.Deserialize(bsonReader, memberMap.MemberType);
                         memberMap.Setter(obj, value);
