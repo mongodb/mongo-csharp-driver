@@ -47,31 +47,28 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                bsonReader.ReadArrayName(out name);
                 return BsonArray.ReadFrom(bsonReader);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteArrayName(name);
                 ((BsonArray) value).WriteTo(bsonWriter);
             }
         }
@@ -101,34 +98,33 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
                 byte[] bytes;
                 BsonBinarySubType subType;
-                bsonReader.ReadBinaryData(out name, out bytes, out subType);
+                bsonReader.ReadBinaryData(out bytes, out subType);
                 return new BsonBinaryData(bytes, subType);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonBinaryData) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteBinaryData(name, value.Bytes, value.SubType);
+                var binaryData = (BsonBinaryData) value;
+                bsonWriter.WriteBinaryData(binaryData.Bytes, binaryData.SubType);
             }
         }
         #endregion
@@ -157,31 +153,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonBoolean.Create(bsonReader.ReadBoolean(out name));
+                return BsonBoolean.Create(bsonReader.ReadBoolean());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonBoolean) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteBoolean(name, value.Value);
+                bsonWriter.WriteBoolean(((BsonBoolean) value).Value);
             }
         }
         #endregion
@@ -210,31 +204,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonDateTime.Create(bsonReader.ReadDateTime(out name));
+                return BsonDateTime.Create(bsonReader.ReadDateTime());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonDateTime) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteDateTime(name, value.Value);
+                bsonWriter.WriteDateTime(((BsonDateTime) value).Value);
             }
         }
         #endregion
@@ -263,26 +255,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeDocument(
+        public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType
         ) {
             return BsonDocument.ReadFrom(bsonReader);
-        }
-
-        public override object DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            var bsonType = bsonReader.PeekBsonType();
-            if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
-                return null;
-            } else {
-                bsonReader.ReadDocumentName(out name);
-                return BsonDocument.ReadFrom(bsonReader);
-            }
         }
 
         public override bool DocumentHasIdMember(
@@ -307,27 +284,16 @@ namespace MongoDB.Bson.DefaultSerializer {
             bsonDocument.GenerateDocumentId();
         }
 
-        public override void SerializeDocument(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            object document,
+            object value,
             bool serializeIdFirst
         ) {
-            var value = (BsonDocument) document;
-            value.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
-        }
-
-        public override void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name,
-            object obj
-        ) {
-            var value = (BsonDocument) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                value.SerializeElement(bsonWriter, nominalType, name);
+                ((BsonDocument) value).Serialize(bsonWriter, nominalType, serializeIdFirst);
             }
         }
         #endregion
@@ -356,36 +322,23 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
             throw new InvalidOperationException();
         }
 
-        public override void SerializeDocument(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            object document,
+            object value,
             bool serializeIdFirst
         ) {
-            var value = (BsonDocumentWrapper) document;
-            value.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
-        }
-
-        public override void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name,
-            object obj
-        ) {
-            var value = (BsonDocumentWrapper) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteDocumentName(name);
-                value.SerializeDocument(bsonWriter, typeof(BsonDocument), false);
+                ((BsonDocumentWrapper) value).Serialize(bsonWriter, typeof(BsonDocument), serializeIdFirst);
             }
         }
         #endregion
@@ -414,31 +367,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonDouble.Create(bsonReader.ReadDouble(out name));
+                return BsonDouble.Create(bsonReader.ReadDouble());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonDouble) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteDouble(name, value.Value);
+                bsonWriter.WriteDouble(((BsonDouble) value).Value);
             }
         }
         #endregion
@@ -467,31 +418,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonInt32.Create(bsonReader.ReadInt32(out name));
+                return BsonInt32.Create(bsonReader.ReadInt32());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonInt32) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteInt32(name, value.Value);
+                bsonWriter.WriteInt32(((BsonInt32) value).Value);
             }
         }
         #endregion
@@ -520,31 +469,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonInt64.Create(bsonReader.ReadInt64(out name));
+                return BsonInt64.Create(bsonReader.ReadInt64());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonInt64) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteInt64(name, value.Value);
+                bsonWriter.WriteInt64(((BsonInt64) value).Value);
             }
         }
         #endregion
@@ -573,31 +520,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return new BsonJavaScript(bsonReader.ReadJavaScript(out name));
+                return new BsonJavaScript(bsonReader.ReadJavaScript());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonJavaScript) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteJavaScript(name, value.Code);
+                bsonWriter.WriteJavaScript(((BsonJavaScript) value).Code);
             }
         }
         #endregion
@@ -626,34 +571,33 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                var code = bsonReader.ReadJavaScriptWithScope(out name);
+                var code = bsonReader.ReadJavaScriptWithScope();
                 var scope = BsonDocument.ReadFrom(bsonReader);
                 return new BsonJavaScriptWithScope(code, scope);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonJavaScriptWithScope) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteJavaScriptWithScope(name, value.Code);
-                value.Scope.WriteTo(bsonWriter);
+                var script = (BsonJavaScriptWithScope) value;
+                bsonWriter.WriteJavaScriptWithScope(script.Code);
+                script.Scope.WriteTo(bsonWriter);
             }
         }
         #endregion
@@ -682,32 +626,30 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                bsonReader.ReadMaxKey(out name);
+                bsonReader.ReadMaxKey();
                 return BsonMaxKey.Value;
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonMaxKey) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteMaxKey(name);
+                bsonWriter.WriteMaxKey();
             }
         }
         #endregion
@@ -736,32 +678,30 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                bsonReader.ReadMinKey(out name);
+                bsonReader.ReadMinKey();
                 return BsonMinKey.Value;
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonMinKey) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteMinKey(name);
+                bsonWriter.WriteMinKey();
             }
         }
         #endregion
@@ -790,38 +730,35 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
-            if (bsonType == BsonType.Document) {
-                bsonReader.ReadDocumentName(out name);
-                bsonReader.ReadStartDocument();
-                bsonReader.SkipElement("$csharpnull");
-                bsonReader.ReadEndDocument();
-                return null;
-            } else {
-                bsonReader.ReadNull(out name);
+            var bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
                 return BsonNull.Value;
-            }
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadStartDocument();
+                var csharpNull = bsonReader.ReadBoolean("$csharpnull");
+                bsonReader.ReadEndDocument();
+                return csharpNull ? null : BsonNull.Value;
+            } 
+            throw new FileFormatException("Invalid representation for BsonNull");
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonNull) obj;
             if (value == null) {
-                bsonWriter.WriteDocumentName(name);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteBoolean("$csharpnull", true);
                 bsonWriter.WriteEndDocument();
             } else {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             }
         }
         #endregion
@@ -850,34 +787,33 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
                 int timestamp;
                 long machinePidIncrement;
-                bsonReader.ReadObjectId(out name, out timestamp, out machinePidIncrement);
+                bsonReader.ReadObjectId(out timestamp, out machinePidIncrement);
                 return new BsonObjectId(timestamp, machinePidIncrement);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonObjectId) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteObjectId(name, value.Timestamp, value.MachinePidIncrement);
+                var objectId = (BsonObjectId) value;
+                bsonWriter.WriteObjectId(objectId.Timestamp, objectId.MachinePidIncrement);
             }
         }
         #endregion
@@ -906,33 +842,32 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
                 string pattern, options;
-                bsonReader.ReadRegularExpression(out name, out pattern, out options);
+                bsonReader.ReadRegularExpression(out pattern, out options);
                 return new BsonRegularExpression(pattern, options);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonRegularExpression) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteRegularExpression(name, value.Pattern, value.Options);
+                var regex = (BsonRegularExpression) value;
+                bsonWriter.WriteRegularExpression(regex.Pattern, regex.Options);
             }
         }
         #endregion
@@ -961,31 +896,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonString.Create(bsonReader.ReadString(out name));
+                return BsonString.Create(bsonReader.ReadString());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonString) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteString(name, value.Value);
+                bsonWriter.WriteString(((BsonString) value).Value);
             }
         }
         #endregion
@@ -1014,31 +947,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonSymbol.Create(bsonReader.ReadSymbol(out name));
+                return BsonSymbol.Create(bsonReader.ReadSymbol());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonSymbol) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteSymbol(name, value.Name);
+                bsonWriter.WriteSymbol(((BsonSymbol) value).Name);
             }
         }
         #endregion
@@ -1067,31 +998,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonTimestamp.Create(bsonReader.ReadTimestamp(out name));
+                return BsonTimestamp.Create(bsonReader.ReadTimestamp());
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonTimestamp) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteTimestamp(name, value.Value);
+                bsonWriter.WriteTimestamp(((BsonTimestamp) value).Value);
             }
         }
         #endregion
@@ -1120,35 +1049,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                BsonElement element;
-                BsonElement.ReadFrom(bsonReader, out element);
-                name = element.Name;
-                return element.Value;
+                return BsonValue.ReadFrom(bsonReader);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (BsonValue) obj;
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                var element = new BsonElement(name, value);
-                element.WriteTo(bsonWriter);
+                ((BsonValue) value).WriteTo(bsonWriter);
             }
         }
         #endregion

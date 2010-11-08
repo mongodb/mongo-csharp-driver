@@ -15,89 +15,57 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    // this enum is also used by the BsonWriters
+    internal enum ContextType {
+        Document,
+        Array,
+        JavaScriptWithScope,
+        ScopeDocument
+    }
+
     internal class BsonBinaryReaderContext {
         #region private fields
         private BsonBinaryReaderContext parentContext;
+        private ContextType contextType;
         private int startPosition;
         private int size;
-        private BsonReadState readState;
-        private bool isBookmark;
-        private int bookmarkPosition;
         #endregion
 
         #region constructors
         internal BsonBinaryReaderContext(
             BsonBinaryReaderContext parentContext,
-            BsonReadState readState
+            ContextType contextType,
+            int startPosition,
+            int size
         ) {
             this.parentContext = parentContext;
-            this.readState = readState;
+            this.contextType = contextType;
+            this.startPosition = startPosition;
+            this.size = size;
         }
         #endregion
 
         #region internal properties
-        internal BsonBinaryReaderContext ParentContext {
-            get {
-                if (isBookmark) {
-                    throw new BsonInternalException("ParentContext called and context is a bookmark");
-                }
-                return parentContext;
-            }
-        }
-
-        internal BsonBinaryReaderContext BookmarkParentContext {
-            get {
-                if (!isBookmark) {
-                    throw new BsonInternalException("BookmarkParentContext called and context is not a bookmark");
-                }
-                return parentContext;
-            }
-        }
-
-        internal bool IsBookmark {
-            get { return isBookmark; }
-        }
-
-        internal int StartPosition {
-            get { return startPosition; }
-            set { startPosition = value; }
-        }
-
-        internal int Size {
-            get { return size; }
-            set { size = value; }
-        }
-
-        internal int BookmarkPosition {
-            get { return bookmarkPosition; }
-            set { bookmarkPosition = value; }
-        }
-
-        internal BsonReadState ReadState {
-            get { return readState; }
+        internal ContextType ContextType {
+            get { return contextType; }
         }
         #endregion
 
-        #region internal methods
-        internal BsonBinaryReaderContext GetBookmark() {
-            for (var context = this; context != null; context = context.parentContext) {
-                if (context.isBookmark) {
-                    return context;
-                }
+        #region public methods
+        public BsonBinaryReaderContext PopContext(
+            int position
+        ) {
+            int actualSize = position - startPosition;
+            if (actualSize != size) {
+                var message = string.Format("{0} size is incorrect", contextType);
+                throw new FileFormatException(message);
             }
-            throw new InvalidOperationException("PopBookmark called without matching PushBookmark");
-        }
-
-        internal BsonBinaryReaderContext CreateBookmark() {
-            var context = new BsonBinaryReaderContext(this, readState);
-            context.startPosition = startPosition;
-            context.size = size;
-            context.isBookmark = true;
-            return context;
+            return parentContext;
         }
         #endregion
     }

@@ -60,7 +60,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             };
 
             var bson = document.ToBson();
-            var rehydrated = (D) BsonSerializer.DeserializeDocument<A>(bson);
+            var rehydrated = (D) BsonSerializer.Deserialize<A>(bson);
             Assert.IsInstanceOf<D>(rehydrated);
 
             var json = rehydrated.ToJson<A>();
@@ -77,7 +77,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             };
 
             var bson = document.ToBson();
-            var rehydrated = (E) BsonSerializer.DeserializeDocument<A>(bson);
+            var rehydrated = (E) BsonSerializer.Deserialize<A>(bson);
             Assert.IsInstanceOf<E>(rehydrated);
 
             var json = rehydrated.ToJson<A>();

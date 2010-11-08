@@ -27,6 +27,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
+        public abstract BsonType CurrentBsonType { get; }
         public abstract BsonReadState ReadState { get; }
         #endregion
 
@@ -62,7 +63,6 @@ namespace MongoDB.Bson.IO {
 
         #region public methods
         public abstract void Close();
-        public abstract void DiscardBookmark();
         public abstract void Dispose();
         public abstract bool FindElement(
             string name
@@ -70,148 +70,95 @@ namespace MongoDB.Bson.IO {
         public abstract string FindString(
             string name
         );
-        public abstract bool HasElement();
-        public abstract bool HasElement(
-            out BsonType bsonType
-        );
-        public abstract bool HasElement(
-            out BsonType bsonType,
-            out string name
-        );
-        public abstract void MoveBookmark();
-        public abstract BsonType PeekBsonType();
-        public abstract void PopBookmark();
-        public abstract void PushBookmark();
-        public abstract void ReadArrayName(
-            out string name
-        );
-        public abstract void ReadArrayName(
-            string expectedName
-        );
+        public abstract BsonBinaryReaderBookmark GetBookmark();
         public abstract void ReadBinaryData(
-            out string name,
             out byte[] bytes,
             out BsonBinarySubType subType
         );
         public abstract void ReadBinaryData(
-            string expectedName,
+            string name,
             out byte[] bytes,
             out BsonBinarySubType subType
         );
+        public abstract bool ReadBoolean();
         public abstract bool ReadBoolean(
-            out string name
+            string name
         );
-        public abstract bool ReadBoolean(
-            string expectedName
-        );
+        public abstract BsonType ReadBsonType();
+        public abstract DateTime ReadDateTime();
         public abstract DateTime ReadDateTime(
-            out string name
+            string name
         );
-        public abstract DateTime ReadDateTime(
-            string expectedName
-        );
-        public abstract void ReadDocumentName(
-            out string name
-        );
-        public abstract void ReadDocumentName(
-            string expectedName
-        );
+        public abstract double ReadDouble();
         public abstract double ReadDouble(
-            out string name
+            string name
         );
-        public abstract double ReadDouble(
-            string expectedName
-        );
+        public abstract void ReadEndArray();
         public abstract void ReadEndDocument();
+        public abstract int ReadInt32();
         public abstract int ReadInt32(
-            out string name
+            string name
         );
-        public abstract int ReadInt32(
-            string expectedName
-        );
+        public abstract long ReadInt64();
         public abstract long ReadInt64(
-            out string name
+            string name
         );
-        public abstract long ReadInt64(
-            string expectedName
-        );
+        public abstract string ReadJavaScript();
         public abstract string ReadJavaScript(
-            out string name
+            string name
         );
-        public abstract string ReadJavaScript(
-            string expectedName
-        );
+        public abstract string ReadJavaScriptWithScope();
         public abstract string ReadJavaScriptWithScope(
-            out string name
+            string name
         );
-        public abstract string ReadJavaScriptWithScope(
-            string expectedName
-        );
+        public abstract void ReadMaxKey();
         public abstract void ReadMaxKey(
-            out string name
+            string name
         );
-        public abstract void ReadMaxKey(
-            string expectedName
-        );
+        public abstract void ReadMinKey();
         public abstract void ReadMinKey(
-            out string name
+            string name
         );
-        public abstract void ReadMinKey(
-            string expectedName
-        );
+        public abstract string ReadName();
+        public abstract void ReadNull();
         public abstract void ReadNull(
-            out string name
-        );
-        public abstract void ReadNull(
-            string expectedName
+            string name
         );
         public abstract void ReadObjectId(
-            out string name,
             out int timestamp,
             out long machinePidIncrement
         );
         public abstract void ReadObjectId(
-            string expectedName,
+            string name,
             out int timestamp,
             out long machinePidIncrement
         );
         public abstract void ReadRegularExpression(
-            out string name,
             out string pattern,
             out string options
         );
         public abstract void ReadRegularExpression(
-            string expectedName,
+            string name,
             out string pattern,
             out string options
         );
+        public abstract void ReadStartArray();
         public abstract void ReadStartDocument();
+        public abstract string ReadString();
         public abstract string ReadString(
-            out string name
+            string name
         );
-        public abstract string ReadString(
-            string expectedName
-        );
+        public abstract string ReadSymbol();
         public abstract string ReadSymbol(
-            out string name
+            string name
         );
-        public abstract string ReadSymbol(
-            string expectedName
-        );
+        public abstract long ReadTimestamp();
         public abstract long ReadTimestamp(
-            out string name
+            string name
         );
-        public abstract long ReadTimestamp(
-            string expectedName
-        );
-        public abstract void SkipElement();
-        public abstract void SkipElement(
-            string expectedName
-        );
-        public abstract void VerifyString(
-            string expectedName,
-            string expectedValue
-        );
+        public abstract void ReturnToBookmark(BsonBinaryReaderBookmark bookmark);
+        public abstract void SkipName();
+        public abstract void SkipValue();
         #endregion
     }
 }

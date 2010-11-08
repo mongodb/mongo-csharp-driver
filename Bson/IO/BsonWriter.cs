@@ -83,8 +83,9 @@ namespace MongoDB.Bson.IO {
         public abstract void Close();
         public abstract void Dispose();
         public abstract void Flush();
-        public abstract void WriteArrayName(
-            string name
+        public abstract void WriteBinaryData(
+            byte[] bytes,
+            BsonBinarySubType subType
         );
         public abstract void WriteBinaryData(
             string name,
@@ -92,45 +93,74 @@ namespace MongoDB.Bson.IO {
             BsonBinarySubType subType
         );
         public abstract void WriteBoolean(
+            bool value
+        );
+        public abstract void WriteBoolean(
             string name,
             bool value
+        );
+        public abstract void WriteDateTime(
+            DateTime value
         );
         public abstract void WriteDateTime(
             string name,
             DateTime value
         );
-        public abstract void WriteDocumentName(
-            string name
+        public abstract void WriteDouble(
+            double value
         );
         public abstract void WriteDouble(
             string name,
             double value
         );
+        public abstract void WriteEndArray();
         public abstract void WriteEndDocument();
+        public abstract void WriteInt32(
+            int value
+        );
         public abstract void WriteInt32(
             string name,
             int value
+        );
+        public abstract void WriteInt64(
+            long value
         );
         public abstract void WriteInt64(
             string name,
             long value
         );
         public abstract void WriteJavaScript(
+            string code
+        );
+        public abstract void WriteJavaScript(
             string name,
+            string code
+        );
+        public abstract void WriteJavaScriptWithScope(
             string code
         );
         public abstract void WriteJavaScriptWithScope(
             string name,
             string code
         );
+        public abstract void WriteMaxKey();
         public abstract void WriteMaxKey(
             string name
         );
+        public abstract void WriteMinKey();
         public abstract void WriteMinKey(
             string name
         );
+        public abstract void WriteName(
+            string name
+        );
+        public abstract void WriteNull();
         public abstract void WriteNull(
             string name
+        );
+        public abstract void WriteObjectId(
+            int timestamp,
+            long machinePidIncrement
         );
         public abstract void WriteObjectId(
             string name,
@@ -138,18 +168,38 @@ namespace MongoDB.Bson.IO {
             long machinePidIncrement
         );
         public abstract void WriteRegularExpression(
+            string pattern,
+            string options
+        );
+        public abstract void WriteRegularExpression(
             string name,
             string pattern,
             string options
         );
+        public abstract void WriteStartArray();
+        public abstract void WriteStartArray(
+            string name
+        );
         public abstract void WriteStartDocument();
+        public abstract void WriteStartDocument(
+            string name
+        );
+        public abstract void WriteString(
+            string value
+        );
         public abstract void WriteString(
             string name,
             string value
         );
         public abstract void WriteSymbol(
+            string value
+        );
+        public abstract void WriteSymbol(
             string name,
             string value
+        );
+        public abstract void WriteTimestamp(
+            long value
         );
         public abstract void WriteTimestamp(
             string name,

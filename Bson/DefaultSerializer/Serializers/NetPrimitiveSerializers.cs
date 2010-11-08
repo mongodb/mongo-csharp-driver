@@ -49,27 +49,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Int32) {
-                return (byte) bsonReader.ReadInt32(out name);
+                return (byte) bsonReader.ReadInt32();
             } else {
                 var message = string.Format("Cannot deserialize Byte from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteInt32(name, (byte) obj);
+            bsonWriter.WriteInt32((byte) value);
         }
         #endregion
     }
@@ -111,34 +110,33 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Int32) {
-                return (char) bsonReader.ReadInt32(out name);
+                return (char) bsonReader.ReadInt32();
             } else  if (bsonType == BsonType.String) {
-                return (char) bsonReader.ReadString(out name)[0];
+                return (char) bsonReader.ReadString()[0];
             } else {
                 var message = string.Format("Cannot deserialize Char from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
             switch (representation) {
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32(name, (int) (char) obj);
+                    bsonWriter.WriteInt32((int) (char) value);
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(name, new string(new [] { (char) obj }));
+                    bsonWriter.WriteString(new string(new[] { (char) value }));
                     break;
                 default:
                     throw new BsonInternalException("Unexpected representation");
@@ -170,33 +168,32 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else if (bsonType == BsonType.String) {
-                return new CultureInfo(bsonReader.ReadString(out name));
+                return new CultureInfo(bsonReader.ReadString());
             } else {
                 var message = string.Format("Cannot deserialize CultureInfo from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            if (obj == null) {
-                bsonWriter.WriteNull(name);
+            if (value == null) {
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteString(name, ((CultureInfo) obj).ToString());
+                bsonWriter.WriteString(((CultureInfo) value).ToString());
             }
         }
         #endregion
@@ -239,45 +236,41 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Array) {
-                bsonReader.ReadArrayName(out name);
-                bsonReader.ReadStartDocument();
-                var dateTime = new DateTime(bsonReader.ReadInt64("0"));
-                var offset = TimeSpan.FromMinutes(bsonReader.ReadInt32("1"));
-                bsonReader.ReadEndDocument();
+                var array = BsonArray.ReadFrom(bsonReader);
+                var dateTime = new DateTime(array[0].AsInt64);
+                var offset = TimeSpan.FromMinutes(array[1].AsInt32);
                 return new DateTimeOffset(dateTime, offset);
             } else if (bsonType == BsonType.String) {
-                return XmlConvert.ToDateTimeOffset(bsonReader.ReadString(out name));
+                return XmlConvert.ToDateTimeOffset(bsonReader.ReadString());
             } else {
                 var message = string.Format("Cannot deserialize DateTimeOffset from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
             // note: the DateTime portion cannot be serialized as a BsonType.DateTime because it is NOT in UTC
-            var value = (DateTimeOffset) obj;
+            var dateTimeOffset = (DateTimeOffset) value;
             switch (representation) {
                 case BsonType.Array:
-                    bsonWriter.WriteArrayName(name);
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteInt64("0", value.DateTime.Ticks);
-                    bsonWriter.WriteInt32("1", (int) value.Offset.TotalMinutes);
-                    bsonWriter.WriteEndDocument();
+                    bsonWriter.WriteStartArray();
+                    bsonWriter.WriteInt64("0", dateTimeOffset.DateTime.Ticks);
+                    bsonWriter.WriteInt32("1", (int) dateTimeOffset.Offset.TotalMinutes);
+                    bsonWriter.WriteEndArray();
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(name, XmlConvert.ToString(value));
+                    bsonWriter.WriteString(XmlConvert.ToString(dateTimeOffset));
                     break;
                 default:
                     throw new BsonInternalException("Unexpected representation");
@@ -323,50 +316,46 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Array) {
+                var array = BsonArray.ReadFrom(bsonReader);
                 var bits = new int[4];
-                bsonReader.ReadArrayName(out name);
-                bsonReader.ReadStartDocument();
-                bits[0] = bsonReader.ReadInt32("0");
-                bits[1] = bsonReader.ReadInt32("1");
-                bits[2] = bsonReader.ReadInt32("2");
-                bits[3] = bsonReader.ReadInt32("3");
-                bsonReader.ReadEndDocument();
+                bits[0] = array[0].AsInt32;
+                bits[1] = array[1].AsInt32;
+                bits[2] = array[2].AsInt32;
+                bits[3] = array[3].AsInt32;
                 return new decimal(bits);
             } else if (bsonType == BsonType.String) {
-                return XmlConvert.ToDecimal(bsonReader.ReadString(out name));
+                return XmlConvert.ToDecimal(bsonReader.ReadString());
             } else {
                 var message = string.Format("Cannot deserialize Decimal from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (Decimal) obj;
+            var @decimal = (Decimal) value;
             switch (representation) {
                 case BsonType.Array:
-                    var bits = Decimal.GetBits(value);
-                    bsonWriter.WriteArrayName(name);
-                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteStartArray();
+                    var bits = Decimal.GetBits(@decimal);
                     bsonWriter.WriteInt32("0", bits[0]);
                     bsonWriter.WriteInt32("1", bits[1]);
                     bsonWriter.WriteInt32("2", bits[2]);
                     bsonWriter.WriteInt32("3", bits[3]);
-                    bsonWriter.WriteEndDocument();
+                    bsonWriter.WriteEndArray();
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(name, XmlConvert.ToString(value));
+                    bsonWriter.WriteString(XmlConvert.ToString(@decimal));
                     break;
                 default:
                     throw new BsonInternalException("Unexpected representation");
@@ -398,27 +387,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Int32) {
-                return (short) bsonReader.ReadInt32(out name);
+                return (short) bsonReader.ReadInt32();
             } else {
                 var message = string.Format("Cannot deserialize Int16 from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteInt32(name, (short) obj);
+            bsonWriter.WriteInt32((short) value);
         }
         #endregion
     }
@@ -446,27 +434,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Int32) {
-                return (sbyte) bsonReader.ReadInt32(out name);
+                return (sbyte) bsonReader.ReadInt32();
             } else {
                 var message = string.Format("Cannot deserialize SByte from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteInt32(name, (sbyte) obj);
+            bsonWriter.WriteInt32((sbyte) value);
         }
         #endregion
     }
@@ -494,15 +481,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             double doubleValue;
             if (bsonType == BsonType.Double) {
-                doubleValue = bsonReader.ReadDouble(out name);
+                doubleValue = bsonReader.ReadDouble();
             } else {
                 var message = string.Format("Cannot deserialize Single from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
@@ -510,15 +496,15 @@ namespace MongoDB.Bson.DefaultSerializer {
             return doubleValue == double.MinValue ? float.MinValue : doubleValue == double.MaxValue ? float.MaxValue : (float) doubleValue;
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var floatValue = (float) obj;
+            var floatValue = (float) value;
             var doubleValue = (floatValue == float.MinValue) ? double.MinValue : (floatValue == float.MaxValue) ? double.MaxValue : floatValue;
-            bsonWriter.WriteDouble(name, doubleValue);
+            bsonWriter.WriteDouble(doubleValue);
         }
         #endregion
     }
@@ -560,35 +546,34 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Int64) {
-                return new TimeSpan(bsonReader.ReadInt64(out name));
+                return new TimeSpan(bsonReader.ReadInt64());
             } else if (bsonType == BsonType.String) {
-                return TimeSpan.Parse(bsonReader.ReadString(out name));
+                return TimeSpan.Parse(bsonReader.ReadString());
             } else {
                 var message = string.Format("Cannot deserialize TimeSpan from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (TimeSpan) obj;
+            var timeSpan = (TimeSpan) value;
             switch (representation) {
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(name, value.Ticks);
+                    bsonWriter.WriteInt64(timeSpan.Ticks);
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(name, value.ToString());
+                    bsonWriter.WriteString(timeSpan.ToString());
                     break;
                 default:
                     throw new BsonInternalException("Unexpected representation");
@@ -620,27 +605,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Int32) {
-                return (ushort) bsonReader.ReadInt32(out name);
+                return (ushort) bsonReader.ReadInt32();
             } else {
                 var message = string.Format("Cannot deserialize UInt16 from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteInt32(name, (ushort) obj);
+            bsonWriter.WriteInt32((ushort) value);
         }
         #endregion
     }
@@ -668,27 +652,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Int32) {
-                return (uint) bsonReader.ReadInt32(out name);
+                return (uint) bsonReader.ReadInt32();
             } else {
                 var message = string.Format("Cannot deserialize UInt32 from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteInt32(name, (int) (uint) obj);
+            bsonWriter.WriteInt32((int) (uint) value);
         }
         #endregion
     }
@@ -716,27 +699,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            BsonType bsonType = bsonReader.PeekBsonType();
+            BsonType bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Int64) {
-                return (ulong) bsonReader.ReadInt64(out name);
+                return (ulong) bsonReader.ReadInt64();
             } else {
                 var message = string.Format("Cannot deserialize UInt64 from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteInt64(name, (long) (ulong) obj);
+            bsonWriter.WriteInt64((long) (ulong) value);
         }
         #endregion
     }

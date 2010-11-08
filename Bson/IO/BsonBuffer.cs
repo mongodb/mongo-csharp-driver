@@ -240,6 +240,12 @@ namespace MongoDB.Bson.IO {
             return bsonType;
         }
 
+        public byte PeekByte() {
+            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            EnsureDataAvailable(1);
+            return chunk[chunkOffset];
+        }
+
         public bool ReadBoolean() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
@@ -408,6 +414,18 @@ namespace MongoDB.Bson.IO {
             }
 
             throw new FileFormatException("String is missing null terminator");
+        }
+
+        public void Skip(
+            int count
+        ) {
+            // TODO: optimize this method
+            Position += count;
+        }
+
+        public void SkipCString() {
+            // TODO: optimize this method
+            ReadCString();
         }
 
         public byte[] ToByteArray() {

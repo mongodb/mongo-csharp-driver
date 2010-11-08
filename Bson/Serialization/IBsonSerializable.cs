@@ -22,13 +22,11 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
     public interface IBsonSerializable {
-        // DeserializeDocument and DeserializeElement can return a new object (i.e. a subclass of nominalType) or even null
-        object DeserializeDocument(BsonReader bsonReader, Type nominalType);
-        object DeserializeElement(BsonReader bsonReader, Type nominalType, out string name);
+        // Deserialize can return a new object (i.e. a subclass of nominalType) or even null
+        object Deserialize(BsonReader bsonReader, Type nominalType);
         bool DocumentHasIdMember();
         bool DocumentHasIdValue(out object existingId);
         void GenerateDocumentId();
-        void SerializeDocument(BsonWriter bsonWriter, Type nominalType, bool serializeIdFirst);
-        void SerializeElement(BsonWriter bsonWriter, Type nominalType, string name);
+        void Serialize(BsonWriter bsonWriter, Type nominalType, bool serializeIdFirst);
     }
 }

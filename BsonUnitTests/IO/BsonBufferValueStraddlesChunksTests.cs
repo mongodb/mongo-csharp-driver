@@ -39,7 +39,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -51,7 +51,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -63,7 +63,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -75,7 +75,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -87,7 +87,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -99,7 +99,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -111,7 +111,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -123,7 +123,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -135,7 +135,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -147,7 +147,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -159,7 +159,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -171,7 +171,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -183,7 +183,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -195,7 +195,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -207,7 +207,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -219,7 +219,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -231,7 +231,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -243,7 +243,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -255,7 +255,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
 
@@ -267,7 +267,7 @@ namespace MongoDB.BsonUnitTests.IO {
             };
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.AreEqual(bson, rehydrated.ToBson());
         }
     }

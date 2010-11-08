@@ -42,7 +42,7 @@ namespace MongoDB.BsonUnitTests.Jira {
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsInstanceOf<C>(rehydrated);
             Assert.IsInstanceOf<short>(rehydrated.S);
             Assert.IsInstanceOf<int>(rehydrated.O); // the short became an int after deserialization

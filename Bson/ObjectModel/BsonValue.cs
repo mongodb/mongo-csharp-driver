@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson {
     [Serializable]
@@ -546,6 +547,67 @@ namespace MongoDB.Bson {
                 return BsonTypeMapper.MapToBsonValue(value);
             }
         }
+
+        public static BsonValue ReadFrom(
+            BsonReader bsonReader
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            switch (bsonType) {
+                case BsonType.Array:
+                    return BsonArray.ReadFrom(bsonReader);
+                case BsonType.Binary:
+                    byte[] bytes;
+                    BsonBinarySubType subType;
+                    bsonReader.ReadBinaryData(out bytes, out subType);
+                    return new BsonBinaryData(bytes, subType);
+                case BsonType.Boolean:
+                    return BsonBoolean.Create(bsonReader.ReadBoolean());
+                case BsonType.DateTime:
+                    return new BsonDateTime(bsonReader.ReadDateTime());
+                case BsonType.Document:
+                    return BsonDocument.ReadFrom(bsonReader);
+                case BsonType.Double:
+                    return new BsonDouble(bsonReader.ReadDouble());
+                case BsonType.Int32:
+                    return BsonInt32.Create(bsonReader.ReadInt32());
+                case BsonType.Int64:
+                    return new BsonInt64(bsonReader.ReadInt64());
+                case BsonType.JavaScript:
+                    return new BsonJavaScript(bsonReader.ReadJavaScript());
+                case BsonType.JavaScriptWithScope:
+                    string code = bsonReader.ReadJavaScriptWithScope();
+                    var scope = BsonDocument.ReadFrom(bsonReader);
+                    return new BsonJavaScriptWithScope(code, scope);
+                case BsonType.MaxKey:
+                    bsonReader.ReadMaxKey();
+                    return BsonMaxKey.Value;
+                case BsonType.MinKey:
+                    bsonReader.ReadMinKey();
+                    return BsonMinKey.Value;
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return BsonNull.Value;
+                case BsonType.ObjectId:
+                    int timestamp;
+                    long machinePidIncrement;
+                    bsonReader.ReadObjectId(out timestamp, out machinePidIncrement);
+                    return new BsonObjectId(timestamp, machinePidIncrement);
+                case BsonType.RegularExpression:
+                    string pattern;
+                    string options;
+                    bsonReader.ReadRegularExpression(out pattern, out options);
+                    return new BsonRegularExpression(pattern, options);
+                case BsonType.String:
+                    return new BsonString(bsonReader.ReadString());
+                case BsonType.Symbol:
+                    return BsonSymbol.Create(bsonReader.ReadSymbol());
+                case BsonType.Timestamp:
+                    return new BsonTimestamp(bsonReader.ReadTimestamp());
+                default:
+                    var message = string.Format("Invalid BsonType: {0}", bsonType);
+                    throw new BsonInternalException(message);
+            }
+        }
         #endregion
 
         #region public methods
@@ -621,6 +683,84 @@ namespace MongoDB.Bson {
                 case BsonType.Int32: return (long) ((BsonInt32) this).Value;
                 case BsonType.String: return XmlConvert.ToInt64(((BsonString) this).Value);
                 default: return ((BsonInt64) this).Value;
+            }
+        }
+        #endregion
+
+        #region internal methods
+        internal void WriteTo(
+            BsonWriter bsonWriter
+        ) {
+            switch (bsonType) {
+                case BsonType.Array:
+                    ((BsonArray) this).WriteTo(bsonWriter);
+                    break;
+                case BsonType.Binary:
+                    var binaryData = (BsonBinaryData) this;
+                    bsonWriter.WriteBinaryData(binaryData.Bytes, binaryData.SubType);
+                    break;
+                case BsonType.Boolean:
+                    bsonWriter.WriteBoolean(((BsonBoolean) this).Value);
+                    break;
+                case BsonType.DateTime:
+                    bsonWriter.WriteDateTime(((BsonDateTime) this).Value);
+                    break;
+                case BsonType.Document:
+                    var document = this as BsonDocument;
+                    if (document != null) {
+                        document.WriteTo(bsonWriter);
+                    } else {
+                        var documentWrapper = this as BsonDocumentWrapper;
+                        if (documentWrapper != null) {
+                            documentWrapper.Serialize(bsonWriter, typeof(BsonDocument), false);
+                        } else {
+                            throw new BsonInternalException("Unexpected class for BsonType document: ", this.GetType().FullName);
+                        }
+                    }
+                    break;
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(((BsonDouble) this).Value);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(((BsonInt32) this).Value);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(((BsonInt64) this).Value);
+                    break;
+                case BsonType.JavaScript:
+                    bsonWriter.WriteJavaScript(((BsonJavaScript) this).Code);
+                    break;
+                case BsonType.JavaScriptWithScope:
+                    var script = (BsonJavaScriptWithScope) this;
+                    bsonWriter.WriteJavaScriptWithScope(script.Code);
+                    script.Scope.WriteTo(bsonWriter);
+                    break;
+                case BsonType.MaxKey:
+                    bsonWriter.WriteMaxKey();
+                    break;
+                case BsonType.MinKey:
+                    bsonWriter.WriteMinKey();
+                    break;
+                case BsonType.Null:
+                    bsonWriter.WriteNull();
+                    break;
+                case BsonType.ObjectId:
+                    var objectId = ((BsonObjectId) this).Value;
+                    bsonWriter.WriteObjectId(objectId.Timestamp, objectId.MachinePidIncrement);
+                    break;
+                case BsonType.RegularExpression:
+                    BsonRegularExpression regex = (BsonRegularExpression) this;
+                    bsonWriter.WriteRegularExpression(regex.Pattern, regex.Options);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(((BsonString) this).Value);
+                    break;
+                case BsonType.Symbol:
+                    bsonWriter.WriteSymbol(((BsonSymbol) this).Name);
+                    break;
+                case BsonType.Timestamp:
+                    bsonWriter.WriteTimestamp(((BsonTimestamp) this).Value);
+                    break;
             }
         }
         #endregion

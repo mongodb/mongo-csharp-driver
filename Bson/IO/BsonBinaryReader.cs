@@ -27,6 +27,8 @@ namespace MongoDB.Bson.IO {
         private bool disposeBuffer;
         private BsonBinaryReaderSettings settings;
         private BsonBinaryReaderContext context;
+        private BsonReadState state;
+        private BsonType currentBsonType;
         #endregion
 
         #region constructors
@@ -37,7 +39,9 @@ namespace MongoDB.Bson.IO {
             this.buffer = buffer ?? new BsonBuffer();
             this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
             this.settings = settings;
-            context = new BsonBinaryReaderContext(null, BsonReadState.Initial);
+            context = null;
+            state = BsonReadState.Initial;
+            currentBsonType = BsonType.Document;
         }
         #endregion
 
@@ -46,22 +50,21 @@ namespace MongoDB.Bson.IO {
             get { return buffer; }
         }
 
+        public override BsonType CurrentBsonType {
+            get { return currentBsonType; }
+        }
+
         public override BsonReadState ReadState {
-            get { return context.ReadState; }
+            get { return state; }
         }
         #endregion
 
         #region public methods
         public override void Close() {
             // Close can be called on Disposed objects
-            if (context.ReadState != BsonReadState.Closed) {
-                context = new BsonBinaryReaderContext(null, BsonReadState.Closed);
+            if (state != BsonReadState.Closed) {
+                state = BsonReadState.Closed;
             }
-        }
-
-        public override void DiscardBookmark() {
-            var bookmark = context.GetBookmark();
-            context = bookmark.BookmarkParentContext;
         }
 
         public override void Dispose() {
@@ -75,568 +78,66 @@ namespace MongoDB.Bson.IO {
             }
         }
 
-        // looks for an element of the given name and leaves the reader positioned at the element
+        // looks for an element of the given name and leaves the reader positioned at the value
+        // or at EndOfDocument if the element is not found
         public override bool FindElement(
             string name
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            if ((context.ReadState & BsonReadState.Document) == 0) {
-                string message = string.Format("FindElement cannot be called when ReadState is: {0}", context.ReadState);
+            if (state != BsonReadState.Type) {
+                var message = string.Format("FindElement cannot be called when ReadState is: {0}", state);
                 throw new InvalidOperationException(message);
             }
 
-            PushBookmark();
             BsonType bsonType;
-            while ((bsonType = buffer.ReadBsonType()) != BsonType.EndOfDocument) {
-                var elementName = buffer.ReadCString();
+            while ((bsonType = ReadBsonType()) != BsonType.EndOfDocument) {
+                var elementName = ReadName();
                 if (elementName == name) {
-                    PopBookmark();
                     return true;
                 }
-                buffer.Position += GetValueSize(bsonType); // skip over value
-                MoveBookmark();
+                SkipValue();
             }
-            DiscardBookmark();
 
             return false;
         }
 
         // this is like ReadString but scans ahead to find a string element with the desired name
+        // it leaves the reader positioned just after the value (i.e. at the BsonType of the next element)
+        // or at EndOfDocument if the element is not found
         public override string FindString(
             string name
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            if ((context.ReadState & BsonReadState.Document) == 0) {
-                string message = string.Format("FindString cannot be called when ReadState is: {0}", context.ReadState);
+            if (state != BsonReadState.Type) {
+                var message = string.Format("FindString cannot be called when ReadState is: {0}", state);
                 throw new InvalidOperationException(message);
             }
 
             BsonType bsonType;
-            while ((bsonType = buffer.ReadBsonType()) != BsonType.EndOfDocument) {
-                var elementName = buffer.ReadCString();
+            while ((bsonType = ReadBsonType()) != BsonType.EndOfDocument) {
+                var elementName = ReadName();
                 if (bsonType == BsonType.String && elementName == name) {
-                    return buffer.ReadString();
+                    return ReadString();
                 } else {
-                    buffer.Position += GetValueSize(bsonType); // skip over value
+                    SkipValue();
                 }
             }
+
             return null;
         }
 
-        public override bool HasElement() {
-            BsonType bsonType;
-            return HasElement(out bsonType);
+        public override BsonBinaryReaderBookmark GetBookmark() {
+            return new BsonBinaryReaderBookmark(context, state, currentBsonType, buffer.Position);
         }
 
-        public override bool HasElement(
-            out BsonType bsonType
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            if ((context.ReadState & BsonReadState.Document) == 0) {
-                string message = string.Format("HasElement cannot be called when ReadState is: {0}", context.ReadState);
-                throw new InvalidOperationException(message);
-            }
-            bsonType = buffer.PeekBsonType();
-            return bsonType != BsonType.EndOfDocument;
-        }
-
-        public override bool HasElement(
-            out BsonType bsonType,
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            if ((context.ReadState & BsonReadState.Document) == 0) {
-                string message = string.Format("HasElement cannot be called when ReadState is: {0}", context.ReadState);
-                throw new InvalidOperationException(message);
-            }
-
-            int currentPosition = buffer.Position;
-            bsonType = buffer.ReadBsonType();
-            if (bsonType == BsonType.EndOfDocument) {
-                name = null;
-            } else {
-                name = buffer.ReadCString();
-            }
-            buffer.Position = currentPosition;
-
-            return bsonType != BsonType.EndOfDocument;
-        }
-
-        public override void MoveBookmark() {
-            if (!context.IsBookmark) {
-                throw new InvalidOperationException("Context is not a bookmark");
-            }
-            context.BookmarkPosition = buffer.Position;
-        }
-
-        public override BsonType PeekBsonType() {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            if ((context.ReadState & BsonReadState.Document) == 0) {
-                string message = string.Format("PeekBsonType cannot be called when ReadState is: {0}", context.ReadState);
-                throw new InvalidOperationException(message);
-            }
-            return buffer.PeekBsonType();
-        }
-
-        public override void PopBookmark() {
-            var bookmark = context.GetBookmark();
-            buffer.Position = bookmark.BookmarkPosition;
-            context = bookmark.BookmarkParentContext;
-        }
-
-        public override void PushBookmark() {
-            context = context.CreateBookmark();
-            context.BookmarkPosition = buffer.Position;
-        }
-
-        public override void ReadArrayName(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadArrayName", BsonType.Array);
-            name = buffer.ReadCString();
-            context = new BsonBinaryReaderContext(context, BsonReadState.Array);
-            context = new BsonBinaryReaderContext(context, BsonReadState.StartDocument);
-        }
-
-        public override void ReadArrayName(
-            string expectedName
-        ) {
-            string actualName;
-            ReadArrayName(out actualName);
-            VerifyName(actualName, expectedName);
-        }
-
+        #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         public override void ReadBinaryData(
-            out string name,
             out byte[] bytes,
             out BsonBinarySubType subType
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
-            name = buffer.ReadCString();
-            ReadBinaryDataHelper(out bytes, out subType);
-        }
 
-        public override void ReadBinaryData(
-            string expectedName,
-            out byte[] bytes,
-            out BsonBinarySubType subType
-        ) {
-            string actualName;
-            ReadBinaryData(out actualName, out bytes, out subType);
-            VerifyName(actualName, expectedName);
-        }
-
-        public override bool ReadBoolean(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadBoolean", BsonType.Boolean);
-            name = buffer.ReadCString();
-            return buffer.ReadBoolean();
-        }
-
-        public override bool ReadBoolean(
-            string expectedName
-        ) {
-            string actualName;
-            var value = ReadBoolean(out actualName);
-            VerifyName(actualName, expectedName);
-            return value;
-        }
-
-        public override DateTime ReadDateTime(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadDateTime", BsonType.DateTime);
-            name = buffer.ReadCString();
-            long milliseconds = buffer.ReadInt64();
-            if (milliseconds == 253402300800000) {
-                // special case to avoid ArgumentOutOfRangeException in AddMilliseconds
-                return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
-            } else {
-                return BsonConstants.UnixEpoch.AddMilliseconds(milliseconds); // Kind = DateTimeKind.Utc
-            }
-        }
-
-        public override DateTime ReadDateTime(
-            string expectedName
-        ) {
-            string actualName;
-            var value = ReadDateTime(out actualName);
-            VerifyName(actualName, expectedName);
-            return value;
-        }
-
-        public override void ReadDocumentName(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadDocumentName", BsonType.Document);
-            name = buffer.ReadCString();
-            context = new BsonBinaryReaderContext(context, BsonReadState.EmbeddedDocument);
-            context = new BsonBinaryReaderContext(context, BsonReadState.StartDocument);
-        }
-
-        public override void ReadDocumentName(
-            string expectedName
-        ) {
-            string actualName;
-            ReadDocumentName(out actualName);
-            VerifyName(actualName, expectedName);
-        }
-
-        public override double ReadDouble(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadDouble", BsonType.Double);
-            name = buffer.ReadCString();
-            return buffer.ReadDouble();
-        }
-
-        public override double ReadDouble(
-            string expectedName
-        ) {
-            string actualName;
-            var value = ReadDouble(out actualName);
-            VerifyName(actualName, expectedName);
-            return value;
-        }
-
-        public override void ReadEndDocument() {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadEndDocument", BsonType.EndOfDocument);
-            if (context.Size != buffer.Position - context.StartPosition) {
-                throw new FileFormatException("Document size was incorrect");
-            }
-            context = context.ParentContext;
-
-            if (context.ReadState == BsonReadState.JavaScriptWithScope) {
-                if (context.Size != buffer.Position - context.StartPosition) {
-                    throw new FileFormatException("JavaScriptWithScope size was incorrect");
-                }
-                context = context.ParentContext;
-            }
-
-            if (context.ReadState == BsonReadState.Initial) {
-                context = new BsonBinaryReaderContext(null, BsonReadState.Done);
-            }
-        }
-
-        public override int ReadInt32(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadInt32", BsonType.Int32);
-            name = buffer.ReadCString();
-            return buffer.ReadInt32();
-        }
-
-        public override int ReadInt32(
-            string expectedName
-        ) {
-            string actualName;
-            var value = ReadInt32(out actualName);
-            VerifyName(actualName, expectedName);
-            return value;
-        }
-
-        public override long ReadInt64(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadInt64", BsonType.Int64);
-            name = buffer.ReadCString();
-            return buffer.ReadInt64();
-        }
-
-        public override long ReadInt64(
-            string expectedName
-        ) {
-            string actualName;
-            var value = ReadInt64(out actualName);
-            VerifyName(actualName, expectedName);
-            return value;
-        }
-
-        public override string ReadJavaScript(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
-            name = buffer.ReadCString();
-            return buffer.ReadString();
-        }
-
-        public override string ReadJavaScript(
-            string expectedName
-        ) {
-            string actualName;
-            var code = ReadJavaScript(out actualName);
-            VerifyName(actualName, expectedName);
-            return code;
-        }
-
-        public override string ReadJavaScriptWithScope(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadJavaScriptWithScope", BsonType.JavaScriptWithScope);
-            name = buffer.ReadCString();
-            context = new BsonBinaryReaderContext(context, BsonReadState.JavaScriptWithScope);
-            context.StartPosition = buffer.Position;
-            context.Size = ReadSize();
-            var code = buffer.ReadString();
-            context = new BsonBinaryReaderContext(context, BsonReadState.ScopeDocument);
-            context = new BsonBinaryReaderContext(context, BsonReadState.StartDocument);
-            return code;
-        }
-
-        public override string ReadJavaScriptWithScope(
-            string expectedName
-        ) {
-            string actualName;
-            var code = ReadJavaScriptWithScope(out actualName);
-            VerifyName(actualName, expectedName);
-            return code;
-        }
-
-        public override void ReadMaxKey(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadMaxKey", BsonType.MaxKey);
-            name = buffer.ReadCString();
-        }
-
-        public override void ReadMaxKey(
-            string expectedName
-        ) {
-            string actualName;
-            ReadMaxKey(out actualName);
-            VerifyName(actualName, expectedName);
-        }
-
-        public override void ReadMinKey(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadMinKey", BsonType.MinKey);
-            name = buffer.ReadCString();
-        }
-
-        public override void ReadMinKey(
-            string expectedName
-        ) {
-            string actualName;
-            ReadMinKey(out actualName);
-            VerifyName(actualName, expectedName);
-        }
-
-        public override void ReadNull(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadNull", BsonType.Null);
-            name = buffer.ReadCString();
-        }
-
-        public override void ReadNull(
-            string expectedName
-        ) {
-            string actualName;
-            ReadNull(out actualName);
-            VerifyName(actualName, expectedName);
-        }
-
-        public override void ReadObjectId(
-            out string name,
-            out int timestamp,
-            out long machinePidIncrement
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadObjectId", BsonType.ObjectId);
-            name = buffer.ReadCString();
-            buffer.ReadObjectId(out timestamp, out machinePidIncrement);
-        }
-
-        public override void ReadObjectId(
-            string expectedName,
-            out int timestamp,
-            out long machinePidIncrement
-        ) {
-            string actualName;
-            ReadObjectId(out actualName, out timestamp, out machinePidIncrement);
-            VerifyName(actualName, expectedName);
-        }
-
-        public override void ReadRegularExpression(
-            out string name,
-            out string pattern,
-            out string options
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
-            name = buffer.ReadCString();
-            pattern = buffer.ReadCString();
-            options = buffer.ReadCString();
-        }
-
-        public override void ReadRegularExpression(
-            string expectedName,
-            out string pattern,
-            out string options
-        ) {
-            string actualName;
-            ReadRegularExpression(out actualName, out pattern, out options);
-            VerifyName(actualName, expectedName);
-        }
-
-        public override void ReadStartDocument() {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            if (context.ReadState == BsonReadState.StartDocument) {
-                context = context.ParentContext;
-            } else  if (context.ReadState == BsonReadState.Initial || context.ReadState == BsonReadState.Done) {
-                context = new BsonBinaryReaderContext(context, BsonReadState.Document);
-            } else {
-                string message = string.Format("ReadStartDocument cannot be called when ReadState is: {0}", context.ReadState);
-                throw new InvalidOperationException(message);
-            }
-            context.StartPosition = buffer.Position;
-            context.Size = ReadSize();
-        }
-
-        public override string ReadString(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadString", BsonType.String);
-            name = buffer.ReadCString();
-            return buffer.ReadString();
-        }
-
-        public override string ReadString(
-            string expectedName
-        ) {
-            string actualName;
-            var value = ReadString(out actualName);
-            VerifyName(actualName, expectedName);
-            return value;
-        }
-
-        public override string ReadSymbol(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadSymbol", BsonType.Symbol);
-            name = buffer.ReadCString();
-            return buffer.ReadString();
-        }
-
-        public override string ReadSymbol(
-            string expectedName
-        ) {
-            string actualName;
-            var value = ReadSymbol(out actualName);
-            VerifyName(actualName, expectedName);
-            return value;
-        }
-
-        public override long ReadTimestamp(
-            out string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
-            VerifyBsonType("ReadTimestamp", BsonType.Timestamp);
-            name = buffer.ReadCString();
-            return buffer.ReadInt64();
-        }
-
-        public override long ReadTimestamp(
-            string expectedName
-        ) {
-            string actualName;
-            var value = ReadTimestamp(out actualName);
-            VerifyName(actualName, expectedName);
-            return value;
-        }
-
-        public override void VerifyString(
-            string expectedName,
-            string expectedValue
-        ) {
-            string actualName;
-            var actualValue = ReadString(out actualName);
-            VerifyName(actualName, expectedName);
-            if (actualValue != expectedValue) {
-                string message = string.Format("Value for element {0} is not: \"{1}\"", expectedName, expectedValue);
-                throw new FileFormatException(message);
-            }
-        }
-
-        public override void SkipElement() {
-            SkipElement(null);
-        }
-
-        public override void SkipElement(
-            string expectedName
-        ) {
-            if ((context.ReadState & BsonReadState.Document) == 0) {
-                string message = string.Format("SkipElement cannot be called when ReadState is: {1}", context.ReadState);
-                throw new InvalidOperationException(message);
-            }
-            var bsonType = buffer.ReadBsonType();
-            var name = buffer.ReadCString();
-            if (expectedName != null && name != expectedName) {
-                var message = string.Format("Element name was not: {0}", expectedName);
-                throw new FileFormatException(message);
-            }
-            buffer.Position += GetValueSize(bsonType); // skip over value
-        }
-        #endregion
-
-        #region private methods
-        private int GetValueSize(
-            BsonType bsonType
-        ) {
-            int size;
-            switch (bsonType) {
-                case BsonType.Array: size = PeekSize(); break;
-                case BsonType.Binary: size = PeekSize() + 5; break;
-                case BsonType.Boolean: size = 1; break;
-                case BsonType.DateTime: size = 8; break;
-                case BsonType.Document: size = PeekSize(); break;
-                case BsonType.Double: size = 8; break;
-                case BsonType.Int32: size = 4; break;
-                case BsonType.Int64: size = 8; break;
-                case BsonType.JavaScript: size = PeekSize() + 4; break;
-                case BsonType.JavaScriptWithScope: size = PeekSize(); break;
-                case BsonType.MaxKey: size = 0; break;
-                case BsonType.MinKey: size = 0; break;
-                case BsonType.Null: size = 0; break;
-                case BsonType.ObjectId: size = 12; break;
-                case BsonType.RegularExpression: var p = buffer.Position; buffer.ReadCString(); buffer.ReadCString(); size = buffer.Position - p; buffer.Position = p; break;
-                case BsonType.String: size = PeekSize() + 4; break;
-                case BsonType.Symbol: size = PeekSize() + 4; break;
-                case BsonType.Timestamp: size = 8; break;
-                default: throw new BsonInternalException("Unexpected BsonType");
-            }
-            return size;
-        }
-
-        private int PeekSize() {
-            var size = ReadSize();
-            buffer.Position -= 4;
-            return size;
-        }
-
-        #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
-        private void ReadBinaryDataHelper(
-            out byte[] bytes,
-            out BsonBinarySubType subType
-        ) {
             int size = ReadSize();
             subType = (BsonBinarySubType) buffer.ReadByte();
             if (subType == BsonBinarySubType.OldBinary) {
@@ -652,9 +153,403 @@ namespace MongoDB.Bson.IO {
                 }
             }
             bytes = buffer.ReadBytes(size);
+
+            state = BsonReadState.Type;
         }
         #pragma warning restore 618
+        
+        public override void ReadBinaryData(
+            string name,
+            out byte[] bytes,
+            out BsonBinarySubType subType
+        ) {
+            VerifyName(name);
+            ReadBinaryData(out bytes, out subType);
+        }
 
+        public override bool ReadBoolean() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadBoolean", BsonType.Boolean);
+            state = BsonReadState.Type;
+            return buffer.ReadBoolean();
+        }
+
+        public override bool ReadBoolean(
+            string name
+        ) {
+            VerifyName(name);
+            return ReadBoolean();
+        }
+
+        public override BsonType ReadBsonType() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (state != BsonReadState.Type) {
+                var message = string.Format("ReadBsonType cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            currentBsonType = buffer.ReadBsonType(); // set currentBsonType before state
+            state = (currentBsonType == BsonType.EndOfDocument) ? BsonReadState.EndOfDocument : BsonReadState.Name;
+            return currentBsonType;
+        }
+
+        public override DateTime ReadDateTime() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadDateTime", BsonType.DateTime);
+            state = BsonReadState.Type;
+            long milliseconds = buffer.ReadInt64();
+            if (milliseconds == 253402300800000) {
+                // special case to avoid ArgumentOutOfRangeException in AddMilliseconds
+                return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+            } else {
+                return BsonConstants.UnixEpoch.AddMilliseconds(milliseconds); // Kind = DateTimeKind.Utc
+            }
+        }
+
+        public override DateTime ReadDateTime(
+            string name
+        ) {
+            VerifyName(name);
+            return ReadDateTime();
+        }
+
+        public override double ReadDouble() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadDouble", BsonType.Double);
+            state = BsonReadState.Type;
+            return buffer.ReadDouble();
+        }
+
+        public override double ReadDouble(
+            string name
+        ) {
+            VerifyName(name);
+            return ReadDouble();
+        }
+
+        public override void ReadEndArray() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (state == BsonReadState.Type && buffer.PeekByte() == 0) {
+                buffer.Skip(1); // automatically advance to EndOfDocument state
+                state = BsonReadState.EndOfDocument;
+            }
+            if (state != BsonReadState.EndOfDocument) {
+                var message = string.Format("ReadEndArray cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+            if (context.ContextType != ContextType.Array) {
+                var message = string.Format("ReadEndArray cannot be called when ContextType is: {0}", context.ContextType);
+                throw new InvalidOperationException(message);
+            }
+
+            context = context.PopContext(buffer.Position);
+            state = BsonReadState.Type;
+        }
+
+        public override void ReadEndDocument() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (state == BsonReadState.Type && buffer.PeekByte() == 0) {
+                buffer.Skip(1); // automatically advance to EndOfDocument state
+                state = BsonReadState.EndOfDocument;
+            }
+            if (state != BsonReadState.EndOfDocument) {
+                var message = string.Format("ReadEndDocument cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            if (context.ContextType == ContextType.Document) {
+                context = context.PopContext(buffer.Position); // Document
+            } else if (context.ContextType == ContextType.ScopeDocument) {
+                context = context.PopContext(buffer.Position); // ScopeDocument
+                context = context.PopContext(buffer.Position); // JavaScriptWithScope
+            } else {
+                var message = string.Format("ReadEndDocument cannot be called when ContextType is: {0}", context.ContextType);
+                throw new InvalidOperationException(message);
+            }
+            state = (context == null) ? BsonReadState.Done : BsonReadState.Type;
+        }
+
+        public override int ReadInt32() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadInt32", BsonType.Int32);
+            state = BsonReadState.Type;
+            return buffer.ReadInt32();
+        }
+
+        public override int ReadInt32(
+            string name
+        ) {
+            VerifyName(name);
+            return ReadInt32();
+        }
+
+        public override long ReadInt64() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadInt64", BsonType.Int64);
+            state = BsonReadState.Type;
+            return buffer.ReadInt64();
+        }
+
+        public override long ReadInt64(
+            string name
+         ) {
+            VerifyName(name);
+            return ReadInt64();
+        }
+
+        public override string ReadJavaScript() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
+            state = BsonReadState.Type;
+            return buffer.ReadString();
+        }
+
+        public override string ReadJavaScript(
+            string name
+        ) {
+            VerifyName(name);
+            return ReadJavaScript();
+        }
+
+        public override string ReadJavaScriptWithScope() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadJavaScriptWithScope", BsonType.JavaScriptWithScope);
+
+            var startPosition = buffer.Position; // position of size field
+            var size = ReadSize();
+            context = new BsonBinaryReaderContext(context, ContextType.JavaScriptWithScope, startPosition, size);
+            var code = buffer.ReadString();
+
+            state = BsonReadState.ScopeDocument;
+            return code;
+        }
+
+        public override string ReadJavaScriptWithScope(
+            string name
+        ) {
+            VerifyName(name);
+            return ReadJavaScriptWithScope();
+        }
+
+        public override void ReadMaxKey() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadMaxKey", BsonType.MaxKey);
+            state = BsonReadState.Type;
+        }
+
+        public override void ReadMaxKey(
+            string name
+        ) {
+            VerifyName(name);
+            ReadMaxKey();
+        }
+
+        public override void ReadMinKey() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadMinKey", BsonType.MinKey);
+            state = BsonReadState.Type;
+        }
+
+        public override void ReadMinKey(
+            string name
+        ) {
+            VerifyName(name);
+            ReadMinKey();
+        }
+
+        public override string ReadName() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (state != BsonReadState.Name) {
+                var message = string.Format("ReadName cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            state = BsonReadState.Value;
+            return buffer.ReadCString();
+        }
+
+        public override void ReadNull() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadNull", BsonType.Null);
+            state = BsonReadState.Type;
+        }
+
+        public override void ReadNull(
+            string name
+        ) {
+            VerifyName(name);
+            ReadNull();
+        }
+
+        public override void ReadObjectId(
+            out int timestamp,
+            out long machinePidIncrement
+        ) {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadObjectId", BsonType.ObjectId);
+            buffer.ReadObjectId(out timestamp, out machinePidIncrement);
+            state = BsonReadState.Type;
+        }
+
+        public override void ReadObjectId(
+            string name,
+            out int timestamp,
+            out long machinePidIncrement
+        ) {
+            VerifyName(name);
+            ReadObjectId(out timestamp, out machinePidIncrement);
+        }
+
+        public override void ReadRegularExpression(
+            out string pattern,
+            out string options
+        ) {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
+            pattern = buffer.ReadCString();
+            options = buffer.ReadCString();
+            state = BsonReadState.Type;
+        }
+
+        public override void ReadRegularExpression(
+            string name,
+            out string pattern,
+            out string options
+        ) {
+            VerifyName(name);
+            ReadRegularExpression(out pattern, out options);
+        }
+
+        public override void ReadStartArray() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (state != BsonReadState.Value || currentBsonType != BsonType.Array) {
+                string message = string.Format("ReadStartArray cannot be called when ReadState is: {0} and BsonType is: {1}", state, currentBsonType);
+                throw new InvalidOperationException(message);
+            }
+
+            var startPosition = buffer.Position; // position of size field
+            var size = ReadSize();
+            context = new BsonBinaryReaderContext(context, ContextType.Array, startPosition, size);
+            state = BsonReadState.Type;
+        }
+
+        public override void ReadStartDocument() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (
+                state != BsonReadState.Initial &&
+                state != BsonReadState.Done &&
+                state != BsonReadState.ScopeDocument &&
+                (state != BsonReadState.Value || currentBsonType != BsonType.Document)
+            ) {
+                string message = string.Format("ReadStartDocument cannot be called when ReadState is: {0} and BsonType is: {1}", state, currentBsonType);
+                throw new InvalidOperationException(message);
+            }
+
+            var contextType = (state == BsonReadState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
+            var startPosition = buffer.Position; // position of size field
+            var size = ReadSize();
+            context = new BsonBinaryReaderContext(context, contextType, startPosition, size);
+            state = BsonReadState.Type;
+        }
+
+        public override string ReadString() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadString", BsonType.String);
+            state = BsonReadState.Type;
+            return buffer.ReadString();
+        }
+
+        public override string ReadString(
+            string name
+         ) {
+            VerifyName(name);
+            return ReadString();
+        }
+
+        public override string ReadSymbol() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadSymbol", BsonType.Symbol);
+            state = BsonReadState.Type;
+            return buffer.ReadString();
+        }
+
+        public override string ReadSymbol(
+            string name
+         ) {
+            VerifyName(name);
+            return ReadSymbol();
+        }
+
+        public override long ReadTimestamp() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            VerifyBsonType("ReadTimestamp", BsonType.Timestamp);
+            state = BsonReadState.Type;
+            return buffer.ReadInt64();
+        }
+
+        public override long ReadTimestamp(
+            string name
+         ) {
+            VerifyName(name);
+            return ReadTimestamp();
+        }
+
+        public override void ReturnToBookmark(
+            BsonBinaryReaderBookmark bookmark
+        ) {
+            context = bookmark.Context;
+            state = bookmark.State;
+            currentBsonType = bookmark.CurrentBsonType;
+            buffer.Position = bookmark.Position;
+        }
+
+        public override void SkipName() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (state != BsonReadState.Name) {
+                var message = string.Format("SkipName cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            buffer.SkipCString();
+            state = BsonReadState.Value;
+        }
+
+        public override void SkipValue() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
+            if (state != BsonReadState.Value) {
+                var message = string.Format("SkipValue cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            int skip;
+            switch (currentBsonType) {
+                case BsonType.Array: skip = ReadSize() - 4; break;
+                case BsonType.Binary: skip = ReadSize() + 1; break;
+                case BsonType.Boolean: skip = 1; break;
+                case BsonType.DateTime: skip = 8; break;
+                case BsonType.Document: skip = ReadSize() - 4; break;
+                case BsonType.Double: skip = 8; break;
+                case BsonType.Int32: skip = 4; break;
+                case BsonType.Int64: skip = 8; break;
+                case BsonType.JavaScript: skip = ReadSize(); break;
+                case BsonType.JavaScriptWithScope: skip = ReadSize() - 4; break;
+                case BsonType.MaxKey: skip = 0; break;
+                case BsonType.MinKey: skip = 0; break;
+                case BsonType.Null: skip = 0; break;
+                case BsonType.ObjectId: skip = 12; break;
+                case BsonType.RegularExpression: buffer.SkipCString(); buffer.SkipCString(); skip = 0; break;
+                case BsonType.String: skip = ReadSize(); break;
+                case BsonType.Symbol: skip = ReadSize(); break;
+                case BsonType.Timestamp: skip = 8; break;
+                default: throw new BsonInternalException("Unexpected BsonType");
+            }
+            buffer.Skip(skip);
+
+            state = BsonReadState.Type;
+        }
+        #endregion
+
+        #region private methods
         private int ReadSize() {
             int size = buffer.ReadInt32();
             if (size < 0) {
@@ -670,23 +565,23 @@ namespace MongoDB.Bson.IO {
             string methodName,
             BsonType requiredBsonType
         ) {
-            if ((context.ReadState & BsonReadState.Document) == 0) {
-                string message = string.Format("{0} cannot be called when ReadState is: {1}", methodName, context.ReadState);
+            if (state != BsonReadState.Value) {
+                var message = string.Format("{0} cannot be called when ReadState is: {1}", methodName, state);
                 throw new InvalidOperationException(message);
             }
-            var bsonType = buffer.ReadBsonType();
-            if (bsonType != requiredBsonType) {
-                var message = string.Format("Expected BSON type {0} but found {1}", requiredBsonType, bsonType);
-                throw new FileFormatException(message);
+            if (currentBsonType != requiredBsonType) {
+                var message = string.Format("{0} cannot be called when BsonType is: {1}", methodName, currentBsonType);
+                throw new InvalidOperationException(message);
             }
         }
 
         private void VerifyName(
-            string actualName,
             string expectedName
         ) {
+            ReadBsonType();
+            var actualName = ReadName();
             if (actualName != expectedName) {
-                string message = string.Format("Element name is not {0}", expectedName);
+                var message = string.Format("Element name is not: {0}", expectedName);
                 throw new FileFormatException(message);
             }
         }

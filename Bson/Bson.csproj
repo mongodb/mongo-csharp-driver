@@ -93,6 +93,8 @@
     <Compile Include="DefaultSerializer\Serializers\ObjectSerializer.cs" />
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />
+    <Compile Include="IO\BsonBaseWriter.cs" />
+    <Compile Include="IO\BsonBinaryReaderBookmark.cs" />
     <Compile Include="ObjectModel\IConvertibleToBsonDocument.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonDefaultValueAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonDiscriminatorAttribute.cs" />

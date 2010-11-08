@@ -20,17 +20,11 @@ using System.Text;
 
 namespace MongoDB.Bson.IO {
     public enum BsonWriteState {
-        Initial, // must call StartDocument next
-        StartDocument, // must call StartDocument next
-        Done, // can call StartDocument if writing a second document using the same writer
-        Closed, // can't use this writer anymore
-        Error, // can't use this writer anymore
-
-        // NOTE: all the Document states start with 0x80 to facilitate checking for them as a group
-        Document = 0x80,
-        EmbeddedDocument = Document | 0x01,
-        Array = Document | 0x02,
-        JavaScriptWithScope = Document | 0x03, // used internally (callers will only see ScopeDocument)
-        ScopeDocument = Document | 0x04
+        Initial,
+        Name,
+        Value,
+        ScopeDocument,
+        Done,
+        Closed
     }
 }

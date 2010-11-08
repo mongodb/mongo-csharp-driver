@@ -24,8 +24,7 @@ using MongoDB.Bson.IO;
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public interface IDiscriminatorConvention {
         string ElementName { get; }
-        Type GetActualDocumentType(BsonReader bsonReader, Type nominalType);
-        Type GetActualElementType(BsonReader bsonReader, Type nominalType);
+        Type GetActualType(BsonReader bsonReader, Type nominalType);
         BsonValue GetDiscriminator(Type nominalType, Type actualType);
     }
 
@@ -64,44 +63,25 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #endregion
 
         #region public methods
-        // BsonReader is sitting at the first element of the document whose actual type needs to be found
-        public Type GetActualDocumentType(
+        // BsonReader is sitting at the value whose actual type needs to be found
+        public Type GetActualType(
             BsonReader bsonReader,
             Type nominalType
         ) {
-            bsonReader.PushBookmark();
-            var actualType = nominalType;
-            if (bsonReader.FindElement(elementName)) {
-                var discriminator = BsonElement.ReadFrom(bsonReader, elementName).Value;
-                if (discriminator.IsBsonArray) {
-                    discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
-                }
-                actualType = BsonDefaultSerializer.LookupActualType(nominalType, discriminator);
-            }
-            bsonReader.PopBookmark();
-            return actualType;
-        }
-
-        // BsonReader is sitting at the element whose actual type needs to be found
-        public Type GetActualElementType(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
 
             Type primitiveType = null;
-            string ignoredName;
             switch (bsonType) {
                 case BsonType.Boolean: primitiveType = typeof(bool); break;
                 case BsonType.Binary:
-                    bsonReader.PushBookmark();
+                    var bookmark = bsonReader.GetBookmark();
                     byte[] bytes;
                     BsonBinarySubType subType;
-                    bsonReader.ReadBinaryData(out ignoredName, out bytes, out subType);
+                    bsonReader.ReadBinaryData(out bytes, out subType);
                     if (subType == BsonBinarySubType.Uuid && bytes.Length == 16) {
                         primitiveType = typeof(Guid);
                     }
-                    bsonReader.PopBookmark();
+                    bsonReader.ReturnToBookmark(bookmark);
                     break;
                 case BsonType.DateTime: primitiveType = typeof(DateTime); break;
                 case BsonType.Double: primitiveType = typeof(double); break;
@@ -116,18 +96,17 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             }
 
             if (bsonType == BsonType.Document) {
-                bsonReader.PushBookmark();
-                bsonReader.ReadDocumentName(out ignoredName);
+                var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
                 var actualType = nominalType;
                 if (bsonReader.FindElement(elementName)) {
-                    var discriminator = BsonElement.ReadFrom(bsonReader, elementName).Value;
+                    var discriminator = BsonValue.ReadFrom(bsonReader);
                     if (discriminator.IsBsonArray) {
                         discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                     }
                     actualType = BsonDefaultSerializer.LookupActualType(nominalType, discriminator);
                 }
-                bsonReader.PopBookmark();
+                bsonReader.ReturnToBookmark(bookmark);
                 return actualType;
             }
 

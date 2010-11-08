@@ -46,7 +46,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -62,7 +62,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -78,7 +78,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -94,7 +94,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -110,7 +110,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -126,7 +126,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -140,7 +140,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -156,7 +156,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             rehydrated.DT = rehydrated.DT.ToLocalTime();
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
@@ -173,7 +173,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
@@ -197,7 +197,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -211,7 +211,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -225,7 +225,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -239,7 +239,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -253,7 +253,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -267,7 +267,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -281,7 +281,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -297,7 +297,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             rehydrated.DT = rehydrated.DT.ToLocalTime();
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
@@ -314,7 +314,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
@@ -340,7 +340,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -356,7 +356,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -372,7 +372,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -388,7 +388,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -404,7 +404,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -420,7 +420,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -434,7 +434,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -450,7 +450,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -466,7 +466,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
@@ -492,7 +492,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -508,7 +508,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -524,7 +524,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -540,7 +540,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -556,7 +556,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -572,7 +572,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -586,7 +586,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -602,7 +602,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             rehydrated.DT = rehydrated.DT.ToLocalTime();
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
@@ -619,7 +619,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers.DateTimeSerializat
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<C>(bson);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

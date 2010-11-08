@@ -59,7 +59,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             };
 
             var bson = document.ToBson();
-            var rehydrated = (Bear) BsonSerializer.DeserializeDocument<Animal>(bson);
+            var rehydrated = (Bear) BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Bear>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>();
@@ -78,7 +78,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             };
 
             var bson = document.ToBson();
-            var rehydrated = (Tiger) BsonSerializer.DeserializeDocument<Animal>(bson);
+            var rehydrated = (Tiger) BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Tiger>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>();
@@ -97,7 +97,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             };
 
             var bson = document.ToBson();
-            var rehydrated = (Lion) BsonSerializer.DeserializeDocument<Animal>(bson);
+            var rehydrated = (Lion) BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Lion>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>();

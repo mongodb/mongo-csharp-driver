@@ -42,84 +42,74 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
+        public object Deserialize(
             BsonReader bsonReader,
             Type nominalType
         ) {
-            VerifyNominalType(nominalType);
-
-            bsonReader.ReadStartDocument();
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
-            var actualType = discriminatorConvention.GetActualDocumentType(bsonReader, nominalType);
-            if (actualType != nominalType) {
-                var serializer = BsonSerializer.LookupSerializer(actualType);
-                if (serializer != this) {
-                    // in rare cases a concrete actualType might have a more specialized serializer
-                    return serializer.DeserializeDocument(bsonReader, actualType);
-                }
-            }
-
-            var classMap = BsonClassMap.LookupClassMap(actualType);
-            if (classMap.IsAnonymous) {
-                throw new InvalidOperationException("Anonymous classes cannot be deserialized");
-            }
-            var obj = classMap.CreateInstance();
-
-            var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.MemberMaps); // make a copy!
-            BsonType bsonType;
-            string elementName;
-            while (bsonReader.HasElement(out bsonType, out elementName)) {
-                if (elementName == discriminatorConvention.ElementName) {
-                    bsonReader.SkipElement(elementName); // skip over discriminator
-                    continue;
-                }
-
-                var memberMap = classMap.GetMemberMapForElement(elementName);
-                if (memberMap != null) {
-                    var actualElementType = BsonDefaultSerializer.GetActualElementType(bsonReader, memberMap.MemberType); // returns nominalType if no discriminator found
-                    var serializer = memberMap.GetSerializerForActualType(actualElementType);
-                    object value = serializer.DeserializeElement(bsonReader, memberMap.MemberType, out elementName);
-                    memberMap.Setter(obj, value);
-                    missingElementMemberMaps.Remove(memberMap);
-                } else {
-                    // TODO: send extra elements to a catch-all property
-                    if (classMap.IgnoreExtraElements) {
-                        bsonReader.SkipElement();
-                    } else {
-                        string message = string.Format("Unexpected element: {0}", elementName);
-                        throw new FileFormatException(message);
-                    }
-                }
-            }
-            bsonReader.ReadEndDocument();
-
-            foreach (var memberMap in missingElementMemberMaps) {
-                if (memberMap.IsRequired) {
-                    var message = string.Format("Required element is missing: {0}", memberMap.ElementName);
-                    throw new BsonSerializationException(message);
-                }
-
-                if (memberMap.HasDefaultValue) {
-                    memberMap.ApplyDefaultValue(obj);
-                }
-            }
-
-            return obj;
-        }
-
-        public object DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            VerifyNominalType(nominalType);
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                bsonReader.ReadDocumentName(out name);
-                return DeserializeDocument(bsonReader, nominalType);
+                VerifyNominalType(nominalType);
+
+                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType);
+                if (actualType != nominalType) {
+                    var serializer = BsonSerializer.LookupSerializer(actualType);
+                    if (serializer != this) {
+                        // in rare cases a concrete actualType might have a more specialized serializer
+                        return serializer.Deserialize(bsonReader, actualType);
+                    }
+                }
+
+                var classMap = BsonClassMap.LookupClassMap(actualType);
+                if (classMap.IsAnonymous) {
+                    throw new InvalidOperationException("Anonymous classes cannot be deserialized");
+                }
+                var obj = classMap.CreateInstance();
+
+                bsonReader.ReadStartDocument();
+                var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.MemberMaps); // make a copy!
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                    var elementName = bsonReader.ReadName();
+                    if (elementName == discriminatorConvention.ElementName) {
+                        bsonReader.SkipValue(); // skip over discriminator
+                        continue;
+                    }
+
+                    var memberMap = classMap.GetMemberMapForElement(elementName);
+                    if (memberMap != null) {
+                        var elementDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                        var actualElementType = elementDiscriminatorConvention.GetActualType(bsonReader, memberMap.MemberType); // returns nominalType if no discriminator found
+                        var serializer = memberMap.GetSerializerForActualType(actualElementType);
+                        object value = serializer.Deserialize(bsonReader, memberMap.MemberType);
+                        memberMap.Setter(obj, value);
+                        missingElementMemberMaps.Remove(memberMap);
+                    } else {
+                        // TODO: send extra elements to a catch-all property
+                        if (classMap.IgnoreExtraElements) {
+                            bsonReader.SkipValue();
+                        } else {
+                            string message = string.Format("Unexpected element: {0}", elementName);
+                            throw new FileFormatException(message);
+                        }
+                    }
+                }
+                bsonReader.ReadEndDocument();
+
+                foreach (var memberMap in missingElementMemberMaps) {
+                    if (memberMap.IsRequired) {
+                        var message = string.Format("Required element is missing: {0}", memberMap.ElementName);
+                        throw new BsonSerializationException(message);
+                    }
+
+                    if (memberMap.HasDefaultValue) {
+                        memberMap.ApplyDefaultValue(obj);
+                    }
+                }
+
+                return obj;
             }
         }
 
@@ -152,62 +142,51 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public void SerializeDocument(
+        public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            object obj,
+            object value,
             bool serializeIdFirst
         ) {
-            // Nullable types are weird because they get boxed as their underlying value type
-            // we can best handle that by switching the nominalType to the underlying value type
-            // (so VerifyNominalType doesn't fail and we don't get an unnecessary discriminator)
-            if (nominalType.IsGenericType && nominalType.GetGenericTypeDefinition() == typeof(Nullable<>)) {
-                nominalType = nominalType.GetGenericArguments()[0];
-            }
-
-            VerifyNominalType(nominalType);
-            var actualType = obj.GetType();
-            var classMap = BsonClassMap.LookupClassMap(actualType);
-
-            bsonWriter.WriteStartDocument();
-            BsonMemberMap idMemberMap = null;
-            if (serializeIdFirst) {
-                idMemberMap = classMap.IdMemberMap;
-                if (idMemberMap != null) {
-                    SerializeMember(bsonWriter, obj, idMemberMap);
-                }
-            }
-
-            if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass) {
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(actualType);
-                var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                if (discriminator != null) {
-                    var element = new BsonElement(discriminatorConvention.ElementName, discriminator);
-                    element.WriteTo(bsonWriter);
-                }
-            }
-
-            foreach (var memberMap in classMap.MemberMaps) {
-                // note: if serializeIdFirst is false then idMemberMap will be null (so no property will be skipped)
-                if (memberMap != idMemberMap) {
-                    SerializeMember(bsonWriter, obj, memberMap);
-                }
-            }
-            bsonWriter.WriteEndDocument();
-        }
-
-        public void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name,
-            object value
-        ) {
-            VerifyNominalType(nominalType);
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteDocumentName(name);
-                SerializeDocument(bsonWriter, nominalType, value, false);
+                // Nullable types are weird because they get boxed as their underlying value type
+                // we can best handle that by switching the nominalType to the underlying value type
+                // (so VerifyNominalType doesn't fail and we don't get an unnecessary discriminator)
+                if (nominalType.IsGenericType && nominalType.GetGenericTypeDefinition() == typeof(Nullable<>)) {
+                    nominalType = nominalType.GetGenericArguments()[0];
+                }
+
+                VerifyNominalType(nominalType);
+                var actualType = (value == null) ? nominalType : value.GetType();
+                var classMap = BsonClassMap.LookupClassMap(actualType);
+
+                bsonWriter.WriteStartDocument();
+                BsonMemberMap idMemberMap = null;
+                if (serializeIdFirst) {
+                    idMemberMap = classMap.IdMemberMap;
+                    if (idMemberMap != null) {
+                        SerializeMember(bsonWriter, value, idMemberMap);
+                    }
+                }
+
+                if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass) {
+                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(actualType);
+                    var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                    if (discriminator != null) {
+                        bsonWriter.WriteName(discriminatorConvention.ElementName);
+                        discriminator.WriteTo(bsonWriter);
+                    }
+                }
+
+                foreach (var memberMap in classMap.MemberMaps) {
+                    // note: if serializeIdFirst is false then idMemberMap will be null (so no property will be skipped)
+                    if (memberMap != idMemberMap) {
+                        SerializeMember(bsonWriter, value, memberMap);
+                    }
+                }
+                bsonWriter.WriteEndDocument();
             }
         }
         #endregion
@@ -230,7 +209,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             var actualType = (value == null) ? nominalType : value.GetType();
             var serializer = memberMap.GetSerializerForActualType(actualType);
             var elementName = memberMap.ElementName;
-            serializer.SerializeElement(bsonWriter, nominalType, elementName, value);
+            bsonWriter.WriteName(elementName);
+            serializer.Serialize(bsonWriter, nominalType, value, false);
         }
 
         private void VerifyNominalType(

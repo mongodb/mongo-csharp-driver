@@ -296,7 +296,7 @@ namespace MongoDB.BsonUnitTests.Jira {
             #endregion
 
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -313,14 +313,14 @@ namespace MongoDB.BsonUnitTests.Jira {
 
             // round trip tests
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
 
             // test failure mode when 20 bytes are truncated from the buffer
             var buffer = new BsonBuffer();
             buffer.LoadFrom(new MemoryStream(bson));
             buffer.Length -= 20;
-            Assert.Throws<EndOfStreamException>(() => BsonSerializer.DeserializeDocument<BsonDocument>(BsonReader.Create(buffer)));
+            Assert.Throws<EndOfStreamException>(() => BsonSerializer.Deserialize<BsonDocument>(BsonReader.Create(buffer)));
         }
 
         [Test]
@@ -336,7 +336,7 @@ namespace MongoDB.BsonUnitTests.Jira {
 
             // round trip tests
             var bson = document.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<BsonDocument>(bson);
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

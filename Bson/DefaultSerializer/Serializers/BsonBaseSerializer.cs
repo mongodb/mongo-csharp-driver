@@ -31,26 +31,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public virtual object DeserializeDocument(
+        public virtual object Deserialize(
             BsonReader bsonReader,
             Type nominalType
         ) {
             throw new InvalidOperationException();
-        }
-
-        public virtual object DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            var bsonType = bsonReader.PeekBsonType();
-            if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
-                return null;
-            } else {
-                bsonReader.ReadDocumentName(out name);
-                return DeserializeDocument(bsonReader, nominalType);
-            }
         }
 
         public virtual bool DocumentHasIdMember(
@@ -72,27 +57,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             throw new InvalidOperationException();
         }
 
-        public virtual void SerializeDocument(
+        public virtual void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            object document,
+            object value,
             bool serializeIdFirst
         ) {
             throw new InvalidOperationException();
-        }
-
-        public virtual void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name,
-            object value
-        ) {
-            if (value == null) {
-                bsonWriter.WriteNull(name);
-            } else {
-                bsonWriter.WriteDocumentName(name);
-                SerializeDocument(bsonWriter, nominalType, value, false);
-            }
         }
         #endregion
     }

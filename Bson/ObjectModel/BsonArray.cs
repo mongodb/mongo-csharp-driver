@@ -209,16 +209,16 @@ namespace MongoDB.Bson {
             }
         }
 
-        public static BsonArray ReadFrom(
+        public static new BsonArray ReadFrom(
             BsonReader bsonReader
         ) {
             var array = new BsonArray();
-            bsonReader.ReadStartDocument();
+            bsonReader.ReadStartArray();
             BsonElement element;
             while (BsonElement.ReadFrom(bsonReader, out element)) {
                 array.Add(element.Value); // names are ignored on input and regenerated on output
             }
-            bsonReader.ReadEndDocument();
+            bsonReader.ReadEndArray();
             return array;
         }
         #endregion
@@ -467,16 +467,15 @@ namespace MongoDB.Bson {
             return sb.ToString();
         }
 
-        public void WriteTo(
+        public new void WriteTo(
             BsonWriter bsonWriter
         ) {
-            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteStartArray();
             for (int i = 0; i < values.Count; i++) {
-                var indexName = i.ToString();
-                var element = new BsonElement(indexName, values[i]);
-                element.WriteTo(bsonWriter);
+                bsonWriter.WriteName(i.ToString());
+                values[i].WriteTo(bsonWriter);
             }
-            bsonWriter.WriteEndDocument();
+            bsonWriter.WriteEndArray();
         }
         #endregion
 

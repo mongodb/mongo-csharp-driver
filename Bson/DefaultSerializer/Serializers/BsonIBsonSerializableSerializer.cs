@@ -47,21 +47,12 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public object DeserializeDocument(
+        public object Deserialize(
             BsonReader bsonReader,
             Type nominalType
         ) {
             var value = (IBsonSerializable) Activator.CreateInstance(nominalType, true); // private default constructor OK
-            return value.DeserializeDocument(bsonReader, nominalType);
-        }
-
-        public object DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            var value = (IBsonSerializable) Activator.CreateInstance(nominalType, true); // private default constructor OK
-            return value.DeserializeElement(bsonReader, nominalType, out name);
+            return value.Deserialize(bsonReader, nominalType);
         }
 
         public bool DocumentHasIdMember(
@@ -86,24 +77,14 @@ namespace MongoDB.Bson.DefaultSerializer {
             bsonSerializable.GenerateDocumentId();
         }
 
-        public void SerializeDocument(
+        public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            object document,
+            object value,
             bool serializeIdFirst
         ) {
-            var value = (IBsonSerializable) document;
-            value.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
-        }
-
-        public void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name,
-            object value
-        ) {
-            bsonWriter.WriteDocumentName(name);
-            SerializeDocument(bsonWriter, nominalType, value, false);
+            var serializable = (IBsonSerializable) value;
+            serializable.Serialize(bsonWriter, nominalType, serializeIdFirst);
         }
         #endregion
     }

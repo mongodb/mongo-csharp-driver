@@ -51,7 +51,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsNull(rehydrated.L);
             Assert.IsNull(rehydrated.Q);
             Assert.IsNull(rehydrated.S);
@@ -71,7 +71,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
@@ -91,7 +91,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
@@ -111,7 +111,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
@@ -131,7 +131,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
@@ -151,7 +151,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
@@ -171,7 +171,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
@@ -191,7 +191,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
@@ -218,7 +218,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializersGeneric {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);

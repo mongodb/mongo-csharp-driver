@@ -48,21 +48,20 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            return bsonReader.ReadBoolean(out name);
+            return bsonReader.ReadBoolean();
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteBoolean(name, (bool) value);
+            bsonWriter.WriteBoolean((bool) value);
         }
         #endregion
     }
@@ -193,22 +192,21 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             DateTime value;
             switch (bsonType) {
                 case BsonType.DateTime:
-                    value = bsonReader.ReadDateTime(out name);
+                    value = bsonReader.ReadDateTime();
                     break;
                 case BsonType.String:
                     if (options.DateOnly) {
-                        value = DateTime.SpecifyKind(DateTime.Parse(bsonReader.ReadString(out name)), DateTimeKind.Utc);
+                        value = DateTime.SpecifyKind(DateTime.Parse(bsonReader.ReadString()), DateTimeKind.Utc);
                     } else {
-                        value = XmlConvert.ToDateTime(bsonReader.ReadString(out name), XmlDateTimeSerializationMode.RoundtripKind);
+                        value = XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
                     }
                     break;
                 default:
@@ -235,38 +233,38 @@ namespace MongoDB.Bson.DefaultSerializer {
             return value;
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
-            var dateTimeValue = (DateTime) value;
+            var dateTime = (DateTime) value;
             if (options.DateOnly) {
-                if (dateTimeValue.TimeOfDay != TimeSpan.Zero) {
+                if (dateTime.TimeOfDay != TimeSpan.Zero) {
                     throw new BsonSerializationException("TimeOfDay component for DateOnly DateTime value is not zero");
                 }
             }
 
             switch (options.Representation) {
                 case BsonType.DateTime:
-                    if (dateTimeValue.Kind != DateTimeKind.Utc) {
+                    if (dateTime.Kind != DateTimeKind.Utc) {
                         if (options.DateOnly) {
-                            dateTimeValue = DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Utc); // not ToUniversalTime!
+                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToUniversalTime!
                         } else {
-                            dateTimeValue = ToUniversalTimeHelper(dateTimeValue);
+                            dateTime = ToUniversalTimeHelper(dateTime);
                         }
                     }
-                    bsonWriter.WriteDateTime(name, dateTimeValue);
+                    bsonWriter.WriteDateTime(dateTime);
                     break;
                 case BsonType.String:
                     if (options.DateOnly) {
-                        bsonWriter.WriteString(name, dateTimeValue.ToString("yyyy-MM-dd"));
+                        bsonWriter.WriteString(dateTime.ToString("yyyy-MM-dd"));
                     } else {
-                        if (dateTimeValue == DateTime.MinValue || dateTimeValue == DateTime.MaxValue) {
-                            dateTimeValue = DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Utc);
+                        if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue) {
+                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
                         }
-                        bsonWriter.WriteString(name, XmlConvert.ToString(dateTimeValue, XmlDateTimeSerializationMode.RoundtripKind));
+                        bsonWriter.WriteString(XmlConvert.ToString(dateTime, XmlDateTimeSerializationMode.RoundtripKind));
                     }
                     break;
                 default:
@@ -321,21 +319,20 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            return bsonReader.ReadDouble(out name);
+            return bsonReader.ReadDouble();
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteDouble(name, (double) value);
+            bsonWriter.WriteDouble((double) value);
         }
         #endregion
     }
@@ -363,14 +360,13 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
             byte[] bytes;
             BsonBinarySubType subType;
-            bsonReader.ReadBinaryData(out name, out bytes, out subType);
+            bsonReader.ReadBinaryData(out bytes, out subType);
             if (bytes.Length != 16) {
                 throw new FileFormatException("BinaryData length is not 16");
             }
@@ -380,14 +376,14 @@ namespace MongoDB.Bson.DefaultSerializer {
             return new Guid(bytes);
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (Guid) obj;
-            bsonWriter.WriteBinaryData(name, value.ToByteArray(), BsonBinarySubType.Uuid);
+            var guid = (Guid) value;
+            bsonWriter.WriteBinaryData(guid.ToByteArray(), BsonBinarySubType.Uuid);
         }
         #endregion
     }
@@ -415,21 +411,20 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            return bsonReader.ReadInt32(out name);
+            return bsonReader.ReadInt32();
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteInt32(name, (int) value);
+            bsonWriter.WriteInt32((int) value);
         }
         #endregion
     }
@@ -457,21 +452,20 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            return bsonReader.ReadInt64(out name);
+            return bsonReader.ReadInt64();
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
-            bsonWriter.WriteInt64(name, (long) value);
+            bsonWriter.WriteInt64((long) value);
         }
         #endregion
     }
@@ -499,25 +493,24 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
             int timestamp;
             long machinePidIncrement;
-            bsonReader.ReadObjectId(out name, out timestamp, out machinePidIncrement);
+            bsonReader.ReadObjectId(out timestamp, out machinePidIncrement);
             return new ObjectId(timestamp, machinePidIncrement);
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object obj
+            object value,
+            bool serializeIdFirst
         ) {
-            var value = (ObjectId) obj;
-            bsonWriter.WriteObjectId(name, value.Timestamp, value.MachinePidIncrement);
+            var objectId = (ObjectId) value;
+            bsonWriter.WriteObjectId(objectId.Timestamp, objectId.MachinePidIncrement);
         }
         #endregion
     }
@@ -545,30 +538,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                return bsonReader.ReadString(out name);
+                return bsonReader.ReadString();
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteString(name, (string) value);
+                bsonWriter.WriteString((string) value);
             }
         }
         #endregion

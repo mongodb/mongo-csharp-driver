@@ -33,8 +33,9 @@ namespace MongoDB.BsonUnitTests.IO {
             MemoryStream stream = new MemoryStream(bytes);
             using (BsonReader bsonReader = BsonReader.Create(stream)) {
                 bsonReader.ReadStartDocument();
-                string name;
-                string value = bsonReader.ReadString(out name);
+                Assert.AreEqual(BsonType.String, bsonReader.ReadBsonType());
+                Assert.AreEqual("hello", bsonReader.ReadName());
+                Assert.AreEqual("world", bsonReader.ReadString());
                 bsonReader.ReadEndDocument();
             }
         }
@@ -46,13 +47,19 @@ namespace MongoDB.BsonUnitTests.IO {
             MemoryStream stream = new MemoryStream(bytes);
             using (BsonReader bsonReader = BsonReader.Create(stream)) {
                 bsonReader.ReadStartDocument();
-                string name;
-                bsonReader.ReadArrayName(out name);
-                bsonReader.ReadStartDocument();
-                string awesome = bsonReader.ReadString(out name);
-                double fiveOhFive = bsonReader.ReadDouble(out name);
-                int year = bsonReader.ReadInt32(out name);
-                bsonReader.ReadEndDocument();
+                Assert.AreEqual(BsonType.Array, bsonReader.ReadBsonType());
+                Assert.AreEqual("BSON", bsonReader.ReadName());
+                bsonReader.ReadStartArray();
+                Assert.AreEqual(BsonType.String, bsonReader.ReadBsonType());
+                Assert.AreEqual("0", bsonReader.ReadName());
+                Assert.AreEqual("awesome", bsonReader.ReadString());
+                Assert.AreEqual(BsonType.Double, bsonReader.ReadBsonType());
+                Assert.AreEqual("1", bsonReader.ReadName());
+                Assert.AreEqual(5.05, bsonReader.ReadDouble());
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual("2", bsonReader.ReadName());
+                Assert.AreEqual(1986, bsonReader.ReadInt32());
+                bsonReader.ReadEndArray();
                 bsonReader.ReadEndDocument();
             }
         }

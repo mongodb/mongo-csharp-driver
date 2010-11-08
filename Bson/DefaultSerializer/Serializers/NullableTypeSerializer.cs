@@ -41,32 +41,31 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
                 Type underlyingType = Nullable.GetUnderlyingType(nominalType);
-                return BsonSerializer.DeserializeElement(bsonReader, underlyingType, out name);
+                return BsonSerializer.Deserialize(bsonReader, underlyingType);
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
             if (value == null) {
-                bsonWriter.WriteNull(name);
+                bsonWriter.WriteNull();
             } else {
                 Type underlyingType = Nullable.GetUnderlyingType(nominalType);
-                BsonSerializer.SerializeElement(bsonWriter, underlyingType, name, value);
+                BsonSerializer.Serialize(bsonWriter, underlyingType, value, serializeIdFirst);
             }
         }
         #endregion

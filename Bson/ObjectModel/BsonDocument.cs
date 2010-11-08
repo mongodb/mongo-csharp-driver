@@ -22,6 +22,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
@@ -207,12 +208,11 @@ namespace MongoDB.Bson {
             }
         }
 
-        public static BsonDocument ReadFrom(
+        public static new BsonDocument ReadFrom(
             BsonReader bsonReader
         ) {
             BsonDocument document = new BsonDocument();
-            document.DeserializeDocument(bsonReader, typeof(BsonDocument));
-            return document;
+            return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument));
         }
 
         public static BsonDocument ReadFrom(
@@ -371,31 +371,23 @@ namespace MongoDB.Bson {
             return clone;
         }
 
-        public object DeserializeDocument(
+        public object Deserialize(
             BsonReader bsonReader,
             Type nominalType
         ) {
-            bsonReader.ReadStartDocument();
-            BsonElement element;
-            while (BsonElement.ReadFrom(bsonReader, out element)) {
-                Add(element);
-            }
-            bsonReader.ReadEndDocument();
-            return this;
-        }
-
-        public object DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                bsonReader.ReadDocumentName(out name);
-                return DeserializeDocument(bsonReader, nominalType);
+                bsonReader.ReadStartDocument();
+                Clear();
+                BsonElement element;
+                while (BsonElement.ReadFrom(bsonReader, out element)) {
+                    Add(element);
+                }
+                bsonReader.ReadEndDocument();
+                return this;
             }
         }
 
@@ -551,7 +543,7 @@ namespace MongoDB.Bson {
             RebuildDictionary();
         }
 
-        public void SerializeDocument(
+        public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
@@ -573,15 +565,6 @@ namespace MongoDB.Bson {
             }
 
             bsonWriter.WriteEndDocument();
-        }
-
-        public void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name
-        ) {
-            bsonWriter.WriteDocumentName(name);
-            SerializeDocument(bsonWriter, nominalType, false);
         }
 
         // keep name short (Set instead of SetValue) to facilitate use in fluent interface
@@ -650,10 +633,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        public void WriteTo(
+        public new void WriteTo(
             BsonWriter bsonWriter
         ) {
-            SerializeDocument(bsonWriter, typeof(BsonDocument), false);
+            Serialize(bsonWriter, typeof(BsonDocument), false);
         }
 
         public void WriteTo(

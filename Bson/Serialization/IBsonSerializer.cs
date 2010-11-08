@@ -19,12 +19,10 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
     public interface IBsonSerializer {
-        object DeserializeDocument(BsonReader bsonReader, Type nominalType);
-        object DeserializeElement(BsonReader bsonReader, Type nominalType, out string name);
+        object Deserialize(BsonReader bsonReader, Type nominalType);
         bool DocumentHasIdMember(object document);
         bool DocumentHasIdValue(object document, out object existingId);
         void GenerateDocumentId(object document);
-        void SerializeDocument(BsonWriter bsonWriter, Type nominalType, object document, bool serializeIdFirst);
-        void SerializeElement(BsonWriter bsonWriter, Type nominalType, string name, object value);
+        void Serialize(BsonWriter bsonWriter, Type nominalType, object value, bool serializeIdFirst);
     }
 }

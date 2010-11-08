@@ -21,12 +21,12 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public class BsonJsonWriter : BsonWriter {
+    public class BsonJsonWriter : BsonBaseWriter {
         #region private fields
-        private bool disposed = false;
         private TextWriter textWriter;
         private BsonJsonWriterSettings settings;
         private BsonJsonWriterContext context;
+        private BsonWriteState state;
         #endregion
 
         #region constructors
@@ -36,33 +36,27 @@ namespace MongoDB.Bson.IO {
         ) {
             this.textWriter = writer;
             this.settings = settings;
-            context = new BsonJsonWriterContext(null, BsonWriteState.Initial, "");
+            context = null;
+            state = BsonWriteState.Initial;
         }
         #endregion
 
         #region public properties
         public override BsonWriteState WriteState {
-            get { return context.WriteState; }
+            get { return state; }
         }
         #endregion
 
         #region public methods
         public override void Close() {
             // Close can be called on Disposed objects
-            if (context.WriteState != BsonWriteState.Closed) {
+            if (state != BsonWriteState.Closed) {
                 Flush();
                 if (settings.CloseOutput) {
                     textWriter.Close();
                 }
-                context = new BsonJsonWriterContext(null, BsonWriteState.Closed, "");
-            }
-        }
-
-        public override void Dispose() {
-            if (!disposed) {
-                Close();
-                textWriter.Dispose();
-                disposed = true;
+                context = null;
+                state = BsonWriteState.Closed;
             }
         }
 
@@ -71,248 +65,285 @@ namespace MongoDB.Bson.IO {
             textWriter.Flush();
         }
 
-        public override void WriteArrayName(
-            string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteStartArray can only be called when WriteState is one of the document states");
-            }
-            WriteDocumentName(name, BsonWriteState.Array);
-        }
-
         public override void WriteBinaryData(
-            string name,
             byte[] bytes,
             BsonBinarySubType subType
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteBinaryData can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteBinaryData cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteDocumentName(name);
+
             WriteStartDocument();
             WriteString("$binary", Convert.ToBase64String(bytes));
             WriteString("$type", ((int) subType).ToString("x2"));
             WriteEndDocument();
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteBoolean(
-            string name,
             bool value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteBoolean can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteBoolean cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteName(name);
+
+            WriteNameHelper(name);
             textWriter.Write(value ? "true" : "false");
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteDateTime(
-            string name,
             DateTime value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteDateTime can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteDateTime cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
+
             if (value.Kind != DateTimeKind.Utc) {
                 throw new ArgumentException("DateTime value must be in UTC");
             }
+
             long milliseconds = (long) Math.Floor((value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds);
             switch (settings.OutputMode) {
                 case BsonJsonOutputMode.Strict:
-                    WriteDocumentName(name);
                     WriteStartDocument();
                     WriteInt64("$date", milliseconds);
                     WriteEndDocument();
                     break;
                 case BsonJsonOutputMode.JavaScript:
                 case BsonJsonOutputMode.TenGen:
-                    WriteName(name);
+                    WriteNameHelper(name);
                     textWriter.Write("Date({0})", milliseconds);
                     break;
                 default:
                     throw new BsonInternalException("Unexpected BsonJsonOutputMode");
             }
-        }
 
-        public override void WriteDocumentName(
-            string name
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteStartEmbeddedDocument can only be called when WriteState is one of the document states");
-            }
-            WriteDocumentName(name, BsonWriteState.EmbeddedDocument);
+            state = BsonWriteState.Name;
         }
 
         public override void WriteDouble(
-            string name,
             double value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteDouble can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteDateTime cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteName(name);
+
+            WriteNameHelper(name);
             textWriter.Write(value.ToString(CultureInfo.InvariantCulture));
+
+            state = BsonWriteState.Name;
+        }
+
+        public override void WriteEndArray() {
+            if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
+            if (state != BsonWriteState.Name) {
+                var message = string.Format("WriteEndArray cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            textWriter.Write("]");
+
+            context = context.ParentContext;
+            state = BsonWriteState.Name;
         }
 
         public override void WriteEndDocument() {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteEndDocument can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Name) {
+                var message = string.Format("WriteDateTime cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            if (context.WriteState == BsonWriteState.Array) {
-                textWriter.Write("]");
-            } else {
-                if (settings.Indent && context.HasElements) {
-                    textWriter.Write(settings.NewLineChars);
+
+            if (settings.Indent && context.HasElements) {
+                textWriter.Write(settings.NewLineChars);
+                if (context.ParentContext != null) {
                     textWriter.Write(context.ParentContext.Indentation);
-                    textWriter.Write("}");
-                } else {
-                    textWriter.Write(" }");
                 }
+                textWriter.Write("}");
+            } else {
+                textWriter.Write(" }");
             }
-            context = context.ParentContext;
 
-            if (context.WriteState == BsonWriteState.JavaScriptWithScope) {
+            if (context.ContextType == ContextType.ScopeDocument) {
+                context = context.ParentContext;
                 WriteEndDocument();
+            } else {
+                context = context.ParentContext;
             }
 
-            if (context.WriteState == BsonWriteState.Initial) {
-                context = new BsonJsonWriterContext(null, BsonWriteState.Done, "");
+            if (context == null) {
+                state = BsonWriteState.Done;
+            } else {
+                state = BsonWriteState.Name;
             }
         }
 
         public override void WriteInt32(
-            string name,
             int value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteInt32 can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteInt32 cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteName(name);
+
+            WriteNameHelper(name);
             textWriter.Write(value);
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteInt64(
-            string name,
             long value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteInt64 can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteInt64 cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteName(name);
+
+            WriteNameHelper(name);
             textWriter.Write(value);
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteJavaScript(
-            string name,
             string code
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteJavaScript can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteJavaScript cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteDocumentName(name);
+
             WriteStartDocument();
             WriteString("$code", code);
             WriteEndDocument();
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteJavaScriptWithScope(
-            string name,
             string code
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteStartJavaScriptWithScope can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteJavaScriptWithScope cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteDocumentName(name, BsonWriteState.JavaScriptWithScope);
+
             WriteStartDocument();
             WriteString("$code", code);
-            WriteDocumentName("$scope", BsonWriteState.ScopeDocument);
+            WriteName("$scope");
+
+            state = BsonWriteState.ScopeDocument;
         }
 
-        public override void WriteMaxKey(
-            string name
-        ) {
+        public override void WriteMaxKey() {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteMaxKey can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteMaxKey cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteDocumentName(name);
+
             WriteStartDocument();
             WriteInt32("$maxkey", 1);
             WriteEndDocument();
+
+            state = BsonWriteState.Name;
         }
 
-        public override void WriteMinKey(
-            string name
-        ) {
+        public override void WriteMinKey() {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteMinKey can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteMinKey cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteDocumentName(name);
+
             WriteStartDocument();
             WriteInt32("$minkey", 1);
             WriteEndDocument();
+
+            state = BsonWriteState.Name;
         }
 
-        public override void WriteNull(
+        public override void WriteName(
             string name
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteMinKey can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Name) {
+                var message = string.Format("WriteMinKey cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteName(name);
+
+            this.name = name;
+            state = BsonWriteState.Value;
+        }
+
+        public override void WriteNull() {
+            if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteNull cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            WriteNameHelper(name);
             textWriter.Write("null");
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteObjectId(
-            string name,
             int timestamp,
             long machinePidIncrement
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteObjectId can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteObjectId cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
+
             var bytes = ObjectId.Pack(timestamp, machinePidIncrement);
             switch (settings.OutputMode) {
                 case BsonJsonOutputMode.Strict:
                 case BsonJsonOutputMode.JavaScript:
-                    WriteDocumentName(name);
                     WriteStartDocument();
                     WriteString("$oid", BsonUtils.ToHexString(bytes));
                     WriteEndDocument();
                     break;
                 case BsonJsonOutputMode.TenGen:
-                    WriteName(name);
+                    WriteNameHelper(name);
                     textWriter.Write(string.Format("ObjectId(\"{0}\")", BsonUtils.ToHexString(bytes)));
                     break;
             }
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteRegularExpression(
-            string name,
             string pattern,
             string options
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteRegularExpression can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteRegularExpression cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
+
             switch (settings.OutputMode) {
                 case BsonJsonOutputMode.Strict:
-                    WriteDocumentName(name);
                     WriteStartDocument();
                     WriteString("$regex", pattern);
                     WriteString("$options", options);
@@ -320,7 +351,7 @@ namespace MongoDB.Bson.IO {
                     break;
                 case BsonJsonOutputMode.JavaScript:
                 case BsonJsonOutputMode.TenGen:
-                    WriteName(name);
+                    WriteNameHelper(name);
                     textWriter.Write("/");
                     textWriter.Write(pattern.Replace(@"\", @"\\"));
                     textWriter.Write("/");
@@ -335,80 +366,106 @@ namespace MongoDB.Bson.IO {
                     }
                     break;
             }
+
+            state = BsonWriteState.Name;
+        }
+
+        public override void WriteStartArray() {
+            if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
+            if (state != BsonWriteState.Value) {
+                var message = string.Format("WriteStartArray cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            WriteNameHelper(name);
+            textWriter.Write("[");
+
+            context = new BsonJsonWriterContext(context, ContextType.Array, settings.IndentChars);
+            state = BsonWriteState.Name;
         }
 
         public override void WriteStartDocument() {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if (context.WriteState == BsonWriteState.StartDocument) {
-                context = context.ParentContext;
-            } else if (context.WriteState == BsonWriteState.Initial || context.WriteState == BsonWriteState.Done) {
-                context = new BsonJsonWriterContext(context, BsonWriteState.Document, context.Indentation + settings.IndentChars);
-            } else {
-                throw new InvalidOperationException("WriteStartDocument can only be called when WriteState is Initial, StartDocument or Done");
+            if (state != BsonWriteState.Initial && state != BsonWriteState.Value && state != BsonWriteState.ScopeDocument) {
+                var message = string.Format("WriteStartDocument cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            if (context.WriteState == BsonWriteState.Array) {
-                textWriter.Write("[");
-            } else {
-                textWriter.Write("{");
+
+            if (state == BsonWriteState.Value || state == BsonWriteState.ScopeDocument) {
+                WriteNameHelper(name);
             }
+            textWriter.Write("{");
+
+            var contextType = (state == BsonWriteState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
+            context = new BsonJsonWriterContext(context, contextType, settings.IndentChars);
+            state = BsonWriteState.Name;
         }
 
         public override void WriteString(
-            string name,
             string value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteString can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Initial && state != BsonWriteState.Value && state != BsonWriteState.ScopeDocument) {
+                var message = string.Format("WriteString cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteName(name);
-            WriteString(value);
+
+            WriteNameHelper(name);
+            WriteStringHelper(value);
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteSymbol(
-            string name,
             string value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteSymbol can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Initial && state != BsonWriteState.Value && state != BsonWriteState.ScopeDocument) {
+                var message = string.Format("WriteSymbol cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteDocumentName(name);
+
             WriteStartDocument();
             WriteString("$symbol", value);
             WriteEndDocument();
+
+            state = BsonWriteState.Name;
         }
 
         public override void WriteTimestamp(
-            string name,
             long value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
-            if ((context.WriteState & BsonWriteState.Document) == 0) {
-                throw new InvalidOperationException("WriteTimestamp can only be called when WriteState is one of the document states");
+            if (state != BsonWriteState.Initial && state != BsonWriteState.Value && state != BsonWriteState.ScopeDocument) {
+                var message = string.Format("WriteTimestamp cannot be called when WriterState is: {0}", state);
+                throw new InvalidOperationException(message);
             }
-            WriteDocumentName(name);
+
             WriteStartDocument();
             WriteInt64("$timestamp", value);
             WriteEndDocument();
+
+            state = BsonWriteState.Name;
+        }
+        #endregion
+
+        #region protected methods
+        protected override void Dispose(
+            bool disposing
+        ) {
+            if (disposing) {
+                Close();
+                textWriter.Dispose();
+            }
         }
         #endregion
 
         #region private methods
-        private void WriteDocumentName(
-            string name,
-            BsonWriteState documentType
-        ) {
-            WriteName(name);
-            context = new BsonJsonWriterContext(context, documentType, context.Indentation + settings.IndentChars);
-            context = new BsonJsonWriterContext(context, BsonWriteState.StartDocument, null);
-        }
-
-        private void WriteName(
+        private void WriteNameHelper(
             string name
         ) {
             // don't write Array element names in Json
-            if (context.WriteState == BsonWriteState.Array) {
+            if (context.ContextType == ContextType.Array) {
                 if (context.HasElements) {
                     textWriter.Write(", ");
                 }
@@ -422,14 +479,14 @@ namespace MongoDB.Bson.IO {
                 } else {
                     textWriter.Write(" ");
                 }
-                WriteString(name);
+                WriteStringHelper(name);
                 textWriter.Write(" : ");
             }
 
             context.HasElements = true;
         }
 
-        private void WriteString(
+        private void WriteStringHelper(
             string value
         ) {
             textWriter.Write("\"");

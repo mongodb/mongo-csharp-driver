@@ -49,7 +49,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsNull(rehydrated.L);
             Assert.IsNull(rehydrated.Q);
             Assert.IsNull(rehydrated.S);
@@ -69,7 +69,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<ArrayList>(rehydrated.L);
             Assert.IsInstanceOf<Queue>(rehydrated.Q);
             Assert.IsInstanceOf<Stack>(rehydrated.S);
@@ -89,7 +89,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<ArrayList>(rehydrated.L);
             Assert.IsInstanceOf<Queue>(rehydrated.Q);
             Assert.IsInstanceOf<Stack>(rehydrated.S);
@@ -109,7 +109,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<ArrayList>(rehydrated.L);
             Assert.IsInstanceOf<Queue>(rehydrated.Q);
             Assert.IsInstanceOf<Stack>(rehydrated.S);
@@ -129,7 +129,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<ArrayList>(rehydrated.L);
             Assert.IsInstanceOf<Queue>(rehydrated.Q);
             Assert.IsInstanceOf<Stack>(rehydrated.S);
@@ -149,7 +149,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<ArrayList>(rehydrated.L);
             Assert.IsInstanceOf<Queue>(rehydrated.Q);
             Assert.IsInstanceOf<Stack>(rehydrated.S);
@@ -169,7 +169,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<ArrayList>(rehydrated.L);
             Assert.IsInstanceOf<Queue>(rehydrated.Q);
             Assert.IsInstanceOf<Stack>(rehydrated.S);
@@ -189,7 +189,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<ArrayList>(rehydrated.L);
             Assert.IsInstanceOf<Queue>(rehydrated.Q);
             Assert.IsInstanceOf<Stack>(rehydrated.S);
@@ -216,7 +216,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.CollectionSerializers {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<T>(bson);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
             Assert.IsInstanceOf<ArrayList>(rehydrated.L);
             Assert.IsInstanceOf<Queue>(rehydrated.Q);
             Assert.IsInstanceOf<Stack>(rehydrated.S);

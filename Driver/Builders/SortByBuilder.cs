@@ -77,20 +77,12 @@ namespace MongoDB.Driver.Builders {
         #endregion
 
         #region protected
-        protected override void SerializeDocument(
+        protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
         ) {
-            document.SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
-        }
-
-        protected override void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name
-        ) {
-            document.SerializeElement(bsonWriter, nominalType, name);
+            document.Serialize(bsonWriter, nominalType, serializeIdFirst);
         }
         #endregion
     }

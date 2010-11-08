@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO {
     internal class BsonJsonWriterContext {
         #region private fields
         private BsonJsonWriterContext parentContext;
-        private BsonWriteState writeState;
+        private ContextType contextType;
         private string indentation;
         private bool hasElements = false;
         #endregion
@@ -31,12 +31,12 @@ namespace MongoDB.Bson.IO {
         #region constructors
         internal BsonJsonWriterContext(
             BsonJsonWriterContext parentContext,
-            BsonWriteState writeState,
-            string indentation
+            ContextType contextType,
+            string indentChars
         ) {
             this.parentContext = parentContext;
-            this.writeState = writeState;
-            this.indentation = indentation;
+            this.contextType = contextType;
+            this.indentation = (parentContext == null) ? indentChars : parentContext.Indentation + indentChars;
         }
         #endregion
 
@@ -45,9 +45,8 @@ namespace MongoDB.Bson.IO {
             get { return parentContext; }
         }
 
-        internal BsonWriteState WriteState {
-            get { return writeState; }
-            set { writeState = value; }
+        internal ContextType ContextType {
+            get { return contextType; }
         }
 
         internal string Indentation {

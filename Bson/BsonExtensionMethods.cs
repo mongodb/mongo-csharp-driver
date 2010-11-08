@@ -44,7 +44,7 @@ namespace MongoDB.Bson {
         ) {
             using (var buffer = new BsonBuffer()) {
                 using (var bsonWriter = BsonWriter.Create(buffer, settings)) {
-                    BsonSerializer.SerializeDocument<T>(bsonWriter, obj, serializeIdFirst);
+                    BsonSerializer.Serialize<T>(bsonWriter, obj, serializeIdFirst);
                 }
                 return buffer.ToByteArray();
             }
@@ -77,11 +77,11 @@ namespace MongoDB.Bson {
             // otherwise serialize it and then deserialize it into a new BsonDocument
             using (var buffer = new BsonBuffer()) {
                 using (var bsonWriter = BsonWriter.Create(buffer)) {
-                    BsonSerializer.SerializeDocument(bsonWriter, obj, false);
+                    BsonSerializer.Serialize(bsonWriter, obj, false);
                 }
                 buffer.Position = 0;
                 using (var bsonReader = BsonReader.Create(buffer)) {
-                    var document = BsonSerializer.DeserializeDocument<BsonDocument>(bsonReader);
+                    var document = BsonSerializer.Deserialize<BsonDocument>(bsonReader);
                     return document;
                 }
             }
@@ -107,7 +107,7 @@ namespace MongoDB.Bson {
         ) {
             using (var stringWriter = new StringWriter()) {
                 using (var bsonWriter = BsonWriter.Create(stringWriter, settings)) {
-                    BsonSerializer.SerializeDocument<T>(bsonWriter, obj, serializeIdFirst);
+                    BsonSerializer.Serialize<T>(bsonWriter, obj, serializeIdFirst);
                 }
                 return stringWriter.ToString();
             }

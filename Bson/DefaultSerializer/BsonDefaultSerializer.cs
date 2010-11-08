@@ -46,22 +46,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public static methods
-        public static Type GetActualDocumentType(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            var discriminatorConvention = LookupDiscriminatorConvention(nominalType);
-            return discriminatorConvention.GetActualDocumentType(bsonReader, nominalType);
-        }
-
-        public static Type GetActualElementType(
-            BsonReader bsonReader,
-            Type nominalType
-        ) {
-            var discriminatorConvention = LookupDiscriminatorConvention(nominalType);
-            return discriminatorConvention.GetActualElementType(bsonReader, nominalType);
-        }
-
         public static void Initialize() {
             RegisterSerializers();
         }

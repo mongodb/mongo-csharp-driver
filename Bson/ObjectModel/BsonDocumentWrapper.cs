@@ -63,19 +63,11 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException("CompareTo not supported for BsonDocumentWrapper");
         }
 
-        public object DeserializeDocument(
+        public object Deserialize(
             BsonReader bsonReader,
             Type nominalType
         ) {
-            throw new InvalidOperationException("DeserializeDocument not valid for BsonDocumentWrapper");
-        }
-
-        public object DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
-        ) {
-            throw new InvalidOperationException("DeserializeElement not valid for BsonDocumentWrapper");
+            throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
         }
 
         public bool DocumentHasIdMember() {
@@ -102,20 +94,12 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException("GetHashCode not supported for BsonDocumentWrapper");
         }
 
-        public void SerializeDocument(
+        public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
         ) {
-            BsonSerializer.SerializeDocument(bsonWriter, document, serializeIdFirst);
-        }
-
-        public void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name
-        ) {
-            BsonSerializer.SerializeElement(bsonWriter, name, document);
+            BsonSerializer.Serialize(bsonWriter, document, serializeIdFirst);
         }
 
         public override string ToString() {

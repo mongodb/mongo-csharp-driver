@@ -40,27 +40,26 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            Assert.Throws<InvalidOperationException>(() => BsonSerializer.DeserializeDocument(bson, obj.GetType()));
+            Assert.Throws<InvalidOperationException>(() => BsonSerializer.Deserialize(bson, obj.GetType()));
         }
 
         public class Employee {
             private class DateOfBirthSerializer : BsonBaseSerializer {
-                public override object DeserializeElement(
+                public override object Deserialize(
                     BsonReader bsonReader,
-                    Type nominalType,
-                    out string name
+                    Type nominalType
                 ) {
-                    return DateTime.Parse(bsonReader.ReadString(out name));
+                    return DateTime.Parse(bsonReader.ReadString());
                 }
 
-                public override void SerializeElement(
+                public override void Serialize(
                     BsonWriter bsonWriter,
                     Type nominalType,
-                    string name,
-                    object obj
+                    object value,
+                    bool serializeIdFirst
                 ) {
-                    var dateTime = (DateTime) obj;
-                    bsonWriter.WriteString(name, dateTime.ToString("yyyy-MM-dd"));
+                    var dateTime = (DateTime) value;
+                    bsonWriter.WriteString(dateTime.ToString("yyyy-MM-dd"));
                 }
             }
 
@@ -87,7 +86,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var json = employee.ToJson();
 
             var bson = employee.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<Employee>(bson);
+            var rehydrated = BsonSerializer.Deserialize<Employee>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -102,7 +101,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var json = account.ToJson();
 
             var bson = account.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<Account>(bson);
+            var rehydrated = BsonSerializer.Deserialize<Account>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -132,7 +131,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(expected, json);
 
             var bson = order.ToBson();
-            var rehydrated = BsonSerializer.DeserializeDocument<Order>(bson);
+            var rehydrated = BsonSerializer.Deserialize<Order>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

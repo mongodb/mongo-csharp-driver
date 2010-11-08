@@ -69,54 +69,53 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
             VerifyNominalType(nominalType);
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.String) {
-                var value = bsonReader.ReadString(out name);
+                var value = bsonReader.ReadString();
                 return Enum.Parse(nominalType, value);
             } else {
                 switch (Type.GetTypeCode(Enum.GetUnderlyingType(nominalType))) {
-                    case TypeCode.Byte: return (byte) bsonReader.ReadInt32(out name);
-                    case TypeCode.Int16: return (short) bsonReader.ReadInt32(out name);
-                    case TypeCode.Int32: return bsonReader.ReadInt32(out name);
-                    case TypeCode.Int64: return bsonReader.ReadInt64(out name);
-                    case TypeCode.SByte: return (sbyte) bsonReader.ReadInt32(out name);
-                    case TypeCode.UInt16: return (ushort) bsonReader.ReadInt32(out name);
-                    case TypeCode.UInt32: return (uint) bsonReader.ReadInt32(out name);
-                    case TypeCode.UInt64: return (ulong) bsonReader.ReadInt64(out name);
+                    case TypeCode.Byte: return (byte) bsonReader.ReadInt32();
+                    case TypeCode.Int16: return (short) bsonReader.ReadInt32();
+                    case TypeCode.Int32: return bsonReader.ReadInt32();
+                    case TypeCode.Int64: return bsonReader.ReadInt64();
+                    case TypeCode.SByte: return (sbyte) bsonReader.ReadInt32();
+                    case TypeCode.UInt16: return (ushort) bsonReader.ReadInt32();
+                    case TypeCode.UInt32: return (uint) bsonReader.ReadInt32();
+                    case TypeCode.UInt64: return (ulong) bsonReader.ReadInt64();
                     default: throw new BsonSerializationException("Unrecognized underlying type for enum");
                 }
             }
         }
 
-        public override void SerializeElement(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
             VerifyNominalType(nominalType);
             switch (representation) {
                 case BsonType.Int32:
                     switch (Type.GetTypeCode(Enum.GetUnderlyingType(nominalType))) {
-                        case TypeCode.Byte: bsonWriter.WriteInt32(name, (int) (byte) value); break;
-                        case TypeCode.Int16: bsonWriter.WriteInt32(name, (int) (short) value); break;
-                        case TypeCode.Int32: bsonWriter.WriteInt32(name, (int) value); break;
-                        case TypeCode.Int64: bsonWriter.WriteInt64(name, (long) value); break;
-                        case TypeCode.SByte: bsonWriter.WriteInt32(name, (int) (sbyte) value); break;
-                        case TypeCode.UInt16: bsonWriter.WriteInt32(name, (int) (ushort) value); break;
-                        case TypeCode.UInt32: bsonWriter.WriteInt32(name, (int) (uint) value); break;
-                        case TypeCode.UInt64: bsonWriter.WriteInt64(name, (long) (ulong) value); break;
+                        case TypeCode.Byte: bsonWriter.WriteInt32((int) (byte) value); break;
+                        case TypeCode.Int16: bsonWriter.WriteInt32((int) (short) value); break;
+                        case TypeCode.Int32: bsonWriter.WriteInt32((int) value); break;
+                        case TypeCode.Int64: bsonWriter.WriteInt64((long) value); break;
+                        case TypeCode.SByte: bsonWriter.WriteInt32((int) (sbyte) value); break;
+                        case TypeCode.UInt16: bsonWriter.WriteInt32((int) (ushort) value); break;
+                        case TypeCode.UInt32: bsonWriter.WriteInt32((int) (uint) value); break;
+                        case TypeCode.UInt64: bsonWriter.WriteInt64((long) (ulong) value); break;
                         default: throw new BsonSerializationException("Unrecognized underlying type for enum");
                     }
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(name, value.ToString());
+                    bsonWriter.WriteString( value.ToString());
                     break;
                 default:
                     throw new BsonInternalException("Unexpected EnumRepresentation");

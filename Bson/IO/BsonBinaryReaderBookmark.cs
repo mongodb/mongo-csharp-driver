@@ -15,41 +15,47 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    internal class BsonBinaryWriterContext {
+    public class BsonBinaryReaderBookmark {
         #region private fields
-        private BsonBinaryWriterContext parentContext;
-        private ContextType contextType;
-        private int startPosition;
+        private BsonBinaryReaderContext context;
+        private BsonReadState state;
+        private BsonType currentBsonType;
+        private int position;
         #endregion
 
         #region constructors
-        internal BsonBinaryWriterContext(
-            BsonBinaryWriterContext parentContext,
-            ContextType contextType,
-            int startPosition
+        internal BsonBinaryReaderBookmark(
+            BsonBinaryReaderContext context,
+            BsonReadState state,
+            BsonType currentBsonType,
+            int position
         ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.startPosition = startPosition;
+            this.context = context;
+            this.state = state;
+            this.currentBsonType = currentBsonType;
+            this.position = position;
         }
         #endregion
 
         #region internal properties
-        internal BsonBinaryWriterContext ParentContext {
-            get { return parentContext; }
+        internal BsonBinaryReaderContext Context {
+            get { return context; }
         }
 
-        internal ContextType ContextType {
-            get { return contextType; }
+        internal BsonReadState State {
+            get { return state; }
         }
 
-        internal int StartPosition {
-            get { return startPosition; }
+        internal BsonType CurrentBsonType {
+            get { return currentBsonType; }
+        }
+
+        internal int Position {
+            get { return position; }
         }
         #endregion
     }

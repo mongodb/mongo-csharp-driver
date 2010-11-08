@@ -40,31 +40,17 @@ namespace MongoDB.Driver.Builders {
         #endregion
 
         #region protected methods
-        protected abstract void SerializeDocument(
+        protected abstract void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
         );
-
-        protected abstract void SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name
-        );
         #endregion
 
         #region explicit interface implementations
-        object IBsonSerializable.DeserializeDocument(
+        object IBsonSerializable.Deserialize(
             BsonReader bsonReader,
             Type nominalType
-        ) {
-            throw new InvalidOperationException();
-        }
-
-        object IBsonSerializable.DeserializeElement(
-            BsonReader bsonReader,
-            Type nominalType,
-            out string name
         ) {
             throw new InvalidOperationException();
         }
@@ -83,20 +69,12 @@ namespace MongoDB.Driver.Builders {
             throw new InvalidOperationException();
         }
 
-        void IBsonSerializable.SerializeDocument(
+        void IBsonSerializable.Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
             bool serializeIdFirst
         ) {
-            SerializeDocument(bsonWriter, nominalType, serializeIdFirst);
-        }
-
-        void IBsonSerializable.SerializeElement(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            string name
-        ) {
-            SerializeElement(bsonWriter, nominalType, name);
+            Serialize(bsonWriter, nominalType, serializeIdFirst);
         }
 
         BsonDocument IConvertibleToBsonDocument.ToBsonDocument() {

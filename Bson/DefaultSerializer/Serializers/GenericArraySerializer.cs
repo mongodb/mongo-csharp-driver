@@ -41,74 +41,66 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeElement(
+        public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType,
-            out string name
+            Type nominalType
         ) {
             VerifyNominalType(nominalType);
-            var elementType = nominalType.GetElementType();
-            var deserializeElementHelperDefinition = this.GetType().GetMethod("DeserializeElementHelper");
-            var deserializeElementHelperInfo = deserializeElementHelperDefinition.MakeGenericMethod(elementType);
-            var parameters = new object[] { bsonReader, null };
-            var result = deserializeElementHelperInfo.Invoke(this, parameters);
-            name = (string) parameters[1];
-            return result;
-        }
-
-        public object DeserializeElementHelper<TElement>(
-            BsonReader bsonReader,
-            out string name
-        ) {
-            var bsonType = bsonReader.PeekBsonType();
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull(out name);
+                bsonReader.ReadNull();
                 return null;
             } else {
-                bsonReader.ReadArrayName(out name);
-                bsonReader.ReadStartDocument();
-                List<TElement> value = new List<TElement>();
-                while (bsonReader.HasElement()) {
-                    string elementName; // element names are ignored on input
-                    TElement element = BsonSerializer.DeserializeElement<TElement>(bsonReader, out elementName);
-                    value.Add(element);
-                }
-                bsonReader.ReadEndDocument();
-                return value.ToArray();
+                var elementType = nominalType.GetElementType();
+                var deserializeHelperDefinition = this.GetType().GetMethod("DeserializeHelper");
+                var deserializeHelperInfo = deserializeHelperDefinition.MakeGenericMethod(elementType);
+                var parameters = new object[] { bsonReader };
+                var result = deserializeHelperInfo.Invoke(this, parameters);
+                return result;
             }
         }
 
-        public override void SerializeElement(
+        public object DeserializeHelper<TElement>(
+            BsonReader bsonReader
+        ) {
+            bsonReader.ReadStartArray();
+            List<TElement> value = new List<TElement>();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                bsonReader.SkipName();
+                TElement element = BsonSerializer.Deserialize<TElement>(bsonReader);
+                value.Add(element);
+            }
+            bsonReader.ReadEndArray();
+            return value.ToArray();
+        }
+
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            string name,
-            object value
+            object value,
+            bool serializeIdFirst
         ) {
             VerifyNominalType(nominalType);
-            var elementType = nominalType.GetElementType();
-            var serializeElementHelperDefinition = this.GetType().GetMethod("SerializeElementHelper");
-            var serializeElementHelperInfo = serializeElementHelperDefinition.MakeGenericMethod(elementType);
-            serializeElementHelperInfo.Invoke(this, new object[] { bsonWriter, name, value });
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var elementType = nominalType.GetElementType();
+                var serializeHelperDefinition = this.GetType().GetMethod("SerializeHelper");
+                var serializeHelperInfo = serializeHelperDefinition.MakeGenericMethod(elementType);
+                serializeHelperInfo.Invoke(this, new object[] { bsonWriter, value });
+            }
         }
 
-        public void SerializeElementHelper<T>(
+        public void SerializeHelper<TElement>(
             BsonWriter bsonWriter,
-            string name,
-            object value
+            TElement[] value
         ) {
-            if (value == null) {
-                bsonWriter.WriteNull(name);
-            } else {
-                var array = (T[]) value;
-                bsonWriter.WriteArrayName(name);
-                bsonWriter.WriteStartDocument();
-                for (int index = 0; index < array.Length; index++) {
-                    var elementName = index.ToString();
-                    var elementValue = array[index];
-                    BsonSerializer.SerializeElement(bsonWriter, elementName, elementValue);
-                }
-                bsonWriter.WriteEndDocument();
+            bsonWriter.WriteStartArray();
+            for (int index = 0; index < value.Length; index++) {
+                bsonWriter.WriteName(index.ToString());
+                BsonSerializer.Serialize(bsonWriter, typeof(TElement), value[index]);
             }
+            bsonWriter.WriteEndArray();
         }
         #endregion
 

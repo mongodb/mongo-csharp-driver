@@ -47,7 +47,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object DeserializeDocument(
+        public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType
         ) {
@@ -56,43 +56,51 @@ namespace MongoDB.Bson.DefaultSerializer {
                 throw new InvalidOperationException(message);
             }
 
-            // if it's not an empty document it should have a discriminator
-            bsonReader.PushBookmark();
-            bsonReader.ReadStartDocument();
-            Type actualType = nominalType;
-            if (bsonReader.HasElement()) {
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
-                actualType = discriminatorConvention.GetActualDocumentType(bsonReader, nominalType);
-                if (actualType == nominalType) {
-                    throw new BsonSerializationException("Unable to determine actual type of document to deserialize");
-                }
-            }
-            bsonReader.PopBookmark();
-
-            if (actualType == nominalType) {
+            var bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else if (bsonType == BsonType.Document) {
+                var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
-                bsonReader.ReadEndDocument();
-                return new object();
+                switch (bsonReader.ReadBsonType()) {
+                    case BsonType.EndOfDocument:
+                        bsonReader.ReadEndDocument();
+                        return new object();
+                    default:
+                        bsonReader.ReturnToBookmark(bookmark);
+                        var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+                        var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
+                        if (actualType == typeof(object)) {
+                            throw new BsonSerializationException("Unable to determine actual type of document to deserialize");
+                        }
+                        var serializer = BsonSerializer.LookupSerializer(actualType);
+                        return serializer.Deserialize(bsonReader, nominalType);
+                }
             } else {
-                var serializer = BsonSerializer.LookupSerializer(actualType);
-                return serializer.DeserializeDocument(bsonReader, nominalType);
+                var message = string.Format("Cannot deserialize an object from BsonType: {0}", bsonType);
+                throw new FileFormatException(message);
             }
         }
 
-        public override void SerializeDocument(
+        public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            object document,
+            object value,
             bool serializeIdFirst
         ) {
-            var actualType = document.GetType();
-            if (actualType != typeof(object)) {
-                var message = string.Format("ObjectSerializer called for type: {0}", actualType.FullName);
-                throw new InvalidOperationException(message);
-            }
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var actualType = value.GetType();
+                if (actualType != typeof(object)) {
+                    var message = string.Format("ObjectSerializer called for type: {0}", actualType.FullName);
+                    throw new InvalidOperationException(message);
+                }
 
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteEndDocument();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteEndDocument();
+            }
         }
         #endregion
     }
