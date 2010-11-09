@@ -295,6 +295,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMap;
         }
 
+        public void IgnoreField(
+            string fieldName
+        ) {
+            IgnoreMember(fieldName);
+        }
+
+        public void IgnoreMember(
+           string memberName
+        ) {
+            var memberMap = declaredMemberMaps.Where(m => m.MemberName == memberName).FirstOrDefault(); // don't call GetMemberMap!
+            declaredMemberMaps.Remove(memberMap);
+        }
+
+        public void IgnoreProperty(
+            string propertyName
+        ) {
+            IgnoreMember(propertyName);
+        }
+
         public BsonMemberMap MapField(
             string fieldName
         ) {
@@ -355,23 +374,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
-        public BsonClassMap SetIgnoreExtraElements(
-            bool ignoreExtraElements
-        ) {
-            this.ignoreExtraElements = ignoreExtraElements;
-            return this;
-        }
-
-        public BsonClassMap SetIsRootClass(
-            bool isRootClass
-        ) {
-            this.isRootClass = isRootClass;
-            return this;
-        }
-        #endregion
-
-        #region protected methods
-        protected void SetIdMember(
+        public void SetIdMember(
             BsonMemberMap memberMap
         ) {
             if (idMemberMap != null) {
@@ -384,6 +387,20 @@ namespace MongoDB.Bson.DefaultSerializer {
 
             memberMap.SetElementName("_id");
             idMemberMap = memberMap;
+        }
+
+        public BsonClassMap SetIgnoreExtraElements(
+            bool ignoreExtraElements
+        ) {
+            this.ignoreExtraElements = ignoreExtraElements;
+            return this;
+        }
+
+        public BsonClassMap SetIsRootClass(
+            bool isRootClass
+        ) {
+            this.isRootClass = isRootClass;
+            return this;
         }
         #endregion
 
@@ -623,6 +640,25 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             var memberName = GetMemberNameFromLambda(memberLambda);
             return GetMemberMap(memberName);
+        }
+
+        public void IgnoreField<TMember>(
+            Expression<Func<TClass, TMember>> fieldLambda
+        ) {
+            IgnoreMember(fieldLambda);
+        }
+
+        public void IgnoreMember<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
+        ) {
+            var memberName = GetMemberNameFromLambda(memberLambda);
+            IgnoreMember(memberName);
+        }
+
+        public void IgnoreProperty<TMember>(
+            Expression<Func<TClass, TMember>> propertyLambda
+        ) {
+            IgnoreMember(propertyLambda);
         }
 
         public BsonMemberMap MapField<TMember>(
