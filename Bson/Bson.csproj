@@ -81,6 +81,7 @@
     <Compile Include="DefaultSerializer\Conventions\BsonIdGeneratorConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\DefaultValueConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\DiscriminatorConventions.cs" />
+    <Compile Include="DefaultSerializer\Conventions\InferTypeDiscriminatorConvention.cs" />
     <Compile Include="DefaultSerializer\Conventions\MemberFinderConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\SerializeDefaultValueConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IgnoreIfNullConventions.cs" />
