@@ -21,6 +21,17 @@ using System.Text;
 
 namespace MongoDB.Driver {
     public static class MongoDefaults {
+
+        static MongoDefaults() {
+
+            // Mono doesn't support 4MB buffers (tested on Mac, unverified on Linux or Windows)
+            Type t = Type.GetType ("Mono.Runtime");
+            if (t != null) {
+                TcpReceiveBufferSize = 2 * 1024 * 1024;
+                TcpSendBufferSize = 2 * 1024 * 1024;
+            }
+        }
+
         #region public static fields
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
         private static int maxMessageLength = 16 * 1024 * 1204; // 16MB
