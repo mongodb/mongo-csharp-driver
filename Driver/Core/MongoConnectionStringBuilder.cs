@@ -277,8 +277,8 @@ namespace MongoDB.Driver {
             this[keyword] = value;
         }
 
-        public MongoConnectionSettings ToConnectionSettings() {
-            return new MongoConnectionSettings {
+        public MongoUrl ToMongoUrl() {
+            var builder = new MongoUrlBuilder {
                 Servers = Servers,
                 DatabaseName = DatabaseName,
                 Credentials = MongoCredentials.Create(Username, Password),
@@ -287,7 +287,7 @@ namespace MongoDB.Driver {
                 SafeMode = SafeMode,
                 SlaveOk = SlaveOk
             };
-            throw new NotImplementedException();
+            return builder.ToMongoUrl();
         }
         #endregion
 

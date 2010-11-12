@@ -26,7 +26,7 @@ namespace MongoDB.Driver {
     public class MongoServer {
         #region private static fields
         private static object staticLock = new object();
-        private static List<MongoServer> servers = new List<MongoServer>();
+        private static Dictionary<MongoUrl, MongoServer> servers = new Dictionary<MongoUrl, MongoServer>();
         #endregion
 
         #region private fields
@@ -40,20 +40,22 @@ namespace MongoDB.Driver {
         private MongoConnectionPool connectionPool;
         private MongoCredentials adminCredentials;
         private MongoCredentials defaultCredentials;
+        private MongoUrl url;
         #endregion
 
         #region constructors
         public MongoServer(
-            MongoConnectionSettings settings
+            MongoUrl url
         ) {
-            this.seedList = settings.Servers;
+            this.url = url;
+            this.seedList = url.Servers;
 
             // credentials (if any) are for server only if no DatabaseName was provided
-            if (settings.Credentials != null && settings.DatabaseName == null) {
-                if (settings.Credentials.Admin) {
-                    this.adminCredentials = settings.Credentials;
+            if (url.Credentials != null && url.DatabaseName == null) {
+                if (url.Credentials.Admin) {
+                    this.adminCredentials = url.Credentials;
                 } else {
-                    this.defaultCredentials = settings.Credentials;
+                    this.defaultCredentials = url.Credentials;
                 }
             }
         }
@@ -65,49 +67,40 @@ namespace MongoDB.Driver {
         }
 
         public static MongoServer Create(
-            MongoConnectionSettings settings
-        ) {
-            lock (staticLock) {
-                foreach (MongoServer server in servers) {
-                    if (server.seedList.SequenceEqual(settings.Servers)) {
-                        return server;
-                    }
-                }
-
-                MongoServer newServer = new MongoServer(settings);
-                servers.Add(newServer);
-                return newServer;
-            }
-        }
-
-        public static MongoServer Create(
             MongoConnectionStringBuilder builder
         ) {
-            return Create(builder.ToConnectionSettings());
+            return Create(builder.ToMongoUrl());
         }
 
         public static MongoServer Create(
             MongoUrl url
         ) {
-            return Create(url.ToConnectionSettings());
+            lock (staticLock) {
+                MongoServer server;
+                if (!servers.TryGetValue(url, out server)) {
+                    server = new MongoServer(url);
+                    servers.Add(url, server);
+                }
+                return server;
+            }
         }
 
         public static MongoServer Create(
             string connectionString
         ) {
             if (connectionString.StartsWith("mongodb://")) {
-                var url = new MongoUrl(connectionString);
+                var url = MongoUrl.Create(connectionString);
                 return Create(url);
             } else {
                 MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder);
+                return Create(builder.ToMongoUrl());
             }
         }
 
         public static MongoServer Create(
             Uri uri
         ) {
-            return Create(new MongoUrl(uri.ToString()));
+            return Create(MongoUrl.Create(uri.ToString()));
         }
         #endregion
 

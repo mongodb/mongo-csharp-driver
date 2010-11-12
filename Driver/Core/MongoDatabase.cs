@@ -57,32 +57,26 @@ namespace MongoDB.Driver {
 
         #region factory methods
         public static MongoDatabase Create(
-            MongoConnectionSettings settings
-        ) {
-            if (settings.DatabaseName == null) {
-                throw new ArgumentException("Connection string must have database name");
-            }
-            MongoServer server = MongoServer.Create(settings);
-            return server.GetDatabase(settings.DatabaseName, settings.Credentials);
-        }
-
-        public static MongoDatabase Create(
             MongoConnectionStringBuilder builder
         ) {
-            return Create(builder.ToConnectionSettings());
+            return Create(builder.ToMongoUrl());
         }
 
         public static MongoDatabase Create(
             MongoUrl url
         ) {
-            return Create(url.ToConnectionSettings());
+            if (url.DatabaseName == null) {
+                throw new ArgumentException("Connection string must have database name");
+            }
+            MongoServer server = MongoServer.Create(url);
+            return server.GetDatabase(url.DatabaseName, url.Credentials);
         }
 
         public static MongoDatabase Create(
             string connectionString
         ) {
             if (connectionString.StartsWith("mongodb://")) {
-                MongoUrl url = new MongoUrl(connectionString);
+                MongoUrl url = MongoUrl.Create(connectionString);
                 return Create(url);
             } else {
                 MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
@@ -93,7 +87,7 @@ namespace MongoDB.Driver {
         public static MongoDatabase Create(
             Uri uri
         ) {
-            return Create(new MongoUrl(uri.ToString()));
+            return Create(MongoUrl.Create(uri.ToString()));
         }
         #endregion
 
