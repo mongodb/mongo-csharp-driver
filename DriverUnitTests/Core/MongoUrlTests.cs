@@ -35,7 +35,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -51,7 +51,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -67,7 +67,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -85,7 +85,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -103,7 +103,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -120,7 +120,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -139,7 +139,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -158,7 +158,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual("dbname", url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -174,7 +174,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -190,7 +190,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual("mongodb://localhost", url.ToString()); // connect=direct dropped
         }
@@ -206,7 +206,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -222,7 +222,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual("name", url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual("mongodb://localhost/?connect=replicaset;replicaset=name", url.ToString()); // connect=replicaset added
         }
@@ -382,7 +382,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual("mongodb://localhost", url.ToString()); // slaveok=false dropped
         }
@@ -398,7 +398,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(null, url.SafeMode);
+            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(true, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }

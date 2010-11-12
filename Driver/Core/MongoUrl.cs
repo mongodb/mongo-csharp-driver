@@ -47,42 +47,18 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
-        public MongoUrl() {
-        }
-
         public MongoUrl(
             string url
         ) {
             var builder = new MongoUrlBuilder(url);
-            this.url = builder.ToString();
+            this.url = builder.ToString(); // keep canonical form
             this.credentials = builder.Credentials;
             this.servers = builder.Servers;
             this.databaseName = builder.DatabaseName;
             this.connectionMode = builder.ConnectionMode;
             this.replicaSetName = builder.ReplicaSetName;
-            this.safeMode = builder.SafeMode;
+            this.safeMode = builder.SafeMode ?? SafeMode.False; // never null
             this.slaveOk = builder.SlaveOk;
-        }
-
-        // called by trusted code that has already parsed the url
-        internal MongoUrl(
-            string url, // assumed to be in canonical form and agree with the remaining parameters
-            MongoCredentials credentials,
-            IEnumerable<MongoServerAddress> servers,
-            string databaseName,
-            ConnectionMode connectionMode,
-            string replicaSetName,
-            SafeMode safeMode,
-            bool slaveOk
-        ) {
-            this.url = url;
-            this.credentials = credentials;
-            this.servers = servers;
-            this.databaseName = databaseName;
-            this.connectionMode = connectionMode;
-            this.replicaSetName = replicaSetName;
-            this.safeMode = safeMode;
-            this.slaveOk = slaveOk;
         }
         #endregion
 

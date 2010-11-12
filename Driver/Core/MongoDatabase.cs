@@ -277,6 +277,7 @@ namespace MongoDB.Driver {
         }
 
         public BsonDocument RenameCollection(
+            MongoCredentials adminCredentials,
             string oldCollectionName,
             string newCollectionName
         ) {
@@ -284,7 +285,14 @@ namespace MongoDB.Driver {
                 { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
                 { "to", string.Format("{0}.{1}", name, newCollectionName) }
             };
-            return server.RunAdminCommand(command);
+            return server.RunAdminCommand(adminCredentials, command);
+        }
+
+        public BsonDocument RenameCollection(
+            string oldCollectionName,
+            string newCollectionName
+        ) {
+            return RenameCollection(server.AdminCredentials, oldCollectionName, newCollectionName);
         }
 
         public void RequestDone() {

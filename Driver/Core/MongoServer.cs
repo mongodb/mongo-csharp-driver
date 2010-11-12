@@ -32,10 +32,7 @@ namespace MongoDB.Driver {
         #region private fields
         private object serverLock = new object();
         private MongoServerState state = MongoServerState.Disconnected;
-        private IEnumerable<MongoServerAddress> seedList;
-        private bool slaveOk;
         private IEnumerable<MongoServerAddress> replicaSet;
-        private SafeMode safeMode = SafeMode.False;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
         private MongoConnectionPool connectionPool;
         private MongoCredentials adminCredentials;
@@ -48,7 +45,6 @@ namespace MongoDB.Driver {
             MongoUrl url
         ) {
             this.url = url;
-            this.seedList = url.Servers;
 
             // credentials (if any) are for server only if no DatabaseName was provided
             if (url.Credentials != null && url.DatabaseName == null) {
@@ -107,7 +103,6 @@ namespace MongoDB.Driver {
         #region public properties
         public MongoCredentials AdminCredentials {
             get { return adminCredentials; }
-            set { adminCredentials = value; }
         }
 
         public MongoDatabase AdminDatabase {
@@ -116,7 +111,6 @@ namespace MongoDB.Driver {
 
         public MongoCredentials DefaultCredentials {
             get { return defaultCredentials; }
-            set { defaultCredentials = value; }
         }
 
         public IEnumerable<MongoServerAddress> ReplicaSet {
@@ -124,26 +118,23 @@ namespace MongoDB.Driver {
         }
 
         public SafeMode SafeMode {
-            get { return safeMode; }
-            set { safeMode = value; }
+            get { return url.SafeMode; }
         }
 
         public IEnumerable<MongoServerAddress> SeedList {
-            get { return seedList; }
+            get { return url.Servers; }
         }
 
         public bool SlaveOk {
-            get { return slaveOk; }
-            set {
-                if (slaveOk != value) {
-                    slaveOk = value;
-                    Disconnect(); // Connect will be called automatically the next time an operation is performed
-                }
-            }
+            get { return url.SlaveOk; }
         }
 
         public MongoServerState State {
             get { return state; }
+        }
+
+        public MongoUrl Url {
+            get { return url; }
         }
         #endregion
 
@@ -180,7 +171,8 @@ namespace MongoDB.Driver {
                 if (state != MongoServerState.Connected) {
                     state = MongoServerState.Connecting;
                     try {
-                        var results = FindServer(timeout);
+                        // TODO: implement ConnectDirectly
+                        var results = ConnectToReplicaSet(timeout);
 
                         List<MongoServerAddress> replicaSet = null;
                         if (results.CommandResult.Contains("hosts")) {
@@ -285,8 +277,15 @@ namespace MongoDB.Driver {
         }
 
         public IEnumerable<string> GetDatabaseNames() {
+            return GetDatabaseNames(adminCredentials);
+        }
+
+        public IEnumerable<string> GetDatabaseNames(
+            MongoCredentials adminCredentials
+        ) {
+            var adminDatabase = GetDatabase("admin", adminCredentials);
+            var result = adminDatabase.RunCommand("listDatabases");
             var databaseNames = new List<string>();
-            var result = AdminDatabase.RunCommand("listDatabases");
             foreach (BsonDocument database in result["databases"].AsBsonArray.Values) {
                 string databaseName = database["name"].AsString;
                 databaseNames.Add(databaseName);
@@ -303,21 +302,37 @@ namespace MongoDB.Driver {
         }
 
         public BsonDocument RunAdminCommand<TCommand>(
+            MongoCredentials adminCredentials,
             TCommand command
         ) {
-            return AdminDatabase.RunCommand(command);
+            var adminDatabase = GetDatabase("admin", adminCredentials);
+            return adminDatabase.RunCommand(command);
+        }
+
+        public BsonDocument RunAdminCommand<TCommand>(
+            TCommand command
+        ) {
+            return RunAdminCommand(adminCredentials , command);
+        }
+
+        public BsonDocument RunAdminCommand(
+            MongoCredentials adminCredentials,
+            string commandName
+        ) {
+            var adminDatabase = GetDatabase("admin", adminCredentials);
+            var command = new BsonDocument(commandName, true);
+            return adminDatabase.RunCommand(command);
         }
 
         public BsonDocument RunAdminCommand(
             string commandName
         ) {
-            var command = new BsonDocument(commandName, true);
-            return AdminDatabase.RunCommand(command);
+            return RunAdminCommand(adminCredentials, commandName);
         }
         #endregion
 
         #region private methods
-        private QueryServerResults FindServer(
+        private QueryServerResults ConnectToReplicaSet(
             TimeSpan timeout
         ) {
             DateTime deadline = DateTime.UtcNow + timeout;
@@ -326,7 +341,7 @@ namespace MongoDB.Driver {
             var resultsQueue = new BlockingQueue<QueryServerResults>();
             var queriedServers = new HashSet<MongoServerAddress>();
             int pendingReplies = 0;
-            foreach (var address in seedList) {
+            foreach (var address in url.Servers) {
                 var args = new QueryServerParameters {
                     Address = address,
                     ResultsQueue = resultsQueue
@@ -350,7 +365,7 @@ namespace MongoDB.Driver {
                 }
 
                 var commandResult = results.CommandResult;
-                if (results.IsPrimary || slaveOk) {
+                if (results.IsPrimary || url.SlaveOk) {
                     return results;
                 } else {
                     results.Connection.Close();

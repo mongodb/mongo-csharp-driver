@@ -34,7 +34,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(SafeMode.False, server.SafeMode);
             Assert.AreEqual(false, server.SlaveOk);
             Assert.AreEqual(MongoServerState.Disconnected, server.State);
-            Assert.IsTrue(expectedSeedList.SequenceEqual(server.SeedList));
+            Assert.IsTrue(expectedSeedList.SequenceEqual(server.Url.Servers));
         }
     }
 }

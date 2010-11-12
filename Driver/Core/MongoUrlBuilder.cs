@@ -231,6 +231,7 @@ namespace MongoDB.Driver {
             return MongoUrl.Create(ToString());
         }
 
+        // returns URL in canonical form
         public override string ToString() {
             StringBuilder url = new StringBuilder();
             url.Append("mongodb://");
