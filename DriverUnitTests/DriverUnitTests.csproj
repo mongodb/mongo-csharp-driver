@@ -76,6 +76,7 @@
     <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
     <Compile Include="Builders\MapReduceOptionsBuilderTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
+    <Compile Include="Core\MongoConnectionStringBuilderTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />
     <Compile Include="Core\MongoUrlTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

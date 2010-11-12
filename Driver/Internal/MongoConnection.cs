@@ -303,8 +303,9 @@ namespace MongoDB.Driver.Internal {
                 if (safeMode.Enabled) {
                     var command = new BsonDocument {
                         { "getlasterror", 1 }, // use all lowercase for backward compatibility
-                        { "w", safeMode.Replications, safeMode.Replications > 1 },
-                        { "wtimeout", (int) safeMode.Timeout.TotalMilliseconds, safeMode.Replications > 1 && safeMode.Timeout != TimeSpan.Zero }
+                        { "fsync", true, safeMode.FSync },
+                        { "w", safeMode.W, safeMode.W > 1 },
+                        { "wtimeout", (int) safeMode.WTimeout.TotalMilliseconds, safeMode.W > 1 && safeMode.WTimeout != TimeSpan.Zero }
                     };
                     using (
                         var getLastErrorMessage = new MongoQueryMessage<BsonDocument>(

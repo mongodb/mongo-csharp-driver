@@ -224,6 +224,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        public BsonMemberMap SetRepresentation(
+            BsonType representation
+        ) {
+            this.serializationOptions = representation;
+            return this;
+        }
+
         public BsonMemberMap SetSerializationOptions(
             object serializationOptions
         ) {

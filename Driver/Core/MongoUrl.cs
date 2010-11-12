@@ -25,10 +25,14 @@ namespace MongoDB.Driver {
     [Serializable]
     public class MongoUrl {
         #region private fields
-        private IEnumerable<MongoServerAddress> seedList;
+        private ConnectionMode connectionMode;
         private string databaseName;
-        private string username;
         private string password;
+        private string replicaSetName;
+        private SafeMode safeMode;
+        private IEnumerable<MongoServerAddress> servers;
+        private bool slaveOk;
+        private string username;
         #endregion
 
         #region constructors
@@ -36,21 +40,16 @@ namespace MongoDB.Driver {
         }
 
         public MongoUrl(
-            string urlString
+            string connectionString
         ) {
-            Parse(urlString);
+            Parse(connectionString);
         }
         #endregion
 
         #region public properties
-        public MongoServerAddress Address {
-            get { return seedList.First(); }
-            set { seedList = new MongoServerAddress[] { value }; }
-        }
-
-        public IEnumerable<MongoServerAddress> SeedList {
-            get { return seedList; }
-            set { seedList = value; }
+        public ConnectionMode ConnectionMode {
+            get { return connectionMode; }
+            set { connectionMode = value; }
         }
 
         public string DatabaseName {
@@ -58,47 +57,173 @@ namespace MongoDB.Driver {
             set { databaseName = value; }
         }
 
-        public string Username {
-            get { return username; }
-            set { username = value; }
-        }
-
         public string Password {
             get { return password; }
             set { password = value; }
+        }
+
+        public string ReplicaSetName {
+            get { return replicaSetName; }
+            set { replicaSetName = value; }
+        }
+
+        public SafeMode SafeMode {
+            get { return safeMode; }
+            set { safeMode = value; }
+        }
+
+        public MongoServerAddress Server {
+            get { return (servers == null) ? null : servers.Single(); }
+            set { servers = new MongoServerAddress[] { value }; }
+        }
+
+        public IEnumerable<MongoServerAddress> Servers {
+            get { return servers; }
+            set { servers = value; }
+        }
+
+        public bool SlaveOk {
+            get { return slaveOk; }
+            set { slaveOk = value; }
+        }
+
+        public string Username {
+            get { return username; }
+            set { username = value; }
         }
         #endregion
 
         #region public methods
         public void Parse(
-            string urlString
+            string connectionString
         ) {
             const string pattern =
                 @"^mongodb://" +
                 @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
-                @"(?<hosts>[^:,/]+(:\d+)?(,[^:,/]+(:\d+)?)*)" +
-                @"(/(?<database>.+)?)?$";
-            Match match = Regex.Match(urlString, pattern);
+                @"(?<servers>[^:,/]+(:\d+)?(,[^:,/]+(:\d+)?)*)" +
+                @"(/(?<database>[^?]+)?(\?(?<query>.*))?)?$";
+            Match match = Regex.Match(connectionString, pattern);
             if (match.Success) {
                 string username = match.Groups["username"].Value;
                 string password = match.Groups["password"].Value;
-                string hosts = match.Groups["hosts"].Value;
+                string servers = match.Groups["servers"].Value;
                 string databaseName = match.Groups["database"].Value;
+                string query = match.Groups["query"].Value;
 
-                List<MongoServerAddress> seedList = new List<MongoServerAddress>();
-                foreach (string host in hosts.Split(',')) {
+                List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+                foreach (string server in servers.Split(',')) {
                     MongoServerAddress address;
-                    if (MongoServerAddress.TryParse(host, out address)) {
-                        seedList.Add(address);
+                    if (MongoServerAddress.TryParse(server, out address)) {
+                        addresses.Add(address);
                     } else {
                         throw new ArgumentException("Invalid connection string");
                     }
                 }
 
-                this.seedList = seedList;
-                this.databaseName = databaseName != "" ? databaseName : null;
-                this.username = username != "" ? username : null;
-                this.password = password != "" ? password : null;
+                if (addresses.Count == 1) {
+                    this.connectionMode = ConnectionMode.Direct;
+                } else {
+                    this.connectionMode = ConnectionMode.ReplicaSet;
+                }
+
+                if (!string.IsNullOrEmpty(query)) {
+                    var setSafeMode = false;
+                    var safe = false;
+                    var w = 0;
+                    var wtimeout = 0;
+                    var fsync = false;
+
+                    foreach (var pair in query.Split('&', ';')) {
+                        var parts = pair.Split('=');
+                        if (parts.Length != 2) {
+                            throw new ArgumentException("Invalid connection string");
+                        }
+                        var name = parts[0];
+                        var value = parts[1];
+
+                        switch (name) {
+                            case "connect":
+                                switch (value) {
+                                    case "direct":
+                                        this.connectionMode = ConnectionMode.Direct;
+                                        this.replicaSetName = null;
+                                        break;
+                                    case "replicaset":
+                                        this.connectionMode = ConnectionMode.ReplicaSet;
+                                        break;
+                                    default:
+                                        throw new ArgumentException("Invalid connection string");
+                                }
+                                break;
+                            case "fsync":
+                                setSafeMode = true;
+                                switch (value) {
+                                    case "false":
+                                        fsync = false;
+                                        break;
+                                    case "true":
+                                        fsync = true;
+                                        break;
+                                    default:
+                                        throw new ArgumentException("Invalid connection string");
+                                }
+                                safe = true;
+                                break;
+                            case "replicaset":
+                                this.replicaSetName = value;
+                                this.connectionMode = ConnectionMode.ReplicaSet;
+                                break;
+                            case "safe":
+                                setSafeMode = true;
+                                switch (value) {
+                                    case "false":
+                                        safe = false;
+                                        break;
+                                    case "true":
+                                        safe = true;
+                                        break;
+                                    default:
+                                        throw new ArgumentException("Invalid connection string");
+                                }
+                                break;
+                            case "slaveok":
+                                switch (value) {
+                                    case "false":
+                                        this.slaveOk = false;
+                                        break;
+                                    case "true":
+                                        this.slaveOk = true;
+                                        break;
+                                    default:
+                                        throw new ArgumentException("Invalid connection string");
+                                }
+                                break;
+                            case "w":
+                                setSafeMode = true;
+                                if (!int.TryParse(value, out w)) {
+                                    throw new ArgumentException("Invalid connection string");
+                                }
+                                safe = true;
+                                break;
+                            case "wtimeout":
+                                setSafeMode = true;
+                                if (!int.TryParse(value, out wtimeout)) {
+                                    throw new ArgumentException("Invalid connection string");
+                                }
+                                safe = true;
+                                break;
+                        }
+                    }
+
+                    if (setSafeMode) {
+                        this.safeMode = SafeMode.Create(safe, fsync, w, TimeSpan.FromMilliseconds(wtimeout));
+                    }
+                }
+
+                this.servers = addresses;
+                this.databaseName = (databaseName != "") ? databaseName : null;
+                this.username = (username != "") ? username : null;
+                this.password = (password != "") ? password : null;
             } else {
                 throw new ArgumentException("Invalid connection string");
             }
@@ -106,36 +231,70 @@ namespace MongoDB.Driver {
 
         public MongoConnectionSettings ToConnectionSettings() {
             return new MongoConnectionSettings {
-                Credentials = MongoCredentials.Create(username, password),
-                SeedList = seedList,
-                DatabaseName = databaseName
+                Servers = Servers,
+                DatabaseName = DatabaseName,
+                Credentials = MongoCredentials.Create(Username, Password),
+                ConnectionMode = ConnectionMode,
+                ReplicaSetName = ReplicaSetName,
+                SafeMode = SafeMode,
+                SlaveOk = SlaveOk
             };
         }
 
         public override string ToString() {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("mongodb://");
+            StringBuilder url = new StringBuilder();
+            url.Append("mongodb://");
             if (username != null && password != null) {
-                sb.Append(username);
-                sb.Append(":");
-                sb.Append(password);
-                sb.Append("@");
+                url.AppendFormat("{0}:{1}@", username, password);
             }
-            bool first = true;
-            foreach (MongoServerAddress address in seedList) {
-                if (!first) { sb.Append(","); }
-                sb.Append(address.Host);
-                if (address.Port != 27017) {
-                    sb.Append(":");
-                    sb.Append(address.Port);
+            bool firstServer = true;
+            foreach (MongoServerAddress server in servers) {
+                if (!firstServer) { url.Append(","); }
+                if (server.Port == 27017) {
+                    url.Append(server.Host);
+                } else {
+                    url.AppendFormat("{0}:{1}", server.Host, server.Port);
                 }
-                first = false;
+                firstServer = false;
             }
             if (databaseName != null) {
-                sb.Append("/");
-                sb.Append(databaseName);
+                url.Append("/");
+                url.Append(databaseName);
             }
-            return sb.ToString();
+            var query = new StringBuilder();
+            if (
+                connectionMode == ConnectionMode.Direct && servers.Count() != 1 ||
+                connectionMode == Driver.ConnectionMode.ReplicaSet && servers.Count() == 1
+            ) {
+                query.AppendFormat("connect={0};", connectionMode.ToString().ToLower());
+            }
+            if (!string.IsNullOrEmpty(replicaSetName)) {
+                query.AppendFormat("replicaset={0};", replicaSetName);
+            }
+            if (safeMode != null && safeMode.Enabled) {
+                query.AppendFormat("safe=true;");
+                if (safeMode.FSync) {
+                    query.AppendFormat("fsync={0};", (safeMode.FSync) ? "true" : "false");
+                }
+                if (safeMode.W != 0) {
+                    query.AppendFormat("w={0};", safeMode.W);
+                    if (safeMode.WTimeout != TimeSpan.Zero) {
+                        query.AppendFormat("wtimeout={0};", (int) safeMode.WTimeout.TotalMilliseconds);
+                    }
+                }
+            }
+            if (slaveOk) {
+                query.AppendFormat("slaveok={0};", (slaveOk) ? "true" : "false");
+            }
+            if (query.Length != 0) {
+                query.Length = query.Length - 1; // remove trailing ";"
+                if (databaseName == null) {
+                    url.Append("/");
+                }
+                url.Append("?");
+                url.Append(query.ToString());
+            }
+            return url.ToString();
         }
         #endregion
     }

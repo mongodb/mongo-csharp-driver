@@ -19,12 +19,21 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    public enum ConnectionMode {
+        Direct,
+        ReplicaSet
+    }
+
     [Serializable]
     public class MongoConnectionSettings {
         #region private fields
+        private ConnectionMode connectionMode;
         private MongoCredentials credentials;
         private string databaseName;
-        private IEnumerable<MongoServerAddress> seedList;
+        private string replicaSetName;
+        private SafeMode safeMode;
+        private IEnumerable<MongoServerAddress> servers;
+        private bool slaveOk;
         #endregion
 
         #region constructors
@@ -33,9 +42,9 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
-        public MongoServerAddress Address {
-            get { return seedList.First(); }
-            set { seedList = new MongoServerAddress[] { value }; }
+        public ConnectionMode ConnectionMode {
+            get { return connectionMode; }
+            set { connectionMode = value; }
         }
 
         public MongoCredentials Credentials {
@@ -48,9 +57,29 @@ namespace MongoDB.Driver {
             set { databaseName = value; }
         }
 
-        public IEnumerable<MongoServerAddress> SeedList {
-            get { return seedList; }
-            set { seedList = value; }
+        public string ReplicaSetName {
+            get { return replicaSetName; }
+            set { replicaSetName = value; }
+        }
+
+        public SafeMode SafeMode {
+            get { return safeMode; }
+            set { safeMode = value; }
+        }
+
+        public MongoServerAddress Server {
+            get { return (servers == null) ? null : servers.Single(); }
+            set { servers = new MongoServerAddress[] { value }; }
+        }
+
+        public IEnumerable<MongoServerAddress> Servers {
+            get { return servers; }
+            set { servers = value; }
+        }
+
+        public bool SlaveOk {
+            get { return slaveOk; }
+            set { slaveOk = value; }
         }
         #endregion
     }

@@ -46,7 +46,7 @@ namespace MongoDB.Driver {
         public MongoServer(
             MongoConnectionSettings settings
         ) {
-            this.seedList = settings.SeedList;
+            this.seedList = settings.Servers;
 
             // credentials (if any) are for server only if no DatabaseName was provided
             if (settings.Credentials != null && settings.DatabaseName == null) {
@@ -69,7 +69,7 @@ namespace MongoDB.Driver {
         ) {
             lock (staticLock) {
                 foreach (MongoServer server in servers) {
-                    if (server.seedList.SequenceEqual(settings.SeedList)) {
+                    if (server.seedList.SequenceEqual(settings.Servers)) {
                         return server;
                     }
                 }
