@@ -37,21 +37,15 @@ namespace MongoDB.Driver {
         #region constructors
         public MongoDatabase(
             MongoServer server,
-            string name
-        )
-            : this(server, name, null) {
-        }
-
-        public MongoDatabase(
-            MongoServer server,
             string name,
-            MongoCredentials credentials
+            MongoCredentials credentials,
+            SafeMode safeMode
         ) {
             ValidateDatabaseName(name);
             this.server = server;
             this.name = name;
             this.credentials = credentials;
-            this.safeMode = server.SafeMode;
+            this.safeMode = safeMode;
         }
         #endregion
 
@@ -117,7 +111,6 @@ namespace MongoDB.Driver {
 
         public SafeMode SafeMode {
             get { return safeMode; }
-            set { safeMode = value; }
         }
 
         public MongoServer Server {
@@ -211,24 +204,31 @@ namespace MongoDB.Driver {
             return collection.FindOneAs<TDocument>(query);
         }
 
-        public MongoCollection<BsonDocument> GetCollection(
-            string collectionName
-        ) {
-            return GetCollection<BsonDocument>(collectionName);
-        }
-
         public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName
         ) {
+            return GetCollection<TDefaultDocument>(collectionName, safeMode);
+        }
+
+        public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+            string collectionName,
+            SafeMode safeMode
+        ) {
             lock (databaseLock) {
                 MongoCollection collection;
-                string key = string.Format("{0}<{1}>", collectionName, typeof(TDefaultDocument).FullName);
+                string key = string.Format("{0}<{1}>[{2}]", collectionName, typeof(TDefaultDocument).FullName, safeMode);
                 if (!collections.TryGetValue(key, out collection)) {
-                    collection = new MongoCollection<TDefaultDocument>(this, collectionName);
+                    collection = new MongoCollection<TDefaultDocument>(this, collectionName, safeMode);
                     collections.Add(key, collection);
                 }
                 return (MongoCollection<TDefaultDocument>) collection;
             }
+        }
+
+        public MongoCollection<BsonDocument> GetCollection(
+            string collectionName
+        ) {
+            return GetCollection<BsonDocument>(collectionName);
         }
 
         public IEnumerable<string> GetCollectionNames() {

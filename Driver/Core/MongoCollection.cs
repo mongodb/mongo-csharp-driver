@@ -36,14 +36,15 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
-        public MongoCollection(
+        protected MongoCollection(
             MongoDatabase database,
-            string name
+            string name,
+            SafeMode safeMode
         ) {
             ValidateCollectionName(name);
             this.database = database;
             this.name = name;
-            this.safeMode = database.SafeMode;
+            this.safeMode = safeMode;
         }
         #endregion
 
@@ -62,7 +63,6 @@ namespace MongoDB.Driver {
 
         public SafeMode SafeMode {
             get { return safeMode; }
-            set { safeMode = value; }
         }
 
         public bool AssignIdOnInsert {
@@ -733,9 +733,10 @@ namespace MongoDB.Driver {
         #region constructors
         public MongoCollection(
             MongoDatabase database,
-            string name
+            string name,
+            SafeMode safeMode
         )
-            : base(database, name) {
+            : base(database, name, safeMode) {
         }
         #endregion
 

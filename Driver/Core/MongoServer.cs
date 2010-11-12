@@ -151,6 +151,14 @@ namespace MongoDB.Driver {
         ] {
             get { return GetDatabase(databaseName, credentials); }
         }
+
+        public MongoDatabase this[
+            string databaseName,
+            MongoCredentials credentials,
+            SafeMode safeMode
+        ] {
+            get { return GetDatabase(databaseName, credentials, safeMode); }
+        }
         #endregion
 
         #region public methods
@@ -255,21 +263,19 @@ namespace MongoDB.Driver {
             string databaseName,
             MongoCredentials credentials
         ) {
-            lock (serverLock) {
-                string key;
-                if (credentials == null) {
-                    key = databaseName;
-                } else {
-                    key = string.Format("{0}[{1}]", databaseName, credentials);
-                }
+            return GetDatabase(databaseName, credentials, url.SafeMode);
+        }
 
+        public MongoDatabase GetDatabase(
+            string databaseName,
+            MongoCredentials credentials,
+            SafeMode safeMode
+        ) {
+            lock (serverLock) {
+                var key = string.Format("{0}[{1},{2}]", databaseName, (credentials == null) ? "anon" : credentials.ToString(), safeMode);
                 MongoDatabase database;
                 if (!databases.TryGetValue(key, out database)) {
-                    if (credentials == null) {
-                        database = new MongoDatabase(this, databaseName);
-                    } else {
-                        database = new MongoDatabase(this, databaseName, credentials);
-                    }
+                    database = new MongoDatabase(this, databaseName, credentials, safeMode);
                     databases.Add(key, database);
                 }
                 return database;
