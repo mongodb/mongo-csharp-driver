@@ -384,7 +384,7 @@ namespace MongoDB.Bson {
         public static explicit operator byte[](
             BsonValue value
         ) {
-            return value.AsByteArray;
+            return (value == null) ? null : value.AsByteArray;
         }
 
         public static explicit operator DateTime(
@@ -462,13 +462,13 @@ namespace MongoDB.Bson {
         public static explicit operator Regex(
             BsonValue value
         ) {
-            return value.AsRegex;
+            return (value == null) ? null : value.AsRegex;
         }
 
         public static explicit operator string(
             BsonValue value
         ) {
-            return value.AsString;
+            return (value == null) ? null : value.AsString;
         }
 
         public static bool operator <(

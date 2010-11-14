@@ -439,7 +439,7 @@ namespace MongoDB.Driver.GridFS {
                 };
                 files.Insert(fileInfo, safeMode);
 
-                return FindOne(files_id);
+                return FindOneById(files_id);
             }
         }
 

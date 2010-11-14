@@ -24,8 +24,8 @@ namespace MongoDB.Driver {
         #region public static fields
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
         private static int maxMessageLength = 16 * 1024 * 1204; // 16MB
-        private static int tcpReceiveBufferSize = 4 * 1024 * 1204; // 4MB
-        private static int tcpSendBufferSize = 4 * 1024 * 1204; // 4MB
+        private static int tcpReceiveBufferSize = 64 * 1204; // 64KB (note: larger than 2MB fails on Mac using Mono)
+        private static int tcpSendBufferSize = 64 * 1204; // 64KB (TODO: what is the optimum value for the buffers?)
         #endregion
 
         #region public static properties

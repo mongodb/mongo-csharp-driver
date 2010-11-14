@@ -46,8 +46,8 @@ namespace MongoDB.Driver.Internal {
 
             tcpClient = new TcpClient(address.Host, address.Port);
             tcpClient.NoDelay = true; // turn off Nagle
-            tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize; // default 4MB
-            tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize; // default 4MB
+            tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
+            tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
         }
         #endregion
 
