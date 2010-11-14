@@ -107,6 +107,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                     if (!discriminatorConventions.ContainsKey(typeof(object))) {
                         var defaultDiscriminatorConvention = StandardDiscriminatorConvention.Hierarchical;
                         discriminatorConventions.Add(typeof(object), defaultDiscriminatorConvention);
+                        if (type == typeof(object)) {
+                            return defaultDiscriminatorConvention;
+                        }
                     }
 
                     if (type.IsInterface) {
