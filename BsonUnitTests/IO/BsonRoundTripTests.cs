@@ -26,7 +26,7 @@ namespace MongoDB.BsonUnitTests.IO {
     // and then serialize it back and forth between byte arrays to make sure nothing is lost in serialization/deserialization
 
     [TestFixture]
-    class BsonRoundTripTests {
+    public class BsonRoundTripTests {
         [Test]
         public void TestHelloWorld() {
             BsonDocument document = new BsonDocument {

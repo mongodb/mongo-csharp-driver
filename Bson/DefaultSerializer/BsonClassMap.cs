@@ -570,12 +570,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type type
         ) {
             // don't test for too many things in case implementation details change in the future
-            return 
+            return
                 Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) && 
                 type.IsGenericType &&
-                type.Name.Contains("AnonymousType") &&
-                (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"));
-        }        
+                type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
+        }
 
         private void LoadBaseClassMap() {
             var baseType = classType.BaseType;
