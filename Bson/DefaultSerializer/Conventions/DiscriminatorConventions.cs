@@ -68,34 +68,38 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            var bsonType = bsonReader.CurrentBsonType;
+            if (bsonReader.ReadState == BsonReadState.Value) {
+                Type primitiveType = null;
+                switch (bsonReader.CurrentBsonType) {
+                    case BsonType.Boolean: primitiveType = typeof(bool); break;
+                    case BsonType.Binary:
+                        var bookmark = bsonReader.GetBookmark();
+                        byte[] bytes;
+                        BsonBinarySubType subType;
+                        bsonReader.ReadBinaryData(out bytes, out subType);
+                        if (subType == BsonBinarySubType.Uuid && bytes.Length == 16) {
+                            primitiveType = typeof(Guid);
+                        }
+                        bsonReader.ReturnToBookmark(bookmark);
+                        break;
+                    case BsonType.DateTime: primitiveType = typeof(DateTime); break;
+                    case BsonType.Double: primitiveType = typeof(double); break;
+                    case BsonType.Int32: primitiveType = typeof(int); break;
+                    case BsonType.Int64: primitiveType = typeof(long); break;
+                    case BsonType.ObjectId: primitiveType = typeof(ObjectId); break;
+                    case BsonType.String: primitiveType = typeof(string); break;
+                }
 
-            Type primitiveType = null;
-            switch (bsonType) {
-                case BsonType.Boolean: primitiveType = typeof(bool); break;
-                case BsonType.Binary:
-                    var bookmark = bsonReader.GetBookmark();
-                    byte[] bytes;
-                    BsonBinarySubType subType;
-                    bsonReader.ReadBinaryData(out bytes, out subType);
-                    if (subType == BsonBinarySubType.Uuid && bytes.Length == 16) {
-                        primitiveType = typeof(Guid);
-                    }
-                    bsonReader.ReturnToBookmark(bookmark);
-                    break;
-                case BsonType.DateTime: primitiveType = typeof(DateTime); break;
-                case BsonType.Double: primitiveType = typeof(double); break;
-                case BsonType.Int32: primitiveType = typeof(int); break;
-                case BsonType.Int64: primitiveType = typeof(long); break;
-                case BsonType.ObjectId: primitiveType = typeof(ObjectId); break;
-                case BsonType.String: primitiveType = typeof(string); break;
+                if (primitiveType != null && nominalType.IsAssignableFrom(primitiveType)) {
+                    return primitiveType;
+                }
             }
 
-            if (primitiveType != null && nominalType.IsAssignableFrom(primitiveType)) {
-                return primitiveType;
-            }
-
-            if (bsonType == BsonType.Document) {
+            if (
+                bsonReader.ReadState == BsonReadState.Initial ||
+                bsonReader.ReadState == BsonReadState.Done ||
+                (bsonReader.ReadState == BsonReadState.Value && bsonReader.CurrentBsonType == BsonType.Document)
+            ) {
                 var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
                 var actualType = nominalType;
