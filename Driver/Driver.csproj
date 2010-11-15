@@ -87,6 +87,7 @@
     <Compile Include="Exceptions\MongoInternalException.cs" />
     <Compile Include="Exceptions\MongoQueryException.cs" />
     <Compile Include="Exceptions\MongoSafeModeException.cs" />
+    <Compile Include="Internal\DirectConnector.cs" />
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
     <Compile Include="Internal\MongoConnection.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="Internal\MongoQueryMessage.cs" />
     <Compile Include="Internal\MongoReplyMessage.cs" />
     <Compile Include="Internal\MongoUpdateMessage.cs" />
+    <Compile Include="Internal\ReplicaSetConnector.cs" />
     <Compile Include="MongoUtils.cs" />
     <Compile Include="MongoDefaults.cs" />
     <Compile Include="GridFS\MongoGridFS.cs" />

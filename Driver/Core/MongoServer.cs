@@ -179,26 +179,22 @@ namespace MongoDB.Driver {
                 if (state != MongoServerState.Connected) {
                     state = MongoServerState.Connecting;
                     try {
-                        // TODO: implement ConnectDirectly
-                        var results = ConnectToReplicaSet(timeout);
-
-                        List<MongoServerAddress> replicaSet = null;
-                        if (results.CommandResult.Contains("hosts")) {
-                            replicaSet = new List<MongoServerAddress>();
-                            foreach (BsonString host in results.CommandResult["hosts"].AsBsonArray.Values) {
-                                // don't let errors parsing the address prevent us from connecting
-                                // the replicaSet just won't reflect any replicas with addresses we couldn't parse
-                                MongoServerAddress address;
-                                if (MongoServerAddress.TryParse(host.Value, out address)) {
-                                    replicaSet.Add(address);
-                                }
-                            }
+                        switch (url.ConnectionMode) {
+                            case ConnectionMode.Direct:
+                                var directConnector = new DirectConnector(url);
+                                directConnector.Connect(timeout);
+                                connectionPool = new MongoConnectionPool(this, directConnector.Address, directConnector.Connection);
+                                replicaSet = null;
+                                break;
+                            case ConnectionMode.ReplicaSet:
+                                var replicaSetConnector = new ReplicaSetConnector(url);
+                                replicaSetConnector.Connect(timeout);
+                                connectionPool = new MongoConnectionPool(this, replicaSetConnector.Primary, replicaSetConnector.PrimaryConnection);
+                                replicaSet = replicaSetConnector.ReplicaSet;
+                                break;
+                            default:
+                                throw new MongoInternalException("Invalid ConnectionMode");
                         }
-                        this.replicaSet = replicaSet;
-
-                        // the connection FindServer made to the primary becomes the first connection in the new connection pool
-                        connectionPool = new MongoConnectionPool(this, results.Address, results.Connection);
-
                         state = MongoServerState.Connected;
                     } catch {
                         state = MongoServerState.Disconnected;
@@ -337,111 +333,6 @@ namespace MongoDB.Driver {
         }
         #endregion
 
-        #region private methods
-        private QueryServerResults ConnectToReplicaSet(
-            TimeSpan timeout
-        ) {
-            DateTime deadline = DateTime.UtcNow + timeout;
-
-            // query all servers in seed list in parallel (they will report results back through the resultsQueue)
-            var resultsQueue = new BlockingQueue<QueryServerResults>();
-            var queriedServers = new HashSet<MongoServerAddress>();
-            int pendingReplies = 0;
-            foreach (var address in url.Servers) {
-                var args = new QueryServerParameters {
-                    Address = address,
-                    ResultsQueue = resultsQueue
-                };
-                ThreadPool.QueueUserWorkItem(QueryServerWorkItem, args);
-                queriedServers.Add(address);
-                pendingReplies++;
-            }
-
-            // process the results as they come back and stop as soon as we find the primary
-            // stragglers will continue to report results to the resultsQueue but no one will read them
-            // and eventually it will all get garbage collected
-
-            QueryServerResults results;
-            while (pendingReplies > 0 && (results = resultsQueue.Dequeue(deadline)) != null) {
-                pendingReplies--;
-
-                if (results.Exception != null) {
-                    // TODO: how to report exceptions
-                    continue;
-                }
-
-                var commandResult = results.CommandResult;
-                if (results.IsPrimary || url.SlaveOk) {
-                    return results;
-                } else {
-                    results.Connection.Close();
-                }
-
-                // look for additional members of the replica set that might not have been in the seed list and query them also
-                if (commandResult.Contains("hosts")) {
-                    foreach (BsonString host in commandResult["hosts"].AsBsonArray.Values) {
-                        var address = MongoServerAddress.Parse(host.Value);
-                        if (!queriedServers.Contains(address)) {
-                            var args = new QueryServerParameters {
-                                Address = address,
-                                ResultsQueue = resultsQueue
-                            };
-                            ThreadPool.QueueUserWorkItem(QueryServerWorkItem, args);
-                            queriedServers.Add(address);
-                            pendingReplies++;
-                        }
-                    }
-                }
-            }
-
-            throw new MongoConnectionException("Unable to connect to server");
-        }
-
-        // note: this method will run on a thread from the ThreadPool
-        private void QueryServerWorkItem(
-            object parameters
-        ) {
-            // this method has to work at a very low level because the connection pool isn't set up yet
-            var args = (QueryServerParameters) parameters;
-            var results = new QueryServerResults { Address = args.Address };
-
-            try {
-                var connection = new MongoConnection(null, args.Address); // no connection pool
-                try {
-                    var command = new BsonDocument("ismaster", 1);
-                    using (
-                        var message = new MongoQueryMessage<BsonDocument>(
-                            "admin.$cmd",
-                            QueryFlags.SlaveOk,
-                            0, // numberToSkip
-                            1, // numberToReturn
-                            command,
-                            null // fields
-                        )
-                    ) {
-                        connection.SendMessage(message, SafeMode.False);
-                    }
-                    var reply = connection.ReceiveMessage<BsonDocument>();
-                    results.CommandResult = reply.Documents[0];
-                    results.Connection = connection; // might become the first connection in the connection pool
-                    if (
-                        results.CommandResult["ok", false].ToBoolean() &&
-                        results.CommandResult["ismaster", false].ToBoolean()
-                    ) {
-                        results.IsPrimary = true;
-                    }
-                } catch {
-                    try { connection.Close(); } catch { } // ignore exceptions
-                    throw;
-                }
-            } catch (Exception ex) {
-                results.Exception = ex;
-            }
-
-            args.ResultsQueue.Enqueue(results);
-        }
-        #endregion
-
         #region internal methods
         internal MongoConnectionPool GetConnectionPool() {
             lock (serverLock) {
@@ -450,23 +341,6 @@ namespace MongoDB.Driver {
                 }
                 return connectionPool;
             }
-        }
-        #endregion
-
-        #region private nested classes
-        // note: OK to use automatic properties on private helper class
-        private class QueryServerParameters {
-            public MongoServerAddress Address { get; set; }
-            public BlockingQueue<QueryServerResults> ResultsQueue { get; set; }
-        }
-
-        // note: OK to use automatic properties on private helper class
-        private class QueryServerResults {
-            public MongoServerAddress Address { get; set; }
-            public BsonDocument CommandResult { get; set; }
-            public bool IsPrimary { get; set; }
-            public MongoConnection Connection { get; set; }
-            public Exception Exception { get; set; }
         }
         #endregion
     }
