@@ -142,6 +142,23 @@ namespace MongoDB.Bson {
         ) {
             return lhs.CompareTo(rhs) > 0;
         }
+
+        public static implicit operator string(
+            ObjectId oid
+        ) {
+            return oid == null ? null : oid.ToString();
+        }
+
+        public static implicit operator ObjectId(
+            string oidString
+        ) {
+            ObjectId retval = ObjectId.Empty;
+            if (! string.IsNullOrEmpty(oidString)) {
+                retval = new ObjectId(oidString);
+            }
+            return retval;
+        }
+
         #endregion
 
         #region public static methods
