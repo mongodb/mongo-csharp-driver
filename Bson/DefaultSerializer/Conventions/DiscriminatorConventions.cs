@@ -95,11 +95,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 }
             }
 
-            if (
-                bsonReader.ReadState == BsonReadState.Initial ||
-                bsonReader.ReadState == BsonReadState.Done ||
-                (bsonReader.ReadState == BsonReadState.Value && bsonReader.CurrentBsonType == BsonType.Document)
-            ) {
+            if (bsonReader.CurrentBsonType == BsonType.Document) {
                 var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
                 var actualType = nominalType;

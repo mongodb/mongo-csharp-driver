@@ -51,7 +51,16 @@ namespace MongoDB.Bson.IO {
         }
 
         public override BsonType CurrentBsonType {
-            get { return currentBsonType; }
+            get {
+                if (state == BsonReadState.Initial || state == BsonReadState.Done || state == BsonReadState.ScopeDocument) {
+                    return BsonType.Document; // the root level is sort of like sitting at a value of type Document
+                }
+                if (state != BsonReadState.Value) {
+                    var message = string.Format("CurrentBsonType cannot be called when ReadState is: {0}", state);
+                    throw new InvalidOperationException(message);
+                }
+                return currentBsonType;
+            }
         }
 
         public override BsonReadState ReadState {

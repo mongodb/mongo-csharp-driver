@@ -375,8 +375,7 @@ namespace MongoDB.Bson {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
+            if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
                 bsonReader.ReadNull();
                 return null;
             } else {

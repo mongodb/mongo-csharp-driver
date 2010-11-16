@@ -456,7 +456,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            return bsonReader.ReadInt64();
+            if (bsonReader.CurrentBsonType == BsonType.Int32) {
+                return (long) bsonReader.ReadInt32();
+            } else {
+                return bsonReader.ReadInt64();
+            }
         }
 
         public override void Serialize(
