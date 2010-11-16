@@ -31,13 +31,17 @@ namespace MongoDB.Driver {
 
         #region private fields
         private object serverLock = new object();
+        private object requestsLock = new object();
+        private MongoUrl url;
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> replicaSet;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
-        private MongoConnectionPool connectionPool;
+        private MongoConnectionPool primaryConnectionPool;
+        private List<MongoConnectionPool> secondaryConnectionPools;
+        private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
         private MongoCredentials adminCredentials;
         private MongoCredentials defaultCredentials;
-        private MongoUrl url;
+        private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         #endregion
 
         #region constructors
@@ -117,6 +121,20 @@ namespace MongoDB.Driver {
             get { return replicaSet; }
         }
 
+        public int RequestNestingLevel {
+            get {
+                int threadId = Thread.CurrentThread.ManagedThreadId;
+                lock (requestsLock) {
+                    Request request;
+                    if (requests.TryGetValue(threadId, out request)) {
+                        return request.NestingLevel;
+                    } else {
+                        return 0;
+                    }
+                }
+            }
+        }
+
         public SafeMode SafeMode {
             get { return url.SafeMode; }
         }
@@ -183,13 +201,23 @@ namespace MongoDB.Driver {
                             case ConnectionMode.Direct:
                                 var directConnector = new DirectConnector(url);
                                 directConnector.Connect(timeout);
-                                connectionPool = new MongoConnectionPool(this, directConnector.Address, directConnector.Connection);
+                                primaryConnectionPool = new MongoConnectionPool(this, directConnector.Connection);
+                                secondaryConnectionPools = null;
                                 replicaSet = null;
                                 break;
                             case ConnectionMode.ReplicaSet:
                                 var replicaSetConnector = new ReplicaSetConnector(url);
                                 replicaSetConnector.Connect(timeout);
-                                connectionPool = new MongoConnectionPool(this, replicaSetConnector.Primary, replicaSetConnector.PrimaryConnection);
+                                primaryConnectionPool = new MongoConnectionPool(this, replicaSetConnector.PrimaryConnection);
+                                if (url.SlaveOk) {
+                                    secondaryConnectionPools = new List<MongoConnectionPool>();
+                                    foreach (var connection in replicaSetConnector.SecondaryConnections) {
+                                        var secondaryConnectionPool = new MongoConnectionPool(this, connection);
+                                        secondaryConnectionPools.Add(secondaryConnectionPool);
+                                    }
+                                } else {
+                                    secondaryConnectionPools = null;
+                                }
                                 replicaSet = replicaSetConnector.ReplicaSet;
                                 break;
                             default:
@@ -217,8 +245,14 @@ namespace MongoDB.Driver {
             // but anyone can call it if they want to close all sockets to the server
             lock (serverLock) {
                 if (state == MongoServerState.Connected) {
-                    connectionPool.Close();
-                    connectionPool = null;
+                    primaryConnectionPool.Close();
+                    primaryConnectionPool = null;
+                    if (secondaryConnectionPools != null) {
+                        foreach (var secondaryConnectionPool in secondaryConnectionPools) {
+                            secondaryConnectionPool.Close();
+                        }
+                        secondaryConnectionPools = null;
+                    }
                     state = MongoServerState.Disconnected;
                 }
             }
@@ -296,10 +330,63 @@ namespace MongoDB.Driver {
             return databaseNames;
         }
 
+        public BsonDocument GetLastError() {
+            if (RequestNestingLevel == 0) {
+                throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
+            }
+            var adminDatabase = GetDatabase("admin", null); // no credentials needed for getlasterror
+            return adminDatabase.RunCommand("getlasterror"); // use all lowercase for backward compatibility
+        }
+
         public void Reconnect() {
             lock (serverLock) {
                 Disconnect();
                 Connect();
+            }
+        }
+
+        public void RequestDone() {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            MongoConnection connection = null;
+            lock (requestsLock) {
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    if (--request.NestingLevel == 0) {
+                        connection = request.Connection;
+                        requests.Remove(threadId);
+                    }
+                } else {
+                    throw new InvalidOperationException("Thread is not in a request (did you call RequestStart?)");
+                }
+            }
+
+            // release the connection outside of the lock
+            if (connection != null) {
+                ReleaseConnection(connection);
+            }
+        }
+
+        // the result of RequestStart is IDisposable so you can use RequestStart in a using statment
+        // and then RequestDone will be called automatically when leaving the using statement
+        public IDisposable RequestStart(
+            MongoDatabase initialDatabase
+        ) {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            lock (requestsLock) {
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    request.NestingLevel++;
+                    return new RequestStartResult(this);
+                }
+            }
+
+            // get the connection outside of the lock
+            var connection = GetConnection(initialDatabase, false); // not slaveOk
+
+            lock (requestsLock) {
+                var request = new Request(connection);
+                requests.Add(threadId, request);
+                return new RequestStartResult(this);
             }
         }
 
@@ -334,13 +421,115 @@ namespace MongoDB.Driver {
         #endregion
 
         #region internal methods
-        internal MongoConnectionPool GetConnectionPool() {
+        internal MongoConnection GetConnection(
+            MongoDatabase database,
+            bool slaveOk
+        ) {
+            // if a thread has called RequestStart it wants all operations to take place on the same connection
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            lock (requestsLock) {
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
+                    return request.Connection;
+                }
+            }
+
+            var connectionPool = GetConnectionPool(slaveOk);
+            var connection = connectionPool.GetConnection(database);
+
+            try {
+                connection.CheckAuthentication(database); // will authenticate if necessary
+            } catch (MongoAuthenticationException) {
+                // don't let the connection go to waste just because authentication failed
+                connectionPool.ReleaseConnection(connection);
+                throw;
+            }
+
+            return connection;
+        }
+
+        internal MongoConnectionPool GetConnectionPool(
+            bool slaveOk
+        ) {
             lock (serverLock) {
-                if (connectionPool == null) {
+                if (primaryConnectionPool == null) {
                     Connect();
                 }
-                return connectionPool;
+                if (slaveOk && secondaryConnectionPools != null) {
+                    secondaryConnectionPoolIndex = (secondaryConnectionPoolIndex + 1) % secondaryConnectionPools.Count; // round robin
+                    return secondaryConnectionPools[secondaryConnectionPoolIndex];
+                }
+                return primaryConnectionPool;
             }
+        }
+
+        internal void ReleaseConnection(
+            MongoConnection connection
+        ) {
+            // if the thread has called RequestStart just verify that the connection it is releasing is the right one
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            lock (requestsLock) {
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    if (connection != request.Connection) {
+                        throw new ArgumentException("Connection being released is not the one assigned to the thread by RequestStart", "connection");
+                    }
+                    return; // hold on to the connection until RequestDone is called
+                }
+            }
+
+            connection.ConnectionPool.ReleaseConnection(connection);
+        }
+        #endregion
+
+        #region private nested classes
+        private class Request {
+            #region private fields
+            private MongoConnection connection;
+            private int nestingLevel;
+            #endregion
+
+            #region constructors
+            public Request(
+                MongoConnection connection
+            ) {
+                this.connection = connection;
+                this.nestingLevel = 1;
+            }
+            #endregion
+
+            #region public properties
+            public MongoConnection Connection {
+                get { return connection; }
+                set { connection = value; }
+            }
+
+            public int NestingLevel {
+                get { return nestingLevel; }
+                set { nestingLevel = value; }
+            }
+            #endregion
+        }
+
+        private class RequestStartResult : IDisposable {
+            #region private fields
+            private MongoServer server;
+            #endregion
+
+            #region constructors
+            public RequestStartResult(
+                MongoServer server
+            ) {
+                this.server = server;
+            }
+            #endregion
+
+            #region public methods
+            public void Dispose() {
+                server.RequestDone();
+            }
+            #endregion
         }
         #endregion
     }

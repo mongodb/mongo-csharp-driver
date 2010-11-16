@@ -52,6 +52,10 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region internal properties
+        internal MongoServerAddress Address {
+            get { return address; }
+        }
+
         internal MongoConnectionPool ConnectionPool {
             get { return connectionPool; }
         }

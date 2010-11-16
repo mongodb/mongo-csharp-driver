@@ -245,14 +245,6 @@ namespace MongoDB.Driver {
             return collectionNames;
         }
 
-        public BsonDocument GetLastError() {
-            var connectionPool = server.GetConnectionPool();
-            if (connectionPool.RequestNestingLevel == 0) {
-                throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
-            }
-            return RunCommand("getlasterror"); // use all lowercase for backward compatibility
-        }
-
         // TODO: mongo shell has GetPrevError at the database level?
         // TODO: mongo shell has GetProfilingLevel at the database level?
         // TODO: mongo shell has GetReplicationInfo at the database level?
@@ -296,16 +288,13 @@ namespace MongoDB.Driver {
         }
 
         public void RequestDone() {
-            var connectionPool = server.GetConnectionPool();
-            connectionPool.RequestDone();
+            server.RequestDone();
         }
 
         // the result of RequestStart is IDisposable so you can use RequestStart in a using statment
         // and then RequestDone will be called automatically when leaving the using statement
         public IDisposable RequestStart() {
-            var connectionPool = server.GetConnectionPool();
-            connectionPool.RequestStart(this);
-            return new RequestStartResult(this);
+            return server.RequestStart(this);
         }
 
         // TODO: mongo shell has ResetError at the database level
@@ -338,12 +327,10 @@ namespace MongoDB.Driver {
         #endregion
 
         #region internal methods
-        internal MongoConnection GetConnection() {
-            MongoConnectionPool connectionPool;
-            lock (databaseLock) {
-                connectionPool = server.GetConnectionPool();
-            }
-            return connectionPool.GetConnection(this);
+        internal MongoConnection GetConnection(
+            bool slaveOk
+        ) {
+            return server.GetConnection(this, slaveOk);
         }
 
         internal void ReleaseConnection(
@@ -369,28 +356,6 @@ namespace MongoDB.Driver {
             if (Encoding.UTF8.GetBytes(name).Length > 64) {
                 throw new ArgumentException("Database name cannot exceed 64 bytes (after encoding to UTF8)");
             }
-        }
-        #endregion
-
-        #region private nested classes
-        private class RequestStartResult : IDisposable {
-            #region private fields
-            private MongoDatabase database;
-            #endregion
-
-            #region constructors
-            public RequestStartResult(
-                MongoDatabase database
-            ) {
-                this.database = database;
-            }
-            #endregion
-
-            #region public methods
-            public void Dispose() {
-                database.RequestDone();
-            }
-            #endregion
         }
         #endregion
     }

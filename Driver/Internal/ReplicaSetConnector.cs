@@ -26,9 +26,9 @@ namespace MongoDB.Driver.Internal {
         #region private fields
         private MongoUrl url;
         private HashSet<MongoServerAddress> queries = new HashSet<MongoServerAddress>();
-        private Dictionary<MongoServerAddress, QueryNodeResults> responses = new Dictionary<MongoServerAddress,QueryNodeResults>();
-        private MongoServerAddress primary;
+        private Dictionary<MongoServerAddress, QueryNodeResponse> responses = new Dictionary<MongoServerAddress, QueryNodeResponse>();
         private MongoConnection primaryConnection;
+        private List<MongoConnection> secondaryConnections = new List<MongoConnection>();
         private List<MongoServerAddress> replicaSet;
         #endregion
 
@@ -41,12 +41,12 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region public properties
-        public MongoServerAddress Primary {
-            get { return primary; }
-        }
-
         public MongoConnection PrimaryConnection {
             get { return primaryConnection; }
+        }
+
+        public List<MongoConnection> SecondaryConnections {
+            get { return secondaryConnections; }
         }
 
         public IEnumerable<MongoServerAddress> ReplicaSet {
@@ -60,48 +60,54 @@ namespace MongoDB.Driver.Internal {
         ) {
             DateTime deadline = DateTime.UtcNow + timeout;
 
-            // query all servers in seed list in parallel (they will report results back through the resultsQueue)
-            var resultsQueue = QuerySeedListNodes();
+            // query all servers in seed list in parallel (they will report responses back through the responsesQueue)
+            var responsesQueue = QuerySeedListNodes();
 
-            // process the results as they come back and stop as soon as we find the primary
-            // stragglers will continue to report results to the resultsQueue but no one will read them
+            // process the responses as they come back and stop as soon as we find the primary (unless slaveOk is true)
+            // stragglers will continue to report responses to the responsesQueue but no one will read them
             // and eventually it will all get garbage collected
 
-            QueryNodeResults results = null;
             var exceptions = new List<Exception>();
-            while (responses.Count < queries.Count && (results = resultsQueue.Dequeue(deadline)) != null) {
-                responses.Add(results.Address, results);
+            while (responses.Count < queries.Count) {
+                var response = responsesQueue.Dequeue(deadline);
+                if (response == null) {
+                    break; // we timed out
+                }
+                responses.Add(response.Address, response);
 
-                if (results.Exception != null) {
-                    exceptions.Add(results.Exception);
+                if (response.Exception != null) {
+                    exceptions.Add(response.Exception);
                     continue;
                 }
 
-                var commandResult = results.CommandResult;
-                if (results.IsPrimary || url.SlaveOk) {
-                    primary = results.Address;
-                    break;
+                if (response.IsPrimary) {
+                    primaryConnection = response.Connection;
+                    replicaSet = GetHostAddresses(response);
+                    if (!url.SlaveOk) {
+                        break; // if we're not going to use the secondaries no need to wait for their replies
+                    }
                 } else {
-                    results.Connection.Close();
+                    if (url.SlaveOk) {
+                        secondaryConnections.Add(response.Connection);
+                    } else {
+                        response.Connection.Close();
+                    }
                 }
 
                 // look for additional members of the replica set that might not have been in the seed list and query them also
-                if (commandResult.Contains("hosts")) {
-                    foreach (BsonString host in commandResult["hosts"].AsBsonArray.Values) {
-                        var address = MongoServerAddress.Parse(host.Value);
-                        if (!queries.Contains(address)) {
-                            var args = new QueryNodeParameters {
-                                Address = address,
-                                ResultsQueue = resultsQueue
-                            };
-                            ThreadPool.QueueUserWorkItem(QueryNodeWorkItem, args);
-                            queries.Add(address);
-                        }
+                foreach (var address in GetHostAddresses(response)) {
+                    if (!queries.Contains(address)) {
+                        var args = new QueryNodeParameters {
+                            Address = address,
+                            ResponseQueue = responsesQueue
+                        };
+                        ThreadPool.QueueUserWorkItem(QueryNodeWorkItem, args);
+                        queries.Add(address);
                     }
                 }
             }
 
-            if (primary == null) {
+            if (primaryConnection == null) {
                 var innerException = exceptions.FirstOrDefault();
                 var exception = new MongoConnectionException("Unable to connect to server", innerException);
                 if (exceptions.Count > 1) {
@@ -109,35 +115,40 @@ namespace MongoDB.Driver.Internal {
                 }
                 throw exception;
             }
-
-            primaryConnection = results.Connection;
-            replicaSet = null;
-            if (results.CommandResult.Contains("hosts")) {
-                replicaSet = new List<MongoServerAddress>();
-                foreach (BsonString host in results.CommandResult["hosts"].AsBsonArray.Values) {
-                    // don't let errors parsing the address prevent us from connecting
-                    // the replicaSet just won't reflect any replicas with addresses we couldn't parse
-                    MongoServerAddress address;
-                    if (MongoServerAddress.TryParse(host.Value, out address)) {
-                        replicaSet.Add(address);
-                    }
-                }
-            }
         }
         #endregion
 
         #region private methods
-        private BlockingQueue<QueryNodeResults> QuerySeedListNodes() {
-            var resultsQueue = new BlockingQueue<QueryNodeResults>();
+        private List<MongoServerAddress> GetHostAddresses(
+            QueryNodeResponse response
+        ) {
+            if (!response.CommandResult.Contains("hosts")) {
+                var message = string.Format("Server is not a member of a replica set: {0}", response.Address);
+                throw new MongoConnectionException(message);
+            }
+            if (url.ReplicaSetName != null) {
+                // TODO: check replica set name
+            }
+
+            var nodes = new List<MongoServerAddress>();
+            foreach (BsonString host in response.CommandResult["hosts"].AsBsonArray.Values) {
+                var address = MongoServerAddress.Parse(host.Value);
+                nodes.Add(address);
+            }
+            return nodes;
+        }
+
+        private BlockingQueue<QueryNodeResponse> QuerySeedListNodes() {
+            var responseQueue = new BlockingQueue<QueryNodeResponse>();
             foreach (var address in url.Servers) {
                 var args = new QueryNodeParameters {
                     Address = address,
-                    ResultsQueue = resultsQueue
+                    ResponseQueue = responseQueue
                 };
                 ThreadPool.QueueUserWorkItem(QueryNodeWorkItem, args);
                 queries.Add(address);
             }
-            return resultsQueue;
+            return responseQueue;
         }
 
         // note: this method will run on a thread from the ThreadPool
@@ -146,7 +157,7 @@ namespace MongoDB.Driver.Internal {
         ) {
             // this method has to work at a very low level because the connection pool isn't set up yet
             var args = (QueryNodeParameters) parameters;
-            var results = new QueryNodeResults { Address = args.Address };
+            var response = new QueryNodeResponse { Address = args.Address };
 
             try {
                 var connection = new MongoConnection(null, args.Address); // no connection pool
@@ -165,20 +176,20 @@ namespace MongoDB.Driver.Internal {
                         connection.SendMessage(message, SafeMode.False);
                     }
                     var reply = connection.ReceiveMessage<BsonDocument>();
-                    results.CommandResult = reply.Documents[0];
-                    results.Connection = connection; // might become the first connection in the connection pool
-                    results.IsPrimary =
-                        results.CommandResult["ok", false].ToBoolean() &&
-                        results.CommandResult["ismaster", false].ToBoolean();
+                    response.CommandResult = reply.Documents[0];
+                    response.Connection = connection; // might become the first connection in the connection pool
+                    response.IsPrimary =
+                        response.CommandResult["ok", false].ToBoolean() &&
+                        response.CommandResult["ismaster", false].ToBoolean();
                 } catch {
                     try { connection.Close(); } catch { } // ignore exceptions
                     throw;
                 }
             } catch (Exception ex) {
-                results.Exception = ex;
+                response.Exception = ex;
             }
 
-            args.ResultsQueue.Enqueue(results);
+            args.ResponseQueue.Enqueue(response);
         }
         #endregion
 
@@ -186,11 +197,11 @@ namespace MongoDB.Driver.Internal {
         // note: OK to use automatic properties on private helper class
         private class QueryNodeParameters {
             public MongoServerAddress Address { get; set; }
-            public BlockingQueue<QueryNodeResults> ResultsQueue { get; set; }
+            public BlockingQueue<QueryNodeResponse> ResponseQueue { get; set; }
         }
 
         // note: OK to use automatic properties on private helper class
-        private class QueryNodeResults {
+        private class QueryNodeResponse {
             public MongoServerAddress Address { get; set; }
             public BsonDocument CommandResult { get; set; }
             public bool IsPrimary { get; set; }

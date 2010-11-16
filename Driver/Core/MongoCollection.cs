@@ -410,7 +410,7 @@ namespace MongoDB.Driver {
                 batches = new BsonArray();
             }
 
-            MongoConnection connection = database.GetConnection();
+            MongoConnection connection = database.GetConnection(false); // not slaveOk
 
             using (var message = new MongoInsertMessage(FullName)) {
                 message.WriteToBuffer(); // must be called before AddDocument
@@ -541,7 +541,7 @@ namespace MongoDB.Driver {
             }
 
             using (var message = new MongoDeleteMessage<TQuery>(FullName, flags, query)) {
-                var connection = database.GetConnection();
+                var connection = database.GetConnection(false); // not slaveOk
                 var lastError = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
                 return lastError;
@@ -658,7 +658,7 @@ namespace MongoDB.Driver {
             }
 
             using (var message = new MongoUpdateMessage<TQuery, TUpdate>(FullName, flags, query, update)) {
-                var connection = database.GetConnection();
+                var connection = database.GetConnection(false); // not slaveOk
                 var lastError = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
                 return lastError;
