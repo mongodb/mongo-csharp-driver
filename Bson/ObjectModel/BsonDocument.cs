@@ -400,8 +400,7 @@ namespace MongoDB.Bson {
             existingId = null;
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {
-                existingId = idElement.Value.RawValue;
-                var idGenerator = BsonSerializer.LookupIdGenerator(existingId.GetType());
+                var idGenerator = LookupIdGenerator(idElement.Value);
                 return idGenerator != null && !idGenerator.IsEmpty(existingId);
             } else {
                 return false;
@@ -424,13 +423,7 @@ namespace MongoDB.Bson {
         public void GenerateDocumentId() {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {
-                IBsonIdGenerator idGenerator;
-                if (idElement.Value.IsBsonNull) {
-                    idGenerator = BsonSerializer.LookupIdGenerator(typeof(ObjectId));
-                } else {
-                    var existingId = idElement.Value.RawValue;
-                    idGenerator = BsonSerializer.LookupIdGenerator(existingId.GetType());
-                }
+                var idGenerator = LookupIdGenerator(idElement.Value);
                 if (idGenerator != null) {
                     idElement.Value = BsonValue.Create(idGenerator.GenerateId());
                 }
@@ -664,6 +657,23 @@ namespace MongoDB.Bson {
         #endregion
 
         #region private methods
+        private IBsonIdGenerator LookupIdGenerator(
+            BsonValue value
+        ) {
+            Type idType;
+            if (value.IsBsonNull) {
+                idType = typeof(ObjectId);
+            } else {
+                object rawValue = value.RawValue;
+                if (rawValue == null) {
+                    idType = value.GetType();
+                } else {
+                    idType = rawValue.GetType();
+                }
+            }
+            return BsonSerializer.LookupIdGenerator(idType);
+        }
+
         private void RebuildDictionary() {
             indexes.Clear();
             for (int index = 0; index < elements.Count; index++) {
