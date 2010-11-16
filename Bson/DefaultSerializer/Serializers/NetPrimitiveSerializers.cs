@@ -26,6 +26,69 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    public class ByteArraySerializer : BsonBaseSerializer {
+        #region private static fields
+        private static ByteArraySerializer singleton = new ByteArraySerializer();
+        #endregion
+
+        #region constructors
+        private ByteArraySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static ByteArraySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public static methods
+        public static void RegisterSerializers() {
+            BsonSerializer.RegisterSerializer(typeof(byte[]), singleton);
+        }
+        #endregion
+
+        #region public methods
+        #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else if (bsonType == BsonType.Binary) {
+                byte[] bytes;
+                BsonBinarySubType subType;
+                bsonReader.ReadBinaryData(out bytes, out subType);
+                if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary) {
+                    var message = string.Format("Invalid Binary sub type: {0}", subType);
+                    throw new FileFormatException(message);
+                }
+                return bytes;
+            } else {
+                var message = string.Format("Cannot deserialize Byte[] from BsonType: {0}", bsonType);
+                throw new FileFormatException(message);
+            }
+        }
+        #pragma warning restore 618
+
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            bool serializeIdFirst
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                bsonWriter.WriteBinaryData((byte[]) value, BsonBinarySubType.Binary);
+            }
+        }
+        #endregion
+    }
+
     public class ByteSerializer : BsonBaseSerializer {
         #region private static fields
         private static ByteSerializer singleton = new ByteSerializer();

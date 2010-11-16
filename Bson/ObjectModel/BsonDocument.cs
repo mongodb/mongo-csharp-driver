@@ -397,14 +397,24 @@ namespace MongoDB.Bson {
         public bool DocumentHasIdValue(
             out object existingId
         ) {
-            existingId = null;
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {
-                var idGenerator = LookupIdGenerator(idElement.Value);
-                return idGenerator != null && !idGenerator.IsEmpty(existingId);
+                existingId = idElement.Value;
+                if (idElement.Value.IsBsonNull) {
+                    return false;
+                } else {
+                    var rawValue = idElement.Value.RawValue;
+                    if (rawValue != null) {
+                        var idGenerator = BsonSerializer.LookupIdGenerator(rawValue.GetType());
+                        if (idGenerator != null) {
+                            return !idGenerator.IsEmpty(rawValue);
+                        }
+                    }
+                }
             } else {
-                return false;
+                existingId = null;
             }
+            return false;
         }
 
         public bool Equals(
@@ -423,9 +433,16 @@ namespace MongoDB.Bson {
         public void GenerateDocumentId() {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {
-                var idGenerator = LookupIdGenerator(idElement.Value);
-                if (idGenerator != null) {
-                    idElement.Value = BsonValue.Create(idGenerator.GenerateId());
+                if (idElement.Value.IsBsonNull) {
+                    idElement.Value = ObjectId.GenerateNewId();
+                } else {
+                    var rawValue = idElement.Value.RawValue;
+                    if (rawValue != null) {
+                        var idGenerator = BsonSerializer.LookupIdGenerator(rawValue.GetType());
+                        if (idGenerator != null) {
+                            idElement.Value = BsonValue.Create(idGenerator.GenerateId());
+                        }
+                    }
                 }
             } else {
                 idElement = new BsonElement("_id", ObjectId.GenerateNewId());
@@ -657,23 +674,6 @@ namespace MongoDB.Bson {
         #endregion
 
         #region private methods
-        private IBsonIdGenerator LookupIdGenerator(
-            BsonValue value
-        ) {
-            Type idType;
-            if (value.IsBsonNull) {
-                idType = typeof(ObjectId);
-            } else {
-                object rawValue = value.RawValue;
-                if (rawValue == null) {
-                    idType = value.GetType();
-                } else {
-                    idType = rawValue.GetType();
-                }
-            }
-            return BsonSerializer.LookupIdGenerator(idType);
-        }
-
         private void RebuildDictionary() {
             indexes.Clear();
             for (int index = 0; index < elements.Count; index++) {

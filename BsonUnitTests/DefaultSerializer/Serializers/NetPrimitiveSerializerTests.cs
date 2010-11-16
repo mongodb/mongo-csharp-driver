@@ -27,6 +27,83 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
+    public class ByteArraySerializerTests {
+        private class C {
+            public byte[] BA { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var c = new C { BA = null };
+            var json = c.ToJson();
+            var expected = "{ 'BA' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsInstanceOf<C>(rehydrated);
+            Assert.AreEqual(null, rehydrated.BA);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestEmpty() {
+            var c = new C { BA = new byte[0] };
+            var json = c.ToJson();
+            var expected = "{ 'BA' : { '$binary' : '', '$type' : '00' } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsInstanceOf<C>(rehydrated);
+            Assert.IsTrue(c.BA.SequenceEqual(rehydrated.BA));
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLengthOne() {
+            var c = new C { BA = new byte[] { 1 } };
+            var json = c.ToJson();
+            var expected = "{ 'BA' : { '$binary' : 'AQ==', '$type' : '00' } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsInstanceOf<C>(rehydrated);
+            Assert.IsTrue(c.BA.SequenceEqual(rehydrated.BA));
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLengthTwo() {
+            var c = new C { BA = new byte[] { 1, 2 } };
+            var json = c.ToJson();
+            var expected = "{ 'BA' : { '$binary' : 'AQI=', '$type' : '00' } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsInstanceOf<C>(rehydrated);
+            Assert.IsTrue(c.BA.SequenceEqual(rehydrated.BA));
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLengthNine() {
+            var c = new C { BA = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
+            var json = c.ToJson();
+            var expected = "{ 'BA' : { '$binary' : 'AQIDBAUGBwgJ', '$type' : '00' } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsInstanceOf<C>(rehydrated);
+            Assert.IsTrue(c.BA.SequenceEqual(rehydrated.BA));
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
     public class ByteSerializerTests {
         public class TestClass {
             public byte V { get; set; }
