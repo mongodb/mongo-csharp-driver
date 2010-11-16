@@ -19,6 +19,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver {
     [Serializable]
     public class MongoCommandException : MongoException {
@@ -34,6 +36,14 @@ namespace MongoDB.Driver {
             Exception innerException
         )
             : base(message, innerException) {
+        }
+
+        public MongoCommandException(
+            string message,
+            BsonDocument commandResult
+        )
+            : this(message) {
+                Data.Add("CommandResult", commandResult);
         }
 
         // this constructor needed to support deserialization

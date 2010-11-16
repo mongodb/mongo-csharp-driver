@@ -84,24 +84,10 @@ namespace MongoDB.Driver.Internal {
             bool isPrimary;
 
             try {
-                var command = new BsonDocument("ismaster", 1);
-                using (
-                    var message = new MongoQueryMessage<BsonDocument>(
-                        "admin.$cmd",
-                        QueryFlags.SlaveOk,
-                        0, // numberToSkip
-                        1, // numberToReturn
-                        command,
-                        null // fields
-                    )
-                ) {
-                    connection.SendMessage(message, SafeMode.False);
-                }
-                var reply = connection.ReceiveMessage<BsonDocument>();
-                var commandResult = reply.Documents[0];
-                isPrimary =
-                    commandResult["ok", false].ToBoolean() &&
-                    commandResult["ismaster", false].ToBoolean();
+                var isMasterCommand = new BsonDocument("ismaster", 1);
+                var isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
+
+                isPrimary = isMasterResult["ismaster", false].ToBoolean();
                 if (!isPrimary && !url.SlaveOk) {
                     throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
                 }

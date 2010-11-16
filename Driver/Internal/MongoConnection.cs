@@ -78,24 +78,14 @@ namespace MongoDB.Driver.Internal {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 var nonceCommand = new BsonDocument("getnonce", 1);
-                using (
-                    var nonceMessage = new MongoQueryMessage<BsonDocument>(
-                        string.Format("{0}.$cmd", databaseName), // collectionFullName
-                        QueryFlags.None,
-                        0, // numberToSkip
-                        1, // numberToReturn
-                        nonceCommand, // query
-                        null // fields
-                    )
-                ) {
-                    SendMessage(nonceMessage, SafeMode.False);
+                var commandCollectionName = string.Format("{0}.$cmd", databaseName);
+                string nonce;
+                try {
+                    var nonceResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand);
+                    nonce = nonceResult["nonce"].AsString;
+                } catch (MongoCommandException ex) {
+                    throw new MongoAuthenticationException("Error getting nonce for authentication", ex);
                 }
-                var nonceReply = ReceiveMessage<BsonDocument>();
-                var nonceCommandResult = nonceReply.Documents[0];
-                if (!nonceCommandResult["ok", false].ToBoolean()) {
-                    throw new MongoAuthenticationException("Error getting nonce for authentication");
-                }
-                var nonce = nonceCommandResult["nonce"].AsString;
 
                 var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
                 var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
@@ -105,22 +95,11 @@ namespace MongoDB.Driver.Internal {
                     { "nonce", nonce },
                     { "key", digest }
                 };
-                using (
-                    var authenticateMessage = new MongoQueryMessage<BsonDocument>(
-                        string.Format("{0}.$cmd", databaseName), // collectionFullName
-                        QueryFlags.None,
-                        0, // numberToSkip
-                        1, // numberToReturn
-                        authenticateCommand, // query
-                        null // fields
-                    )
-                ) {
-                    SendMessage(authenticateMessage, SafeMode.False);
-                }
-                var authenticationReply = ReceiveMessage<BsonDocument>();
-                var authenticationResult = authenticationReply.Documents[0];
-                if (!authenticationResult["ok", false].ToBoolean()) {
-                    throw new MongoAuthenticationException("Invalid credentials for database");
+                try {
+                    RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand);
+                } catch (MongoCommandException ex) {
+                    var message = string.Format("Invalid credentials for database: {0}", databaseName);
+                    throw new MongoAuthenticationException(message, ex);
                 }
 
                 var authentication = new Authentication(credentials);
@@ -259,26 +238,65 @@ namespace MongoDB.Driver.Internal {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 var logoutCommand = new BsonDocument("logout", 1);
-                using (
-                    var logoutMessage = new MongoQueryMessage<BsonDocument>(
-                        string.Format("{0}.$cmd", databaseName), // collectionFullName
-                        QueryFlags.None,
-                        0, // numberToSkip
-                        1, // numberToReturn
-                        logoutCommand,
-                        null // fields
-                    )
-                ) {
-                    SendMessage(logoutMessage, SafeMode.False);
-                }
-                var logoutReply = ReceiveMessage<BsonDocument>();
-                var logoutCommandResult = logoutReply.Documents[0];
-                if (!logoutCommandResult["ok", false].ToBoolean()) {
-                    throw new MongoAuthenticationException("Error in logout");
+                var commandCollectionName = string.Format("{0}.$cmd", databaseName);
+                try {
+                    var logoutCommandResult = RunCommand(commandCollectionName, QueryFlags.None, logoutCommand);
+                } catch (MongoCommandException ex) {
+                    throw new MongoAuthenticationException("Error logging off", ex);
                 }
 
                 authentications.Remove(databaseName);
             }
+        }
+
+        // this is a low level method that doesn't require a MongoServer
+        // so it can be used while connecting to a MongoServer
+        internal BsonDocument RunCommand(
+            string collectionName,
+            QueryFlags queryFlags,
+            BsonDocument command
+        ) {
+            var commandName = command.GetElement(0).Name;
+
+            using (
+                var message = new MongoQueryMessage<BsonDocument>(
+                    collectionName,
+                    queryFlags,
+                    0, // numberToSkip
+                    1, // numberToReturn
+                    command,
+                    null // fields
+                )
+            ) {
+                SendMessage(message, SafeMode.False);
+            }
+
+            var reply = ReceiveMessage<BsonDocument>();
+            if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
+                var message = string.Format("Command '{0}' failed (QueryFailure flag set)", commandName);
+                throw new MongoCommandException(message);
+            }
+            if (reply.NumberReturned != 1) {
+                var message = string.Format("Command '{0}' failed (wrong number of documents returned: {1})", commandName, reply.NumberReturned);
+                throw new MongoCommandException(message);
+            }
+
+            var commandResult = reply.Documents[0];
+            if (!commandResult.Contains("ok")) {
+                var message = string.Format("Command '{0}' failed (ok element missing in result)", commandName);
+            }
+            if (!commandResult["ok"].ToBoolean()) {
+                string message;
+                var err = commandResult["err", null];
+                if (err == null || err.IsBsonNull) {
+                    message = string.Format("Command '{0}' failed (no error message found)", commandName);
+                } else {
+                    message = string.Format("Command '{0}' failed ({1})", commandName, err.ToString());
+                }
+                throw new MongoCommandException(message, commandResult);
+            }
+
+            return commandResult;
         }
 
         internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>() {

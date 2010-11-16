@@ -122,16 +122,13 @@ namespace MongoDB.Driver.Internal {
         private List<MongoServerAddress> GetHostAddresses(
             QueryNodeResponse response
         ) {
-            if (!response.CommandResult.Contains("hosts")) {
+            if (!response.IsMasterResult.Contains("hosts")) {
                 var message = string.Format("Server is not a member of a replica set: {0}", response.Address);
                 throw new MongoConnectionException(message);
             }
-            if (url.ReplicaSetName != null) {
-                // TODO: check replica set name
-            }
 
             var nodes = new List<MongoServerAddress>();
-            foreach (BsonString host in response.CommandResult["hosts"].AsBsonArray.Values) {
+            foreach (BsonString host in response.IsMasterResult["hosts"].AsBsonArray.Values) {
                 var address = MongoServerAddress.Parse(host.Value);
                 nodes.Add(address);
             }
@@ -162,25 +159,23 @@ namespace MongoDB.Driver.Internal {
             try {
                 var connection = new MongoConnection(null, args.Address); // no connection pool
                 try {
-                    var command = new BsonDocument("ismaster", 1);
-                    using (
-                        var message = new MongoQueryMessage<BsonDocument>(
-                            "admin.$cmd",
-                            QueryFlags.SlaveOk,
-                            0, // numberToSkip
-                            1, // numberToReturn
-                            command,
-                            null // fields
-                        )
-                    ) {
-                        connection.SendMessage(message, SafeMode.False);
-                    }
-                    var reply = connection.ReceiveMessage<BsonDocument>();
-                    response.CommandResult = reply.Documents[0];
+                    var isMasterCommand = new BsonDocument("ismaster", 1);
+                    var isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
+
+                    response.IsMasterResult = isMasterResult;
                     response.Connection = connection; // might become the first connection in the connection pool
-                    response.IsPrimary =
-                        response.CommandResult["ok", false].ToBoolean() &&
-                        response.CommandResult["ismaster", false].ToBoolean();
+                    response.IsPrimary = isMasterResult["ismaster", false].ToBoolean();
+
+                    if (url.ReplicaSetName != null) {
+                        var getStatusCommand = new BsonDocument("replSetGetStatus", 1);
+                        var getStatusResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
+
+                        var replicaSetName = getStatusResult["set"].AsString;
+                        if (replicaSetName != url.ReplicaSetName) {
+                            var message = string.Format("Host {0} belongs to a different replica set: {1}", args.Address, replicaSetName);
+                            throw new MongoConnectionException(message);
+                        }
+                    }
                 } catch {
                     try { connection.Close(); } catch { } // ignore exceptions
                     throw;
@@ -203,7 +198,7 @@ namespace MongoDB.Driver.Internal {
         // note: OK to use automatic properties on private helper class
         private class QueryNodeResponse {
             public MongoServerAddress Address { get; set; }
-            public BsonDocument CommandResult { get; set; }
+            public BsonDocument IsMasterResult { get; set; }
             public bool IsPrimary { get; set; }
             public MongoConnection Connection { get; set; }
             public Exception Exception { get; set; }
