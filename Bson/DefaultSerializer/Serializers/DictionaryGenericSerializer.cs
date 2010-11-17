@@ -14,8 +14,7 @@
 */
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -24,29 +23,25 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public class DictionarySerializer : BsonBaseSerializer {
-        #region private static fields
-        private static DictionarySerializer singleton = new DictionarySerializer();
-        #endregion
-
-        #region constructors
-        private DictionarySerializer() {
-        }
-        #endregion
-
-        #region public static properties
-        public static DictionarySerializer Singleton {
-            get { return singleton; }
-        }
-        #endregion
-
+    public static class DictionarySerializerRegistration {
         #region public static methods
-        public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Hashtable), singleton);
-            BsonSerializer.RegisterSerializer(typeof(IDictionary), singleton);
-            BsonSerializer.RegisterSerializer(typeof(ListDictionary), singleton);
-            BsonSerializer.RegisterSerializer(typeof(OrderedDictionary), singleton);
-            BsonSerializer.RegisterSerializer(typeof(SortedList), singleton);
+        public static void RegisterGenericSerializerDefinitions() {
+            BsonSerializer.RegisterGenericSerializerDefinition(typeof(Dictionary<,>), typeof(DictionarySerializer<,>));
+            BsonSerializer.RegisterGenericSerializerDefinition(typeof(IDictionary<,>), typeof(DictionarySerializer<,>));
+            BsonSerializer.RegisterGenericSerializerDefinition(typeof(SortedDictionary<,>), typeof(DictionarySerializer<,>));
+            BsonSerializer.RegisterGenericSerializerDefinition(typeof(SortedList<,>), typeof(DictionarySerializer<,>));
+        }
+        #endregion
+    }
+
+    public class DictionarySerializer<TKey, TValue> : BsonBaseSerializer {
+        #region constructors
+        public DictionarySerializer() {
+        }
+
+        public DictionarySerializer(
+            object serializationOptions
+        ) {
         }
         #endregion
 
@@ -62,12 +57,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             } else if (bsonType == BsonType.Document) {
                 var dictionary = CreateInstance(nominalType);
                 bsonReader.ReadStartDocument();
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+                var valueDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(TValue));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    var key = bsonReader.ReadName();
-                    var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
+                    var key = (TKey) (object) bsonReader.ReadName();
+                    var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                    var value = valueSerializer.Deserialize(bsonReader, typeof(object));
+                    var value = (TValue) valueSerializer.Deserialize(bsonReader, typeof(TValue));
                     dictionary.Add(key, value);
                 }
                 bsonReader.ReadEndDocument();
@@ -75,20 +70,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             } else if (bsonType == BsonType.Array) {
                 var dictionary = CreateInstance(nominalType);
                 bsonReader.ReadStartArray();
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+                var keyDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(TKey));
+                var valueDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(TValue));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
                     bsonReader.SkipName();
                     bsonReader.ReadStartArray();
                     bsonReader.ReadBsonType();
                     bsonReader.SkipName();
-                    var keyType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
+                    var keyType = keyDiscriminatorConvention.GetActualType(bsonReader, typeof(TKey));
                     var keySerializer = BsonSerializer.LookupSerializer(keyType);
-                    var key = keySerializer.Deserialize(bsonReader, typeof(object));
+                    var key = (TKey) keySerializer.Deserialize(bsonReader, typeof(TKey));
                     bsonReader.ReadBsonType();
                     bsonReader.SkipName();
-                    var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
+                    var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                    var value = valueSerializer.Deserialize(bsonReader, typeof(object));
+                    var value = (TValue) valueSerializer.Deserialize(bsonReader, typeof(TValue));
                     bsonReader.ReadEndArray();
                     dictionary.Add(key, value);
                 }
@@ -109,20 +105,23 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                var dictionary = (IDictionary) value;
-                if (dictionary.Keys.Cast<object>().All(o => o.GetType() == typeof(string))) {
+                var dictionary = (IDictionary<TKey, TValue>) value;
+                if (
+                    typeof(TKey) == typeof(string) ||
+                    (typeof(TKey) == typeof(object) && dictionary.Keys.All(o => o.GetType() == typeof(string)))
+                ) {
                     bsonWriter.WriteStartDocument();
                     int index = 0;
-                    foreach (DictionaryEntry entry in dictionary) {
-                        bsonWriter.WriteName((string) entry.Key);
-                        BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
+                    foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
+                        bsonWriter.WriteName((string) (object) entry.Key);
+                        BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
                         index++;
                     }
                     bsonWriter.WriteEndDocument();
                 } else {
                     bsonWriter.WriteStartArray();
                     int index = 0;
-                    foreach (DictionaryEntry entry in dictionary) {
+                    foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
                         bsonWriter.WriteStartArray(index.ToString());
                         bsonWriter.WriteName("0");
                         BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
@@ -132,27 +131,25 @@ namespace MongoDB.Bson.DefaultSerializer {
                         index++;
                     }
                     bsonWriter.WriteEndArray();
-               }
+                }
             }
         }
         #endregion
 
         #region private methods
-        private IDictionary CreateInstance(
+        private IDictionary<TKey, TValue> CreateInstance(
             Type nominalType
         ) {
-            if (nominalType == typeof(Hashtable)) {
-                return new Hashtable();
-            } else if (nominalType == typeof(ListDictionary)) {
-                return new ListDictionary();
-            } else if (nominalType == typeof(IDictionary)) {
-                return new Hashtable();
-            } else if (nominalType == typeof(OrderedDictionary)) {
-                return new OrderedDictionary();
-            } else if (nominalType == typeof(SortedList)) {
-                return new SortedList();
+            if (nominalType == typeof(Dictionary<TKey, TValue>)) {
+                return new Dictionary<TKey, TValue>();
+            } else if (nominalType == typeof(IDictionary<TKey, TValue>)) {
+                return new Dictionary<TKey, TValue>();
+            } else if (nominalType == typeof(SortedDictionary<TKey, TValue>)) {
+                return new SortedDictionary<TKey, TValue>();
+            } else if (nominalType == typeof(SortedList<TKey, TValue>)) {
+                return new SortedList<TKey, TValue>();
             } else {
-                var message = string.Format("Invalid nominalType for DictionarySerializer: {0}", nominalType.FullName);
+                var message = string.Format("Invalid nominalType for DictionarySerializer<{0}, {1}>: {2}", typeof(TKey).FullName, typeof(TValue).FullName, nominalType.FullName);
                 throw new BsonSerializationException(message);
             }
         }

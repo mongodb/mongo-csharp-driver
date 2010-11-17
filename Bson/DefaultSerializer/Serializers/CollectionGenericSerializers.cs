@@ -39,6 +39,9 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class EnumerableSerializer<T> : BsonBaseSerializer {
         #region constructors
+        public EnumerableSerializer() {
+        }
+
         public EnumerableSerializer(
             object serializationOptions
         ) {

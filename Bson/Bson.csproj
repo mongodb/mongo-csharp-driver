@@ -87,8 +87,9 @@
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdMemberConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\IgnoreExtraElementsConventions.cs" />
-    <Compile Include="DefaultSerializer\Serializers\CollectionSerializersGeneric.cs" />
+    <Compile Include="DefaultSerializer\Serializers\CollectionGenericSerializers.cs" />
     <Compile Include="DefaultSerializer\Serializers\CollectionSerializers.cs" />
+    <Compile Include="DefaultSerializer\Serializers\DictionaryGenericSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\DictionarySerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\ObjectSerializer.cs" />
