@@ -27,10 +27,14 @@ namespace MongoDB.Bson {
         // table of from mappings used by MapToBsonValue
         private static Dictionary<Type, Conversion> fromMappings = new Dictionary<Type, Conversion> {
             { typeof(bool), Conversion.NewBsonBoolean },
-            { typeof(byte[]), Conversion.ByteArrayToBsonBinary },
             { typeof(BsonArray), Conversion.None },
             { typeof(BsonBinaryData), Conversion.None },
+            { typeof(BsonBoolean), Conversion.None },
+            { typeof(BsonDateTime), Conversion.None },
             { typeof(BsonDocument), Conversion.None },
+            { typeof(BsonDouble), Conversion.None },
+            { typeof(BsonInt32), Conversion.None },
+            { typeof(BsonInt64), Conversion.None },
             { typeof(BsonJavaScript), Conversion.None },
             { typeof(BsonJavaScriptWithScope), Conversion.None },
             { typeof(BsonMaxKey), Conversion.None },
@@ -38,17 +42,27 @@ namespace MongoDB.Bson {
             { typeof(BsonNull), Conversion.None },
             { typeof(BsonObjectId), Conversion.None },
             { typeof(BsonRegularExpression), Conversion.None },
+            { typeof(BsonString), Conversion.None },
             { typeof(BsonSymbol), Conversion.None },
             { typeof(BsonTimestamp), Conversion.None },
+            { typeof(BsonValue), Conversion.None },
+            { typeof(byte), Conversion.ByteToBsonInt32 },
+            { typeof(byte[]), Conversion.ByteArrayToBsonBinary },
             { typeof(DateTime), Conversion.DateTimeToBsonDateTime },
             { typeof(double), Conversion.NewBsonDouble },
+            { typeof(float), Conversion.SingleToBsonDouble },
             { typeof(Guid), Conversion.GuidToBsonBinary },
             { typeof(int), Conversion.NewBsonInt32 },
             { typeof(long), Conversion.NewBsonInt64 },
             { typeof(ObjectId), Conversion.NewBsonObjectId },
             { typeof(Regex), Conversion.RegexToBsonRegularExpression },
-            { typeof(string), Conversion.NewBsonString }
-        };
+            { typeof(sbyte), Conversion.SByteToBsonInt32 },
+            { typeof(short), Conversion.Int16ToBsonInt32 },
+            { typeof(string), Conversion.NewBsonString },
+            { typeof(uint), Conversion.UInt32ToBsonInt64 },
+            { typeof(ushort), Conversion.UInt16ToBsonInt32 },
+            { typeof(ulong), Conversion.UInt64ToBsonInt64 }
+       };
 
         // table of from/to mappings used by MapToBsonValue
         private static Dictionary<Mapping, Conversion> fromToMappings = new Dictionary<Mapping, Conversion>() {
@@ -177,8 +191,24 @@ namespace MongoDB.Bson {
                 throw new ArgumentNullException("Value to be mapped to BsonValue cannot be null");
             }
 
+            var valueType = value.GetType();
+            if (valueType.IsEnum) {
+                valueType = Enum.GetUnderlyingType(valueType);
+                switch (Type.GetTypeCode(valueType)) {
+                    case TypeCode.Byte: value = (int) (byte) value; break;
+                    case TypeCode.Int16: value = (int) (short) value; break;
+                    case TypeCode.Int32: value = (int) value; break;
+                    case TypeCode.Int64: value = (long) value; break;
+                    case TypeCode.SByte: value = (int) (sbyte) value; break;
+                    case TypeCode.UInt16: value = (int) (ushort) value; break;
+                    case TypeCode.UInt32: value = (long) (uint) value; break;
+                    case TypeCode.UInt64: value = (long) (ulong) value; break;
+                }
+                valueType = value.GetType();
+            }
+
             Conversion conversion;
-            if (fromMappings.TryGetValue(value.GetType(), out conversion)) {
+            if (fromMappings.TryGetValue(valueType, out conversion)) {
                 bsonValue = Convert(value, conversion);
                 return true;
             }

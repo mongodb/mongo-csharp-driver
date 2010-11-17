@@ -102,6 +102,7 @@
     <Compile Include="ObjectModel\BsonEqualsTests.cs" />
     <Compile Include="IO\BsonJsonWriterTests.cs" />
     <Compile Include="ObjectModel\BsonObjectIdTests.cs" />
+    <Compile Include="ObjectModel\BsonTypeMapperTests.cs" />
     <Compile Include="ObjectModel\BsonValueTests.cs" />
     <Compile Include="ObjectModel\ObjectIdTests.cs" />
     <Compile Include="IO\BsonReaderTests.cs" />
