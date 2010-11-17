@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
     public class BsonKnownTypesAttribute : Attribute {
         #region private fields
         private Type[] knownTypes;
