@@ -62,6 +62,8 @@ namespace MongoDB.BsonUnitTests {
             var value = true;
             var bsonValue = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value);
             Assert.IsTrue(bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.IsTrue(bsonBoolean.Value);
         }
 
         [Test]
@@ -69,6 +71,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonArray();
             var bsonValue = (BsonArray) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonArray = (BsonArray) BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
+            Assert.AreSame(value, bsonArray);
         }
 
         [Test]
@@ -76,6 +80,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonBinaryData(new byte[] { 1, 2, 3 });
             var bsonValue = (BsonBinaryData) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonBinary = (BsonBinaryData) BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);
+            Assert.AreSame(value, bsonBinary);
         }
 
         [Test]
@@ -83,6 +89,8 @@ namespace MongoDB.BsonUnitTests {
             var value = BsonBoolean.True;
             var bsonValue = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreSame(value, bsonBoolean);
         }
 
         [Test]
@@ -90,6 +98,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonDateTime(DateTime.UtcNow);
             var bsonValue = (BsonDateTime) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonDateTime = (BsonDateTime) BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);
+            Assert.AreSame(value, bsonDateTime);
         }
 
         [Test]
@@ -97,6 +107,10 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonDocument();
             var bsonValue = (BsonDocument) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonArray = (BsonArray) BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
+            Assert.AreEqual(0, bsonArray.Count);
+            var bsonDocument = (BsonDocument) BsonTypeMapper.MapToBsonValue(value, BsonType.Document);
+            Assert.AreSame(value, bsonDocument);
         }
 
         [Test]
@@ -104,6 +118,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonDouble(1.2);
             var bsonValue = (BsonDouble) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreSame(value, bsonDouble);
         }
 
         [Test]
@@ -111,6 +127,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonInt32(1);
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreSame(value, bsonInt32);
         }
 
         [Test]
@@ -118,6 +136,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonInt64(1L);
             var bsonValue = (BsonInt64) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreSame(value, bsonInt64);
         }
 
         [Test]
@@ -125,6 +145,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonJavaScript("code");
             var bsonValue = (BsonJavaScript) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonJavaScript = (BsonJavaScript) BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScript);
+            Assert.AreSame(value, bsonJavaScript);
         }
 
         [Test]
@@ -132,6 +154,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonJavaScriptWithScope("code", new BsonDocument());
             var bsonValue = (BsonJavaScriptWithScope) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonJavaScriptWithScope = (BsonJavaScriptWithScope) BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
+            Assert.AreSame(value, bsonJavaScriptWithScope);
         }
 
         [Test]
@@ -139,6 +163,8 @@ namespace MongoDB.BsonUnitTests {
             var value = BsonMaxKey.Value;
             var bsonValue = (BsonMaxKey) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonMaxKey = (BsonMaxKey) BsonTypeMapper.MapToBsonValue(value, BsonType.MaxKey);
+            Assert.AreSame(value, bsonMaxKey);
         }
 
         [Test]
@@ -146,6 +172,8 @@ namespace MongoDB.BsonUnitTests {
             var value = BsonMinKey.Value;
             var bsonValue = (BsonMinKey) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonMinKey = (BsonMinKey) BsonTypeMapper.MapToBsonValue(value, BsonType.MinKey);
+            Assert.AreSame(value, bsonMinKey);
         }
 
         [Test]
@@ -153,6 +181,10 @@ namespace MongoDB.BsonUnitTests {
             var value = BsonNull.Value;
             var bsonValue = (BsonNull) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(false, bsonBoolean.Value);
+            var bsonNull = (BsonNull) BsonTypeMapper.MapToBsonValue(value, BsonType.Null);
+            Assert.AreSame(value, bsonNull);
         }
 
         [Test]
@@ -160,6 +192,8 @@ namespace MongoDB.BsonUnitTests {
             var value = BsonObjectId.GenerateNewId();
             var bsonValue = (BsonObjectId) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonObjectId = (BsonObjectId) BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
+            Assert.AreSame(value, bsonObjectId);
         }
 
         [Test]
@@ -167,6 +201,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonRegularExpression("pattern", "options");
             var bsonValue = (BsonRegularExpression) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonRegularExpression = (BsonRegularExpression) BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
+            Assert.AreSame(value, bsonRegularExpression);
         }
 
         [Test]
@@ -174,6 +210,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonString("hello");
             var bsonValue = (BsonString) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonString = (BsonString) BsonTypeMapper.MapToBsonValue(value, BsonType.String);
+            Assert.AreSame(value, bsonString);
         }
 
         [Test]
@@ -181,6 +219,8 @@ namespace MongoDB.BsonUnitTests {
             var value = BsonSymbol.Create("symbol");
             var bsonValue = (BsonSymbol) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonSymbol = (BsonSymbol) BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
+            Assert.AreSame(value, bsonSymbol);
         }
 
         [Test]
@@ -188,6 +228,8 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonTimestamp(1234L);
             var bsonValue = (BsonTimestamp) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
+            var bsonTimestamp = (BsonTimestamp) BsonTypeMapper.MapToBsonValue(value, BsonType.Timestamp);
+            Assert.AreSame(value, bsonTimestamp);
         }
 
         [Test]
@@ -202,14 +244,27 @@ namespace MongoDB.BsonUnitTests {
             var value = (byte) 1;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(1.0, bsonDouble.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual(1.0, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual(1.0, bsonInt64.Value);
         }
 
         [Test]
         public void TestMapByteArray() {
-            var value = new byte[] { 1, 2, 3 };
+            var value = ObjectId.GenerateNewId().ToByteArray();
             var bsonValue = (BsonBinaryData) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue.Bytes);
             Assert.AreEqual(BsonBinarySubType.Binary, bsonValue.SubType);
+            var bsonBinary = (BsonBinaryData) BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);
+            Assert.AreSame(value, bsonBinary.Bytes);
+            Assert.AreEqual(BsonBinarySubType.Binary, bsonBinary.SubType);
+            var bsonObjectId = (BsonObjectId) BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
+            Assert.IsTrue(value.SequenceEqual(bsonObjectId.ToByteArray()));
         }
 
         [Test]
@@ -217,6 +272,10 @@ namespace MongoDB.BsonUnitTests {
             var value = ByteEnum.V;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual((int) (byte) value, bsonValue.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual((int) (byte) value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual((long) (byte) value, bsonInt64.Value);
         }
 
         [Test]
@@ -224,6 +283,15 @@ namespace MongoDB.BsonUnitTests {
             var value = DateTime.UtcNow;
             var bsonValue = (BsonDateTime) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonDateTime = (BsonDateTime) BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);
+            Assert.AreEqual(value, bsonDateTime.Value);
+        }
+
+        [Test]
+        public void TestMapDateTimeOffset() {
+            var value = DateTimeOffset.UtcNow;
+            var bsonDateTime = (BsonDateTime) BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);
+            Assert.AreEqual(value.DateTime, bsonDateTime.Value);
         }
 
         [Test]
@@ -231,6 +299,10 @@ namespace MongoDB.BsonUnitTests {
             var value = 1.2;
             var bsonValue = (BsonDouble) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
         }
 
         [Test]
@@ -239,6 +311,9 @@ namespace MongoDB.BsonUnitTests {
             var bsonValue = (BsonBinaryData) BsonTypeMapper.MapToBsonValue(value);
             Assert.IsTrue(value.ToByteArray().SequenceEqual(bsonValue.Bytes));
             Assert.AreEqual(BsonBinarySubType.Uuid, bsonValue.SubType);
+            var bsonBinary = (BsonBinaryData) BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);
+            Assert.IsTrue(value.ToByteArray().SequenceEqual(bsonBinary.Bytes));
+            Assert.AreEqual(BsonBinarySubType.Uuid, bsonBinary.SubType);
         }
 
         [Test]
@@ -246,6 +321,14 @@ namespace MongoDB.BsonUnitTests {
             var value = (short) 1;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual(value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual(value, bsonInt64.Value);
         }
 
         [Test]
@@ -253,6 +336,10 @@ namespace MongoDB.BsonUnitTests {
             var value = Int16Enum.V;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual((int) (short) value, bsonValue.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual((int) (short) value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual((long) (short) value, bsonInt64.Value);
         }
 
         [Test]
@@ -260,6 +347,14 @@ namespace MongoDB.BsonUnitTests {
             var value = 1;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual(value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual(value, bsonInt64.Value);
         }
 
         [Test]
@@ -267,6 +362,10 @@ namespace MongoDB.BsonUnitTests {
             var value = Int32Enum.V;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual((int) value, bsonValue.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual((int) value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual((long) (int) value, bsonInt64.Value);
         }
 
         [Test]
@@ -274,6 +373,14 @@ namespace MongoDB.BsonUnitTests {
             var value = 1L;
             var bsonValue = (BsonInt64) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual(value, bsonInt64.Value);
+            var bsonTimestamp = (BsonTimestamp) BsonTypeMapper.MapToBsonValue(value, BsonType.Timestamp);
+            Assert.AreEqual(value, bsonTimestamp.Value);
         }
 
         [Test]
@@ -281,6 +388,8 @@ namespace MongoDB.BsonUnitTests {
             var value = Int64Enum.V;
             var bsonValue = (BsonInt64) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual((long) value, bsonValue.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual((long) value, bsonInt64.Value);
         }
 
         [Test]
@@ -288,6 +397,8 @@ namespace MongoDB.BsonUnitTests {
             var value = ObjectId.GenerateNewId(); ;
             var bsonValue = (BsonObjectId) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonObjectId = (BsonObjectId) BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
+            Assert.AreEqual(value, bsonObjectId.Value);
         }
 
         [Test]
@@ -296,6 +407,9 @@ namespace MongoDB.BsonUnitTests {
             var bsonValue = (BsonRegularExpression) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual("pattern", bsonValue.Pattern);
             Assert.AreEqual("", bsonValue.Options);
+            var bsonRegularExpression = (BsonRegularExpression) BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
+            Assert.AreEqual("pattern", bsonRegularExpression.Pattern);
+            Assert.AreEqual("", bsonRegularExpression.Options);
         }
 
         [Test]
@@ -303,6 +417,14 @@ namespace MongoDB.BsonUnitTests {
             var value = (sbyte) 1;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual(value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual(value, bsonInt64.Value);
         }
 
         [Test]
@@ -310,6 +432,10 @@ namespace MongoDB.BsonUnitTests {
             var value = SByteEnum.V;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual((int) (sbyte) value, bsonValue.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual((int) (sbyte) value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual((long) (sbyte) value, bsonInt64.Value);
         }
 
         [Test]
@@ -317,6 +443,10 @@ namespace MongoDB.BsonUnitTests {
             var value = (float) 1.2;
             var bsonValue = (BsonDouble) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
         }
 
         [Test]
@@ -324,6 +454,31 @@ namespace MongoDB.BsonUnitTests {
             var value = "hello";
             var bsonValue = (BsonString) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue("1", BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDateTime = (BsonDateTime) BsonTypeMapper.MapToBsonValue("2010-01-02", BsonType.DateTime);
+            Assert.AreEqual(new DateTime(2010, 1, 2), bsonDateTime.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue("1.2", BsonType.Double);
+            Assert.AreEqual(1.2, bsonDouble.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue("1", BsonType.Int32);
+            Assert.AreEqual(1, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue("1", BsonType.Int64);
+            Assert.AreEqual(1L, bsonInt64.Value);
+            var bsonJavaScript = (BsonJavaScript) BsonTypeMapper.MapToBsonValue("code", BsonType.JavaScript);
+            Assert.AreEqual("code", bsonJavaScript.Code);
+            var bsonJavaScriptWithScope = (BsonJavaScriptWithScope) BsonTypeMapper.MapToBsonValue("code", BsonType.JavaScriptWithScope);
+            Assert.AreEqual("code", bsonJavaScriptWithScope.Code);
+            Assert.AreEqual(0, bsonJavaScriptWithScope.Scope.Count);
+            var objectId = ObjectId.GenerateNewId();
+            var bsonObjectId = (BsonObjectId) BsonTypeMapper.MapToBsonValue(objectId.ToString(), BsonType.ObjectId);
+            Assert.AreEqual(objectId, bsonObjectId.Value);
+            var bsonRegularExpression = (BsonRegularExpression) BsonTypeMapper.MapToBsonValue(new Regex("pattern"), BsonType.RegularExpression);
+            Assert.AreEqual("pattern", bsonRegularExpression.Pattern);
+            Assert.AreEqual("", bsonRegularExpression.Options);
+            var bsonString = (BsonString) BsonTypeMapper.MapToBsonValue(value, BsonType.String);
+            Assert.AreEqual(value, bsonString.Value);
+            var bsonSymbol = (BsonSymbol) BsonTypeMapper.MapToBsonValue("symbol", BsonType.Symbol);
+            Assert.AreSame(BsonSymbol.Create("symbol"), bsonSymbol);
         }
 
         [Test]
@@ -331,6 +486,14 @@ namespace MongoDB.BsonUnitTests {
             var value = (ushort) 1;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual(value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual(value, bsonInt64.Value);
         }
 
         [Test]
@@ -338,6 +501,10 @@ namespace MongoDB.BsonUnitTests {
             var value = UInt16Enum.V;
             var bsonValue = (BsonInt32) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual((int) (ushort) value, bsonValue.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual((int) (ushort) value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual((long) (ushort) value, bsonInt64.Value);
         }
 
         [Test]
@@ -345,6 +512,14 @@ namespace MongoDB.BsonUnitTests {
             var value = (uint) 1;
             var bsonValue = (BsonInt64) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
+            var bsonInt32 = (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            Assert.AreEqual(value, bsonInt32.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual(value, bsonInt64.Value);
         }
 
         [Test]
@@ -352,6 +527,8 @@ namespace MongoDB.BsonUnitTests {
             var value = UInt32Enum.V;
             var bsonValue = (BsonInt64) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual((long) (uint) value, bsonValue.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual((long) (uint) value, bsonInt64.Value);
         }
 
         [Test]
@@ -359,6 +536,14 @@ namespace MongoDB.BsonUnitTests {
             var value = (ulong) 1;
             var bsonValue = (BsonInt64) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual(value, bsonValue.Value);
+            var bsonBoolean = (BsonBoolean) BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+            Assert.AreEqual(true, bsonBoolean.Value);
+            var bsonDouble = (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            Assert.AreEqual(value, bsonDouble.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual(value, bsonInt64.Value);
+            var bsonTimestamp = (BsonTimestamp) BsonTypeMapper.MapToBsonValue(value, BsonType.Timestamp);
+            Assert.AreEqual(value, bsonTimestamp.Value);
         }
 
         [Test]
@@ -366,6 +551,8 @@ namespace MongoDB.BsonUnitTests {
             var value = UInt64Enum.V;
             var bsonValue = (BsonInt64) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreEqual((long) (ulong) value, bsonValue.Value);
+            var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
+            Assert.AreEqual((long) (ulong) value, bsonInt64.Value);
         }
     }
 }

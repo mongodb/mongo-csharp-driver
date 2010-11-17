@@ -66,10 +66,16 @@ namespace MongoDB.Bson {
 
         // table of from/to mappings used by MapToBsonValue
         private static Dictionary<Mapping, Conversion> fromToMappings = new Dictionary<Mapping, Conversion>() {
+            { Mapping.FromTo(typeof(bool), BsonType.Boolean), Conversion.NewBsonBoolean },
             { Mapping.FromTo(typeof(BsonArray), BsonType.Array), Conversion.None },
             { Mapping.FromTo(typeof(BsonBinaryData), BsonType.Binary), Conversion.None },
+            { Mapping.FromTo(typeof(BsonBoolean), BsonType.Boolean), Conversion.None },
+            { Mapping.FromTo(typeof(BsonDateTime), BsonType.DateTime), Conversion.None },
             { Mapping.FromTo(typeof(BsonDocument), BsonType.Array), Conversion.BsonDocumentToBsonArray },
             { Mapping.FromTo(typeof(BsonDocument), BsonType.Document), Conversion.None },
+            { Mapping.FromTo(typeof(BsonDouble), BsonType.Double), Conversion.None },
+            { Mapping.FromTo(typeof(BsonInt32), BsonType.Int32), Conversion.None },
+            { Mapping.FromTo(typeof(BsonInt64), BsonType.Int64), Conversion.None },
             { Mapping.FromTo(typeof(BsonJavaScript), BsonType.JavaScript), Conversion.None },
             { Mapping.FromTo(typeof(BsonJavaScript), BsonType.JavaScriptWithScope), Conversion.BsonJavaScriptToBsonJavaScriptWithScope },
             { Mapping.FromTo(typeof(BsonJavaScriptWithScope), BsonType.JavaScriptWithScope), Conversion.None },
@@ -79,10 +85,9 @@ namespace MongoDB.Bson {
             { Mapping.FromTo(typeof(BsonNull), BsonType.Null), Conversion.None },
             { Mapping.FromTo(typeof(BsonObjectId), BsonType.ObjectId), Conversion.None },
             { Mapping.FromTo(typeof(BsonRegularExpression), BsonType.RegularExpression), Conversion.None },
+            { Mapping.FromTo(typeof(BsonString), BsonType.String), Conversion.None },
             { Mapping.FromTo(typeof(BsonSymbol), BsonType.Symbol), Conversion.None },
             { Mapping.FromTo(typeof(BsonTimestamp), BsonType.Timestamp), Conversion.None },
-            { Mapping.FromTo(typeof(Guid), BsonType.Binary), Conversion.GuidToBsonBinary },
-            { Mapping.FromTo(typeof(bool), BsonType.Boolean), Conversion.NewBsonBoolean },
             { Mapping.FromTo(typeof(byte), BsonType.Boolean), Conversion.ByteToBsonBoolean },
             { Mapping.FromTo(typeof(byte), BsonType.Double), Conversion.ByteToBsonDouble },
             { Mapping.FromTo(typeof(byte), BsonType.Int32), Conversion.ByteToBsonInt32 },
@@ -95,6 +100,7 @@ namespace MongoDB.Bson {
             { Mapping.FromTo(typeof(double), BsonType.Double), Conversion.NewBsonDouble },
             { Mapping.FromTo(typeof(float), BsonType.Boolean), Conversion.SingleToBsonBoolean },
             { Mapping.FromTo(typeof(float), BsonType.Double), Conversion.SingleToBsonDouble },
+            { Mapping.FromTo(typeof(Guid), BsonType.Binary), Conversion.GuidToBsonBinary },
             { Mapping.FromTo(typeof(int), BsonType.Boolean), Conversion.Int32ToBsonBoolean },
             { Mapping.FromTo(typeof(int), BsonType.Double), Conversion.Int32ToBsonDouble },
             { Mapping.FromTo(typeof(int), BsonType.Int32), Conversion.NewBsonInt32 },
@@ -102,8 +108,8 @@ namespace MongoDB.Bson {
             { Mapping.FromTo(typeof(long), BsonType.Boolean), Conversion.Int64ToBsonBoolean },
             { Mapping.FromTo(typeof(long), BsonType.Double), Conversion.Int64ToBsonDouble },
             { Mapping.FromTo(typeof(long), BsonType.Int64), Conversion.NewBsonInt64 },
-            { Mapping.FromTo(typeof(ObjectId), BsonType.ObjectId), Conversion.NewBsonObjectId },
             { Mapping.FromTo(typeof(long), BsonType.Timestamp), Conversion.Int64ToBsonTimestamp },
+            { Mapping.FromTo(typeof(ObjectId), BsonType.ObjectId), Conversion.NewBsonObjectId },
             { Mapping.FromTo(typeof(Regex), BsonType.RegularExpression), Conversion.RegexToBsonRegularExpression },
             { Mapping.FromTo(typeof(sbyte), BsonType.Boolean), Conversion.SByteToBsonBoolean },
             { Mapping.FromTo(typeof(sbyte), BsonType.Double), Conversion.SByteToBsonDouble },
@@ -160,8 +166,24 @@ namespace MongoDB.Bson {
                 throw new ArgumentNullException("value");
             }
 
+            var valueType = value.GetType();
+            if (valueType.IsEnum) {
+                valueType = Enum.GetUnderlyingType(valueType);
+                switch (Type.GetTypeCode(valueType)) {
+                    case TypeCode.Byte: value = (int) (byte) value; break;
+                    case TypeCode.Int16: value = (int) (short) value; break;
+                    case TypeCode.Int32: value = (int) value; break;
+                    case TypeCode.Int64: value = (long) value; break;
+                    case TypeCode.SByte: value = (int) (sbyte) value; break;
+                    case TypeCode.UInt16: value = (int) (ushort) value; break;
+                    case TypeCode.UInt32: value = (long) (uint) value; break;
+                    case TypeCode.UInt64: value = (long) (ulong) value; break;
+                }
+                valueType = value.GetType();
+            }
+
             Conversion conversion; // the conversion (if it exists) that will convert value to bsonType
-            if (fromToMappings.TryGetValue(Mapping.FromTo(value.GetType(), bsonType), out conversion)) {
+            if (fromToMappings.TryGetValue(Mapping.FromTo(valueType, bsonType), out conversion)) {
                 return Convert(value, conversion);
             }
 
