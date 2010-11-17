@@ -184,20 +184,15 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             lock (staticLock) {
                 BsonClassMap classMap;
-                if (classMaps.TryGetValue(classType, out classMap)) {
-                    return classMap;
-                } else {
-                    // automatically register a class map for classType
-                    var registerClassMapMethodDefinition = typeof(BsonClassMap).GetMethod(
-                        "RegisterClassMap", // name
-                        BindingFlags.Public | BindingFlags.Static, // bindingAttr
-                        null, // binder
-                        new Type[] { }, // types
-                        null // modifiers
-                    );
-                    var registerClassMapMethodInfo = registerClassMapMethodDefinition.MakeGenericMethod(classType);
-                    return (BsonClassMap) registerClassMapMethodInfo.Invoke(null, new object[] { });
+                if (!classMaps.TryGetValue(classType, out classMap)) {
+                    // automatically create a classMap for classType and register it
+                    var classMapDefinition = typeof(BsonClassMap<>);
+                    var classMapType = classMapDefinition.MakeGenericType(classType);
+                    classMap = (BsonClassMap) Activator.CreateInstance(classMapType);
+                    classMap.AutoMap();
+                    RegisterClassMap(classMap);
                 }
+                return classMap;
             }
         }
 
@@ -626,6 +621,10 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class BsonClassMap<TClass> : BsonClassMap {
         #region constructors
+        public BsonClassMap()
+            : base(typeof(TClass)) {
+        }
+
         public BsonClassMap(
             Action<BsonClassMap<TClass>> classMapInitializer
         ) : base(typeof(TClass)) {
