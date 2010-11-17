@@ -26,7 +26,7 @@ using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharpxx {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp100 {
     [TestFixture]
     public class CSharp100Tests {
         [DataContract]
@@ -50,7 +50,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharpxx {
         public void TestDeserializationOfTwoBs() {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
-            var collection = database["csharpxx"];
+            var collection = database["csharp100"];
 
             collection.RemoveAll();
             var obj = new ChildClass { SomeProperty = null };
@@ -60,6 +60,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharpxx {
             obj = new ChildClass { SomeProperty = new List<SomeClass> { new SomeClass() } };
             collection.Save(obj, SafeMode.True);
             obj = new ChildClass { SomeProperty = new List<SomeClass> { new SomeClass(), new SomeClass() } };
+            collection.Save(obj, SafeMode.True);
+            obj = new ChildClass { SomeProperty = new [] { new SomeClass(), new SomeClass() } };
             collection.Save(obj, SafeMode.True);
         }
     }

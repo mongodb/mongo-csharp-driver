@@ -156,7 +156,7 @@
     <Compile Include="DefaultSerializer\BsonDefaultSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonBaseSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\GeneralEnumSerializer.cs" />
-    <Compile Include="DefaultSerializer\Serializers\GenericArraySerializer.cs" />
+    <Compile Include="DefaultSerializer\Serializers\ArraySerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonIBsonSerializableSerializer.cs" />
     <Compile Include="Serialization\IBsonIdGenerator.cs" />
     <Compile Include="Serialization\IBsonSerializable.cs" />

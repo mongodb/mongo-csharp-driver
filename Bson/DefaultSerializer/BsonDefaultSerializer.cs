@@ -219,7 +219,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             object serializationOptions
         ) {
             if (type.IsArray) {
-                return GenericArraySerializer.Singleton;
+                var elementType = type.GetElementType();
+                var arraySerializerDefinition = typeof(ArraySerializer<>);
+                var arraySerializerType = arraySerializerDefinition.MakeGenericType(elementType);
+                return (IBsonSerializer) Activator.CreateInstance(arraySerializerType, serializationOptions);
             }
 
             if (type.IsEnum) {
