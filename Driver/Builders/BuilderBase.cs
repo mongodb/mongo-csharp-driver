@@ -55,17 +55,10 @@ namespace MongoDB.Driver.Builders {
             throw new InvalidOperationException();
         }
 
-        bool IBsonSerializable.DocumentHasIdMember() {
-            return false;
-        }
-
-        bool IBsonSerializable.DocumentHasIdValue(
-            out object existingId
+        bool IBsonSerializable.GetDocumentId(
+            out object id,
+            out IBsonIdGenerator idGenerator
         ) {
-            throw new InvalidOperationException();
-        }
-
-        void IBsonSerializable.GenerateDocumentId() {
             throw new InvalidOperationException();
         }
 
@@ -75,6 +68,12 @@ namespace MongoDB.Driver.Builders {
             bool serializeIdFirst
         ) {
             Serialize(bsonWriter, nominalType, serializeIdFirst);
+        }
+
+        void IBsonSerializable.SetDocumentId(
+            object id
+        ) {
+            throw new InvalidOperationException();
         }
 
         BsonDocument IConvertibleToBsonDocument.ToBsonDocument() {

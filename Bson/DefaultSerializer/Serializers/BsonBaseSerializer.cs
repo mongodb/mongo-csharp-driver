@@ -46,23 +46,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             return Deserialize(bsonReader, nominalType);
         }
 
-        public virtual bool DocumentHasIdMember(
-            object document
-        ) {
-            return false;
-        }
-
-        public virtual bool DocumentHasIdValue(
+        public virtual bool GetDocumentId(
             object document,
-            out object existingId
+            out object id,
+            out IBsonIdGenerator idGenerator
         ) {
-            throw new InvalidOperationException("Subclass must implement DocumentHasIdValue");
-        }
-
-        public virtual void GenerateDocumentId(
-            object document
-        ) {
-            throw new InvalidOperationException("Subclass must implement GenerateDocumentId");
+            throw new InvalidOperationException("Subclass must implement GetDocumentId");
         }
 
         public virtual void Serialize(
@@ -72,6 +61,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             bool serializeIdFirst
         ) {
             throw new InvalidOperationException("Subclass must implement Serialize");
+        }
+
+        public virtual void SetDocumentId(
+            object document,
+            object id
+        ) {
+            throw new InvalidOperationException("Subclass must implement SetDocumentId");
         }
         #endregion
     }

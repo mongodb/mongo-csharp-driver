@@ -63,26 +63,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return Deserialize(bsonReader, nominalType);
         }
 
-        public bool DocumentHasIdMember(
-            object document
-        ) {
-            var bsonSerializable = (IBsonSerializable) document;
-            return bsonSerializable.DocumentHasIdMember();
-        }
-
-        public bool DocumentHasIdValue(
+        public bool GetDocumentId(
             object document,
-            out object existingId
+            out object id,
+            out IBsonIdGenerator idGenerator
         ) {
             var bsonSerializable = (IBsonSerializable) document;
-            return bsonSerializable.DocumentHasIdValue(out existingId);
-        }
-
-        public void GenerateDocumentId(
-            object document
-        ) {
-            var bsonSerializable = (IBsonSerializable) document;
-            bsonSerializable.GenerateDocumentId();
+            return bsonSerializable.GetDocumentId(out id, out idGenerator);
         }
 
         public void Serialize(
@@ -93,6 +80,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             var serializable = (IBsonSerializable) value;
             serializable.Serialize(bsonWriter, nominalType, serializeIdFirst);
+        }
+
+        public void SetDocumentId(
+            object document,
+            object id
+        ) {
+            var bsonSerializable = (IBsonSerializable) document;
+            bsonSerializable.SetDocumentId(id);
         }
         #endregion
     }

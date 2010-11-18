@@ -143,17 +143,10 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        bool IBsonSerializable.DocumentHasIdMember() {
-            return false;
-        }
-
-        bool IBsonSerializable.DocumentHasIdValue(
-            out object existingId
+        bool IBsonSerializable.GetDocumentId(
+            out object id,
+            out IBsonIdGenerator idGenerator
         ) {
-            throw new InvalidOperationException();
-        }
-
-        void IBsonSerializable.GenerateDocumentId() {
             throw new InvalidOperationException();
         }
 
@@ -184,6 +177,12 @@ namespace MongoDB.Driver {
                 bsonWriter.WriteString("$db", databaseName);
             }
             bsonWriter.WriteEndDocument();
+        }
+
+        void IBsonSerializable.SetDocumentId(
+            object id
+        ) {
+            throw new InvalidOperationException();
         }
         #endregion
     }

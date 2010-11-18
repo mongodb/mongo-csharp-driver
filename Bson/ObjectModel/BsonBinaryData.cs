@@ -58,6 +58,16 @@ namespace MongoDB.Bson {
             get { return bytes; }
         }
 
+        public override object RawValue {
+            get {
+                if (bytes.Length == 16 && subType == BsonBinarySubType.Uuid) {
+                    return new Guid(bytes);
+                } else {
+                    return null;
+                }
+            }
+        }
+
         public BsonBinarySubType SubType {
             get { return subType; }
         }

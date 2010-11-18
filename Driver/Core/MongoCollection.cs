@@ -418,10 +418,12 @@ namespace MongoDB.Driver {
                 foreach (var document in documents) {
                     if (assignIdOnInsert) {
                         var serializer = BsonSerializer.LookupSerializer(document.GetType());
-                        if (serializer.DocumentHasIdMember(document)) {
-                            object existingId;
-                            if (!serializer.DocumentHasIdValue(document, out existingId)) {
-                                serializer.GenerateDocumentId(document);
+                        object id;
+                        IBsonIdGenerator idGenerator;
+                        if (serializer.GetDocumentId(document, out id, out idGenerator)) {
+                            if (idGenerator != null && idGenerator.IsEmpty(id)) {
+                                id = idGenerator.GenerateId();
+                                serializer.SetDocumentId(document, id);
                             }
                         }
                     }
@@ -577,18 +579,18 @@ namespace MongoDB.Driver {
             SafeMode safeMode
         ) {
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
-            if (serializer.DocumentHasIdMember(document)) {
-                object existingId;
-                if (serializer.DocumentHasIdValue(document, out existingId)) {
-                    var query = new BsonDocument("_id", BsonValue.Create(existingId));
+            object id;
+            IBsonIdGenerator idGenerator;
+            if (serializer.GetDocumentId(document, out id, out idGenerator)) {
+                if (idGenerator != null && idGenerator.IsEmpty(id)) {
+                    id = idGenerator.GenerateId();
+                    serializer.SetDocumentId(document, id);
+                } else if (id != null) {
+                    var query = new BsonDocument("_id", BsonValue.Create(id));
                     return Update(query, document, UpdateFlags.Upsert, safeMode);
-                } else {
-                    serializer.GenerateDocumentId(document);
-                    return Insert(document, safeMode);
                 }
-            } else {
-                return Insert(document, safeMode);
             }
+            return Insert(document, safeMode);
         }
 
         public BsonDocument Stats() {

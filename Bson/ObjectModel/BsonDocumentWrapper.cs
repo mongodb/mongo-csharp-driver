@@ -70,12 +70,9 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
         }
 
-        public bool DocumentHasIdMember() {
-            return false;
-        }
-
-        public bool DocumentHasIdValue(
-            out object existingId
+        public bool GetDocumentId(
+            out object id,
+            out IBsonIdGenerator idGenerator
         ) {
             throw new InvalidOperationException();
         }
@@ -84,10 +81,6 @@ namespace MongoDB.Bson {
             object obj
         ) {
             throw new InvalidOperationException("Equals not supported for BsonDocumentWrapper");
-        }
-
-        public void GenerateDocumentId() {
-            throw new InvalidOperationException();
         }
 
         public override int GetHashCode() {
@@ -100,6 +93,12 @@ namespace MongoDB.Bson {
             bool serializeIdFirst
         ) {
             BsonSerializer.Serialize(bsonWriter, document, serializeIdFirst);
+        }
+
+        public void SetDocumentId(
+            object Id
+        ) {
+            throw new InvalidOperationException();
         }
 
         public override string ToString() {

@@ -74,6 +74,7 @@
     <Compile Include="Core\MongoCollectionTests.cs" />
     <Compile Include="Core\MongoDatabaseTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />
+    <Compile Include="Jira\CSharp101Tests.cs" />
     <Compile Include="Jira\CSharp77Tests.cs" />
     <Compile Include="Jira\CSharp92Tests.cs" />
     <Compile Include="Jira\CSharp93Tests.cs" />

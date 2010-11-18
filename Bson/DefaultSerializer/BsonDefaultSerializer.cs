@@ -47,6 +47,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         #region public static methods
         public static void Initialize() {
+            RegisterIdGenerators();
             RegisterSerializers();
         }
 
@@ -173,6 +174,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private static methods
+        private static void RegisterIdGenerators() {
+            BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
+            BsonSerializer.RegisterIdGenerator(typeof(ObjectId), ObjectIdGenerator.Instance);
+        }
+
         // automatically register all BsonSerializers found in the Bson library
         private static void RegisterSerializers() {
             var assembly = Assembly.GetExecutingAssembly();
@@ -204,11 +210,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         public IBsonIdGenerator GetIdGenerator(
             Type type
         ) {
-            // TODO: implement more IdGenerators?
-            if (type == typeof(ObjectId)) {
-                return new ObjectIdGenerator();
-            } else if (type == typeof(Guid)) {
-                return new GuidGenerator();
+            if (!type.IsValueType) {
+                return NullIdChecker.Instance;
             } else {
                 return null;
             }

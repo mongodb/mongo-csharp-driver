@@ -26,8 +26,18 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
     public class GuidGenerator : IBsonIdGenerator {
+        #region private static fields
+        private static GuidGenerator instance = new GuidGenerator();
+        #endregion
+
         #region constructors
         public GuidGenerator() {
+        }
+        #endregion
+
+        #region public static properties
+        public static GuidGenerator Instance {
+            get { return instance; }
         }
         #endregion
 
@@ -39,14 +49,53 @@ namespace MongoDB.Bson.DefaultSerializer {
         public bool IsEmpty(
             object id
         ) {
-            return (Guid) id == Guid.Empty;
+            return id == null || (Guid) id == Guid.Empty;
+        }
+        #endregion
+    }
+
+    public class NullIdChecker : IBsonIdGenerator {
+        #region private static fields
+        private static NullIdChecker instance = new NullIdChecker();
+        #endregion
+
+        #region constructors
+        public NullIdChecker() {
+        }
+        #endregion
+
+        #region public static properties
+        public static NullIdChecker Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        public object GenerateId() {
+            throw new InvalidOperationException("Id cannot be null");
+        }
+
+        public bool IsEmpty(
+            object id
+        ) {
+            return id == null;
         }
         #endregion
     }
 
     public class ObjectIdGenerator : IBsonIdGenerator {
+        #region private static fields
+        private static ObjectIdGenerator instance = new ObjectIdGenerator();
+        #endregion
+
         #region constructors
         public ObjectIdGenerator() {
+        }
+        #endregion
+
+        #region public static properties
+        public static ObjectIdGenerator Instance {
+            get { return instance; }
         }
         #endregion
 
@@ -58,15 +107,24 @@ namespace MongoDB.Bson.DefaultSerializer {
         public bool IsEmpty(
             object id
         ) {
-            return (ObjectId) id == ObjectId.Empty;
+            return id == null || (ObjectId) id == ObjectId.Empty;
         }
         #endregion
     }
 
-    public class CombGuidGenerator : IBsonIdGenerator
-    {
+    public class CombGuidGenerator : IBsonIdGenerator {
+        #region private static fields
+        private static CombGuidGenerator instance = new CombGuidGenerator();
+        #endregion
+
         #region constructors
         public CombGuidGenerator() {
+        }
+        #endregion
+
+        #region public static properties
+        public static CombGuidGenerator Instance {
+            get { return instance; }
         }
         #endregion
 
@@ -95,7 +153,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public bool IsEmpty(
             object id
         ) {
-            return (Guid) id == Guid.Empty;
+            return id == null || (Guid) id == Guid.Empty;
         }
         #endregion
     }

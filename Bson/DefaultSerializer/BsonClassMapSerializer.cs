@@ -120,32 +120,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public bool DocumentHasIdMember(
-            object document
-        ) {
-            var classMap = BsonClassMap.LookupClassMap(document.GetType());
-            return classMap.IdMemberMap != null;
-        }
-
-        public bool DocumentHasIdValue(
+        public bool GetDocumentId(
             object document,
-            out object existingId
+            out object id,
+            out IBsonIdGenerator idGenerator
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idMemberMap = classMap.IdMemberMap;
-            existingId = idMemberMap.Getter(document);
-            var idGenerator = idMemberMap.IdGenerator;
-            return idGenerator != null && !idGenerator.IsEmpty(existingId);
-        }
-
-        public void GenerateDocumentId(
-            object document
-        ) {
-            var classMap = BsonClassMap.LookupClassMap(document.GetType());
-            var idMemberMap = classMap.IdMemberMap;
-            var idGenerator = idMemberMap.IdGenerator;
-            if (idGenerator != null) {
-                idMemberMap.Setter(document, idGenerator.GenerateId());
+            if (idMemberMap != null) {
+                id = idMemberMap.Getter(document);
+                idGenerator = idMemberMap.IdGenerator;
+                return true;
+            } else {
+                id = null;
+                idGenerator = null;
+                return false;
             }
         }
 
@@ -194,6 +183,20 @@ namespace MongoDB.Bson.DefaultSerializer {
                     }
                 }
                 bsonWriter.WriteEndDocument();
+            }
+        }
+
+        public void SetDocumentId(
+            object document,
+            object id
+        ) {
+            var classMap = BsonClassMap.LookupClassMap(document.GetType());
+            var idMemberMap = classMap.IdMemberMap;
+            if (idMemberMap != null) {
+                idMemberMap.Setter(document, id);
+            } else {
+                var message = string.Format("Class {0} has no Id member", document.GetType());
+                throw new InvalidOperationException(message);
             }
         }
         #endregion

@@ -380,6 +380,11 @@ namespace MongoDB.Bson.DefaultSerializer {
                 throw new BsonInternalException("Invalid memberMap");
             }
 
+            // depending on the timing of the call to SetIdMember the elementDictionary might be empty
+            // so only fix the mapping if there was a previous one there to begin with
+            if (elementDictionary.Remove(memberMap.ElementName)) {
+                elementDictionary.Add("_id", memberMap);
+            }
             memberMap.SetElementName("_id");
             idMemberMap = memberMap;
         }

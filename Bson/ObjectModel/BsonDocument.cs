@@ -25,6 +25,7 @@ using System.Xml;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.DefaultSerializer;
 
 namespace MongoDB.Bson {
     [Serializable]
@@ -390,31 +391,24 @@ namespace MongoDB.Bson {
             }
         }
 
-        public bool DocumentHasIdMember() {
-            return true; // if necessary one will be created in GenerateDocumentId
-        }
-
-        public bool DocumentHasIdValue(
-            out object existingId
+        // note: always returns true (if necessary SetDocumentId will add an _id element)
+        public bool GetDocumentId(
+            out object id,
+            out IBsonIdGenerator idGenerator
         ) {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {
-                existingId = idElement.Value;
-                if (idElement.Value.IsBsonNull) {
-                    return false;
+                id = idElement.Value.RawValue;
+                if (id != null) {
+                    idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
                 } else {
-                    var rawValue = idElement.Value.RawValue;
-                    if (rawValue != null) {
-                        var idGenerator = BsonSerializer.LookupIdGenerator(rawValue.GetType());
-                        if (idGenerator != null) {
-                            return !idGenerator.IsEmpty(rawValue);
-                        }
-                    }
+                    idGenerator = ObjectIdGenerator.Instance;
                 }
             } else {
-                existingId = null;
+                id = null;
+                idGenerator = ObjectIdGenerator.Instance;
             }
-            return false;
+            return true;
         }
 
         public bool Equals(
@@ -428,26 +422,6 @@ namespace MongoDB.Bson {
             object obj
         ) {
             return Equals(obj as BsonDocument); // works even if obj is null
-        }
-
-        public void GenerateDocumentId() {
-            BsonElement idElement;
-            if (TryGetElement("_id", out idElement)) {
-                if (idElement.Value.IsBsonNull) {
-                    idElement.Value = ObjectId.GenerateNewId();
-                } else {
-                    var rawValue = idElement.Value.RawValue;
-                    if (rawValue != null) {
-                        var idGenerator = BsonSerializer.LookupIdGenerator(rawValue.GetType());
-                        if (idGenerator != null) {
-                            idElement.Value = BsonValue.Create(idGenerator.GenerateId());
-                        }
-                    }
-                }
-            } else {
-                idElement = new BsonElement("_id", ObjectId.GenerateNewId());
-                InsertAt(0, idElement);
-            }
         }
 
         public BsonElement GetElement(
@@ -591,6 +565,18 @@ namespace MongoDB.Bson {
         ) {
             this[name] = value;
             return this;
+        }
+
+        public void SetDocumentId(
+            object id
+        ) {
+            BsonElement idElement;
+            if (TryGetElement("_id", out idElement)) {
+                idElement.Value = BsonValue.Create(id);
+            } else {
+                idElement = new BsonElement("_id", BsonValue.Create(id));
+                InsertAt(0, idElement);
+            }
         }
 
         public BsonDocument SetElement(

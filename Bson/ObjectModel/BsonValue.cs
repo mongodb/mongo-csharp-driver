@@ -261,6 +261,7 @@ namespace MongoDB.Bson {
             get { return bsonType == BsonType.String; }
         }
 
+        // note: don't change return value to "this" or lots of things will break
         public virtual object RawValue {
             get { return null; } // subclasses that have a single value (e.g. Int32) override this
         }
