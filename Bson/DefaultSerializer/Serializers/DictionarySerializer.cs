@@ -67,7 +67,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     var key = bsonReader.ReadName();
                     var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                    var value = valueSerializer.Deserialize(bsonReader, typeof(object));
+                    var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType);
                     dictionary.Add(key, value);
                 }
                 bsonReader.ReadEndDocument();
@@ -83,12 +83,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonReader.SkipName();
                     var keyType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var keySerializer = BsonSerializer.LookupSerializer(keyType);
-                    var key = keySerializer.Deserialize(bsonReader, typeof(object));
+                    var key = keySerializer.Deserialize(bsonReader, typeof(object), keyType);
                     bsonReader.ReadBsonType();
                     bsonReader.SkipName();
                     var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                    var value = valueSerializer.Deserialize(bsonReader, typeof(object));
+                    var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType);
                     bsonReader.ReadEndArray();
                     dictionary.Add(key, value);
                 }

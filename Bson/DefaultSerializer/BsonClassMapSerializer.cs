@@ -50,18 +50,29 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadNull();
                 return null;
             } else {
-                VerifyNominalType(nominalType);
-
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
                 var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType);
                 if (actualType != nominalType) {
                     var serializer = BsonSerializer.LookupSerializer(actualType);
                     if (serializer != this) {
                         // in rare cases a concrete actualType might have a more specialized serializer
-                        return serializer.Deserialize(bsonReader, actualType);
+                        return serializer.Deserialize(bsonReader, nominalType, actualType);
                     }
                 }
+                return Deserialize(bsonReader, nominalType, actualType);
+            }
+        }
 
+        public object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType
+        ) {
+            VerifyNominalType(nominalType);
+            if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else {
                 var classMap = BsonClassMap.LookupClassMap(actualType);
                 if (classMap.IsAnonymous) {
                     throw new InvalidOperationException("Anonymous classes cannot be deserialized");
@@ -70,6 +81,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
                 bsonReader.ReadStartDocument();
                 var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.MemberMaps); // make a copy!
+                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
                     var elementName = bsonReader.ReadName();
                     if (elementName == discriminatorConvention.ElementName) {
@@ -193,10 +205,17 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonMemberMap memberMap
         ) {
             var nominalType = memberMap.MemberType;
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
-            var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
-            var serializer = memberMap.GetSerializerForActualType(actualType);
-            object value = serializer.Deserialize(bsonReader, memberMap.MemberType);
+            object value;
+            if (bsonReader.CurrentBsonType == BsonType.Null) {
+                var actualType = nominalType;
+                var serializer = memberMap.GetSerializerForActualType(actualType);
+                value = serializer.Deserialize(bsonReader, nominalType, actualType);
+            } else {
+                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
+                var serializer = memberMap.GetSerializerForActualType(actualType);
+                value = serializer.Deserialize(bsonReader, nominalType, actualType);
+            }
             memberMap.Setter(obj, value);
         }
 

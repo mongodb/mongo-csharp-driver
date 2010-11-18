@@ -20,6 +20,7 @@ using MongoDB.Bson.IO;
 namespace MongoDB.Bson.Serialization {
     public interface IBsonSerializer {
         object Deserialize(BsonReader bsonReader, Type nominalType);
+        object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType);
         bool DocumentHasIdMember(object document);
         bool DocumentHasIdValue(object document, out object existingId);
         void GenerateDocumentId(object document);

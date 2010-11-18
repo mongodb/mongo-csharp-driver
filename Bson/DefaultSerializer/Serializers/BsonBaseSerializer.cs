@@ -35,7 +35,15 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Subclass must implement Deserialize");
+        }
+
+        public virtual object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType
+        ) {
+            return Deserialize(bsonReader, nominalType);
         }
 
         public virtual bool DocumentHasIdMember(
@@ -48,13 +56,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             object document,
             out object existingId
         ) {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Subclass must implement DocumentHasIdValue");
         }
 
         public virtual void GenerateDocumentId(
             object document
         ) {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Subclass must implement GenerateDocumentId");
         }
 
         public virtual void Serialize(
@@ -63,7 +71,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             bool serializeIdFirst
         ) {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Subclass must implement Serialize");
         }
         #endregion
     }

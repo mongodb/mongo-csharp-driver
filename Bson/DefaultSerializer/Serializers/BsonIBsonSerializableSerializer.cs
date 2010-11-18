@@ -55,6 +55,14 @@ namespace MongoDB.Bson.DefaultSerializer {
             return value.Deserialize(bsonReader, nominalType);
         }
 
+        public object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType
+        ) {
+            return Deserialize(bsonReader, nominalType);
+        }
+
         public bool DocumentHasIdMember(
             object document
         ) {

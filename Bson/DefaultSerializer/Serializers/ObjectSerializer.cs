@@ -75,7 +75,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                             throw new BsonSerializationException("Unable to determine actual type of document to deserialize");
                         }
                         var serializer = BsonSerializer.LookupSerializer(actualType);
-                        return serializer.Deserialize(bsonReader, nominalType);
+                        return serializer.Deserialize(bsonReader, nominalType, actualType);
                 }
             } else {
                 var message = string.Format("Cannot deserialize an object from BsonType: {0}", bsonType);
