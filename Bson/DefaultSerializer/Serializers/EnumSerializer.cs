@@ -24,10 +24,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public class GeneralEnumSerializer : BsonBaseSerializer {
+    public class EnumSerializer : BsonBaseSerializer {
         #region private static fields
-        private static GeneralEnumSerializer intRepresentation = new GeneralEnumSerializer(BsonType.Int32);
-        private static GeneralEnumSerializer stringRepresentation = new GeneralEnumSerializer(BsonType.String);
+        private static EnumSerializer intRepresentation = new EnumSerializer(BsonType.Int32);
+        private static EnumSerializer stringRepresentation = new EnumSerializer(BsonType.String);
         #endregion
 
         #region private fields
@@ -35,7 +35,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
-        private GeneralEnumSerializer(
+        private EnumSerializer(
             BsonType representation
         ) {
             this.representation = representation;
@@ -43,17 +43,17 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public static properties
-        public static GeneralEnumSerializer IntRepresentation {
+        public static EnumSerializer IntRepresentation {
             get { return intRepresentation; }
         }
 
-        public static GeneralEnumSerializer StringRepresentation {
+        public static EnumSerializer StringRepresentation {
             get { return stringRepresentation; }
         }
         #endregion
 
         #region public static methods
-        public static GeneralEnumSerializer GetSerializer(
+        public static EnumSerializer GetSerializer(
             object serializationOptions
         ) {
             if (serializationOptions == null) {
@@ -128,7 +128,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType
         ) {
             if (!nominalType.IsEnum) {
-                var message = string.Format("GeneralEnumSerializer cannot be used with type: {0}", nominalType.FullName);
+                var message = string.Format("EnumSerializer cannot be used with type: {0}", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }
         }

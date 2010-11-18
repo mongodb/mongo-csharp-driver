@@ -226,7 +226,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
 
             if (type.IsEnum) {
-                return GeneralEnumSerializer.GetSerializer(serializationOptions);
+                return EnumSerializer.GetSerializer(serializationOptions);
             }
 
             if (
