@@ -90,4 +90,99 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
         #endregion
     }
+
+    public class TwoDimensionalArraySerializer<T> : BsonBaseSerializer {
+        #region constructors
+        public TwoDimensionalArraySerializer() {
+        }
+
+        public TwoDimensionalArraySerializer(
+            object serializationOptions
+        ) {
+        }
+        #endregion
+
+        #region public methods
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            VerifyType(nominalType);
+            var bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else {
+                bsonReader.ReadStartArray();
+                var outerList = new List<List<T>>();
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                    bsonReader.SkipName();
+                    bsonReader.ReadStartArray();
+                    var innerList = new List<T>();
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                        bsonReader.SkipName();
+                        var element = BsonSerializer.Deserialize<T>(bsonReader);
+                        innerList.Add(element);
+                    }
+                    bsonReader.ReadEndArray();
+                    outerList.Add(innerList);
+                }
+                bsonReader.ReadEndArray();
+
+                var length1 = outerList.Count;
+                var length2 = (length1 == 0) ? 0 : outerList[0].Count;
+                var array = new T[length1, length2];
+                for (int i = 0; i < length1; i++) {
+                    var innerList = outerList[i];
+                    if (innerList.Count != length2) {
+                        var message = string.Format("Inner list {0} is of wrong length: {1} (should be: {2})", i, innerList.Count, length2);
+                        throw new FileFormatException(message);
+                    }
+                    for (int j = 0; j < length2; j++) {
+                        array[i, j] = innerList[j];
+                    }
+                }
+
+                return array;
+            }
+        }
+
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            bool serializeIdFirst
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                VerifyType(value.GetType());
+                var array = (T[,]) value;
+                bsonWriter.WriteStartArray();
+                var length1 = array.GetLength(0);
+                var length2 = array.GetLength(1);
+                for (int i = 0; i < length1; i++) {
+                    bsonWriter.WriteStartArray(i.ToString());
+                    for (int j = 0; j < length2; j++) {
+                        bsonWriter.WriteName(j.ToString());
+                        BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j]);
+                    }
+                    bsonWriter.WriteEndArray();
+                }
+                bsonWriter.WriteEndArray();
+            }
+        }
+        #endregion
+
+        #region private methods
+        private void VerifyType(
+            Type type
+        ) {
+            if (type != typeof(T[,])) {
+                var message = string.Format("TwoDimensionalArraySerializer<{0}> cannot be used with type: {1}", typeof(T).FullName, type.FullName);
+                throw new BsonSerializationException(message);
+            }
+        }
+        #endregion
+    }
 }

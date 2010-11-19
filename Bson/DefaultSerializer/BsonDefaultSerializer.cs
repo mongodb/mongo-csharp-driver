@@ -223,9 +223,19 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             if (type.IsArray) {
                 var elementType = type.GetElementType();
-                var arraySerializerDefinition = typeof(ArraySerializer<>);
-                var arraySerializerType = arraySerializerDefinition.MakeGenericType(elementType);
-                return (IBsonSerializer) Activator.CreateInstance(arraySerializerType, serializationOptions);
+                switch (type.GetArrayRank()) {
+                    case 1:
+                        var arraySerializerDefinition = typeof(ArraySerializer<>);
+                        var arraySerializerType = arraySerializerDefinition.MakeGenericType(elementType);
+                        return (IBsonSerializer) Activator.CreateInstance(arraySerializerType, serializationOptions);
+                    case 2:
+                        var twoDimensionalArraySerializerDefinition = typeof(TwoDimensionalArraySerializer<>);
+                        var twoDimensionalArraySerializerType = twoDimensionalArraySerializerDefinition.MakeGenericType(elementType);
+                        return (IBsonSerializer) Activator.CreateInstance(twoDimensionalArraySerializerType, serializationOptions);
+                    default:
+                        var message = string.Format("No serializer found for array for rank: {0}", type.GetArrayRank());
+                        throw new BsonSerializationException(message);
+                }
             }
 
             if (type.IsEnum) {

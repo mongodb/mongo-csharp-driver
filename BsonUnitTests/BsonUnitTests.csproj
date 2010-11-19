@@ -82,6 +82,7 @@
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithAttributesTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithoutAttributesTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\TwoDimensionalArraySerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\DateTimeSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\CollectionSerializerGenericTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\CollectionSerializerTests.cs" />
