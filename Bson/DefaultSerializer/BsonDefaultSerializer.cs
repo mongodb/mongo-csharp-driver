@@ -232,6 +232,10 @@ namespace MongoDB.Bson.DefaultSerializer {
                         var twoDimensionalArraySerializerDefinition = typeof(TwoDimensionalArraySerializer<>);
                         var twoDimensionalArraySerializerType = twoDimensionalArraySerializerDefinition.MakeGenericType(elementType);
                         return (IBsonSerializer) Activator.CreateInstance(twoDimensionalArraySerializerType, serializationOptions);
+                    case 3:
+                        var threeDimensionalArraySerializerDefinition = typeof(ThreeDimensionalArraySerializer<>);
+                        var threeDimensionalArraySerializerType = threeDimensionalArraySerializerDefinition.MakeGenericType(elementType);
+                        return (IBsonSerializer) Activator.CreateInstance(threeDimensionalArraySerializerType, serializationOptions);
                     default:
                         var message = string.Format("No serializer found for array for rank: {0}", type.GetArrayRank());
                         throw new BsonSerializationException(message);

@@ -185,4 +185,119 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
         #endregion
     }
+
+    public class ThreeDimensionalArraySerializer<T> : BsonBaseSerializer {
+        #region constructors
+        public ThreeDimensionalArraySerializer() {
+        }
+
+        public ThreeDimensionalArraySerializer(
+            object serializationOptions
+        ) {
+        }
+        #endregion
+
+        #region public methods
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            VerifyType(nominalType);
+            var bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else {
+                bsonReader.ReadStartArray();
+                var outerList = new List<List<List<T>>>();
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                    bsonReader.SkipName();
+                    bsonReader.ReadStartArray();
+                    var middleList = new List<List<T>>();
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                        bsonReader.SkipName();
+                        bsonReader.ReadStartArray();
+                        var innerList = new List<T>();
+                        while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                            bsonReader.SkipName();
+                            var element = BsonSerializer.Deserialize<T>(bsonReader);
+                            innerList.Add(element);
+                        }
+                        bsonReader.ReadEndArray();
+                        middleList.Add(innerList);
+                    }
+                    bsonReader.ReadEndArray();
+                    outerList.Add(middleList);
+                }
+                bsonReader.ReadEndArray();
+
+                var length1 = outerList.Count;
+                var length2 = (length1 == 0) ? 0 : outerList[0].Count;
+                var length3 = (length2 == 0) ? 0 : outerList[0][0].Count;
+                var array = new T[length1, length2, length3];
+                for (int i = 0; i < length1; i++) {
+                    var middleList = outerList[i];
+                    if (middleList.Count != length2) {
+                        var message = string.Format("Middle list {0} is of wrong length: {1} (should be: {2})", i, middleList.Count, length2);
+                        throw new FileFormatException(message);
+                    }
+                    for (int j = 0; j < length2; j++) {
+                        var innerList = middleList[j];
+                        if (innerList.Count != length3) {
+                            var message = string.Format("Inner list {0} is of wrong length: {1} (should be: {2})", j, innerList.Count, length3);
+                            throw new FileFormatException(message);
+                        }
+                        for (int k = 0; k < length3; k++) {
+                            array[i, j, k] = innerList[k];
+                        }
+                    }
+                }
+
+                return array;
+            }
+        }
+
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            bool serializeIdFirst
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                VerifyType(value.GetType());
+                var array = (T[,,]) value;
+                bsonWriter.WriteStartArray();
+                var length1 = array.GetLength(0);
+                var length2 = array.GetLength(1);
+                var length3 = array.GetLength(2);
+                for (int i = 0; i < length1; i++) {
+                    bsonWriter.WriteStartArray(i.ToString());
+                    for (int j = 0; j < length2; j++) {
+                        bsonWriter.WriteStartArray(j.ToString());
+                        for (int k = 0; k < length3; k++) {
+                            bsonWriter.WriteName(k.ToString());
+                            BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j, k]);
+                        }
+                        bsonWriter.WriteEndArray();
+                    }
+                    bsonWriter.WriteEndArray();
+                }
+                bsonWriter.WriteEndArray();
+            }
+        }
+        #endregion
+
+        #region private methods
+        private void VerifyType(
+            Type type
+        ) {
+            if (type != typeof(T[,,])) {
+                var message = string.Format("ThreeDimensionalArraySerializer<{0}> cannot be used with type: {1}", typeof(T).FullName, type.FullName);
+                throw new BsonSerializationException(message);
+            }
+        }
+        #endregion
+    }
 }
