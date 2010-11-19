@@ -336,7 +336,7 @@ namespace MongoDB.Driver {
         internal void ReleaseConnection(
             MongoConnection connection
         ) {
-            connection.ConnectionPool.ReleaseConnection(connection);
+            server.ReleaseConnection(connection);
         }
         #endregion
 
