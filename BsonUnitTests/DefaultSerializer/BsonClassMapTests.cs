@@ -48,8 +48,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestMappingPicksUpAllMembersWithAttributes() {
-            var classMap = new BsonClassMap<A>(c => c.AutoMap());
-
+            var classMap = BsonClassMap.LookupClassMap(typeof(A));
             Assert.AreEqual(6, classMap.MemberMaps.Count());
         }
     }

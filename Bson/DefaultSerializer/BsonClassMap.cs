@@ -35,10 +35,12 @@ namespace MongoDB.Bson.DefaultSerializer {
         private static List<FilteredConventionProfile> profiles = new List<FilteredConventionProfile>();
         private static ConventionProfile defaultProfile = ConventionProfile.GetDefault();
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
+        private static int freezeNestingLevel = 0;
+        private static Queue<Type> knownTypesQueue = new Queue<Type>();
         #endregion
 
         #region protected fields
-        protected bool baseClassMapLoaded; // lazy load baseClassMap so class maps can be constructed out of order
+        protected bool frozen; // once a class map has been frozen no further changes are allowed
         protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected Type classType;
         private Func<object> creator;
@@ -48,13 +50,13 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected bool hasRootClass;
         protected bool isRootClass;
         protected bool isAnonymous;
-        protected bool idMemberMapLoaded; // lazy load idMemberMap
         protected BsonMemberMap idMemberMap;
         protected List<BsonMemberMap> allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
         protected List<BsonMemberMap> declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
         protected Dictionary<string, BsonMemberMap> elementDictionary = new Dictionary<string, BsonMemberMap>();
         protected Dictionary<string, BsonMemberMap> memberDictionary = new Dictionary<string, BsonMemberMap>();
         protected bool ignoreExtraElements = true;
+        protected List<Type> knownTypes = new List<Type>();
         #endregion
 
         #region constructors
@@ -70,10 +72,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         #region public properties
         public BsonClassMap BaseClassMap {
-            get {
-                if (!baseClassMapLoaded) { LoadBaseClassMap(); }
-                return baseClassMap;
-            }
+            get { return baseClassMap; }
         }
 
         public Type ClassType {
@@ -85,17 +84,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         public bool DiscriminatorIsRequired {
-            get {
-                if (!baseClassMapLoaded) { LoadBaseClassMap(); }
-                return discriminatorIsRequired;
-            }
+            get { return discriminatorIsRequired; }
         }
 
         public bool HasRootClass {
-            get {
-                if (!baseClassMapLoaded) { LoadBaseClassMap(); }
-                return hasRootClass;
-            }
+            get { return hasRootClass; }
         }
 
         public bool IsAnonymous {
@@ -107,17 +100,15 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         public BsonMemberMap IdMemberMap {
-            get {
-                if (!idMemberMapLoaded) { LoadIdMemberMap(); }
-                return idMemberMap;
-            }
+            get { return idMemberMap; }
+        }
+
+        public IEnumerable<Type> KnownTypes {
+            get { return knownTypes; }
         }
 
         public IEnumerable<BsonMemberMap> MemberMaps {
-            get {
-                if (!baseClassMapLoaded) { LoadBaseClassMap(); }
-                return allMemberMaps;
-            }
+            get { return allMemberMaps; }
         }
 
         public bool IgnoreExtraElements {
@@ -192,6 +183,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     classMap.AutoMap();
                     RegisterClassMap(classMap);
                 }
+                classMap.Freeze();
                 return classMap;
             }
         }
@@ -241,6 +233,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             profiles.Add(filtered);
         }
 
+        // TODO: should unregistering class maps even be allowed?
         public static void UnregisterClassMap(
             Type classType
         ) {
@@ -263,28 +256,96 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         #region public methods
         public void AutoMap() {
+            if (frozen) { ThrowFrozenException(); }
             AutoMapClass();
-            BsonDefaultSerializer.RegisterDiscriminator(classType, discriminator);
         }
 
         public object CreateInstance() {
+            if (!frozen) { ThrowNotFrozenException(); }
             var creator = GetCreator();
             return creator.Invoke();
+        }
+
+        public void Freeze() {
+            lock (staticLock) {
+                if (!frozen) {
+                    freezeNestingLevel++;
+                    try {
+                        BsonDefaultSerializer.RegisterDiscriminator(classType, discriminator);
+
+                        var baseType = classType.BaseType;
+                        if (baseType != null) {
+                            baseClassMap = LookupClassMap(baseType);
+                            discriminatorIsRequired |= baseClassMap.discriminatorIsRequired;
+                            hasRootClass |= (isRootClass || baseClassMap.HasRootClass);
+                            allMemberMaps.AddRange(baseClassMap.MemberMaps);
+                        }
+                        allMemberMaps.AddRange(declaredMemberMaps);
+
+                        if (idMemberMap == null) {
+                            // see if we can inherit the idMemberMap from our base class
+                            if (baseClassMap != null) {
+                                idMemberMap = baseClassMap.IdMemberMap;
+                            }
+
+                            // if our base class did not have an idMemberMap maybe we have one?
+                            if (idMemberMap == null) {
+                                var memberName = conventions.IdMemberConvention.FindIdMember(classType);
+                                if (memberName != null) {
+                                    var memberMap = GetMemberMap(memberName);
+                                    if (memberMap != null) {
+                                        SetIdMember(memberMap);
+                                    }
+                                }
+                            }
+                        }
+
+                        foreach (var memberMap in allMemberMaps) {
+                            elementDictionary.Add(memberMap.ElementName, memberMap);
+                            memberDictionary.Add(memberMap.MemberName, memberMap);
+                        }
+
+                        // mark this classMap frozen before we start working on knownTypes
+                        // because we might get back to this same classMap while processing knownTypes
+                        frozen = true;
+
+                        // use a queue to postpone processing of known types until we get back to the first level call to Freeze
+                        // this avoids infinite recursion when going back down the inheritance tree while processing known types
+                        foreach (var knownType in knownTypes) {
+                            knownTypesQueue.Enqueue(knownType);
+                        }
+
+                        // if we are back to the first level go ahead and process any queued known types
+                        if (freezeNestingLevel == 1) {
+                            while (knownTypesQueue.Count != 0) {
+                                var knownType = knownTypesQueue.Dequeue();
+                                LookupClassMap(knownType); // will AutoMap and/or Freeze knownType if necessary
+                            }
+                        }
+                    } finally {
+                        freezeNestingLevel--;
+                    }
+                }
+            }
         }
 
         public BsonMemberMap GetMemberMap(
             string memberName
         ) {
-            if (!baseClassMapLoaded) { LoadBaseClassMap(); }
-            BsonMemberMap memberMap;
-            memberDictionary.TryGetValue(memberName, out memberMap);
-            return memberMap;
+            // before the classMap is frozen GetMemberMap only returns members declared in this classMap
+            if (frozen) {
+                BsonMemberMap memberMap;
+                memberDictionary.TryGetValue(memberName, out memberMap);
+                return memberMap;
+            } else {
+                return declaredMemberMaps.Where(m => m.MemberName == memberName).SingleOrDefault();
+            }
         }
 
         public BsonMemberMap GetMemberMapForElement(
             string elementName
         ) {
-            if (!baseClassMapLoaded) { LoadBaseClassMap(); }
+            if (!frozen) { ThrowNotFrozenException(); }
             BsonMemberMap memberMap;
             elementDictionary.TryGetValue(elementName, out memberMap);
             return memberMap;
@@ -293,12 +354,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         public void IgnoreField(
             string fieldName
         ) {
+            if (frozen) { ThrowFrozenException(); }
             IgnoreMember(fieldName);
         }
 
         public void IgnoreMember(
            string memberName
         ) {
+            if (frozen) { ThrowFrozenException(); }
             var memberMap = declaredMemberMaps.Where(m => m.MemberName == memberName).FirstOrDefault(); // don't call GetMemberMap!
             declaredMemberMaps.Remove(memberMap);
         }
@@ -306,12 +369,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         public void IgnoreProperty(
             string propertyName
         ) {
+            if (frozen) { ThrowFrozenException(); }
             IgnoreMember(propertyName);
         }
 
         public BsonMemberMap MapField(
             string fieldName
         ) {
+            if (frozen) { ThrowFrozenException(); }
             var fieldInfo = classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             return MapMember(fieldInfo);
         }
@@ -319,6 +384,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonMemberMap MapIdField(
             string fieldName
         ) {
+            if (frozen) { ThrowFrozenException(); }
             var fieldMap = MapField(fieldName);
             SetIdMember(fieldMap);
             return fieldMap;
@@ -327,6 +393,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonMemberMap MapIdMember(
             MemberInfo memberInfo
         ) {
+            if (frozen) { ThrowFrozenException(); }
             var memberMap = MapMember(memberInfo);
             SetIdMember(memberMap);
             return memberMap;
@@ -335,6 +402,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonMemberMap MapIdProperty(
             string propertyName
         ) {
+            if (frozen) { ThrowFrozenException(); }
             var propertyMap = MapProperty(propertyName);
             SetIdMember(propertyMap);
             return propertyMap;
@@ -343,6 +411,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonMemberMap MapMember(
             MemberInfo memberInfo
         ) {
+            if (frozen) { ThrowFrozenException(); }
             var memberMap = new BsonMemberMap(memberInfo, conventions);
             declaredMemberMaps.Add(memberMap);
             return memberMap;
@@ -351,6 +420,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonMemberMap MapProperty(
             string propertyName
         ) {
+            if (frozen) { ThrowFrozenException(); }
             var propertyInfo = classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             return MapMember(propertyInfo);
         }
@@ -358,6 +428,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonClassMap SetDiscriminator(
             string discriminator
         ) {
+            if (frozen) { ThrowFrozenException(); }
             this.discriminator = discriminator;
             return this;
         }
@@ -365,6 +436,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonClassMap SetDiscriminatorIsRequired(
             bool discriminatorIsRequired
         ) {
+            if (frozen) { ThrowFrozenException(); }
             this.discriminatorIsRequired = discriminatorIsRequired;
             return this;
         }
@@ -372,6 +444,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public void SetIdMember(
             BsonMemberMap memberMap
         ) {
+            if (frozen) { ThrowFrozenException(); }
             if (idMemberMap != null) {
                 var message = string.Format("Class {0} already has an Id", classType.FullName);
                 throw new InvalidOperationException(message);
@@ -380,11 +453,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 throw new BsonInternalException("Invalid memberMap");
             }
 
-            // depending on the timing of the call to SetIdMember the elementDictionary might be empty
-            // so only fix the mapping if there was a previous one there to begin with
-            if (elementDictionary.Remove(memberMap.ElementName)) {
-                elementDictionary.Add("_id", memberMap);
-            }
             memberMap.SetElementName("_id");
             idMemberMap = memberMap;
         }
@@ -392,6 +460,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonClassMap SetIgnoreExtraElements(
             bool ignoreExtraElements
         ) {
+            if (frozen) { ThrowFrozenException(); }
             this.ignoreExtraElements = ignoreExtraElements;
             return this;
         }
@@ -399,6 +468,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonClassMap SetIsRootClass(
             bool isRootClass
         ) {
+            if (frozen) { ThrowFrozenException(); }
             this.isRootClass = isRootClass;
             return this;
         }
@@ -408,7 +478,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         private void AutoMapClass() {
             foreach (BsonKnownTypesAttribute knownTypesAttribute in classType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false)) {
                 foreach (var knownType in knownTypesAttribute.KnownTypes) {
-                    BsonClassMap.LookupClassMap(knownType); // will AutoMap KnownType if necessary
+                    knownTypes.Add(knownType); // knownTypes will be processed when Freeze is called
                 }
             }
 
@@ -577,43 +647,14 @@ namespace MongoDB.Bson.DefaultSerializer {
                 type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
 
-        private void LoadBaseClassMap() {
-            var baseType = classType.BaseType;
-            if (baseType != null) {
-                baseClassMap = LookupClassMap(baseType);
-                discriminatorIsRequired |= baseClassMap.discriminatorIsRequired;
-                hasRootClass |= (isRootClass || baseClassMap.HasRootClass);
-                allMemberMaps.AddRange(baseClassMap.MemberMaps);
-                allMemberMaps.AddRange(declaredMemberMaps);
-                foreach (var memberMap in allMemberMaps) {
-                    elementDictionary.Add(memberMap.ElementName, memberMap);
-                    memberDictionary.Add(memberMap.MemberName, memberMap);
-                }
-            }
-            baseClassMapLoaded = true;
+        private void ThrowFrozenException() {
+            var message = string.Format("Class map for {0} has been frozen and no further changes are allowed", classType.FullName);
+            throw new InvalidOperationException(message);
         }
 
-        private void LoadIdMemberMap() {
-            if (idMemberMap == null) {
-                // the IdMemberMap should be provided by the highest class possible in the inheritance hierarchy
-                var baseClassMap = BaseClassMap; // call BaseClassMap property for lazy loading
-                if (baseClassMap != null) {
-                    idMemberMap = baseClassMap.IdMemberMap; // note: don't call SetIdMember because base class already did
-                }
-
-                // if no base class provided an idMemberMap maybe we have one?
-                if (idMemberMap == null) {
-                    var memberName = conventions.IdMemberConvention.FindIdMember(classType);
-                    if (memberName != null) {
-                        var memberMap = GetMemberMap(memberName);
-                        if (memberMap != null) {
-                            SetIdMember(memberMap);
-                        }
-                    }
-                }
-            }
-
-            idMemberMapLoaded = true;
+        private void ThrowNotFrozenException() {
+            var message = string.Format("Class map for {0} has been not been frozen yet", classType.FullName);
+            throw new InvalidOperationException(message);
         }
         #endregion
 

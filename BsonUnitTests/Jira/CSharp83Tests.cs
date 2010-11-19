@@ -39,7 +39,7 @@ namespace MongoDB.BsonUnitTests.Jira {
         public void TestSerialization() {
             var student = new Student { Id = ObjectId.Empty, Scores = new List<int> { 1, 2 } };
             var json = student.ToJson();
-            var expected = "{ 'Id' : { '$oid' : '000000000000000000000000' }, 'Scores' : [1, 2] }".Replace("'", "\"");
+            var expected = "{ '_id' : { '$oid' : '000000000000000000000000' }, 'Scores' : [1, 2] }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = student.ToBson();
