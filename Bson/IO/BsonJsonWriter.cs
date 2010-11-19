@@ -307,7 +307,9 @@ namespace MongoDB.Bson.IO {
 
         public override void WriteObjectId(
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonJsonWriter"); }
             if (state != BsonWriteState.Value) {
@@ -315,7 +317,7 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            var bytes = ObjectId.Pack(timestamp, machinePidIncrement);
+            var bytes = ObjectId.Pack(timestamp, machine, pid, increment);
             switch (settings.OutputMode) {
                 case BsonJsonOutputMode.Strict:
                 case BsonJsonOutputMode.JavaScript:

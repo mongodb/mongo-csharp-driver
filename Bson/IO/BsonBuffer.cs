@@ -336,7 +336,9 @@ namespace MongoDB.Bson.IO {
 
         public void ReadObjectId(
             out int timestamp,
-            out long machinePidIncrement
+            out int machine,
+            out short pid,
+            out int increment
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(12);
@@ -344,14 +346,13 @@ namespace MongoDB.Bson.IO {
                 var c = chunk;
                 var o = chunkOffset;
                 timestamp = (c[o + 0] << 24) + (c[o + 1] << 16) + (c[o + 2] << 8) + c[o + 3];
-                var machine = (c[o + 4] << 16) + (c[o + 5] << 8) + c[o + 6];
-                var pid = (c[o + 7] << 8) + c[o + 8];
-                var increment = (c[o + 9] << 16) + (c[o + 10] << 8) + c[o + 11];
-                machinePidIncrement = ((long) machine << 40) + ((long) pid << 24) + increment;
+                machine = (c[o + 4] << 16) + (c[o + 5] << 8) + c[o + 6];
+                pid = (short) ((c[o + 7] << 8) + c[o + 8]);
+                increment = (c[o + 9] << 16) + (c[o + 10] << 8) + c[o + 11];
                 Position += 12;
             } else {
                 var bytes = ReadBytes(12); // straddles chunk boundary
-                ObjectId.Unpack(bytes, out timestamp, out machinePidIncrement);
+                ObjectId.Unpack(bytes, out timestamp, out machine, out pid, out increment);
             }
         }
 
@@ -533,7 +534,9 @@ namespace MongoDB.Bson.IO {
 
         public void WriteObjectId(
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(12);
@@ -542,17 +545,17 @@ namespace MongoDB.Bson.IO {
                 chunk[chunkOffset + 1] = (byte) (timestamp >> 16);
                 chunk[chunkOffset + 2] = (byte) (timestamp >> 8);
                 chunk[chunkOffset + 3] = (byte) (timestamp);
-                chunk[chunkOffset + 4] = (byte) (machinePidIncrement >> 56);
-                chunk[chunkOffset + 5] = (byte) (machinePidIncrement >> 48);
-                chunk[chunkOffset + 6] = (byte) (machinePidIncrement >> 40);
-                chunk[chunkOffset + 7] = (byte) (machinePidIncrement >> 32);
-                chunk[chunkOffset + 8] = (byte) (machinePidIncrement >> 24);
-                chunk[chunkOffset + 9] = (byte) (machinePidIncrement >> 16);
-                chunk[chunkOffset + 10] = (byte) (machinePidIncrement >> 8);
-                chunk[chunkOffset + 11] = (byte) (machinePidIncrement);
+                chunk[chunkOffset + 4] = (byte) (machine >> 16);
+                chunk[chunkOffset + 5] = (byte) (machine >> 8);
+                chunk[chunkOffset + 6] = (byte) (machine);
+                chunk[chunkOffset + 7] = (byte) (pid >> 8);
+                chunk[chunkOffset + 8] = (byte) (pid);
+                chunk[chunkOffset + 9] = (byte) (increment >> 16);
+                chunk[chunkOffset + 10] = (byte) (increment >> 8);
+                chunk[chunkOffset + 11] = (byte) (increment);
                 Position += 12;
             } else {
-                WriteBytes(ObjectId.Pack(timestamp, machinePidIncrement)); // straddles chunk boundary
+                WriteBytes(ObjectId.Pack(timestamp, machine, pid, increment)); // straddles chunk boundary
             }
         }
 

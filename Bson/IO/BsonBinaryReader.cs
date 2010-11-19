@@ -392,21 +392,25 @@ namespace MongoDB.Bson.IO {
 
         public override void ReadObjectId(
             out int timestamp,
-            out long machinePidIncrement
+            out int machine,
+            out short pid,
+            out int increment
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryReader"); }
             VerifyBsonType("ReadObjectId", BsonType.ObjectId);
-            buffer.ReadObjectId(out timestamp, out machinePidIncrement);
+            buffer.ReadObjectId(out timestamp, out machine, out pid, out increment);
             state = BsonReadState.Type;
         }
 
         public override void ReadObjectId(
             string name,
             out int timestamp,
-            out long machinePidIncrement
+            out int machine,
+            out short pid,
+            out int increment
         ) {
             VerifyName(name);
-            ReadObjectId(out timestamp, out machinePidIncrement);
+            ReadObjectId(out timestamp, out machine, out pid, out increment);
         }
 
         public override void ReadRegularExpression(

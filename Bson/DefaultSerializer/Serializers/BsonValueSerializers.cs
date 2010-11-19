@@ -792,9 +792,11 @@ namespace MongoDB.Bson.DefaultSerializer {
                 return null;
             } else {
                 int timestamp;
-                long machinePidIncrement;
-                bsonReader.ReadObjectId(out timestamp, out machinePidIncrement);
-                return new BsonObjectId(timestamp, machinePidIncrement);
+                int machine;
+                short pid;
+                int increment;
+                bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                return new BsonObjectId(timestamp, machine, pid, increment);
             }
         }
 
@@ -808,7 +810,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 var objectId = (BsonObjectId) value;
-                bsonWriter.WriteObjectId(objectId.Timestamp, objectId.MachinePidIncrement);
+                bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
             }
         }
         #endregion

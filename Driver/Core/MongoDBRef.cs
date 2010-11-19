@@ -119,9 +119,11 @@ namespace MongoDB.Driver {
                                 break;
                             case BsonType.ObjectId:
                                 int timestamp;
-                                long machinePidIncrement;
-                                bsonReader.ReadObjectId(out timestamp, out machinePidIncrement);
-                                id = new ObjectId(timestamp, machinePidIncrement);
+                                int machine;
+                                short pid;
+                                int increment;
+                                bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                                id = new ObjectId(timestamp, machine, pid, increment);
                                 break;
                             case BsonType.String:
                                 id = bsonReader.ReadString();
@@ -159,7 +161,7 @@ namespace MongoDB.Driver {
             bsonWriter.WriteString("$ref", collectionName);
             if (id is ObjectId) {
                 var objectId = (ObjectId) id;
-                bsonWriter.WriteObjectId("$id", objectId.Timestamp, objectId.MachinePidIncrement);
+                bsonWriter.WriteObjectId("$id", objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
             } else if (id is Guid) {
                 var guid = (Guid) id;
                 bsonWriter.WriteBinaryData("$id", guid.ToByteArray(), BsonBinarySubType.Uuid);

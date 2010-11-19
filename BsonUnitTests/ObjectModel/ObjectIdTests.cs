@@ -32,7 +32,9 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual(0x050607, objectId.Machine);
             Assert.AreEqual(0x0809, objectId.Pid);
             Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(0x05060708090a0b0c, objectId.MachinePidIncrement);
+            Assert.AreEqual(0x050607, objectId.Machine);
+            Assert.AreEqual(0x0809, objectId.Pid);
+            Assert.AreEqual(0x0a0b0c, objectId.Increment);
             Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
             Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
             Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
@@ -41,12 +43,14 @@ namespace MongoDB.BsonUnitTests {
         [Test]
         public void TestIntLongConstructor() {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-            var objectId = new ObjectId(0x01020304, 0x05060708090a0b0cL);
+            var objectId = new ObjectId(0x01020304, 0x050607, 0x0809, 0x0a0b0c);
             Assert.AreEqual(0x01020304, objectId.Timestamp);
             Assert.AreEqual(0x050607, objectId.Machine);
             Assert.AreEqual(0x0809, objectId.Pid);
             Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(0x05060708090a0b0c, objectId.MachinePidIncrement);
+            Assert.AreEqual(0x050607, objectId.Machine);
+            Assert.AreEqual(0x0809, objectId.Pid);
+            Assert.AreEqual(0x0a0b0c, objectId.Increment);
             Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
             Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
             Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
@@ -60,7 +64,9 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual(0x050607, objectId.Machine);
             Assert.AreEqual(0x0809, objectId.Pid);
             Assert.AreEqual(0x0a0b0c, objectId.Increment);
-            Assert.AreEqual(0x05060708090a0b0c, objectId.MachinePidIncrement);
+            Assert.AreEqual(0x050607, objectId.Machine);
+            Assert.AreEqual(0x0809, objectId.Pid);
+            Assert.AreEqual(0x0a0b0c, objectId.Increment);
             Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
             Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
             Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));

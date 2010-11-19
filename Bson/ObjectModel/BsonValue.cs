@@ -590,9 +590,11 @@ namespace MongoDB.Bson {
                     return BsonNull.Value;
                 case BsonType.ObjectId:
                     int timestamp;
-                    long machinePidIncrement;
-                    bsonReader.ReadObjectId(out timestamp, out machinePidIncrement);
-                    return new BsonObjectId(timestamp, machinePidIncrement);
+                    int machine;
+                    short pid;
+                    int increment;
+                    bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                    return new BsonObjectId(timestamp, machine, pid, increment);
                 case BsonType.RegularExpression:
                     string pattern;
                     string options;
@@ -747,7 +749,7 @@ namespace MongoDB.Bson {
                     break;
                 case BsonType.ObjectId:
                     var objectId = ((BsonObjectId) this).Value;
-                    bsonWriter.WriteObjectId(objectId.Timestamp, objectId.MachinePidIncrement);
+                    bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
                     break;
                 case BsonType.RegularExpression:
                     BsonRegularExpression regex = (BsonRegularExpression) this;

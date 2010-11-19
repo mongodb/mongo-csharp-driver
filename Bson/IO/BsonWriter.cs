@@ -160,12 +160,16 @@ namespace MongoDB.Bson.IO {
         );
         public abstract void WriteObjectId(
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         );
         public abstract void WriteObjectId(
             string name,
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         );
         public abstract void WriteRegularExpression(
             string pattern,

@@ -330,7 +330,9 @@ namespace MongoDB.Bson.IO {
 
         public override void WriteObjectId(
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
             if (state != BsonWriteState.Value) {
@@ -340,7 +342,7 @@ namespace MongoDB.Bson.IO {
 
             buffer.WriteByte((byte) BsonType.ObjectId);
             buffer.WriteCString(name);
-            buffer.WriteObjectId(timestamp, machinePidIncrement);
+            buffer.WriteObjectId(timestamp, machine, pid, increment);
 
             state = BsonWriteState.Name;
         }

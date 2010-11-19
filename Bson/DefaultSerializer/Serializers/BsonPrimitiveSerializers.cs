@@ -502,9 +502,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType
         ) {
             int timestamp;
-            long machinePidIncrement;
-            bsonReader.ReadObjectId(out timestamp, out machinePidIncrement);
-            return new ObjectId(timestamp, machinePidIncrement);
+            int machine;
+            short pid;
+            int increment;
+            bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+            return new ObjectId(timestamp, machine, pid, increment);
         }
 
         public override void Serialize(
@@ -514,7 +516,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             bool serializeIdFirst
         ) {
             var objectId = (ObjectId) value;
-            bsonWriter.WriteObjectId(objectId.Timestamp, objectId.MachinePidIncrement);
+            bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
         }
         #endregion
     }

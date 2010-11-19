@@ -988,9 +988,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestNotNull() {
-            var obj = new TestClass(new BsonObjectId(1, 2));
+            var obj = new TestClass(new BsonObjectId(1, 2, 3, 4));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$oid' : '000000010000000000000002' }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$oid' : '000000010000020003000004' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

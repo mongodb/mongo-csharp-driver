@@ -26,22 +26,26 @@ namespace MongoDB.Bson {
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId> {
         #region private static fields
         private static ObjectId emptyInstance = default(ObjectId);
-        private static long machinePid;
-        private static int increment; // high byte will be masked out when generating new ObjectId
+        private static int staticMachine;
+        private static short staticPid;
+        private static int staticIncrement; // high byte will be masked out when generating new ObjectId
         #endregion
 
         #region private fields
-        // store as an int and a long because they are structs (a byte[] would be allocated on the heap)
+        // we're using 14 bytes instead of 12 to hold the ObjectId in memory but unlike a byte[] there is no additional object on the heap
+        // the extra two bytes are not visible to anyone outside of this class and they buy us considerable simplification
+        // an additional advantage of this representation is that it will serialize to JSON without any 64 bit overflow problems
         private int timestamp;
-        private long machinePidIncrement;
+        private int machine;
+        private short pid;
+        private int increment;
         #endregion
 
         #region static constructor
         static ObjectId() {
-            int machine = GetMachineHash();
-            int pid = Process.GetCurrentProcess().Id;
-            machinePid = ((long) machine << 40) + ((long) pid << 24);
-            increment = (new Random()).Next();
+            staticMachine = GetMachineHash();
+            staticPid = (short) Process.GetCurrentProcess().Id; // use low order two bytes only
+            staticIncrement = (new Random()).Next();
         }
         #endregion
 
@@ -49,21 +53,25 @@ namespace MongoDB.Bson {
         public ObjectId(
             byte[] bytes
         ) {
-            Unpack(bytes, out timestamp, out machinePidIncrement);
+            Unpack(bytes, out timestamp, out machine, out pid, out increment);
         }
 
         public ObjectId(
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         ) {
             this.timestamp = timestamp;
-            this.machinePidIncrement = machinePidIncrement;
+            this.machine = machine;
+            this.pid = pid;
+            this.increment = increment;
         }
 
         public ObjectId(
             string value
         ) {
-            Unpack(BsonUtils.ParseHexString(value), out timestamp, out machinePidIncrement);
+            Unpack(BsonUtils.ParseHexString(value), out timestamp, out machine, out pid, out increment);
         }
         #endregion
 
@@ -78,20 +86,16 @@ namespace MongoDB.Bson {
             get { return timestamp; }
         }
 
-        public long MachinePidIncrement {
-            get { return machinePidIncrement; }
-        }
-
         public int Machine {
-            get { return (int) (machinePidIncrement >> 40); }
+            get { return machine; }
         }
 
-        public int Pid {
-            get { return (int) (machinePidIncrement >> 24) & 0x0000ffff; }
+        public short Pid {
+            get { return pid; }
         }
 
         public int Increment {
-            get { return (int) machinePidIncrement & 0x00ffffff; }
+            get { return increment; }
         }
 
         // a more or less accurate creation time derived from Timestamp
@@ -147,27 +151,29 @@ namespace MongoDB.Bson {
         #region public static methods
         public static ObjectId GenerateNewId() {
             int timestamp = GetCurrentTimestamp();
-            int increment = Interlocked.Increment(ref ObjectId.increment) & 0x00ffffff; // only use low order 3 bytes
-            return new ObjectId(timestamp, machinePid + increment);
+            int increment = Interlocked.Increment(ref ObjectId.staticIncrement) & 0x00ffffff; // only use low order 3 bytes
+            return new ObjectId(timestamp, staticMachine, staticPid, increment);
         }
 
         public static byte[] Pack(
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         ) {
             byte[] bytes = new byte[12];
             bytes[0] = (byte) (timestamp >> 24);
             bytes[1] = (byte) (timestamp >> 16);
             bytes[2] = (byte) (timestamp >> 8);
             bytes[3] = (byte) (timestamp);
-            bytes[4] = (byte) (machinePidIncrement >> 56);
-            bytes[5] = (byte) (machinePidIncrement >> 48);
-            bytes[6] = (byte) (machinePidIncrement >> 40);
-            bytes[7] = (byte) (machinePidIncrement >> 32);
-            bytes[8] = (byte) (machinePidIncrement >> 24);
-            bytes[9] = (byte) (machinePidIncrement >> 16);
-            bytes[10] = (byte) (machinePidIncrement >> 8);
-            bytes[11] = (byte) (machinePidIncrement);
+            bytes[4] = (byte) (machine >> 16);
+            bytes[5] = (byte) (machine >> 8);
+            bytes[6] = (byte) (machine);
+            bytes[7] = (byte) (pid >> 8);
+            bytes[8] = (byte) (pid);
+            bytes[9] = (byte) (increment >> 16);
+            bytes[10] = (byte) (increment >> 8);
+            bytes[11] = (byte) (increment);
             return bytes;
         }
 
@@ -205,16 +211,17 @@ namespace MongoDB.Bson {
         public static void Unpack(
             byte[] bytes,
             out int timestamp,
-            out long machinePidIncrement
+            out int machine,
+            out short pid,
+            out int increment
         ) {
             if (bytes.Length != 12) {
                 throw new ArgumentOutOfRangeException("Byte array must be 12 bytes long");
             }
             timestamp = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
-            int machine = (bytes[4] << 16) + (bytes[5] << 8) + bytes[6];
-            int pid = (bytes[7] << 8) + bytes[8];
-            int increment = (bytes[9] << 16) + (bytes[10] << 8) + bytes[11];
-            machinePidIncrement = ((long) machine << 40) + ((long) pid << 24) + increment;
+            machine = (bytes[4] << 16) + (bytes[5] << 8) + bytes[6];
+            pid = (short) ((bytes[7] << 8) + bytes[8]);
+            increment = (bytes[9] << 16) + (bytes[10] << 8) + bytes[11];
         }
         #endregion
 
@@ -238,13 +245,21 @@ namespace MongoDB.Bson {
         ) {
             int r = timestamp.CompareTo(other.timestamp);
             if (r != 0) { return r; }
-            return machinePidIncrement.CompareTo(other.machinePidIncrement);
+            r = machine.CompareTo(other.machine);
+            if (r != 0) { return r; }
+            r = pid.CompareTo(other.pid);
+            if (r != 0) { return r; }
+            return increment.CompareTo(other.increment);
         }
 
         public bool Equals(
             ObjectId rhs
         ) {
-            return this.timestamp == rhs.timestamp && this.machinePidIncrement == rhs.machinePidIncrement;
+            return
+                this.timestamp == rhs.timestamp &&
+                this.machine == rhs.machine &&
+                this.pid == rhs.pid &&
+                this.increment == rhs.increment;
         }
 
         public override bool Equals(
@@ -260,16 +275,18 @@ namespace MongoDB.Bson {
         public override int GetHashCode() {
             int hash = 17;
             hash = 37 * hash + timestamp.GetHashCode();
-            hash = 37 * hash + machinePidIncrement.GetHashCode();
+            hash = 37 * hash + machine.GetHashCode();
+            hash = 37 * hash + pid.GetHashCode();
+            hash = 37 * hash + increment.GetHashCode();
             return hash;
         }
 
         public byte[] ToByteArray() {
-            return Pack(timestamp, machinePidIncrement);
+            return Pack(timestamp, machine, pid, increment);
         }
 
         public override string ToString() {
-            return BsonUtils.ToHexString(Pack(timestamp, machinePidIncrement));
+            return BsonUtils.ToHexString(Pack(timestamp, machine, pid, increment));
         }
         #endregion
     }

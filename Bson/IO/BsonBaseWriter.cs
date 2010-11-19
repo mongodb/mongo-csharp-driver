@@ -128,10 +128,12 @@ namespace MongoDB.Bson.IO {
         public override void WriteObjectId(
             string name,
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         ) {
             WriteName(name);
-            WriteObjectId(timestamp, machinePidIncrement);
+            WriteObjectId(timestamp, machine, pid, increment);
         }
 
         public override void WriteRegularExpression(

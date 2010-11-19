@@ -126,12 +126,16 @@ namespace MongoDB.Bson.IO {
         );
         public abstract void ReadObjectId(
             out int timestamp,
-            out long machinePidIncrement
+            out int machine,
+            out short pid,
+            out int increment
         );
         public abstract void ReadObjectId(
             string name,
             out int timestamp,
-            out long machinePidIncrement
+            out int machine,
+            out short pid,
+            out int increment
         );
         public abstract void ReadRegularExpression(
             out string pattern,

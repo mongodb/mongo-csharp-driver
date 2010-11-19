@@ -49,10 +49,12 @@ namespace MongoDB.Bson {
 
         public BsonObjectId(
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         )
             : base(BsonType.ObjectId) {
-            this.value = new ObjectId(timestamp, machinePidIncrement);
+            this.value = new ObjectId(timestamp, machine, pid, increment);
         }
 
         public BsonObjectId(
@@ -74,15 +76,11 @@ namespace MongoDB.Bson {
             get { return value.Timestamp; }
         }
 
-        public long MachinePidIncrement {
-            get { return value.MachinePidIncrement; }
-        }
-
         public int Machine {
             get { return value.Machine; }
         }
 
-        public int Pid {
+        public short Pid {
             get { return value.Pid; }
         }
 
@@ -131,9 +129,11 @@ namespace MongoDB.Bson {
 
         public static BsonObjectId Create(
             int timestamp,
-            long machinePidIncrement
+            int machine,
+            short pid,
+            int increment
         ) {
-            return new BsonObjectId(timestamp, machinePidIncrement);
+            return new BsonObjectId(timestamp, machine, pid, increment);
         }
 
         public new static BsonObjectId Create(
