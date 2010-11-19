@@ -41,6 +41,11 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                     continue;
                 }
 
+                // skip indexers
+                if (propertyInfo.GetIndexParameters().Length != 0) {
+                    continue;
+                }
+
                 yield return propertyInfo;
             }
         }

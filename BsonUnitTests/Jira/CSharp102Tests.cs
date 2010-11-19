@@ -33,7 +33,10 @@ namespace MongoDB.BsonUnitTests.Jira {
         private class Test {
             public ObjectId Id { get; set; }
             public string Normal { get; set; }
-            public string this[string item] { get { return "ignored"; } }
+            public string this[string item] {
+                get { return "ignored"; }
+                set { throw new InvalidOperationException(); }
+            }
         }
 
         [Test]

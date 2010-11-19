@@ -511,13 +511,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         private IEnumerable<MemberInfo> FindMembers() {
-            var memberInfos = new HashSet<MemberInfo>(
+            // use a List instead of a HashSet to preserver order
+            var memberInfos = new List<MemberInfo>(
                 conventions.MemberFinderConvention.FindMembers(classType)
             );
             
             // let other fields opt-in if they have a BsonElement attribute
             foreach (var fieldInfo in classType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
-                var elementAttribute = (BsonElementAttribute)fieldInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
+                var elementAttribute = (BsonElementAttribute) fieldInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
                 if (elementAttribute == null || fieldInfo.IsInitOnly || fieldInfo.IsLiteral) { 
                     continue;
                 }
@@ -529,7 +530,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
             // let other properties opt-in if they have a BsonElement attribute
             foreach (var propertyInfo in classType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
-                var elementAttribute = (BsonElementAttribute)propertyInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
+                var elementAttribute = (BsonElementAttribute) propertyInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
                 if (elementAttribute == null || !propertyInfo.CanRead || (!propertyInfo.CanWrite && !isAnonymous)) {
                     continue;
                 }
