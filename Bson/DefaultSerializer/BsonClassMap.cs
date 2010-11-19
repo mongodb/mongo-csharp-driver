@@ -218,6 +218,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             lock (staticLock) {
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
                 classMaps.Add(classMap.ClassType, classMap);
+                BsonDefaultSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
             }
         }
 
@@ -271,8 +272,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 if (!frozen) {
                     freezeNestingLevel++;
                     try {
-                        BsonDefaultSerializer.RegisterDiscriminator(classType, discriminator);
-
                         var baseType = classType.BaseType;
                         if (baseType != null) {
                             baseClassMap = LookupClassMap(baseType);

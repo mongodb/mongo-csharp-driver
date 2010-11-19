@@ -46,6 +46,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
+            VerifyNominalType(nominalType);
             if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
                 bsonReader.ReadNull();
                 return null;
