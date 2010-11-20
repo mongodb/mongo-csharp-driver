@@ -85,19 +85,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public Func<object, object> Getter {
             get {
                 if (getter == null) {
-                    var instance = Expression.Parameter(typeof(object), "obj");
-                    var lambda = Expression.Lambda<Func<object, object>>(
-                        Expression.Convert(
-                            Expression.MakeMemberAccess(
-                                Expression.Convert(instance, memberInfo.DeclaringType),
-                                memberInfo
-                            ),
-                            typeof(object)
-                        ),
-                        instance
-                    );
-
-                    getter = lambda.Compile();
+                    getter = GetGetter();
                 }
                 return getter;
             }
@@ -258,7 +246,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             var fieldInfo = (FieldInfo) memberInfo;
 
             if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) {
-                throw new InvalidOperationException("Cannot create a setter for a readonly field.");
+                var message = string.Format("The field '{0} {1}' of class '{2}' is readonly", fieldInfo.FieldType.FullName, fieldInfo.Name, fieldInfo.DeclaringType.FullName);
+                throw new BsonSerializationException(message);
             }
 
             var sourceType = fieldInfo.DeclaringType;
@@ -275,8 +264,39 @@ namespace MongoDB.Bson.DefaultSerializer {
             return (Action<object, object>) method.CreateDelegate(typeof(Action<object, object>));
         }
 
+        private Func<object, object> GetGetter() {
+            if (memberInfo is PropertyInfo) {
+                var propertyInfo = (PropertyInfo) memberInfo;
+                var getMethodInfo = propertyInfo.GetGetMethod(true);
+                if (getMethodInfo == null) {
+                    var message = string.Format("The property '{0} {1}' of class '{2}' has no 'get' accessor", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+                    throw new BsonSerializationException(message);
+                }
+            }
+
+            var instance = Expression.Parameter(typeof(object), "obj");
+            var lambda = Expression.Lambda<Func<object, object>>(
+                Expression.Convert(
+                    Expression.MakeMemberAccess(
+                        Expression.Convert(instance, memberInfo.DeclaringType),
+                        memberInfo
+                    ),
+                    typeof(object)
+                ),
+                instance
+            );
+
+            return lambda.Compile();
+        }
+
         private Action<object, object> GetPropertySetter() {
-            var setMethodInfo = ((PropertyInfo) memberInfo).GetSetMethod(true);
+            var propertyInfo = (PropertyInfo) memberInfo;
+            var setMethodInfo = propertyInfo.GetSetMethod(true);
+            if (setMethodInfo == null) {
+                var message = string.Format("The property '{0} {1}' of class '{2}' has no 'set' accessor", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+                throw new BsonSerializationException(message);
+            }
+
             var instance = Expression.Parameter(typeof(object), "obj");
             var argument = Expression.Parameter(typeof(object), "a");
             var lambda = Expression.Lambda<Action<object, object>>(

@@ -377,6 +377,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             if (frozen) { ThrowFrozenException(); }
             var fieldInfo = classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (fieldInfo == null) {
+                var message = string.Format("The class '{0}' does not have a field named '{1}'", classType.FullName, fieldName);
+                throw new BsonSerializationException(message);
+            }
             return MapMember(fieldInfo);
         }
 
@@ -411,6 +415,9 @@ namespace MongoDB.Bson.DefaultSerializer {
             MemberInfo memberInfo
         ) {
             if (frozen) { ThrowFrozenException(); }
+            if (memberInfo == null) {
+                throw new ArgumentNullException("memberInfo");
+            }
             var memberMap = new BsonMemberMap(memberInfo, conventions);
             declaredMemberMaps.Add(memberMap);
             return memberMap;
@@ -421,6 +428,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             if (frozen) { ThrowFrozenException(); }
             var propertyInfo = classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (propertyInfo == null) {
+                var message = string.Format("The class '{0}' does not have a property named '{1}'", classType.FullName, propertyName);
+                throw new BsonSerializationException(message);
+            }
             return MapMember(propertyInfo);
         }
 

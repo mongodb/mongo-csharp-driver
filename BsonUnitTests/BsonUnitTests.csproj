@@ -95,6 +95,7 @@
     <Compile Include="DefaultSerializer\Serializers\StructSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="Jira\CSharp102Tests.cs" />
+    <Compile Include="Jira\CSharp104Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
