@@ -83,7 +83,7 @@ namespace MongoDB.Driver {
                 { "count", name },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
-            var result = database.RunCommand(command);
+            var result = database.RunCommand<CommandResult>(command);
             return result["n"].ToInt32();
         }
 
@@ -137,7 +137,7 @@ namespace MongoDB.Driver {
                 { "key", key },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
-            var result = database.RunCommand(command);
+            var result = database.RunCommand<CommandResult>(command);
             return result["values"].AsBsonArray;
         }
 
@@ -160,7 +160,7 @@ namespace MongoDB.Driver {
             return DropIndexByName(indexName);
         }
 
-        public BsonDocument DropIndexByName(
+        public CommandResult DropIndexByName(
             string indexName
         ) {
             lock (indexCache) {
@@ -168,7 +168,7 @@ namespace MongoDB.Driver {
                     { "deleteIndexes", name }, // not FullName
                     { "index", indexName }
                 };
-                var result = database.RunCommand(command);
+                var result = database.RunCommand<CommandResult>(command);
                 ResetIndexCache(); // TODO: what if RunCommand throws an exception
                 return result;
             }
@@ -246,7 +246,7 @@ namespace MongoDB.Driver {
                 { "fields", BsonDocumentWrapper.Create(fields) },
                 { "new", true, returnNew }
             };
-            var result = database.RunCommand(command);
+            var result = database.RunCommand<CommandResult>(command);
             return result["value"].AsBsonDocument;
         }
 
@@ -260,7 +260,7 @@ namespace MongoDB.Driver {
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "remove", true }
             };
-            var result = database.RunCommand(command);
+            var result = database.RunCommand<CommandResult>(command);
             return result["value"].AsBsonDocument;
         }
 
@@ -292,7 +292,7 @@ namespace MongoDB.Driver {
             return FindAs<TQuery, TDocument>(query).SetLimit(1).FirstOrDefault();
         }
 
-        public BsonDocument GeoNear<TQuery>(
+        public GeoNearResult GeoNear<TQuery>(
             TQuery query,
             double x,
             double y,
@@ -304,7 +304,7 @@ namespace MongoDB.Driver {
                 { "num", limit },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
-            return database.RunCommand(command);
+            return database.RunCommand<GeoNearResult>(command);
         }
 
         public IEnumerable<BsonDocument> GetIndexes() {
@@ -338,7 +338,7 @@ namespace MongoDB.Driver {
                     { "finalize", finalize }
                 } }
             };
-            var result = database.RunCommand(command);
+            var result = database.RunCommand<CommandResult>(command);
             return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
@@ -469,7 +469,7 @@ namespace MongoDB.Driver {
                 { "reduce", reduce }
             };
             command.Merge(options.ToBsonDocument());
-            var result = database.RunCommand(command);
+            var result = database.RunCommand<CommandResult>(command);
             return new MongoMapReduceResult(database, result);
         }
 
@@ -593,9 +593,9 @@ namespace MongoDB.Driver {
             return Insert(document, safeMode);
         }
 
-        public BsonDocument Stats() {
+        public CollectionStatsResult Stats() {
             var command = new BsonDocument("collstats", name);
-            return database.RunCommand(command);
+            return database.RunCommand<CollectionStatsResult>(command);
         }
 
         public int StorageSize() {
@@ -667,9 +667,9 @@ namespace MongoDB.Driver {
             }
         }
 
-        public BsonDocument Validate() {
+        public ValidateCollectionResult Validate() {
             var command = new BsonDocument("validate", name);
-            return database.RunCommand(command);
+            return database.RunCommand<ValidateCollectionResult>(command);
         }
         #endregion
 

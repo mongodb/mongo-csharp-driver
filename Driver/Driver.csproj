@@ -78,6 +78,12 @@
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
+    <Compile Include="Core\CommandResults\CollectionStatsResult.cs" />
+    <Compile Include="Core\CommandResults\CommandResult.cs" />
+    <Compile Include="Core\CommandResults\DatabaseStatsResult.cs" />
+    <Compile Include="Core\CommandResults\GeoNearResult.cs" />
+    <Compile Include="Core\CommandResults\GetLastErrorResult.cs" />
+    <Compile Include="Core\CommandResults\ValidateCollectionResult.cs" />
     <Compile Include="Core\MongoDBRef.cs" />
     <Compile Include="Core\MongoUrlBuilder.cs" />
     <Compile Include="Exceptions\MongoAuthenticationException.cs" />

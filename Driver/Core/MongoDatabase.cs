@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Internal;
 
@@ -153,13 +154,13 @@ namespace MongoDB.Driver {
             return GetCollectionNames().Contains(collectionName);
         }
 
-        public BsonDocument CreateCollection(
+        public CommandResult CreateCollection(
             string collectionName,
             BsonDocument options
         ) {
             BsonDocument command = new BsonDocument("create", collectionName);
             command.Merge(options);
-            return RunCommand(command);
+            return RunCommand<CommandResult>(command);
         }
 
         public BsonDocument CurrentOp() {
@@ -167,11 +168,11 @@ namespace MongoDB.Driver {
             return collection.FindOne();
         }
 
-        public BsonDocument DropCollection(
+        public CommandResult DropCollection(
             string collectionName
         ) {
             BsonDocument command = new BsonDocument("drop", collectionName);
-            return RunCommand(command);
+            return RunCommand<CommandResult>(command);
         }
 
         public BsonValue Eval(
@@ -182,7 +183,7 @@ namespace MongoDB.Driver {
                 { "$eval", code },
                 { "args", new BsonArray(args) }
             };
-            var result = RunCommand(command);
+            var result = RunCommand<CommandResult>(command);
             return result["retval"];
         }
 
@@ -255,8 +256,8 @@ namespace MongoDB.Driver {
             return server.GetDatabase(databaseName);
         }
 
-        public BsonDocument GetStats() {
-            return RunCommand("dbstats");
+        public DatabaseStatsResult GetStats() {
+            return RunCommand<DatabaseStatsResult>("dbstats");
         }
 
         // TODO: mongo shell has IsMaster at database level?
@@ -268,7 +269,7 @@ namespace MongoDB.Driver {
             users.Remove(new BsonDocument("user", username));
         }
 
-        public BsonDocument RenameCollection(
+        public CommandResult RenameCollection(
             MongoCredentials adminCredentials,
             string oldCollectionName,
             string newCollectionName
@@ -277,7 +278,7 @@ namespace MongoDB.Driver {
                 { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
                 { "to", string.Format("{0}.{1}", name, newCollectionName) }
             };
-            return server.RunAdminCommand(adminCredentials, command);
+            return server.RunAdminCommand<CommandResult>(adminCredentials, command);
         }
 
         public BsonDocument RenameCollection(
@@ -299,26 +300,28 @@ namespace MongoDB.Driver {
 
         // TODO: mongo shell has ResetError at the database level
 
-        public BsonDocument RunCommand<TCommand>(
+        public TCommandResult RunCommand<TCommand, TCommandResult>(
             TCommand command
-        ) {
-            BsonDocument result = CommandCollection.FindOne(command);
-            if (!result.Contains("ok")) {
-                throw new MongoCommandException("ok element is missing");
-            }
-            if (!result["ok"].ToBoolean()) {
-                string errmsg = result["errmsg"].AsString;
-                string errorMessage = string.Format("Command failed: {0}", errmsg);
+        ) where TCommandResult : CommandResult {
+            var result = CommandCollection.FindOneAs<TCommand, TCommandResult>(command);
+            if (!result.Ok) {
+                string errorMessage = string.Format("Command failed: {0}", result.ErrorMessage);
                 throw new MongoCommandException(errorMessage);
             }
             return result;
         }
 
-        public BsonDocument RunCommand(
+        public TCommandResult RunCommand<TCommandResult>(
+            IBsonSerializable command
+        ) where TCommandResult : CommandResult {
+            return RunCommand<IBsonSerializable, TCommandResult>(command);
+        }
+
+        public TCommandResult RunCommand<TCommandResult>(
             string commandName
-        ) {
+        ) where TCommandResult : CommandResult {
             BsonDocument command = new BsonDocument(commandName, true);
-            return RunCommand(command);
+            return RunCommand<BsonDocument, TCommandResult>(command);
         }
 
         public override string ToString() {

@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading;
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver {
@@ -258,12 +259,12 @@ namespace MongoDB.Driver {
             }
         }
 
-        public BsonDocument DropDatabase(
+        public CommandResult DropDatabase(
             string databaseName
         ) {
             MongoDatabase database = GetDatabase(databaseName);
             var command = new BsonDocument("dropDatabase", 1);
-            return database.RunCommand(command);
+            return database.RunCommand<CommandResult>(command);
         }
 
         public BsonDocument FetchDBRef(
@@ -320,7 +321,7 @@ namespace MongoDB.Driver {
             MongoCredentials adminCredentials
         ) {
             var adminDatabase = GetDatabase("admin", adminCredentials);
-            var result = adminDatabase.RunCommand("listDatabases");
+            var result = adminDatabase.RunCommand<CommandResult>("listDatabases");
             var databaseNames = new List<string>();
             foreach (BsonDocument database in result["databases"].AsBsonArray.Values) {
                 string databaseName = database["name"].AsString;
@@ -330,12 +331,12 @@ namespace MongoDB.Driver {
             return databaseNames;
         }
 
-        public BsonDocument GetLastError() {
+        public GetLastErrorResult GetLastError() {
             if (RequestNestingLevel == 0) {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
             var adminDatabase = GetDatabase("admin", null); // no credentials needed for getlasterror
-            return adminDatabase.RunCommand("getlasterror"); // use all lowercase for backward compatibility
+            return adminDatabase.RunCommand<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
         public void Reconnect() {
@@ -390,33 +391,46 @@ namespace MongoDB.Driver {
             }
         }
 
-        public BsonDocument RunAdminCommand<TCommand>(
+        public TCommandResult RunAdminCommand<TCommand, TCommandResult>(
             MongoCredentials adminCredentials,
             TCommand command
-        ) {
+        ) where TCommandResult : CommandResult {
             var adminDatabase = GetDatabase("admin", adminCredentials);
-            return adminDatabase.RunCommand(command);
+            return adminDatabase.RunCommand<TCommand, TCommandResult>(command);
         }
 
-        public BsonDocument RunAdminCommand<TCommand>(
+        public TCommandResult RunAdminCommand<TCommand, TCommandResult>(
             TCommand command
-        ) {
-            return RunAdminCommand(adminCredentials , command);
+        ) where TCommandResult : CommandResult {
+            return RunAdminCommand<TCommand, TCommandResult>(adminCredentials, command);
         }
 
-        public BsonDocument RunAdminCommand(
+        public TCommandResult RunAdminCommand<TCommandResult>(
+            IBsonSerializable command
+        ) where TCommandResult : CommandResult {
+            return RunAdminCommand<TCommandResult>(adminCredentials, command);
+        }
+
+        public TCommandResult RunAdminCommand<TCommandResult>(
+            MongoCredentials adminCredentials,
+            IBsonSerializable command
+        ) where TCommandResult : CommandResult {
+            var adminDatabase = GetDatabase("admin", adminCredentials);
+            return adminDatabase.RunCommand<TCommandResult>(command);
+        }
+
+        public TCommandResult RunAdminCommand<TCommandResult>(
             MongoCredentials adminCredentials,
             string commandName
-        ) {
+        ) where TCommandResult : CommandResult {
             var adminDatabase = GetDatabase("admin", adminCredentials);
-            var command = new BsonDocument(commandName, true);
-            return adminDatabase.RunCommand(command);
+            return adminDatabase.RunCommand<TCommandResult>(commandName);
         }
 
-        public BsonDocument RunAdminCommand(
+        public TCommandResult RunAdminCommand<TCommandResult>(
             string commandName
-        ) {
-            return RunAdminCommand(adminCredentials, commandName);
+        ) where TCommandResult : CommandResult {
+            return RunAdminCommand<TCommandResult>(adminCredentials, commandName);
         }
         #endregion
 

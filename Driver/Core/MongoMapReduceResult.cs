@@ -24,13 +24,13 @@ namespace MongoDB.Driver {
     public class MongoMapReduceResult {
         #region private fields
         private MongoDatabase database;
-        private BsonDocument commandResult;
+        private CommandResult commandResult;
         #endregion
 
         #region constructors
         public MongoMapReduceResult(
             MongoDatabase database,
-            BsonDocument commandResult
+            CommandResult commandResult
         ) {
             this.database = database;
             this.commandResult = commandResult;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
-        public BsonDocument CommandResult {
+        public CommandResult CommandResult {
             get { return commandResult; }
         }
 

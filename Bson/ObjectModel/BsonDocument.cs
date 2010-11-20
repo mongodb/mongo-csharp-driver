@@ -29,7 +29,7 @@ using MongoDB.Bson.DefaultSerializer;
 
 namespace MongoDB.Bson {
     [Serializable]
-    public class BsonDocument : BsonValue, IBsonSerializable, IEnumerable<BsonElement>, IComparable<BsonDocument>, IEquatable<BsonDocument> {
+    public class BsonDocument : BsonValue, IBsonSerializable, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument> {
         #region private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
         // if duplicate names are present only the first one will be in the dictionary (the others can only be accessed by index)
@@ -672,6 +672,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region explicit interface implementations
+        BsonDocument IConvertibleToBsonDocument.ToBsonDocument() {
+            return this;
+        }
+
         IEnumerator IEnumerable.GetEnumerator() {
             return elements.GetEnumerator();
         }
