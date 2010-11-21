@@ -60,7 +60,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public MongoCursor<BsonDocument, TDocument> GetResults<TDocument>() {
+        public MongoCursor<TDocument> GetResults<TDocument>() {
             MongoCollection<TDocument> collection = database.GetCollection<TDocument>(ResultCollectionName);
             return collection.FindAll();
         }

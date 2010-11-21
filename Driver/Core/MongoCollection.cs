@@ -207,9 +207,9 @@ namespace MongoDB.Driver {
             }
         }
 
-        public MongoCursor<BsonDocument, TDocument> FindAllAs<TDocument>() {
+        public MongoCursor<TDocument> FindAllAs<TDocument>() {
             BsonDocument query = null;
-            return FindAs<BsonDocument, TDocument>(query);
+            return FindAs<TDocument>(query);
         }
 
         public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate>(
@@ -264,16 +264,16 @@ namespace MongoDB.Driver {
             return result["value"].AsBsonDocument;
         }
 
-        public MongoCursor<IBsonSerializable, TDocument> FindAs<TDocument>(
+        public MongoCursor<TDocument> FindAs<TDocument>(
            IBsonSerializable query
        ) {
             return FindAs<IBsonSerializable, TDocument>(query);
         }
 
-        public MongoCursor<TQuery, TDocument> FindAs<TQuery, TDocument>(
+        public MongoCursor<TDocument> FindAs<TQuery, TDocument>(
             TQuery query
         ) {
-            return new MongoCursor<TQuery, TDocument>(this, query);
+            return new MongoCursor<TDocument>(this, query);
         }
 
         public TDocument FindOneAs<TDocument>() {
@@ -542,7 +542,7 @@ namespace MongoDB.Driver {
                 }
             }
 
-            using (var message = new MongoDeleteMessage<TQuery>(FullName, flags, query)) {
+            using (var message = new MongoDeleteMessage(FullName, flags, query)) {
                 var connection = database.GetConnection(false); // not slaveOk
                 var lastError = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
@@ -659,7 +659,7 @@ namespace MongoDB.Driver {
                 }
             }
 
-            using (var message = new MongoUpdateMessage<TQuery, TUpdate>(FullName, flags, query, update)) {
+            using (var message = new MongoUpdateMessage(FullName, flags, query, update)) {
                 var connection = database.GetConnection(false); // not slaveOk
                 var lastError = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
@@ -743,13 +743,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public MongoCursor<TQuery, TDefaultDocument> Find<TQuery>(
+        public MongoCursor<TDefaultDocument> Find<TQuery>(
             TQuery query
         ) {
             return FindAs<TQuery, TDefaultDocument>(query);
         }
 
-        public MongoCursor<BsonDocument, TDefaultDocument> FindAll() {
+        public MongoCursor<TDefaultDocument> FindAll() {
             return FindAllAs<TDefaultDocument>();
         }
 

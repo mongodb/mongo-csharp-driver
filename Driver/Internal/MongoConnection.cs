@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Internal {
             var commandName = command.GetElement(0).Name;
 
             using (
-                var message = new MongoQueryMessage<BsonDocument>(
+                var message = new MongoQueryMessage(
                     collectionName,
                     queryFlags,
                     0, // numberToSkip
@@ -330,7 +330,7 @@ namespace MongoDB.Driver.Internal {
                         { "wtimeout", (int) safeMode.WTimeout.TotalMilliseconds, safeMode.W > 1 && safeMode.WTimeout != TimeSpan.Zero }
                     };
                     using (
-                        var getLastErrorMessage = new MongoQueryMessage<BsonDocument>(
+                        var getLastErrorMessage = new MongoQueryMessage(
                             "admin.$cmd", // collectionFullName
                             QueryFlags.None,
                             0, // numberToSkip

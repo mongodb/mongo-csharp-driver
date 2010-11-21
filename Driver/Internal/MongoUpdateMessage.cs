@@ -24,20 +24,20 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Internal {
-    internal class MongoUpdateMessage<TQuery, TUpdate> : MongoRequestMessage {
+    internal class MongoUpdateMessage : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
         private UpdateFlags flags;
-        private TQuery query;
-        private TUpdate update;
+        private object query;
+        private object update;
         #endregion
 
         #region constructors
         internal MongoUpdateMessage(
             string collectionFullName,
             UpdateFlags flags,
-            TQuery query,
-            TUpdate update
+            object query,
+            object update
         ) :
             base(MessageOpcode.Update) {
             this.collectionFullName = collectionFullName;
@@ -54,8 +54,8 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteInt32((int) flags);
 
             BsonWriter bsonWriter = BsonWriter.Create(buffer);
-            BsonSerializer.Serialize(bsonWriter, query, true); // serializeIdFirst
-            BsonSerializer.Serialize(bsonWriter, update, true); // serializeIdFirst
+            BsonSerializer.Serialize(bsonWriter, query.GetType(), query, true); // serializeIdFirst
+            BsonSerializer.Serialize(bsonWriter, update.GetType(), update, true); // serializeIdFirst
         }
         #endregion
     }

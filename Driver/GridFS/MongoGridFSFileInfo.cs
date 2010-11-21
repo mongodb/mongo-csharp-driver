@@ -223,7 +223,7 @@ namespace MongoDB.Driver.GridFS {
 
         public void Refresh() {
             var files = gridFS.Database.GetCollection(gridFS.Settings.FilesCollectionName);
-            MongoCursor<BsonDocument, BsonDocument> cursor;
+            MongoCursor<BsonDocument> cursor;
             if (id != null) {
                 var query = new BsonDocument("_id", id);
                 cursor = files.Find(query);
