@@ -190,10 +190,7 @@ namespace MongoDB.Bson {
             // these coercions can't be handled by the conversions table (because of the interfaces)
             switch (bsonType) {
                 case BsonType.Array:
-                    if (value is IEnumerable<object>) {
-                        return new BsonArray((IEnumerable<object>) value);
-                    }
-                    break;
+                    return ConvertToBsonArray(value);
                 case BsonType.Document:
                     if (value is IDictionary<string, object>) {
                         return new BsonDocument((IDictionary<string, object>) value);
@@ -203,6 +200,39 @@ namespace MongoDB.Bson {
 
             string message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}", value.GetType().FullName, bsonType);
             throw new ArgumentException(message, "value");
+        }
+
+        private static BsonValue ConvertToBsonArray(object value)
+        {
+            if (value is IEnumerable<object>) {
+                return new BsonArray((IEnumerable<object>) value);
+            }
+            if (value is IEnumerable<int>) {
+                return new BsonArray((IEnumerable<int>) value);
+            }
+            if (value is IEnumerable<double>) {
+                return new BsonArray((IEnumerable<double>) value);
+            }
+            if (value is IEnumerable<string>) {
+                return new BsonArray((IEnumerable<string>) value);
+            }
+            if (value is IEnumerable<DateTime>)
+            {
+                return new BsonArray((IEnumerable<DateTime>) value);
+            }
+            if (value is IEnumerable<long>)
+            {
+                return new BsonArray((IEnumerable<long>) value);
+            }
+            if (value is IEnumerable<BsonValue>)
+            {
+                return new BsonArray((IEnumerable<BsonValue>)value);
+            }
+            if (value is IEnumerable<bool>)
+            {
+                return new BsonArray((IEnumerable<bool>)value);
+            }
+            throw new Exception("Cannot convert type: " + value.GetType().FullName);
         }
 
         public static bool TryMapToBsonValue(
@@ -236,8 +266,9 @@ namespace MongoDB.Bson {
             }
 
             // these mappings can't be handled by the mappings table (because of the interfaces)
-            if (value is IEnumerable<object>) {
-                bsonValue = new BsonArray((IEnumerable<object>) value);
+            if (value is IEnumerable)
+            {
+                bsonValue = ConvertToBsonArray(value);
                 return true;
             }
             if (value is IDictionary<string, object>) {

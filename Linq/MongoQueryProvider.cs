@@ -420,7 +420,7 @@ namespace MongoDB.Linq
             return collection.Count(queryObject.Query);
         }
 
-        private object ExecuteFindInternal<TDocument>(MongoQueryObject queryObject)
+        internal object ExecuteFindInternal<TDocument>(MongoQueryObject queryObject)
         {
             var collection = Database.GetCollection<TDocument>(queryObject.CollectionName);
             var cursor = queryObject.Query == null ? collection.FindAll() : collection.Find(queryObject.Query);
@@ -428,9 +428,9 @@ namespace MongoDB.Linq
                 cursor = cursor.SetSortOrder(queryObject.Sort);
             if (queryObject.Fields != null)
                 cursor = cursor.SetFields(queryObject.Fields);
-            if (queryObject.NumberToLimit != null)
+            if (queryObject.NumberToLimit != 0)
                 cursor = cursor.SetLimit(queryObject.NumberToLimit);
-            if (queryObject.NumberToSkip != null)
+            if (queryObject.NumberToSkip != 0)
                 cursor = cursor.SetSkip(queryObject.NumberToSkip);
             var executor = GetExecutor(queryObject.DocumentType, queryObject.Projector, queryObject.Aggregator, true);
             return executor.Compile().DynamicInvoke(cursor);

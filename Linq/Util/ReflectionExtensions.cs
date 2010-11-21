@@ -66,6 +66,11 @@ namespace MongoDB.Linq.Util
                     return types.Aggregate<Type,int>(types.Length, (ret, type) => ret*37+type.GetHashCode());
                 }
             }
+
+            public override int GetHashCode()
+            {
+                return this.hashCode;
+            }
         }
 
         static readonly Dictionary<MethodDefinition, MethodInfo> dict = new Dictionary<MethodDefinition, MethodInfo>();
