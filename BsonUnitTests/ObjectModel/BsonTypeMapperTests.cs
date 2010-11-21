@@ -468,7 +468,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual("code", bsonJavaScript.Code);
             var bsonJavaScriptWithScope = (BsonJavaScriptWithScope) BsonTypeMapper.MapToBsonValue("code", BsonType.JavaScriptWithScope);
             Assert.AreEqual("code", bsonJavaScriptWithScope.Code);
-            Assert.AreEqual(0, bsonJavaScriptWithScope.Scope.Count);
+            Assert.AreEqual(0, bsonJavaScriptWithScope.Scope.ElementCount);
             var objectId = ObjectId.GenerateNewId();
             var bsonObjectId = (BsonObjectId) BsonTypeMapper.MapToBsonValue(objectId.ToString(), BsonType.ObjectId);
             Assert.AreEqual(objectId, bsonObjectId.Value);

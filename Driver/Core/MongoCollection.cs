@@ -117,10 +117,6 @@ namespace MongoDB.Driver {
             return CreateIndex(IndexKeys.Ascending(keyNames));
         }
 
-        public int DataSize() {
-            return Stats()["size"].ToInt32();
-        }
-
         public IEnumerable<BsonValue> Distinct(
             string key
         ) {
@@ -311,6 +307,35 @@ namespace MongoDB.Driver {
             var indexes = database.GetCollection("system.indexes");
             var query = new BsonDocument("ns", FullName);
             return indexes.Find(query).ToList(); // force query to execute before returning
+        }
+
+        public CollectionStatsResult GetStats() {
+            var command = new BsonDocument("collstats", name);
+            return database.RunCommand<CollectionStatsResult>(command);
+        }
+
+        public long GetTotalDataSize() {
+            var totalSize = GetStats().DataSize;
+            var indexes = GetIndexes();
+            foreach (var index in indexes) {
+                var indexName = index["name"].AsString;
+                var indexCollectionName = string.Format("{0}.${1}", name, indexName);
+                var indexCollection = database.GetCollection(indexCollectionName);
+                totalSize += indexCollection.GetStats().DataSize;
+            }
+            return totalSize;
+        }
+
+        public long GetTotalStorageSize() {
+            var totalSize = GetStats().StorageSize;
+            var indexes = GetIndexes();
+            foreach (var index in indexes) {
+                var indexName = index["name"].AsString;
+                var indexCollectionName = string.Format("{0}.${1}", name, indexName);
+                var indexCollection = database.GetCollection(indexCollectionName);
+                totalSize += indexCollection.GetStats().StorageSize;
+            }
+            return totalSize;
         }
 
         public IEnumerable<BsonDocument> Group<TGroupBy, TQuery>(
@@ -533,7 +558,7 @@ namespace MongoDB.Driver {
                 BsonDocument queryBsonDocument = query as BsonDocument;
                 if (queryBsonDocument != null) {
                     if (
-                        queryBsonDocument.Count == 1 &&
+                        queryBsonDocument.ElementCount == 1 &&
                         queryBsonDocument.GetElement(0).Name == "_id" &&
                         queryBsonDocument[0].BsonType == BsonType.ObjectId
                     ) {
@@ -591,31 +616,6 @@ namespace MongoDB.Driver {
                 }
             }
             return Insert(document, safeMode);
-        }
-
-        public CollectionStatsResult Stats() {
-            var command = new BsonDocument("collstats", name);
-            return database.RunCommand<CollectionStatsResult>(command);
-        }
-
-        public int StorageSize() {
-            return Stats()["storageSize"].ToInt32();
-        }
-
-        public int TotalIndexSize() {
-            return Stats()["totalIndexSize"].ToInt32();
-        }
-
-        public int TotalSize() {
-            var totalSize = StorageSize();
-            var indexes = GetIndexes();
-            foreach (var index in indexes) {
-                var indexName = index["name"].AsString;
-                var indexCollectionName = string.Format("{0}.${1}", name, indexName);
-                var indexCollection = database.GetCollection(indexCollectionName);
-                totalSize += indexCollection.DataSize();
-            }
-            return totalSize;
         }
 
         public override string ToString() {

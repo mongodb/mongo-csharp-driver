@@ -101,8 +101,8 @@ namespace MongoDB.Bson {
             set { allowDuplicateNames = value; }
         }
 
-        // Count could be greater than the number of Names if allowDuplicateNames is true
-        public int Count {
+        // ElementCount could be greater than the number of Names if allowDuplicateNames is true
+        public int ElementCount {
             get { return elements.Count; }
         }
 

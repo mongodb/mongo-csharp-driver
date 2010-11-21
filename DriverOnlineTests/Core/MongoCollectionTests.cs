@@ -89,11 +89,6 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestDataSize() {
-            var dataSize = collection.DataSize();
-        }
-
-        [Test]
         public void TestDistinct() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument("x", 1));
@@ -199,7 +194,7 @@ namespace MongoDB.DriverOnlineTests {
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
             var result = collection.FindAll().SetFields("x").FirstOrDefault();
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result.ElementCount);
             Assert.AreEqual("_id", result.GetElement(0).Name);
             Assert.AreEqual("x", result.GetElement(1).Name);
         }
@@ -217,23 +212,18 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestStats() {
-            var dataSize = collection.Stats();
+        public void TestGetStats() {
+            var dataSize = collection.GetStats();
         }
 
         [Test]
-        public void TestStorageSize() {
-            var dataSize = collection.StorageSize();
+        public void TestTotalDataSize() {
+            var dataSize = collection.GetTotalDataSize();
         }
 
         [Test]
-        public void TestTotalIndexSize() {
-            var dataSize = collection.TotalIndexSize();
-        }
-
-        [Test]
-        public void TestTotalSize() {
-            var dataSize = collection.TotalSize();
+        public void TestTotalStorageSize() {
+            var dataSize = collection.GetTotalStorageSize();
         }
 
         [Test]

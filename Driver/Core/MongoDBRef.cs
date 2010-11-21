@@ -57,10 +57,10 @@ namespace MongoDB.Driver {
             BsonDocument document
         ) {
             if (
-                (document.Count != 2 && document.Count != 3) ||
+                (document.ElementCount != 2 && document.ElementCount != 3) ||
                 document.GetElement(0).Name != "$ref" ||
                 document.GetElement(1).Name != "$id" ||
-                (document.Count == 3 && document.GetElement(2).Name != "$db")
+                (document.ElementCount == 3 && document.GetElement(2).Name != "$db")
             ) {
                 throw new MongoException("BsonDocument is not a valid MongoDBRef");
             }

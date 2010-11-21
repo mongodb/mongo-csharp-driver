@@ -33,10 +33,10 @@ namespace MongoDB.Driver {
         public string ErrorMessage {
             get {
                 BsonValue err;
-                if (TryGetValue("err", out err)) {
+                if (TryGetValue("errmsg", out err)) {
                     return err.ToString();
                 } else {
-                    return "Unknown error.";
+                    return "Unknown error";
                 }
             }
         }
@@ -47,7 +47,7 @@ namespace MongoDB.Driver {
                 if (TryGetValue("ok", out ok)) {
                     return ok.ToBoolean();
                 } else {
-                    throw new InvalidOperationException("CommandResult is missing an ok element.");
+                    throw new MongoCommandException("CommandResult is missing an ok element.");
                 }
             }
         }
