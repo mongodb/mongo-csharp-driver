@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7EBC6019-8567-442F-A500-CBCBB915C2B6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MongoDB.Linq</RootNamespace>
+    <AssemblyName>MongoDB.Linq</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DocumentQuery.cs" />
+    <Compile Include="ExecutionBuilder.cs" />
+    <Compile Include="Expressions\AggregateExpression.cs" />
+    <Compile Include="Expressions\AggregateSubqueryExpression.cs" />
+    <Compile Include="Expressions\AggregateType.cs" />
+    <Compile Include="Expressions\Alias.cs" />
+    <Compile Include="Expressions\AliasedExpression.cs" />
+    <Compile Include="Expressions\CollectionExpression.cs" />
+    <Compile Include="Expressions\ExpressionComparer.cs" />
+    <Compile Include="Expressions\ExpressionVisitor.cs" />
+    <Compile Include="Expressions\FieldDeclaration.cs" />
+    <Compile Include="Expressions\FieldExpression.cs" />
+    <Compile Include="Expressions\MongoExpression.cs" />
+    <Compile Include="Expressions\MongoExpressionComparer.cs" />
+    <Compile Include="Expressions\MongoExpressionExtensions.cs" />
+    <Compile Include="Expressions\MongoExpressionType.cs" />
+    <Compile Include="Expressions\MongoExpressionVisitor.cs" />
+    <Compile Include="Expressions\OrderExpression.cs" />
+    <Compile Include="Expressions\OrderType.cs" />
+    <Compile Include="Expressions\ProjectionExpression.cs" />
+    <Compile Include="Expressions\ScalarExpression.cs" />
+    <Compile Include="Expressions\SelectExpression.cs" />
+    <Compile Include="Expressions\SubqueryExpression.cs" />
+    <Compile Include="Grouping.cs" />
+    <Compile Include="IMongoQueryable.cs" />
+    <Compile Include="MongoQuery.cs" />
+    <Compile Include="MongoQueryable.cs" />
+    <Compile Include="MongoQueryObject.cs" />
+    <Compile Include="MongoQueryProvider.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\ReflectionExtensions.cs" />
+    <Compile Include="Util\ScopedDictionary.cs" />
+    <Compile Include="Translators\AggregateChecker.cs" />
+    <Compile Include="Translators\AggregateRewriter.cs" />
+    <Compile Include="Translators\DeclaredAliasGatherer.cs" />
+    <Compile Include="Translators\DocumentFormatter.cs" />
+    <Compile Include="Translators\ExpressionReplacer.cs" />
+    <Compile Include="Translators\FieldBinder.cs" />
+    <Compile Include="Translators\FieldGatherer.cs" />
+    <Compile Include="Translators\FieldMapper.cs" />
+    <Compile Include="Translators\FieldProjector.cs" />
+    <Compile Include="Translators\JavascriptFormatter.cs" />
+    <Compile Include="Translators\MapReduceFinalizerFunctionBuilder.cs" />
+    <Compile Include="Translators\MapReduceMapFunctionBuilder.cs" />
+    <Compile Include="Translators\MapReduceReduceFunctionBuilder.cs" />
+    <Compile Include="Translators\MongoQueryObjectBuilder.cs" />
+    <Compile Include="Translators\Nominator.cs" />
+    <Compile Include="Translators\OrderByRewriter.cs" />
+    <Compile Include="Translators\PartialEvaluator.cs" />
+    <Compile Include="Translators\ProjectionBuilder.cs" />
+    <Compile Include="Translators\QueryBinder.cs" />
+    <Compile Include="Translators\QueryDuplicator.cs" />
+    <Compile Include="Translators\RedundantFieldRemover.cs" />
+    <Compile Include="Translators\RedundantSubqueryRemover.cs" />
+    <Compile Include="Translators\SubqueryRemover.cs" />
+    <Compile Include="Util\TypeHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bson\Bson.csproj">
+      <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
+      <Name>Bson</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Driver\Driver.csproj">
+      <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>
+      <Name>Driver</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

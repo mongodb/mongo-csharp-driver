@@ -528,10 +528,11 @@ namespace MongoDB.Bson.DefaultSerializer {
                 }
             }
 
+            bool isLinq = classType.IsGenericType && classType.GetGenericTypeDefinition() == typeof(IGrouping<,>);
             // let other properties opt-in if they have a BsonElement attribute
             foreach (var propertyInfo in classType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
                 var elementAttribute = (BsonElementAttribute) propertyInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
-                if (elementAttribute == null || !propertyInfo.CanRead || (!propertyInfo.CanWrite && !isAnonymous)) {
+                if ((!isLinq && elementAttribute == null) || !propertyInfo.CanRead || (!propertyInfo.CanWrite && !isAnonymous && !isLinq)) {
                     continue;
                 }
 
@@ -574,7 +575,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             return
                 Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) && 
                 type.IsGenericType &&
-                type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
+                type.FullName.Contains("Anon"); 
         }
 
         private void LoadBaseClassMap() {
@@ -586,6 +587,14 @@ namespace MongoDB.Bson.DefaultSerializer {
                 allMemberMaps.AddRange(baseClassMap.MemberMaps);
                 allMemberMaps.AddRange(declaredMemberMaps);
                 foreach (var memberMap in allMemberMaps) {
+                    elementDictionary.Add(memberMap.ElementName, memberMap);
+                    memberDictionary.Add(memberMap.MemberName, memberMap);
+                }
+            } else
+            {
+                allMemberMaps.AddRange(declaredMemberMaps);
+                foreach (var memberMap in allMemberMaps)
+                {
                     elementDictionary.Add(memberMap.ElementName, memberMap);
                     memberDictionary.Add(memberMap.MemberName, memberMap);
                 }

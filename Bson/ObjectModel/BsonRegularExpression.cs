@@ -52,6 +52,18 @@ namespace MongoDB.Bson {
         }
 
         public BsonRegularExpression(
+            string pattern,
+            RegexOptions options
+        )
+            : base(BsonType.RegularExpression)
+        {
+            this.pattern = pattern;
+            this.options = ((options & RegexOptions.IgnoreCase) == RegexOptions.IgnorePatternWhitespace ? "g" : "") +
+                ((options & RegexOptions.IgnoreCase) == RegexOptions.IgnoreCase ? "i" : "") +
+                ((options & RegexOptions.IgnoreCase) == RegexOptions.Multiline ? "m" : "");
+        }
+
+        public BsonRegularExpression(
             Regex regex
         )
             : base(BsonType.RegularExpression) {

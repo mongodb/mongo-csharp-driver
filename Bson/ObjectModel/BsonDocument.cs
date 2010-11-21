@@ -676,5 +676,10 @@ namespace MongoDB.Bson {
             return elements.GetEnumerator();
         }
         #endregion
+
+        public override string ToString()
+        {
+            return this.ToJson();
+        }
     }
 }
