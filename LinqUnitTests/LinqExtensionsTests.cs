@@ -3,7 +3,7 @@ using MongoDB.Driver;
 using MongoDB.Linq;
 using NUnit.Framework;
 
-namespace MongoDB.IntegrationTests.Linq
+namespace MongoDB.LinqUnitTests
 {
     [TestFixture]
     public class LinqExtensionsTests : MongoTestBase
@@ -56,9 +56,9 @@ namespace MongoDB.IntegrationTests.Linq
         }
 
         [Test]
-        public void Delete()
+        public void Remove()
         {
-            personCollection.Delete(p => true);
+            personCollection.Remove(p => true);
 
             Assert.AreEqual(0, personCollection.Count());
         }

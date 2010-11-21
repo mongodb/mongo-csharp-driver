@@ -4,8 +4,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.DefaultSerializer;
 
 
-namespace MongoDB.IntegrationTests.Linq
+namespace MongoDB.LinqUnitTests
 {
+    [BsonIgnoreExtraElements]
     public class Person
     {
         [BsonElement("fn")]
@@ -31,6 +32,7 @@ namespace MongoDB.IntegrationTests.Linq
         public ObjectId LinkedId { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Address
     {
         [BsonElement("city")]
@@ -47,6 +49,7 @@ namespace MongoDB.IntegrationTests.Linq
         Private
     }
 
+    [BsonIgnoreExtraElements]
     public class PersonWrapper
     {
         public Person Person { get; set; }

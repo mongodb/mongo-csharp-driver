@@ -8,7 +8,7 @@ using MongoDB.Linq;
 
 using NUnit.Framework;
 
-namespace MongoDB.IntegrationTests.Linq
+namespace MongoDB.LinqUnitTests
 {
     [TestFixture]
     public class MapReduceTests : LinqTestsBase

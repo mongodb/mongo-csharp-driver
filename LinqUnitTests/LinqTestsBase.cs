@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.IntegrationTests.Linq
+namespace MongoDB.LinqUnitTests
 {
     public class LinqTestsBase : MongoTestBase
     {

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
-using MongoDB.IntegrationTests.Linq;
 using MongoDB.Linq;
 using NUnit.Framework;
 
@@ -219,17 +218,17 @@ namespace MongoDB.LinqUnitTests
             Assert.AreEqual(Query.EQ("otherAdds.1.city", "Tokyo").ToBsonDocument(), queryObject.Query);
         }
 
-//        [Test]
-//        public void NestedQueryable_Any()
-//        {
-//            var people = Collection.Linq().Where(x => x.Addresses.Any(a => a.City == "London"));
-//
-//            var queryObject = ((IMongoQueryable)people).GetQueryObject();
-//            Assert.AreEqual(0, queryObject.Fields.Count);
-//            Assert.AreEqual(0, queryObject.NumberToLimit);
-//            Assert.AreEqual(0, queryObject.NumberToSkip);
-//            Assert.AreEqual(Query.ElemMatch("Addresses", Query. new Document("$elemMatch", new Document("City", "London"))), queryObject.Query);
-//        }
+        [Test]
+        public void NestedQueryable_Any()
+        {
+            var people = Collection.Linq().Where(x => x.Addresses.Any(a => a.City == "London"));
+
+            var queryObject = ((IMongoQueryable)people).GetQueryObject();
+            Assert.AreEqual(0, queryObject.Fields.Count);
+            Assert.AreEqual(0, queryObject.NumberToLimit);
+            Assert.AreEqual(0, queryObject.NumberToSkip);
+            Assert.AreEqual(Query.ElemMatch("otherAdds", Query.EQ("city", "London")).ToBsonDocument(), queryObject.Query);
+        }
 
         [Test]
         public void NestedQueryable_Contains()
