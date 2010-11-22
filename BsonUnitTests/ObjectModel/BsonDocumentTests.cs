@@ -262,6 +262,12 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableObjectId; });
         }
 
+        [Test]
+        public void TestZeroLengthElementName() {
+            var document = new BsonDocument("", "zero length");
+            Assert.AreEqual(0, document.GetElement(0).Name.Length);
+        }
+
         private void AssertAreEqual(
             string expected,
             byte[] actual

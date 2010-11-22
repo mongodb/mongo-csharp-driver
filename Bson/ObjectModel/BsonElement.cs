@@ -147,11 +147,8 @@ namespace MongoDB.Bson {
             if (name == null) {
                 throw new ArgumentNullException("name");
             }
-            if (
-                name.Length == 0 ||
-                name.IndexOf('\0') >= 0
-            ) {
-                throw new ArgumentException("Invalid element name", "name");
+            if (name.IndexOf('\0') >= 0) {
+                throw new ArgumentException("Element name cannot contain null (0x00) characters");
             }
         }
         #endregion
