@@ -30,48 +30,195 @@ using MongoDB.Driver.Builders;
 namespace MongoDB.DriverOnlineTests.Jira.CSharp112 {
     [TestFixture]
     public class CSharp112Tests {
-        private class C {
+        private class D {
+            public int Id;
+            public double N;
+        }
+
+        private class I {
             public int Id;
             public int N;
         }
 
-        [Test]
-        public void TestDeserializeInt32() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<C>("csharp112");
+        private class L {
+            public int Id;
+            public long N;
+        }
 
+        private MongoServer server;
+        private MongoDatabase database;
+        private MongoCollection collection;
+
+        [TestFixtureSetUp]
+        public void TestFixtureSetup() {
+            server = MongoServer.Create("mongodb://localhost/?safe=true");
+            database = server["onlinetests"];
+            collection = database["csharp112"];
+        }
+
+        [Test]
+        public void TestDeserializeDouble() {
             // test with valid values
             collection.RemoveAll();
-            var values = new[] { 0.0, 0L, -1.0, -1L, 1.0, 1L, (double) Int32.MinValue, (double) Int32.MaxValue, (long) Int32.MinValue, (long) Int32.MaxValue };
+            var values = new object[] {
+                0,
+                0L,
+                0.0,
+                -1,
+                -1L,
+                -1.0,
+                1,
+                1L,
+                1.0,
+                Int32.MinValue,
+                Int32.MaxValue
+            };
             for (int i = 0; i < values.Length; i++) {
                 var document = new BsonDocument {
                     { "_id", i + 1 },
-                    { "N", values[i] }
+                    { "N", BsonValue.Create(values[i]) }
                 };
                 collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++) {
                 var query = Query.EQ("_id", i + 1);
-                var c = collection.Find(query).Single();
-                Assert.AreEqual((int) values[i], c.N);
+                var document = collection.FindOneAs<D>(query);
+                Assert.AreEqual(BsonValue.Create(values[i]).ToDouble(), document.N);
             }
 
             // test with values that cause data loss
             collection.RemoveAll();
-            values = new[] { -1.5, 1.5, ((long) Int32.MinValue - 1), ((long) Int32.MaxValue + 1) , Int64.MinValue, Int64.MaxValue };
+            values = new object[] {
+                0x7eeeeeeeeeeeeeee,
+                0xfeeeeeeeeeeeeeee,
+                Int64.MinValue + 1, // need some low order bits to see data loss
+                Int64.MaxValue
+            };
             for (int i = 0; i < values.Length; i++) {
                 var document = new BsonDocument {
                     { "_id", i + 1 },
-                    { "N", values[i] }
+                    { "N", BsonValue.Create(values[i]) }
                 };
                 collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++) {
                 var query = Query.EQ("_id", i + 1);
-                Assert.Throws<FileFormatException>(() => collection.Find(query).Single());
+                Assert.Throws<FileFormatException>(() => collection.FindOneAs<D>(query));
+            }
+        }
+
+        [Test]
+        public void TestDeserializeInt32() {
+            // test with valid values
+            collection.RemoveAll();
+            var values = new object[] {
+                0L,
+                0.0,
+                -1L,
+                -1.0,
+                1L,
+                1.0,
+                (double) Int32.MinValue,
+                (double) Int32.MaxValue,
+                (long) Int32.MinValue,
+                (long) Int32.MaxValue
+            };
+            for (int i = 0; i < values.Length; i++) {
+                var document = new BsonDocument {
+                    { "_id", i + 1 },
+                    { "N", BsonValue.Create(values[i]) }
+                };
+                collection.Insert(document);
+            }
+
+            for (int i = 0; i < values.Length; i++) {
+                var query = Query.EQ("_id", i + 1);
+                var document = collection.FindOneAs<I>(query);
+                Assert.AreEqual(BsonValue.Create(values[i]).ToInt32(), document.N);
+            }
+
+            // test with values that cause data loss
+            collection.RemoveAll();
+            values = new object[] {
+                -1.5,
+                1.5,
+                ((long) Int32.MinValue - 1),
+                ((long) Int32.MaxValue + 1),
+                Int64.MinValue,
+                Int64.MaxValue,
+                double.MaxValue,
+                double.MinValue
+            };
+            for (int i = 0; i < values.Length; i++) {
+                var document = new BsonDocument {
+                    { "_id", i + 1 },
+                    { "N", BsonValue.Create(values[i]) }
+                };
+                collection.Insert(document);
+            }
+
+            for (int i = 0; i < values.Length; i++) {
+                var query = Query.EQ("_id", i + 1);
+                Assert.Throws<FileFormatException>(() => collection.FindOneAs<I>(query));
+            }
+        }
+
+        [Test]
+        public void TestDeserializeInt64() {
+            // test with valid values
+            collection.RemoveAll();
+            var values = new object[] {
+                0,
+                0L,
+                0.0,
+                -1,
+                -1L,
+                -1.0,
+                1,
+                1L,
+                1.0,
+                (double) Int32.MinValue,
+                (double) Int32.MaxValue,
+                (long) Int32.MinValue,
+                (long) Int32.MaxValue,
+                Int64.MinValue,
+                Int64.MaxValue
+            };
+            for (int i = 0; i < values.Length; i++) {
+                var document = new BsonDocument {
+                    { "_id", i + 1 },
+                    { "N", BsonValue.Create(values[i]) }
+                };
+                collection.Insert(document);
+            }
+
+            for (int i = 0; i < values.Length; i++) {
+                var query = Query.EQ("_id", i + 1);
+                var document = collection.FindOneAs<L>(query);
+                Assert.AreEqual(BsonValue.Create(values[i]).ToInt64(), document.N);
+            }
+
+            // test with values that cause data loss
+            collection.RemoveAll();
+            values = new object[] {
+                -1.5,
+                1.5,
+                double.MaxValue,
+                double.MinValue
+            };
+            for (int i = 0; i < values.Length; i++) {
+                var document = new BsonDocument {
+                    { "_id", i + 1 },
+                    { "N", BsonValue.Create(values[i]) }
+                };
+                collection.Insert(document);
+            }
+
+            for (int i = 0; i < values.Length; i++) {
+                var query = Query.EQ("_id", i + 1);
+                Assert.Throws<FileFormatException>(() => collection.FindOneAs<L>(query));
             }
         }
     }

@@ -323,7 +323,27 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            return bsonReader.ReadDouble();
+            double value;
+            bool lostData = false;
+            var bsonType = bsonReader.CurrentBsonType;
+            switch (bsonType) {
+                case BsonType.Int32:
+                    value = (double) bsonReader.ReadInt32();
+                    break;
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    value = (double) int64Value;
+                    lostData = (long) value != int64Value;
+                    break;
+                default:
+                    value = bsonReader.ReadDouble();
+                    break;
+            }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to Double", bsonType);
+                throw new FileFormatException(message);
+            }
+            return value;
         }
 
         public override void Serialize(
@@ -422,12 +442,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                 case BsonType.Double:
                     var doubleValue = bsonReader.ReadDouble();
                     value = (int) doubleValue;
-                    lostData = value != doubleValue;
+                    lostData = (double) value != doubleValue;
                     break;
                 case BsonType.Int64:
                     var int64Value = bsonReader.ReadInt64();
                     value = (int) int64Value;
-                    lostData = value != int64Value;
+                    lostData = (long) value != int64Value;
                     break;
                 default:
                     value = bsonReader.ReadInt32();
@@ -478,11 +498,27 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            if (bsonReader.CurrentBsonType == BsonType.Int32) {
-                return (long) bsonReader.ReadInt32();
-            } else {
-                return bsonReader.ReadInt64();
+            long value;
+            bool lostData = false;
+            var bsonType = bsonReader.CurrentBsonType;
+            switch (bsonType) {
+                case BsonType.Double:
+                    var doubleValue = bsonReader.ReadDouble();
+                    value = (long) doubleValue;
+                    lostData = (double) value != doubleValue;
+                    break;
+                case BsonType.Int32:
+                    value = bsonReader.ReadInt32();
+                    break;
+                default:
+                    value = bsonReader.ReadInt64();
+                    break;
             }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to Int64", bsonType);
+                throw new FileFormatException(message);
+            }
+            return value;
         }
 
         public override void Serialize(
