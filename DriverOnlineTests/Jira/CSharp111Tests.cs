@@ -50,15 +50,21 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp111 {
             collection.Insert(c);
             var id = c.Id;
 
-            var innerObjects = new List<D> { new D { X = 1 }, new D { X = 2 } };
-            var innerBsonValues = innerObjects.ConvertAll(obj => obj.ToBsonDocument<D>()).ToArray();
             var query = Query.EQ("_id", id);
-            var update = Update.AddToSetEach("InnerObjects", innerBsonValues);
+            var update = Update.AddToSet("InnerObjects", 1);
+            collection.Update(query, update);
+            var d1 = new D { X = 1 };
+            update = Update.AddToSetWrapped("InnerObjects", d1);
+            collection.Update(query, update);
+
+            var d2 = new D { X = 2 };
+            var d3 = new D { X = 3 };
+            update = Update.AddToSetEachWrapped("InnerObjects", d1, d2, d3);
             collection.Update(query, update);
 
             var document = collection.FindOneAs<BsonDocument>();
             var json = document.ToJson();
-            var expected = "{ 'InnerObjects' : [{ 'X' : 1 }, { 'X' : 2 }], '_id' : { '$oid' : '#ID' } }"; // server put _id at end?
+            var expected = "{ 'InnerObjects' : [1, { 'X' : 1 }, { 'X' : 2 }, { 'X' : 3 }], '_id' : { '$oid' : '#ID' } }"; // server put _id at end?
             expected = expected.Replace("#ID", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);

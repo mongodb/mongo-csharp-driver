@@ -35,9 +35,37 @@ namespace MongoDB.Driver.Builders {
 
         public static UpdateBuilder AddToSetEach(
             string name,
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().AddToSetEach(name, values);
+        }
+
+        public static UpdateBuilder AddToSetEach(
+            string name,
             params BsonValue[] values
         ) {
             return new UpdateBuilder().AddToSetEach(name, values);
+        }
+
+        public static UpdateBuilder AddToSetEachWrapped<T>(
+            string name,
+            IEnumerable<T> values
+        ) {
+            return new UpdateBuilder().AddToSetEachWrapped<T>(name, values);
+        }
+
+        public static UpdateBuilder AddToSetEachWrapped<T>(
+            string name,
+            params T[] values
+        ) {
+            return new UpdateBuilder().AddToSetEachWrapped<T>(name, values);
+        }
+
+        public static UpdateBuilder AddToSetWrapped<T>(
+            string name,
+            T value
+        ) {
+            return new UpdateBuilder().AddToSetWrapped<T>(name, value);
         }
 
         public static UpdateBuilder Inc(
@@ -144,9 +172,9 @@ namespace MongoDB.Driver.Builders {
 
         public UpdateBuilder AddToSetEach(
             string name,
-            params BsonValue[] values
+            IEnumerable<BsonValue> values
         ) {
-            var arg = new BsonDocument("$each", new BsonArray((IEnumerable<BsonValue>) values));
+            var arg = new BsonDocument("$each", new BsonArray(values));
             BsonElement element;
             if (document.TryGetElement("$addToSet", out element)) {
                 element.Value.AsBsonDocument.Add(name, arg);
@@ -154,6 +182,34 @@ namespace MongoDB.Driver.Builders {
                 document.Add("$addToSet", new BsonDocument(name, arg));
             }
             return this;
+        }
+
+        public UpdateBuilder AddToSetEach(
+            string name,
+            params BsonValue[] values
+        ) {
+            return AddToSetEach(name, (IEnumerable<BsonValue>) values);
+        }
+
+        public UpdateBuilder AddToSetEachWrapped<T>(
+            string name,
+            IEnumerable<T> values
+        ) {
+            return AddToSetEach(name, BsonDocumentWrapper.CreateMultiple<T>(values).Cast<BsonValue>());// the cast to BsonValue is required
+        }
+
+        public UpdateBuilder AddToSetEachWrapped<T>(
+            string name,
+            params T[] values
+        ) {
+            return AddToSetEachWrapped(name, (IEnumerable<T>) values);
+        }
+
+        public UpdateBuilder AddToSetWrapped<T>(
+           string name,
+           T value
+       ) {
+            return AddToSet(name, (BsonValue) BsonDocumentWrapper.Create<T>(value)); // the cast to BsonValue is required
         }
 
         public UpdateBuilder Inc(
