@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.DriverOnlineTests.CommandResults {
     [TestFixture]
-    public class CollectionStatsResultTests {
+    public class DatabaseStatsResultTests {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
@@ -39,28 +39,20 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
 
         [Test]
         public void Test() {
-            // make sure collection exists and has exactly one document
-            collection.RemoveAll();
+            // make sure collection and database exist
             collection.Insert(new BsonDocument());
 
-            var result = collection.GetStats();
+            var result = database.GetStats();
             Assert.IsTrue(result.Ok);
-            Assert.AreEqual("driveronlinetests.test", result.Namespace);
-            Assert.AreEqual(1, result.ObjectCount);
-            Assert.IsTrue(result.AverageObjectSize > 0.0);
+            Assert.IsTrue(result.AverageObjectSize > 0);
+            Assert.IsTrue(result.CollectionCount > 0);
             Assert.IsTrue(result.DataSize > 0);
             Assert.IsTrue(result.ExtentCount > 0);
+            Assert.IsTrue(result.FileSize > 0);
             Assert.IsTrue(result.IndexCount > 0);
-            Assert.IsTrue(result.IndexSizes["_id_"] > 0);
-            Assert.IsTrue(result.IndexSizes.ContainsKey("_id_"));
-            Assert.IsTrue(result.IndexSizes.Count > 0);
-            Assert.IsTrue(result.IndexSizes.Keys.Contains("_id_"));
-            Assert.IsTrue(result.IndexSizes.Values.Count() > 0);
-            Assert.IsTrue(result.IndexSizes.Values.First() > 0);
-            Assert.IsTrue(result.LastExtentSize > 0);
-            Assert.IsTrue(result.PaddingFactor > 0.0);
+            Assert.IsTrue(result.IndexSize > 0);
+            Assert.IsTrue(result.ObjectCount > 0);
             Assert.IsTrue(result.StorageSize > 0);
-            Assert.IsTrue(result.TotalIndexSize > 0);
         }
     }
 }

@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="Core\CommandResults\CollectionStatsResultTests.cs" />
     <Compile Include="Core\CommandResults\CommandResultTests.cs" />
+    <Compile Include="Core\CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="Core\MongoCollectionTests.cs" />
     <Compile Include="Core\MongoDatabaseTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />

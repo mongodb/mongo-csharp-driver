@@ -42,10 +42,6 @@ namespace MongoDB.Driver {
             get { return this["size"].ToInt64(); }
         }
 
-        public long DocumentCount {
-            get { return this["count"].ToInt64(); }
-        }
-
         public int ExtentCount {
             get { return this["numExtents"].AsInt32; }
         }
@@ -74,6 +70,10 @@ namespace MongoDB.Driver {
 
         public string Namespace {
             get { return this["ns"].AsString; }
+        }
+
+        public long ObjectCount {
+            get { return this["count"].ToInt64(); }
         }
 
         public double PaddingFactor {
