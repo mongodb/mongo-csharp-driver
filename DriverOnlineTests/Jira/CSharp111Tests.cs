@@ -23,34 +23,45 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Bson.DefaultSerializer;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp110 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp111 {
     [TestFixture]
-    public class CSharp110Tests {
+    public class CSharp111Tests {
         private class C {
             public ObjectId Id;
+            public List<D> InnerObjects;
+        }
+
+        private class D {
             public int X;
         }
 
         [Test]
-        public void TestFind() {
+        public void TestAddToSetEach() {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
-            var collection = database.GetCollection<C>("csharp110");
+            var collection = database.GetCollection<C>("csharp111");
 
             collection.RemoveAll();
-            var c = new C { X = 1 };
+            var c = new C { InnerObjects = new List<D>() };
             collection.Insert(c);
-            c = new C { X = 2 };
-            collection.Insert(c);
+            var id = c.Id;
 
-            var query = Query.EQ("X", 2);
-            foreach (var document in collection.Find(query)) {
-                Assert.AreNotEqual(ObjectId.Empty, document.Id);
-                Assert.AreEqual(2, document.X);
-            }
+            var innerObjects = new List<D> { new D { X = 1 }, new D { X = 2 } };
+            var innerBsonValues = innerObjects.ConvertAll(obj => BsonSerializer.Deserialize<BsonDocument>(obj.ToBson<D>())).ToArray();
+            var query = Query.EQ("_id", id);
+            var update = Update.AddToSetEach("InnerObjects", innerBsonValues);
+            collection.Update(query, update);
+
+            var document = collection.FindOneAs<BsonDocument>();
+            var json = document.ToJson();
+            var expected = "{ 'InnerObjects' : [{ 'X' : 1 }, { 'X' : 2 }], '_id' : { '$oid' : '#ID' } }"; // server put _id at end?
+            expected = expected.Replace("#ID", id.ToString());
+            expected = expected.Replace("'", "\"");
+            Assert.AreEqual(expected, json);
         }
     }
 }
