@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization {
     public interface IBsonSerializable {
         // Deserialize can return a new object (i.e. a subclass of nominalType) or even null
         object Deserialize(BsonReader bsonReader, Type nominalType);
-        bool GetDocumentId(out object id, out IBsonIdGenerator idGenerator);
+        bool GetDocumentId(out object id, out IIdGenerator idGenerator);
         void Serialize(BsonWriter bsonWriter, Type nominalType, bool serializeIdFirst);
         void SetDocumentId(object id);
     }

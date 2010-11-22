@@ -21,12 +21,12 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
-    public interface IBsonIdGeneratorConvention {
-        IBsonIdGenerator GetBsonIdGenerator(MemberInfo memberInfo); 
+    public interface IIdGeneratorConvention {
+        IIdGenerator GetIdGenerator(MemberInfo memberInfo); 
     }
 
-    public class BsonSerializerBsonIdGeneratorConvention : IBsonIdGeneratorConvention {
-        public IBsonIdGenerator GetBsonIdGenerator(
+    public class LookupIdGeneratorConvention : IIdGeneratorConvention {
+        public IIdGenerator GetIdGenerator(
            MemberInfo memberInfo
         ) {
             return BsonSerializer.LookupIdGenerator(BsonClassMap.GetMemberInfoType(memberInfo));

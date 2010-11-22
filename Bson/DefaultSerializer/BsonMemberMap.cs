@@ -37,7 +37,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         private Action<object, object> setter;
         private object serializationOptions;
         private IBsonSerializer serializer;
-        private IBsonIdGenerator idGenerator;
+        private IIdGenerator idGenerator;
         private bool isRequired;
         private bool hasDefaultValue;
         private bool serializeDefaultValue = true;
@@ -108,10 +108,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public IBsonIdGenerator IdGenerator {
+        public IIdGenerator IdGenerator {
             get {
                 if (idGenerator == null) {
-                    idGenerator = conventions.BsonIdGeneratorConvention.GetBsonIdGenerator(memberInfo);
+                    idGenerator = conventions.IdGeneratorConvention.GetIdGenerator(memberInfo);
                 }
                 return idGenerator;
             }
@@ -185,7 +185,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         public BsonMemberMap SetIdGenerator(
-            IBsonIdGenerator idGenerator
+            IIdGenerator idGenerator
         ) {
             this.idGenerator = idGenerator;
             return this;

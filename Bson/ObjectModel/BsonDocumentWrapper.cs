@@ -72,7 +72,7 @@ namespace MongoDB.Bson {
 
         public bool GetDocumentId(
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException();
         }

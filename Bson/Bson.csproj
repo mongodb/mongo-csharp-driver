@@ -76,9 +76,9 @@
     <Compile Include="DefaultSerializer\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonSerializationOptionsAttribute.cs" />
-    <Compile Include="DefaultSerializer\BsonIdGenerators.cs" />
+    <Compile Include="Serialization\IdGenerators.cs" />
     <Compile Include="DefaultSerializer\Conventions\ConventionProfile.cs" />
-    <Compile Include="DefaultSerializer\Conventions\BsonIdGeneratorConventions.cs" />
+    <Compile Include="DefaultSerializer\Conventions\IdGeneratorConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\DefaultValueConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\DiscriminatorConventions.cs" />
     <Compile Include="DefaultSerializer\Conventions\MemberFinderConventions.cs" />
@@ -158,7 +158,7 @@
     <Compile Include="DefaultSerializer\Serializers\EnumSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\ArraySerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonIBsonSerializableSerializer.cs" />
-    <Compile Include="Serialization\IBsonIdGenerator.cs" />
+    <Compile Include="Serialization\IIdGenerator.cs" />
     <Compile Include="Serialization\IBsonSerializable.cs" />
     <Compile Include="Serialization\IBsonSerializer.cs" />
     <Compile Include="IO\BsonJsonWriterContext.cs" />

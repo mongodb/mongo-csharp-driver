@@ -26,10 +26,16 @@ namespace MongoDB.Bson.Serialization {
     public static class BsonSerializer {
         #region private static fields
         private static object staticLock = new object();
-        private static Dictionary<Type, IBsonIdGenerator> idGenerators = new Dictionary<Type, IBsonIdGenerator>();
+        private static Dictionary<Type, IIdGenerator> idGenerators = new Dictionary<Type, IIdGenerator>();
         private static Dictionary<SerializerKey, IBsonSerializer> serializers = new Dictionary<SerializerKey, IBsonSerializer>();
         private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
         private static IBsonSerializationProvider serializationProvider = null;
+        #endregion
+
+        #region static constructor
+        static BsonSerializer() {
+            RegisterIdGenerators();
+        }
         #endregion
 
         #region public static properties
@@ -98,17 +104,22 @@ namespace MongoDB.Bson.Serialization {
             }
         }
 
-        public static IBsonIdGenerator LookupIdGenerator(
+        public static IIdGenerator LookupIdGenerator(
             Type type
         ) {
             lock (staticLock) {
-                IBsonIdGenerator idGenerator;
+                IIdGenerator idGenerator;
                 if (!idGenerators.TryGetValue(type, out idGenerator)) {
-                    if (idGenerator == null) {
-                        if (serializationProvider == null) {
-                            serializationProvider = GetDefaultSerializationProvider();
+                    if (type.IsValueType) {
+                        var iEquatableDefinition = typeof(IEquatable<>);
+                        var iEquatableType = iEquatableDefinition.MakeGenericType(type);
+                        if (iEquatableType.IsAssignableFrom(type)) {
+                            var zeroIdCheckerDefinition = typeof(ZeroIdChecker<>);
+                            var zeroIdCheckerType = zeroIdCheckerDefinition.MakeGenericType(type);
+                            idGenerator = (IIdGenerator) Activator.CreateInstance(zeroIdCheckerType);
                         }
-                        idGenerator = serializationProvider.GetIdGenerator(type);
+                    } else {
+                        idGenerator = NullIdChecker.Instance;
                     }
 
                     idGenerators[type] = idGenerator; // remember it even if it's null
@@ -181,7 +192,7 @@ namespace MongoDB.Bson.Serialization {
 
         public static void RegisterIdGenerator(
             Type type,
-            IBsonIdGenerator idGenerator
+            IIdGenerator idGenerator
         ) {
             lock (staticLock) {
                 idGenerators[type] = idGenerator;
@@ -282,6 +293,11 @@ namespace MongoDB.Bson.Serialization {
         private static IBsonSerializationProvider GetDefaultSerializationProvider() {
             DefaultSerializer.BsonDefaultSerializer.Initialize();
             return DefaultSerializer.BsonDefaultSerializer.Singleton;
+        }
+
+        private static void RegisterIdGenerators() {
+            BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
+            BsonSerializer.RegisterIdGenerator(typeof(ObjectId), ObjectIdGenerator.Instance);
         }
         #endregion
 

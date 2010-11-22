@@ -18,7 +18,7 @@ using System;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
-    public interface IBsonIdGenerator {
+    public interface IIdGenerator {
         object GenerateId();
         bool IsEmpty(object id);
     }

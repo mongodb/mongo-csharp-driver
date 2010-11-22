@@ -394,7 +394,7 @@ namespace MongoDB.Bson {
         // note: always returns true (if necessary SetDocumentId will add an _id element)
         public bool GetDocumentId(
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {

@@ -21,7 +21,7 @@ using System.Text;
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public sealed class ConventionProfile {
         #region public properties
-        public IBsonIdGeneratorConvention BsonIdGeneratorConvention { get; private set; }
+        public IIdGeneratorConvention IdGeneratorConvention { get; private set; }
 
         public IDefaultValueConvention DefaultValueConvention { get; private set; }
 
@@ -41,7 +41,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #region public static methods
         public static ConventionProfile GetDefault() {
             return new ConventionProfile() // The default profile always matches...
-                .SetBsonIdGeneratorConvention(new BsonSerializerBsonIdGeneratorConvention())
+                .SetIdGeneratorConvention(new LookupIdGeneratorConvention())
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
                 .SetIdMemberConvention(new NamedIdMemberConvention("Id"))
@@ -56,8 +56,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         public void Merge(
             ConventionProfile other
         ) {
-            if (BsonIdGeneratorConvention == null) {
-                BsonIdGeneratorConvention = other.BsonIdGeneratorConvention;
+            if (IdGeneratorConvention == null) {
+                IdGeneratorConvention = other.IdGeneratorConvention;
             }
             if (DefaultValueConvention == null) {
                 DefaultValueConvention = other.DefaultValueConvention;
@@ -82,10 +82,10 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             }
         }
 
-        public ConventionProfile SetBsonIdGeneratorConvention(
-            IBsonIdGeneratorConvention convention
+        public ConventionProfile SetIdGeneratorConvention(
+            IIdGeneratorConvention convention
         ) {
-            BsonIdGeneratorConvention = convention;
+            IdGeneratorConvention = convention;
             return this;
         }
 

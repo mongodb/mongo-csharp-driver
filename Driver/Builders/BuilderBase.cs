@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Builders {
 
         bool IBsonSerializable.GetDocumentId(
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException();
         }

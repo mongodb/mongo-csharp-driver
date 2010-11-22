@@ -265,7 +265,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public override bool GetDocumentId(
             object document,
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             var bsonDocument = (BsonDocument) document;
             return bsonDocument.GetDocumentId(out id, out idGenerator);

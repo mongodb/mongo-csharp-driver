@@ -75,7 +75,7 @@
   <ItemGroup>
     <Compile Include="DefaultSerializer\BsonClassMapTests.cs" />
     <Compile Include="DefaultSerializer\BsonMemberMapTests.cs" />
-    <Compile Include="DefaultSerializer\Conventions\BsonIdGeneratorConventionsTests.cs" />
+    <Compile Include="DefaultSerializer\Conventions\IdGeneratorConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdMemberConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
@@ -125,6 +125,7 @@
     <Compile Include="DefaultSerializer\Serializers\BsonValueSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonPrimitiveSerializerTests.cs" />
     <Compile Include="DefaultSerializer\SerializeInterfaceTests.cs" />
+    <Compile Include="Serialization\IdGeneratorsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bson\Bson.csproj">

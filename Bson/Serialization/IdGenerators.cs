@@ -22,10 +22,55 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.DefaultSerializer {
-    public class GuidGenerator : IBsonIdGenerator {
+namespace MongoDB.Bson.Serialization {
+    public class CombGuidGenerator : IIdGenerator {
+        #region private static fields
+        private static CombGuidGenerator instance = new CombGuidGenerator();
+        #endregion
+
+        #region constructors
+        public CombGuidGenerator() {
+        }
+        #endregion
+
+        #region public static properties
+        public static CombGuidGenerator Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        public object GenerateId() {
+            var guidArray = Guid.NewGuid().ToByteArray();
+
+            var baseDate = new DateTime(1900, 1, 1);
+            var now = DateTime.Now;
+
+            var days = new TimeSpan(now.Ticks - baseDate.Ticks);
+            var msecs = now.TimeOfDay;
+
+            var daysArray = BitConverter.GetBytes(days.Days);
+            var msecsArray = BitConverter.GetBytes((long) (msecs.TotalMilliseconds));
+
+            Array.Reverse(daysArray);
+            Array.Reverse(msecsArray);
+
+            Array.Copy(daysArray, daysArray.Length - 2, guidArray, guidArray.Length - 6, 2);
+            Array.Copy(msecsArray, msecsArray.Length - 4, guidArray, guidArray.Length - 4, 4);
+
+            return new Guid(guidArray);
+        }
+
+        public bool IsEmpty(
+            object id
+        ) {
+            return id == null || (Guid) id == Guid.Empty;
+        }
+        #endregion
+    }
+
+    public class GuidGenerator : IIdGenerator {
         #region private static fields
         private static GuidGenerator instance = new GuidGenerator();
         #endregion
@@ -54,7 +99,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public class NullIdChecker : IBsonIdGenerator {
+    public class NullIdChecker : IIdGenerator {
         #region private static fields
         private static NullIdChecker instance = new NullIdChecker();
         #endregion
@@ -83,7 +128,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public class ObjectIdGenerator : IBsonIdGenerator {
+    public class ObjectIdGenerator : IIdGenerator {
         #region private static fields
         private static ObjectIdGenerator instance = new ObjectIdGenerator();
         #endregion
@@ -112,48 +157,22 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public class CombGuidGenerator : IBsonIdGenerator {
-        #region private static fields
-        private static CombGuidGenerator instance = new CombGuidGenerator();
-        #endregion
-
+    // TODO: is it worth trying to remove the dependency on IEquatable<T>?
+    public class ZeroIdChecker<T> : IIdGenerator where T : struct, IEquatable<T> {
         #region constructors
-        public CombGuidGenerator() {
-        }
-        #endregion
-
-        #region public static properties
-        public static CombGuidGenerator Instance {
-            get { return instance; }
+        public ZeroIdChecker() {
         }
         #endregion
 
         #region public methods
         public object GenerateId() {
-            var guidArray = Guid.NewGuid().ToByteArray();
-
-            var baseDate = new DateTime(1900, 1, 1);
-            var now = DateTime.Now;
-
-            var days = new TimeSpan(now.Ticks - baseDate.Ticks);
-            var msecs = now.TimeOfDay;
-
-            var daysArray = BitConverter.GetBytes(days.Days);
-            var msecsArray = BitConverter.GetBytes((long)(msecs.TotalMilliseconds));
-
-            Array.Reverse(daysArray);
-            Array.Reverse(msecsArray);
-
-            Array.Copy(daysArray, daysArray.Length - 2, guidArray, guidArray.Length - 6, 2);
-            Array.Copy(msecsArray, msecsArray.Length - 4, guidArray, guidArray.Length - 4, 4);
-
-            return new Guid(guidArray);
+            throw new InvalidOperationException("Id cannot be default value (all zeros)");
         }
 
         public bool IsEmpty(
             object id
         ) {
-            return id == null || (Guid) id == Guid.Empty;
+            return id == null || ((T) id).Equals(default(T));
         }
         #endregion
     }

@@ -444,7 +444,7 @@ namespace MongoDB.Driver {
                     if (assignIdOnInsert) {
                         var serializer = BsonSerializer.LookupSerializer(document.GetType());
                         object id;
-                        IBsonIdGenerator idGenerator;
+                        IIdGenerator idGenerator;
                         if (serializer.GetDocumentId(document, out id, out idGenerator)) {
                             if (idGenerator != null && idGenerator.IsEmpty(id)) {
                                 id = idGenerator.GenerateId();
@@ -605,7 +605,7 @@ namespace MongoDB.Driver {
         ) {
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
             object id;
-            IBsonIdGenerator idGenerator;
+            IIdGenerator idGenerator;
             if (serializer.GetDocumentId(document, out id, out idGenerator)) {
                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
                     id = idGenerator.GenerateId();

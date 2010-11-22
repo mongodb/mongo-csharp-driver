@@ -49,7 +49,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public virtual bool GetDocumentId(
             object document,
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException("Subclass must implement GetDocumentId");
         }

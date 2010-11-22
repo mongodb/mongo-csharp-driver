@@ -124,7 +124,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         public bool GetDocumentId(
             object document,
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idMemberMap = classMap.IdMemberMap;

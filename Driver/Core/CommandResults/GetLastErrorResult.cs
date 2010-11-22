@@ -30,6 +30,23 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        public int DocumentsAffected {
+            get { return this["n"].ToInt32(); }
+        }
+
+        public string LastErrorMessage {
+            get {
+                var err = this["err", null];
+                return (err == null || err.IsBsonNull) ? null : err.ToString();
+            }
+        }
+
+        public bool UpdatedExisting {
+            get {
+                var updatedExisting = this["updatedExisting", null];
+                return (updatedExisting == null) ? false : updatedExisting.ToBoolean();
+            }
+        }
         #endregion
     }
 }

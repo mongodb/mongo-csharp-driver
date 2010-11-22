@@ -563,7 +563,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     memberMap.SetOrder(idAttribute.Order);
                     var idGeneratorType = idAttribute.IdGenerator;
                     if (idGeneratorType != null) {
-                        var idGenerator = (IBsonIdGenerator) Activator.CreateInstance(idGeneratorType); // public default constructor required
+                        var idGenerator = (IIdGenerator) Activator.CreateInstance(idGeneratorType); // public default constructor required
                         memberMap.SetIdGenerator(idGenerator);
                     }
                     SetIdMember(memberMap);
