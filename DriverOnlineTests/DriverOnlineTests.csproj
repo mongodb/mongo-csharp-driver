@@ -76,6 +76,7 @@
     <Compile Include="Core\CommandResults\CommandResultTests.cs" />
     <Compile Include="Core\CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="Core\CommandResults\GetLastErrorResultTests.cs" />
+    <Compile Include="Core\CommandResults\ValidateCollectionResultTests.cs" />
     <Compile Include="Core\MongoCollectionTests.cs" />
     <Compile Include="Core\MongoDatabaseTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />

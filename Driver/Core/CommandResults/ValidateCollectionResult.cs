@@ -30,6 +30,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        public string Namespace {
+            get { return this["ns"].AsString; }
+        }
+
+        public string ResultString {
+            get { return this["result"].AsString; }
+        }
         #endregion
     }
 }
