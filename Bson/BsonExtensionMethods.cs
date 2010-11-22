@@ -57,8 +57,8 @@ namespace MongoDB.Bson {
             return ToBson(obj, false, settings);
         }
 
-        public static BsonDocument ToBsonDocument(
-            this object obj
+        public static BsonDocument ToBsonDocument<T>(
+            this T obj
         ) {
             if (obj == null) {
                 return null;
@@ -77,7 +77,7 @@ namespace MongoDB.Bson {
             // otherwise serialize it and then deserialize it into a new BsonDocument
             using (var buffer = new BsonBuffer()) {
                 using (var bsonWriter = BsonWriter.Create(buffer)) {
-                    BsonSerializer.Serialize(bsonWriter, obj, false);
+                    BsonSerializer.Serialize<T>(bsonWriter, obj, false);
                 }
                 buffer.Position = 0;
                 using (var bsonReader = BsonReader.Create(buffer)) {

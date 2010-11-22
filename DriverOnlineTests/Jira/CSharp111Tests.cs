@@ -51,7 +51,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp111 {
             var id = c.Id;
 
             var innerObjects = new List<D> { new D { X = 1 }, new D { X = 2 } };
-            var innerBsonValues = innerObjects.ConvertAll(obj => BsonSerializer.Deserialize<BsonDocument>(obj.ToBson<D>())).ToArray();
+            var innerBsonValues = innerObjects.ConvertAll(obj => obj.ToBsonDocument<D>()).ToArray();
             var query = Query.EQ("_id", id);
             var update = Update.AddToSetEach("InnerObjects", innerBsonValues);
             collection.Update(query, update);
