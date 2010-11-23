@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver {
     public class MongoDatabase {
@@ -139,7 +140,7 @@ namespace MongoDB.Driver {
             bool readOnly
         ) {
             var users = GetCollection("system.users");
-            var user = users.FindOne(new BsonDocument("user", credentials.Username));
+            var user = users.FindOne(Query.EQ("user", credentials.Username));
             if (user == null) {
                 user = new BsonDocument("user", credentials.Username);
             }
@@ -161,11 +162,6 @@ namespace MongoDB.Driver {
             BsonDocument command = new BsonDocument("create", collectionName);
             command.Merge(options);
             return RunCommand<CommandResult>(command);
-        }
-
-        public BsonDocument CurrentOp() {
-            var collection = GetCollection("$cmd.sys.inprog");
-            return collection.FindOne();
         }
 
         public CommandResult DropCollection(
@@ -201,7 +197,7 @@ namespace MongoDB.Driver {
             }
 
             var collection = GetCollection(dbRef.CollectionName);
-            var query = new BsonDocument("_id", BsonValue.Create(dbRef.Id));
+            var query = Query.EQ("_id", BsonValue.Create(dbRef.Id));
             return collection.FindOneAs<TDocument>(query);
         }
 
@@ -246,6 +242,11 @@ namespace MongoDB.Driver {
             return collectionNames;
         }
 
+        public BsonDocument GetCurrentOp() {
+            var collection = GetCollection("$cmd.sys.inprog");
+            return collection.FindOne();
+        }
+
         // TODO: mongo shell has GetPrevError at the database level?
         // TODO: mongo shell has GetProfilingLevel at the database level?
         // TODO: mongo shell has GetReplicationInfo at the database level?
@@ -266,7 +267,7 @@ namespace MongoDB.Driver {
             string username
         ) {
             var users = GetCollection("system.users");
-            users.Remove(new BsonDocument("user", username));
+            users.Remove(Query.EQ("user", username));
         }
 
         public CommandResult RenameCollection(
@@ -281,7 +282,7 @@ namespace MongoDB.Driver {
             return server.RunAdminCommand<CommandResult>(adminCredentials, command);
         }
 
-        public BsonDocument RenameCollection(
+        public CommandResult RenameCollection(
             string oldCollectionName,
             string newCollectionName
         ) {
