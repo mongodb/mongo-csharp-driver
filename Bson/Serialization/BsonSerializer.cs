@@ -252,7 +252,8 @@ namespace MongoDB.Bson.Serialization {
                 return;
             }
 
-            var serializer = LookupSerializer(value.GetType());
+            var actualType = (value == null) ? nominalType : value.GetType();
+            var serializer = LookupSerializer(actualType);
             serializer.Serialize(bsonWriter, nominalType, value, serializeIdFirst);
         }
 
