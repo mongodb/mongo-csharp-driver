@@ -23,14 +23,10 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver {
     [Serializable]
-    public class GeoNearResult : CommandResult {
+    public class SafeModeResult : GetLastErrorResult {
         #region constructors
-        public GeoNearResult() {
+        public SafeModeResult() {
         }
-        #endregion
-
-        #region public properties
-        // TODO: implement GeoNearResult
         #endregion
     }
 }

@@ -87,7 +87,7 @@ namespace MongoDB.Driver {
             return result["n"].ToInt32();
         }
 
-        public BsonDocument CreateIndex<TIndexKeys, TIndexOptions>(
+        public SafeModeResult CreateIndex<TIndexKeys, TIndexOptions>(
             TIndexKeys keys,
             TIndexOptions options
         ) {
@@ -105,13 +105,13 @@ namespace MongoDB.Driver {
             return result;
         }
 
-        public BsonDocument CreateIndex<TIndexKeys>(
+        public SafeModeResult CreateIndex<TIndexKeys>(
             TIndexKeys keys
         ) {
             return CreateIndex(keys, IndexOptions.None);
         }
 
-        public BsonDocument CreateIndex(
+        public SafeModeResult CreateIndex(
             params string[] keyNames
         ) {
             return CreateIndex(IndexKeys.Ascending(keyNames));
@@ -137,11 +137,11 @@ namespace MongoDB.Driver {
             return result["values"].AsBsonArray;
         }
 
-        public BsonDocument DropAllIndexes() {
+        public CommandResult DropAllIndexes() {
             return DropIndexByName("*");
         }
 
-        public BsonDocument DropIndex<TIndexKeys>(
+        public CommandResult DropIndex<TIndexKeys>(
             TIndexKeys keys
         ) {
             var keysDocument = keys.ToBsonDocument();
@@ -149,7 +149,7 @@ namespace MongoDB.Driver {
             return DropIndexByName(indexName);
         }
 
-        public BsonDocument DropIndex(
+        public CommandResult DropIndex(
             params string[] keyNames
         ) {
             string indexName = GetIndexName(keyNames);
@@ -407,32 +407,33 @@ namespace MongoDB.Driver {
         // it's very easy for the compiler to end up inferring the wrong type for TDocument!
         // that's also why Insert and InsertBatch have to have different names
 
-        public BsonDocument Insert<TDocument>(
+        public SafeModeResult Insert<TDocument>(
             TDocument document
         ) {
             return Insert(document, safeMode);
         }
 
-        public BsonDocument Insert<TDocument>(
+        public SafeModeResult Insert<TDocument>(
             TDocument document,
             SafeMode safeMode
         ) {
-            return InsertBatch<TDocument>(new TDocument[] { document }, safeMode);
+            var results = InsertBatch<TDocument>(new TDocument[] { document }, safeMode);
+            return (results == null) ? null : results.Single();
         }
 
-        public BsonDocument InsertBatch<TDocument>(
+        public IEnumerable<SafeModeResult> InsertBatch<TDocument>(
             IEnumerable<TDocument> documents
         ) {
             return InsertBatch<TDocument>(documents, safeMode);
         }
 
-        public BsonDocument InsertBatch<TDocument>(
+        public IEnumerable<SafeModeResult> InsertBatch<TDocument>(
             IEnumerable<TDocument> documents,
             SafeMode safeMode
         ) {
-            BsonArray batches = null;
+            List<SafeModeResult> results = null;
             if (safeMode.Enabled) {
-                batches = new BsonArray();
+                results = new List<SafeModeResult>();
             }
 
             MongoConnection connection = database.GetConnection(false); // not slaveOk
@@ -456,27 +457,19 @@ namespace MongoDB.Driver {
 
                     if (message.MessageLength > MongoDefaults.MaxMessageLength) {
                         byte[] lastDocument = message.RemoveLastDocument();
-                        var intermediateError = connection.SendMessage(message, safeMode);
-                        if (safeMode.Enabled) { batches.Add(intermediateError); }
+                        var intermediateResult = connection.SendMessage(message, safeMode);
+                        if (safeMode.Enabled) { results.Add(intermediateResult); }
                         message.ResetBatch(lastDocument);
                     }
                 }
 
-                var lastError = connection.SendMessage(message, safeMode);
-                if (safeMode.Enabled) { batches.Add(lastError); }
+                var finalResult = connection.SendMessage(message, safeMode);
+                if (safeMode.Enabled) { results.Add(finalResult); }
             }
 
             database.ReleaseConnection(connection);
 
-            if (safeMode.Enabled) {
-                if (batches.Count() == 1) {
-                    return batches[0].AsBsonDocument;
-                } else {
-                    return new BsonDocument("batches", batches);
-                }
-            } else {
-                return null;
-            }
+            return results;
         }
 
         public bool IsCapped() {
@@ -527,27 +520,27 @@ namespace MongoDB.Driver {
             throw new NotImplementedException();
         }
 
-        public BsonDocument Remove<TQuery>(
+        public SafeModeResult Remove<TQuery>(
             TQuery query
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public BsonDocument Remove<TQuery>(
+        public SafeModeResult Remove<TQuery>(
             TQuery query,
             SafeMode safeMode
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public BsonDocument Remove<TQuery>(
+        public SafeModeResult Remove<TQuery>(
             TQuery query,
             RemoveFlags flags
         ) {
             return Remove(query, flags, safeMode);
         }
 
-        public BsonDocument Remove<TQuery>(
+        public SafeModeResult Remove<TQuery>(
            TQuery query,
            RemoveFlags flags,
            SafeMode safeMode
@@ -569,18 +562,18 @@ namespace MongoDB.Driver {
 
             using (var message = new MongoDeleteMessage(FullName, flags, query)) {
                 var connection = database.GetConnection(false); // not slaveOk
-                var lastError = connection.SendMessage(message, safeMode);
+                var result = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
-                return lastError;
+                return result;
             }
         }
 
-        public BsonDocument RemoveAll() {
+        public SafeModeResult RemoveAll() {
             BsonDocument query = null;
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public BsonDocument RemoveAll(
+        public SafeModeResult RemoveAll(
            SafeMode safeMode
         ) {
             BsonDocument query = null;
@@ -593,13 +586,13 @@ namespace MongoDB.Driver {
             }
         }
 
-        public BsonDocument Save<TDocument>(
+        public SafeModeResult Save<TDocument>(
             TDocument document
         ) {
             return Save(document, safeMode);
         }
 
-        public BsonDocument Save<TDocument>(
+        public SafeModeResult Save<TDocument>(
             TDocument document,
             SafeMode safeMode
         ) {
@@ -622,14 +615,14 @@ namespace MongoDB.Driver {
  	    return FullName;
         }
 
-        public BsonDocument Update<TQuery, TUpdate>(
+        public SafeModeResult Update<TQuery, TUpdate>(
             TQuery query,
             TUpdate update
         ) {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
-        public BsonDocument Update<TQuery, TUpdate>(
+        public SafeModeResult Update<TQuery, TUpdate>(
             TQuery query,
             TUpdate update,
             SafeMode safeMode
@@ -637,7 +630,7 @@ namespace MongoDB.Driver {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
-        public BsonDocument Update<TQuery, TUpdate>(
+        public SafeModeResult Update<TQuery, TUpdate>(
             TQuery query,
             TUpdate update,
             UpdateFlags flags
@@ -645,7 +638,7 @@ namespace MongoDB.Driver {
             return Update(query, update, flags, safeMode);
         }
 
-        public BsonDocument Update<TQuery, TUpdate>(
+        public SafeModeResult Update<TQuery, TUpdate>(
             TQuery query,
             TUpdate update,
             UpdateFlags flags,
@@ -661,9 +654,9 @@ namespace MongoDB.Driver {
 
             using (var message = new MongoUpdateMessage(FullName, flags, query, update)) {
                 var connection = database.GetConnection(false); // not slaveOk
-                var lastError = connection.SendMessage(message, safeMode);
+                var result = connection.SendMessage(message, safeMode);
                 database.ReleaseConnection(connection);
-                return lastError;
+                return result;
             }
         }
 

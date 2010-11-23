@@ -43,7 +43,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             using (database.RequestStart()) {
                 collection.Insert(new BsonDocument());
                 var result = server.GetLastError();
-                Assert.IsNull(result.LastErrorMessage);
+                Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsFalse(result.UpdatedExisting);
                 Assert.AreEqual(0, result.DocumentsAffected); // note: DocumentsAffected is only set after an Update?
             }
@@ -63,7 +63,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
                 var update = Update.Inc("x", 1);
                 collection.Update(query, update);
                 var result = server.GetLastError();
-                Assert.IsNull(result.LastErrorMessage);
+                Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsTrue(result.UpdatedExisting);
                 Assert.AreEqual(1, result.DocumentsAffected);
             }

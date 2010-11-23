@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
-        internal BsonDocument SendMessage(
+        internal SafeModeResult SendMessage(
             MongoRequestMessage message,
             SafeMode safeMode
         ) {
@@ -353,28 +353,22 @@ namespace MongoDB.Driver.Internal {
                     throw;
                 }
 
-                BsonDocument lastError = null;
+                SafeModeResult result = null;
                 if (safeMode.Enabled) {
-                    var replyMessage = ReceiveMessage<BsonDocument>();
-                    lastError = replyMessage.Documents[0];
+                    var replyMessage = ReceiveMessage<SafeModeResult>();
+                    result = replyMessage.Documents[0];
 
-                    if (!lastError.Contains("ok")) {
-                        throw new MongoSafeModeException("ok element is missing");
-                    }
-                    if (!lastError["ok"].ToBoolean()) {
-                        string errmsg = lastError["errmsg"].AsString;
-                        string errorMessage = string.Format("Safemode detected an error ({0})", errmsg);
+                    if (!result.Ok) {
+                        var errorMessage = string.Format("Safemode detected an error: {0}", result.ErrorMessage);
                         throw new MongoSafeModeException(errorMessage);
                     }
-
-                    if (lastError["err", false].ToBoolean()) {
-                        var err = lastError["err"].AsString;
-                        string errorMessage = string.Format("Safemode detected an error ({0})", err);
+                    if (result.HasLastErrorMessage) {
+                        var errorMessage = string.Format("Safemode detected an error: {0}", result.LastErrorMessage);
                         throw new MongoSafeModeException(errorMessage);
                     }
                 }
 
-                return lastError;
+                return result;
             }
         }
         #endregion

@@ -34,11 +34,12 @@ namespace MongoDB.Driver {
             get { return this["n"].ToInt32(); }
         }
 
+        public bool HasLastErrorMessage {
+            get { return this["err", false].ToBoolean(); }
+        }
+
         public string LastErrorMessage {
-            get {
-                var err = this["err", null];
-                return (err == null || err.IsBsonNull) ? null : err.ToString();
-            }
+            get { return this["err"].ToString(); }
         }
 
         public bool UpdatedExisting {
