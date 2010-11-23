@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -27,6 +28,138 @@ using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
+    [TestFixture]
+    public class BitArraySerializerTests {
+        public class TestClass {
+            public BitArray V { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                V = null
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLength0() {
+            var obj = new TestClass {
+                V = new BitArray(new bool[0])
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : { '$binary' : '', '$type' : '00' } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLength1() {
+            var obj = new TestClass {
+                V = new BitArray(new[] { true })
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : { 'Length' : 1, 'Bytes' : { '$binary' : 'AQ==', '$type' : '00' } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(rehydrated.V[0]);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLength2() {
+            var obj = new TestClass {
+                V = new BitArray(new[] { true, true })
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : { 'Length' : 2, 'Bytes' : { '$binary' : 'Aw==', '$type' : '00' } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(rehydrated.V[0]);
+            Assert.IsTrue(rehydrated.V[1]);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLength7() {
+            var obj = new TestClass {
+                V = new BitArray(new[] { true, false, true, false, true, false, true })
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : { 'Length' : 7, 'Bytes' : { '$binary' : 'VQ==', '$type' : '00' } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(rehydrated.V[0]);
+            Assert.IsTrue(rehydrated.V[2]);
+            Assert.IsTrue(rehydrated.V[4]);
+            Assert.IsTrue(rehydrated.V[6]);
+            Assert.IsFalse(rehydrated.V[1]);
+            Assert.IsFalse(rehydrated.V[3]);
+            Assert.IsFalse(rehydrated.V[5]);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLength8() {
+            var obj = new TestClass {
+                V = new BitArray(new[] { true, false, true, false, true, false, true, false })
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : { '$binary' : 'VQ==', '$type' : '00' } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(rehydrated.V[0]);
+            Assert.IsTrue(rehydrated.V[2]);
+            Assert.IsTrue(rehydrated.V[4]);
+            Assert.IsTrue(rehydrated.V[6]);
+            Assert.IsFalse(rehydrated.V[1]);
+            Assert.IsFalse(rehydrated.V[3]);
+            Assert.IsFalse(rehydrated.V[5]);
+            Assert.IsFalse(rehydrated.V[7]);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestLength9() {
+            var obj = new TestClass {
+                V = new BitArray(new[] { true, false, true, false, true, false, true, false, true })
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : { 'Length' : 9, 'Bytes' : { '$binary' : 'VQE=', '$type' : '00' } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(rehydrated.V[0]);
+            Assert.IsTrue(rehydrated.V[2]);
+            Assert.IsTrue(rehydrated.V[4]);
+            Assert.IsTrue(rehydrated.V[6]);
+            Assert.IsTrue(rehydrated.V[8]);
+            Assert.IsFalse(rehydrated.V[1]);
+            Assert.IsFalse(rehydrated.V[3]);
+            Assert.IsFalse(rehydrated.V[5]);
+            Assert.IsFalse(rehydrated.V[7]);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
     [TestFixture]
     public class ByteArraySerializerTests {
         private class C {

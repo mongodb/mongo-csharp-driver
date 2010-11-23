@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -26,6 +27,108 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    public class BitArraySerializer : BsonBaseSerializer {
+        #region private static fields
+        private static BitArraySerializer singleton = new BitArraySerializer();
+        #endregion
+
+        #region constructors
+        private BitArraySerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BitArraySerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public static methods
+        public static void RegisterSerializers() {
+            BsonSerializer.RegisterSerializer(typeof(BitArray), singleton);
+        }
+        #endregion
+
+        #region public methods
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else if (bsonType == BsonType.Binary) {
+                byte[] bytes;
+                BsonBinarySubType subType;
+                bsonReader.ReadBinaryData(out bytes, out subType);
+                if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary) {
+                    var message = string.Format("Invalid Binary sub type: {0}", subType);
+                    throw new FileFormatException(message);
+                }
+                return new BitArray(bytes);
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadStartDocument();
+                var length = bsonReader.ReadInt32("Length");
+                byte[] bytes;
+                BsonBinarySubType subType;
+                bsonReader.ReadBinaryData("Bytes", out bytes, out subType);
+                if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary) {
+                    var message = string.Format("Invalid Binary sub type: {0}", subType);
+                    throw new FileFormatException(message);
+                }
+                bsonReader.ReadEndDocument();
+                var bitArray = new BitArray(bytes);
+                bitArray.Length = length;
+                return bitArray;
+            } else {
+                var message = string.Format("Cannot deserialize Byte[] from BsonType: {0}", bsonType);
+                throw new FileFormatException(message);
+            }
+        }
+
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            bool serializeIdFirst
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var bitArray = (BitArray) value;
+                if ((bitArray.Length % 8) == 0) {
+                    bsonWriter.WriteBinaryData(GetBytes(bitArray), BsonBinarySubType.Binary);
+                } else {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteInt32("Length", bitArray.Length);
+                    bsonWriter.WriteBinaryData("Bytes", GetBytes(bitArray), BsonBinarySubType.Binary);
+                    bsonWriter.WriteEndDocument();
+                }
+            }
+        }
+        #endregion
+
+        #region private methods
+        private byte[] GetBytes(
+            BitArray bitArray
+        ) {
+            // TODO: is there a more efficient way to do this?
+            var bytes = new byte[(bitArray.Length + 7) / 8];
+            var i = 0;
+            foreach (bool value in bitArray) {
+                if (value) {
+                    var index = i / 8;
+                    var bit = i % 8;
+                    bytes[index] |= (byte) (1 << bit);
+                }
+                i++;
+            }
+            return bytes;
+        }
+        #endregion
+    }
+
     public class ByteArraySerializer : BsonBaseSerializer {
         #region private static fields
         private static ByteArraySerializer singleton = new ByteArraySerializer();
