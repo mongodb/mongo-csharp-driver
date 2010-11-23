@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -250,7 +251,55 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
     }
 
-    // TODO: CultureInfoSerializeTests
+    [TestFixture]
+    public class CultureInfoSerializerTests {
+        public class TestClass {
+            public CultureInfo V { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                V = null
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestEnUs() {
+            var obj = new TestClass {
+                V = new CultureInfo("en-US")
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : 'en-US' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+
+        [Test]
+        public void TestEnUsUseUserOverrideFalse() {
+            var obj = new TestClass {
+                V = new CultureInfo("en-US", false)
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : { 'Name' : 'en-US', 'UseUserOverride' : false } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
 
     [TestFixture]
     public class DateTimeOffsetSerializerTests {
@@ -885,6 +934,128 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             };
             var json = obj.ToJson();
             var expected = "{ 'V' : -1 }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class UriSerializerTests {
+        public class TestClass {
+            public Uri V { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                V = null
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestHttp() {
+            var obj = new TestClass {
+                V = new Uri("http://www.cnn.com")
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : 'http://www.cnn.com/' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestMongoDB() {
+            var obj = new TestClass {
+                V = new Uri("mongodb://localhost/?safe=true")
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : 'mongodb://localhost/?safe=true' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class VersionSerializerTests {
+        public class TestClass {
+            [BsonRepresentation(BsonType.Document)]
+            public Version D { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public Version S { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                D = null,
+                S = null
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'D' : null, 'S' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestVersion12() {
+            var version = new Version(1, 2);
+            var obj = new TestClass {
+                D = version,
+                S = version
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'D' : { 'Major' : 1, 'Minor' : 2 }, 'S' : '1.2' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestVersion123() {
+            var version = new Version(1, 2, 3);
+            var obj = new TestClass {
+                D = version,
+                S = version
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'D' : { 'Major' : 1, 'Minor' : 2, 'Build' : 3 }, 'S' : '1.2.3' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestVersion1234() {
+            var version = new Version(1, 2, 3, 4);
+            var obj = new TestClass {
+                D = version,
+                S = version
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'D' : { 'Major' : 1, 'Minor' : 2, 'Build' : 3, 'Revision' : 4 }, 'S' : '1.2.3.4' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

@@ -241,6 +241,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                 return null;
             } else if (bsonType == BsonType.String) {
                 return new CultureInfo(bsonReader.ReadString());
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadStartDocument();
+                var name = bsonReader.ReadString("Name");
+                var useUserOverride = bsonReader.ReadBoolean("UseUserOverride");
+                bsonReader.ReadEndDocument();
+                return new CultureInfo(name, useUserOverride);
             } else {
                 var message = string.Format("Cannot deserialize CultureInfo from BsonType: {0}", bsonType);
                 throw new FileFormatException(message);
@@ -256,7 +262,16 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteString(((CultureInfo) value).ToString());
+                var cultureInfo = (CultureInfo) value;
+                if (cultureInfo.UseUserOverride) {
+                    // the default for UseUserOverride is true so we don't need to serialize it
+                    bsonWriter.WriteString(cultureInfo.Name);
+                } else {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("Name", cultureInfo.Name);
+                    bsonWriter.WriteBoolean("UseUserOverride", cultureInfo.UseUserOverride);
+                    bsonWriter.WriteEndDocument();
+                }
             }
         }
         #endregion
@@ -782,6 +797,176 @@ namespace MongoDB.Bson.DefaultSerializer {
             bool serializeIdFirst
         ) {
             bsonWriter.WriteInt64((long) (ulong) value);
+        }
+        #endregion
+    }
+
+    public class UriSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static UriSerializer singleton = new UriSerializer();
+        #endregion
+
+        #region constructors
+        private UriSerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static UriSerializer Singleton {
+            get { return singleton; }
+        }
+        #endregion
+
+        #region public static methods
+        public static void RegisterSerializers() {
+            BsonSerializer.RegisterSerializer(typeof(Uri), singleton);
+        }
+        #endregion
+
+        #region public methods
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else if (bsonType == BsonType.String) {
+                return new Uri(bsonReader.ReadString());
+            } else {
+                var message = string.Format("Cannot deserialize Uri from BsonType: {0}", bsonType);
+                throw new FileFormatException(message);
+            }
+        }
+
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            bool serializeIdFirst
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                bsonWriter.WriteString(((Uri) value).AbsoluteUri);
+            }
+        }
+        #endregion
+    }
+
+    public class VersionSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static VersionSerializer documentRepresentation = new VersionSerializer(BsonType.Document);
+        private static VersionSerializer stringRepresentation = new VersionSerializer(BsonType.String);
+        #endregion
+
+        #region private fields
+        private BsonType representation;
+        #endregion
+
+        #region constructors
+        private VersionSerializer(
+            BsonType representation
+        ) {
+            this.representation = representation;
+        }
+        #endregion
+
+        #region public static properties
+        public static VersionSerializer DocumentRepresentation {
+            get { return documentRepresentation; }
+        }
+
+        public static VersionSerializer StringRepresentation {
+            get { return stringRepresentation; }
+        }
+        #endregion
+
+        #region public static methods
+        public static void RegisterSerializers() {
+            BsonSerializer.RegisterSerializer(typeof(Version), stringRepresentation); // default representation
+            BsonSerializer.RegisterSerializer(typeof(Version), BsonType.Document, documentRepresentation);
+            BsonSerializer.RegisterSerializer(typeof(Version), BsonType.String, stringRepresentation);
+        }
+        #endregion
+
+        #region public methods
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else if (bsonType == BsonType.Document) {
+                bsonReader.ReadStartDocument();
+                int major = -1, minor = -1, build = -1, revision = -1;
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                    var name = bsonReader.ReadName();
+                    switch (name) {
+                        case "Major": major = bsonReader.ReadInt32(); break;
+                        case "Minor": minor = bsonReader.ReadInt32(); break;
+                        case "Build": build = bsonReader.ReadInt32(); break;
+                        case "Revision": revision = bsonReader.ReadInt32(); break;
+                        default:
+                            var message = string.Format("Unrecognized element in Version: {0}", name);
+                            throw new FileFormatException(message);
+                    }
+                }
+                bsonReader.ReadEndDocument();
+                if (major == -1) {
+                    var message = string.Format("Version missing Major element");
+                    throw new FileFormatException(message);
+                } else if (minor == -1) {
+                    var message = string.Format("Version missing Minor element");
+                    throw new FileFormatException(message);
+                } else if (build == -1) {
+                    return new Version(major, minor);
+                } else if (revision == -1) {
+                    return new Version(major, minor, build);
+                } else {
+                    return new Version(major, minor, build, revision);
+                }
+            } else if (bsonType == BsonType.String) {
+                return new Version(bsonReader.ReadString());
+            } else {
+                var message = string.Format("Cannot deserialize Version from BsonType: {0}", bsonType);
+                throw new FileFormatException(message);
+            }
+        }
+
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            bool serializeIdFirst
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var version = (Version) value;
+                switch (representation) {
+                    case BsonType.Document:
+                        bsonWriter.WriteStartDocument();
+                        bsonWriter.WriteInt32("Major", version.Major);
+                        bsonWriter.WriteInt32("Minor", version.Minor);
+                        if (version.Build != -1) {
+                            bsonWriter.WriteInt32("Build", version.Build);
+                            if (version.Revision != -1) {
+                                bsonWriter.WriteInt32("Revision", version.Revision);
+                            }
+                        }
+                        bsonWriter.WriteEndDocument();
+                        break;
+                    case BsonType.String:
+                        bsonWriter.WriteString(version.ToString());
+                        break;
+                    default:
+                        throw new BsonInternalException("Unexpected representation");
+                }
+            }
         }
         #endregion
     }
