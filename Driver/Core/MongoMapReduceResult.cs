@@ -42,16 +42,24 @@ namespace MongoDB.Driver {
             get { return commandResult; }
         }
 
-        public BsonDocument Counts {
-            get { return commandResult["counts"].AsBsonDocument; }
-        }
-
         public MongoDatabase Database {
             get { return database; }
         }
 
         public TimeSpan Duration {
             get { return TimeSpan.FromMilliseconds(commandResult["timeMillis"].AsDouble); }
+        }
+
+        public int EmitCount {
+            get { return commandResult["counts"].AsBsonDocument["emit"].ToInt32(); }
+        }
+
+        public int OutputCount {
+            get { return commandResult["counts"].AsBsonDocument["output"].ToInt32(); }
+        }
+
+        public int InputCount {
+            get { return commandResult["counts"].AsBsonDocument["input"].ToInt32(); }
         }
 
         public string ResultCollectionName {
