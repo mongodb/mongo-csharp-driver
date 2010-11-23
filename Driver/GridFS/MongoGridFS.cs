@@ -263,8 +263,7 @@ namespace MongoDB.Driver.GridFS {
         }
 
         public IEnumerable<MongoGridFSFileInfo> Find() {
-            BsonDocument query = null;
-            return Find(query);
+            return Find(Query.Null);
         }
 
         public IEnumerable<MongoGridFSFileInfo> Find<TQuery>(

@@ -73,7 +73,7 @@ namespace MongoDB.Driver {
 
         #region public methods
         public int Count() {
-            return Count<BsonDocument>(null);
+            return Count(Query.Null);
         }
 
         public int Count<TQuery>(
@@ -120,8 +120,7 @@ namespace MongoDB.Driver {
         public IEnumerable<BsonValue> Distinct(
             string key
         ) {
-            BsonDocument query = null;
-            return Distinct(key, query);
+            return Distinct(key, Query.Null);
         }
 
         public IEnumerable<BsonValue> Distinct<TQuery>(
@@ -204,30 +203,27 @@ namespace MongoDB.Driver {
         }
 
         public MongoCursor<TDocument> FindAllAs<TDocument>() {
-            BsonDocument query = null;
-            return FindAs<TDocument>(query);
+            return FindAs<TDocument>(Query.Null);
         }
 
-        public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate>(
+        public FindAndModifyResult FindAndModify<TQuery, TSortBy, TUpdate>(
             TQuery query,
             TSortBy sortBy,
             TUpdate update
         ) {
-            BsonDocument fields = null;
-            return FindAndModify(query, sortBy, update, fields, false);
+            return FindAndModify(query, sortBy, update, Fields.Null, false);
         }
 
-        public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate>(
+        public FindAndModifyResult FindAndModify<TQuery, TSortBy, TUpdate>(
             TQuery query,
             TSortBy sortBy,
             TUpdate update,
             bool returnNew
         ) {
-            BsonDocument fields = null;
-            return FindAndModify(query, sortBy, update, fields, returnNew);
+            return FindAndModify(query, sortBy, update, Fields.Null, returnNew);
         }
 
-        public BsonDocument FindAndModify<TQuery, TSortBy, TUpdate, TFields>(
+        public FindAndModifyResult FindAndModify<TQuery, TSortBy, TUpdate, TFields>(
             TQuery query,
             TSortBy sortBy,
             TUpdate update,
@@ -242,11 +238,10 @@ namespace MongoDB.Driver {
                 { "fields", BsonDocumentWrapper.Create(fields) },
                 { "new", true, returnNew }
             };
-            var result = database.RunCommand<CommandResult>(command);
-            return result["value"].AsBsonDocument;
+            return database.RunCommand<FindAndModifyResult>(command);
         }
 
-        public BsonDocument FindAndRemove<TQuery, TSortBy>(
+        public FindAndModifyResult FindAndRemove<TQuery, TSortBy>(
             TQuery query,
             TSortBy sortBy
         ) {
@@ -256,8 +251,7 @@ namespace MongoDB.Driver {
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "remove", true }
             };
-            var result = database.RunCommand<CommandResult>(command);
-            return result["value"].AsBsonDocument;
+            return database.RunCommand<FindAndModifyResult>(command);
         }
 
         public MongoCursor<TDocument> FindAs<TDocument>(
@@ -305,7 +299,7 @@ namespace MongoDB.Driver {
 
         public IEnumerable<BsonDocument> GetIndexes() {
             var indexes = database.GetCollection("system.indexes");
-            var query = new BsonDocument("ns", FullName);
+            var query = Query.EQ("ns", FullName);
             return indexes.Find(query).ToList(); // force query to execute before returning
         }
 
@@ -569,15 +563,13 @@ namespace MongoDB.Driver {
         }
 
         public SafeModeResult RemoveAll() {
-            BsonDocument query = null;
-            return Remove(query, RemoveFlags.None, safeMode);
+            return Remove(Query.Null, RemoveFlags.None, safeMode);
         }
 
         public SafeModeResult RemoveAll(
            SafeMode safeMode
         ) {
-            BsonDocument query = null;
-            return Remove(query, RemoveFlags.None, safeMode);
+            return Remove(Query.Null, RemoveFlags.None, safeMode);
         }
 
         public void ResetIndexCache() {
@@ -604,7 +596,7 @@ namespace MongoDB.Driver {
                     id = idGenerator.GenerateId();
                     serializer.SetDocumentId(document, id);
                 } else if (id != null) {
-                    var query = new BsonDocument("_id", BsonValue.Create(id));
+                    var query = Query.EQ("_id", BsonValue.Create(id));
                     return Update(query, document, UpdateFlags.Upsert, safeMode);
                 }
             }

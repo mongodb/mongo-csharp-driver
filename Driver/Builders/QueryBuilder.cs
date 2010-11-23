@@ -24,6 +24,12 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Builders {
     public static class Query {
+        #region public static properties
+        public static BsonDocument Null {
+            get { return null; }
+        }
+        #endregion
+
         #region public static methods
         public static QueryConditionList All(
             string name,

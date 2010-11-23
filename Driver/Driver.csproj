@@ -81,6 +81,7 @@
     <Compile Include="Core\CommandResults\CollectionStatsResult.cs" />
     <Compile Include="Core\CommandResults\CommandResult.cs" />
     <Compile Include="Core\CommandResults\DatabaseStatsResult.cs" />
+    <Compile Include="Core\CommandResults\FindAndModifyResult.cs" />
     <Compile Include="Core\CommandResults\GeoNearResult.cs" />
     <Compile Include="Core\CommandResults\GetLastErrorResult.cs" />
     <Compile Include="Core\CommandResults\SafeModeResult.cs" />

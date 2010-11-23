@@ -25,6 +25,12 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     public static class Fields {
+        #region public static properties
+        public static BsonDocument Null {
+            get { return null; }
+        }
+        #endregion
+
         #region public static methods
         public static FieldsBuilder Exclude(
             params string[] names
