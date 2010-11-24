@@ -85,7 +85,7 @@ namespace MongoDB.Driver {
                 { "count", name },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
-            var result = database.RunCommand<CommandResult>(command);
+            var result = database.RunCommand(command);
             return result["n"].ToInt32();
         }
 
@@ -134,7 +134,7 @@ namespace MongoDB.Driver {
                 { "key", key },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
-            var result = database.RunCommand<CommandResult>(command);
+            var result = database.RunCommand(command);
             return result["values"].AsBsonArray;
         }
 
@@ -165,7 +165,7 @@ namespace MongoDB.Driver {
                     { "deleteIndexes", name }, // not FullName
                     { "index", indexName }
                 };
-                var result = database.RunCommand<CommandResult>(command);
+                var result = database.RunCommand(command);
                 ResetIndexCache(); // TODO: what if RunCommand throws an exception
                 return result;
             }
@@ -240,7 +240,7 @@ namespace MongoDB.Driver {
                 { "fields", BsonDocumentWrapper.Create(fields) },
                 { "new", true, returnNew }
             };
-            return database.RunCommand<FindAndModifyResult>(command);
+            return database.RunCommandAs<FindAndModifyResult>(command);
         }
 
         public FindAndModifyResult FindAndRemove<TQuery, TSortBy>(
@@ -253,7 +253,7 @@ namespace MongoDB.Driver {
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "remove", true }
             };
-            return database.RunCommand<FindAndModifyResult>(command);
+            return database.RunCommandAs<FindAndModifyResult>(command);
         }
 
         public MongoCursor<TDocument> FindAs<TDocument>(
@@ -296,7 +296,7 @@ namespace MongoDB.Driver {
                 { "num", limit },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
-            return database.RunCommand<GeoNearResult>(command);
+            return database.RunCommandAs<GeoNearResult>(command);
         }
 
         public IEnumerable<BsonDocument> GetIndexes() {
@@ -307,7 +307,7 @@ namespace MongoDB.Driver {
 
         public CollectionStatsResult GetStats() {
             var command = new BsonDocument("collstats", name);
-            return database.RunCommand<CollectionStatsResult>(command);
+            return database.RunCommandAs<CollectionStatsResult>(command);
         }
 
         public long GetTotalDataSize() {
@@ -359,7 +359,7 @@ namespace MongoDB.Driver {
                     { "finalize", finalize }
                 } }
             };
-            var result = database.RunCommand<CommandResult>(command);
+            var result = database.RunCommand(command);
             return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
@@ -483,7 +483,7 @@ namespace MongoDB.Driver {
                 { "reduce", reduce }
             };
             command.Merge(options.ToBsonDocument());
-            var result = database.RunCommand<CommandResult>(command);
+            var result = database.RunCommand(command);
             return new MongoMapReduceResult(database, result);
         }
 
@@ -656,7 +656,7 @@ namespace MongoDB.Driver {
 
         public ValidateCollectionResult Validate() {
             var command = new BsonDocument("validate", name);
-            return database.RunCommand<ValidateCollectionResult>(command);
+            return database.RunCommandAs<ValidateCollectionResult>(command);
         }
         #endregion
 

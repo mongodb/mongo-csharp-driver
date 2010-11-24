@@ -276,7 +276,7 @@ namespace MongoDB.Driver {
         ) {
             MongoDatabase database = GetDatabase(databaseName);
             var command = new BsonDocument("dropDatabase", 1);
-            return database.RunCommand<CommandResult>(command);
+            return database.RunCommand(command);
         }
 
         public BsonDocument FetchDBRef(
@@ -326,14 +326,7 @@ namespace MongoDB.Driver {
         }
 
         public IEnumerable<string> GetDatabaseNames() {
-            return GetDatabaseNames(adminCredentials);
-        }
-
-        public IEnumerable<string> GetDatabaseNames(
-            MongoCredentials adminCredentials
-        ) {
-            var adminDatabase = GetDatabase("admin", adminCredentials);
-            var result = adminDatabase.RunCommand<CommandResult>("listDatabases");
+            var result = AdminDatabase.RunCommand("listDatabases");
             var databaseNames = new List<string>();
             foreach (BsonDocument database in result["databases"].AsBsonArray.Values) {
                 string databaseName = database["name"].AsString;
@@ -348,7 +341,7 @@ namespace MongoDB.Driver {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
             var adminDatabase = GetDatabase("admin", null); // no credentials needed for getlasterror
-            return adminDatabase.RunCommand<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
+            return adminDatabase.RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
         public void Reconnect() {
@@ -403,46 +396,40 @@ namespace MongoDB.Driver {
             }
         }
 
-        public TCommandResult RunAdminCommand<TCommand, TCommandResult>(
-            MongoCredentials adminCredentials,
+        public CommandResult RunAdminCommand<TCommand>(
+            TCommand command
+        ) {
+            return RunAdminCommandAs<TCommand, CommandResult>(command);
+        }
+
+        public CommandResult RunAdminCommand(
+            IBsonSerializable command
+        ) {
+            return RunAdminCommandAs<CommandResult>(command);
+        }
+
+        public CommandResult RunAdminCommand(
+            string commandName
+        ) {
+            return RunAdminCommandAs<CommandResult>(commandName);
+        }
+
+        public TCommandResult RunAdminCommandAs<TCommand, TCommandResult>(
             TCommand command
         ) where TCommandResult : CommandResult {
-            var adminDatabase = GetDatabase("admin", adminCredentials);
-            return adminDatabase.RunCommand<TCommand, TCommandResult>(command);
+            return AdminDatabase.RunCommandAs<TCommand, TCommandResult>(command);
         }
 
-        public TCommandResult RunAdminCommand<TCommand, TCommandResult>(
-            TCommand command
-        ) where TCommandResult : CommandResult {
-            return RunAdminCommand<TCommand, TCommandResult>(adminCredentials, command);
-        }
-
-        public TCommandResult RunAdminCommand<TCommandResult>(
+        public TCommandResult RunAdminCommandAs<TCommandResult>(
             IBsonSerializable command
         ) where TCommandResult : CommandResult {
-            return RunAdminCommand<TCommandResult>(adminCredentials, command);
+            return AdminDatabase.RunCommandAs<TCommandResult>(command);
         }
 
-        public TCommandResult RunAdminCommand<TCommandResult>(
-            MongoCredentials adminCredentials,
-            IBsonSerializable command
-        ) where TCommandResult : CommandResult {
-            var adminDatabase = GetDatabase("admin", adminCredentials);
-            return adminDatabase.RunCommand<TCommandResult>(command);
-        }
-
-        public TCommandResult RunAdminCommand<TCommandResult>(
-            MongoCredentials adminCredentials,
+        public TCommandResult RunAdminCommandAs<TCommandResult>(
             string commandName
         ) where TCommandResult : CommandResult {
-            var adminDatabase = GetDatabase("admin", adminCredentials);
-            return adminDatabase.RunCommand<TCommandResult>(commandName);
-        }
-
-        public TCommandResult RunAdminCommand<TCommandResult>(
-            string commandName
-        ) where TCommandResult : CommandResult {
-            return RunAdminCommand<TCommandResult>(adminCredentials, commandName);
+            return AdminDatabase.RunCommandAs<TCommandResult>(commandName);
         }
         #endregion
 

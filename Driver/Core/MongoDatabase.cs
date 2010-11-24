@@ -161,14 +161,14 @@ namespace MongoDB.Driver {
         ) {
             BsonDocument command = new BsonDocument("create", collectionName);
             command.Merge(options);
-            return RunCommand<CommandResult>(command);
+            return RunCommand(command);
         }
 
         public CommandResult DropCollection(
             string collectionName
         ) {
             BsonDocument command = new BsonDocument("drop", collectionName);
-            return RunCommand<CommandResult>(command);
+            return RunCommand(command);
         }
 
         public BsonValue Eval(
@@ -179,7 +179,7 @@ namespace MongoDB.Driver {
                 { "$eval", code },
                 { "args", new BsonArray(args) }
             };
-            var result = RunCommand<CommandResult>(command);
+            var result = RunCommand(command);
             return result["retval"];
         }
 
@@ -258,7 +258,7 @@ namespace MongoDB.Driver {
         }
 
         public DatabaseStatsResult GetStats() {
-            return RunCommand<DatabaseStatsResult>("dbstats");
+            return RunCommandAs<DatabaseStatsResult>("dbstats");
         }
 
         // TODO: mongo shell has IsMaster at database level?
@@ -271,7 +271,6 @@ namespace MongoDB.Driver {
         }
 
         public CommandResult RenameCollection(
-            MongoCredentials adminCredentials,
             string oldCollectionName,
             string newCollectionName
         ) {
@@ -279,14 +278,7 @@ namespace MongoDB.Driver {
                 { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
                 { "to", string.Format("{0}.{1}", name, newCollectionName) }
             };
-            return server.RunAdminCommand<CommandResult>(adminCredentials, command);
-        }
-
-        public CommandResult RenameCollection(
-            string oldCollectionName,
-            string newCollectionName
-        ) {
-            return RenameCollection(server.AdminCredentials, oldCollectionName, newCollectionName);
+            return server.RunAdminCommand(command);
         }
 
         public void RequestDone() {
@@ -301,7 +293,25 @@ namespace MongoDB.Driver {
 
         // TODO: mongo shell has ResetError at the database level
 
-        public TCommandResult RunCommand<TCommand, TCommandResult>(
+        public CommandResult RunCommand<TCommand>(
+            TCommand command
+        ) {
+            return RunCommandAs<TCommand, CommandResult>(command);
+        }
+
+        public CommandResult RunCommand(
+            IBsonSerializable command
+        ) {
+            return RunCommandAs<CommandResult>(command);
+        }
+
+        public CommandResult RunCommand(
+            string commandName
+        ) {
+            return RunCommandAs<CommandResult>(commandName);
+        }
+
+        public TCommandResult RunCommandAs<TCommand, TCommandResult>(
             TCommand command
         ) where TCommandResult : CommandResult {
             var result = CommandCollection.FindOneAs<TCommand, TCommandResult>(command);
@@ -315,17 +325,17 @@ namespace MongoDB.Driver {
             return result;
         }
 
-        public TCommandResult RunCommand<TCommandResult>(
+        public TCommandResult RunCommandAs<TCommandResult>(
             IBsonSerializable command
         ) where TCommandResult : CommandResult {
-            return RunCommand<IBsonSerializable, TCommandResult>(command);
+            return RunCommandAs<IBsonSerializable, TCommandResult>(command);
         }
 
-        public TCommandResult RunCommand<TCommandResult>(
+        public TCommandResult RunCommandAs<TCommandResult>(
             string commandName
         ) where TCommandResult : CommandResult {
             BsonDocument command = new BsonDocument(commandName, true);
-            return RunCommand<BsonDocument, TCommandResult>(command);
+            return RunCommandAs<BsonDocument, TCommandResult>(command);
         }
 
         public override string ToString() {

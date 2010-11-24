@@ -117,14 +117,14 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
 
         [Test]
         public void TestIsMasterCommand() {
-            var result = database.RunCommand<CommandResult>("ismaster");
+            var result = database.RunCommand("ismaster");
             Assert.IsTrue(result.Ok);
         }
 
         [Test]
         public void TestInvalidCommand() {
             try {
-                var result = database.RunCommand<CommandResult>("invalidcommand");
+                var result = database.RunCommand("invalidcommand");
             } catch (MongoCommandException ex) {
                 Assert.AreEqual("Command failed: no such cmd", ex.Message);
             }

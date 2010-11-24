@@ -425,7 +425,7 @@ namespace MongoDB.Driver.GridFS {
                     { "filemd5", files_id },
                     { "root", settings.Root }
                 };
-                var md5Result = database.RunCommand<CommandResult>(md5Command);
+                var md5Result = database.RunCommand(md5Command);
                 var md5 = md5Result["md5"].AsString;
 
                 BsonDocument fileInfo = new BsonDocument {
