@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 
@@ -34,6 +35,8 @@ namespace MongoDB.Driver {
         private object serverLock = new object();
         private object requestsLock = new object();
         private MongoUrl url;
+        private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+        private List<IPEndPoint> endPoints = new List<IPEndPoint>();
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> replicaSet;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
@@ -58,6 +61,11 @@ namespace MongoDB.Driver {
                 } else {
                     this.defaultCredentials = url.Credentials;
                 }
+            }
+
+            foreach (var address in url.Servers) {
+                addresses.Add(address);
+                endPoints.Add(address.ToIPEndPoint());
             }
         }
         #endregion
@@ -114,8 +122,16 @@ namespace MongoDB.Driver {
             get { return GetDatabase("admin", adminCredentials); }
         }
 
+        public IEnumerable<MongoServerAddress> Addresses {
+            get { return addresses; }
+        }
+
         public MongoCredentials DefaultCredentials {
             get { return defaultCredentials; }
+        }
+
+        public IEnumerable<IPEndPoint> EndPoints {
+            get { return endPoints; }
         }
 
         public IEnumerable<MongoServerAddress> ReplicaSet {
@@ -138,10 +154,6 @@ namespace MongoDB.Driver {
 
         public SafeMode SafeMode {
             get { return url.SafeMode; }
-        }
-
-        public IEnumerable<MongoServerAddress> SeedList {
-            get { return url.Servers; }
         }
 
         public bool SlaveOk {
@@ -200,14 +212,14 @@ namespace MongoDB.Driver {
                     try {
                         switch (url.ConnectionMode) {
                             case ConnectionMode.Direct:
-                                var directConnector = new DirectConnector(url);
+                                var directConnector = new DirectConnector(this);
                                 directConnector.Connect(timeout);
                                 primaryConnectionPool = new MongoConnectionPool(this, directConnector.Connection);
                                 secondaryConnectionPools = null;
                                 replicaSet = null;
                                 break;
                             case ConnectionMode.ReplicaSet:
-                                var replicaSetConnector = new ReplicaSetConnector(url);
+                                var replicaSetConnector = new ReplicaSetConnector(this);
                                 replicaSetConnector.Connect(timeout);
                                 primaryConnectionPool = new MongoConnectionPool(this, replicaSetConnector.PrimaryConnection);
                                 if (url.SlaveOk) {

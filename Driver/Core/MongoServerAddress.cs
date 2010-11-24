@@ -16,6 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -135,6 +137,19 @@ namespace MongoDB.Driver {
 
         public override string ToString() {
             return string.Format("{0}:{1}", host, port);
+        }
+
+        public IPEndPoint ToIPEndPoint() {
+            var ipAddresses = Dns.GetHostAddresses(host);
+            if (ipAddresses != null && ipAddresses.Length != 0) {
+                foreach (var ipAddress in ipAddresses) {
+                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork) {
+                        return new IPEndPoint(ipAddress, port);
+                    }
+                }
+            }
+            var message = string.Format("Unable to resolve host name: {0}", host);
+            throw new MongoConnectionException(message);
         }
         #endregion
     }

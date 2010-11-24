@@ -15,9 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Internal {
         #region private fields
         private object connectionLock = new object();
         private MongoConnectionPool connectionPool;
-        private MongoServerAddress address;
+        private IPEndPoint endPoint;
         private bool closed;
         private TcpClient tcpClient;
         private DateTime lastUsed; // set every time the connection is Released
@@ -40,16 +40,13 @@ namespace MongoDB.Driver.Internal {
         #region constructors
         internal MongoConnection(
             MongoConnectionPool connectionPool,
-            MongoServerAddress address
+            IPEndPoint endPoint
         ) {
             this.connectionPool = connectionPool;
-            this.address = address;
+            this.endPoint = endPoint;
 
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            tcpClient = new TcpClient(address.Host, address.Port);
-            stopwatch.Stop();
-            var duration = stopwatch.Elapsed;
+            tcpClient = new TcpClient();
+            tcpClient.Connect(endPoint);
 
             tcpClient.NoDelay = true; // turn off Nagle
             tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
@@ -58,8 +55,8 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region internal properties
-        internal MongoServerAddress Address {
-            get { return address; }
+        internal IPEndPoint EndPoint {
+            get { return endPoint; }
         }
 
         internal MongoConnectionPool ConnectionPool {
@@ -248,8 +245,8 @@ namespace MongoDB.Driver.Internal {
             if (this.connectionPool != null) {
                 throw new ArgumentException("The connection is already in a connection pool", "this");
             }
-            if (connectionPool.Address != address) {
-                throw new ArgumentException("A connection can only join a connection pool with the same server address", "connectionPool");
+            if (connectionPool.EndPoint != endPoint) {
+                throw new ArgumentException("A connection can only join a connection pool with the same IP address", "connectionPool");
             }
 
             this.connectionPool = connectionPool;

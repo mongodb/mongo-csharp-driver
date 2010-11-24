@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 
@@ -24,25 +25,20 @@ using MongoDB.Bson;
 namespace MongoDB.Driver.Internal {
     internal class DirectConnector {
         #region private fields
-        private MongoUrl url;
-        private MongoServerAddress address;
+        private MongoServer server;
         private MongoConnection connection;
         private bool isPrimary;
         #endregion
 
         #region constructors
         public DirectConnector(
-            MongoUrl url
+            MongoServer server
         ) {
-            this.url = url;
+            this.server = server;
         }
         #endregion
 
         #region public properties
-        public MongoServerAddress Address {
-            get { return address; }
-        }
-
         public MongoConnection Connection {
             get { return connection; }
         }
@@ -57,9 +53,9 @@ namespace MongoDB.Driver.Internal {
             TimeSpan timeout
         ) {
             var exceptions = new List<Exception>();
-            foreach (var address in url.Servers) {
+            foreach (var endPoint in server.EndPoints) {
                 try {
-                    Connect(address, timeout);
+                    Connect(endPoint, timeout);
                     return;
                 } catch (Exception ex) {
                     exceptions.Add(ex);
@@ -77,10 +73,10 @@ namespace MongoDB.Driver.Internal {
 
         #region private methods
         private void Connect(
-            MongoServerAddress address,
+            IPEndPoint endPoint,
             TimeSpan timeout
         ) {
-            var connection = new MongoConnection(null, address); // no connection pool
+            var connection = new MongoConnection(null, endPoint); // no connection pool
             bool isPrimary;
 
             try {
@@ -88,7 +84,7 @@ namespace MongoDB.Driver.Internal {
                 var isMasterResult = connection.RunCommand<CommandResult>("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
 
                 isPrimary = isMasterResult["ismaster", false].ToBoolean();
-                if (!isPrimary && !url.SlaveOk) {
+                if (!isPrimary && !server.SlaveOk) {
                     throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
                 }
             } catch {
@@ -96,7 +92,6 @@ namespace MongoDB.Driver.Internal {
                 throw;
             }
 
-            this.address = address;
             this.connection = connection;
             this.isPrimary = isPrimary;
         }
