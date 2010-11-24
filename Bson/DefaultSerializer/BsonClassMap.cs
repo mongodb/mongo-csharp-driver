@@ -45,6 +45,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected ConventionProfile conventions;
         protected string discriminator;
         protected bool discriminatorIsRequired;
+        protected Dictionary<Type, object> extensions;
         protected bool hasRootClass;
         protected bool isRootClass;
         protected bool isAnonymous;
@@ -64,6 +65,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             this.classType = classType;
             this.conventions = LookupConventions(classType);
             this.discriminator = classType.Name;
+            this.extensions = new Dictionary<Type, object>();
             this.isAnonymous = IsAnonymousType(classType);
         }
         #endregion
@@ -355,6 +357,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        public BsonClassMap SetExtension<T>(
+            T extension
+        ) {
+            this.extensions[typeof(T)] = extension;
+            return this;
+        }
+
         public BsonClassMap SetIgnoreExtraElements(
             bool ignoreExtraElements
         ) {
@@ -367,6 +376,17 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             this.isRootClass = isRootClass;
             return this;
+        }
+
+        public bool TryGetExtension<T>(
+            out T extension
+        ) {
+            if(this.extensions.ContainsKey(typeof(T))) {
+                extension = (T)this.extensions[typeof(T)];
+                return true;
+            }
+
+            return conventions.TryGetExtension<T>(out extension);
         }
         #endregion
 

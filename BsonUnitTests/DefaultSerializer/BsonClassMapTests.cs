@@ -25,6 +25,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.DefaultSerializer;
 using System.Reflection;
+using MongoDB.Bson.DefaultSerializer.Conventions;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
@@ -177,6 +178,37 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.IsNotNull(memberMap);
             Assert.AreEqual("P", memberMap.ElementName);
             Assert.AreEqual("P", memberMap.MemberName);
+        }
+    }
+
+    [TestFixture]
+    public class BsonClassExtensionsTests {
+        private class D {
+            public string G;
+            public string Q { get; set; }
+        }
+
+        private class TestExtension {
+            public Guid Id;
+        }
+
+        [Test]
+        public void TestLocalExtensionsOverrideGlobalExtensions() {
+            var profileId = Guid.NewGuid();
+            var conventions = new ConventionProfile();
+            conventions.SetExtension<TestExtension>(new TestExtension { Id = profileId });
+            BsonClassMap.RegisterConventions(conventions, t => t == typeof(D));
+            
+            var classMap = new BsonClassMap<D>(cm => cm.AutoMap());
+
+            TestExtension ext;
+            Assert.True(classMap.TryGetExtension<TestExtension>(out ext));
+            Assert.AreEqual(profileId, ext.Id);
+
+            var localId = Guid.NewGuid();
+            classMap.SetExtension<TestExtension>(new TestExtension { Id = localId });
+            Assert.True(classMap.TryGetExtension<TestExtension>(out ext));
+            Assert.AreEqual(localId, ext.Id);
         }
     }
 }

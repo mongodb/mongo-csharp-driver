@@ -19,7 +19,16 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
-    public sealed class ConventionProfile {
+    public sealed class ConventionProfile
+    {
+        #region private static fields
+        private static Dictionary<Type, object> globalExtensions = new Dictionary<Type, object>();
+        #endregion
+
+        #region private fields
+        private Dictionary<Type, object> extensions = new Dictionary<Type, object>();
+        #endregion
+
         #region public properties
         public IBsonIdGeneratorConvention BsonIdGeneratorConvention { get; private set; }
 
@@ -40,7 +49,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
 
         #region public static methods
         public static ConventionProfile GetDefault() {
-            return new ConventionProfile() // The default profile always matches...
+            var profile = new ConventionProfile() // The default profile always matches...
                 .SetBsonIdGeneratorConvention(new BsonSerializerBsonIdGeneratorConvention())
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
@@ -49,6 +58,11 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
                 .SetMemberFinderConvention(new PublicMemberFinderConvention())
                 .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention());
+            foreach (var extension in globalExtensions) {
+                profile.extensions.Add(extension.Key, extension.Value);
+            }
+
+            return profile;
         }
         #endregion
 
@@ -80,6 +94,11 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             if (SerializeDefaultValueConvention == null) {
                 SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
             }
+            foreach (var extension in other.extensions) {
+                if (!extensions.ContainsKey(extension.Key)) {
+                    extensions.Add(extension.Key, extension.Value);
+                }
+            }
         }
 
         public ConventionProfile SetBsonIdGeneratorConvention(
@@ -100,6 +119,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             IElementNameConvention convention
         ) {
             ElementNameConvention = convention;
+            return this;
+        }
+
+        public ConventionProfile SetExtension<T>(
+            T extension
+        ) {
+            extensions[typeof(T)] = extension;
             return this;
         }
 
@@ -136,6 +162,25 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         ) {
             SerializeDefaultValueConvention = convention;
             return this;
+        }
+
+        public bool TryGetExtension<T>(
+            out T extension
+        ) {
+            extension = default(T);
+            if (!extensions.ContainsKey(typeof(T)))
+                return false;
+
+            extension = (T)extensions[typeof(T)];
+            return true;
+        }
+        #endregion
+
+        #region public static methods
+        public static void AddGlobalExtension<T>(
+            T extension
+        ) {
+            globalExtensions[typeof(T)] = extension;
         }
         #endregion
     }

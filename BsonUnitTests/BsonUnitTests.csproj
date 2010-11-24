@@ -76,6 +76,7 @@
     <Compile Include="DefaultSerializer\BsonClassMapTests.cs" />
     <Compile Include="DefaultSerializer\BsonMemberMapTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\BsonIdGeneratorConventionsTests.cs" />
+    <Compile Include="DefaultSerializer\Conventions\ConventionProfileTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdMemberConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
