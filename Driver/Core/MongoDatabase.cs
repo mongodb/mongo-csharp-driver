@@ -306,6 +306,9 @@ namespace MongoDB.Driver {
         ) where TCommandResult : CommandResult {
             var result = CommandCollection.FindOneAs<TCommand, TCommandResult>(command);
             if (!result.Ok) {
+                if (result.ErrorMessage == "not master") {
+                    server.Disconnect();
+                }
                 string errorMessage = string.Format("Command failed: {0}", result.ErrorMessage);
                 throw new MongoCommandException(errorMessage);
             }
@@ -327,20 +330,6 @@ namespace MongoDB.Driver {
 
         public override string ToString() {
             return name;
-        }
-        #endregion
-
-        #region internal methods
-        internal MongoConnection GetConnection(
-            bool slaveOk
-        ) {
-            return server.GetConnection(this, slaveOk);
-        }
-
-        internal void ReleaseConnection(
-            MongoConnection connection
-        ) {
-            server.ReleaseConnection(connection);
         }
         #endregion
 

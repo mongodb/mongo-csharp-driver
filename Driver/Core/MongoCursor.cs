@@ -26,6 +26,8 @@ using MongoDB.Driver.Internal;
 namespace MongoDB.Driver {
     public class MongoCursor<TDocument> : IEnumerable<TDocument> {
         #region private fields
+        private MongoServer server;
+        private MongoDatabase database;
         private MongoCollection collection;
         private object query;
         private BsonDocumentWrapper fields;
@@ -42,10 +44,12 @@ namespace MongoDB.Driver {
             MongoCollection collection,
             object query
         ) {
+            this.server = collection.Database.Server;
+            this.database = collection.Database;
             this.collection = collection;
             this.query = query;
 
-            if (collection.Database.Server.SlaveOk) {
+            if (server.SlaveOk) {
                 this.flags |= QueryFlags.SlaveOk;
             }
         }
@@ -112,7 +116,7 @@ namespace MongoDB.Driver {
                 { "count", collection.Name },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
-            var result = collection.Database.RunCommand<CommandResult>(command);
+            var result = database.RunCommand<CommandResult>(command);
             return result["n"].ToInt32();
         }
 
@@ -291,7 +295,7 @@ namespace MongoDB.Driver {
                 { "limit", limit, limit != 0 },
                 { "skip", skip, skip != 0 }
             };
-            var result = collection.Database.RunCommand<CommandResult>(command);
+            var result = database.RunCommand<CommandResult>(command);
             return result["n"].ToInt32();
         }
         #endregion
@@ -419,7 +423,7 @@ namespace MongoDB.Driver {
             #region private methods
             private MongoReplyMessage<TDocument> GetFirst() {
                 bool slaveOk = (cursor.flags & QueryFlags.SlaveOk) != 0;
-                connection = cursor.Collection.Database.GetConnection(slaveOk);
+                connection = cursor.server.GetConnection(cursor.database, slaveOk);
                 try {
                     // some of these weird conditions are necessary to get commands to run correctly
                     // specifically numberToReturn has to be 1 or -1 for commands
@@ -501,7 +505,7 @@ namespace MongoDB.Driver {
                                 connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
                             }
                         }
-                        cursor.Collection.Database.ReleaseConnection(connection);
+                        cursor.server.ReleaseConnection(connection);
                     } finally {
                         connection = null;
                         openCursorId = 0;

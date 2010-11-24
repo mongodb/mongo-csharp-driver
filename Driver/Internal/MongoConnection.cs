@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -44,7 +45,12 @@ namespace MongoDB.Driver.Internal {
             this.connectionPool = connectionPool;
             this.address = address;
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             tcpClient = new TcpClient(address.Host, address.Port);
+            stopwatch.Stop();
+            var duration = stopwatch.Elapsed;
+
             tcpClient.NoDelay = true; // turn off Nagle
             tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
             tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
@@ -58,6 +64,10 @@ namespace MongoDB.Driver.Internal {
 
         internal MongoConnectionPool ConnectionPool {
             get { return connectionPool; }
+        }
+
+        internal bool Closed {
+            get { return closed; }
         }
 
         internal DateTime LastUsed {
@@ -182,15 +192,29 @@ namespace MongoDB.Driver.Internal {
         internal void Close() {
             lock (connectionLock) {
                 if (!closed) {
+                    Exception exception = null;
                     // note: TcpClient.Close doesn't close the NetworkStream!?
-                    NetworkStream networkStream = tcpClient.GetStream();
-                    if (networkStream != null) {
-                        networkStream.Close();
+                    try {
+                        var networkStream = tcpClient.GetStream();
+                        if (networkStream != null) {
+                            networkStream.Close();
+                        }
+                    } catch (Exception ex) {
+                        if (exception == null) { exception = ex; }
                     }
-                    tcpClient.Close();
-                    ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
+                    try {
+                        tcpClient.Close();
+                    } catch (Exception ex) {
+                        if (exception == null) { exception = ex; }
+                    }
+                    try {
+                        ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
+                    } catch (Exception ex) {
+                        if (exception == null) { exception = ex; }
+                    }
                     tcpClient = null;
                     closed = true;
+                    if (exception != null) { throw exception; }
                 }
             }
         }
@@ -302,16 +326,16 @@ namespace MongoDB.Driver.Internal {
         internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>() {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
-                BsonBuffer buffer = new BsonBuffer();
                 try {
+                    var buffer = new BsonBuffer();
                     buffer.LoadFrom(tcpClient.GetStream());
-                } catch (SocketException ex) {
-                    HandleSocketException(ex);
+                    var reply = new MongoReplyMessage<TDocument>();
+                    reply.ReadFrom(buffer);
+                    return reply;
+                } catch (Exception ex) {
+                    HandleException(ex);
                     throw;
                 }
-                var reply = new MongoReplyMessage<TDocument>();
-                reply.ReadFrom(buffer);
-                return reply;
             }
         }
 
@@ -345,11 +369,10 @@ namespace MongoDB.Driver.Internal {
                 }
 
                 try {
-                    NetworkStream networkStream = tcpClient.GetStream();
-                    message.Buffer.WriteTo(networkStream);
+                    message.Buffer.WriteTo(tcpClient.GetStream());
                     messageCounter++;
-                } catch (SocketException ex) {
-                    HandleSocketException(ex);
+                } catch (Exception ex) {
+                    HandleException(ex);
                     throw;
                 }
 
@@ -374,14 +397,30 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region private methods
-        private void HandleSocketException(
-            SocketException ex
+        private void HandleException(
+            Exception ex
         ) {
-            if (connectionPool != null) {
-                // TODO: analyze SocketException to determine if the server is really down?
-                // for now assume it is and force MongoServer to find a new primary by calling Disconnect
+            // TODO: figure out which exceptions are more serious than others
+            // there are three possible situations:
+            // 1. we can keep using the connection
+            // 2. this one connection needs to be discarded
+            // 3. the whole connection pool needs to be discarded
+            // for now the only exception we know affects only one connection is FileFormatException
+
+            var disconnect = true;
+            if (ex is FileFormatException) {
+                disconnect = false;
+            }
+
+            if (disconnect) {
+                if (connectionPool != null) {
+                    try {
+                        connectionPool.Server.Disconnect();
+                    } catch { } // ignore any further exceptions
+                }
+            } else {
                 try {
-                    connectionPool.Server.Disconnect();
+                    Close();
                 } catch { } // ignore any further exceptions
             }
         }

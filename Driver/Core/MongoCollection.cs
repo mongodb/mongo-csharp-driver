@@ -28,6 +28,7 @@ using MongoDB.Driver.Internal;
 namespace MongoDB.Driver {
     public abstract class MongoCollection {
         #region private fields
+        private MongoServer server;
         private MongoDatabase database;
         private string name;
         private SafeMode safeMode;
@@ -42,6 +43,7 @@ namespace MongoDB.Driver {
             SafeMode safeMode
         ) {
             ValidateCollectionName(name);
+            this.server = database.Server;
             this.database = database;
             this.name = name;
             this.safeMode = safeMode;
@@ -430,7 +432,7 @@ namespace MongoDB.Driver {
                 results = new List<SafeModeResult>();
             }
 
-            MongoConnection connection = database.GetConnection(false); // not slaveOk
+            var connection = server.GetConnection(database, false); // not slaveOk
 
             using (var message = new MongoInsertMessage(FullName)) {
                 message.WriteToBuffer(); // must be called before AddDocument
@@ -461,7 +463,7 @@ namespace MongoDB.Driver {
                 if (safeMode.Enabled) { results.Add(finalResult); }
             }
 
-            database.ReleaseConnection(connection);
+            server.ReleaseConnection(connection);
 
             return results;
         }
@@ -555,9 +557,9 @@ namespace MongoDB.Driver {
             }
 
             using (var message = new MongoDeleteMessage(FullName, flags, query)) {
-                var connection = database.GetConnection(false); // not slaveOk
+                var connection = server.GetConnection(database, false); // not slaveOk
                 var result = connection.SendMessage(message, safeMode);
-                database.ReleaseConnection(connection);
+                server.ReleaseConnection(connection);
                 return result;
             }
         }
@@ -645,9 +647,9 @@ namespace MongoDB.Driver {
             }
 
             using (var message = new MongoUpdateMessage(FullName, flags, query, update)) {
-                var connection = database.GetConnection(false); // not slaveOk
+                var connection = server.GetConnection(database, false); // not slaveOk
                 var result = connection.SendMessage(message, safeMode);
-                database.ReleaseConnection(connection);
+                server.ReleaseConnection(connection);
                 return result;
             }
         }

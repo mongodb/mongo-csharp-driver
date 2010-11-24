@@ -493,6 +493,8 @@ namespace MongoDB.Driver {
                 }
             }
 
+            // the connection might belong to a connection pool that has already been discarded
+            // so always release it to the connection pool it came from and not the current pool
             connection.ConnectionPool.ReleaseConnection(connection);
         }
         #endregion

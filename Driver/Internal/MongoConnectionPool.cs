@@ -113,6 +113,11 @@ namespace MongoDB.Driver.Internal {
                 throw new ArgumentException("The connection being released does not belong to this connection pool.", "connection");
             }
 
+            // don't put closed connections back in the connection pool
+            if (connection.Closed) {
+                return;
+            }
+
             lock (connectionPoolLock) {
                 if (!closed) {
                     // close connections that haven't been used for 10 minutes or more (should this be on a timer?)
