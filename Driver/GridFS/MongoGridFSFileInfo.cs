@@ -69,12 +69,30 @@ namespace MongoDB.Driver.GridFS {
             this.id = BsonObjectId.GenerateNewId();
             this.name = remoteFileName;
         }
+
+        public MongoGridFSFileInfo(
+            MongoGridFS gridFS,
+            string remoteFileName,
+            MongoGridFSCreateOptions createOptions
+        ) {
+            this.gridFS = gridFS;
+            this.aliases = createOptions.Aliases;
+            this.chunkSize = createOptions.ChunkSize;
+            this.contentType = createOptions.ContentType;
+            this.id = createOptions.Id;
+            this.metadata = createOptions.Metadata;
+            this.name = remoteFileName;
+            this.uploadDate = createOptions.UploadDate;
+            this.cached = true; // prevent values from being overwritten by automatic Refresh
+        }
         #endregion
 
         #region public properties
         public string[] Aliases {
-            get { return aliases; }
-            set { aliases = value; }
+            get {
+                if (!cached) { Refresh(); }
+                return aliases;
+            }
         }
 
         public int ChunkSize {
@@ -88,9 +106,6 @@ namespace MongoDB.Driver.GridFS {
             get {
                 if (!cached) { Refresh(); }
                 return contentType;
-            }
-            set {
-                contentType = value;
             }
         }
 
@@ -130,9 +145,6 @@ namespace MongoDB.Driver.GridFS {
             get {
                 if (!cached) { Refresh(); }
                 return metadata;
-            }
-            set {
-                metadata = value;
             }
         }
 
@@ -198,8 +210,8 @@ namespace MongoDB.Driver.GridFS {
         public void Delete() {
             if (Exists) {
                 using (gridFS.Database.RequestStart()) {
-                    gridFS.Files.Remove(new BsonDocument("_id", id), gridFS.Settings.SafeMode);
-                    gridFS.Chunks.Remove(new BsonDocument("files_id", id), gridFS.Settings.SafeMode);
+                    gridFS.Files.Remove(Query.EQ("_id", id), gridFS.Settings.SafeMode);
+                    gridFS.Chunks.Remove(Query.EQ("files_id", id), gridFS.Settings.SafeMode);
                 }
             }
        }
@@ -274,11 +286,9 @@ namespace MongoDB.Driver.GridFS {
         public void Refresh() {
             MongoCursor<BsonDocument> cursor;
             if (id != null) {
-                var query = new BsonDocument("_id", id);
-                cursor = gridFS.Files.Find(query);
+                cursor = gridFS.Files.Find(Query.EQ("_id", id));
             } else {
-                var query = new BsonDocument("filename", name);
-                cursor = gridFS.Files.Find(query).SetSortOrder(SortBy.Descending("uploadDate"));
+                cursor = gridFS.Files.Find(Query.EQ("filename", name)).SetSortOrder(SortBy.Descending("uploadDate"));
             }
             var fileInfo = cursor.SetLimit(1).FirstOrDefault();
             CacheFileInfo(fileInfo); // fileInfo will be null if file does not exist

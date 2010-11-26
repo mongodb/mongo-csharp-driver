@@ -75,7 +75,6 @@ namespace MongoDB.Driver.GridFS {
 
         public MongoGridFSSettings Settings {
             get { return settings; }
-            set { settings = value; }
         }
         #endregion
 
@@ -311,7 +310,7 @@ namespace MongoDB.Driver.GridFS {
         ) {
             BsonDocument fileInfo;
             if (version > 0) {
-                fileInfo = files.Find(query).SetSortOrder("uploadDate").SetSkip(version - 1).SetLimit(1).FirstOrDefault();
+                fileInfo = files.Find(query).SetSortOrder(SortBy.Ascending("uploadDate")).SetSkip(version - 1).SetLimit(1).FirstOrDefault();
             } else if (version < 0) {
                 fileInfo = files.Find(query).SetSortOrder(SortBy.Descending("uploadDate")).SetSkip(-version - 1).SetLimit(1).FirstOrDefault();
             } else {
@@ -388,6 +387,27 @@ namespace MongoDB.Driver.GridFS {
         ) {
             var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
             return fileInfo.OpenWrite();
+        }
+
+        public void SetAliases(
+            MongoGridFSFileInfo fileInfo,
+            string[] aliases
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public void SetContentType(
+            MongoGridFSFileInfo fileInfo,
+            string contentType
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public void SetMetadata(
+            MongoGridFSFileInfo fileInfo,
+            BsonValue metadata
+        ) {
+            throw new NotImplementedException();
         }
 
         public MongoGridFSFileInfo Upload(
