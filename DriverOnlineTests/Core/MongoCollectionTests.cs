@@ -212,6 +212,47 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestGeoNear()
+        {
+            collection.RemoveAll();
+            collection.DropAllIndexes();
+            collection.EnsureIndex(IndexKeys.GeoSpatial("Coordinates"));
+
+            collection.Insert(new BsonDocument { {"Location", "Washington DC"}, { "x", 4 }, { "y", 2 }, { "Coordinates", new BsonDocument { { "Longitude", 13 }, { "Latitude", 18 } } } });
+            collection.Insert(new BsonDocument { { "Location", "Washington DC" }, { "x", 2 }, { "y", 2 }, { "Coordinates", new BsonDocument { { "Longitude", 13 }, { "Latitude", 18 } } } });
+            collection.Insert(new BsonDocument { { "Location", "Washington DC" }, { "x", 3 }, { "y", 2 }, { "Coordinates", new BsonDocument { { "Longitude", 13 }, { "Latitude", 18 } } } });
+            collection.Insert(new BsonDocument { { "Location", "Washington DC" }, { "x", 1 }, { "y", 2 }, { "Coordinates", new BsonDocument { { "Longitude", 13 }, { "Latitude", 18 } } } });
+
+            var geoNearResult = collection.GeoNear<BsonValue, BsonDocument>(BsonNull.Value, 0, 0, 10);
+
+            Assert.IsNotNull(geoNearResult);
+
+            Assert.AreEqual("onlinetests.testcollection", geoNearResult.NameSpace);
+            
+            Assert.AreEqual("1100000000000000000000000000000000000000000000000000", geoNearResult.Near);
+
+            Assert.AreEqual(4, geoNearResult.Stats.objectsLoaded);
+            Assert.AreNotEqual(-1, geoNearResult.Stats.time);
+            Assert.AreNotEqual(0, geoNearResult.Stats.btreelocs);
+            Assert.AreNotEqual(0, geoNearResult.Stats.nscanned);
+            Assert.AreNotEqual(0, geoNearResult.Stats.avgDistance);
+            Assert.AreNotEqual(0, geoNearResult.Stats.maxDistance);
+
+            Assert.IsNotNull(geoNearResult.Results);
+            Assert.AreEqual(4, geoNearResult.Results.Count());
+
+            Assert.AreEqual(22.203600417328694, geoNearResult.Results.First().Distance);
+            Assert.AreEqual("Washington DC", geoNearResult.Results.First().Value.GetValue("Location").AsString);
+
+
+            //var result = collection.FindAll().SetSortOrder("x").SetLimit(3).Select(x => x["x"].AsInt32);
+            //Assert.AreEqual(3, result.Count());
+            //CollectionAssert.AreEqual(new[] { 1, 2, 3 }, result);
+        }
+
+
+
+        [Test]
         public void TestGetStats() {
             var dataSize = collection.GetStats();
         }

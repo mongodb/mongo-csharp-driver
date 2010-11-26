@@ -284,7 +284,7 @@ namespace MongoDB.Driver {
             return FindAs<TQuery, TDocument>(query).SetLimit(1).FirstOrDefault();
         }
 
-        public GeoNearResult GeoNear<TQuery>(
+        public GeoNearResult<TDocument> GeoNear<TQuery, TDocument>(
             TQuery query,
             double x,
             double y,
@@ -294,9 +294,18 @@ namespace MongoDB.Driver {
                 { "geoNear", name },
                 { "near", new BsonArray { x, y } },
                 { "num", limit },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", _wrapQuery(query) } // query is optional
             };
-            return database.RunCommandAs<GeoNearResult>(command);
+
+            return database.RunCommandAs<GeoNearResult<TDocument>>(command);
+        }
+
+        private static BsonDocumentWrapper _wrapQuery(object query)
+        {
+            if (query == null || query is BsonNull || query is DBNull)
+                return new BsonDocumentWrapper(null);
+            else
+                return BsonDocumentWrapper.Create(query);
         }
 
         public IEnumerable<BsonDocument> GetIndexes() {
@@ -742,6 +751,14 @@ namespace MongoDB.Driver {
 
         public TDefaultDocument FindOne() {
             return FindOneAs<TDefaultDocument>();
+        }
+
+        public GeoNearResult<TDefaultDocument> GeoNear<TQuery>(TQuery query,
+            double x,
+            double y,
+            int limit)
+        {
+            return GeoNear<TQuery, TDefaultDocument>(query, x, y, limit);
         }
 
         public TDefaultDocument FindOne<TQuery>(
