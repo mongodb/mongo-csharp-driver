@@ -20,14 +20,14 @@ using System.Text;
 
 namespace MongoDB.Driver.GridFS {
     [Serializable]
-    public class MongoGridFSSettings {
+    public class MongoGridFSSettings : IEquatable<MongoGridFSSettings> {
         #region private fields
         private bool isFrozen;
         private string chunksCollectionName = "fs.chunks";
         private int defaultChunkSize = 256 * 1024; // 256KB
         private string filesCollectionName = "fs.files";
         private string root = "fs";
-        private SafeMode safeMode;
+        private SafeMode safeMode = SafeMode.False;
         #endregion
 
         #region constructors
@@ -75,12 +75,40 @@ namespace MongoDB.Driver.GridFS {
         }
         #endregion
 
+        #region public operators
+        public static bool operator !=(
+            MongoGridFSSettings lhs,
+            MongoGridFSSettings rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        public static bool operator ==(
+            MongoGridFSSettings lhs,
+            MongoGridFSSettings rhs
+        ) {
+            return object.Equals(lhs, rhs);
+        }
+        #endregion
+
         #region public methods
         public MongoGridFSSettings Clone() {
             return new MongoGridFSSettings {
                 DefaultChunkSize = defaultChunkSize,
-                Root = root
+                Root = root,
+                SafeMode = safeMode
             };
+        }
+
+        public bool Equals(
+            MongoGridFSSettings rhs
+        ) {
+            if (rhs == null) { return false; }
+            return this.defaultChunkSize == rhs.defaultChunkSize && this.root == rhs.root && this.safeMode == rhs.safeMode;
+        }
+
+        public override bool Equals(object obj) {
+            return Equals(obj as MongoGridFSSettings); // works even if obj is null
         }
 
         public MongoGridFSSettings Freeze() {
