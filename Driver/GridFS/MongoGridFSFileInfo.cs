@@ -183,8 +183,8 @@ namespace MongoDB.Driver.GridFS {
                 var files = database.GetCollection(settings.FilesCollectionName);
                 var chunks = database.GetCollection(settings.ChunksCollectionName);
                 using (database.RequestStart()) {
-                    files.Remove(new BsonDocument("_id", id), gridFS.SafeMode);
-                    chunks.Remove(new BsonDocument("files_id", id), gridFS.SafeMode);
+                    files.Remove(new BsonDocument("_id", id), gridFS.Settings.SafeMode);
+                    chunks.Remove(new BsonDocument("files_id", id), gridFS.Settings.SafeMode);
                 }
             }
        }

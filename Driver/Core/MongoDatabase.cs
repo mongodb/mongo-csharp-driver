@@ -100,7 +100,7 @@ namespace MongoDB.Driver {
             get {
                 lock (databaseLock) {
                     if (gridFS == null) {
-                        gridFS = new MongoGridFS(this, MongoGridFSSettings.Defaults.Clone());
+                        gridFS = new MongoGridFS(this, MongoGridFS.DefaultSettings);
                     }
                     return gridFS;
                 }
@@ -245,6 +245,12 @@ namespace MongoDB.Driver {
         public BsonDocument GetCurrentOp() {
             var collection = GetCollection("$cmd.sys.inprog");
             return collection.FindOne();
+        }
+
+        public MongoGridFS GetGridFS(
+            MongoGridFSSettings settings
+        ) {
+            return new MongoGridFS(this, settings);
         }
 
         // TODO: mongo shell has GetPrevError at the database level?

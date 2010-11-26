@@ -309,7 +309,7 @@ namespace MongoDB.Driver {
         #region private methods
         // funnel exceptions through this method so we can have a single error message
         private void ThrowFrozen() {
-            throw new InvalidOperationException("A cursor cannot be modified after enumeration has begun");
+            throw new InvalidOperationException("A MongoCursor object cannot be modified once it has been frozen");
         }
         #endregion
 

@@ -24,31 +24,51 @@ using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.GridFS {
     public class MongoGridFS {
+        #region private static fields
+        private static MongoGridFSSettings defaultSettings = new MongoGridFSSettings();
+        #endregion
+
         #region private fields
         private MongoDatabase database;
         private MongoGridFSSettings settings;
-        private SafeMode safeMode;
         #endregion
 
         #region constructors
+        public MongoGridFS(
+            MongoDatabase database
+        )
+            : this(database, defaultSettings) {
+        }
+
         public MongoGridFS(
             MongoDatabase database,
             MongoGridFSSettings settings
         ) {
             this.database = database;
-            this.settings = settings;
-            this.safeMode = database.SafeMode;
+            if (settings.IsFrozen) {
+                this.settings = settings;
+            } else {
+                this.settings = settings.Clone().Freeze();
+            }
+        }
+        #endregion
+
+        #region public static properties
+        public static MongoGridFSSettings DefaultSettings {
+            get { return defaultSettings; }
+            set {
+                if (value.IsFrozen) {
+                    defaultSettings = value;
+                } else {
+                    defaultSettings = value.Clone().Freeze();
+                }
+            }
         }
         #endregion
 
         #region public properties
         public MongoDatabase Database {
             get { return database; }
-        }
-
-        public SafeMode SafeMode {
-            get { return safeMode; }
-            set { safeMode = value; }
         }
 
         public MongoGridFSSettings Settings {
@@ -414,7 +434,7 @@ namespace MongoDB.Driver.GridFS {
                         { "n", n },
                         { "data", new BsonBinaryData(data) }
                     };
-                    chunks.Insert(chunk, safeMode);
+                    chunks.Insert(chunk, settings.SafeMode);
 
                     if (bytesRead < chunkSize) {
                         break;
@@ -436,7 +456,7 @@ namespace MongoDB.Driver.GridFS {
                     { "uploadDate", DateTime.UtcNow },
                     { "md5", md5 }
                 };
-                files.Insert(fileInfo, safeMode);
+                files.Insert(fileInfo, settings.SafeMode);
 
                 return FindOneById(files_id);
             }
