@@ -115,6 +115,15 @@ namespace MongoDB.Driver.GridFS {
             isFrozen = true;
             return this;
         }
+
+        public override int GetHashCode() {
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + defaultChunkSize.GetHashCode();
+            hash = 37 * hash + root.GetHashCode();
+            hash = 37 * hash + safeMode.GetHashCode();
+            return hash;
+        }
         #endregion
 
         #region private methods

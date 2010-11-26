@@ -26,18 +26,21 @@ namespace MongoDB.Driver.GridFS {
     // this class is patterned after .NET's FileInfo
     public class MongoGridFSFileInfo {
         #region private fields
+        // these fields are considered in Equals and GetHashCode
         private string[] aliases;
-        private bool cached; // true if info came from database
         private int chunkSize;
         private string contentType;
-        private bool exists;
-        private MongoGridFS gridFS;
         private BsonValue id; // usually a BsonObjectId but not required to be
         private int length;
         private string md5;
         private BsonDocument metadata;
         private string name;
         private DateTime uploadDate;
+
+        // these fields are not considered in Equals and GetHashCode
+        private bool cached; // true if info came from database
+        private bool exists;
+        private MongoGridFS gridFS;
         #endregion
 
         #region constructors
@@ -148,6 +151,22 @@ namespace MongoDB.Driver.GridFS {
         }
         #endregion
 
+        #region public operators
+        public static bool operator !=(
+            MongoGridFSFileInfo lhs,
+            MongoGridFSFileInfo rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        public static bool operator ==(
+            MongoGridFSFileInfo lhs,
+            MongoGridFSFileInfo rhs
+        ) {
+            return object.Equals(lhs, rhs);
+        }
+        #endregion
+
         #region public methods
         public StreamWriter AppendText() {
             Stream stream = Open(FileMode.Append, FileAccess.Write);
@@ -178,16 +197,47 @@ namespace MongoDB.Driver.GridFS {
 
         public void Delete() {
             if (Exists) {
-                var database = gridFS.Database;
-                var settings = gridFS.Settings;
-                var files = database.GetCollection(settings.FilesCollectionName);
-                var chunks = database.GetCollection(settings.ChunksCollectionName);
-                using (database.RequestStart()) {
-                    files.Remove(new BsonDocument("_id", id), gridFS.Settings.SafeMode);
-                    chunks.Remove(new BsonDocument("files_id", id), gridFS.Settings.SafeMode);
+                using (gridFS.Database.RequestStart()) {
+                    gridFS.Files.Remove(new BsonDocument("_id", id), gridFS.Settings.SafeMode);
+                    gridFS.Chunks.Remove(new BsonDocument("files_id", id), gridFS.Settings.SafeMode);
                 }
             }
        }
+
+        public bool Equals(
+            MongoGridFSFileInfo rhs
+        ) {
+            if (rhs == null) { return false; }
+            return
+                (this.aliases == rhs.aliases && (this.aliases == null || this.aliases.SequenceEqual(rhs.aliases))) &&
+                this.chunkSize == rhs.chunkSize &&
+                this.contentType == rhs.contentType &&
+                this.id == rhs.id &&
+                this.length == rhs.length &&
+                this.md5 == rhs.md5 &&
+                this.metadata == rhs.metadata &&
+                this.name == rhs.name &&
+                this.uploadDate == rhs.uploadDate;
+        }
+
+        public override bool Equals(object obj) {
+            return Equals(obj as MongoGridFSFileInfo); // works even if obj is null
+        }
+
+        public override int GetHashCode() {
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + ((aliases == null) ? 0 : aliases.GetHashCode());
+            hash = 37 * hash + chunkSize.GetHashCode();
+            hash = 37 * hash + ((contentType == null) ? 0 : contentType.GetHashCode());
+            hash = 37 * hash + ((id == null) ? 0 : id.GetHashCode());
+            hash = 37 * hash + length.GetHashCode();
+            hash = 37 * hash + ((md5 == null) ? 0 : md5.GetHashCode());
+            hash = 37 * hash + ((metadata == null) ? 0 : metadata.GetHashCode());
+            hash = 37 * hash + name.GetHashCode();
+            hash = 37 * hash + uploadDate.GetHashCode();
+            return hash;
+        }
 
         public void MoveTo(
             string destFileName
@@ -222,14 +272,13 @@ namespace MongoDB.Driver.GridFS {
         }
 
         public void Refresh() {
-            var files = gridFS.Database.GetCollection(gridFS.Settings.FilesCollectionName);
             MongoCursor<BsonDocument> cursor;
             if (id != null) {
                 var query = new BsonDocument("_id", id);
-                cursor = files.Find(query);
+                cursor = gridFS.Files.Find(query);
             } else {
                 var query = new BsonDocument("filename", name);
-                cursor = files.Find(query).SetSortOrder(SortBy.Descending("uploadDate"));
+                cursor = gridFS.Files.Find(query).SetSortOrder(SortBy.Descending("uploadDate"));
             }
             var fileInfo = cursor.SetLimit(1).FirstOrDefault();
             CacheFileInfo(fileInfo); // fileInfo will be null if file does not exist
