@@ -31,6 +31,8 @@ namespace MongoDB.Driver.GridFS {
         #region private fields
         private MongoDatabase database;
         private MongoGridFSSettings settings;
+        private MongoCollection<BsonDocument> chunks;
+        private MongoCollection<BsonDocument> files;
         #endregion
 
         #region constructors
@@ -45,35 +47,34 @@ namespace MongoDB.Driver.GridFS {
             MongoGridFSSettings settings
         ) {
             this.database = database;
-            if (settings.IsFrozen) {
-                this.settings = settings;
-            } else {
-                this.settings = settings.Clone().Freeze();
-            }
+            this.settings = settings.Freeze();
+            this.chunks = database[settings.ChunksCollectionName];
+            this.files = database[settings.FilesCollectionName];
         }
         #endregion
 
         #region public static properties
         public static MongoGridFSSettings DefaultSettings {
             get { return defaultSettings; }
-            set {
-                if (value.IsFrozen) {
-                    defaultSettings = value;
-                } else {
-                    defaultSettings = value.Clone().Freeze();
-                }
-            }
+            set { defaultSettings = value.Freeze(); }
         }
         #endregion
 
         #region public properties
+        public MongoCollection<BsonDocument> Chunks {
+            get { return chunks; }
+        }
+
         public MongoDatabase Database {
             get { return database; }
         }
 
+        public MongoCollection<BsonDocument> Files {
+            get { return files; }
+        }
+
         public MongoGridFSSettings Settings {
             get { return settings; }
-            set { settings = value; }
         }
         #endregion
 
@@ -127,15 +128,13 @@ namespace MongoDB.Driver.GridFS {
         public void Delete(
             string remoteFileName
         ) {
-            var query = new BsonDocument("filename", remoteFileName);
-            Delete(query);
+            Delete(Query.EQ("filename", remoteFileName));
         }
 
         public void DeleteById(
             BsonValue id
         ) {
-            var query = new BsonDocument("_id", id);
-            Delete(query);
+            Delete(Query.EQ("_id", id));
         }
 
         public void Download<TQuery>(
@@ -164,13 +163,12 @@ namespace MongoDB.Driver.GridFS {
             MongoGridFSFileInfo fileInfo
         ) {
             using (database.RequestStart()) {
-                var chunks = database.GetCollection(settings.ChunksCollectionName);
                 var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
                 for (int n = 0; n < numberOfChunks; n++) {
-                    var query = new BsonDocument {
-                        { "files_id", fileInfo.Id },
-                        { "n", n }
-                    };
+                    var query = Query.And(
+                        Query.EQ("files_id", fileInfo.Id),
+                        Query.EQ("n", n)
+                    );
                     var chunk = chunks.FindOne(query);
                     if (chunk == null) {
                         string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
@@ -201,8 +199,7 @@ namespace MongoDB.Driver.GridFS {
             string remoteFileName,
             int version
         ) {
-            var query = new BsonDocument("filename", remoteFileName);
-            Download(stream, query, version);
+            Download(stream, Query.EQ("filename", remoteFileName), version);
         }
 
         public void Download(
@@ -264,47 +261,41 @@ namespace MongoDB.Driver.GridFS {
         public bool Exists<TQuery>(
             TQuery query
         ) {
-            var files = database.GetCollection(settings.FilesCollectionName);
             return files.Count(query) > 0;
         }
 
         public bool Exists(
             string fileName
         ) {
-            var query = new BsonDocument("filename", fileName);
-            return Exists(query);
+            return Exists(Query.EQ("filename", fileName));
         }
 
         public bool ExistsById(
             BsonValue id
         ) {
-            var query = new BsonDocument("_id", id);
-            return Exists(query);
-        }
-
-        public IEnumerable<MongoGridFSFileInfo> Find() {
-            return Find(Query.Null);
+            return Exists(Query.EQ("_id", id));
         }
 
         public IEnumerable<MongoGridFSFileInfo> Find<TQuery>(
             TQuery query
         ) {
-            var files = database.GetCollection(settings.FilesCollectionName);
             return files.Find(query).Select(fileInfo => new MongoGridFSFileInfo(this, fileInfo));
         }
 
         public IEnumerable<MongoGridFSFileInfo> Find(
             string fileName
         ) {
-            var query = new BsonDocument("filename", fileName);
-            return Find(query);
+            return Find(Query.EQ("filename", fileName));
+        }
+
+        public IEnumerable<MongoGridFSFileInfo> FindAll() {
+            return Find(Query.Null);
         }
 
         public IEnumerable<MongoGridFSFileInfo> FindById(
             BsonValue id
         ) {
-            var query = new BsonDocument("_id", id);
-            return Find(query);
+            return Find(Query.EQ("_id", id));
         }
 
         public MongoGridFSFileInfo FindOne<TQuery>(
@@ -317,10 +308,9 @@ namespace MongoDB.Driver.GridFS {
             TQuery query,
             int version // 1 is oldest, -1 is newest, 0 is no sort
         ) {
-            var files = database.GetCollection(settings.FilesCollectionName);
             BsonDocument fileInfo;
             if (version > 0) {
-                fileInfo = files.Find(query).SetSortOrder("uploadDate").SetSkip(version - 1).SetLimit(1).FirstOrDefault();
+                fileInfo = files.Find(query).SetSortOrder(SortBy.Ascending("uploadDate")).SetSkip(version - 1).SetLimit(1).FirstOrDefault();
             } else if (version < 0) {
                 fileInfo = files.Find(query).SetSortOrder(SortBy.Descending("uploadDate")).SetSkip(-version - 1).SetLimit(1).FirstOrDefault();
             } else {
@@ -344,15 +334,13 @@ namespace MongoDB.Driver.GridFS {
             string remoteFileName,
             int version
         ) {
-            var query = new BsonDocument("filename", remoteFileName);
-            return FindOne(query, version);
+            return FindOne(Query.EQ("filename", remoteFileName), version);
         }
 
         public MongoGridFSFileInfo FindOneById(
             BsonValue id
         ) {
-            var query = new BsonDocument("_id", id);
-            return FindOne(query);
+            return FindOne(Query.EQ("_id", id));
         }
 
         public void MoveTo(
@@ -401,13 +389,32 @@ namespace MongoDB.Driver.GridFS {
             return fileInfo.OpenWrite();
         }
 
+        public void SetAliases(
+            MongoGridFSFileInfo fileInfo,
+            string[] aliases
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public void SetContentType(
+            MongoGridFSFileInfo fileInfo,
+            string contentType
+        ) {
+            throw new NotImplementedException();
+        }
+
+        public void SetMetadata(
+            MongoGridFSFileInfo fileInfo,
+            BsonValue metadata
+        ) {
+            throw new NotImplementedException();
+        }
+
         public MongoGridFSFileInfo Upload(
             Stream stream,
             string remoteFileName
         ) {
             using (database.RequestStart()) {
-                var files = database.GetCollection(settings.FilesCollectionName);
-                var chunks = database.GetCollection(settings.ChunksCollectionName);
                 chunks.EnsureIndex("files_id", "n");
 
                 BsonObjectId files_id = BsonObjectId.GenerateNewId();
