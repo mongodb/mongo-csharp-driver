@@ -318,7 +318,7 @@ namespace MongoDB.Driver.GridFS {
                 exists = true;
                 id = fileInfo["_id"];
                 length = fileInfo["length"].ToInt32();
-                md5 = fileInfo["md5"].AsString;
+                md5 = (string) fileInfo["md5", null];
                 metadata = (BsonDocument) fileInfo["metadata", null];
                 name = fileInfo["filename"].AsString;
                 uploadDate = fileInfo["uploadDate"].AsDateTime;

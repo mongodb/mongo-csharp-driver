@@ -49,6 +49,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             var bson = document.ToBson();
             var result = BsonSerializer.Deserialize<CommandResult>(bson);
             Assert.IsFalse(result.Ok);
+            Assert.IsNotNull(result.ErrorMessage);
         }
 
         [Test]
@@ -57,6 +58,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             var bson = document.ToBson();
             var result = BsonSerializer.Deserialize<CommandResult>(bson);
             Assert.IsTrue(result.Ok);
+            Assert.IsNull(result.ErrorMessage);
         }
 
         [Test]
@@ -65,6 +67,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             var bson = document.ToBson();
             var result = BsonSerializer.Deserialize<CommandResult>(bson);
             Assert.IsFalse(result.Ok);
+            Assert.IsNotNull(result.ErrorMessage);
         }
 
         [Test]
@@ -73,6 +76,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             var bson = document.ToBson();
             var result = BsonSerializer.Deserialize<CommandResult>(bson);
             Assert.IsFalse(result.Ok);
+            Assert.IsNotNull(result.ErrorMessage);
         }
 
         [Test]
@@ -81,6 +85,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             var bson = document.ToBson();
             var result = BsonSerializer.Deserialize<CommandResult>(bson);
             Assert.IsTrue(result.Ok);
+            Assert.IsNull(result.ErrorMessage);
         }
 
         [Test]
@@ -89,6 +94,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             var bson = document.ToBson();
             var result = BsonSerializer.Deserialize<CommandResult>(bson);
             Assert.IsTrue(result.Ok);
+            Assert.IsNull(result.ErrorMessage);
         }
 
         [Test]

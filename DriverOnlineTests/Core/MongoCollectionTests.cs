@@ -190,6 +190,56 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestMapReduce() {
+            // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
+            // by Kristina Chodorow and Michael Dirolf
+
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+            collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+            collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+
+            var map =
+                "function() {\n" +
+                "    for (var key in this) {\n" +
+                "        emit(key, {count : 1});\n" +
+                "    }\n" +
+                "}\n";
+
+            var reduce =
+                "function(key, emits) {\n" +
+                "    total = 0;\n" +
+                "    for (var i in emits) {\n" +
+                "        total += emits[i].count;\n" +
+                "    }\n" +
+                "    return {count : total};\n" +
+                "}\n";
+
+            using (database.RequestStart()) {
+                var result = collection.MapReduce(map, reduce);
+                Assert.IsTrue(result.CommandResult.Ok);
+                Assert.IsTrue(result.Duration >= TimeSpan.Zero);
+                Assert.AreEqual(9, result.EmitCount);
+                Assert.AreEqual(5, result.OutputCount);
+                Assert.AreEqual(3, result.InputCount);
+                Assert.IsNotNullOrEmpty(result.ResultCollectionName);
+
+                var expectedCounts = new Dictionary<string, int> {
+                    { "A", 1 },
+                    { "B", 3 },
+                    { "C", 1 },
+                    { "X", 1 },
+                    { "_id", 3 }
+                };
+                foreach (var document in result.GetResults<BsonDocument>()) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
+            }
+        }
+
+        [Test]
         public void TestSetFields() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });

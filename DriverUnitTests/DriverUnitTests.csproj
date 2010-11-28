@@ -70,6 +70,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Builders\FieldsBuilderTests.cs" />
     <Compile Include="Builders\GroupByBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />

@@ -47,7 +47,7 @@ namespace MongoDB.Driver {
         }
 
         public TimeSpan Duration {
-            get { return TimeSpan.FromMilliseconds(commandResult["timeMillis"].AsDouble); }
+            get { return TimeSpan.FromMilliseconds(commandResult["timeMillis"].ToInt32()); }
         }
 
         public int EmitCount {

@@ -42,5 +42,18 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp93 {
             collection.EnsureIndex(IndexKeys.Ascending("x", "y"));
             collection.DropIndex(IndexKeys.Ascending("x", "y"));
         }
+
+        [Test]
+        public void EnsureIndex_SetUniqueTrue_Success() {
+            var server = MongoServer.Create();
+            var database = server["onlinetests"];
+            var collection = database.GetCollection("csharp93");
+
+            collection.Insert(new BsonDocument()); // make sure collection exists
+            collection.DropAllIndexes();
+
+            collection.EnsureIndex(IndexKeys.Ascending("x"), IndexOptions.SetUnique(true));
+            collection.EnsureIndex(IndexKeys.Ascending("y"), IndexOptions.SetUnique(false));
+        }
     }
 }

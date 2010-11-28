@@ -50,6 +50,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
+        #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType
@@ -86,6 +87,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 throw new FileFormatException(message);
             }
         }
+        #pragma warning restore 618
 
         public override void Serialize(
             BsonWriter bsonWriter,

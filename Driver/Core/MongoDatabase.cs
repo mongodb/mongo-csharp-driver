@@ -126,6 +126,13 @@ namespace MongoDB.Driver {
         ] {
             get { return GetCollection(collectionName); }
         }
+
+        public MongoCollection<BsonDocument> this[
+            string collectionName,
+            SafeMode safeMode
+        ] {
+            get { return GetCollection(collectionName, safeMode); }
+        }
         #endregion
 
         #region public methods
@@ -225,7 +232,14 @@ namespace MongoDB.Driver {
         public MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
-            return GetCollection<BsonDocument>(collectionName);
+            return GetCollection<BsonDocument>(collectionName, safeMode);
+        }
+
+        public MongoCollection<BsonDocument> GetCollection(
+            string collectionName,
+            SafeMode safeMode
+        ) {
+            return GetCollection<BsonDocument>(collectionName, safeMode);
         }
 
         public IEnumerable<string> GetCollectionNames() {
