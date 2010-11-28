@@ -36,7 +36,12 @@ namespace MongoDB.Driver {
                 if (TryGetValue("errmsg", out err)) {
                     return err.ToString();
                 } else {
-                    return "Unknown error";
+                    BsonValue ok;
+                    if (TryGetValue("ok", out ok) && ok.ToBoolean()) {
+                        return null;
+                    } else {
+                        return "Unknown error";
+                    }
                 }
             }
         }
