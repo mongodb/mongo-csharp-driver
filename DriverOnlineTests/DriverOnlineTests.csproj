@@ -72,6 +72,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalAssembly.cs">
+      <Link>Properties\GlobalAssembly.cs</Link>
+    </Compile>
     <Compile Include="Core\CommandResults\CollectionStatsResultTests.cs" />
     <Compile Include="Core\CommandResults\CommandResultTests.cs" />
     <Compile Include="Core\CommandResults\DatabaseStatsResultTests.cs" />

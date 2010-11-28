@@ -72,6 +72,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalAssembly.cs">
+      <Link>Properties\GlobalAssembly.cs</Link>
+    </Compile>
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttribute.cs" />
