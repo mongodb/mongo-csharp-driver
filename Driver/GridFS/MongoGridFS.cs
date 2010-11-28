@@ -48,8 +48,8 @@ namespace MongoDB.Driver.GridFS {
         ) {
             this.database = database;
             this.settings = settings.Freeze();
-            this.chunks = database[settings.ChunksCollectionName];
-            this.files = database[settings.FilesCollectionName];
+            this.chunks = database[settings.ChunksCollectionName, settings.SafeMode];
+            this.files = database[settings.FilesCollectionName, settings.SafeMode];
         }
         #endregion
 
