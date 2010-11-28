@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MongoDB.Driver")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
+[assembly: AssemblyProduct("MongoDB.Driver")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("09134819-2a03-409d-8f38-462bb20e23aa")]

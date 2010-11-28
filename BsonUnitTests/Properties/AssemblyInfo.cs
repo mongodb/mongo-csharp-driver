@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MongoDB.BsonUnitTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
+[assembly: AssemblyProduct("MongoDB.BsonUnitTests")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("56b298fb-e0e4-4c10-b42a-4b6d238b163f")]
