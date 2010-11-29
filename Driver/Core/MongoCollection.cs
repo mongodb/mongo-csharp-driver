@@ -138,6 +138,10 @@ namespace MongoDB.Driver {
             return result["values"].AsBsonArray;
         }
 
+        public void Drop() {
+            database.DropCollection(name);
+        }
+
         public CommandResult DropAllIndexes() {
             return DropIndexByName("*");
         }
@@ -202,6 +206,10 @@ namespace MongoDB.Driver {
                     indexCache.Add(indexName);
                 }
             }
+        }
+
+        public bool Exists() {
+            return database.CollectionExists(name);
         }
 
         public MongoCursor<TDocument> FindAllAs<TDocument>() {

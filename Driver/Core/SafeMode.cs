@@ -80,6 +80,19 @@ namespace MongoDB.Driver {
             this.w = w;
             this.wtimeout = wtimeout;
         }
+
+        public SafeMode(
+            int w
+        )
+            : this(true, false, w) {
+        }
+
+        public SafeMode(
+            int w,
+            TimeSpan wtimeout
+        )
+            : this(true, false, w, wtimeout) {
+        }
         #endregion
 
         #region public static properties

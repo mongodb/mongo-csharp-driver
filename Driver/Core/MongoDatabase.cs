@@ -171,6 +171,10 @@ namespace MongoDB.Driver {
             return RunCommand(command);
         }
 
+        public void Drop() {
+            server.DropDatabase(name);
+        }
+
         public CommandResult DropCollection(
             string collectionName
         ) {
