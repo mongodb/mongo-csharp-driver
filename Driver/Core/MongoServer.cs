@@ -190,6 +190,13 @@ namespace MongoDB.Driver {
         ] {
             get { return GetDatabase(databaseName, credentials, safeMode); }
         }
+
+        public MongoDatabase this[
+            string databaseName,
+            SafeMode safeMode
+        ] {
+            get { return GetDatabase(databaseName, safeMode); }
+        }
         #endregion
 
         #region public methods
@@ -325,6 +332,13 @@ namespace MongoDB.Driver {
             }
         }
 
+        public MongoDatabase GetDatabase(
+            string databaseName,
+            SafeMode safeMode
+        ) {
+            return GetDatabase(databaseName, defaultCredentials, safeMode);
+        }
+
         public IEnumerable<string> GetDatabaseNames() {
             var result = AdminDatabase.RunCommand("listDatabases");
             var databaseNames = new List<string>();
@@ -340,7 +354,7 @@ namespace MongoDB.Driver {
             if (RequestNestingLevel == 0) {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
-            var adminDatabase = GetDatabase("admin", null); // no credentials needed for getlasterror
+            var adminDatabase = GetDatabase("admin", (MongoCredentials) null); // no credentials needed for getlasterror
             return adminDatabase.RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
