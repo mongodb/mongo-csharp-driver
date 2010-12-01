@@ -33,6 +33,7 @@ namespace MongoDB.Driver {
         private MongoCredentials credentials;
         private SafeMode safeMode;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
+        private MongoCollection<BsonDocument> commandCollection;
         private MongoGridFS gridFS;
         #endregion
 
@@ -48,6 +49,16 @@ namespace MongoDB.Driver {
             this.name = name;
             this.credentials = credentials;
             this.safeMode = safeMode;
+
+            // if connected to a replica set with SlaveOk make sure commands get routed to primary
+            if (server.SlaveOk && server.Url.ConnectionMode == ConnectionMode.ReplicaSet) {
+                var primaryUrl = new MongoUrlBuilder(server.Url.ToString());
+                primaryUrl.SlaveOk = false;
+                var primaryServer = MongoServer.Create(primaryUrl.ToMongoUrl());
+                commandCollection = primaryServer[name, credentials]["$cmd"];
+            } else {
+                commandCollection = this["$cmd"];
+            }
         }
         #endregion
 
@@ -89,7 +100,7 @@ namespace MongoDB.Driver {
 
         #region public properties
         public MongoCollection<BsonDocument> CommandCollection {
-            get { return GetCollection<BsonDocument>("$cmd"); }
+            get { return commandCollection; }
         }
 
         public MongoCredentials Credentials {
