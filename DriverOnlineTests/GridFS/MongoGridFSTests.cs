@@ -52,6 +52,29 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
+        public void TestAppendText() {
+            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
+            using (var writer = gridFS.AppendText("HelloWorld.txt")) {
+                Assert.IsFalse(writer.BaseStream.CanRead);
+                Assert.IsTrue(writer.BaseStream.CanSeek);
+                Assert.IsTrue(writer.BaseStream.CanWrite);
+                writer.Write("Hello");
+            }
+            Assert.IsTrue(gridFS.Exists("HelloWorld.txt"));
+            using (var writer = gridFS.AppendText("HelloWorld.txt")) {
+                writer.Write(" World");
+            }
+            var memoryStream = new MemoryStream();
+            gridFS.Download(memoryStream, "HelloWorld.txt");
+            var bytes = memoryStream.ToArray();
+            Assert.AreEqual(0xEF, bytes[0]); // the BOM
+            Assert.AreEqual(0xBB, bytes[1]);
+            Assert.AreEqual(0xBF, bytes[2]);
+            var text = Encoding.UTF8.GetString(bytes, 3, bytes.Length - 3);
+            Assert.AreEqual("Hello World", text);
+        }
+
+        [Test]
         public void TestDeleteByFileId() {
             gridFS.Delete(Query.Null);
             Assert.AreEqual(0, gridFS.Chunks.Count());
