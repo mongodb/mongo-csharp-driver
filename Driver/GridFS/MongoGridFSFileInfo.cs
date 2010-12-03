@@ -66,7 +66,6 @@ namespace MongoDB.Driver.GridFS {
         ) {
             this.gridFS = gridFS;
             this.chunkSize = chunkSize;
-            this.id = BsonObjectId.GenerateNewId();
             this.name = remoteFileName;
         }
 
@@ -292,6 +291,16 @@ namespace MongoDB.Driver.GridFS {
             }
             var fileInfo = cursor.SetLimit(1).FirstOrDefault();
             CacheFileInfo(fileInfo); // fileInfo will be null if file does not exist
+        }
+
+        public void SetId(
+            BsonValue id
+        ) {
+            if (this.id == null) {
+                this.id = id;
+            } else {
+                throw new InvalidOperationException("FileInfo already has an Id");
+            }
         }
         #endregion
 

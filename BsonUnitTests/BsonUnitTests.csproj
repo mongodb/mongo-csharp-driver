@@ -101,6 +101,7 @@
     <Compile Include="Jira\CSharp102Tests.cs" />
     <Compile Include="Jira\CSharp104Tests.cs" />
     <Compile Include="Jira\CSharp116Tests.cs" />
+    <Compile Include="Jira\CSharp121Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
