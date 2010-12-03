@@ -54,7 +54,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected List<BsonMemberMap> allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
         protected List<BsonMemberMap> declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
         protected Dictionary<string, BsonMemberMap> elementDictionary = new Dictionary<string, BsonMemberMap>();
-        protected Dictionary<string, BsonMemberMap> memberDictionary = new Dictionary<string, BsonMemberMap>();
         protected bool ignoreExtraElements = true;
         protected List<Type> knownTypes = new List<Type>();
         #endregion
@@ -300,8 +299,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                         }
 
                         foreach (var memberMap in allMemberMaps) {
-                            elementDictionary.Add(memberMap.ElementName, memberMap);
-                            memberDictionary.Add(memberMap.MemberName, memberMap);
+                            if (!elementDictionary.ContainsKey(memberMap.ElementName)) {
+                                elementDictionary.Add(memberMap.ElementName, memberMap);
+                            } else {
+                                var message = string.Format("Duplicate element name '{0}' in class '{1}'", memberMap.MemberName, classType.FullName);
+                                throw new BsonSerializationException(message);
+                            }
                         }
 
                         // mark this classMap frozen before we start working on knownTypes
@@ -331,14 +334,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonMemberMap GetMemberMap(
             string memberName
         ) {
-            // before the classMap is frozen GetMemberMap only returns members declared in this classMap
-            if (frozen) {
-                BsonMemberMap memberMap;
-                memberDictionary.TryGetValue(memberName, out memberMap);
-                return memberMap;
-            } else {
-                return declaredMemberMaps.Where(m => m.MemberName == memberName).SingleOrDefault();
-            }
+            // can be called whether frozen or not
+            return declaredMemberMaps.Find(m => m.MemberName == memberName);
         }
 
         public BsonMemberMap GetMemberMapForElement(
@@ -361,7 +358,7 @@ namespace MongoDB.Bson.DefaultSerializer {
            string memberName
         ) {
             if (frozen) { ThrowFrozenException(); }
-            var memberMap = declaredMemberMaps.Where(m => m.MemberName == memberName).FirstOrDefault(); // don't call GetMemberMap!
+            var memberMap = GetMemberMap(memberName);
             declaredMemberMaps.Remove(memberMap);
         }
 
@@ -418,8 +415,14 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (memberInfo == null) {
                 throw new ArgumentNullException("memberInfo");
             }
-            var memberMap = new BsonMemberMap(memberInfo, conventions);
-            declaredMemberMaps.Add(memberMap);
+            if (memberInfo.DeclaringType != classType) {
+                throw new ArgumentException("MemberInfo is not for this class");
+            }
+            var memberMap = declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
+            if (memberMap == null) {
+                memberMap = new BsonMemberMap(memberInfo, conventions);
+                declaredMemberMaps.Add(memberMap);
+            }
             return memberMap;
         }
 
