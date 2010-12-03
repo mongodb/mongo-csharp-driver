@@ -46,6 +46,12 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                     continue;
                 }
 
+                // skip overridden properties (they are already included by the base class)
+                var getMethodInfo = propertyInfo.GetGetMethod(true);
+                if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != type) {
+                    continue;
+                }
+
                 yield return propertyInfo;
             }
         }
