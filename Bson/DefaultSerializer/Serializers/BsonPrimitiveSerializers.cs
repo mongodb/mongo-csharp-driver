@@ -359,23 +359,37 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class GuidSerializer : BsonBaseSerializer {
         #region private static fields
-        private static GuidSerializer singleton = new GuidSerializer();
+        private static GuidSerializer binaryRepresentation = new GuidSerializer(BsonType.Binary);
+        private static GuidSerializer stringRepresentation = new GuidSerializer(BsonType.String);
+        #endregion
+
+        #region private fields
+        private BsonType representation;
         #endregion
 
         #region constructors
-        private GuidSerializer() {
+        private GuidSerializer(
+            BsonType representation
+        ) {
+            this.representation = representation;
         }
         #endregion
 
         #region public static properties
-        public static GuidSerializer Singleton {
-            get { return singleton; }
+        public static GuidSerializer BinaryRepresentation {
+            get { return binaryRepresentation; }
+        }
+
+        public static GuidSerializer StringRepresentation {
+            get { return stringRepresentation; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Guid), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Guid), null, binaryRepresentation); // default representation
+            BsonSerializer.RegisterSerializer(typeof(Guid), BsonType.Binary, binaryRepresentation);
+            BsonSerializer.RegisterSerializer(typeof(Guid), BsonType.String, stringRepresentation);
         }
         #endregion
 
@@ -384,16 +398,24 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            byte[] bytes;
-            BsonBinarySubType subType;
-            bsonReader.ReadBinaryData(out bytes, out subType);
-            if (bytes.Length != 16) {
-                throw new FileFormatException("BinaryData length is not 16");
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Binary) {
+                byte[] bytes;
+                BsonBinarySubType subType;
+                bsonReader.ReadBinaryData(out bytes, out subType);
+                if (bytes.Length != 16) {
+                    throw new FileFormatException("BinaryData length is not 16");
+                }
+                if (subType != BsonBinarySubType.Uuid) {
+                    throw new FileFormatException("BinaryData sub type is not Uuid");
+                }
+                return new Guid(bytes);
+            } else if (bsonType == BsonType.String) {
+                return new Guid(bsonReader.ReadString());
+            } else {
+                var message = string.Format("Cannot deserialize Guid from BsonType: {0}", bsonType);
+                throw new FileFormatException(message);
             }
-            if (subType != BsonBinarySubType.Uuid) {
-                throw new FileFormatException("BinaryData sub type is not Uuid");
-            }
-            return new Guid(bytes);
         }
 
         public override void Serialize(
@@ -403,7 +425,16 @@ namespace MongoDB.Bson.DefaultSerializer {
             bool serializeIdFirst
         ) {
             var guid = (Guid) value;
-            bsonWriter.WriteBinaryData(guid.ToByteArray(), BsonBinarySubType.Uuid);
+            switch (representation) {
+                case BsonType.Binary:
+                    bsonWriter.WriteBinaryData(guid.ToByteArray(), BsonBinarySubType.Uuid);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(guid.ToString());
+                    break;
+                default:
+                    throw new BsonInternalException("Unexpected representation");
+            }
         }
         #endregion
     }
