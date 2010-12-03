@@ -188,8 +188,12 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             public string Q { get; set; }
         }
 
-        private class TestExtension {
+        private class TestExtension : IConventionExtension {
             public Guid Id;
+
+            public void Apply(BsonClassMap classMap) {
+                classMap.SetProperty("TestId", Id);
+            }
         }
 
         [Test]
@@ -201,14 +205,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             
             var classMap = new BsonClassMap<D>(cm => cm.AutoMap());
 
-            TestExtension ext;
-            Assert.True(classMap.TryGetExtension<TestExtension>(out ext));
-            Assert.AreEqual(profileId, ext.Id);
-
-            var localId = Guid.NewGuid();
-            classMap.SetExtension<TestExtension>(new TestExtension { Id = localId });
-            Assert.True(classMap.TryGetExtension<TestExtension>(out ext));
-            Assert.AreEqual(localId, ext.Id);
+            Assert.AreEqual(profileId, classMap.GetProperty<Guid>("TestId"));
         }
     }
 }

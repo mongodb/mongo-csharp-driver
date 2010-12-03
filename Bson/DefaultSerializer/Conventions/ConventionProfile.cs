@@ -22,11 +22,11 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
     public sealed class ConventionProfile
     {
         #region private static fields
-        private static Dictionary<Type, object> globalExtensions = new Dictionary<Type, object>();
+        private static Dictionary<Type, IConventionExtension> defaultExtensions = new Dictionary<Type, IConventionExtension>();
         #endregion
 
         #region private fields
-        private Dictionary<Type, object> extensions = new Dictionary<Type, object>();
+        private Dictionary<Type, IConventionExtension> extensions = new Dictionary<Type, IConventionExtension>();
         #endregion
 
         #region public properties
@@ -45,6 +45,11 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         public IMemberFinderConvention MemberFinderConvention { get; private set; }
 
         public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
+
+        public IEnumerable<IConventionExtension> Extensions 
+        {
+            get { return extensions.Values; }
+        }
         #endregion
 
         #region public static methods
@@ -58,7 +63,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
                 .SetMemberFinderConvention(new PublicMemberFinderConvention())
                 .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention());
-            foreach (var extension in globalExtensions) {
+            foreach (var extension in defaultExtensions) {
                 profile.extensions.Add(extension.Key, extension.Value);
             }
 
@@ -124,7 +129,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
 
         public ConventionProfile SetExtension<T>(
             T extension
-        ) {
+        ) where T : IConventionExtension {
             extensions[typeof(T)] = extension;
             return this;
         }
@@ -163,24 +168,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             SerializeDefaultValueConvention = convention;
             return this;
         }
-
-        public bool TryGetExtension<T>(
-            out T extension
-        ) {
-            extension = default(T);
-            if (!extensions.ContainsKey(typeof(T)))
-                return false;
-
-            extension = (T)extensions[typeof(T)];
-            return true;
-        }
         #endregion
 
         #region public static methods
         public static void AddGlobalExtension<T>(
             T extension
-        ) {
-            globalExtensions[typeof(T)] = extension;
+        ) where T : IConventionExtension {
+            defaultExtensions[typeof(T)] = extension;
         }
         #endregion
     }

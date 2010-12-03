@@ -29,9 +29,14 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions
     [TestFixture]
     public class ConventionProfileTests
     {
-        private class TestExtension
+        private class TestExtension : IConventionExtension
         {
             public Guid GuidId { get; set; }
+
+            public void Apply(BsonClassMap classMap) 
+            {
+                classMap.SetProperty("guid", GuidId);
+            }
         }
 
         [Test]
@@ -43,8 +48,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions
             convention.SetExtension(new TestExtension() { GuidId = a });
             convention.SetExtension(new TestExtension() { GuidId = b });
 
-            TestExtension ext;
-            Assert.True(convention.TryGetExtension<TestExtension>(out ext));
+            TestExtension ext = (TestExtension)convention.Extensions.Single();
             Assert.AreEqual(b, ext.GuidId);
         }
     }

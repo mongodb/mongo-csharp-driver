@@ -45,7 +45,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected ConventionProfile conventions;
         protected string discriminator;
         protected bool discriminatorIsRequired;
-        protected Dictionary<Type, object> extensions;
+        protected Dictionary<string, object> properties;
         protected bool hasRootClass;
         protected bool isRootClass;
         protected bool isAnonymous;
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             this.classType = classType;
             this.conventions = LookupConventions(classType);
             this.discriminator = classType.Name;
-            this.extensions = new Dictionary<Type, object>();
+            this.properties = new Dictionary<string, object>();
             this.isAnonymous = IsAnonymousType(classType);
         }
         #endregion
@@ -272,6 +272,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         public void AutoMap() {
             AutoMapClass();
             BsonDefaultSerializer.RegisterDiscriminator(classType, discriminator);
+            foreach (var extension in this.conventions.Extensions)
+                extension.Apply(this);
         }
 
         public object CreateInstance() {
@@ -295,6 +297,16 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonMemberMap memberMap;
             elementDictionary.TryGetValue(elementName, out memberMap);
             return memberMap;
+        }
+
+        public object GetProperty<T>(
+            string name
+        ) {
+            object value;
+            if (!this.properties.TryGetValue(name, out value))
+                value = null;
+
+            return (T)value;
         }
 
         public BsonMemberMap MapField(
@@ -357,10 +369,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
-        public BsonClassMap SetExtension<T>(
-            T extension
+        public BsonClassMap SetProperty<T>(
+            string name, 
+            T value
         ) {
-            this.extensions[typeof(T)] = extension;
+            this.properties[name] = value;
             return this;
         }
 
@@ -378,16 +391,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
-        public bool TryGetExtension<T>(
-            out T extension
-        ) {
-            if(this.extensions.ContainsKey(typeof(T))) {
-                extension = (T)this.extensions[typeof(T)];
-                return true;
-            }
-
-            return conventions.TryGetExtension<T>(out extension);
-        }
+        
         #endregion
 
         #region protected methods
