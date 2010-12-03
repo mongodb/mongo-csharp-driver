@@ -231,13 +231,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
 
             if (
-                type.IsGenericType &&
-                type.GetGenericTypeDefinition() == typeof(Nullable<>)
-            ) {
-                return NullableTypeSerializer.Singleton;
-            }
-
-            if (
                 (type.IsClass || (type.IsValueType && !type.IsPrimitive)) &&
                 !typeof(Array).IsAssignableFrom(type) &&
                 !typeof(Enum).IsAssignableFrom(type)

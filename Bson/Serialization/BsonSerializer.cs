@@ -157,6 +157,12 @@ namespace MongoDB.Bson.Serialization {
                         }
                     }
 
+                    // in case serializationOptions were invalid look for a serializer for type with no default options
+                    if (serializer == null && serializationOptions != null) {
+                        var defaultOptionsKey = new SerializerKey(type, null);
+                        serializers.TryGetValue(defaultOptionsKey, out serializer);
+                    }
+
                     if (serializer == null) {
                         if (serializationProvider == null) {
                             serializationProvider = GetDefaultSerializationProvider();
