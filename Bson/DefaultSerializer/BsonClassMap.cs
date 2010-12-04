@@ -347,28 +347,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMap;
         }
 
-        public void IgnoreField(
-            string fieldName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            IgnoreMember(fieldName);
-        }
-
-        public void IgnoreMember(
-           string memberName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            var memberMap = GetMemberMap(memberName);
-            declaredMemberMaps.Remove(memberMap);
-        }
-
-        public void IgnoreProperty(
-            string propertyName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            IgnoreMember(propertyName);
-        }
-
         public BsonMemberMap MapField(
             string fieldName
         ) {
@@ -484,6 +462,49 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (frozen) { ThrowFrozenException(); }
             this.isRootClass = isRootClass;
             return this;
+        }
+
+        public void UnmapField(
+            string fieldName
+        ) {
+            if (frozen) { ThrowFrozenException(); }
+            var fieldInfo = classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (fieldInfo == null) {
+                var message = string.Format("The class '{0}' does not have a field named '{1}'", classType.FullName, fieldName);
+                throw new BsonSerializationException(message);
+            }
+            UnmapMember(fieldInfo);
+        }
+
+        public void UnmapMember(
+            MemberInfo memberInfo
+        ) {
+            if (frozen) { ThrowFrozenException(); }
+            if (memberInfo == null) {
+                throw new ArgumentNullException("memberInfo");
+            }
+            if (memberInfo.DeclaringType != classType) {
+                throw new ArgumentException("MemberInfo is not for this class");
+            }
+            var memberMap = declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
+            if (memberMap != null) {
+                declaredMemberMaps.Remove(memberMap);
+                if (idMemberMap == memberMap) {
+                    idMemberMap = null;
+                }
+            }
+        }
+
+        public void UnmapProperty(
+            string propertyName
+        ) {
+            if (frozen) { ThrowFrozenException(); }
+            var propertyInfo = classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (propertyInfo == null) {
+                var message = string.Format("The class '{0}' does not have a property named '{1}'", classType.FullName, propertyName);
+                throw new BsonSerializationException(message);
+            }
+            UnmapMember(propertyInfo);
         }
         #endregion
 
@@ -700,25 +721,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             return GetMemberMap(memberName);
         }
 
-        public void IgnoreField<TMember>(
-            Expression<Func<TClass, TMember>> fieldLambda
-        ) {
-            IgnoreMember(fieldLambda);
-        }
-
-        public void IgnoreMember<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
-            var memberName = GetMemberNameFromLambda(memberLambda);
-            IgnoreMember(memberName);
-        }
-
-        public void IgnoreProperty<TMember>(
-            Expression<Func<TClass, TMember>> propertyLambda
-        ) {
-            IgnoreMember(propertyLambda);
-        }
-
         public BsonMemberMap MapField<TMember>(
             Expression<Func<TClass, TMember>> fieldLambda
         ) {
@@ -760,6 +762,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             Expression<Func<TClass, TMember>> propertyLambda
         ) {
             return MapMember(propertyLambda);
+        }
+
+        public void UnmapField<TMember>(
+            Expression<Func<TClass, TMember>> fieldLambda
+        ) {
+            UnmapMember(fieldLambda);
+        }
+
+        public void UnmapMember<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
+        ) {
+            var memberInfo = GetMemberInfoFromLambda(memberLambda);
+            UnmapMember(memberInfo);
+        }
+
+        public void UnmapProperty<TMember>(
+            Expression<Func<TClass, TMember>> propertyLambda
+        ) {
+            UnmapMember(propertyLambda);
         }
         #endregion
 
