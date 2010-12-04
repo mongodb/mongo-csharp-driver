@@ -230,6 +230,14 @@ namespace MongoDB.Bson.DefaultSerializer {
                 return EnumSerializer.GetSerializer(serializationOptions);
             }
 
+            // if serializationOptions were invalid use serializer for type with default serializationOptions
+            if (serializationOptions != null) {
+                var serializer = BsonSerializer.LookupSerializer(type, null);
+                if (serializer != null) {
+                    return serializer;
+                }
+            }
+
             if (
                 (type.IsClass || (type.IsValueType && !type.IsPrimitive)) &&
                 !typeof(Array).IsAssignableFrom(type) &&

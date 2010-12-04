@@ -41,7 +41,12 @@ namespace MongoDB.Bson.Serialization {
         #region public static properties
         public static IBsonSerializationProvider SerializationProvider {
             get { return serializationProvider; }
-            set { serializationProvider = value; }
+            set {
+                if (serializationProvider != null) {
+                    throw new BsonSerializationException("SerializationProvider has already been set");
+                }
+                serializationProvider = value;
+            }
         }
         #endregion
 
@@ -157,17 +162,8 @@ namespace MongoDB.Bson.Serialization {
                         }
                     }
 
-                    // in case serializationOptions were invalid look for a serializer for type with no default options
-                    if (serializer == null && serializationOptions != null) {
-                        var defaultOptionsKey = new SerializerKey(type, null);
-                        serializers.TryGetValue(defaultOptionsKey, out serializer);
-                    }
-
                     if (serializer == null) {
-                        if (serializationProvider == null) {
-                            serializationProvider = GetDefaultSerializationProvider();
-                        }
-                        serializer = serializationProvider.GetSerializer(type, serializationOptions);
+                        serializer = GetSerializationProvider().GetSerializer(type, serializationOptions);
                     }
 
                     if (serializer == null) {
@@ -297,9 +293,14 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region private static methods
-        private static IBsonSerializationProvider GetDefaultSerializationProvider() {
-            DefaultSerializer.BsonDefaultSerializer.Initialize();
-            return DefaultSerializer.BsonDefaultSerializer.Singleton;
+        private static IBsonSerializationProvider GetSerializationProvider() {
+            lock (staticLock) {
+                if (serializationProvider == null) {
+                    DefaultSerializer.BsonDefaultSerializer.Initialize();
+                    serializationProvider = DefaultSerializer.BsonDefaultSerializer.Singleton;
+                }
+                return serializationProvider;
+            }
         }
 
         private static void RegisterIdGenerators() {
