@@ -326,16 +326,23 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class GuidSerializerTests {
         public class TestClass {
-            public Guid Guid { get; set; }
+            public Guid Binary { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public Guid String { get; set; }
         }
 
         [Test]
         public void TestEmpty() {
+            var guid = Guid.Empty;
             var obj = new TestClass {
-                Guid = Guid.Empty
+                Binary = guid,
+                String = guid
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Guid' : { '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' } }").Replace("'", "\"");
+            var expected = "{ 'Binary' : #B, 'String' : #S }";
+            expected = expected.Replace("#B", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }");
+            expected = expected.Replace("#S", "'00000000-0000-0000-0000-000000000000'");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -345,12 +352,17 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestNew() {
+            var guid = Guid.NewGuid();
             var obj = new TestClass {
-                Guid = Guid.NewGuid()
+                Binary = guid,
+                String = guid
             };
             var json = obj.ToJson();
-            var base64 = Convert.ToBase64String(obj.Guid.ToByteArray()).Replace("\\", "\\\\");
-            var expected = ("{ 'Guid' : { '$binary' : '" + base64 + "', '$type' : '03' } }").Replace("'", "\"");
+            var base64 = Convert.ToBase64String(obj.Binary.ToByteArray()).Replace("\\", "\\\\");
+            var expected = "{ 'Binary' : #B, 'String' : #S }";
+            expected = expected.Replace("#B", "{ '$binary' : '" + base64 + "', '$type' : '03' }");
+            expected = expected.Replace("#S", "'" + guid.ToString() + "'");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -517,15 +529,22 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     public class ObjectIdSerializerTests {
         public class TestClass {
             public ObjectId ObjectId { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public ObjectId String { get; set; }
         }
 
         [Test]
         public void TestSerializer() {
+            var objectId = new ObjectId(1, 2, 3, 4);
             var obj = new TestClass {
-                ObjectId = new ObjectId(1, 2, 3, 4)
+                ObjectId = objectId,
+                String = objectId
             };
             var json = obj.ToJson();
-            var expected = ("{ 'ObjectId' : { '$oid' : '000000010000020003000004' } }").Replace("'", "\"");
+            var expected = ("{ 'ObjectId' : #O, 'String' : #S }");
+            expected = expected.Replace("#O", "{ '$oid' : '000000010000020003000004' }");
+            expected = expected.Replace("#S", "'000000010000020003000004'");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

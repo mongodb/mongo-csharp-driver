@@ -26,32 +26,34 @@ using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp121 {
-    public class C {
-        [BsonRepresentation(BsonType.String)]
-        public Guid PhotoId { get; set; }
+namespace MongoDB.BsonUnitTests.Jira.CSharp122 {
+    public abstract class B {
+        [BsonElement("B.N")]
+        public int N { get; set; }
+        public abstract int A { get; set; }
+        public virtual int V { get; set; }
+    }
 
-        // test that an invalid serialization option uses default instead
-        [BsonRepresentation(BsonType.Timestamp)]
-        public Guid Invalid { get; set; }
+    public class C : B {
+        [BsonElement("C.N")]
+        public new int N { get; set; }
+        public override int A { get; set; }
+        public override int V { get; set; }
     }
 
     [TestFixture]
-    public class CSharp121Tests {
+    public class CSharp122Tests {
         [Test]
-        public void TestGuidStringRepresentation() {
-            var c = new C { PhotoId = Guid.Empty };
+        public void TestTwoPropertiesWithSameName() {
+            var c = new C { N = 4, A = 2, V = 3 };
+            ((B) c).N = 1;
             var json = c.ToJson();
-            var expected = "{ 'PhotoId' : #S, 'Invalid' : #I }";
-            expected = expected.Replace("#S", "'00000000-0000-0000-0000-000000000000'");
-            expected = expected.Replace("#I", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }");
-            expected = expected.Replace("'", "\"");
+            var expected = "{ 'B.N' : 1, 'A' : 2, 'V' : 3, 'C.N' : 4 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsInstanceOf<C>(rehydrated);
-            Assert.AreEqual(c.PhotoId, rehydrated.PhotoId);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

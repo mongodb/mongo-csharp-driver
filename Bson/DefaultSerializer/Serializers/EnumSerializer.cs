@@ -26,7 +26,9 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class EnumSerializer : BsonBaseSerializer {
         #region private static fields
-        private static EnumSerializer intRepresentation = new EnumSerializer(BsonType.Int32);
+        private static EnumSerializer defaultRepresentation = new EnumSerializer(0);
+        private static EnumSerializer int32Representation = new EnumSerializer(BsonType.Int32);
+        private static EnumSerializer int64Representation = new EnumSerializer(BsonType.Int64);
         private static EnumSerializer stringRepresentation = new EnumSerializer(BsonType.String);
         #endregion
 
@@ -43,8 +45,16 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public static properties
-        public static EnumSerializer IntRepresentation {
-            get { return intRepresentation; }
+        public static EnumSerializer DefaultRepresentation {
+            get { return defaultRepresentation; }
+        }
+
+        public static EnumSerializer Int32Representation {
+            get { return int32Representation; }
+        }
+
+        public static EnumSerializer Int64Representation {
+            get { return int64Representation; }
         }
 
         public static EnumSerializer StringRepresentation {
@@ -57,12 +67,15 @@ namespace MongoDB.Bson.DefaultSerializer {
             object serializationOptions
         ) {
             if (serializationOptions == null) {
-                return intRepresentation;
+                return defaultRepresentation;
             } else {
                 switch ((BsonType) serializationOptions) {
-                    case BsonType.Int32: return intRepresentation;
+                    case BsonType.Int32: return int32Representation;
+                    case BsonType.Int64: return int64Representation;
                     case BsonType.String: return stringRepresentation;
-                    default: throw new BsonInternalException("Unexpected representation");
+                    default:
+                        var message = string.Format("Invalid representation: {0}", serializationOptions);
+                        throw new BsonSerializationException(message);
                 }
             }
         }
@@ -75,21 +88,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             VerifyNominalType(nominalType);
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.String) {
-                var value = bsonReader.ReadString();
-                return Enum.Parse(nominalType, value);
-            } else {
-                switch (Type.GetTypeCode(Enum.GetUnderlyingType(nominalType))) {
-                    case TypeCode.Byte: return (byte) bsonReader.ReadInt32();
-                    case TypeCode.Int16: return (short) bsonReader.ReadInt32();
-                    case TypeCode.Int32: return bsonReader.ReadInt32();
-                    case TypeCode.Int64: return bsonReader.ReadInt64();
-                    case TypeCode.SByte: return (sbyte) bsonReader.ReadInt32();
-                    case TypeCode.UInt16: return (ushort) bsonReader.ReadInt32();
-                    case TypeCode.UInt32: return (uint) bsonReader.ReadInt32();
-                    case TypeCode.UInt64: return (ulong) bsonReader.ReadInt64();
-                    default: throw new BsonSerializationException("Unrecognized underlying type for enum");
-                }
+            switch (bsonType) {
+                case BsonType.Int32: return Enum.ToObject(nominalType, bsonReader.ReadInt32());
+                case BsonType.Int64: return Enum.ToObject(nominalType, bsonReader.ReadInt64());
+                case BsonType.Double: return Enum.ToObject(nominalType, (long) bsonReader.ReadDouble());
+                case BsonType.String: return Enum.Parse(nominalType, bsonReader.ReadString());
+                default:
+                    var message = string.Format("Cannot deserialize {0} from BsonType: {1}", nominalType.FullName, bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -101,21 +107,21 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             VerifyNominalType(nominalType);
             switch (representation) {
-                case BsonType.Int32:
-                    switch (Type.GetTypeCode(Enum.GetUnderlyingType(nominalType))) {
-                        case TypeCode.Byte: bsonWriter.WriteInt32((int) (byte) value); break;
-                        case TypeCode.Int16: bsonWriter.WriteInt32((int) (short) value); break;
-                        case TypeCode.Int32: bsonWriter.WriteInt32((int) value); break;
-                        case TypeCode.Int64: bsonWriter.WriteInt64((long) value); break;
-                        case TypeCode.SByte: bsonWriter.WriteInt32((int) (sbyte) value); break;
-                        case TypeCode.UInt16: bsonWriter.WriteInt32((int) (ushort) value); break;
-                        case TypeCode.UInt32: bsonWriter.WriteInt32((int) (uint) value); break;
-                        case TypeCode.UInt64: bsonWriter.WriteInt64((long) (ulong) value); break;
-                        default: throw new BsonSerializationException("Unrecognized underlying type for enum");
+                case 0:
+                    var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(nominalType));
+                    if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64) {
+                        goto case BsonType.Int64;
+                    } else {
+                        goto case BsonType.Int32;
                     }
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(Convert.ToInt32(value));
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(Convert.ToInt64(value));
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString( value.ToString());
+                    bsonWriter.WriteString(value.ToString());
                     break;
                 default:
                     throw new BsonInternalException("Unexpected EnumRepresentation");

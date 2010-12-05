@@ -94,7 +94,7 @@
     <Compile Include="DefaultSerializer\Serializers\CollectionSerializers.cs" />
     <Compile Include="DefaultSerializer\Serializers\DictionaryGenericSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\DictionarySerializer.cs" />
-    <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializer.cs" />
+    <Compile Include="DefaultSerializer\Serializers\NullableGenericSerializer.cs" />
     <Compile Include="DefaultSerializer\Serializers\ObjectSerializer.cs" />
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />

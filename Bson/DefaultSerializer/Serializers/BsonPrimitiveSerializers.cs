@@ -565,23 +565,37 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class ObjectIdSerializer : BsonBaseSerializer {
         #region private static fields
-        private static ObjectIdSerializer singleton = new ObjectIdSerializer();
+        private static ObjectIdSerializer objectIdRepresentation = new ObjectIdSerializer(BsonType.ObjectId);
+        private static ObjectIdSerializer stringRepresentation = new ObjectIdSerializer(BsonType.String);
+        #endregion
+
+        #region private fields
+        private BsonType representation;
         #endregion
 
         #region constructors
-        private ObjectIdSerializer() {
+        private ObjectIdSerializer(
+            BsonType representation
+        ) {
+            this.representation = representation;
         }
         #endregion
 
         #region public static properties
-        public static ObjectIdSerializer Singleton {
-            get { return singleton; }
+        public static ObjectIdSerializer ObjectIdRepresentation {
+            get { return objectIdRepresentation; }
+        }
+
+        public static ObjectIdSerializer StringRepresentation {
+            get { return stringRepresentation; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(ObjectId), singleton);
+            BsonSerializer.RegisterSerializer(typeof(ObjectId), null, objectIdRepresentation); // default representation
+            BsonSerializer.RegisterSerializer(typeof(ObjectId), BsonType.ObjectId, objectIdRepresentation);
+            BsonSerializer.RegisterSerializer(typeof(ObjectId), BsonType.String, stringRepresentation);
         }
         #endregion
 
@@ -590,12 +604,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            int timestamp;
-            int machine;
-            short pid;
-            int increment;
-            bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
-            return new ObjectId(timestamp, machine, pid, increment);
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.ObjectId) {
+                int timestamp;
+                int machine;
+                short pid;
+                int increment;
+                bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                return new ObjectId(timestamp, machine, pid, increment);
+            } else if (bsonType == BsonType.String) {
+                return ObjectId.Parse(bsonReader.ReadString());
+            } else {
+                var message = string.Format("Cannot deserialize ObjectId from BsonType: {0}", bsonType);
+                throw new FileFormatException(message);
+            }
+
         }
 
         public override void Serialize(
@@ -605,7 +628,16 @@ namespace MongoDB.Bson.DefaultSerializer {
             bool serializeIdFirst
         ) {
             var objectId = (ObjectId) value;
-            bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
+            switch (representation) {
+                case BsonType.ObjectId:
+                    bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(objectId.ToString());
+                    break;
+                default:
+                    throw new BsonInternalException("Unexpected representation");
+            }
         }
         #endregion
     }

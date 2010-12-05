@@ -24,19 +24,22 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public class NullableTypeSerializer : BsonBaseSerializer {
-        #region private static fields
-        private static NullableTypeSerializer singleton = new NullableTypeSerializer();
-        #endregion
-
-        #region constructors
-        private NullableTypeSerializer() {
+    public static class NullableSerializerRegistration {
+        #region public static methods
+        public static void RegisterGenericSerializerDefinitions() {
+            BsonSerializer.RegisterGenericSerializerDefinition(typeof(Nullable<>), typeof(NullableSerializer<>));
         }
         #endregion
+    }
 
-        #region public static properties
-        public static NullableTypeSerializer Singleton {
-            get { return singleton; }
+    public class NullableSerializer<T> : BsonBaseSerializer {
+        #region constructors
+        public NullableSerializer() {
+        }
+
+        public NullableSerializer(
+            object serializationOptions
+        ) {
         }
         #endregion
 
@@ -50,8 +53,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadNull();
                 return null;
             } else {
-                Type underlyingType = Nullable.GetUnderlyingType(nominalType);
-                return BsonSerializer.Deserialize(bsonReader, underlyingType);
+                return BsonSerializer.Deserialize<T>(bsonReader);
             }
         }
 
@@ -64,8 +66,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                Type underlyingType = Nullable.GetUnderlyingType(nominalType);
-                BsonSerializer.Serialize(bsonWriter, underlyingType, value, serializeIdFirst);
+                BsonSerializer.Serialize<T>(bsonWriter, (T) value, serializeIdFirst);
             }
         }
         #endregion

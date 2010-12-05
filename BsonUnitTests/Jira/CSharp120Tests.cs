@@ -26,32 +26,28 @@ using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp121 {
-    public class C {
-        [BsonRepresentation(BsonType.String)]
-        public Guid PhotoId { get; set; }
+namespace MongoDB.BsonUnitTests.Jira.CSharp120 {
+    public abstract class B {
+        public int X { get; set; }
+        public abstract int Y { get; set; }
+    }
 
-        // test that an invalid serialization option uses default instead
-        [BsonRepresentation(BsonType.Timestamp)]
-        public Guid Invalid { get; set; }
+    public class C : B {
+        public override int Y { get; set; }
     }
 
     [TestFixture]
-    public class CSharp121Tests {
+    public class CSharp120Tests {
         [Test]
         public void TestGuidStringRepresentation() {
-            var c = new C { PhotoId = Guid.Empty };
+            var c = new C { X = 1, Y = 2 };
             var json = c.ToJson();
-            var expected = "{ 'PhotoId' : #S, 'Invalid' : #I }";
-            expected = expected.Replace("#S", "'00000000-0000-0000-0000-000000000000'");
-            expected = expected.Replace("#I", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }");
-            expected = expected.Replace("'", "\"");
+            var expected = "{ 'X' : 1, 'Y' : 2 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsInstanceOf<C>(rehydrated);
-            Assert.AreEqual(c.PhotoId, rehydrated.PhotoId);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
