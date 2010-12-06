@@ -279,6 +279,12 @@ namespace MongoDB.Driver {
             return FindAs<TDocument>(query).SetLimit(1).FirstOrDefault();
         }
 
+        public TDocument FindOneByIdAs<TDocument>(
+            BsonValue id
+        ) {
+            return FindOneAs<TDocument>(Query.EQ("_id", id));
+        }
+
         public GeoNearResult GeoNear(
             IMongoQuery query,
             double x,
@@ -762,6 +768,12 @@ namespace MongoDB.Driver {
             IMongoQuery query
         ) {
             return FindOneAs<TDefaultDocument>(query);
+        }
+
+        public TDefaultDocument FindOneById(
+            BsonValue id
+        ) {
+            return FindOneByIdAs<TDefaultDocument>(id);
         }
         #endregion
     }

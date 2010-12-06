@@ -149,6 +149,25 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestFindOne() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = collection.FindOne();
+            Assert.AreEqual(1, result["x"].AsInt32);
+            Assert.AreEqual(2, result["y"].AsInt32);
+        }
+
+        [Test]
+        public void TestFindOneById() {
+            collection.RemoveAll();
+            var id = ObjectId.GenerateNewId();
+            collection.Insert(new BsonDocument { { "_id", id }, { "x", 1 }, { "y", 2 } });
+            var result = collection.FindOneById(id);
+            Assert.AreEqual(1, result["x"].AsInt32);
+            Assert.AreEqual(2, result["y"].AsInt32);
+        }
+
+        [Test]
         public void TestGetIndexes() {
             collection.DropAllIndexes();
             var indexes = collection.GetIndexes().ToArray();
