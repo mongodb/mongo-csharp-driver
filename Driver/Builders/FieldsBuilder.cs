@@ -26,7 +26,7 @@ using MongoDB.Driver;
 namespace MongoDB.Driver.Builders {
     public static class Fields {
         #region public static properties
-        public static BsonDocument Null {
+        public static IMongoFields Null {
             get { return null; }
         }
         #endregion
@@ -58,11 +58,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new FieldsBuilder().Slice(name, skip, limit);
         }
+
+        public static IMongoFields Wrap<T>(
+            T fields
+        ) {
+            return new FieldsWrapper(typeof(T), fields);
+        }
         #endregion
     }
 
     [Serializable]
-    public class FieldsBuilder : BuilderBase {
+    public class FieldsBuilder : BuilderBase, IMongoFields {
         #region private fields
         private BsonDocument document;
         #endregion

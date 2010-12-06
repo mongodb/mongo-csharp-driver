@@ -26,7 +26,7 @@ using MongoDB.Driver;
 namespace MongoDB.Driver.Builders {
     public static class MapReduceOptions {
         #region public static properties
-        public static MapReduceOptionsBuilder None {
+        public static IMongoMapReduceOptions Null {
             get { return null; }
         }
         #endregion
@@ -56,20 +56,20 @@ namespace MongoDB.Driver.Builders {
             return new MapReduceOptionsBuilder().SetOutput(collectionName);
         }
 
-        public static MapReduceOptionsBuilder SetQuery<TQuery>(
-            TQuery query
+        public static MapReduceOptionsBuilder SetQuery(
+            IMongoQuery query
         ) {
             return new MapReduceOptionsBuilder().SetQuery(query);
         }
 
-        public static MapReduceOptionsBuilder SetScope<TScope>(
-            TScope scope
+        public static MapReduceOptionsBuilder SetScope(
+            IMongoScope scope
         ) {
             return new MapReduceOptionsBuilder().SetScope(scope);
         }
 
-        public static MapReduceOptionsBuilder SetSortOrder<TSortBy>(
-            TSortBy sortBy
+        public static MapReduceOptionsBuilder SetSortOrder(
+            IMongoSortBy sortBy
         ) {
             return new MapReduceOptionsBuilder().SetSortOrder(sortBy);
         }
@@ -85,11 +85,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new MapReduceOptionsBuilder().SetVerbose(value);
         }
+
+        public static IMongoMapReduceOptions Wrap<T>(
+            T options
+        ) {
+            return new MapReduceOptionsWrapper(typeof(T), options);
+        }
         #endregion
     }
 
     [Serializable]
-    public class MapReduceOptionsBuilder : BuilderBase {
+    public class MapReduceOptionsBuilder : BuilderBase, IMongoMapReduceOptions {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -129,22 +135,22 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
-        public MapReduceOptionsBuilder SetQuery<TQuery>(
-            TQuery query
+        public MapReduceOptionsBuilder SetQuery(
+            IMongoQuery query
         ) {
             document["query"] = BsonDocumentWrapper.Create(query);
             return this;
         }
 
-        public MapReduceOptionsBuilder SetScope<TScope>(
-            TScope scope
+        public MapReduceOptionsBuilder SetScope(
+            IMongoScope scope
         ) {
             document["scope"] = BsonDocumentWrapper.Create(scope);
             return this;
         }
 
-        public MapReduceOptionsBuilder SetSortOrder<TSortBy>(
-            TSortBy sortBy
+        public MapReduceOptionsBuilder SetSortOrder(
+            IMongoSortBy sortBy
         ) {
             document["sort"] = BsonDocumentWrapper.Create(sortBy);
             return this;

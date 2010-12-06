@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Internal {
             try {
                 var connection = new MongoConnection(null, args.EndPoint); // no connection pool
                 try {
-                    var isMasterCommand = new BsonDocument("ismaster", 1);
+                    var isMasterCommand = new CommandDocument("ismaster", 1);
                     var isMasterResult = connection.RunCommand<CommandResult>("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
 
                     response.IsMasterResult = isMasterResult;
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Internal {
                     response.IsPrimary = isMasterResult["ismaster", false].ToBoolean();
 
                     if (server.Url.ReplicaSetName != null) {
-                        var getStatusCommand = new BsonDocument("replSetGetStatus", 1);
+                        var getStatusCommand = new CommandDocument("replSetGetStatus", 1);
                         var getStatusResult = connection.RunCommand<CommandResult>("admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
 
                         var replicaSetName = getStatusResult["set"].AsString;

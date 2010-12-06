@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Internal {
             bool isPrimary;
 
             try {
-                var isMasterCommand = new BsonDocument("ismaster", 1);
+                var isMasterCommand = new CommandDocument("ismaster", 1);
                 var isMasterResult = connection.RunCommand<CommandResult>("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
 
                 isPrimary = isMasterResult["ismaster", false].ToBoolean();

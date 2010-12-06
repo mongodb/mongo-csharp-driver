@@ -282,7 +282,7 @@ namespace MongoDB.Driver {
             string databaseName
         ) {
             MongoDatabase database = GetDatabase(databaseName);
-            var command = new BsonDocument("dropDatabase", 1);
+            var command = new CommandDocument("dropDatabase", 1);
             return database.RunCommand(command);
         }
 
@@ -410,14 +410,8 @@ namespace MongoDB.Driver {
             }
         }
 
-        public CommandResult RunAdminCommand<TCommand>(
-            TCommand command
-        ) {
-            return RunAdminCommandAs<TCommand, CommandResult>(command);
-        }
-
         public CommandResult RunAdminCommand(
-            IBsonSerializable command
+            IMongoCommand command
         ) {
             return RunAdminCommandAs<CommandResult>(command);
         }
@@ -428,14 +422,8 @@ namespace MongoDB.Driver {
             return RunAdminCommandAs<CommandResult>(commandName);
         }
 
-        public TCommandResult RunAdminCommandAs<TCommand, TCommandResult>(
-            TCommand command
-        ) where TCommandResult : CommandResult {
-            return AdminDatabase.RunCommandAs<TCommand, TCommandResult>(command);
-        }
-
         public TCommandResult RunAdminCommandAs<TCommandResult>(
-            IBsonSerializable command
+            IMongoCommand command
         ) where TCommandResult : CommandResult {
             return AdminDatabase.RunCommandAs<TCommandResult>(command);
         }

@@ -28,16 +28,16 @@ namespace MongoDB.Driver.Internal {
         #region private fields
         private string collectionFullName;
         private UpdateFlags flags;
-        private object query;
-        private object update;
+        private IMongoQuery query;
+        private IMongoUpdate update;
         #endregion
 
         #region constructors
         internal MongoUpdateMessage(
             string collectionFullName,
             UpdateFlags flags,
-            object query,
-            object update
+            IMongoQuery query,
+            IMongoUpdate update
         ) :
             base(MessageOpcode.Update) {
             this.collectionFullName = collectionFullName;

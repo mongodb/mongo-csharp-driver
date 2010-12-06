@@ -117,8 +117,8 @@ namespace MongoDB.Driver.GridFS {
             return fileInfo.CreateText();
         }
 
-        public void Delete<TQuery>(
-            TQuery query
+        public void Delete(
+            IMongoQuery query
         ) {
             foreach (var fileInfo in Find(query)) {
                 fileInfo.Delete();
@@ -137,16 +137,16 @@ namespace MongoDB.Driver.GridFS {
             Delete(Query.EQ("_id", id));
         }
 
-        public void Download<TQuery>(
+        public void Download(
             Stream stream,
-            TQuery query
+            IMongoQuery query
         ) {
             Download(stream, query, -1); // most recent version
         }
 
-        public void Download<TQuery>(
+        public void Download(
             Stream stream,
-            TQuery query,
+            IMongoQuery query,
             int version
         ) {
             var fileInfo = FindOne(query, version);
@@ -215,16 +215,16 @@ namespace MongoDB.Driver.GridFS {
             Download(fileName, fileName, version); // same local and remote file names
         }
 
-        public void Download<TQuery>(
+        public void Download(
             string localFileName,
-            TQuery query
+            IMongoQuery query
         ) {
             Download(localFileName, query, -1); // most recent version
         }
 
-        public void Download<TQuery>(
+        public void Download(
             string localFileName,
-            TQuery query,
+            IMongoQuery query,
             int version
         ) {
             using (Stream stream = File.Create(localFileName)) {
@@ -258,8 +258,8 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
-        public bool Exists<TQuery>(
-            TQuery query
+        public bool Exists(
+            IMongoQuery query
         ) {
             return files.Count(query) > 0;
         }
@@ -276,8 +276,8 @@ namespace MongoDB.Driver.GridFS {
             return Exists(Query.EQ("_id", id));
         }
 
-        public IEnumerable<MongoGridFSFileInfo> Find<TQuery>(
-            TQuery query
+        public IEnumerable<MongoGridFSFileInfo> Find(
+            IMongoQuery query
         ) {
             return files.Find(query).Select(fileInfo => new MongoGridFSFileInfo(this, fileInfo));
         }
@@ -298,14 +298,14 @@ namespace MongoDB.Driver.GridFS {
             return Find(Query.EQ("_id", id));
         }
 
-        public MongoGridFSFileInfo FindOne<TQuery>(
-            TQuery query
+        public MongoGridFSFileInfo FindOne(
+            IMongoQuery query
         ) {
             return FindOne(query, -1); // most recent version
         }
 
-        public MongoGridFSFileInfo FindOne<TQuery>(
-            TQuery query,
+        public MongoGridFSFileInfo FindOne(
+            IMongoQuery query,
             int version // 1 is oldest, -1 is newest, 0 is no sort
         ) {
             BsonDocument fileInfo;
@@ -448,7 +448,7 @@ namespace MongoDB.Driver.GridFS {
                     }
                 }
 
-                var md5Command = new BsonDocument {
+                var md5Command = new CommandDocument {
                     { "filemd5", files_id },
                     { "root", settings.Root }
                 };

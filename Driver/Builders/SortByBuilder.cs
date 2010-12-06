@@ -37,11 +37,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new SortByBuilder().Descending(keys);
         }
+
+        public static IMongoSortBy Wrap<T>(
+            T sortBy
+        ) {
+            return new SortByWrapper(typeof(T), sortBy);
+        }
         #endregion
     }
 
     [Serializable]
-    public class SortByBuilder : BuilderBase {
+    public class SortByBuilder : BuilderBase, IMongoSortBy {
         #region private fields
         private BsonDocument document;
         #endregion

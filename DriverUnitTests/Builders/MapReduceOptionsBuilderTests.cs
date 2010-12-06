@@ -28,7 +28,7 @@ namespace MongoDB.DriverUnitTests.Builders {
     public class MapReduceOptionsBuilderTests {
         [Test]
         public void TestNone() {
-            var options = MapReduceOptions.None;
+            var options = MapReduceOptions.Null;
             Assert.IsNull(options);
         }
 
@@ -69,7 +69,7 @@ namespace MongoDB.DriverUnitTests.Builders {
 
         [Test]
         public void TestScope() {
-            var options = MapReduceOptions.SetScope(new BsonDocument("x", 1));
+            var options = MapReduceOptions.SetScope(new ScopeDocument("x", 1));
             var expected = "{ \"scope\" : { \"x\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -125,7 +125,7 @@ namespace MongoDB.DriverUnitTests.Builders {
 
         [Test]
         public void TestQueryAndScope() {
-            var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetScope(new BsonDocument("x", 1));
+            var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetScope(new ScopeDocument("x", 1));
             var expected = "{ \"query\" : { \"x\" : 1 }, \"scope\" : { \"x\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }

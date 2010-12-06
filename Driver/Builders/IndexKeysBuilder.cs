@@ -43,11 +43,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new IndexKeysBuilder().GeoSpatial(name);
         }
+
+        public static IMongoIndexKeys Wrap<T>(
+            T keys
+        ) {
+            return new IndexKeysWrapper(typeof(T), keys);
+        }
         #endregion
     }
 
     [Serializable]
-    public class IndexKeysBuilder : BuilderBase {
+    public class IndexKeysBuilder : BuilderBase, IMongoIndexKeys {
         #region private fields
         private BsonDocument document;
         #endregion

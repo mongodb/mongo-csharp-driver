@@ -177,7 +177,7 @@ namespace MongoDB.Driver {
             string collectionName,
             BsonDocument options
         ) {
-            BsonDocument command = new BsonDocument("create", collectionName);
+            var command = new CommandDocument("create", collectionName);
             command.Merge(options);
             return RunCommand(command);
         }
@@ -189,7 +189,7 @@ namespace MongoDB.Driver {
         public CommandResult DropCollection(
             string collectionName
         ) {
-            BsonDocument command = new BsonDocument("drop", collectionName);
+            var command = new CommandDocument("drop", collectionName);
             return RunCommand(command);
         }
 
@@ -197,7 +197,7 @@ namespace MongoDB.Driver {
             string code,
             params object[] args
         ) {
-            BsonDocument command = new BsonDocument {
+            var command = new CommandDocument {
                 { "$eval", code },
                 { "args", new BsonArray(args) }
             };
@@ -309,7 +309,7 @@ namespace MongoDB.Driver {
             string oldCollectionName,
             string newCollectionName
         ) {
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
                 { "to", string.Format("{0}.{1}", name, newCollectionName) }
             };
@@ -328,14 +328,8 @@ namespace MongoDB.Driver {
 
         // TODO: mongo shell has ResetError at the database level
 
-        public CommandResult RunCommand<TCommand>(
-            TCommand command
-        ) {
-            return RunCommandAs<TCommand, CommandResult>(command);
-        }
-
         public CommandResult RunCommand(
-            IBsonSerializable command
+            IMongoCommand command
         ) {
             return RunCommandAs<CommandResult>(command);
         }
@@ -346,10 +340,10 @@ namespace MongoDB.Driver {
             return RunCommandAs<CommandResult>(commandName);
         }
 
-        public TCommandResult RunCommandAs<TCommand, TCommandResult>(
-            TCommand command
+        public TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command
         ) where TCommandResult : CommandResult {
-            var result = CommandCollection.FindOneAs<TCommand, TCommandResult>(command);
+            var result = CommandCollection.FindOneAs<TCommandResult>(command);
             if (!result.Ok) {
                 if (result.ErrorMessage == "not master") {
                     server.Disconnect();
@@ -361,16 +355,10 @@ namespace MongoDB.Driver {
         }
 
         public TCommandResult RunCommandAs<TCommandResult>(
-            IBsonSerializable command
-        ) where TCommandResult : CommandResult {
-            return RunCommandAs<IBsonSerializable, TCommandResult>(command);
-        }
-
-        public TCommandResult RunCommandAs<TCommandResult>(
             string commandName
         ) where TCommandResult : CommandResult {
-            BsonDocument command = new BsonDocument(commandName, true);
-            return RunCommandAs<BsonDocument, TCommandResult>(command);
+            var command = new CommandDocument(commandName, true);
+            return RunCommandAs<TCommandResult>(command);
         }
 
         public override string ToString() {

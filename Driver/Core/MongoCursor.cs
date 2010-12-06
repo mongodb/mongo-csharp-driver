@@ -29,8 +29,8 @@ namespace MongoDB.Driver {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection collection;
-        private object query;
-        private BsonDocumentWrapper fields;
+        private IMongoQuery query;
+        private IMongoFields fields;
         private BsonDocument options;
         private QueryFlags flags;
         private int skip;
@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
         #region constructors
         internal MongoCursor(
             MongoCollection collection,
-            object query
+            IMongoQuery query
         ) {
             this.server = collection.Database.Server;
             this.database = collection.Database;
@@ -60,11 +60,11 @@ namespace MongoDB.Driver {
             get { return collection; }
         }
 
-        public object Query {
+        public IMongoQuery Query {
             get { return query; }
         }
 
-        public BsonDocumentWrapper Fields {
+        public IMongoFields Fields {
             get { return fields; }
             set { fields = value; }
         }
@@ -112,7 +112,7 @@ namespace MongoDB.Driver {
 
         public int Count() {
             isFrozen = true;
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "count", collection.Name },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
@@ -166,11 +166,11 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetFields<TFields>(
-            TFields fields
+        public MongoCursor<TDocument> SetFields(
+            IMongoFields fields
         ) {
             if (isFrozen) { ThrowFrozen(); }
-            this.fields = BsonDocumentWrapper.Create(fields);
+            this.fields = fields;
             return this;
         }
 
@@ -178,7 +178,7 @@ namespace MongoDB.Driver {
             params string[] fields
         ) {
             if (isFrozen) { ThrowFrozen(); }
-            this.fields = BsonDocumentWrapper.Create(Builders.Fields.Include(fields));
+            this.fields = Builders.Fields.Include(fields);
             return this;
         }
 
@@ -272,8 +272,8 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetSortOrder<TSortBy>(
-            TSortBy sortBy
+        public MongoCursor<TDocument> SetSortOrder(
+            IMongoSortBy sortBy
         ) {
             if (isFrozen) { ThrowFrozen(); }
             SetOption("$orderby", BsonDocumentWrapper.Create(sortBy));
@@ -289,7 +289,7 @@ namespace MongoDB.Driver {
 
         public int Size() {
             isFrozen = true;
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "count", collection.Name },
                 { "query", BsonDocumentWrapper.Create(query) }, // query is optional
                 { "limit", limit, limit != 0 },
@@ -513,14 +513,14 @@ namespace MongoDB.Driver {
                 }
             }
 
-            private BsonDocumentWrapper WrapQuery() {
+            private IMongoQuery WrapQuery() {
                 if (cursor.options == null) {
-                    return BsonDocumentWrapper.Create(cursor.query);
+                    return cursor.query;
                 } else {
                     var query = (cursor.query == null) ? (BsonValue) new BsonDocument() : BsonDocumentWrapper.Create(cursor.query);
-                    var wrappedQuery = new BsonDocument("$query", query);
+                    var wrappedQuery = new QueryDocument("$query", query);
                     wrappedQuery.Merge(cursor.options);
-                    return BsonDocumentWrapper.Create(wrappedQuery);
+                    return wrappedQuery;
                 }
             }
             #endregion
