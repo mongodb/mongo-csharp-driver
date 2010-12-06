@@ -33,7 +33,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
-        public static CommandWrapper Create<T>(
+        public static new CommandWrapper Create<T>(
             T command
         ) {
             return new CommandWrapper(typeof(T), command);
