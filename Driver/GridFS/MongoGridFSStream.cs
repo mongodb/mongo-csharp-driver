@@ -478,7 +478,7 @@ namespace MongoDB.Driver.GridFS {
             }
 
             var query = Query.EQ("_id", chunkId);
-            var update = new BsonDocument {
+            var update = new UpdateDocument {
                 { "_id", chunkId },
                 { "files_id", fileInfo.Id },
                 { "n", chunkIndex },
@@ -489,7 +489,7 @@ namespace MongoDB.Driver.GridFS {
         }
 
         private void UpdateMetadata() {
-            var md5Command = new BsonDocument {
+            var md5Command = new CommandDocument {
                     { "filemd5", fileInfo.Id },
                     { "root", gridFS.Settings.Root }
                 };

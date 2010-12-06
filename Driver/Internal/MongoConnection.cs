@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Internal {
         ) {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
-                var nonceCommand = new BsonDocument("getnonce", 1);
+                var nonceCommand = new CommandDocument("getnonce", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 string nonce;
                 try {
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Internal {
 
                 var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
                 var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
-                var authenticateCommand = new BsonDocument {
+                var authenticateCommand = new CommandDocument {
                     { "authenticate", 1 },
                     { "user", credentials.Username },
                     { "nonce", nonce },
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Internal {
         ) {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
-                var logoutCommand = new BsonDocument("logout", 1);
+                var logoutCommand = new CommandDocument("logout", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 try {
                     RunCommand<CommandResult>(commandCollectionName, QueryFlags.None, logoutCommand);
@@ -275,7 +275,7 @@ namespace MongoDB.Driver.Internal {
         internal TCommandResult RunCommand<TCommandResult>(
             string collectionName,
             QueryFlags queryFlags,
-            BsonDocument command
+            CommandDocument command
         ) where TCommandResult : CommandResult {
             var commandName = command.GetElement(0).Name;
 
@@ -305,6 +305,7 @@ namespace MongoDB.Driver.Internal {
             var commandResult = reply.Documents[0];
             if (!commandResult.Contains("ok")) {
                 var message = string.Format("Command '{0}' failed (ok element missing in result)", commandName);
+                throw new MongoCommandException(message, commandResult);
             }
             if (!commandResult["ok"].ToBoolean()) {
                 string message;
@@ -344,7 +345,7 @@ namespace MongoDB.Driver.Internal {
             lock (connectionLock) {
                 message.WriteToBuffer();
                 if (safeMode.Enabled) {
-                    var command = new BsonDocument {
+                    var command = new CommandDocument {
                         { "getlasterror", 1 }, // use all lowercase for backward compatibility
                         { "fsync", true, safeMode.FSync },
                         { "w", safeMode.W, safeMode.W > 1 },

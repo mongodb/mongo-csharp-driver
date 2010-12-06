@@ -25,7 +25,7 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver.Builders {
     public static class Query {
         #region public static properties
-        public static BsonDocument Null {
+        public static IMongoQuery Null {
             get { return null; }
         }
         #endregion
@@ -190,6 +190,12 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new QueryComplete(new BsonDocument("$where", javaScript));
         }
+
+        public static IMongoQuery Wrap<T>(
+            T query
+        ) {
+            return new QueryWrapper(typeof(T), query);
+        }
         #endregion
     }
 
@@ -225,7 +231,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     [Serializable]
-    public class QueryComplete : QueryBuilder {
+    public class QueryComplete : QueryBuilder, IMongoQuery {
         #region constructors
         public QueryComplete(
             BsonDocument document

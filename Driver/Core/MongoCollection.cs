@@ -78,10 +78,10 @@ namespace MongoDB.Driver {
             return Count(Query.Null);
         }
 
-        public int Count<TQuery>(
-            TQuery query
+        public int Count(
+            IMongoQuery query
         ) {
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "count", name },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
@@ -89,14 +89,14 @@ namespace MongoDB.Driver {
             return result["n"].ToInt32();
         }
 
-        public SafeModeResult CreateIndex<TIndexKeys, TIndexOptions>(
-            TIndexKeys keys,
-            TIndexOptions options
+        public SafeModeResult CreateIndex(
+            IMongoIndexKeys keys,
+            IMongoIndexOptions options
         ) {
             var keysDocument = keys.ToBsonDocument();
             var optionsDocument = options.ToBsonDocument();
             var indexes = database.GetCollection("system.indexes");
-            var indexName = (optionsDocument != null && optionsDocument.Contains("name")) ? optionsDocument["name"].AsString : GetIndexName(keysDocument);
+            var indexName = GetIndexName(keysDocument, optionsDocument);
             var index = new BsonDocument {
                 { "name", indexName },
                 { "ns", FullName },
@@ -107,10 +107,10 @@ namespace MongoDB.Driver {
             return result;
         }
 
-        public SafeModeResult CreateIndex<TIndexKeys>(
-            TIndexKeys keys
+        public SafeModeResult CreateIndex(
+            IMongoIndexKeys keys
         ) {
-            return CreateIndex(keys, IndexOptions.None);
+            return CreateIndex(keys, IndexOptions.Null);
         }
 
         public SafeModeResult CreateIndex(
@@ -125,11 +125,11 @@ namespace MongoDB.Driver {
             return Distinct(key, Query.Null);
         }
 
-        public IEnumerable<BsonValue> Distinct<TQuery>(
+        public IEnumerable<BsonValue> Distinct(
             string key,
-            TQuery query
+            IMongoQuery query
         ) {
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "distinct", name },
                 { "key", key },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
@@ -146,11 +146,10 @@ namespace MongoDB.Driver {
             return DropIndexByName("*");
         }
 
-        public CommandResult DropIndex<TIndexKeys>(
-            TIndexKeys keys
+        public CommandResult DropIndex(
+            IMongoIndexKeys keys
         ) {
-            var keysDocument = keys.ToBsonDocument();
-            string indexName = GetIndexName(keysDocument);
+            string indexName = GetIndexName(keys.ToBsonDocument(), null);
             return DropIndexByName(indexName);
         }
 
@@ -165,7 +164,7 @@ namespace MongoDB.Driver {
             string indexName
         ) {
             lock (indexCache) {
-                var command = new BsonDocument {
+                var command = new CommandDocument {
                     { "deleteIndexes", name }, // not FullName
                     { "index", indexName }
                 };
@@ -175,25 +174,25 @@ namespace MongoDB.Driver {
             }
         }
 
-        public void EnsureIndex<TIndexKeys, TIndexOptions>(
-           TIndexKeys keys,
-           TIndexOptions options
+        public void EnsureIndex(
+           IMongoIndexKeys keys,
+           IMongoIndexOptions options
         ) {
             lock (indexCache) {
                 var keysDocument = keys.ToBsonDocument();
                 var optionsDocument = options.ToBsonDocument();
-                var indexName = (optionsDocument != null && optionsDocument.Contains("name")) ? optionsDocument["name"].AsString : GetIndexName(keysDocument);
+                var indexName = GetIndexName(keysDocument, optionsDocument);
                 if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keysDocument, optionsDocument);
+                    CreateIndex(keys, options);
                     indexCache.Add(indexName);
                 }
             }
         }
 
-        public void EnsureIndex<TIndexKeys>(
-            TIndexKeys keys
+        public void EnsureIndex(
+            IMongoIndexKeys keys
         ) {
-            EnsureIndex(keys, IndexOptions.None);
+            EnsureIndex(keys, IndexOptions.Null);
         }
 
         public void EnsureIndex(
@@ -216,31 +215,31 @@ namespace MongoDB.Driver {
             return FindAs<TDocument>(Query.Null);
         }
 
-        public FindAndModifyResult FindAndModify<TQuery, TSortBy, TUpdate>(
-            TQuery query,
-            TSortBy sortBy,
-            TUpdate update
+        public FindAndModifyResult FindAndModify(
+            IMongoQuery query,
+            IMongoSortBy sortBy,
+            IMongoUpdate update
         ) {
             return FindAndModify(query, sortBy, update, Fields.Null, false);
         }
 
-        public FindAndModifyResult FindAndModify<TQuery, TSortBy, TUpdate>(
-            TQuery query,
-            TSortBy sortBy,
-            TUpdate update,
+        public FindAndModifyResult FindAndModify(
+            IMongoQuery query,
+            IMongoSortBy sortBy,
+            IMongoUpdate update,
             bool returnNew
         ) {
             return FindAndModify(query, sortBy, update, Fields.Null, returnNew);
         }
 
-        public FindAndModifyResult FindAndModify<TQuery, TSortBy, TUpdate, TFields>(
-            TQuery query,
-            TSortBy sortBy,
-            TUpdate update,
-            TFields fields,
+        public FindAndModifyResult FindAndModify(
+            IMongoQuery query,
+            IMongoSortBy sortBy,
+            IMongoUpdate update,
+            IMongoFields fields,
             bool returnNew
         ) {
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "findAndModify", name },
                 { "query", BsonDocumentWrapper.Create(query) },
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
@@ -251,11 +250,11 @@ namespace MongoDB.Driver {
             return database.RunCommandAs<FindAndModifyResult>(command);
         }
 
-        public FindAndModifyResult FindAndRemove<TQuery, TSortBy>(
-            TQuery query,
-            TSortBy sortBy
+        public FindAndModifyResult FindAndRemove(
+            IMongoQuery query,
+            IMongoSortBy sortBy
         ) {
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "findAndModify", name },
                 { "query", BsonDocumentWrapper.Create(query) },
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
@@ -265,13 +264,7 @@ namespace MongoDB.Driver {
         }
 
         public MongoCursor<TDocument> FindAs<TDocument>(
-           IBsonSerializable query
-       ) {
-            return FindAs<IBsonSerializable, TDocument>(query);
-        }
-
-        public MongoCursor<TDocument> FindAs<TQuery, TDocument>(
-            TQuery query
+            IMongoQuery query
         ) {
             return new MongoCursor<TDocument>(this, query);
         }
@@ -281,24 +274,18 @@ namespace MongoDB.Driver {
         }
 
         public TDocument FindOneAs<TDocument>(
-            IBsonSerializable query
+            IMongoQuery query
         ) {
-            return FindOneAs<IBsonSerializable, TDocument>(query);
+            return FindAs<TDocument>(query).SetLimit(1).FirstOrDefault();
         }
 
-        public TDocument FindOneAs<TQuery, TDocument>(
-            TQuery query
-        ) {
-            return FindAs<TQuery, TDocument>(query).SetLimit(1).FirstOrDefault();
-        }
-
-        public GeoNearResult<TDocument> GeoNear<TQuery, TDocument>(
-            TQuery query,
+        public GeoNearResult<TDocument> GeoNear<TDocument>(
+            IMongoQuery query,
             double x,
             double y,
             int limit
         ) {
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "geoNear", name },
                 { "near", new BsonArray { x, y } },
                 { "num", limit },
@@ -323,7 +310,7 @@ namespace MongoDB.Driver {
         }
 
         public CollectionStatsResult GetStats() {
-            var command = new BsonDocument("collstats", name);
+            var command = new CommandDocument("collstats", name);
             return database.RunCommandAs<CollectionStatsResult>(command);
         }
 
@@ -351,26 +338,18 @@ namespace MongoDB.Driver {
             return totalSize;
         }
 
-        public IEnumerable<BsonDocument> Group<TGroupBy, TQuery>(
-            TGroupBy groupBy,
-            TQuery query,
+        public IEnumerable<BsonDocument> Group(
+            IMongoQuery query,
+            BsonJavaScript keyFunction,
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
         ) {
-            BsonElement keyElement;
-            var keyFunction = groupBy as BsonJavaScript;
-            if (keyFunction == null) {
-                keyElement = new BsonElement("key", BsonDocumentWrapper.Create(groupBy));
-            } else {
-                keyElement = new BsonElement("$keyf", keyFunction);
-            }
-
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "group", new BsonDocument {
                     { "ns", name },
                     { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
-                    keyElement, // name is either "key" or "$keyf"
+                    { "keyf", keyFunction },
                     { "initial", initial },
                     { "$reduce", reduce },
                     { "finalize", finalize }
@@ -380,21 +359,41 @@ namespace MongoDB.Driver {
             return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
-        public IEnumerable<BsonDocument> Group<TQuery>(
-            string key,
-            TQuery query,
+        public IEnumerable<BsonDocument> Group(
+            IMongoQuery query,
+            IMongoGroupBy keys,
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
         ) {
-            return Group(GroupBy.Keys(key), query, initial, reduce, finalize);
+            var command = new CommandDocument {
+                { "group", new BsonDocument {
+                    { "ns", name },
+                    { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
+                    { "key", BsonDocumentWrapper.Create(keys) },
+                    { "initial", initial },
+                    { "$reduce", reduce },
+                    { "finalize", finalize }
+                } }
+            };
+            var result = database.RunCommand(command);
+            return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
-        public bool IndexExists<TIndexKeys>(
-            TIndexKeys keys
+        public IEnumerable<BsonDocument> Group(
+            IMongoQuery query,
+            string key,
+            BsonDocument initial,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize
         ) {
-            var keysDocument = keys.ToBsonDocument();
-            string indexName = GetIndexName(keysDocument);
+            return Group(query, GroupBy.Keys(key), initial, reduce, finalize);
+        }
+
+        public bool IndexExists(
+            IMongoIndexKeys keys
+        ) {
+            string indexName = GetIndexName(keys.ToBsonDocument(), null);
             return IndexExistsByName(indexName);
         }
 
@@ -489,12 +488,12 @@ namespace MongoDB.Driver {
             throw new NotImplementedException();
         }
 
-        public MongoMapReduceResult MapReduce<TMapReduceOptions>(
+        public MongoMapReduceResult MapReduce(
             BsonJavaScript map,
             BsonJavaScript reduce,
-            TMapReduceOptions options
+            IMongoMapReduceOptions options
         ) {
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "mapreduce", name },
                 { "map", map },
                 { "reduce", reduce }
@@ -504,18 +503,18 @@ namespace MongoDB.Driver {
             return new MongoMapReduceResult(database, result);
         }
 
-        public MongoMapReduceResult MapReduce<TQuery, TMapReduceOptions>(
-            TQuery query,
+        public MongoMapReduceResult MapReduce(
+            IMongoQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce,
-            TMapReduceOptions options
+            IMongoMapReduceOptions options
         ) {
             // create a new set of options because we don't want to modify caller's data
             return MapReduce(map, reduce, MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument()));
         }
 
-        public MongoMapReduceResult MapReduce<TQuery>(
-            TQuery query,
+        public MongoMapReduceResult MapReduce(
+            IMongoQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
@@ -526,35 +525,35 @@ namespace MongoDB.Driver {
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
-            return MapReduce(map, reduce, MapReduceOptions.None);
+            return MapReduce(map, reduce, MapReduceOptions.Null);
         }
 
         public void ReIndex() {
             throw new NotImplementedException();
         }
 
-        public SafeModeResult Remove<TQuery>(
-            TQuery query
+        public SafeModeResult Remove(
+            IMongoQuery query
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public SafeModeResult Remove<TQuery>(
-            TQuery query,
+        public SafeModeResult Remove(
+            IMongoQuery query,
             SafeMode safeMode
         ) {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
-        public SafeModeResult Remove<TQuery>(
-            TQuery query,
+        public SafeModeResult Remove(
+            IMongoQuery query,
             RemoveFlags flags
         ) {
             return Remove(query, flags, safeMode);
         }
 
-        public SafeModeResult Remove<TQuery>(
-           TQuery query,
+        public SafeModeResult Remove(
+           IMongoQuery query,
            RemoveFlags flags,
            SafeMode safeMode
         ) {
@@ -616,42 +615,42 @@ namespace MongoDB.Driver {
                     serializer.SetDocumentId(document, id);
                 } else if (id != null) {
                     var query = Query.EQ("_id", BsonValue.Create(id));
-                    return Update(query, document, UpdateFlags.Upsert, safeMode);
+                    return Update(query, Builders.Update.Replace(document), UpdateFlags.Upsert, safeMode);
                 }
             }
             return Insert(document, safeMode);
         }
 
         public override string ToString() {
- 	    return FullName;
+ 	        return FullName;
         }
 
-        public SafeModeResult Update<TQuery, TUpdate>(
-            TQuery query,
-            TUpdate update
+        public SafeModeResult Update(
+            IMongoQuery query,
+            IMongoUpdate update
         ) {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
-        public SafeModeResult Update<TQuery, TUpdate>(
-            TQuery query,
-            TUpdate update,
+        public SafeModeResult Update(
+            IMongoQuery query,
+            IMongoUpdate update,
             SafeMode safeMode
         ) {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
-        public SafeModeResult Update<TQuery, TUpdate>(
-            TQuery query,
-            TUpdate update,
+        public SafeModeResult Update(
+            IMongoQuery query,
+            IMongoUpdate update,
             UpdateFlags flags
         ) {
             return Update(query, update, flags, safeMode);
         }
 
-        public SafeModeResult Update<TQuery, TUpdate>(
-            TQuery query,
-            TUpdate update,
+        public SafeModeResult Update(
+            IMongoQuery query,
+            IMongoUpdate update,
             UpdateFlags flags,
             SafeMode safeMode
         ) {
@@ -672,15 +671,22 @@ namespace MongoDB.Driver {
         }
 
         public ValidateCollectionResult Validate() {
-            var command = new BsonDocument("validate", name);
+            var command = new CommandDocument("validate", name);
             return database.RunCommandAs<ValidateCollectionResult>(command);
         }
         #endregion
 
         #region private methods
         private string GetIndexName(
-            BsonDocument keys
+            BsonDocument keys,
+            BsonDocument options
         ) {
+            if (options != null) {
+                if (options.Contains("name")) {
+                    return options["name"].AsString;
+                }
+            }
+
             StringBuilder sb = new StringBuilder();
             foreach (var element in keys) {
                 if (sb.Length > 0) {
@@ -733,7 +739,7 @@ namespace MongoDB.Driver {
     }
 
     // this subclass provides a default document type for Find methods
-    // you can still Find any other document type by using the Find<TQuery, TDocument> methods
+    // you can still Find any other document type by using the FindAs<TDocument> methods
 
     public class MongoCollection<TDefaultDocument> : MongoCollection {
         #region constructors
@@ -747,10 +753,10 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public MongoCursor<TDefaultDocument> Find<TQuery>(
-            TQuery query
+        public MongoCursor<TDefaultDocument> Find(
+            IMongoQuery query
         ) {
-            return FindAs<TQuery, TDefaultDocument>(query);
+            return FindAs<TDefaultDocument>(query);
         }
 
         public MongoCursor<TDefaultDocument> FindAll() {
@@ -761,18 +767,18 @@ namespace MongoDB.Driver {
             return FindOneAs<TDefaultDocument>();
         }
 
-        public GeoNearResult<TDefaultDocument> GeoNear<TQuery>(TQuery query,
+        public GeoNearResult<TDefaultDocument> GeoNear(IMongoQuery query,
             double x,
             double y,
             int limit)
         {
-            return GeoNear<TQuery, TDefaultDocument>(query, x, y, limit);
+            return GeoNear<TDefaultDocument>(query, x, y, limit);
         }
 
-        public TDefaultDocument FindOne<TQuery>(
-            TQuery query
+        public TDefaultDocument FindOne(
+            IMongoQuery query
         ) {
-            return FindOneAs<TQuery, TDefaultDocument>(query);
+            return FindOneAs<TDefaultDocument>(query);
         }
         #endregion
     }

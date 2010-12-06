@@ -30,8 +30,8 @@ namespace MongoDB.Driver.Internal {
         private QueryFlags flags;
         private int numberToSkip;
         private int numberToReturn;
-        private object query;
-        private BsonDocumentWrapper fields;
+        private IMongoQuery query;
+        private IMongoFields fields;
         #endregion
 
         #region constructors
@@ -40,8 +40,8 @@ namespace MongoDB.Driver.Internal {
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
-            object query,
-            BsonDocumentWrapper fields
+            IMongoQuery query,
+            IMongoFields fields
         ) :
             this(collectionFullName, flags, numberToSkip, numberToReturn, query, fields, null) {
         }
@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Internal {
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
-            object query,
-            BsonDocumentWrapper fields,
+            IMongoQuery query,
+            IMongoFields fields,
             BsonBuffer buffer
         ) :
             base(MessageOpcode.Query, buffer) {

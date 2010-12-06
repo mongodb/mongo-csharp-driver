@@ -28,14 +28,14 @@ namespace MongoDB.Driver.Internal {
         #region private fields
         private string collectionFullName;
         private RemoveFlags flags;
-        private object query;
+        private IMongoQuery query;
         #endregion
 
         #region constructors
         internal MongoDeleteMessage(
             string collectionFullName,
             RemoveFlags flags,
-            object query
+            IMongoQuery query
         ) :
             base(MessageOpcode.Delete) {
             this.collectionFullName = collectionFullName;

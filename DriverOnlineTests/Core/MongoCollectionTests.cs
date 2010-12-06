@@ -167,7 +167,7 @@ namespace MongoDB.DriverOnlineTests {
             collection.Insert(new BsonDocument("x", 3));
             var initial = new BsonDocument("count", 0);
             var reduce = "function(doc, prev) { prev.count += 1 }";
-            var results = collection.Group("x", (BsonDocument) null, initial, reduce, null).ToArray();
+            var results = collection.Group(Query.Null, "x", initial, reduce, null).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual(1, results[0]["x"].ToInt32());
             Assert.AreEqual(2, results[0]["count"].ToInt32());
@@ -273,7 +273,7 @@ namespace MongoDB.DriverOnlineTests {
             collection.Insert(new BsonDocument { { "Location", "Washington DC" }, { "x", 3 }, { "y", 2 }, { "Coordinates", new BsonDocument { { "Longitude", 13 }, { "Latitude", 18 } } } });
             collection.Insert(new BsonDocument { { "Location", "Washington DC" }, { "x", 1 }, { "y", 2 }, { "Coordinates", new BsonDocument { { "Longitude", 13 }, { "Latitude", 18 } } } });
 
-            var geoNearResult = collection.GeoNear<BsonValue, BsonDocument>(BsonNull.Value, 0, 0, 10);
+            var geoNearResult = collection.GeoNear<BsonDocument>(Query.Null, 0, 0, 10);
 
             Assert.IsNotNull(geoNearResult);
 

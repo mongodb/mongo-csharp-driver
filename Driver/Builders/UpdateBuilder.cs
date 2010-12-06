@@ -129,6 +129,13 @@ namespace MongoDB.Driver.Builders {
             return new UpdateBuilder().PushAll(name, values);
         }
 
+        // equivalent to Wrap, entire document will be replaced
+        public static IMongoUpdate Replace<T>(
+            T update
+        ) {
+            return new UpdateWrapper(typeof(T), update);
+        }
+
         public static UpdateBuilder Set(
             string name,
             BsonValue value
@@ -141,11 +148,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new UpdateBuilder().Unset(name);
         }
+
+        public static IMongoUpdate Wrap<T>(
+            T update
+        ) {
+            return new UpdateWrapper(typeof(T), update);
+        }
         #endregion
     }
 
     [Serializable]
-    public class UpdateBuilder : BuilderBase {
+    public class UpdateBuilder : BuilderBase, IMongoUpdate {
         #region private fields
         private BsonDocument document;
         #endregion
