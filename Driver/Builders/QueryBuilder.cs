@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Builders {
         public static QueryComplete And(
             params QueryComplete[] queries
         ) {
-            var document = new BsonDocument();
+            var document = new BsonDocument(true);
             foreach (var query in queries) {
                 document.Add(query.ToBsonDocument());
             }
