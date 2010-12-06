@@ -252,5 +252,15 @@ namespace MongoDB.DriverUnitTests.Builders {
             var expected = "{ \"$where\" : { \"$code\" : \"this.a > 3\" } }";
             Assert.AreEqual(expected, query.ToJson());
         }
+        [Test]
+        public void TestAndWithSameKey()
+        {
+            // as per http://groups.google.com/group/mongodb-user/browse_thread/thread/928c860566cad72a
+            var query = Query.And(
+                Query.GT("_id", Query.And(Query.EQ("foo", 1), Query.EQ("bar", 1), Query.EQ("baz", BsonNull.Value)).ToBsonDocument()),
+                Query.LTE("_id", Query.And(Query.EQ("foo", 1), Query.EQ("bar", 1), Query.EQ("baz", int.MaxValue)).ToBsonDocument()));
+            var expected = "{ \"_id\" : { \"$gt\" : { \"foo\" : 1, \"bar\" : 1, \"baz\" : null } }, \"_id\" : { \"$lte\" : { \"foo\" : 1, \"bar\" : 1, \"baz\" : 2147483647 } } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
     }
 }
