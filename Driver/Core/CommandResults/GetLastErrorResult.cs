@@ -39,7 +39,10 @@ namespace MongoDB.Driver {
         }
 
         public string LastErrorMessage {
-            get { return this["err"].ToString(); }
+            get { 
+                var err = this["err", false];
+                return (err.ToBoolean()) ? err.ToString() : null;
+            }
         }
 
         public bool UpdatedExisting {
