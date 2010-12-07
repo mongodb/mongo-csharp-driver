@@ -17,39 +17,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 
 namespace MongoDB.Driver {
-    [Serializable]
-    public class GetLastErrorResult : CommandResult {
+    public class MapReduceResult : CommandResult {
         #region constructors
-        public GetLastErrorResult() {
+        public MapReduceResult() {
         }
         #endregion
 
         #region public properties
-        public int DocumentsAffected {
-            get { return response["n"].ToInt32(); }
+        public string CollectionName {
+            get { return response["result"].AsString; }
         }
 
-        public bool HasLastErrorMessage {
-            get { return response["err", false].ToBoolean(); }
+        public TimeSpan Duration {
+            get { return TimeSpan.FromMilliseconds(response["timeMillis"].ToInt32()); }
         }
 
-        public string LastErrorMessage {
-            get { 
-                var err = response["err", false];
-                return (err.ToBoolean()) ? err.ToString() : null;
-            }
+        public int EmitCount {
+            get { return response["counts"].AsBsonDocument["emit"].ToInt32(); }
         }
 
-        public bool UpdatedExisting {
-            get {
-                var updatedExisting = response["updatedExisting", null];
-                return (updatedExisting == null) ? false : updatedExisting.ToBoolean();
-            }
+        public int OutputCount {
+            get { return response["counts"].AsBsonDocument["output"].ToInt32(); }
+        }
+
+        public int InputCount {
+            get { return response["counts"].AsBsonDocument["input"].ToInt32(); }
         }
         #endregion
     }

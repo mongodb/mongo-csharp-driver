@@ -31,14 +31,14 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
-        public BsonDocument Document {
-            get { return this["value"].AsBsonDocument; }
+        public BsonDocument ModifiedDocument {
+            get { return response["value"].AsBsonDocument; }
         }
         #endregion
 
         #region public methods
-        public T GetDocument<T>() {
-            return BsonSerializer.Deserialize<T>(Document.ToBson());
+        public T GetModifiedDocument<T>() {
+            return BsonSerializer.Deserialize<T>(ModifiedDocument.ToBson());
         }
         #endregion
     }

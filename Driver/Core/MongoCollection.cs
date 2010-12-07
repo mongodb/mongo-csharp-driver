@@ -86,7 +86,7 @@ namespace MongoDB.Driver {
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
-            return result["n"].ToInt32();
+            return result.Response["n"].ToInt32();
         }
 
         public SafeModeResult CreateIndex(
@@ -135,7 +135,7 @@ namespace MongoDB.Driver {
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
-            return result["values"].AsBsonArray;
+            return result.Response["values"].AsBsonArray;
         }
 
         public void Drop() {
@@ -362,7 +362,7 @@ namespace MongoDB.Driver {
                 } }
             };
             var result = database.RunCommand(command);
-            return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+            return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group(
@@ -383,7 +383,7 @@ namespace MongoDB.Driver {
                 } }
             };
             var result = database.RunCommand(command);
-            return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+            return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group(
@@ -494,7 +494,7 @@ namespace MongoDB.Driver {
             throw new NotImplementedException();
         }
 
-        public MongoMapReduceResult MapReduce(
+        public MapReduceResult MapReduce(
             BsonJavaScript map,
             BsonJavaScript reduce,
             IMongoMapReduceOptions options
@@ -505,11 +505,10 @@ namespace MongoDB.Driver {
                 { "reduce", reduce }
             };
             command.Merge(options.ToBsonDocument());
-            var result = database.RunCommand(command);
-            return new MongoMapReduceResult(database, result);
+            return database.RunCommandAs<MapReduceResult>(command);
         }
 
-        public MongoMapReduceResult MapReduce(
+        public MapReduceResult MapReduce(
             IMongoQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce,
@@ -519,7 +518,7 @@ namespace MongoDB.Driver {
             return MapReduce(map, reduce, MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument()));
         }
 
-        public MongoMapReduceResult MapReduce(
+        public MapReduceResult MapReduce(
             IMongoQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce
@@ -527,7 +526,7 @@ namespace MongoDB.Driver {
             return MapReduce(map, reduce, MapReduceOptions.SetQuery(query));
         }
 
-        public MongoMapReduceResult MapReduce(
+        public MapReduceResult MapReduce(
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {

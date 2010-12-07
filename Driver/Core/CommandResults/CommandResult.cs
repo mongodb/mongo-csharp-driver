@@ -23,21 +23,31 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver {
     [Serializable]
-    public class CommandResult : BsonDocument {
+    public class CommandResult {
+        #region protected fields
+        protected BsonDocument response;
+        #endregion
+
         #region constructors
+        // since we are creating instances of CommandResult using a generic type parameter
+        // our constructor cannot have any arguments (see the Initialize method below)
         public CommandResult() {
         }
         #endregion
 
         #region public properties
+        public BsonDocument Response {
+            get { return response; }
+        }
+
         public string ErrorMessage {
             get {
                 BsonValue err;
-                if (TryGetValue("errmsg", out err)) {
+                if (response.TryGetValue("errmsg", out err)) {
                     return err.ToString();
                 } else {
                     BsonValue ok;
-                    if (TryGetValue("ok", out ok) && ok.ToBoolean()) {
+                    if (response.TryGetValue("ok", out ok) && ok.ToBoolean()) {
                         return null;
                     } else {
                         return "Unknown error";
@@ -49,12 +59,25 @@ namespace MongoDB.Driver {
         public bool Ok {
             get {
                 BsonValue ok;
-                if (TryGetValue("ok", out ok)) {
+                if (response.TryGetValue("ok", out ok)) {
                     return ok.ToBoolean();
                 } else {
                     throw new MongoCommandException("CommandResult is missing an ok element.");
                 }
             }
+        }
+        #endregion
+
+        #region public methods
+		// used in place of a constructor with arguments (since we can't have arguments to our constructor)
+        public void Initialize(
+            BsonDocument response
+        ) {
+            if (this.response != null) {
+                var message = string.Format("{0} already has a document", this.GetType().Name);
+                throw new InvalidOperationException(message);
+            }
+            this.response = response;
         }
         #endregion
     }

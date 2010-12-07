@@ -236,12 +236,12 @@ namespace MongoDB.DriverOnlineTests {
 
             using (database.RequestStart()) {
                 var result = collection.MapReduce(map, reduce);
-                Assert.IsTrue(result.CommandResult.Ok);
+                Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);
                 Assert.AreEqual(5, result.OutputCount);
                 Assert.AreEqual(3, result.InputCount);
-                Assert.IsNotNullOrEmpty(result.ResultCollectionName);
+                Assert.IsNotNullOrEmpty(result.CollectionName);
 
                 var expectedCounts = new Dictionary<string, int> {
                     { "A", 1 },
@@ -250,7 +250,7 @@ namespace MongoDB.DriverOnlineTests {
                     { "X", 1 },
                     { "_id", 3 }
                 };
-                foreach (var document in result.GetResults<BsonDocument>()) {
+                foreach (var document in database[result.CollectionName].FindAll()) {
                     var key = document["_id"].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);

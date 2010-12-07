@@ -31,11 +31,11 @@ namespace MongoDB.Driver {
 
         #region public properties
         public string Namespace {
-            get { return this["ns"].AsString; }
+            get { return response["ns"].AsString; }
         }
 
         public string ResultString {
-            get { return this["result"].AsString; }
+            get { return response["result"].AsString; }
         }
         #endregion
     }

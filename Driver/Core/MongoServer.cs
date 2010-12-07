@@ -342,7 +342,7 @@ namespace MongoDB.Driver {
         public IEnumerable<string> GetDatabaseNames() {
             var result = AdminDatabase.RunCommand("listDatabases");
             var databaseNames = new List<string>();
-            foreach (BsonDocument database in result["databases"].AsBsonArray.Values) {
+            foreach (BsonDocument database in result.Response["databases"].AsBsonArray.Values) {
                 string databaseName = database["name"].AsString;
                 databaseNames.Add(databaseName);
             }
@@ -424,13 +424,13 @@ namespace MongoDB.Driver {
 
         public TCommandResult RunAdminCommandAs<TCommandResult>(
             IMongoCommand command
-        ) where TCommandResult : CommandResult {
+        ) where TCommandResult : CommandResult, new() {
             return AdminDatabase.RunCommandAs<TCommandResult>(command);
         }
 
         public TCommandResult RunAdminCommandAs<TCommandResult>(
             string commandName
-        ) where TCommandResult : CommandResult {
+        ) where TCommandResult : CommandResult, new() {
             return AdminDatabase.RunCommandAs<TCommandResult>(commandName);
         }
         #endregion

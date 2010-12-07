@@ -35,57 +35,57 @@ namespace MongoDB.Driver {
 
         #region public properties
         public double AverageObjectSize {
-            get { return this["avgObjSize"].ToDouble(); }
+            get { return response["avgObjSize"].ToDouble(); }
         }
 
         public long DataSize {
-            get { return this["size"].ToInt64(); }
+            get { return response["size"].ToInt64(); }
         }
 
         public int ExtentCount {
-            get { return this["numExtents"].AsInt32; }
+            get { return response["numExtents"].AsInt32; }
         }
 
         public int Flags {
-            get { return this["flags"].AsInt32; }
+            get { return response["flags"].AsInt32; }
         }
 
         public int IndexCount {
-            get { return this["nindexes"].AsInt32; }
+            get { return response["nindexes"].AsInt32; }
         }
 
         public IndexSizesResult IndexSizes {
             get {
                 if (indexSizes == null) {
                     // can't initialize indexSizes in the constructor because at that time the document is still empty
-                    indexSizes = new IndexSizesResult(this["indexSizes"].AsBsonDocument);
+                    indexSizes = new IndexSizesResult(response["indexSizes"].AsBsonDocument);
                 }
                 return indexSizes;
             }
         }
 
         public long LastExtentSize {
-            get { return this["lastExtentSize"].ToInt64(); }
+            get { return response["lastExtentSize"].ToInt64(); }
         }
 
         public string Namespace {
-            get { return this["ns"].AsString; }
+            get { return response["ns"].AsString; }
         }
 
         public long ObjectCount {
-            get { return this["count"].ToInt64(); }
+            get { return response["count"].ToInt64(); }
         }
 
         public double PaddingFactor {
-            get { return this["paddingFactor"].ToDouble(); }
+            get { return response["paddingFactor"].ToDouble(); }
         }
 
         public long StorageSize {
-            get { return this["storageSize"].ToInt64(); }
+            get { return response["storageSize"].ToInt64(); }
         }
 
         public long TotalIndexSize {
-            get { return this["totalIndexSize"].ToInt64(); }
+            get { return response["totalIndexSize"].ToInt64(); }
         }
         #endregion
 
