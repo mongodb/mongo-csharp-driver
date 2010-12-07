@@ -33,9 +33,6 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        [Obsolete("Use BsonMaxKey.Value instead (BsonMaxKey.Singleton will be removed in version 0.9)")]
-        public static BsonMaxKey Singleton { get { return singleton; } }
-
         public static BsonMaxKey Value { get { return singleton; } }
         #endregion
 
