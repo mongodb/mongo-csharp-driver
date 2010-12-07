@@ -159,7 +159,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\MongoCredentials.cs" />
-    <Compile Include="Core\MongoMapReduceResult.cs" />
+    <Compile Include="Core\CommandResults\MapReduceResult.cs" />
     <Compile Include="Core\MongoServer.cs" />
     <Compile Include="Core\MongoCursor.cs" />
     <Compile Include="Core\MongoDatabase.cs" />
