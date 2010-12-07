@@ -38,16 +38,16 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkMissing() {
             var document = new BsonDocument();
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.Throws<MongoCommandException>(() => { var dummy = result.Ok; });
         }
 
         [Test]
         public void TestOkFalse() {
             var document = new BsonDocument("ok", false);
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.IsFalse(result.Ok);
             Assert.IsNotNull(result.ErrorMessage);
         }
@@ -55,8 +55,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkTrue() {
             var document = new BsonDocument("ok", true);
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
         }
@@ -64,8 +64,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkZero() {
             var document = new BsonDocument("ok", 0);
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.IsFalse(result.Ok);
             Assert.IsNotNull(result.ErrorMessage);
         }
@@ -73,8 +73,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkZeroPointZero() {
             var document = new BsonDocument("ok", 0.0);
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.IsFalse(result.Ok);
             Assert.IsNotNull(result.ErrorMessage);
         }
@@ -82,8 +82,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkOne() {
             var document = new BsonDocument("ok", 1);
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
         }
@@ -91,8 +91,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkOnePointZero() {
             var document = new BsonDocument("ok", 1.0);
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
         }
@@ -100,24 +100,24 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestErrorMessageMissing() {
             var document = new BsonDocument();
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.AreEqual("Unknown error", result.ErrorMessage);
         }
 
         [Test]
         public void TestErrorMessagePresent() {
             var document = new BsonDocument("errmsg", "An error message");
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.AreEqual("An error message", result.ErrorMessage);
         }
 
         [Test]
         public void TestErrorMessageNotString() {
             var document = new BsonDocument("errmsg", 3.14159);
-            var bson = document.ToBson();
-            var result = BsonSerializer.Deserialize<CommandResult>(bson);
+            var result = new CommandResult();
+            result.Initialize(document);
             Assert.AreEqual("3.14159", result.ErrorMessage);
         }
 

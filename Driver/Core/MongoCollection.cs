@@ -86,7 +86,7 @@ namespace MongoDB.Driver {
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
-            return result["n"].ToInt32();
+            return result.Response["n"].ToInt32();
         }
 
         public SafeModeResult CreateIndex(
@@ -135,7 +135,7 @@ namespace MongoDB.Driver {
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
-            return result["values"].AsBsonArray;
+            return result.Response["values"].AsBsonArray;
         }
 
         public void Drop() {
@@ -353,7 +353,7 @@ namespace MongoDB.Driver {
                 } }
             };
             var result = database.RunCommand(command);
-            return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+            return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group(
@@ -374,7 +374,7 @@ namespace MongoDB.Driver {
                 } }
             };
             var result = database.RunCommand(command);
-            return result["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+            return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
         public IEnumerable<BsonDocument> Group(

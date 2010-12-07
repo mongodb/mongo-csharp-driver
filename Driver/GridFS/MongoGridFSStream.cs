@@ -494,7 +494,7 @@ namespace MongoDB.Driver.GridFS {
                     { "root", gridFS.Settings.Root }
                 };
             var md5Result = gridFS.Database.RunCommand(md5Command);
-            var md5 = md5Result["md5"].AsString;
+            var md5 = md5Result.Response["md5"].AsString;
 
             var query = Query.EQ("_id", fileInfo.Id);
             var update = Update

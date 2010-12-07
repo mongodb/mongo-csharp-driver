@@ -31,23 +31,23 @@ namespace MongoDB.Driver {
 
         #region public properties
         public int DocumentsAffected {
-            get { return this["n"].ToInt32(); }
+            get { return response["n"].ToInt32(); }
         }
 
         public bool HasLastErrorMessage {
-            get { return this["err", false].ToBoolean(); }
+            get { return response["err", false].ToBoolean(); }
         }
 
         public string LastErrorMessage {
             get { 
-                var err = this["err", false];
+                var err = response["err", false];
                 return (err.ToBoolean()) ? err.ToString() : null;
             }
         }
 
         public bool UpdatedExisting {
             get {
-                var updatedExisting = this["updatedExisting", null];
+                var updatedExisting = response["updatedExisting", null];
                 return (updatedExisting == null) ? false : updatedExisting.ToBoolean();
             }
         }

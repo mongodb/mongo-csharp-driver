@@ -47,23 +47,23 @@ namespace MongoDB.Driver {
         }
 
         public TimeSpan Duration {
-            get { return TimeSpan.FromMilliseconds(commandResult["timeMillis"].ToInt32()); }
+            get { return TimeSpan.FromMilliseconds(commandResult.Response["timeMillis"].ToInt32()); }
         }
 
         public int EmitCount {
-            get { return commandResult["counts"].AsBsonDocument["emit"].ToInt32(); }
+            get { return commandResult.Response["counts"].AsBsonDocument["emit"].ToInt32(); }
         }
 
         public int OutputCount {
-            get { return commandResult["counts"].AsBsonDocument["output"].ToInt32(); }
+            get { return commandResult.Response["counts"].AsBsonDocument["output"].ToInt32(); }
         }
 
         public int InputCount {
-            get { return commandResult["counts"].AsBsonDocument["input"].ToInt32(); }
+            get { return commandResult.Response["counts"].AsBsonDocument["input"].ToInt32(); }
         }
 
         public string ResultCollectionName {
-            get { return commandResult["result"].AsString; }
+            get { return commandResult.Response["result"].AsString; }
         }
         #endregion
 

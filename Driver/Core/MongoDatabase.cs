@@ -202,7 +202,7 @@ namespace MongoDB.Driver {
                 { "args", new BsonArray(args) }
             };
             var result = RunCommand(command);
-            return result["retval"];
+            return result.Response["retval"];
         }
 
         public BsonDocument FetchDBRef(
@@ -342,8 +342,10 @@ namespace MongoDB.Driver {
 
         public TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command
-        ) where TCommandResult : CommandResult {
-            var result = CommandCollection.FindOneAs<TCommandResult>(command);
+        ) where TCommandResult : CommandResult, new() {
+            var response = CommandCollection.FindOne(command);
+            var result = new TCommandResult(); // generic type constructor can't have arguments
+            result.Initialize(response); // so two phase construction required
             if (!result.Ok) {
                 if (result.ErrorMessage == "not master") {
                     server.Disconnect();
@@ -356,7 +358,7 @@ namespace MongoDB.Driver {
 
         public TCommandResult RunCommandAs<TCommandResult>(
             string commandName
-        ) where TCommandResult : CommandResult {
+        ) where TCommandResult : CommandResult, new() {
             var command = new CommandDocument(commandName, true);
             return RunCommandAs<TCommandResult>(command);
         }

@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Internal {
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 string nonce;
                 try {
-                    var nonceResult = RunCommand<CommandResult>(commandCollectionName, QueryFlags.None, nonceCommand);
+                    var nonceResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand);
                     nonce = nonceResult["nonce"].AsString;
                 } catch (MongoCommandException ex) {
                     throw new MongoAuthenticationException("Error getting nonce for authentication", ex);
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Internal {
                     { "key", digest }
                 };
                 try {
-                    RunCommand<CommandResult>(commandCollectionName, QueryFlags.None, authenticateCommand);
+                    RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand);
                 } catch (MongoCommandException ex) {
                     var message = string.Format("Invalid credentials for database: {0}", databaseName);
                     throw new MongoAuthenticationException(message, ex);
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Internal {
                 var logoutCommand = new CommandDocument("logout", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 try {
-                    RunCommand<CommandResult>(commandCollectionName, QueryFlags.None, logoutCommand);
+                    RunCommand(commandCollectionName, QueryFlags.None, logoutCommand);
                 } catch (MongoCommandException ex) {
                     throw new MongoAuthenticationException("Error logging off", ex);
                 }
@@ -272,11 +272,11 @@ namespace MongoDB.Driver.Internal {
 
         // this is a low level method that doesn't require a MongoServer
         // so it can be used while connecting to a MongoServer
-        internal TCommandResult RunCommand<TCommandResult>(
+        internal BsonDocument RunCommand(
             string collectionName,
             QueryFlags queryFlags,
             CommandDocument command
-        ) where TCommandResult : CommandResult {
+        ) {
             var commandName = command.GetElement(0).Name;
 
             using (
@@ -292,7 +292,7 @@ namespace MongoDB.Driver.Internal {
                 SendMessage(message, SafeMode.False);
             }
 
-            var reply = ReceiveMessage<TCommandResult>();
+            var reply = ReceiveMessage<BsonDocument>();
             if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
                 var message = string.Format("Command '{0}' failed (QueryFailure flag set)", commandName);
                 throw new MongoCommandException(message);
@@ -376,8 +376,10 @@ namespace MongoDB.Driver.Internal {
 
                 SafeModeResult result = null;
                 if (safeMode.Enabled) {
-                    var replyMessage = ReceiveMessage<SafeModeResult>();
-                    result = replyMessage.Documents[0];
+                    var replyMessage = ReceiveMessage<BsonDocument>();
+                    var response = replyMessage.Documents[0];
+                    result = new SafeModeResult();
+                    result.Initialize(response);
 
                     if (!result.Ok) {
                         var errorMessage = string.Format("Safemode detected an error: {0}", result.ErrorMessage);

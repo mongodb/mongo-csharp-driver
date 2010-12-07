@@ -117,7 +117,7 @@ namespace MongoDB.Driver {
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
-            return result["n"].ToInt32();
+            return result.Response["n"].ToInt32();
         }
 
         public BsonDocument Explain() {
@@ -296,7 +296,7 @@ namespace MongoDB.Driver {
                 { "skip", skip, skip != 0 }
             };
             var result = database.RunCommand(command);
-            return result["n"].ToInt32();
+            return result.Response["n"].ToInt32();
         }
         #endregion
 

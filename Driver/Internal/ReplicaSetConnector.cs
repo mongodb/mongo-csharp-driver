@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Internal {
                 var connection = new MongoConnection(null, args.EndPoint); // no connection pool
                 try {
                     var isMasterCommand = new CommandDocument("ismaster", 1);
-                    var isMasterResult = connection.RunCommand<CommandResult>("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
+                    var isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
 
                     response.IsMasterResult = isMasterResult;
                     response.Connection = connection; // might become the first connection in the connection pool
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Internal {
 
                     if (server.Url.ReplicaSetName != null) {
                         var getStatusCommand = new CommandDocument("replSetGetStatus", 1);
-                        var getStatusResult = connection.RunCommand<CommandResult>("admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
+                        var getStatusResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
 
                         var replicaSetName = getStatusResult["set"].AsString;
                         if (replicaSetName != server.Url.ReplicaSetName) {
