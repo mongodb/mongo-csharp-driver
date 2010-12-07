@@ -292,12 +292,6 @@ namespace MongoDB.Driver.GridFS {
             return Find(Query.Null);
         }
 
-        public IEnumerable<MongoGridFSFileInfo> FindById(
-            BsonValue id
-        ) {
-            return Find(Query.EQ("_id", id));
-        }
-
         public MongoGridFSFileInfo FindOne(
             IMongoQuery query
         ) {

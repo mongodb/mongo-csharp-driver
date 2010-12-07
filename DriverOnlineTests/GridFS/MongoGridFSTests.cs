@@ -161,17 +161,6 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestFindById() {
-            gridFS.Delete(Query.Null);
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
-
-            var fileInfo = UploadHelloWord();
-            foreach (var foundInfo in gridFS.FindById(fileInfo.Id)) {
-                Assert.AreEqual(fileInfo, foundInfo);
-            }
-        }
-
-        [Test]
         public void TestFindByName() {
             gridFS.Delete(Query.Null);
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
