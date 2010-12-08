@@ -131,8 +131,7 @@ namespace MongoDB.Driver {
                     if (typeof(TDocument) == typeof(BsonDocument)) {
                         return (TDocument) (object) RawDocument;
                     } else {
-                        // TODO: switch to more efficient deserialization
-                        return BsonSerializer.Deserialize<TDocument>(RawDocument.ToBson());
+                        return BsonSerializer.Deserialize<TDocument>(RawDocument);
                     }
                 }
             }

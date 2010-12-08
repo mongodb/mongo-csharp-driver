@@ -52,6 +52,12 @@ namespace MongoDB.Bson.Serialization {
 
         #region public static methods
         public static T Deserialize<T>(
+            BsonDocument document
+        ) {
+            return (T) Deserialize(document, typeof(T));
+        }
+
+        public static T Deserialize<T>(
             BsonReader bsonReader
         ) {
             return (T) Deserialize(bsonReader, typeof(T));
@@ -67,6 +73,13 @@ namespace MongoDB.Bson.Serialization {
             Stream stream
         ) {
             return (T) Deserialize(stream, typeof(T));
+        }
+
+        public static object Deserialize(
+            BsonDocument document,
+            Type nominalType
+        ) {
+            return Deserialize(BsonReader.Create(document), nominalType);
         }
 
         public static object Deserialize(
