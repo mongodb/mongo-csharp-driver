@@ -186,12 +186,10 @@ namespace MongoDB.DriverOnlineTests {
 
             var options = GeoNearOptions
                 .SetDistanceMultiplier(1)
-                .SetMaxDistance(100)
-                .SetStart(0);
+                .SetMaxDistance(100);
             var result = collection.GeoNearAs<Place>(Query.Null, 0.0, 0.0, 100, options);
             Assert.IsTrue(result.Ok);
             Assert.AreEqual("onlinetests.testcollection", result.Namespace);
-            Assert.IsNotNull(result.Near);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
             Assert.IsTrue(result.Stats.BTreeLocations >= 0);
             Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);

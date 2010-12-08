@@ -44,12 +44,6 @@ namespace MongoDB.Driver.Builders {
             return new GeoNearOptionsBuilder().SetMaxDistance(value);
         }
 
-        public static GeoNearOptionsBuilder SetStart(
-            double value
-        ) {
-            return new GeoNearOptionsBuilder().SetStart(value);
-        }
-
         public static IMongoGeoNearOptions Wrap<T>(
             T options
         ) {
@@ -82,13 +76,6 @@ namespace MongoDB.Driver.Builders {
             double value
         ) {
             document["maxDistance"] = value;
-            return this;
-        }
-
-        public GeoNearOptionsBuilder SetStart(
-            double value
-        ) {
-            document["start"] = value;
             return this;
         }
         public override BsonDocument ToBsonDocument() {

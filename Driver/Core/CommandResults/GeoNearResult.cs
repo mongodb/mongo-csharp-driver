@@ -50,10 +50,6 @@ namespace MongoDB.Driver {
             get { return response["ns"].AsString; }
         }
 
-        public string Near {
-            get { return response["near"].AsString; }
-        }
-
         public GeoNearStats Stats {
             get {
                 if (stats == null) {
