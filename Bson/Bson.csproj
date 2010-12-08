@@ -79,6 +79,11 @@
     <Compile Include="DefaultSerializer\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonSerializationOptionsAttribute.cs" />
+    <Compile Include="IO\BsonBaseReader.cs" />
+    <Compile Include="IO\BsonDocumentReader.cs" />
+    <Compile Include="IO\BsonDocumentReaderBookmark.cs" />
+    <Compile Include="IO\BsonDocumentReaderContext.cs" />
+    <Compile Include="IO\BsonReaderBookmark.cs" />
     <Compile Include="Serialization\IdGenerators.cs" />
     <Compile Include="DefaultSerializer\Conventions\ConventionProfile.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdGeneratorConventions.cs" />

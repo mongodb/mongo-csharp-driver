@@ -98,6 +98,7 @@
     <Compile Include="DefaultSerializer\Serializers\DiscriminatorTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\StructSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
+    <Compile Include="IO\BsonDocumentReaderTests.cs" />
     <Compile Include="Jira\CSharp102Tests.cs" />
     <Compile Include="Jira\CSharp104Tests.cs" />
     <Compile Include="Jira\CSharp116Tests.cs" />

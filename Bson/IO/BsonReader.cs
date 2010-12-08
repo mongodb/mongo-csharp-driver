@@ -46,6 +46,12 @@ namespace MongoDB.Bson.IO {
         }
 
         public static BsonReader Create(
+            BsonDocument document
+        ) {
+            return new BsonDocumentReader(document);
+        }
+
+        public static BsonReader Create(
             Stream stream
         ) {
             return Create(stream, BsonBinaryReaderSettings.Defaults);
@@ -70,7 +76,7 @@ namespace MongoDB.Bson.IO {
         public abstract string FindString(
             string name
         );
-        public abstract BsonBinaryReaderBookmark GetBookmark();
+        public abstract BsonReaderBookmark GetBookmark();
         public abstract void ReadBinaryData(
             out byte[] bytes,
             out BsonBinarySubType subType
@@ -160,7 +166,7 @@ namespace MongoDB.Bson.IO {
         public abstract long ReadTimestamp(
             string name
         );
-        public abstract void ReturnToBookmark(BsonBinaryReaderBookmark bookmark);
+        public abstract void ReturnToBookmark(BsonReaderBookmark bookmark);
         public abstract void SkipName();
         public abstract void SkipValue();
         #endregion

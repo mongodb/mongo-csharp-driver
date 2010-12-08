@@ -20,30 +20,21 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public class BsonBinaryReader : BsonBaseReader {
+    public class BsonDocumentReader : BsonBaseReader {
         #region private fields
-        private BsonBuffer buffer; // if reading from a stream Create will have loaded the buffer
-        private bool disposeBuffer;
-        private BsonBinaryReaderSettings settings;
-        private BsonBinaryReaderContext context;
+        private BsonDocumentReaderContext context;
+        private BsonElement currentElement;
         #endregion
 
         #region constructors
-        public BsonBinaryReader(
-            BsonBuffer buffer,
-            BsonBinaryReaderSettings settings
+        public BsonDocumentReader(
+            BsonDocument document
         ) {
-            this.buffer = buffer ?? new BsonBuffer();
-            this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
-            this.settings = settings;
-            context = null;
+            context = new BsonDocumentReaderContext(null, ContextType.Document, document);
         }
         #endregion
 
         #region public properties
-        public BsonBuffer Buffer {
-            get { return buffer; }
-        }
         #endregion
 
         #region public methods
@@ -55,10 +46,9 @@ namespace MongoDB.Bson.IO {
         }
 
         public override BsonReaderBookmark GetBookmark() {
-            return new BsonBinaryReaderBookmark(context, state, currentBsonType, buffer.Position);
+            return new BsonDocumentReaderBookmark(context, state, currentBsonType);
         }
 
-        #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         public override void ReadBinaryData(
             out byte[] bytes,
             out BsonBinarySubType subType
@@ -66,31 +56,17 @@ namespace MongoDB.Bson.IO {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
 
-            int size = ReadSize();
-            subType = (BsonBinarySubType) buffer.ReadByte();
-            if (subType == BsonBinarySubType.OldBinary) {
-                // sub type OldBinary has two sizes (for historical reasons)
-                int size2 = ReadSize();
-                if (size2 != size - 4) {
-                    throw new FileFormatException("Binary sub type OldBinary has inconsistent sizes");
-                }
-                size = size2;
-
-                if (settings.FixOldBinarySubTypeOnInput) {
-                    subType = BsonBinarySubType.Binary; // replace obsolete OldBinary with new Binary sub type
-                }
-            }
-            bytes = buffer.ReadBytes(size);
-
+            var binaryData = currentElement.Value.AsBsonBinaryData;
+            bytes = binaryData.Bytes;
+            subType = binaryData.SubType;
             state = BsonReadState.Type;
         }
-        #pragma warning restore 618
-        
+
         public override bool ReadBoolean() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBoolean", BsonType.Boolean);
             state = BsonReadState.Type;
-            return buffer.ReadBoolean();
+            return currentElement.Value.AsBoolean;
         }
 
         public override BsonType ReadBsonType() {
@@ -100,7 +76,8 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            currentBsonType = buffer.ReadBsonType(); // set currentBsonType before state
+            currentElement = context.GetNextElement();
+            currentBsonType = (currentElement != null) ? currentElement.Value.BsonType : BsonType.EndOfDocument; // set currentBsonType before state
             state = (currentBsonType == BsonType.EndOfDocument) ? BsonReadState.EndOfDocument : BsonReadState.Name;
             return currentBsonType;
         }
@@ -109,20 +86,14 @@ namespace MongoDB.Bson.IO {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
             state = BsonReadState.Type;
-            long milliseconds = buffer.ReadInt64();
-            if (milliseconds == 253402300800000) {
-                // special case to avoid ArgumentOutOfRangeException in AddMilliseconds
-                return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
-            } else {
-                return BsonConstants.UnixEpoch.AddMilliseconds(milliseconds); // Kind = DateTimeKind.Utc
-            }
+            return currentElement.Value.AsDateTime;
         }
 
         public override double ReadDouble() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDouble", BsonType.Double);
             state = BsonReadState.Type;
-            return buffer.ReadDouble();
+            return currentElement.Value.AsDouble;
         }
 
         public override void ReadEndArray() {
@@ -131,8 +102,8 @@ namespace MongoDB.Bson.IO {
                 var message = string.Format("ReadEndArray cannot be called when ContextType is: {0}", context.ContextType);
                 throw new InvalidOperationException(message);
             }
-            if (state == BsonReadState.Type && buffer.PeekByte() == 0) {
-                buffer.Skip(1); // automatically advance to EndOfDocument state
+            if (state == BsonReadState.Type && context.GetNextElement() == null) {
+                // automatically advance to EndOfDocument state
                 state = BsonReadState.EndOfDocument;
             }
             if (state != BsonReadState.EndOfDocument) {
@@ -140,7 +111,7 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            context = context.PopContext(buffer.Position);
+            context = context.PopContext();
             state = BsonReadState.Type;
         }
 
@@ -153,8 +124,8 @@ namespace MongoDB.Bson.IO {
                 var message = string.Format("ReadEndDocument cannot be called when ContextType is: {0}", context.ContextType);
                 throw new InvalidOperationException(message);
             }
-            if (state == BsonReadState.Type && buffer.PeekByte() == 0) {
-                buffer.Skip(1); // automatically advance to EndOfDocument state
+            if (state == BsonReadState.Type && context.GetNextElement() == null) {
+                // automatically advance to EndOfDocument state
                 state = BsonReadState.EndOfDocument;
             }
             if (state != BsonReadState.EndOfDocument) {
@@ -162,10 +133,7 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            context = context.PopContext(buffer.Position);
-            if (context != null && context.ContextType == ContextType.JavaScriptWithScope) {
-                context = context.PopContext(buffer.Position); // JavaScriptWithScope
-            }
+            context = context.PopContext();
             state = (context == null) ? BsonReadState.Done : BsonReadState.Type;
         }
 
@@ -173,34 +141,29 @@ namespace MongoDB.Bson.IO {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt32", BsonType.Int32);
             state = BsonReadState.Type;
-            return buffer.ReadInt32();
+            return currentElement.Value.AsInt32;
         }
 
         public override long ReadInt64() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt64", BsonType.Int64);
             state = BsonReadState.Type;
-            return buffer.ReadInt64();
+            return currentElement.Value.AsInt64;
         }
 
         public override string ReadJavaScript() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
             state = BsonReadState.Type;
-            return buffer.ReadString();
+            return currentElement.Value.AsBsonJavaScript.Code;
         }
 
         public override string ReadJavaScriptWithScope() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScriptWithScope", BsonType.JavaScriptWithScope);
 
-            var startPosition = buffer.Position; // position of size field
-            var size = ReadSize();
-            context = new BsonBinaryReaderContext(context, ContextType.JavaScriptWithScope, startPosition, size);
-            var code = buffer.ReadString();
-
             state = BsonReadState.ScopeDocument;
-            return code;
+            return currentElement.Value.AsBsonJavaScriptWithScope.Code;
         }
 
         public override void ReadMaxKey() {
@@ -223,7 +186,7 @@ namespace MongoDB.Bson.IO {
             }
 
             state = BsonReadState.Value;
-            return buffer.ReadCString();
+            return currentElement.Name;
         }
 
         public override void ReadNull() {
@@ -240,7 +203,11 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadObjectId", BsonType.ObjectId);
-            buffer.ReadObjectId(out timestamp, out machine, out pid, out increment);
+            var objectId = currentElement.Value.AsObjectId;
+            timestamp = objectId.Timestamp;
+            machine = objectId.Machine;
+            pid = objectId.Pid;
+            increment = objectId.Increment;
             state = BsonReadState.Type;
         }
 
@@ -250,8 +217,9 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
-            pattern = buffer.ReadCString();
-            options = buffer.ReadCString();
+            var regex = currentElement.Value.AsBsonRegularExpression;
+            pattern = regex.Pattern;
+            options = regex.Options;
             state = BsonReadState.Type;
         }
 
@@ -262,9 +230,8 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            var startPosition = buffer.Position; // position of size field
-            var size = ReadSize();
-            context = new BsonBinaryReaderContext(context, ContextType.Array, startPosition, size);
+            var array = currentElement.Value.AsBsonArray;
+            context = new BsonDocumentReaderContext(context, ContextType.Array, array);
             state = BsonReadState.Type;
         }
 
@@ -272,7 +239,6 @@ namespace MongoDB.Bson.IO {
             if (disposed) { ThrowObjectDisposedException(); }
             if (
                 state != BsonReadState.Initial &&
-                state != BsonReadState.Done &&
                 state != BsonReadState.ScopeDocument &&
                 (state != BsonReadState.Value || currentBsonType != BsonType.Document)
             ) {
@@ -280,10 +246,13 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            var contextType = (state == BsonReadState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
-            var startPosition = buffer.Position; // position of size field
-            var size = ReadSize();
-            context = new BsonBinaryReaderContext(context, contextType, startPosition, size);
+            if (state == BsonReadState.ScopeDocument) {
+                var scope = currentElement.Value.AsBsonJavaScriptWithScope.Scope;
+                context = new BsonDocumentReaderContext(context, ContextType.ScopeDocument, scope);
+            } else if (state == BsonReadState.Value) {
+                var document = currentElement.Value.AsBsonDocument;
+                context = new BsonDocumentReaderContext(context, ContextType.Document, document);
+            }
             state = BsonReadState.Type;
         }
 
@@ -291,31 +260,30 @@ namespace MongoDB.Bson.IO {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadString", BsonType.String);
             state = BsonReadState.Type;
-            return buffer.ReadString();
+            return currentElement.Value.AsString;
         }
 
         public override string ReadSymbol() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadSymbol", BsonType.Symbol);
             state = BsonReadState.Type;
-            return buffer.ReadString();
+            return currentElement.Value.AsBsonSymbol.Name;
         }
 
         public override long ReadTimestamp() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadTimestamp", BsonType.Timestamp);
             state = BsonReadState.Type;
-            return buffer.ReadInt64();
+            return currentElement.Value.AsBsonTimestamp.Value;
         }
 
         public override void ReturnToBookmark(
             BsonReaderBookmark bookmark
         ) {
-            var binaryReaderBookmark = (BsonBinaryReaderBookmark) bookmark;
-            context = binaryReaderBookmark.Context;
-            state = binaryReaderBookmark.State;
-            currentBsonType = binaryReaderBookmark.CurrentBsonType;
-            buffer.Position = binaryReaderBookmark.Position;
+            var documentReaderBookmark = (BsonDocumentReaderBookmark) bookmark;
+            context = documentReaderBookmark.Context;
+            state = documentReaderBookmark.State;
+            currentBsonType = documentReaderBookmark.CurrentBsonType;
         }
 
         public override void SkipName() {
@@ -325,7 +293,6 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            buffer.SkipCString();
             state = BsonReadState.Value;
         }
 
@@ -335,31 +302,6 @@ namespace MongoDB.Bson.IO {
                 var message = string.Format("SkipValue cannot be called when ReadState is: {0}", state);
                 throw new InvalidOperationException(message);
             }
-
-            int skip;
-            switch (currentBsonType) {
-                case BsonType.Array: skip = ReadSize() - 4; break;
-                case BsonType.Binary: skip = ReadSize() + 1; break;
-                case BsonType.Boolean: skip = 1; break;
-                case BsonType.DateTime: skip = 8; break;
-                case BsonType.Document: skip = ReadSize() - 4; break;
-                case BsonType.Double: skip = 8; break;
-                case BsonType.Int32: skip = 4; break;
-                case BsonType.Int64: skip = 8; break;
-                case BsonType.JavaScript: skip = ReadSize(); break;
-                case BsonType.JavaScriptWithScope: skip = ReadSize() - 4; break;
-                case BsonType.MaxKey: skip = 0; break;
-                case BsonType.MinKey: skip = 0; break;
-                case BsonType.Null: skip = 0; break;
-                case BsonType.ObjectId: skip = 12; break;
-                case BsonType.RegularExpression: buffer.SkipCString(); buffer.SkipCString(); skip = 0; break;
-                case BsonType.String: skip = ReadSize(); break;
-                case BsonType.Symbol: skip = ReadSize(); break;
-                case BsonType.Timestamp: skip = 8; break;
-                default: throw new BsonInternalException("Unexpected BsonType");
-            }
-            buffer.Skip(skip);
-
             state = BsonReadState.Type;
         }
         #endregion
@@ -371,10 +313,6 @@ namespace MongoDB.Bson.IO {
             if (disposing) {
                 try {
                     Close();
-                    if (disposeBuffer) {
-                        buffer.Dispose();
-                        buffer = null;
-                    }
                 } catch { } // ignore exceptions
             }
             base.Dispose(disposing);
@@ -382,16 +320,6 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region private methods
-        private int ReadSize() {
-            int size = buffer.ReadInt32();
-            if (size < 0) {
-                throw new FileFormatException("Size is negative");
-            }
-            if (size > settings.MaxDocumentSize) {
-                throw new FileFormatException("Size is larger than MaxDocumentSize");
-            }
-            return size;
-        }
         #endregion
     }
 }
