@@ -167,6 +167,51 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(2, result["y"].AsInt32);
         }
 
+        private class Place {
+            public ObjectId Id;
+            public double[] Location;
+            public string Name;
+            public string Type;
+        }
+
+        [Test]
+        public void TestGeoNear() {
+            if (collection.Exists()) { collection.Drop(); }
+            collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
+            collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
+            collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
+            collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
+            collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
+            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+
+            var options = GeoNearOptions
+                .SetDistanceMultiplier(1)
+                .SetMaxDistance(100)
+                .SetStart(0);
+            var result = collection.GeoNearAs<Place>(Query.Null, 0.0, 0.0, 100, options);
+            Assert.IsTrue(result.Ok);
+            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+            Assert.IsNotNull(result.Near);
+            Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
+            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+            Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
+            Assert.IsTrue(result.Stats.NumberScanned >= 0);
+            Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
+            Assert.AreEqual(5, result.Hits.Count);
+            Assert.IsTrue(result.Hits[0].Distance > 1.0);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("One", result.Hits[0].RawDocument["Name"].AsString);
+            Assert.AreEqual("Museum", result.Hits[0].RawDocument["Type"].AsString);
+
+            var place = result.Hits[1].Document;
+            Assert.AreEqual(1.0, place.Location[0]);
+            Assert.AreEqual(2.0, place.Location[1]);
+            Assert.AreEqual("Two", place.Name);
+            Assert.AreEqual("Coffee", place.Type);
+        }
+
         [Test]
         public void TestGetIndexes() {
             collection.DropAllIndexes();

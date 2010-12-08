@@ -285,11 +285,21 @@ namespace MongoDB.Driver {
             return FindOneAs<TDocument>(Query.EQ("_id", id));
         }
 
-        public GeoNearResult GeoNear(
+        public GeoNearResult<TDocument> GeoNearAs<TDocument>(
             IMongoQuery query,
             double x,
             double y,
             int limit
+        ) {
+            return GeoNearAs<TDocument>(query, x, y, limit, GeoNearOptions.Null);
+        }
+
+        public GeoNearResult<TDocument> GeoNearAs<TDocument>(
+            IMongoQuery query,
+            double x,
+            double y,
+            int limit,
+            IMongoGeoNearOptions options
         ) {
             var command = new CommandDocument {
                 { "geoNear", name },
@@ -297,7 +307,8 @@ namespace MongoDB.Driver {
                 { "num", limit },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
-            return database.RunCommandAs<GeoNearResult>(command);
+            command.Merge(options.ToBsonDocument());
+            return database.RunCommandAs<GeoNearResult<TDocument>>(command);
         }
 
         public IEnumerable<BsonDocument> GetIndexes() {
@@ -773,6 +784,25 @@ namespace MongoDB.Driver {
             BsonValue id
         ) {
             return FindOneByIdAs<TDefaultDocument>(id);
+        }
+
+        public GeoNearResult<TDefaultDocument> GeoNear(
+            IMongoQuery query,
+            double x,
+            double y,
+            int limit
+        ) {
+            return GeoNearAs<TDefaultDocument>(query, x, y, limit);
+        }
+
+        public GeoNearResult<TDefaultDocument> GeoNear(
+            IMongoQuery query,
+            double x,
+            double y,
+            int limit,
+            IMongoGeoNearOptions options
+        ) {
+            return GeoNearAs<TDefaultDocument>(query, x, y, limit, options);
         }
         #endregion
     }

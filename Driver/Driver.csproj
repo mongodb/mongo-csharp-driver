@@ -74,6 +74,7 @@
     </Compile>
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
+    <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
     <Compile Include="Builders\GroupByBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Core\CommandResults\ValidateCollectionResult.cs" />
     <Compile Include="Core\Interfaces\IMongoCommand.cs" />
     <Compile Include="Core\Interfaces\IMongoFields.cs" />
+    <Compile Include="Core\Interfaces\IMongoGeoNearOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoGroupBy.cs" />
     <Compile Include="Core\Interfaces\IMongoIndexKeys.cs" />
     <Compile Include="Core\Interfaces\IMongoIndexOptions.cs" />
@@ -106,6 +108,8 @@
     <Compile Include="Core\Wrappers\CommandWrapper.cs" />
     <Compile Include="Core\Wrappers\FieldsDocument.cs" />
     <Compile Include="Core\Wrappers\FieldsWrapper.cs" />
+    <Compile Include="Core\Wrappers\GeoNearOptionsDocument.cs" />
+    <Compile Include="Core\Wrappers\GeoNearOptionsWrapper.cs" />
     <Compile Include="Core\Wrappers\GroupByDocument.cs" />
     <Compile Include="Core\Wrappers\GroupByWrapper.cs" />
     <Compile Include="Core\Wrappers\IndexKeysDocument.cs" />
