@@ -27,23 +27,55 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class BooleanSerializer : BsonBaseSerializer {
         #region private static fields
-        private static BooleanSerializer singleton = new BooleanSerializer();
+        private static BooleanSerializer booleanRepresentation = new BooleanSerializer(BsonType.Boolean);
+        private static BooleanSerializer doubleRepresentation = new BooleanSerializer(BsonType.Double);
+        private static BooleanSerializer int32Representation = new BooleanSerializer(BsonType.Int32);
+        private static BooleanSerializer int64Representation = new BooleanSerializer(BsonType.Int64);
+        private static BooleanSerializer stringRepresentation = new BooleanSerializer(BsonType.String);
+        #endregion
+
+        #region private fields
+        private BsonType representation;
         #endregion
 
         #region constructors
-        private BooleanSerializer() {
+        private BooleanSerializer(
+            BsonType representation
+        ) {
+            this.representation = representation;
         }
         #endregion
 
         #region public static properties
-        public static BooleanSerializer Singleton {
-            get { return singleton; }
+        public static BooleanSerializer BooleanRepresentation {
+            get { return booleanRepresentation; }
+        }
+
+        public static BooleanSerializer DoubleRepresentation {
+            get { return doubleRepresentation; }
+        }
+
+        public static BooleanSerializer Int32Representation {
+            get { return int32Representation; }
+        }
+
+        public static BooleanSerializer Int64Representation {
+            get { return int64Representation; }
+        }
+
+        public static BooleanSerializer StringRepresentation {
+            get { return stringRepresentation; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(bool), singleton);
+            BsonSerializer.RegisterSerializer(typeof(bool), null, booleanRepresentation); // default representation
+            BsonSerializer.RegisterSerializer(typeof(bool), BsonType.Boolean, booleanRepresentation);
+            BsonSerializer.RegisterSerializer(typeof(bool), BsonType.Double, doubleRepresentation);
+            BsonSerializer.RegisterSerializer(typeof(bool), BsonType.Int32, int32Representation);
+            BsonSerializer.RegisterSerializer(typeof(bool), BsonType.Int64, int64Representation);
+            BsonSerializer.RegisterSerializer(typeof(bool), BsonType.String, stringRepresentation);
         }
         #endregion
 
@@ -52,7 +84,24 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            return bsonReader.ReadBoolean();
+            switch (bsonReader.CurrentBsonType) {
+                case BsonType.Boolean:
+                    return bsonReader.ReadBoolean();
+                case BsonType.Double:
+                    return bsonReader.ReadDouble() != 0.0;
+                case BsonType.Int32:
+                    return bsonReader.ReadInt32() != 0;
+                case BsonType.Int64:
+                    return bsonReader.ReadInt64() != 0;
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return false;
+                case BsonType.String:
+                    return XmlConvert.ToBoolean(bsonReader.ReadString().ToLower());
+                default:
+                    var message = string.Format("Cannot deserialize Boolean from BsonType: {0}", bsonReader.CurrentBsonType);
+                    throw new FileFormatException(message);
+            }
         }
 
         public override void Serialize(
@@ -61,7 +110,27 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             bool serializeIdFirst
         ) {
-            bsonWriter.WriteBoolean((bool) value);
+            var boolValue = (bool) value;
+            switch (representation) {
+                case BsonType.Boolean:
+                    bsonWriter.WriteBoolean(boolValue);
+                    break;
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(boolValue ? 1.0 : 0.0);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(boolValue ? 1 : 0);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(boolValue ? 1 : 0);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(XmlConvert.ToString(boolValue));
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid representation for type 'Boolean'", representation);
+                    throw new BsonSerializationException(message);
+            }
         }
         #endregion
     }
@@ -123,12 +192,15 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region private static fields
         private static DateTimeSerializer local = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Local });
         private static DateTimeSerializer localDateOnly = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Local, DateOnly = true });
+        private static DateTimeSerializer localTicks = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.Int64, Kind = DateTimeKind.Local });
         private static DateTimeSerializer stringDateOnly = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.String, DateOnly = true });
         private static DateTimeSerializer stringRepresentation = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.String });
         private static DateTimeSerializer unspecified = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Unspecified });
         private static DateTimeSerializer unspecifiedDateOnly = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Unspecified, DateOnly = true });
+        private static DateTimeSerializer unspecifiedTicks = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.Int64, Kind = DateTimeKind.Unspecified });
         private static DateTimeSerializer utc = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Utc });
         private static DateTimeSerializer utcDateOnly = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.DateTime, Kind = DateTimeKind.Utc, DateOnly = true });
+        private static DateTimeSerializer utcTicks = new DateTimeSerializer(new DateTimeSerializationOptions { Representation = BsonType.Int64, Kind = DateTimeKind.Utc });
         #endregion
 
         #region private fields
@@ -152,6 +224,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             get { return localDateOnly; }
         }
 
+        public static DateTimeSerializer LocalTicks {
+            get { return localTicks; }
+        }
+
         public static DateTimeSerializer StringDateOnly {
             get { return stringDateOnly; }
         }
@@ -168,12 +244,20 @@ namespace MongoDB.Bson.DefaultSerializer {
             get { return unspecifiedDateOnly; }
         }
 
+        public static DateTimeSerializer UnspecifiedTicks {
+            get { return unspecifiedTicks; }
+        }
+
         public static DateTimeSerializer Utc {
             get { return utc; }
         }
 
         public static DateTimeSerializer UtcDateOnly {
             get { return utcDateOnly; }
+        }
+
+        public static DateTimeSerializer UtcTicks {
+            get { return utcTicks; }
         }
         #endregion
 
@@ -182,12 +266,15 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonSerializer.RegisterSerializer(typeof(DateTime), utc); // default options
             BsonSerializer.RegisterSerializer(typeof(DateTime), local.options, local);
             BsonSerializer.RegisterSerializer(typeof(DateTime), localDateOnly.options, localDateOnly);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), localTicks.options, localTicks);
             BsonSerializer.RegisterSerializer(typeof(DateTime), stringDateOnly.options, stringDateOnly);
             BsonSerializer.RegisterSerializer(typeof(DateTime), stringRepresentation.options, stringRepresentation);
             BsonSerializer.RegisterSerializer(typeof(DateTime), unspecified.options, unspecified);
             BsonSerializer.RegisterSerializer(typeof(DateTime), unspecifiedDateOnly.options, unspecifiedDateOnly);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), unspecifiedTicks.options, unspecifiedTicks);
             BsonSerializer.RegisterSerializer(typeof(DateTime), utc.options, utc);
             BsonSerializer.RegisterSerializer(typeof(DateTime), utcDateOnly.options, utcDateOnly);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), utcTicks.options, utcTicks);
         }
         #endregion
 
@@ -196,11 +283,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonReader bsonReader,
             Type nominalType
         ) {
-            var bsonType = bsonReader.CurrentBsonType;
             DateTime value;
-            switch (bsonType) {
+            switch (bsonReader.CurrentBsonType) {
                 case BsonType.DateTime:
                     value = bsonReader.ReadDateTime();
+                    break;
+                case BsonType.Int64:
+                    value = DateTime.SpecifyKind(new DateTime(bsonReader.ReadInt64()), DateTimeKind.Utc);
                     break;
                 case BsonType.String:
                     if (options.DateOnly) {
@@ -210,7 +299,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     }
                     break;
                 default:
-                    var message = string.Format("Can't deserialize DateTime from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize DateTime from BsonType: {0}", bsonReader.CurrentBsonType);
                     throw new FileFormatException(message);
             }
 
@@ -245,17 +334,20 @@ namespace MongoDB.Bson.DefaultSerializer {
                     throw new BsonSerializationException("TimeOfDay component for DateOnly DateTime value is not zero");
                 }
             }
+            if (dateTime.Kind != DateTimeKind.Utc && options.Representation != BsonType.String) {
+                if (options.DateOnly) {
+                    dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToUniversalTime!
+                } else {
+                    dateTime = ToUniversalTimeHelper(dateTime);
+                }
+            }
 
             switch (options.Representation) {
                 case BsonType.DateTime:
-                    if (dateTime.Kind != DateTimeKind.Utc) {
-                        if (options.DateOnly) {
-                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToUniversalTime!
-                        } else {
-                            dateTime = ToUniversalTimeHelper(dateTime);
-                        }
-                    }
                     bsonWriter.WriteDateTime(dateTime);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(dateTime.Ticks);
                     break;
                 case BsonType.String:
                     if (options.DateOnly) {
@@ -268,7 +360,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     }
                     break;
                 default:
-                    var message = string.Format("Invalid representation for DateTime: {0}", options.Representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'DateTime'", options.Representation);
                     throw new BsonSerializationException(message);
             }
         }
