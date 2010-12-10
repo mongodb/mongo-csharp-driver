@@ -44,7 +44,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             VerifyNominalType(nominalType);
             if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
@@ -57,17 +58,19 @@ namespace MongoDB.Bson.DefaultSerializer {
                     var serializer = BsonSerializer.LookupSerializer(actualType);
                     if (serializer != this) {
                         // in rare cases a concrete actualType might have a more specialized serializer
-                        return serializer.Deserialize(bsonReader, nominalType, actualType);
+                        return serializer.Deserialize(bsonReader, nominalType, actualType, options);
                     }
                 }
-                return Deserialize(bsonReader, nominalType, actualType);
+
+                return Deserialize(bsonReader, nominalType, actualType, options);
             }
         }
 
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
-            Type actualType
+            Type actualType,
+            IBsonSerializationOptions options
         ) {
             VerifyNominalType(nominalType);
             if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
@@ -143,7 +146,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();
@@ -160,8 +163,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var classMap = BsonClassMap.LookupClassMap(actualType);
 
                 bsonWriter.WriteStartDocument();
+                var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions) options;
                 BsonMemberMap idMemberMap = null;
-                if (serializeIdFirst) {
+                if (documentOptions.SerializeIdFirst) {
                     idMemberMap = classMap.IdMemberMap;
                     if (idMemberMap != null) {
                         SerializeMember(bsonWriter, value, idMemberMap);
@@ -209,17 +213,15 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonMemberMap memberMap
         ) {
             var nominalType = memberMap.MemberType;
-            object value;
+            Type actualType;
             if (bsonReader.CurrentBsonType == BsonType.Null) {
-                var actualType = nominalType;
-                var serializer = memberMap.GetSerializerForActualType(actualType);
-                value = serializer.Deserialize(bsonReader, nominalType, actualType);
+                actualType = nominalType;
             } else {
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
-                var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
-                var serializer = memberMap.GetSerializerForActualType(actualType);
-                value = serializer.Deserialize(bsonReader, nominalType, actualType);
+                actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
             }
+            var serializer = memberMap.GetSerializerForActualType(actualType);
+            var value = serializer.Deserialize(bsonReader, nominalType, actualType, memberMap.SerializationOptions);
             memberMap.Setter(obj, value);
         }
 
@@ -241,7 +243,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             var serializer = memberMap.GetSerializerForActualType(actualType);
             var elementName = memberMap.ElementName;
             bsonWriter.WriteName(elementName);
-            serializer.Serialize(bsonWriter, nominalType, value, false);
+            serializer.Serialize(bsonWriter, nominalType, value, memberMap.SerializationOptions);
         }
 
         private void VerifyNominalType(

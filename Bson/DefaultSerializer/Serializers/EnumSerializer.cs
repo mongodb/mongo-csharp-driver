@@ -26,65 +26,25 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class EnumSerializer : BsonBaseSerializer {
         #region private static fields
-        private static EnumSerializer defaultRepresentation = new EnumSerializer(0);
-        private static EnumSerializer int32Representation = new EnumSerializer(BsonType.Int32);
-        private static EnumSerializer int64Representation = new EnumSerializer(BsonType.Int64);
-        private static EnumSerializer stringRepresentation = new EnumSerializer(BsonType.String);
-        #endregion
-
-        #region private fields
-        private BsonType representation;
+        private static EnumSerializer singleton = new EnumSerializer();
         #endregion
 
         #region constructors
-        private EnumSerializer(
-            BsonType representation
-        ) {
-            this.representation = representation;
+        private EnumSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static EnumSerializer DefaultRepresentation {
-            get { return defaultRepresentation; }
-        }
-
-        public static EnumSerializer Int32Representation {
-            get { return int32Representation; }
-        }
-
-        public static EnumSerializer Int64Representation {
-            get { return int64Representation; }
-        }
-
-        public static EnumSerializer StringRepresentation {
-            get { return stringRepresentation; }
-        }
-        #endregion
-
-        #region public static methods
-        public static EnumSerializer GetSerializer(
-            object serializationOptions
-        ) {
-            if (serializationOptions == null) {
-                return defaultRepresentation;
-            } else {
-                switch ((BsonType) serializationOptions) {
-                    case BsonType.Int32: return int32Representation;
-                    case BsonType.Int64: return int64Representation;
-                    case BsonType.String: return stringRepresentation;
-                    default:
-                        var message = string.Format("Invalid representation: {0}", serializationOptions);
-                        throw new BsonSerializationException(message);
-                }
-            }
+        public static EnumSerializer Singleton {
+            get { return singleton; }
         }
         #endregion
 
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             VerifyNominalType(nominalType);
             var bsonType = bsonReader.CurrentBsonType;
@@ -103,9 +63,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             VerifyNominalType(nominalType);
+            var representation = (options == null) ? 0 : ((RepresentationSerializationOptions) options).Representation;
             switch (representation) {
                 case 0:
                     var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(nominalType));

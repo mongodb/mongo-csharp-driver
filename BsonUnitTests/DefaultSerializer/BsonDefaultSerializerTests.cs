@@ -47,7 +47,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             private class DateOfBirthSerializer : BsonBaseSerializer {
                 public override object Deserialize(
                     BsonReader bsonReader,
-                    Type nominalType
+                    Type nominalType,
+                    IBsonSerializationOptions options
                 ) {
                     return DateTime.Parse(bsonReader.ReadString());
                 }
@@ -56,7 +57,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                     BsonWriter bsonWriter,
                     Type nominalType,
                     object value,
-                    bool serializeIdFirst
+                    IBsonSerializationOptions options
                 ) {
                     var dateTime = (DateTime) value;
                     bsonWriter.WriteString(dateTime.ToString("yyyy-MM-dd"));

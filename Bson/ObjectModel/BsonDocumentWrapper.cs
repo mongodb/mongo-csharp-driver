@@ -86,7 +86,8 @@ namespace MongoDB.Bson {
 
         public object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
         }
@@ -111,9 +112,9 @@ namespace MongoDB.Bson {
         public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, serializeIdFirst);
+            BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, options);
         }
 
         public void SetDocumentId(

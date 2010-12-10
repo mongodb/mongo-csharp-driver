@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Internal {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
             } else {
-                BsonSerializer.Serialize(bsonWriter, query.GetType(), query, true); // serializeIdFirst
+                BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
         }
         #endregion

@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MongoDB.Bson.Serialization;
+
 namespace MongoDB.Bson.DefaultSerializer {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public abstract class BsonSerializationOptionsAttribute : Attribute {
@@ -27,7 +29,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public abstract object GetOptions();
+        public abstract IBsonSerializationOptions GetOptions();
         #endregion
     }
 }

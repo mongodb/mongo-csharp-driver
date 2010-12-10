@@ -88,7 +88,8 @@ namespace MongoDB.Driver {
         #region explicit interface implementations
         object IBsonSerializable.Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             bsonReader.ReadStartDocument();
             string message;
@@ -155,7 +156,7 @@ namespace MongoDB.Driver {
         void IBsonSerializable.Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteString("$ref", collectionName);

@@ -32,28 +32,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public class NullableSerializer<T> : BsonBaseSerializer {
+    public class NullableSerializer<T> : BsonBaseSerializer where T : struct {
+        #region private fields
+        private IBsonSerializer serializer;
+        #endregion
+
         #region constructors
         public NullableSerializer() {
-        }
-
-        public NullableSerializer(
-            object serializationOptions
-        ) {
+            serializer = BsonSerializer.LookupSerializer(typeof(T));
         }
         #endregion
 
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
                 bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonSerializer.Deserialize<T>(bsonReader);
+                return serializer.Deserialize(bsonReader, typeof(T), options);
             }
         }
 
@@ -61,12 +62,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                BsonSerializer.Serialize<T>(bsonWriter, (T) value, serializeIdFirst);
+                serializer.Serialize(bsonWriter, typeof(T), value, options);
             }
         }
         #endregion

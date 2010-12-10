@@ -32,19 +32,19 @@ namespace MongoDB.Bson {
 
         public static byte[] ToBson<T>(
             this T obj,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            return ToBson(obj, serializeIdFirst, BsonBinaryWriterSettings.Defaults);
+            return ToBson(obj, options, BsonBinaryWriterSettings.Defaults);
         }
 
         public static byte[] ToBson<T>(
             this T obj,
-            bool serializeIdFirst,
+            IBsonSerializationOptions options,
             BsonBinaryWriterSettings settings
         ) {
             using (var buffer = new BsonBuffer()) {
                 using (var bsonWriter = BsonWriter.Create(buffer, settings)) {
-                    BsonSerializer.Serialize<T>(bsonWriter, obj, serializeIdFirst);
+                    BsonSerializer.Serialize<T>(bsonWriter, obj, options);
                 }
                 return buffer.ToByteArray();
             }
@@ -54,7 +54,7 @@ namespace MongoDB.Bson {
             this T obj,
             BsonBinaryWriterSettings settings
         ) {
-            return ToBson(obj, false, settings);
+            return ToBson(obj, null, settings);
         }
 
         public static BsonDocument ToBsonDocument<T>(
@@ -77,7 +77,7 @@ namespace MongoDB.Bson {
             // otherwise serialize it and then deserialize it into a new BsonDocument
             using (var buffer = new BsonBuffer()) {
                 using (var bsonWriter = BsonWriter.Create(buffer)) {
-                    BsonSerializer.Serialize<T>(bsonWriter, obj, false);
+                    BsonSerializer.Serialize<T>(bsonWriter, obj, null);
                 }
                 buffer.Position = 0;
                 using (var bsonReader = BsonReader.Create(buffer)) {
@@ -95,19 +95,19 @@ namespace MongoDB.Bson {
 
         public static string ToJson<T>(
             this T obj,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            return ToJson(obj, serializeIdFirst, BsonJsonWriterSettings.Defaults);
+            return ToJson(obj, options, BsonJsonWriterSettings.Defaults);
         }
 
         public static string ToJson<T>(
             this T obj,
-            bool serializeIdFirst,
+            IBsonSerializationOptions options,
             BsonJsonWriterSettings settings
         ) {
             using (var stringWriter = new StringWriter()) {
                 using (var bsonWriter = BsonWriter.Create(stringWriter, settings)) {
-                    BsonSerializer.Serialize<T>(bsonWriter, obj, serializeIdFirst);
+                    BsonSerializer.Serialize<T>(bsonWriter, obj, options);
                 }
                 return stringWriter.ToString();
             }
@@ -117,7 +117,7 @@ namespace MongoDB.Bson {
             this T obj,
             BsonJsonWriterSettings settings
         ) {
-            return ToJson(obj, false, settings);
+            return ToJson(obj, null, settings);
         }
     }
 }

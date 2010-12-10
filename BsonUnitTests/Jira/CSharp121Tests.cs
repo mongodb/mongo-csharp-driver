@@ -30,10 +30,6 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp121 {
     public class C {
         [BsonRepresentation(BsonType.String)]
         public Guid PhotoId { get; set; }
-
-        // test that an invalid serialization option uses default instead
-        [BsonRepresentation(BsonType.Timestamp)]
-        public Guid Invalid { get; set; }
     }
 
     [TestFixture]
@@ -42,9 +38,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp121 {
         public void TestGuidStringRepresentation() {
             var c = new C { PhotoId = Guid.Empty };
             var json = c.ToJson();
-            var expected = "{ 'PhotoId' : #S, 'Invalid' : #I }";
+            var expected = "{ 'PhotoId' : #S }";
             expected = expected.Replace("#S", "'00000000-0000-0000-0000-000000000000'");
-            expected = expected.Replace("#I", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 

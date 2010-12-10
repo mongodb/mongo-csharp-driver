@@ -41,7 +41,8 @@ namespace MongoDB.Driver {
         #region public methods
         public object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             var message = string.Format("Deserialize method cannot be called on a {0}", this.GetType().Name);
             throw new InvalidOperationException(message);
@@ -58,9 +59,9 @@ namespace MongoDB.Driver {
         public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType, // ignored
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            BsonSerializer.Serialize(bsonWriter, this.nominalType, obj, serializeIdFirst); // use wrapped nominalType
+            BsonSerializer.Serialize(bsonWriter, this.nominalType, obj, options); // use wrapped nominalType
         }
 
         public void SetDocumentId(

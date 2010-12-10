@@ -213,7 +213,7 @@ namespace MongoDB.Bson {
             BsonReader bsonReader
         ) {
             BsonDocument document = new BsonDocument();
-            return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument));
+            return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument), null);
         }
 
         public static BsonDocument ReadFrom(
@@ -374,7 +374,8 @@ namespace MongoDB.Bson {
 
         public object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
                 bsonReader.ReadNull();
@@ -529,12 +530,13 @@ namespace MongoDB.Bson {
         public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             bsonWriter.WriteStartDocument();
 
+            var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions) options;
             int idIndex;
-            if (serializeIdFirst && indexes.TryGetValue("_id", out idIndex)) {
+            if (documentOptions.SerializeIdFirst && indexes.TryGetValue("_id", out idIndex)) {
                 elements[idIndex].WriteTo(bsonWriter);
             } else {
                 idIndex = -1; // remember that when TryGetValue returns false it sets idIndex to 0
@@ -631,7 +633,7 @@ namespace MongoDB.Bson {
         public new void WriteTo(
             BsonWriter bsonWriter
         ) {
-            Serialize(bsonWriter, typeof(BsonDocument), false);
+            Serialize(bsonWriter, typeof(BsonDocument), null);
         }
 
         public void WriteTo(

@@ -14,18 +14,27 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
-    public interface IBsonSerializable {
-        // Deserialize can return a new object (i.e. a subclass of nominalType) or even null
-        object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options);
-        bool GetDocumentId(out object id, out IIdGenerator idGenerator);
-        void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options);
-        void SetDocumentId(object id);
+    public class RepresentationSerializationOptions : IBsonSerializationOptions {
+        #region private fields
+        private BsonType representation;
+        #endregion
+
+        #region constructors
+        public RepresentationSerializationOptions(
+            BsonType representation
+        ) {
+            this.representation = representation;
+        }
+        #endregion
+
+        #region public properties
+        public BsonType Representation {
+            get { return representation; }
+        }
+        #endregion
     }
 }

@@ -202,8 +202,7 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         #region public methods
         public IBsonSerializer GetSerializer(
-            Type type,
-            object serializationOptions
+            Type type
         ) {
             if (type.IsArray) {
                 var elementType = type.GetElementType();
@@ -211,15 +210,15 @@ namespace MongoDB.Bson.DefaultSerializer {
                     case 1:
                         var arraySerializerDefinition = typeof(ArraySerializer<>);
                         var arraySerializerType = arraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer) Activator.CreateInstance(arraySerializerType, serializationOptions);
+                        return (IBsonSerializer) Activator.CreateInstance(arraySerializerType);
                     case 2:
                         var twoDimensionalArraySerializerDefinition = typeof(TwoDimensionalArraySerializer<>);
                         var twoDimensionalArraySerializerType = twoDimensionalArraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer) Activator.CreateInstance(twoDimensionalArraySerializerType, serializationOptions);
+                        return (IBsonSerializer) Activator.CreateInstance(twoDimensionalArraySerializerType);
                     case 3:
                         var threeDimensionalArraySerializerDefinition = typeof(ThreeDimensionalArraySerializer<>);
                         var threeDimensionalArraySerializerType = threeDimensionalArraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer) Activator.CreateInstance(threeDimensionalArraySerializerType, serializationOptions);
+                        return (IBsonSerializer) Activator.CreateInstance(threeDimensionalArraySerializerType);
                     default:
                         var message = string.Format("No serializer found for array for rank: {0}", type.GetArrayRank());
                         throw new BsonSerializationException(message);
@@ -227,15 +226,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
 
             if (type.IsEnum) {
-                return EnumSerializer.GetSerializer(serializationOptions);
-            }
-
-            // if serializationOptions were invalid use serializer for type with default serializationOptions
-            if (serializationOptions != null) {
-                var serializer = BsonSerializer.LookupSerializer(type, null);
-                if (serializer != null) {
-                    return serializer;
-                }
+                return EnumSerializer.Singleton;
             }
 
             if (

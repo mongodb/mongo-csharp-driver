@@ -14,14 +14,15 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.DefaultSerializer {
-    // [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonDateTimeOptionsAttribute : BsonSerializationOptionsAttribute {
+using MongoDB.Bson.IO;
+
+namespace MongoDB.Bson.Serialization {
+    public class DateTimeSerializationOptions : IBsonSerializationOptions {
+        #region private static fields
+        private static DateTimeSerializationOptions defaults = new DateTimeSerializationOptions();
+        #endregion
+
         #region private fields
         private bool dateOnly = false;
         private DateTimeKind kind = DateTimeKind.Utc;
@@ -29,7 +30,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
-        public BsonDateTimeOptionsAttribute() {
+        public DateTimeSerializationOptions() {
+        }
+        #endregion
+
+        #region public static properties
+        public static DateTimeSerializationOptions Defaults {
+            get { return defaults; }
+            set { defaults = value; }
         }
         #endregion
 
@@ -47,12 +55,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonType Representation {
             get { return representation; }
             set { representation = value; }
-        }
-        #endregion
-
-        #region public methods
-        public override IBsonSerializationOptions GetOptions() {
-            return new DateTimeSerializationOptions { DateOnly = dateOnly, Kind = kind, Representation = representation };
         }
         #endregion
     }

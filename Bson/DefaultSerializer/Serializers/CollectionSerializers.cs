@@ -52,7 +52,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
@@ -66,7 +67,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
-                    var element = serializer.Deserialize(bsonReader, typeof(object), elementType);
+                    var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
                     list.Add(element);
                 }
                 bsonReader.ReadEndArray();
@@ -81,7 +82,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();
@@ -124,7 +125,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
@@ -138,7 +140,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
-                    var element = serializer.Deserialize(bsonReader, typeof(object), elementType);
+                    var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
                     queue.Enqueue(element);
                 }
                 bsonReader.ReadEndArray();
@@ -153,7 +155,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();
@@ -196,7 +198,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
@@ -210,7 +213,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
-                    var element = serializer.Deserialize(bsonReader, typeof(object), elementType);
+                    var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
                     stack.Push(element);
                 }
                 bsonReader.ReadEndArray();
@@ -225,7 +228,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();

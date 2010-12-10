@@ -38,7 +38,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             VerifyType(nominalType);
             var bsonType = bsonReader.CurrentBsonType;
@@ -62,7 +63,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();
@@ -105,7 +106,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             VerifyType(nominalType);
             var bsonType = bsonReader.CurrentBsonType;
@@ -151,7 +153,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();
@@ -200,7 +202,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             VerifyType(nominalType);
             var bsonType = bsonReader.CurrentBsonType;
@@ -261,7 +264,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();

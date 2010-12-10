@@ -86,9 +86,9 @@ namespace MongoDB.Driver.Builders {
         protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            document.Serialize(bsonWriter, nominalType, serializeIdFirst);
+            document.Serialize(bsonWriter, nominalType, options);
         }
         #endregion
     }
