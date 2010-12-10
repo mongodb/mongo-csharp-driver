@@ -521,12 +521,22 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             BsonType bsonType = bsonReader.CurrentBsonType;
+            long ticks;
+            TimeSpan offset;
             switch (bsonType) {
                 case BsonType.Array:
-                    var array = BsonArray.ReadFrom(bsonReader);
-                    var dateTime = new DateTime(array[0].AsInt64);
-                    var offset = TimeSpan.FromMinutes(array[1].AsInt32);
-                    return new DateTimeOffset(dateTime, offset);
+                    bsonReader.ReadStartArray();
+                    ticks = bsonReader.ReadInt64("0");
+                    offset = TimeSpan.FromMinutes(bsonReader.ReadInt32("1"));
+                    bsonReader.ReadEndArray();
+                    return new DateTimeOffset(ticks, offset);
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadDateTime("DateTime"); // ignore value
+                    ticks = bsonReader.ReadInt64("Ticks");
+                    offset = TimeSpan.FromMinutes(bsonReader.ReadInt32("Offset"));
+                    bsonReader.ReadEndDocument();
+                    return new DateTimeOffset(ticks, offset);
                 case BsonType.String:
                     return XmlConvert.ToDateTimeOffset(bsonReader.ReadString());
                 default:
@@ -547,9 +557,16 @@ namespace MongoDB.Bson.DefaultSerializer {
             switch (representation) {
                 case BsonType.Array:
                     bsonWriter.WriteStartArray();
-                    bsonWriter.WriteInt64("0", dateTimeOffset.DateTime.Ticks);
+                    bsonWriter.WriteInt64("0", dateTimeOffset.Ticks);
                     bsonWriter.WriteInt32("1", (int) dateTimeOffset.Offset.TotalMinutes);
                     bsonWriter.WriteEndArray();
+                    break;
+                case BsonType.Document:
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteDateTime("DateTime", dateTimeOffset.UtcDateTime);
+                    bsonWriter.WriteInt64("Ticks", dateTimeOffset.Ticks);
+                    bsonWriter.WriteInt32("Offset", (int) dateTimeOffset.Offset.TotalMinutes);
+                    bsonWriter.WriteEndDocument();
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(XmlConvert.ToString(dateTimeOffset));

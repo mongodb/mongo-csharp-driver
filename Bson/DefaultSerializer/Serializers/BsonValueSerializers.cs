@@ -980,11 +980,17 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull();
-                return null;
-            } else {
-                return BsonSymbol.Create(bsonReader.ReadSymbol());
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.String:
+                    return BsonSymbol.Create(bsonReader.ReadString());
+                case BsonType.Symbol:
+                    return BsonSymbol.Create(bsonReader.ReadSymbol());
+                default:
+                    var message = string.Format("Cannot deserialize BsonSymbol from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -998,7 +1004,18 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 var symbol = (BsonSymbol) value;
-                bsonWriter.WriteSymbol(symbol.Name);
+                var representation = (options == null) ? BsonType.Symbol : ((RepresentationSerializationOptions) options).Representation;
+                switch (representation) {
+                    case BsonType.String:
+                        bsonWriter.WriteString(symbol.Name);
+                        break;
+                    case BsonType.Symbol:
+                        bsonWriter.WriteSymbol(symbol.Name);
+                        break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type 'BsonSymbol'", representation);
+                        throw new BsonSerializationException(message);
+                }
             }
         }
         #endregion

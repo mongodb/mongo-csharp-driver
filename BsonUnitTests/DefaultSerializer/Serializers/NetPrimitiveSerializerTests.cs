@@ -475,6 +475,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public class TestClass {
             [BsonRepresentation(BsonType.Array)]
             public DateTimeOffset A { get; set; }
+            [BsonRepresentation(BsonType.Document)]
+            public DateTimeOffset D { get; set; }
             [BsonRepresentation(BsonType.String)]
             public DateTimeOffset S { get; set; }
         }
@@ -484,13 +486,22 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestSerializeDateTimeOffset() {
             var value = new DateTimeOffset(new DateTime(2010, 10, 8, 11, 29, 0), TimeSpan.FromHours(-4));
+            var milliseconds = (long) (value - BsonConstants.UnixEpoch).TotalMilliseconds;
             var obj = new TestClass {
                 A = value,
+                D = value,
                 S = value
             };
             var json = obj.ToJson();
-            var expected = "{ 'A' : #A, 'S' : '2010-10-08T11:29:00-04:00' }";
+            var expected = "{ 'A' : #A, 'D' : #D, 'S' : '#S' }";
             expected = expected.Replace("#A", string.Format("[{0}, {1}]", value.DateTime.Ticks, value.Offset.TotalMinutes));
+            expected = expected.Replace("#D",
+                "{ 'DateTime' : { '$date' : #D }, 'Ticks' : #T, 'Offset' : #O }"
+                    .Replace("#D", milliseconds.ToString())
+                    .Replace("#T", value.DateTime.Ticks.ToString())
+                    .Replace("#O", value.Offset.TotalMinutes.ToString())
+            );
+            expected = expected.Replace("#S", "2010-10-08T11:29:00-04:00");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 

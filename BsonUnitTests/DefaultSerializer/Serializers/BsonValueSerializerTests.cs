@@ -22,6 +22,7 @@ using System.Xml;
 using NUnit.Framework;
 
 using MongoDB.Bson;
+using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
@@ -1116,17 +1117,21 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             ) {
                 this.B = value;
                 this.V = value;
+                this.S = value;
             }
 
             public BsonValue B { get; set; }
+            [BsonRepresentation(BsonType.Symbol)]
             public BsonSymbol V { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public BsonSymbol S { get; set; }
         }
 
         [Test]
         public void TestNull() {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : #, 'S' : # }".Replace("#", "null").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1139,7 +1144,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestEmpty() {
             var obj = new TestClass("");
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$symbol' : '' }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : #, 'S' : '' }".Replace("#", "{ '$symbol' : '' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1152,7 +1157,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestHelloWorld() {
             var obj = new TestClass("Hello World");
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$symbol' : 'Hello World' }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : #, 'S' : 'Hello World' }".Replace("#", "{ '$symbol' : 'Hello World' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

@@ -142,6 +142,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                 case BsonType.DateTime:
                     value = bsonReader.ReadDateTime();
                     break;
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadDateTime("DateTime"); // ignore value (use Ticks instead)
+                    value = DateTime.SpecifyKind(new DateTime(bsonReader.ReadInt64("Ticks")), DateTimeKind.Utc);
+                    bsonReader.ReadEndDocument();
+                    break;
                 case BsonType.Int64:
                     value = DateTime.SpecifyKind(new DateTime(bsonReader.ReadInt64()), DateTimeKind.Utc);
                     break;
@@ -202,6 +208,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             switch (dateTimeOptions.Representation) {
                 case BsonType.DateTime:
                     bsonWriter.WriteDateTime(dateTime);
+                    break;
+                case BsonType.Document:
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteDateTime("DateTime", dateTime);
+                    bsonWriter.WriteInt64("Ticks", dateTime.Ticks);
+                    bsonWriter.WriteEndDocument();
                     break;
                 case BsonType.Int64:
                     bsonWriter.WriteInt64(dateTime.Ticks);

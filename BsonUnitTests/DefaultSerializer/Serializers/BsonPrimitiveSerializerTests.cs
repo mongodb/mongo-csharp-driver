@@ -88,10 +88,12 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             public DateTime String;
             [BsonDateTimeOptions(Representation = BsonType.String, DateOnly = true)]
             public DateTime DateOnlyString;
+            [BsonDateTimeOptions(Representation = BsonType.Document)]
+            public DateTime Document;
         }
 
         private static string expectedTemplate = 
-            "{ 'Default' : #Default, 'Local' : #Local, 'Unspecified' : #Unspecified, 'Utc' : #Utc, 'Ticks' : #Ticks, 'String' : '#String', 'DateOnlyString' : '#DateOnlyString' }";
+            "{ 'Default' : #Default, 'Local' : #Local, 'Unspecified' : #Unspecified, 'Utc' : #Utc, 'Ticks' : #Ticks, 'String' : '#String', 'DateOnlyString' : '#DateOnlyString', 'Document' : #Document }";
 
         [Test]
         public void TestMinLocal() {
@@ -103,7 +105,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = minLocal,
                 Ticks = minLocal,
                 String = minLocal,
-                DateOnlyString = minLocal.Date
+                DateOnlyString = minLocal.Date,
+                Document = minLocal
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -114,6 +117,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", "0");
             expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
             expected = expected.Replace("#DateOnlyString", "0001-01-01");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -126,6 +130,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTime.MinValue, rehydrated.Ticks);
             Assert.AreEqual(DateTime.MinValue, rehydrated.String);
             Assert.AreEqual(DateTime.MinValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -133,6 +138,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
@@ -145,7 +151,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = minUnspecified,
                 Ticks = minUnspecified,
                 String = minUnspecified,
-                DateOnlyString = minUnspecified.Date
+                DateOnlyString = minUnspecified.Date,
+                Document = minUnspecified
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -156,6 +163,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", "0");
             expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
             expected = expected.Replace("#DateOnlyString", "0001-01-01");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -168,6 +176,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTime.MinValue, rehydrated.Ticks);
             Assert.AreEqual(DateTime.MinValue, rehydrated.String);
             Assert.AreEqual(DateTime.MinValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -175,6 +184,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
@@ -187,7 +197,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = minUtc,
                 Ticks = minUtc,
                 String = minUtc,
-                DateOnlyString = minUtc.Date
+                DateOnlyString = minUtc.Date,
+                Document = minUtc
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -198,6 +209,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", "0");
             expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
             expected = expected.Replace("#DateOnlyString", "0001-01-01");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -210,6 +222,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTime.MinValue, rehydrated.Ticks);
             Assert.AreEqual(DateTime.MinValue, rehydrated.String);
             Assert.AreEqual(DateTime.MinValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -217,6 +230,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
@@ -229,7 +243,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = maxLocal,
                 Ticks = maxLocal,
                 String = maxLocal,
-                DateOnlyString = maxLocal.Date
+                DateOnlyString = maxLocal.Date,
+                Document = maxLocal
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -240,6 +255,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", "3155378975999999999");
             expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -252,6 +268,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTime.MaxValue, rehydrated.Ticks);
             Assert.AreEqual(DateTime.MaxValue, rehydrated.String);
             Assert.AreEqual(DateTime.MaxValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -259,6 +276,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
@@ -271,7 +289,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = maxUnspecified,
                 Ticks = maxUnspecified,
                 String = maxUnspecified,
-                DateOnlyString = maxUnspecified.Date
+                DateOnlyString = maxUnspecified.Date,
+                Document = maxUnspecified
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -282,6 +301,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", "3155378975999999999");
             expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -294,6 +314,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTime.MaxValue, rehydrated.Ticks);
             Assert.AreEqual(DateTime.MaxValue, rehydrated.String);
             Assert.AreEqual(DateTime.MaxValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -301,6 +322,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
@@ -313,7 +335,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = maxUtc,
                 Ticks = maxUtc,
                 String = maxUtc,
-                DateOnlyString = maxUtc.Date
+                DateOnlyString = maxUtc.Date,
+                Document = maxUtc
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -324,6 +347,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", "3155378975999999999");
             expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -336,6 +360,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTime.MaxValue, rehydrated.Ticks);
             Assert.AreEqual(DateTime.MaxValue, rehydrated.String);
             Assert.AreEqual(DateTime.MaxValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -343,6 +368,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
@@ -356,7 +382,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = local,
                 Ticks = local,
                 String = local,
-                DateOnlyString = local.Date
+                DateOnlyString = local.Date,
+                Document = local
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -369,6 +396,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", utc.Ticks.ToString());
             expected = expected.Replace("#String", XmlConvert.ToString(local, XmlDateTimeSerializationMode.RoundtripKind));
             expected = expected.Replace("#DateOnlyString", local.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -383,6 +411,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(utc, rehydrated.Ticks);
             Assert.AreEqual(utc, rehydrated.String);
             Assert.AreEqual(local.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(utc, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -390,6 +419,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
@@ -403,7 +433,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = unspecified,
                 Ticks = unspecified,
                 String = unspecified,
-                DateOnlyString = unspecified.Date
+                DateOnlyString = unspecified.Date,
+                Document = unspecified
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -416,6 +447,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", utc.Ticks.ToString());
             expected = expected.Replace("#String", XmlConvert.ToString(unspecified, XmlDateTimeSerializationMode.RoundtripKind));
             expected = expected.Replace("#DateOnlyString", unspecified.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -430,6 +462,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(utc, rehydrated.Ticks);
             Assert.AreEqual(utc, rehydrated.String);
             Assert.AreEqual(unspecified.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(utc, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -437,6 +470,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
@@ -449,7 +483,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 Utc = utc,
                 Ticks = utc,
                 String = utc,
-                DateOnlyString = utc.Date
+                DateOnlyString = utc.Date,
+                Document = utc
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
@@ -462,6 +497,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Ticks", utc.Ticks.ToString());
             expected = expected.Replace("#String", XmlConvert.ToString(utc, XmlDateTimeSerializationMode.RoundtripKind));
             expected = expected.Replace("#DateOnlyString", utc.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -476,6 +512,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(utc, rehydrated.Ticks);
             Assert.AreEqual(utc, rehydrated.String);
             Assert.AreEqual(utc.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(utc, rehydrated.Document);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
             Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
             Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
@@ -483,6 +520,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
             Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
     }
 
