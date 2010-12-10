@@ -57,6 +57,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             BsonType bsonType = bsonReader.CurrentBsonType;
+            BitArray bitArray;
             byte[] bytes;
             BsonBinarySubType subType;
             string message;
@@ -80,8 +81,24 @@ namespace MongoDB.Bson.DefaultSerializer {
                         throw new FileFormatException(message);
                     }
                     bsonReader.ReadEndDocument();
-                    var bitArray = new BitArray(bytes);
+                    bitArray = new BitArray(bytes);
                     bitArray.Length = length;
+                    return bitArray;
+                case BsonType.String:
+                    var s = bsonReader.ReadString();
+                    bitArray = new BitArray(s.Length);
+                    for (int i = 0; i < s.Length; i++) {
+                        var c = s[i];
+                        switch (c) {
+                            case '0':
+                                break;
+                            case '1':
+                                bitArray[i] = true;
+                                break;
+                            default:
+                                throw new FileFormatException("String value is not a valid BitArray");
+                        }
+                    }
                     return bitArray;
                 default:
                     message = string.Format("Cannot deserialize Byte[] from BsonType: {0}", bsonType);
@@ -100,13 +117,28 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 var bitArray = (BitArray) value;
-                if ((bitArray.Length % 8) == 0) {
-                    bsonWriter.WriteBinaryData(GetBytes(bitArray), BsonBinarySubType.Binary);
-                } else {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteInt32("Length", bitArray.Length);
-                    bsonWriter.WriteBinaryData("Bytes", GetBytes(bitArray), BsonBinarySubType.Binary);
-                    bsonWriter.WriteEndDocument();
+                var representation = (options == null) ? BsonType.Binary : ((RepresentationSerializationOptions) options).Representation;
+                switch (representation) {
+                    case BsonType.Binary:
+                        if ((bitArray.Length % 8) == 0) {
+                            bsonWriter.WriteBinaryData(GetBytes(bitArray), BsonBinarySubType.Binary);
+                        } else {
+                            bsonWriter.WriteStartDocument();
+                            bsonWriter.WriteInt32("Length", bitArray.Length);
+                            bsonWriter.WriteBinaryData("Bytes", GetBytes(bitArray), BsonBinarySubType.Binary);
+                            bsonWriter.WriteEndDocument();
+                        }
+                        break;
+                    case BsonType.String:
+                        var sb = new StringBuilder(bitArray.Length);
+                        for (int i = 0; i < bitArray.Length; i++) {
+                            sb.Append(bitArray[i] ? '1' : '0');
+                        }
+                        bsonWriter.WriteString(sb.ToString());
+                        break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type 'BitArray'", representation);
+                        throw new BsonSerializationException(message);
                 }
             }
         }
@@ -162,18 +194,30 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             BsonType bsonType = bsonReader.CurrentBsonType;
+            byte[] bytes;
             string message;
             switch (bsonType) {
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Binary:
-                    byte[] bytes;
                     BsonBinarySubType subType;
                     bsonReader.ReadBinaryData(out bytes, out subType);
                     if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary) {
                         message = string.Format("Invalid Binary sub type: {0}", subType);
                         throw new FileFormatException(message);
+                    }
+                    return bytes;
+                case BsonType.String:
+                    var s = bsonReader.ReadString();
+                    if ((s.Length % 2) != 0) {
+                        s = "0" + s; // prepend a zero to make length even
+                    }
+                    bytes = new byte[s.Length / 2];
+                    for (int i = 0; i < s.Length; i += 2) {
+                        var hex = s.Substring(i, 2);
+                        var b = byte.Parse(hex, NumberStyles.HexNumber);
+                        bytes[i / 2] = b;
                     }
                     return bytes;
                 default:
@@ -193,7 +237,22 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 var bytes = (byte[]) value;
-                bsonWriter.WriteBinaryData(bytes, BsonBinarySubType.Binary);
+                var representation = (options == null) ? BsonType.Binary : ((RepresentationSerializationOptions) options).Representation;
+                switch (representation) {
+                    case BsonType.Binary:
+                        bsonWriter.WriteBinaryData(bytes, BsonBinarySubType.Binary);
+                        break;
+                    case BsonType.String:
+                        var sb = new StringBuilder(bytes.Length * 2);
+                        for (int i = 0; i < bytes.Length; i++) {
+                            sb.Append(string.Format("{0:x2}", bytes[i]));
+                        }
+                        bsonWriter.WriteString(sb.ToString());
+                        break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type 'Byte[]'", representation);
+                        throw new BsonSerializationException(message);
+                }
             }
         }
         #endregion
@@ -227,13 +286,47 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            BsonType bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Int32) {
-                return (byte) bsonReader.ReadInt32();
-            } else {
-                var message = string.Format("Cannot deserialize Byte from BsonType: {0}", bsonType);
+            byte value;
+
+            var bsonType = bsonReader.CurrentBsonType;
+            var lostData = false;
+            switch (bsonType) {
+                case BsonType.Binary:
+                    byte[] bytes;
+                    BsonBinarySubType subType;
+                    bsonReader.ReadBinaryData(out bytes, out subType);
+                    if (bytes.Length != 1) {
+                        throw new FileFormatException("Binary data for Byte must be exactly one byte long");
+                    }
+                    value = bytes[0];
+                    break;
+                case BsonType.Int32:
+                    var int32Value = bsonReader.ReadInt32();
+                    value = (byte) int32Value;
+                    lostData = (int) value != int32Value;
+                    break;
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    value = (byte) int64Value;
+                    lostData = (int) value != int64Value;
+                    break;
+                case BsonType.String:
+                    var s = bsonReader.ReadString();
+                    if (s.Length == 1) {
+                        s = "0" + s;
+                    }
+                    value = byte.Parse(s, NumberStyles.HexNumber);
+                    break;
+                default:
+                    var message = string.Format("Cannot deserialize Byte from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
+            }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to Byte", bsonType);
                 throw new FileFormatException(message);
             }
+
+            return value;
         }
 
         public override void Serialize(
@@ -242,7 +335,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             IBsonSerializationOptions options
         ) {
-            bsonWriter.WriteInt32((byte) value);
+            var byteValue = (byte) value;
+            var representation = (options == null) ? BsonType.Int32 : ((RepresentationSerializationOptions) options).Representation;
+            switch (representation) {
+                case BsonType.Binary:
+                    bsonWriter.WriteBinaryData(new byte[] { byteValue }, BsonBinarySubType.Binary);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(byteValue);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(byteValue);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(string.Format("{0:x2}", byteValue));
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid representation for type 'Byte'", representation);
+                    throw new BsonSerializationException(message);
+            }
         }
         #endregion
     }
@@ -303,7 +414,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteString(new string(new[] { charValue }));
                     break;
                 default:
-                    throw new BsonInternalException("Unexpected representation");
+                    var message = string.Format("'{0}' is not a valid representation for type 'Char'", representation);
+                    throw new BsonSerializationException(message);
             }
         }
         #endregion
@@ -443,7 +555,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteString(XmlConvert.ToString(dateTimeOffset));
                     break;
                 default:
-                    throw new BsonInternalException("Unexpected representation");
+                    var message = string.Format("'{0}' is not a valid representation for type 'DateTimeOffset'", representation);
+                    throw new BsonSerializationException(message);
             }
         }
         #endregion
@@ -517,7 +630,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteString(XmlConvert.ToString(decimalValue));
                     break;
                 default:
-                    throw new BsonInternalException("Unexpected representation");
+                    var message = string.Format("'{0}' is not a valid representation for type 'Decimal'", representation);
+                    throw new BsonSerializationException(message);
             }
         }
         #endregion
@@ -551,13 +665,39 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            BsonType bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Int32) {
-                return (short) bsonReader.ReadInt32();
-            } else {
-                var message = string.Format("Cannot deserialize Int16 from BsonType: {0}", bsonType);
+            short value;
+
+            var bsonType = bsonReader.CurrentBsonType;
+            var lostData = false;
+            switch (bsonType) {
+                case BsonType.Double:
+                    var doubleValue = bsonReader.ReadDouble();
+                    value = (short) doubleValue;
+                    lostData = (double) value != doubleValue;
+                    break;
+                case BsonType.Int32:
+                    var int32Value = bsonReader.ReadInt32();
+                    value = (short) int32Value;
+                    lostData = (int) value != int32Value;
+                    break;
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    value = (short) int64Value;
+                    lostData = (long) value != int64Value;
+                    break;
+                case BsonType.String:
+                    value = XmlConvert.ToInt16(bsonReader.ReadString());
+                    break;
+                default:
+                    var message = string.Format("Cannot deserialize Int16 from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
+            }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to Int16", bsonType);
                 throw new FileFormatException(message);
             }
+
+            return value;
         }
 
         public override void Serialize(
@@ -566,7 +706,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             IBsonSerializationOptions options
         ) {
-            bsonWriter.WriteInt32((short) value);
+            var int16Value = (short) value;
+            var representation = (options == null) ? BsonType.Int32 : ((RepresentationSerializationOptions) options).Representation;
+            switch (representation) {
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(int16Value);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(int16Value);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(int16Value);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(XmlConvert.ToString(int16Value));
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid representation for type 'Int16'", representation);
+                    throw new BsonSerializationException(message);
+            }
         }
         #endregion
     }
@@ -599,13 +757,47 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            BsonType bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Int32) {
-                return (sbyte) bsonReader.ReadInt32();
-            } else {
-                var message = string.Format("Cannot deserialize SByte from BsonType: {0}", bsonType);
+            sbyte value;
+
+            var bsonType = bsonReader.CurrentBsonType;
+            var lostData = false;
+            switch (bsonType) {
+                case BsonType.Binary:
+                    byte[] bytes;
+                    BsonBinarySubType subType;
+                    bsonReader.ReadBinaryData(out bytes, out subType);
+                    if (bytes.Length != 1) {
+                        throw new FileFormatException("Binary data for SByte must be exactly one byte long");
+                    }
+                    value = (sbyte) bytes[0];
+                    break;
+                case BsonType.Int32:
+                    var int32Value = bsonReader.ReadInt32();
+                    value = (sbyte) int32Value;
+                    lostData = (int) value != int32Value;
+                    break;
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    value = (sbyte) int64Value;
+                    lostData = (int) value != int64Value;
+                    break;
+                case BsonType.String:
+                    var s = bsonReader.ReadString();
+                    if (s.Length == 1) {
+                        s = "0" + s;
+                    }
+                    value = sbyte.Parse(s, NumberStyles.HexNumber);
+                    break;
+                default:
+                    var message = string.Format("Cannot deserialize SByte from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
+            }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to SByte", bsonType);
                 throw new FileFormatException(message);
             }
+
+            return value;
         }
 
         public override void Serialize(
@@ -614,7 +806,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             IBsonSerializationOptions options
         ) {
-            bsonWriter.WriteInt32((sbyte) value);
+            var sbyteValue = (sbyte) value;
+            var representation = (options == null) ? BsonType.Int32 : ((RepresentationSerializationOptions) options).Representation;
+            switch (representation) {
+                case BsonType.Binary:
+                    bsonWriter.WriteBinaryData(new byte[] { (byte) sbyteValue }, BsonBinarySubType.Binary);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(sbyteValue);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(sbyteValue);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(string.Format("{0:x2}", sbyteValue));
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid representation for type 'Byte'", representation);
+                    throw new BsonSerializationException(message);
+            }
         }
         #endregion
     }
@@ -647,15 +857,38 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            BsonType bsonType = bsonReader.CurrentBsonType;
             double doubleValue;
-            if (bsonType == BsonType.Double) {
-                doubleValue = bsonReader.ReadDouble();
-            } else {
-                var message = string.Format("Cannot deserialize Single from BsonType: {0}", bsonType);
+
+            var bsonType = bsonReader.CurrentBsonType;
+            bool lostData = false;
+            switch (bsonType) {
+                case BsonType.Double:
+                    doubleValue = bsonReader.ReadDouble();
+                    break;
+                case BsonType.Int32:
+                    var int32Value = bsonReader.ReadInt32();
+                    doubleValue = int32Value;
+                    lostData = (int) doubleValue != int32Value;
+                    break;
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    doubleValue = int64Value;
+                    lostData = (long) doubleValue != int64Value;
+                    break;
+                case BsonType.String:
+                    doubleValue = XmlConvert.ToDouble(bsonReader.ReadString());
+                    break;
+                default:
+                    var message = string.Format("Cannot deserialize Single from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
+            }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to Single", bsonType);
                 throw new FileFormatException(message);
             }
-            return doubleValue == double.MinValue ? float.MinValue : doubleValue == double.MaxValue ? float.MaxValue : (float) doubleValue;
+
+            var floatValue = (doubleValue == double.MinValue) ? float.MinValue : (doubleValue == double.MaxValue) ? float.MaxValue : (float) doubleValue;
+            return floatValue;
         }
 
         public override void Serialize(
@@ -666,7 +899,24 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             var floatValue = (float) value;
             var doubleValue = (floatValue == float.MinValue) ? double.MinValue : (floatValue == float.MaxValue) ? double.MaxValue : floatValue;
-            bsonWriter.WriteDouble(doubleValue);
+            var representation = (options == null) ? BsonType.Double : ((RepresentationSerializationOptions) options).Representation;
+            switch (representation) {
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(doubleValue);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32((int) doubleValue);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64((long) doubleValue);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(XmlConvert.ToString(doubleValue));
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid representation for type 'Single'", representation);
+                    throw new BsonSerializationException(message);
+            }
         }
         #endregion
     }
@@ -701,6 +951,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             BsonType bsonType = bsonReader.CurrentBsonType;
             switch (bsonType) {
+                case BsonType.Int32:
+                    return new TimeSpan((long) bsonReader.ReadInt32());
                 case BsonType.Int64:
                     return new TimeSpan(bsonReader.ReadInt64());
                 case BsonType.String:
@@ -727,7 +979,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteString(timeSpan.ToString());
                     break;
                 default:
-                    throw new BsonInternalException("Unexpected representation");
+                    var message = string.Format("'{0}' is not a valid representation for type 'TimeSpan'", representation);
+                    throw new BsonSerializationException(message);
             }
         }
         #endregion
@@ -761,13 +1014,39 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            BsonType bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Int32) {
-                return (ushort) bsonReader.ReadInt32();
-            } else {
-                var message = string.Format("Cannot deserialize UInt16 from BsonType: {0}", bsonType);
+            ushort value;
+
+            var bsonType = bsonReader.CurrentBsonType;
+            var lostData = false;
+            switch (bsonType) {
+                case BsonType.Double:
+                    var doubleValue = bsonReader.ReadDouble();
+                    value = (ushort) doubleValue;
+                    lostData = (double) value != doubleValue;
+                    break;
+                case BsonType.Int32:
+                    var int32Value = bsonReader.ReadInt32();
+                    value = (ushort) int32Value;
+                    lostData = (int) value != int32Value;
+                    break;
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    value = (ushort) int64Value;
+                    lostData = (long) value != int64Value;
+                    break;
+                case BsonType.String:
+                    value = XmlConvert.ToUInt16(bsonReader.ReadString());
+                    break;
+                default:
+                    var message = string.Format("Cannot deserialize uInt16 from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
+            }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to uInt16", bsonType);
                 throw new FileFormatException(message);
             }
+
+            return value;
         }
 
         public override void Serialize(
@@ -776,7 +1055,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             IBsonSerializationOptions options
         ) {
-            bsonWriter.WriteInt32((ushort) value);
+            var uint16Value = (ushort) value;
+            var representation = (options == null) ? BsonType.Int32 : ((RepresentationSerializationOptions) options).Representation;
+            switch (representation) {
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(uint16Value);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(uint16Value);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(uint16Value);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(XmlConvert.ToString(uint16Value));
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid representation for type 'UInt16'", representation);
+                    throw new BsonSerializationException(message);
+            }
         }
         #endregion
     }
@@ -809,13 +1106,37 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            BsonType bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Int32) {
-                return (uint) bsonReader.ReadInt32();
-            } else {
-                var message = string.Format("Cannot deserialize UInt32 from BsonType: {0}", bsonType);
+            uint value;
+
+            var bsonType = bsonReader.CurrentBsonType;
+            var lostData = false;
+            switch (bsonType) {
+                case BsonType.Double:
+                    var doubleValue = bsonReader.ReadDouble();
+                    value = (uint) doubleValue;
+                    lostData = (double) value != doubleValue;
+                    break;
+                case BsonType.Int32:
+                    value = (uint) bsonReader.ReadInt32();
+                    break;
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    value = (uint) int64Value;
+                    lostData = (long) value != int64Value;
+                    break;
+                case BsonType.String:
+                    value = XmlConvert.ToUInt32(bsonReader.ReadString());
+                    break;
+                default:
+                    var message = string.Format("Cannot deserialize uInt32 from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
+            }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to uInt32", bsonType);
                 throw new FileFormatException(message);
             }
+
+            return value;
         }
 
         public override void Serialize(
@@ -824,7 +1145,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             IBsonSerializationOptions options
         ) {
-            bsonWriter.WriteInt32((int) (uint) value);
+            var uint32Value = (uint) value;
+            var representation = (options == null) ? BsonType.Int32 : ((RepresentationSerializationOptions) options).Representation;
+            switch (representation) {
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(uint32Value);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32((int) uint32Value);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(uint32Value);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(XmlConvert.ToString(uint32Value));
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid representation for type 'UInt32'", representation);
+                    throw new BsonSerializationException(message);
+            }
         }
         #endregion
     }
@@ -857,13 +1196,35 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            BsonType bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Int64) {
-                return (ulong) bsonReader.ReadInt64();
-            } else {
-                var message = string.Format("Cannot deserialize UInt64 from BsonType: {0}", bsonType);
+            ulong value;
+
+            var bsonType = bsonReader.CurrentBsonType;
+            var lostData = false;
+            switch (bsonType) {
+                case BsonType.Double:
+                    var doubleValue = bsonReader.ReadDouble();
+                    value = (ulong) doubleValue;
+                    lostData = (double) value != doubleValue;
+                    break;
+                case BsonType.Int32:
+                    value = (ulong) bsonReader.ReadInt32();
+                    break;
+                case BsonType.Int64:
+                    value = (ulong) bsonReader.ReadInt64();
+                    break;
+                case BsonType.String:
+                    value = XmlConvert.ToUInt64(bsonReader.ReadString());
+                    break;
+                default:
+                    var message = string.Format("Cannot deserialize UInt64 from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
+            }
+            if (lostData) {
+                var message = string.Format("Data loss occurred when trying to convert from {0} to UInt64", bsonType);
                 throw new FileFormatException(message);
             }
+
+            return value;
         }
 
         public override void Serialize(
@@ -872,7 +1233,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             IBsonSerializationOptions options
         ) {
-            bsonWriter.WriteInt64((long) (ulong) value);
+            var uint64Value = (ulong) value;
+            var representation = (options == null) ? BsonType.Int64 : ((RepresentationSerializationOptions) options).Representation;
+            switch (representation) {
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(uint64Value);
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32((int) uint64Value);
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64((long) uint64Value);
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(XmlConvert.ToString(uint64Value));
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid representation for type 'UInt64'", representation);
+                    throw new BsonSerializationException(message);
+            }
         }
         #endregion
     }
@@ -1032,7 +1411,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                         bsonWriter.WriteString(version.ToString());
                         break;
                     default:
-                        throw new BsonInternalException("Unexpected representation");
+                        var message = string.Format("'{0}' is not a valid representation for type 'Version'", representation);
+                        throw new BsonSerializationException(message);
                 }
             }
         }

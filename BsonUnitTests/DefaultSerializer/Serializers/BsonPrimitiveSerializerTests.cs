@@ -489,16 +489,27 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class DoubleSerializerTests {
         public class TestClass {
-            public double Double { get; set; }
+            public double D;
+            [BsonRepresentation(BsonType.Int32)]
+            public double I;
+            [BsonRepresentation(BsonType.Int64)]
+            public double L;
+            [BsonRepresentation(BsonType.String)]
+            public double S;
         }
 
         [Test]
         public void TestMin() {
             var obj = new TestClass {
-                Double = double.MinValue
+                D = double.MinValue,
+                I = 0,
+                L = 0,
+                S = double.MinValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Double' : " + double.MinValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", XmlConvert.ToString(double.MinValue));
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -509,10 +520,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMinusOne() {
             var obj = new TestClass {
-                Double = -1.0
+                D = -1.0,
+                I = -1.0,
+                L = -1.0,
+                S = -1.0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : -1 }".Replace("'", "\"");
+            var expected = "{ 'D' : -1, 'I' : -1, 'L' : -1, 'S' : '-1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -523,10 +537,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestZero() {
             var obj = new TestClass {
-                Double = 0.0
+                D = 0.0,
+                I = 0.0,
+                L = 0.0,
+                S = 0.0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : 0 }".Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : 0, 'S' : '0' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -537,10 +554,30 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestOne() {
             var obj = new TestClass {
-                Double = 1.0
+                D = 1.0,
+                I = 1.0,
+                L = 1.0,
+                S = 1.0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : 1 }".Replace("'", "\"");
+            var expected = "{ 'D' : 1, 'I' : 1, 'L' : 1, 'S' : '1' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestOnePointFive() {
+            var obj = new TestClass {
+                D = 1.5,
+                I = 1.5,
+                L = 1.5,
+                S = 1.5
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'D' : 1.5, 'I' : 1, 'L' : 1, 'S' : '1.5' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -551,10 +588,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMax() {
             var obj = new TestClass {
-                Double = double.MaxValue
+                D = double.MaxValue,
+                I = 0,
+                L = 0,
+                S = double.MaxValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Double' : " + double.MaxValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", XmlConvert.ToString(double.MaxValue));
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -565,10 +607,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestNaN() {
             var obj = new TestClass {
-                Double = double.NaN
+                D = double.NaN,
+                I = 0,
+                L = 0,
+                S = double.NaN
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : NaN }".Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", "NaN");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -579,10 +626,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestNegativeInfinity() {
             var obj = new TestClass {
-                Double = double.NegativeInfinity
+                D = double.NegativeInfinity,
+                I = 0,
+                L = 0,
+                S = double.NegativeInfinity
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : -Infinity }".Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", "-INF");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -593,10 +645,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestPositiveInfinity() {
             var obj = new TestClass {
-                Double = double.PositiveInfinity
+                D = double.PositiveInfinity,
+                I = 0,
+                L = 0,
+                S = double.PositiveInfinity
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : Infinity }".Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", "INF");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -656,16 +713,28 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class Int32SerializerTests {
         public class TestClass {
-            public int Int32 { get; set; }
+            [BsonRepresentation(BsonType.Double)]
+            public int D;
+            [BsonRepresentation(BsonType.Int32)]
+            public int I;
+            [BsonRepresentation(BsonType.Int64)]
+            public int L;
+            [BsonRepresentation(BsonType.String)]
+            public int S;
         }
 
         [Test]
         public void TestMin() {
             var obj = new TestClass {
-                Int32 = int.MinValue
+                D = int.MinValue,
+                I = int.MinValue,
+                L = int.MinValue,
+                S = int.MinValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Int32' : " + int.MinValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : #, 'L' : #, 'S' : '#' }";
+            expected = expected.Replace("#", int.MinValue.ToString());
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -676,10 +745,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMinusOne() {
             var obj = new TestClass {
-                Int32 = -1
+                D = -1,
+                I = -1,
+                L = -1,
+                S = -1
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int32' : -1 }".Replace("'", "\"");
+            var expected = "{ 'D' : -1, 'I' : -1, 'L' : -1, 'S' : '-1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -690,10 +762,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestZero() {
             var obj = new TestClass {
-                Int32 = 0
+                D = 0,
+                I = 0,
+                L = 0,
+                S = 0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int32' : 0 }".Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : 0, 'S' : '0' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -704,10 +779,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestOne() {
             var obj = new TestClass {
-                Int32 = 1
+                D = 1,
+                I = 1,
+                L = 1,
+                S = 1
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int32' : 1 }".Replace("'", "\"");
+            var expected = "{ 'D' : 1, 'I' : 1, 'L' : 1, 'S' : '1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -718,10 +796,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMax() {
             var obj = new TestClass {
-                Int32 = int.MaxValue
+                D = int.MaxValue,
+                I = int.MaxValue,
+                L = int.MaxValue,
+                S = int.MaxValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Int32' : " + int.MaxValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : #, 'L' : #, 'S' : '#' }";
+            expected = expected.Replace("#", int.MaxValue.ToString());
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -733,16 +816,28 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class Int64SerializerTests {
         public class TestClass {
-            public long Int64 { get; set; }
+            [BsonRepresentation(BsonType.Double)]
+            public long D;
+            [BsonRepresentation(BsonType.Int32)]
+            public long I;
+            [BsonRepresentation(BsonType.Int64)]
+            public long L;
+            [BsonRepresentation(BsonType.String)]
+            public long S;
         }
 
         [Test]
         public void TestMin() {
             var obj = new TestClass {
-                Int64 = long.MinValue
+                D = 0,
+                I = 0,
+                L = long.MinValue,
+                S = long.MinValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Int64' : " + long.MinValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : #, 'S' : '#' }";
+            expected = expected.Replace("#", long.MinValue.ToString());
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -753,10 +848,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMinusOne() {
             var obj = new TestClass {
-                Int64 = -1
+                D = -1,
+                I = -1,
+                L = -1,
+                S = -1
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int64' : -1 }".Replace("'", "\"");
+            var expected = "{ 'D' : -1, 'I' : -1, 'L' : -1, 'S' : '-1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -767,10 +865,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestZero() {
             var obj = new TestClass {
-                Int64 = 0
+                D = 0,
+                I = 0,
+                L = 0,
+                S = 0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int64' : 0 }".Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : 0, 'S' : '0' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -781,10 +882,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestOne() {
             var obj = new TestClass {
-                Int64 = 1
+                D = 1,
+                I = 1,
+                L = 1,
+                S = 1
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int64' : 1 }".Replace("'", "\"");
+            var expected = "{ 'D' : 1, 'I' : 1, 'L' : 1, 'S' : '1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -795,10 +899,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMax() {
             var obj = new TestClass {
-                Int64 = long.MaxValue
+                D = 0,
+                I = 0,
+                L = long.MaxValue,
+                S = long.MaxValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Int64' : " + long.MaxValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : #, 'S' : '#' }";
+            expected = expected.Replace("#", long.MaxValue.ToString());
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

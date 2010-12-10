@@ -19,6 +19,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace MongoDB.Bson.IO {
     public class BsonJsonWriter : BsonBaseWriter {
@@ -140,7 +141,7 @@ namespace MongoDB.Bson.IO {
             }
 
             WriteNameHelper(name);
-            textWriter.Write(value.ToString(CultureInfo.InvariantCulture));
+            textWriter.Write(XmlConvert.ToString(value));
 
             state = BsonWriteState.Name;
         }

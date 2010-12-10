@@ -59,10 +59,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
-            Type actualType, // ignored
+            Type actualType,
             IBsonSerializationOptions options
         ) {
-            return Deserialize(bsonReader, nominalType, options);
+            var value = (IBsonSerializable) Activator.CreateInstance(actualType, true); // private default constructor OK
+            return value.Deserialize(bsonReader, nominalType, options);
         }
 
         public bool GetDocumentId(

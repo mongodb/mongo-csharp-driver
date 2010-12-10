@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using NUnit.Framework;
 
 using MongoDB.Bson;
@@ -478,7 +479,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestMin() {
             var obj = new TestClass(double.MinValue);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", double.MinValue.ToString()).Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", XmlConvert.ToString(double.MinValue)).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -526,7 +527,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestMax() {
             var obj = new TestClass(double.MaxValue);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", double.MaxValue.ToString()).Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", XmlConvert.ToString(double.MaxValue)).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -550,7 +551,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestNegativeInfinity() {
             var obj = new TestClass(double.NegativeInfinity);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-Infinity").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-INF").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -562,7 +563,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestPositiveInfinity() {
             var obj = new TestClass(double.PositiveInfinity);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Infinity").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "INF").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

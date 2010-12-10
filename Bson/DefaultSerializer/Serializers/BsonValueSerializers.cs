@@ -106,14 +106,18 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull();
-                return null;
-            } else {
-                byte[] bytes;
-                BsonBinarySubType subType;
-                bsonReader.ReadBinaryData(out bytes, out subType);
-                return new BsonBinaryData(bytes, subType);
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Binary:
+                    byte[] bytes;
+                    BsonBinarySubType subType;
+                    bsonReader.ReadBinaryData(out bytes, out subType);
+                    return new BsonBinaryData(bytes, subType);
+                default:
+                    var message = string.Format("Cannot deserialize BsonBinaryData from BsonType: {0}", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -927,7 +931,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonString.Create(bsonReader.ReadString());
+                return BsonString.Create(StringSerializer.Singleton.Deserialize(bsonReader, nominalType, options));
             }
         }
 
@@ -941,7 +945,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 var bsonString = (BsonString) value;
-                bsonWriter.WriteString(bsonString.Value);
+                StringSerializer.Singleton.Serialize(bsonWriter, nominalType, bsonString.Value, options);
             }
         }
         #endregion

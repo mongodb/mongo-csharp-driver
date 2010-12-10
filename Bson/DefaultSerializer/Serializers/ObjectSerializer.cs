@@ -53,7 +53,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             if (nominalType != typeof(object)) {
-                var message = string.Format("ObjectSerializer called for type: {0}", nominalType.FullName);
+                var message = string.Format("ObjectSerializer called for nominal type: {0}", nominalType.FullName);
                 throw new InvalidOperationException(message);
             }
 
