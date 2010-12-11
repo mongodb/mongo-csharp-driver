@@ -1379,5 +1379,11 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
+        [Test]
+        public void Version_Should_Have_VersionSerializer_Default()
+        {
+            IBsonSerializer ser = BsonSerializer.LookupSerializer(typeof(Version));
+            Assert.AreEqual(typeof(VersionSerializer), ser.GetType());
+        }
     }
 }
