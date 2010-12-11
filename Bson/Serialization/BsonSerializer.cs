@@ -151,6 +151,12 @@ namespace MongoDB.Bson.Serialization {
             Type type
         ) {
             lock (staticLock) {
+                // initialize the serialization provider before calling serializers.TryGetValue
+                // so the serialization provider gets a chance to register the serializers first
+                if (serializationProvider == null) {
+                    InitializeSerializationProvider();
+                }
+
                 IBsonSerializer serializer;
                 if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
@@ -168,7 +174,7 @@ namespace MongoDB.Bson.Serialization {
                     }
 
                     if (serializer == null) {
-                        serializer = GetSerializationProvider().GetSerializer(type);
+                        serializer = serializationProvider.GetSerializer(type);
                     }
 
                     if (serializer == null) {
@@ -276,13 +282,13 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region private static methods
-        private static IBsonSerializationProvider GetSerializationProvider() {
+        private static void InitializeSerializationProvider() {
             lock (staticLock) {
+                // repeat the test for null but this time while holding the staticLock
                 if (serializationProvider == null) {
                     DefaultSerializer.BsonDefaultSerializer.Initialize();
                     serializationProvider = DefaultSerializer.BsonDefaultSerializer.Singleton;
                 }
-                return serializationProvider;
             }
         }
 
