@@ -174,7 +174,7 @@ namespace MongoDB.Bson.Serialization {
                     }
 
                     if (serializer == null) {
-                        serializer = GetSerializationProvider().GetSerializer(type);
+                        serializer = serializationProvider.GetSerializer(type);
                     }
 
                     if (serializer == null) {
