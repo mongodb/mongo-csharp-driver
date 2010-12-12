@@ -158,9 +158,7 @@ namespace MongoDB.Bson.Serialization {
                 }
 
                 IBsonSerializer serializer;
-                IBsonSerializationProvider serializationProvider = GetSerializationProvider();
-                if (!serializers.TryGetValue(type, out serializer))
-                {
+                if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
                     if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type)) {
                         serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Singleton;
@@ -176,7 +174,7 @@ namespace MongoDB.Bson.Serialization {
                     }
 
                     if (serializer == null) {
-                        serializer = serializationProvider.GetSerializer(type);
+                        serializer = GetSerializationProvider().GetSerializer(type);
                     }
 
                     if (serializer == null) {
