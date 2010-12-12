@@ -20,11 +20,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.Globalization;
 
 namespace MongoDB.Bson {
     public static class BsonTypeMapper {
-        #region private static fields 
+        #region private static fields
         // table of from mappings used by MapToBsonValue
         private static Dictionary<Type, Conversion> fromMappings = new Dictionary<Type, Conversion> {
             { typeof(bool), Conversion.NewBsonBoolean },
@@ -51,7 +50,6 @@ namespace MongoDB.Bson {
             { typeof(byte[]), Conversion.ByteArrayToBsonBinary },
             { typeof(DateTime), Conversion.DateTimeToBsonDateTime },
             { typeof(double), Conversion.NewBsonDouble },
-            { typeof(decimal), Conversion.DecimalToBsonString},
             { typeof(float), Conversion.SingleToBsonDouble },
             { typeof(Guid), Conversion.GuidToBsonBinary },
             { typeof(int), Conversion.NewBsonInt32 },
@@ -111,7 +109,6 @@ namespace MongoDB.Bson {
             { Mapping.FromTo(typeof(long), BsonType.Double), Conversion.Int64ToBsonDouble },
             { Mapping.FromTo(typeof(long), BsonType.Int64), Conversion.NewBsonInt64 },
             { Mapping.FromTo(typeof(long), BsonType.Timestamp), Conversion.Int64ToBsonTimestamp },
-            { Mapping.FromTo(typeof(decimal), BsonType.String), Conversion.DecimalToBsonString},
             { Mapping.FromTo(typeof(ObjectId), BsonType.ObjectId), Conversion.NewBsonObjectId },
             { Mapping.FromTo(typeof(Regex), BsonType.RegularExpression), Conversion.RegexToBsonRegularExpression },
             { Mapping.FromTo(typeof(sbyte), BsonType.Boolean), Conversion.SByteToBsonBoolean },
@@ -272,8 +269,7 @@ namespace MongoDB.Bson {
                 case Conversion.CharToBsonDouble: return new BsonDouble((double) (char) value);
                 case Conversion.CharToBsonInt32: return BsonInt32.Create((int) (char) value);
                 case Conversion.CharToBsonInt64: return new BsonInt64((long) (char) value);
-                case Conversion.DecimalToBsonString: return new BsonString(((decimal)value).ToString(CultureInfo.InvariantCulture));
-                case Conversion.DateTimeOffsetToBsonDateTime: return new BsonDateTime(((DateTimeOffset)value).UtcDateTime);
+                case Conversion.DateTimeOffsetToBsonDateTime: return new BsonDateTime(((DateTimeOffset) value).UtcDateTime);
                 case Conversion.DateTimeToBsonDateTime: return new BsonDateTime((DateTime) value);
                 case Conversion.BsonDocumentToBsonArray: return new BsonArray(((BsonDocument) value).Values);
                 case Conversion.DoubleToBsonBoolean: var d = (double) value; return BsonBoolean.Create(!(double.IsNaN(d) || d == 0.0));
@@ -348,7 +344,6 @@ namespace MongoDB.Bson {
             CharToBsonInt64,
             DateTimeOffsetToBsonDateTime,
             DateTimeToBsonDateTime,
-            DecimalToBsonString,
             BsonDocumentToBsonArray,
             DoubleToBsonBoolean,
             GuidToBsonBinary,
@@ -417,7 +412,7 @@ namespace MongoDB.Bson {
             }
 
             public static Mapping FromTo(
-               Type netType, 
+               Type netType,
                BsonType bsonType
            ) {
                 return new Mapping(netType, bsonType);
