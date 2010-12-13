@@ -234,7 +234,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (value == null && memberMap.IgnoreIfNull) {
                 return; // don't serialize null value
             }
-            if (memberMap.HasDefaultValue && !memberMap.SerializeDefaultValue && value.Equals(memberMap.DefaultValue)) {
+            if (memberMap.HasDefaultValue && !memberMap.SerializeDefaultValue && object.Equals(value, memberMap.DefaultValue)) {
                 return; // don't serialize default value
             }
 
