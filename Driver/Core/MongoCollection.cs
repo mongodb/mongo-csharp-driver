@@ -357,7 +357,7 @@ namespace MongoDB.Driver {
                 { "group", new BsonDocument {
                     { "ns", name },
                     { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
-                    { "keyf", keyFunction },
+                    { "$keyf", keyFunction },
                     { "initial", initial },
                     { "$reduce", reduce },
                     { "finalize", finalize }

@@ -240,6 +240,28 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestGroupByFunction() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 2));
+            collection.Insert(new BsonDocument("x", 3));
+            collection.Insert(new BsonDocument("x", 3));
+            collection.Insert(new BsonDocument("x", 3));
+            var keyFunction = (BsonJavaScript) "function(doc) { return { x : doc.x }; }";
+            var initial = new BsonDocument("count", 0);
+            var reduce = (BsonJavaScript) "function(doc, prev) { prev.count += 1 }";
+            var results = collection.Group(Query.Null, keyFunction, initial, reduce, null).ToArray();
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual(1, results[0]["x"].ToInt32());
+            Assert.AreEqual(2, results[0]["count"].ToInt32());
+            Assert.AreEqual(2, results[1]["x"].ToInt32());
+            Assert.AreEqual(1, results[1]["count"].ToInt32());
+            Assert.AreEqual(3, results[2]["x"].ToInt32());
+            Assert.AreEqual(3, results[2]["count"].ToInt32());
+        }
+
+        [Test]
         public void TestIndexExists() {
             collection.DropAllIndexes();
             Assert.AreEqual(false, collection.IndexExists("x"));
