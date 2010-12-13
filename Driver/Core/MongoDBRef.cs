@@ -33,6 +33,10 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        // default constructor is private and only used for deserialization
+        private MongoDBRef() {
+        }
+
         public MongoDBRef(
             string collectionName,
             object id
