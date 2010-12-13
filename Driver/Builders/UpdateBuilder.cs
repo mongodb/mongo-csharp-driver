@@ -108,6 +108,13 @@ namespace MongoDB.Driver.Builders {
             return new UpdateBuilder().Pull(name, value);
         }
 
+        public static UpdateBuilder Pull(
+            string name,
+            IMongoQuery query
+        ) {
+            return new UpdateBuilder().Pull(name, query);
+        }
+
         public static UpdateBuilder PullAll(
             string name,
             params BsonValue[] values
@@ -297,6 +304,20 @@ namespace MongoDB.Driver.Builders {
                 element.Value.AsBsonDocument.Add(name, value);
             } else {
                 document.Add("$pull", new BsonDocument(name, value));
+            }
+            return this;
+        }
+
+        public UpdateBuilder Pull(
+            string name,
+            IMongoQuery query
+        ) {
+            BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
+            BsonElement element;
+            if (document.TryGetElement("$pull", out element)) {
+                element.Value.AsBsonDocument.Add(name, wrappedQuery);
+            } else {
+                document.Add("$pull", new BsonDocument(name, wrappedQuery));
             }
             return this;
         }
