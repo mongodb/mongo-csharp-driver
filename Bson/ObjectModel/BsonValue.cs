@@ -323,6 +323,12 @@ namespace MongoDB.Bson {
         }
 
         public static implicit operator BsonValue(
+            Enum value
+        ) {
+            return BsonTypeMapper.MapToBsonValue(value);
+        }
+
+        public static implicit operator BsonValue(
             Guid value
         ) {
             return BsonBinaryData.Create(value);
