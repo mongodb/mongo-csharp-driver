@@ -50,6 +50,8 @@ namespace MongoDB.Driver.Builders {
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
+                if (query == null) continue;
+
                 document.Add(query.ToBsonDocument());
             }
             return new QueryComplete(document);
@@ -165,6 +167,8 @@ namespace MongoDB.Driver.Builders {
         ) {
             var array = new BsonArray();
             foreach (var query in queries) {
+                if (query == null) continue;
+
                 array.Add(query.ToBsonDocument());
             }
             var document = new BsonDocument("$or", array);
