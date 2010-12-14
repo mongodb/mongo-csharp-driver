@@ -46,7 +46,7 @@ namespace MongoDB.Bson.IO {
         }
 
         public override BsonReaderBookmark GetBookmark() {
-            return new BsonDocumentReaderBookmark(context, state, currentBsonType);
+            return new BsonDocumentReaderBookmark(context.Clone(), state, currentBsonType);
         }
 
         public override void ReadBinaryData(
@@ -281,7 +281,7 @@ namespace MongoDB.Bson.IO {
             BsonReaderBookmark bookmark
         ) {
             var documentReaderBookmark = (BsonDocumentReaderBookmark) bookmark;
-            context = documentReaderBookmark.Context;
+            context = documentReaderBookmark.Context.Clone();
             state = documentReaderBookmark.State;
             currentBsonType = documentReaderBookmark.CurrentBsonType;
         }
