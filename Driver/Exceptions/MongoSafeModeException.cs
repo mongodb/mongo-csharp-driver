@@ -21,19 +21,13 @@ using System.Text;
 
 namespace MongoDB.Driver {
     [Serializable]
-    public class MongoSafeModeException : MongoException {
+    public class MongoSafeModeException : MongoCommandException {
         #region constructors
         public MongoSafeModeException(
-            string message
-        )
-            : base(message) {
-        }
-
-        public MongoSafeModeException(
             string message,
-            Exception innerException
+            CommandResult commandResult
         )
-            : base(message, innerException) {
+            : base(message, commandResult) {
         }
 
         // this constructor needed to support deserialization

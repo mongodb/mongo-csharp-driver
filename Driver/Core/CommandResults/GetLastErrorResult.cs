@@ -47,8 +47,8 @@ namespace MongoDB.Driver {
 
         public bool UpdatedExisting {
             get {
-                var updatedExisting = response["updatedExisting", null];
-                return (updatedExisting == null) ? false : updatedExisting.ToBoolean();
+                var updatedExisting = response["updatedExisting", false];
+                return updatedExisting.ToBoolean();
             }
         }
         #endregion

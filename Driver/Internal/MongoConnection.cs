@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Internal {
                 string nonce;
                 try {
                     var nonceResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand);
-                    nonce = nonceResult["nonce"].AsString;
+                    nonce = nonceResult.Response["nonce"].AsString;
                 } catch (MongoCommandException ex) {
                     throw new MongoAuthenticationException("Error getting nonce for authentication", ex);
                 }
@@ -272,7 +272,7 @@ namespace MongoDB.Driver.Internal {
 
         // this is a low level method that doesn't require a MongoServer
         // so it can be used while connecting to a MongoServer
-        internal BsonDocument RunCommand(
+        internal CommandResult RunCommand(
             string collectionName,
             QueryFlags queryFlags,
             CommandDocument command
@@ -284,7 +284,7 @@ namespace MongoDB.Driver.Internal {
                     collectionName,
                     queryFlags,
                     0, // numberToSkip
-                    1, // numberToReturn
+                    1, // numberToReturn (must be 1 or -1 for commands)
                     command,
                     null // fields
                 )
@@ -293,29 +293,14 @@ namespace MongoDB.Driver.Internal {
             }
 
             var reply = ReceiveMessage<BsonDocument>();
-            if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
-                var message = string.Format("Command '{0}' failed (QueryFailure flag set)", commandName);
-                throw new MongoCommandException(message);
-            }
-            if (reply.NumberReturned != 1) {
-                var message = string.Format("Command '{0}' failed (wrong number of documents returned: {1})", commandName, reply.NumberReturned);
+            if (reply.NumberReturned == 0) {
+                var message = string.Format("Command '{0}' failed: no response returned", commandName);
                 throw new MongoCommandException(message);
             }
 
-            var commandResult = reply.Documents[0];
-            if (!commandResult.Contains("ok")) {
-                var message = string.Format("Command '{0}' failed (ok element missing in result)", commandName);
-                throw new MongoCommandException(message, commandResult);
-            }
-            if (!commandResult["ok"].ToBoolean()) {
-                string message;
-                var err = commandResult["err", null];
-                if (err == null || err.IsBsonNull) {
-                    message = string.Format("Command '{0}' failed (no error message found)", commandName);
-                } else {
-                    message = string.Format("Command '{0}' failed ({1})", commandName, err.ToString());
-                }
-                throw new MongoCommandException(message, commandResult);
+            var commandResult = new CommandResult(command, reply.Documents[0]);
+            if (!commandResult.Ok) {
+                throw new MongoCommandException(commandResult);
             }
 
             return commandResult;
@@ -344,8 +329,9 @@ namespace MongoDB.Driver.Internal {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 message.WriteToBuffer();
+                CommandDocument safeModeCommand = null;
                 if (safeMode.Enabled) {
-                    var command = new CommandDocument {
+                    safeModeCommand = new CommandDocument {
                         { "getlasterror", 1 }, // use all lowercase for backward compatibility
                         { "fsync", true, safeMode.FSync },
                         { "w", safeMode.W, safeMode.W > 1 },
@@ -357,7 +343,7 @@ namespace MongoDB.Driver.Internal {
                             QueryFlags.None,
                             0, // numberToSkip
                             1, // numberToReturn
-                            command,
+                            safeModeCommand,
                             null, // fields
                             message.Buffer // piggy back on network transmission for message
                         )
@@ -374,24 +360,24 @@ namespace MongoDB.Driver.Internal {
                     throw;
                 }
 
-                SafeModeResult result = null;
+                SafeModeResult safeModeResult = null;
                 if (safeMode.Enabled) {
                     var replyMessage = ReceiveMessage<BsonDocument>();
-                    var response = replyMessage.Documents[0];
-                    result = new SafeModeResult();
-                    result.Initialize(response);
+                    var safeModeResponse = replyMessage.Documents[0];
+                    safeModeResult = new SafeModeResult();
+                    safeModeResult.Initialize(safeModeCommand, safeModeResponse);
 
-                    if (!result.Ok) {
-                        var errorMessage = string.Format("Safemode detected an error: {0}", result.ErrorMessage);
-                        throw new MongoSafeModeException(errorMessage);
+                    if (!safeModeResult.Ok) {
+                        var errorMessage = string.Format("Safemode detected an error: {0} (response: {1})", safeModeResult.ErrorMessage, safeModeResponse.ToJson());
+                        throw new MongoSafeModeException(errorMessage, safeModeResult);
                     }
-                    if (result.HasLastErrorMessage) {
-                        var errorMessage = string.Format("Safemode detected an error: {0}", result.LastErrorMessage);
-                        throw new MongoSafeModeException(errorMessage);
+                    if (safeModeResult.HasLastErrorMessage) {
+                        var errorMessage = string.Format("Safemode detected an error: {0} (response: {1})", safeModeResult.LastErrorMessage, safeModeResponse.ToJson());
+                        throw new MongoSafeModeException(errorMessage, safeModeResult);
                     }
                 }
 
-                return result;
+                return safeModeResult;
             }
         }
         #endregion

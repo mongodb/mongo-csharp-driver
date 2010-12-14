@@ -124,13 +124,13 @@ namespace MongoDB.Driver.Internal {
         private List<MongoServerAddress> GetHostAddresses(
             QueryNodeResponse response
         ) {
-            if (!response.IsMasterResult.Contains("hosts")) {
+            if (!response.IsMasterResult.Response.Contains("hosts")) {
                 var message = string.Format("Server is not a member of a replica set: {0}", response.Address);
                 throw new MongoConnectionException(message);
             }
 
             var nodes = new List<MongoServerAddress>();
-            foreach (BsonString host in response.IsMasterResult["hosts"].AsBsonArray.Values) {
+            foreach (BsonString host in response.IsMasterResult.Response["hosts"].AsBsonArray.Values) {
                 var address = MongoServerAddress.Parse(host.Value);
                 nodes.Add(address);
             }
@@ -169,13 +169,13 @@ namespace MongoDB.Driver.Internal {
 
                     response.IsMasterResult = isMasterResult;
                     response.Connection = connection; // might become the first connection in the connection pool
-                    response.IsPrimary = isMasterResult["ismaster", false].ToBoolean();
+                    response.IsPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
 
                     if (server.Url.ReplicaSetName != null) {
                         var getStatusCommand = new CommandDocument("replSetGetStatus", 1);
                         var getStatusResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
 
-                        var replicaSetName = getStatusResult["set"].AsString;
+                        var replicaSetName = getStatusResult.Response["set"].AsString;
                         if (replicaSetName != server.Url.ReplicaSetName) {
                             var message = string.Format("Host {0} belongs to a different replica set: {1}", args.EndPoint, replicaSetName);
                             throw new MongoConnectionException(message);
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Internal {
         private class QueryNodeResponse {
             public MongoServerAddress Address { get; set; }
             public IPEndPoint EndPoint { get; set; }
-            public BsonDocument IsMasterResult { get; set; }
+            public CommandResult IsMasterResult { get; set; }
             public bool IsPrimary { get; set; }
             public MongoConnection Connection { get; set; }
             public Exception Exception { get; set; }

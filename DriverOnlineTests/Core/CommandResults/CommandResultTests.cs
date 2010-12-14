@@ -37,17 +37,20 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
 
         [Test]
         public void TestOkMissing() {
+            var command = new CommandDocument("invalid", true);
             var document = new BsonDocument();
-            var result = new CommandResult();
-            result.Initialize(document);
-            Assert.Throws<MongoCommandException>(() => { var dummy = result.Ok; });
+            var result = new CommandResult(command, document);
+            try {
+                var dummy = result.Ok;
+            } catch (MongoCommandException ex) {
+                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: response has no ok element (response: "));
+            }
         }
 
         [Test]
         public void TestOkFalse() {
             var document = new BsonDocument("ok", false);
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.IsFalse(result.Ok);
             Assert.IsNotNull(result.ErrorMessage);
         }
@@ -55,8 +58,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkTrue() {
             var document = new BsonDocument("ok", true);
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
         }
@@ -64,8 +66,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkZero() {
             var document = new BsonDocument("ok", 0);
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.IsFalse(result.Ok);
             Assert.IsNotNull(result.ErrorMessage);
         }
@@ -73,8 +74,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkZeroPointZero() {
             var document = new BsonDocument("ok", 0.0);
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.IsFalse(result.Ok);
             Assert.IsNotNull(result.ErrorMessage);
         }
@@ -82,8 +82,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkOne() {
             var document = new BsonDocument("ok", 1);
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
         }
@@ -91,8 +90,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestOkOnePointZero() {
             var document = new BsonDocument("ok", 1.0);
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
         }
@@ -100,24 +98,21 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestErrorMessageMissing() {
             var document = new BsonDocument();
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.AreEqual("Unknown error", result.ErrorMessage);
         }
 
         [Test]
         public void TestErrorMessagePresent() {
             var document = new BsonDocument("errmsg", "An error message");
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.AreEqual("An error message", result.ErrorMessage);
         }
 
         [Test]
         public void TestErrorMessageNotString() {
             var document = new BsonDocument("errmsg", 3.14159);
-            var result = new CommandResult();
-            result.Initialize(document);
+            var result = new CommandResult(null, document);
             Assert.AreEqual("3.14159", result.ErrorMessage);
         }
 
@@ -130,9 +125,9 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         [Test]
         public void TestInvalidCommand() {
             try {
-                var result = database.RunCommand("invalidcommand");
+                var result = database.RunCommand("invalid");
             } catch (MongoCommandException ex) {
-                Assert.AreEqual("Command failed: no such cmd", ex.Message);
+                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd (response: "));
             }
         }
     }
