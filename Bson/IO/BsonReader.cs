@@ -65,6 +65,12 @@ namespace MongoDB.Bson.IO {
             buffer.LoadFrom(stream);
             return new BsonBinaryReader(buffer, settings);
         }
+
+        public static BsonReader Create(
+            TextReader textReader
+        ) {
+            return new BsonJsonReader(textReader);
+        }
         #endregion
 
         #region public methods

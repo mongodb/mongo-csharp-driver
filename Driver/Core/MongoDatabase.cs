@@ -344,16 +344,20 @@ namespace MongoDB.Driver {
             IMongoCommand command
         ) where TCommandResult : CommandResult, new() {
             var response = CommandCollection.FindOne(command);
-            var result = new TCommandResult(); // generic type constructor can't have arguments
-            result.Initialize(response); // so two phase construction required
-            if (!result.Ok) {
-                if (result.ErrorMessage == "not master") {
+            if (response == null) {
+                var commandName = command.ToBsonDocument().GetElement(0).Name;
+                var message = string.Format("Command '{0}' failed: no response returned", commandName);
+                throw new MongoCommandException(message);
+            }
+            var commandResult = new TCommandResult(); // generic type constructor can't have arguments
+            commandResult.Initialize(command, response); // so two phase construction required
+            if (!commandResult.Ok) {
+                if (commandResult.ErrorMessage == "not master") {
                     server.Disconnect();
                 }
-                string errorMessage = string.Format("Command failed: {0}", result.ErrorMessage);
-                throw new MongoCommandException(errorMessage);
+                throw new MongoCommandException(commandResult);
             }
-            return result;
+            return commandResult;
         }
 
         public TCommandResult RunCommandAs<TCommandResult>(

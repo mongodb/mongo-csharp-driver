@@ -25,30 +25,47 @@ namespace MongoDB.Driver {
     [Serializable]
     public class CommandResult {
         #region protected fields
+        protected IMongoCommand command;
         protected BsonDocument response;
         #endregion
 
         #region constructors
-        // since we are creating instances of CommandResult using a generic type parameter
-        // our constructor cannot have any arguments (see the Initialize method below)
+        // since we often create instances of CommandResult using a generic type parameter
+        // we need a constructor with no arguments (see also the Initialize method below)
         public CommandResult() {
+        }
+
+        public CommandResult(
+            IMongoCommand command,
+            BsonDocument response
+        ) {
+            this.command = command;
+            this.response = response;
         }
         #endregion
 
         #region public properties
+        public IMongoCommand Command {
+            get { return command; }
+        }
+
+        public string CommandName {
+            get { return command.ToBsonDocument().GetElement(0).Name; }
+        }
+
         public BsonDocument Response {
             get { return response; }
         }
 
         public string ErrorMessage {
             get {
-                BsonValue err;
-                if (response.TryGetValue("errmsg", out err)) {
-                    return err.ToString();
+                BsonValue ok;
+                if (response.TryGetValue("ok", out ok) && ok.ToBoolean()) {
+                    return null;
                 } else {
-                    BsonValue ok;
-                    if (response.TryGetValue("ok", out ok) && ok.ToBoolean()) {
-                        return null;
+                    BsonValue errmsg;
+                    if (response.TryGetValue("errmsg", out errmsg) && !errmsg.IsBsonNull) {
+                        return errmsg.ToString();
                     } else {
                         return "Unknown error";
                     }
@@ -62,21 +79,24 @@ namespace MongoDB.Driver {
                 if (response.TryGetValue("ok", out ok)) {
                     return ok.ToBoolean();
                 } else {
-                    throw new MongoCommandException("CommandResult is missing an ok element.");
+                    var message = string.Format("Command '{0}' failed: response has no ok element (response: {1})", CommandName, response.ToJson());
+                    throw new MongoCommandException(message, this);
                 }
             }
         }
         #endregion
 
         #region public methods
-		// used in place of a constructor with arguments (since we can't have arguments to our constructor)
+		// used after a constructor with no arguments (when creating a CommandResult from a generic type parameter)
         public void Initialize(
+            IMongoCommand command,
             BsonDocument response
         ) {
-            if (this.response != null) {
-                var message = string.Format("{0} already has a document", this.GetType().Name);
+            if (this.command != null || this.response != null) {
+                var message = string.Format("{0} has already been initialized", this.GetType().Name);
                 throw new InvalidOperationException(message);
             }
+            this.command = command;
             this.response = response;
         }
         #endregion

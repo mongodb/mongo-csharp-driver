@@ -99,6 +99,8 @@
     <Compile Include="DefaultSerializer\Serializers\StructSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="IO\BsonDocumentReaderTests.cs" />
+    <Compile Include="IO\BsonJsonReaderTests.cs" />
+    <Compile Include="IO\BsonJsonScannerTests.cs" />
     <Compile Include="Jira\CSharp102Tests.cs" />
     <Compile Include="Jira\CSharp104Tests.cs" />
     <Compile Include="Jira\CSharp116Tests.cs" />
@@ -121,7 +123,7 @@
     <Compile Include="ObjectModel\BsonTypeMapperTests.cs" />
     <Compile Include="ObjectModel\BsonValueTests.cs" />
     <Compile Include="ObjectModel\ObjectIdTests.cs" />
-    <Compile Include="IO\BsonReaderTests.cs" />
+    <Compile Include="IO\BsonBinaryReaderTests.cs" />
     <Compile Include="IO\BsonRoundTripTests.cs" />
     <Compile Include="ObjectModel\BsonValueCompareToTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
