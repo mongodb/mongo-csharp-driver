@@ -73,9 +73,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="DefaultSerializer\BsonClassMapTests.cs" />
     <Compile Include="DefaultSerializer\BsonMemberMapTests.cs" />
-    <Compile Include="DefaultSerializer\Conventions\BsonIdGeneratorConventionsTests.cs" />
+    <Compile Include="DefaultSerializer\Conventions\IdGeneratorConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdMemberConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
@@ -95,8 +98,16 @@
     <Compile Include="DefaultSerializer\Serializers\DiscriminatorTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\StructSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
+    <Compile Include="IO\BsonDocumentReaderTests.cs" />
+    <Compile Include="IO\BsonJsonReaderTests.cs" />
+    <Compile Include="IO\BsonJsonScannerTests.cs" />
     <Compile Include="Jira\CSharp102Tests.cs" />
     <Compile Include="Jira\CSharp104Tests.cs" />
+    <Compile Include="Jira\CSharp116Tests.cs" />
+    <Compile Include="Jira\CSharp120Tests.cs" />
+    <Compile Include="Jira\CSharp121Tests.cs" />
+    <Compile Include="Jira\CSharp122Tests.cs" />
+    <Compile Include="Jira\CSharp133Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
@@ -112,12 +123,12 @@
     <Compile Include="ObjectModel\BsonTypeMapperTests.cs" />
     <Compile Include="ObjectModel\BsonValueTests.cs" />
     <Compile Include="ObjectModel\ObjectIdTests.cs" />
-    <Compile Include="IO\BsonReaderTests.cs" />
+    <Compile Include="IO\BsonBinaryReaderTests.cs" />
     <Compile Include="IO\BsonRoundTripTests.cs" />
     <Compile Include="ObjectModel\BsonValueCompareToTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DefaultSerializer\BsonDefaultSerializerTests.cs" />
-    <Compile Include="DefaultSerializer\SerializeArrayTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\ArraySerializerTests.cs" />
     <Compile Include="DefaultSerializer\SerializeEnumTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\GenericEnumerableSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\NetPrimitiveSerializerTests.cs" />
@@ -125,6 +136,7 @@
     <Compile Include="DefaultSerializer\Serializers\BsonValueSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\BsonPrimitiveSerializerTests.cs" />
     <Compile Include="DefaultSerializer\SerializeInterfaceTests.cs" />
+    <Compile Include="Serialization\IdGeneratorsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bson\Bson.csproj">

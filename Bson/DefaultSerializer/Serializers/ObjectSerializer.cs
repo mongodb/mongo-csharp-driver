@@ -49,10 +49,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             if (nominalType != typeof(object)) {
-                var message = string.Format("ObjectSerializer called for type: {0}", nominalType.FullName);
+                var message = string.Format("ObjectSerializer called for nominal type: {0}", nominalType.FullName);
                 throw new InvalidOperationException(message);
             }
 
@@ -75,7 +76,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                             throw new BsonSerializationException("Unable to determine actual type of document to deserialize");
                         }
                         var serializer = BsonSerializer.LookupSerializer(actualType);
-                        return serializer.Deserialize(bsonReader, nominalType, actualType);
+                        return serializer.Deserialize(bsonReader, nominalType, actualType, null);
                 }
             } else {
                 var message = string.Format("Cannot deserialize an object from BsonType: {0}", bsonType);
@@ -87,7 +88,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();

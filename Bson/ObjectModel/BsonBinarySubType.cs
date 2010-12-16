@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    [Serializable]
     public enum BsonBinarySubType {
         Binary = 0x00,
         Function = 0x01,

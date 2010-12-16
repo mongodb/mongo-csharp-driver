@@ -66,10 +66,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var rehydrated = (Bear) BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Bear>(rehydrated);
 
-            var json = rehydrated.ToJson<Animal>(true); // serializeIdFirst
+            var json = rehydrated.ToJson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance);
             var expected = "{ '_id' : { '$oid' : '000000000000000000000000' }, '_t' : ['Animal', 'Bear'], 'Age' : 123, 'Name' : 'Panda Bear' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(true))); // serializeIdFirst
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance)));
         }
 
         [Test]
@@ -85,10 +85,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var rehydrated = (Tiger) BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Tiger>(rehydrated);
 
-            var json = rehydrated.ToJson<Animal>(true); // serializeIdFirst
+            var json = rehydrated.ToJson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance);
             var expected = "{ '_id' : { '$oid' : '000000000000000000000000' }, '_t' : ['Animal', 'Cat', 'Tiger'], 'Age' : 234, 'Name' : 'Striped Tiger' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(true))); // serializeIdFirst
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance)));
         }
 
         [Test]
@@ -104,10 +104,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             var rehydrated = (Lion) BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Lion>(rehydrated);
 
-            var json = rehydrated.ToJson<Animal>(true); // serializeIdFirst
+            var json = rehydrated.ToJson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance);
             var expected = "{ '_id' : { '$oid' : '000000000000000000000000' }, '_t' : ['Animal', 'Cat', 'Lion'], 'Age' : 234, 'Name' : 'King Lion' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(true))); // serializeIdFirst
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance)));
         }
     }
 }

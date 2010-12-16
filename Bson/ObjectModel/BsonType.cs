@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    [Serializable]
     public enum BsonType {
         EndOfDocument = 0x00, // no values of this type exist, it marks the end of a document
         Double = 0x01,

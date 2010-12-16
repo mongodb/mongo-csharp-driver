@@ -22,6 +22,7 @@ using System.Text;
 namespace MongoDB.Bson.IO {
     // this enum is also used by the BsonWriters
     internal enum ContextType {
+        TopLevel,
         Document,
         Array,
         JavaScriptWithScope,

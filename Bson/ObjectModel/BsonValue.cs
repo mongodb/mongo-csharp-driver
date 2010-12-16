@@ -323,6 +323,12 @@ namespace MongoDB.Bson {
         }
 
         public static implicit operator BsonValue(
+            Enum value
+        ) {
+            return BsonTypeMapper.MapToBsonValue(value);
+        }
+
+        public static implicit operator BsonValue(
             Guid value
         ) {
             return BsonBinaryData.Create(value);
@@ -715,7 +721,7 @@ namespace MongoDB.Bson {
                     } else {
                         var documentWrapper = this as BsonDocumentWrapper;
                         if (documentWrapper != null) {
-                            documentWrapper.Serialize(bsonWriter, typeof(BsonDocument), false);
+                            documentWrapper.Serialize(bsonWriter, typeof(BsonDocument), null);
                         } else {
                             throw new BsonInternalException("Unexpected class for BsonType document: ", this.GetType().FullName);
                         }

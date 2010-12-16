@@ -25,7 +25,7 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
-    public class BsonReaderTests {
+    public class BsonBinaryReaderTests {
         [Test]
         public void TestHelloWorld() {
             string byteString = @"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00";

@@ -101,8 +101,8 @@ namespace MongoDB.Bson {
             set { allowDuplicateNames = value; }
         }
 
-        // Count could be greater than the number of Names if allowDuplicateNames is true
-        public int Count {
+        // ElementCount could be greater than the number of Names if allowDuplicateNames is true
+        public int ElementCount {
             get { return elements.Count; }
         }
 
@@ -213,7 +213,7 @@ namespace MongoDB.Bson {
             BsonReader bsonReader
         ) {
             BsonDocument document = new BsonDocument();
-            return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument));
+            return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument), null);
         }
 
         public static BsonDocument ReadFrom(
@@ -374,7 +374,8 @@ namespace MongoDB.Bson {
 
         public object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
                 bsonReader.ReadNull();
@@ -394,7 +395,7 @@ namespace MongoDB.Bson {
         // note: always returns true (if necessary SetDocumentId will add an _id element)
         public bool GetDocumentId(
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {
@@ -529,12 +530,13 @@ namespace MongoDB.Bson {
         public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             bsonWriter.WriteStartDocument();
 
+            var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions) options;
             int idIndex;
-            if (serializeIdFirst && indexes.TryGetValue("_id", out idIndex)) {
+            if (documentOptions.SerializeIdFirst && indexes.TryGetValue("_id", out idIndex)) {
                 elements[idIndex].WriteTo(bsonWriter);
             } else {
                 idIndex = -1; // remember that when TryGetValue returns false it sets idIndex to 0
@@ -631,7 +633,7 @@ namespace MongoDB.Bson {
         public new void WriteTo(
             BsonWriter bsonWriter
         ) {
-            Serialize(bsonWriter, typeof(BsonDocument), false);
+            Serialize(bsonWriter, typeof(BsonDocument), null);
         }
 
         public void WriteTo(

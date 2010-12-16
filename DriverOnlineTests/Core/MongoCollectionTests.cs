@@ -89,11 +89,6 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestDataSize() {
-            var dataSize = collection.DataSize();
-        }
-
-        [Test]
         public void TestDistinct() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument("x", 1));
@@ -154,6 +149,68 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestFindOne() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = collection.FindOne();
+            Assert.AreEqual(1, result["x"].AsInt32);
+            Assert.AreEqual(2, result["y"].AsInt32);
+        }
+
+        [Test]
+        public void TestFindOneById() {
+            collection.RemoveAll();
+            var id = ObjectId.GenerateNewId();
+            collection.Insert(new BsonDocument { { "_id", id }, { "x", 1 }, { "y", 2 } });
+            var result = collection.FindOneById(id);
+            Assert.AreEqual(1, result["x"].AsInt32);
+            Assert.AreEqual(2, result["y"].AsInt32);
+        }
+
+        private class Place {
+            public ObjectId Id;
+            public double[] Location;
+            public string Name;
+            public string Type;
+        }
+
+        [Test]
+        public void TestGeoNear() {
+            if (collection.Exists()) { collection.Drop(); }
+            collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
+            collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
+            collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
+            collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
+            collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
+            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+
+            var options = GeoNearOptions
+                .SetDistanceMultiplier(1)
+                .SetMaxDistance(100);
+            var result = collection.GeoNearAs<Place>(Query.Null, 0.0, 0.0, 100, options);
+            Assert.IsTrue(result.Ok);
+            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+            Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
+            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+            Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
+            Assert.IsTrue(result.Stats.NumberScanned >= 0);
+            Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
+            Assert.AreEqual(5, result.Hits.Count);
+            Assert.IsTrue(result.Hits[0].Distance > 1.0);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("One", result.Hits[0].RawDocument["Name"].AsString);
+            Assert.AreEqual("Museum", result.Hits[0].RawDocument["Type"].AsString);
+
+            var place = result.Hits[1].Document;
+            Assert.AreEqual(1.0, place.Location[0]);
+            Assert.AreEqual(2.0, place.Location[1]);
+            Assert.AreEqual("Two", place.Name);
+            Assert.AreEqual("Coffee", place.Type);
+        }
+
+        [Test]
         public void TestGetIndexes() {
             collection.DropAllIndexes();
             var indexes = collection.GetIndexes().ToArray();
@@ -172,7 +229,29 @@ namespace MongoDB.DriverOnlineTests {
             collection.Insert(new BsonDocument("x", 3));
             var initial = new BsonDocument("count", 0);
             var reduce = "function(doc, prev) { prev.count += 1 }";
-            var results = collection.Group("x", (BsonDocument) null, initial, reduce, null).ToArray();
+            var results = collection.Group(Query.Null, "x", initial, reduce, null).ToArray();
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual(1, results[0]["x"].ToInt32());
+            Assert.AreEqual(2, results[0]["count"].ToInt32());
+            Assert.AreEqual(2, results[1]["x"].ToInt32());
+            Assert.AreEqual(1, results[1]["count"].ToInt32());
+            Assert.AreEqual(3, results[2]["x"].ToInt32());
+            Assert.AreEqual(3, results[2]["count"].ToInt32());
+        }
+
+        [Test]
+        public void TestGroupByFunction() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 2));
+            collection.Insert(new BsonDocument("x", 3));
+            collection.Insert(new BsonDocument("x", 3));
+            collection.Insert(new BsonDocument("x", 3));
+            var keyFunction = (BsonJavaScript) "function(doc) { return { x : doc.x }; }";
+            var initial = new BsonDocument("count", 0);
+            var reduce = (BsonJavaScript) "function(doc, prev) { prev.count += 1 }";
+            var results = collection.Group(Query.Null, keyFunction, initial, reduce, null).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual(1, results[0]["x"].ToInt32());
             Assert.AreEqual(2, results[0]["count"].ToInt32());
@@ -195,11 +274,61 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestMapReduce() {
+            // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
+            // by Kristina Chodorow and Michael Dirolf
+
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+            collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+            collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+
+            var map =
+                "function() {\n" +
+                "    for (var key in this) {\n" +
+                "        emit(key, {count : 1});\n" +
+                "    }\n" +
+                "}\n";
+
+            var reduce =
+                "function(key, emits) {\n" +
+                "    total = 0;\n" +
+                "    for (var i in emits) {\n" +
+                "        total += emits[i].count;\n" +
+                "    }\n" +
+                "    return {count : total};\n" +
+                "}\n";
+
+            using (database.RequestStart()) {
+                var result = collection.MapReduce(map, reduce);
+                Assert.IsTrue(result.Ok);
+                Assert.IsTrue(result.Duration >= TimeSpan.Zero);
+                Assert.AreEqual(9, result.EmitCount);
+                Assert.AreEqual(5, result.OutputCount);
+                Assert.AreEqual(3, result.InputCount);
+                Assert.IsNotNullOrEmpty(result.CollectionName);
+
+                var expectedCounts = new Dictionary<string, int> {
+                    { "A", 1 },
+                    { "B", 3 },
+                    { "C", 1 },
+                    { "X", 1 },
+                    { "_id", 3 }
+                };
+                foreach (var document in database[result.CollectionName].FindAll()) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
+            }
+        }
+
+        [Test]
         public void TestSetFields() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
             var result = collection.FindAll().SetFields("x").FirstOrDefault();
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(2, result.ElementCount);
             Assert.AreEqual("_id", result.GetElement(0).Name);
             Assert.AreEqual("x", result.GetElement(1).Name);
         }
@@ -217,23 +346,18 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestStats() {
-            var dataSize = collection.Stats();
+        public void TestGetStats() {
+            var dataSize = collection.GetStats();
         }
 
         [Test]
-        public void TestStorageSize() {
-            var dataSize = collection.StorageSize();
+        public void TestTotalDataSize() {
+            var dataSize = collection.GetTotalDataSize();
         }
 
         [Test]
-        public void TestTotalIndexSize() {
-            var dataSize = collection.TotalIndexSize();
-        }
-
-        [Test]
-        public void TestTotalSize() {
-            var dataSize = collection.TotalSize();
+        public void TestTotalStorageSize() {
+            var dataSize = collection.GetTotalStorageSize();
         }
 
         [Test]

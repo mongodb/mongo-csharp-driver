@@ -14,12 +14,30 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.Serialization {
-    public interface IBsonIdGenerator {
-        object GenerateId();
-        bool IsEmpty(object id);
+namespace MongoDB.Driver {
+    public class ScopeWrapper : BaseWrapper, IMongoScope {
+        #region constructors
+        public ScopeWrapper(
+            Type nominalType,
+            object scope
+        )
+            : base(nominalType, scope) {
+        }
+        #endregion
+
+        #region public static methods
+        public static ScopeWrapper Create<T>(
+            T scope
+        ) {
+            return new ScopeWrapper(typeof(T), scope);
+        }
+        #endregion
     }
 }

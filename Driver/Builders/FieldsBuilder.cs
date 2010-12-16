@@ -25,6 +25,12 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     public static class Fields {
+        #region public static properties
+        public static IMongoFields Null {
+            get { return null; }
+        }
+        #endregion
+
         #region public static methods
         public static FieldsBuilder Exclude(
             params string[] names
@@ -52,11 +58,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new FieldsBuilder().Slice(name, skip, limit);
         }
+
+        public static IMongoFields Wrap<T>(
+            T fields
+        ) {
+            return new FieldsWrapper(typeof(T), fields);
+        }
         #endregion
     }
 
     [Serializable]
-    public class FieldsBuilder : BuilderBase {
+    public class FieldsBuilder : BuilderBase, IMongoFields {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -112,9 +124,9 @@ namespace MongoDB.Driver.Builders {
         protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            document.Serialize(bsonWriter, nominalType, serializeIdFirst);
+            document.Serialize(bsonWriter, nominalType, options);
         }
         #endregion
     }

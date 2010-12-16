@@ -24,34 +24,37 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public class NullableTypeSerializer : BsonBaseSerializer {
-        #region private static fields
-        private static NullableTypeSerializer singleton = new NullableTypeSerializer();
+    public static class NullableSerializerRegistration {
+        #region public static methods
+        public static void RegisterGenericSerializerDefinitions() {
+            BsonSerializer.RegisterGenericSerializerDefinition(typeof(Nullable<>), typeof(NullableSerializer<>));
+        }
+        #endregion
+    }
+
+    public class NullableSerializer<T> : BsonBaseSerializer where T : struct {
+        #region private fields
+        private IBsonSerializer serializer;
         #endregion
 
         #region constructors
-        private NullableTypeSerializer() {
-        }
-        #endregion
-
-        #region public static properties
-        public static NullableTypeSerializer Singleton {
-            get { return singleton; }
+        public NullableSerializer() {
+            serializer = BsonSerializer.LookupSerializer(typeof(T));
         }
         #endregion
 
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
                 bsonReader.ReadNull();
                 return null;
             } else {
-                Type underlyingType = Nullable.GetUnderlyingType(nominalType);
-                return BsonSerializer.Deserialize(bsonReader, underlyingType);
+                return serializer.Deserialize(bsonReader, typeof(T), options);
             }
         }
 
@@ -59,13 +62,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                Type underlyingType = Nullable.GetUnderlyingType(nominalType);
-                BsonSerializer.Serialize(bsonWriter, underlyingType, value, serializeIdFirst);
+                serializer.Serialize(bsonWriter, typeof(T), value, options);
             }
         }
         #endregion

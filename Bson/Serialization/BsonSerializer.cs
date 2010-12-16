@@ -26,20 +26,37 @@ namespace MongoDB.Bson.Serialization {
     public static class BsonSerializer {
         #region private static fields
         private static object staticLock = new object();
-        private static Dictionary<Type, IBsonIdGenerator> idGenerators = new Dictionary<Type, IBsonIdGenerator>();
-        private static Dictionary<SerializerKey, IBsonSerializer> serializers = new Dictionary<SerializerKey, IBsonSerializer>();
+        private static Dictionary<Type, IIdGenerator> idGenerators = new Dictionary<Type, IIdGenerator>();
+        private static Dictionary<Type, IBsonSerializer> serializers = new Dictionary<Type, IBsonSerializer>();
         private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
         private static IBsonSerializationProvider serializationProvider = null;
+        #endregion
+
+        #region static constructor
+        static BsonSerializer() {
+            RegisterIdGenerators();
+        }
         #endregion
 
         #region public static properties
         public static IBsonSerializationProvider SerializationProvider {
             get { return serializationProvider; }
-            set { serializationProvider = value; }
+            set {
+                if (serializationProvider != null) {
+                    throw new BsonSerializationException("SerializationProvider has already been set");
+                }
+                serializationProvider = value;
+            }
         }
         #endregion
 
         #region public static methods
+        public static T Deserialize<T>(
+            BsonDocument document
+        ) {
+            return (T) Deserialize(document, typeof(T));
+        }
+
         public static T Deserialize<T>(
             BsonReader bsonReader
         ) {
@@ -59,6 +76,13 @@ namespace MongoDB.Bson.Serialization {
         }
 
         public static object Deserialize(
+            BsonDocument document,
+            Type nominalType
+        ) {
+            return Deserialize(BsonReader.Create(document), nominalType);
+        }
+
+        public static object Deserialize(
             BsonReader bsonReader,
             Type nominalType
         ) {
@@ -67,7 +91,7 @@ namespace MongoDB.Bson.Serialization {
             }
 
             var serializer = LookupSerializer(nominalType);
-            return serializer.Deserialize(bsonReader, nominalType);
+            return serializer.Deserialize(bsonReader, nominalType, null);
         }
 
         public static object Deserialize(
@@ -98,17 +122,22 @@ namespace MongoDB.Bson.Serialization {
             }
         }
 
-        public static IBsonIdGenerator LookupIdGenerator(
+        public static IIdGenerator LookupIdGenerator(
             Type type
         ) {
             lock (staticLock) {
-                IBsonIdGenerator idGenerator;
+                IIdGenerator idGenerator;
                 if (!idGenerators.TryGetValue(type, out idGenerator)) {
-                    if (idGenerator == null) {
-                        if (serializationProvider == null) {
-                            serializationProvider = GetDefaultSerializationProvider();
+                    if (type.IsValueType) {
+                        var iEquatableDefinition = typeof(IEquatable<>);
+                        var iEquatableType = iEquatableDefinition.MakeGenericType(type);
+                        if (iEquatableType.IsAssignableFrom(type)) {
+                            var zeroIdCheckerDefinition = typeof(ZeroIdChecker<>);
+                            var zeroIdCheckerType = zeroIdCheckerDefinition.MakeGenericType(type);
+                            idGenerator = (IIdGenerator) Activator.CreateInstance(zeroIdCheckerType);
                         }
-                        idGenerator = serializationProvider.GetIdGenerator(type);
+                    } else {
+                        idGenerator = NullIdChecker.Instance;
                     }
 
                     idGenerators[type] = idGenerator; // remember it even if it's null
@@ -121,17 +150,15 @@ namespace MongoDB.Bson.Serialization {
         public static IBsonSerializer LookupSerializer(
             Type type
         ) {
-            return LookupSerializer(type, null);
-        }
-
-        public static IBsonSerializer LookupSerializer(
-            Type type,
-            object serializationOptions
-        ) {
             lock (staticLock) {
-                var key = new SerializerKey(type, serializationOptions);
+                // initialize the serialization provider before calling serializers.TryGetValue
+                // so the serialization provider gets a chance to register the serializers first
+                if (serializationProvider == null) {
+                    InitializeSerializationProvider();
+                }
+
                 IBsonSerializer serializer;
-                if (!serializers.TryGetValue(key, out serializer)) {
+                if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
                     if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type)) {
                         serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Singleton;
@@ -142,28 +169,20 @@ namespace MongoDB.Bson.Serialization {
                         var genericSerializerDefinition = LookupGenericSerializerDefinition(genericTypeDefinition);
                         if (genericSerializerDefinition != null) {
                             var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
-                            serializer = (IBsonSerializer) Activator.CreateInstance(genericSerializerType, serializationOptions);
+                            serializer = (IBsonSerializer) Activator.CreateInstance(genericSerializerType);
                         }
                     }
 
                     if (serializer == null) {
-                        if (serializationProvider == null) {
-                            serializationProvider = GetDefaultSerializationProvider();
-                        }
-                        serializer = serializationProvider.GetSerializer(type, serializationOptions);
+                        serializer = serializationProvider.GetSerializer(type);
                     }
 
                     if (serializer == null) {
-                        string message;
-                        if (serializationOptions == null) {
-                            message = string.Format("No serializer found for type: {0}", type.FullName);
-                        } else {
-                            message = string.Format("No serializer found for type: {0} (options: {1})", type.FullName, serializationOptions);
-                        }
+                        var message = string.Format("No serializer found for type: {0}", type.FullName);
                         throw new BsonSerializationException(message);
                     }
 
-                    serializers[key] = serializer;
+                    serializers[type] = serializer;
                 }
 
                 return serializer;
@@ -181,7 +200,7 @@ namespace MongoDB.Bson.Serialization {
 
         public static void RegisterIdGenerator(
             Type type,
-            IBsonIdGenerator idGenerator
+            IIdGenerator idGenerator
         ) {
             lock (staticLock) {
                 idGenerators[type] = idGenerator;
@@ -192,33 +211,24 @@ namespace MongoDB.Bson.Serialization {
             Type type,
             IBsonSerializer serializer
         ) {
-            RegisterSerializer(type, null, serializer);
-        }
-
-        public static void RegisterSerializer(
-            Type type,
-            object serializationOptions,
-            IBsonSerializer serializer
-        ) {
             lock (staticLock) {
-                var key = new SerializerKey(type, serializationOptions);
-                serializers[key] = serializer;
+                serializers[type] = serializer;
             }
         }
 
         public static void Serialize<T>(
             BsonWriter bsonWriter,
-            T document
+            T value
         ) {
-            Serialize(bsonWriter, document, false);
+            Serialize(bsonWriter, value, null);
         }
 
         public static void Serialize<T>(
             BsonWriter bsonWriter,
             T value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            Serialize(bsonWriter, typeof(T), value, serializeIdFirst);
+            Serialize(bsonWriter, typeof(T), value, options);
         }
 
         public static void Serialize(
@@ -226,23 +236,24 @@ namespace MongoDB.Bson.Serialization {
             Type nominalType,
             object value
         ) {
-            Serialize(bsonWriter, nominalType, value, false);
+            Serialize(bsonWriter, nominalType, value, null);
         }
 
         public static void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             var bsonSerializable = value as IBsonSerializable;
             if (bsonSerializable != null) {
-                bsonSerializable.Serialize(bsonWriter, nominalType, serializeIdFirst);
+                bsonSerializable.Serialize(bsonWriter, nominalType, options);
                 return;
             }
 
-            var serializer = LookupSerializer(value.GetType());
-            serializer.Serialize(bsonWriter, nominalType, value, serializeIdFirst);
+            var actualType = (value == null) ? nominalType : value.GetType();
+            var serializer = LookupSerializer(actualType);
+            serializer.Serialize(bsonWriter, nominalType, value, options);
         }
 
         public static void UnregisterGenericSerializerDefinition(
@@ -264,61 +275,26 @@ namespace MongoDB.Bson.Serialization {
         public static void UnregisterSerializer(
             Type type
         ) {
-            UnregisterSerializer(type, null);
-        }
-
-        public static void UnregisterSerializer(
-            Type type,
-            object serializationOptions
-        ) {
             lock (staticLock) {
-                var key = new SerializerKey(type, serializationOptions);
-                serializers.Remove(key);
+                serializers.Remove(type);
             }
         }
         #endregion
 
         #region private static methods
-        private static IBsonSerializationProvider GetDefaultSerializationProvider() {
-            DefaultSerializer.BsonDefaultSerializer.Initialize();
-            return DefaultSerializer.BsonDefaultSerializer.Singleton;
+        private static void InitializeSerializationProvider() {
+            lock (staticLock) {
+                // repeat the test for null but this time while holding the staticLock
+                if (serializationProvider == null) {
+                    DefaultSerializer.BsonDefaultSerializer.Initialize();
+                    serializationProvider = DefaultSerializer.BsonDefaultSerializer.Singleton;
+                }
+            }
         }
-        #endregion
 
-        #region nested classes
-        private struct SerializerKey {
-            private Type type;
-            private object serializationOptions;
-
-            public SerializerKey(
-                Type type,
-                object serializationOptions
-            ) {
-                this.type = type;
-                this.serializationOptions = serializationOptions;
-            }
-
-            public override bool Equals(
-                object obj
-            ) {
-                if (obj == null || obj.GetType() != typeof(SerializerKey)) {
-                    return false;
-                }
-                var other = (SerializerKey) obj;
-                return this.type == other.type && object.Equals(this.serializationOptions, other.serializationOptions);
-            }
-
-            public override int GetHashCode() {
-                if (serializationOptions == null) {
-                    return type.GetHashCode();
-                } else {
-                    // see Effective Java by Joshua Bloch
-                    int hash = 17;
-                    hash = 37 * hash + type.GetHashCode();
-                    hash = 37 * hash + serializationOptions.GetHashCode();
-                    return hash;
-                }
-            }
+        private static void RegisterIdGenerators() {
+            BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
+            BsonSerializer.RegisterIdGenerator(typeof(ObjectId), ObjectIdGenerator.Instance);
         }
         #endregion
     }

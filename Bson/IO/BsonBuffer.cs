@@ -588,11 +588,17 @@ namespace MongoDB.Bson.IO {
             Stream stream
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-            int chunkIndex = 0;
-            while (chunkIndex < position / chunkSize) {
-                stream.Write(chunks[chunkIndex++], 0, chunkSize);
+            if (position > 0) {
+                var wholeChunks = position / chunkSize;
+                for (int chunkIndex = 0; chunkIndex < wholeChunks; chunkIndex++) {
+                    stream.Write(chunks[chunkIndex], 0, chunkSize);
+                }
+
+                var partialChunkSize = position % chunkSize;
+                if (partialChunkSize != 0) {
+                    stream.Write(chunks[wholeChunks], 0, partialChunkSize);
+                }
             }
-            stream.Write(chunks[chunkIndex], 0, position % chunkSize);
         }
 
         public void WriteZero() {

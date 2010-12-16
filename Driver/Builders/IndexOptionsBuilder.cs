@@ -26,7 +26,7 @@ using MongoDB.Driver;
 namespace MongoDB.Driver.Builders {
     public static class IndexOptions {
         #region public static properties
-        public static IndexOptionsBuilder None {
+        public static IMongoIndexOptions Null {
             get { return null; }
         }
         #endregion
@@ -62,11 +62,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new IndexOptionsBuilder().SetUnique(value);
         }
+
+        public static IMongoIndexOptions Wrap<T>(
+            T options
+        ) {
+            return new IndexOptionsWrapper(typeof(T), options);
+        }
         #endregion
     }
 
     [Serializable]
-    public class IndexOptionsBuilder : BuilderBase {
+    public class IndexOptionsBuilder : BuilderBase, IMongoIndexOptions {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -124,9 +130,9 @@ namespace MongoDB.Driver.Builders {
         protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            document.Serialize(bsonWriter, nominalType, serializeIdFirst);
+            document.Serialize(bsonWriter, nominalType, options);
         }
         #endregion
     }

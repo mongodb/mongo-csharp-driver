@@ -37,11 +37,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new GroupByBuilder(names);
         }
+
+        public static IMongoGroupBy Wrap<T>(
+            T groupBy
+        ) {
+            return new GroupByWrapper(typeof(T), groupBy);
+        }
         #endregion
     }
 
     [Serializable]
-    public class GroupByBuilder : BuilderBase {
+    public class GroupByBuilder : BuilderBase, IMongoGroupBy {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -67,9 +73,9 @@ namespace MongoDB.Driver.Builders {
         protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            document.Serialize(bsonWriter, nominalType, serializeIdFirst);
+            document.Serialize(bsonWriter, nominalType, options);
         }
         #endregion
     }

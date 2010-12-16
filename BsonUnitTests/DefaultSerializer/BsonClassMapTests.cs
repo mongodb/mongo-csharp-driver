@@ -178,4 +178,34 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.AreEqual("P", memberMap.MemberName);
         }
     }
+
+    [TestFixture]
+    public class BsonClassMapUnmapTests {
+        public class C {
+            public ObjectId Id;
+            public int X;
+            public int FieldUnmappedByName;
+            public int FieldUnmappedByLambda;
+            public int PropertyUnmappedByName { get; set; }
+            public int PropertyUnmappedByLambda { get; set; }
+        }
+
+        [Test]
+        public void TestUnmap() {
+            var classMap = new BsonClassMap<C>(cm => {
+                cm.AutoMap();
+                cm.SetIdMember(cm.GetMemberMap("Id"));
+                cm.UnmapField("Id");
+                cm.UnmapField("FieldUnmappedByName");
+                cm.UnmapField(c => c.FieldUnmappedByLambda);
+                cm.UnmapProperty("PropertyUnmappedByName");
+                cm.UnmapProperty(c => c.PropertyUnmappedByLambda);
+            });
+            classMap.Freeze();
+            Assert.IsNull(classMap.IdMemberMap);
+            Assert.AreEqual(1, classMap.MemberMaps.Count());
+            var memberMap = classMap.MemberMaps.Single();
+            Assert.AreEqual("X", memberMap.MemberName);
+        }
+    }
 }

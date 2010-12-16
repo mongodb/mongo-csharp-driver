@@ -23,20 +23,52 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver {
     [Serializable]
-    public class CommandResult : BsonDocument {
+    public class CommandResult {
+        #region protected fields
+        protected IMongoCommand command;
+        protected BsonDocument response;
+        #endregion
+
         #region constructors
+        // since we often create instances of CommandResult using a generic type parameter
+        // we need a constructor with no arguments (see also the Initialize method below)
         public CommandResult() {
+        }
+
+        public CommandResult(
+            IMongoCommand command,
+            BsonDocument response
+        ) {
+            this.command = command;
+            this.response = response;
         }
         #endregion
 
         #region public properties
+        public IMongoCommand Command {
+            get { return command; }
+        }
+
+        public string CommandName {
+            get { return command.ToBsonDocument().GetElement(0).Name; }
+        }
+
+        public BsonDocument Response {
+            get { return response; }
+        }
+
         public string ErrorMessage {
             get {
-                BsonValue err;
-                if (TryGetValue("err", out err)) {
-                    return err.ToString();
+                BsonValue ok;
+                if (response.TryGetValue("ok", out ok) && ok.ToBoolean()) {
+                    return null;
                 } else {
-                    return "Unknown error.";
+                    BsonValue errmsg;
+                    if (response.TryGetValue("errmsg", out errmsg) && !errmsg.IsBsonNull) {
+                        return errmsg.ToString();
+                    } else {
+                        return "Unknown error";
+                    }
                 }
             }
         }
@@ -44,12 +76,28 @@ namespace MongoDB.Driver {
         public bool Ok {
             get {
                 BsonValue ok;
-                if (TryGetValue("ok", out ok)) {
+                if (response.TryGetValue("ok", out ok)) {
                     return ok.ToBoolean();
                 } else {
-                    throw new InvalidOperationException("CommandResult is missing an ok element.");
+                    var message = string.Format("Command '{0}' failed: response has no ok element (response: {1})", CommandName, response.ToJson());
+                    throw new MongoCommandException(message, this);
                 }
             }
+        }
+        #endregion
+
+        #region public methods
+		// used after a constructor with no arguments (when creating a CommandResult from a generic type parameter)
+        public void Initialize(
+            IMongoCommand command,
+            BsonDocument response
+        ) {
+            if (this.command != null || this.response != null) {
+                var message = string.Format("{0} has already been initialized", this.GetType().Name);
+                throw new InvalidOperationException(message);
+            }
+            this.command = command;
+            this.response = response;
         }
         #endregion
     }

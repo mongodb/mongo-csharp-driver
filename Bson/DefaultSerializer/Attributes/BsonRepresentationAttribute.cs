@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MongoDB.Bson.Serialization;
+
 namespace MongoDB.Bson.DefaultSerializer {
     // [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonRepresentationAttribute : BsonSerializationOptionsAttribute {
@@ -40,8 +42,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object GetOptions() {
-            return representation;
+        public override IBsonSerializationOptions GetOptions() {
+            return new RepresentationSerializationOptions(representation);
         }
         #endregion
     }

@@ -19,7 +19,6 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
     public interface IBsonSerializationProvider {
-        IBsonIdGenerator GetIdGenerator(Type type);
-        IBsonSerializer GetSerializer(Type type, object serializationOptions);
+        IBsonSerializer GetSerializer(Type type);
     }
 }

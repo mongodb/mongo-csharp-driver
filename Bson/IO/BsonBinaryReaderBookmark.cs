@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public class BsonBinaryReaderBookmark {
+    public class BsonBinaryReaderBookmark : BsonReaderBookmark {
         #region private fields
         private BsonBinaryReaderContext context;
         private BsonReadState state;

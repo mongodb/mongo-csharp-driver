@@ -35,9 +35,37 @@ namespace MongoDB.Driver.Builders {
 
         public static UpdateBuilder AddToSetEach(
             string name,
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().AddToSetEach(name, values);
+        }
+
+        public static UpdateBuilder AddToSetEach(
+            string name,
             params BsonValue[] values
         ) {
             return new UpdateBuilder().AddToSetEach(name, values);
+        }
+
+        public static UpdateBuilder AddToSetEachWrapped<T>(
+            string name,
+            IEnumerable<T> values
+        ) {
+            return new UpdateBuilder().AddToSetEachWrapped<T>(name, values);
+        }
+
+        public static UpdateBuilder AddToSetEachWrapped<T>(
+            string name,
+            params T[] values
+        ) {
+            return new UpdateBuilder().AddToSetEachWrapped<T>(name, values);
+        }
+
+        public static UpdateBuilder AddToSetWrapped<T>(
+            string name,
+            T value
+        ) {
+            return new UpdateBuilder().AddToSetWrapped<T>(name, value);
         }
 
         public static UpdateBuilder Inc(
@@ -80,6 +108,13 @@ namespace MongoDB.Driver.Builders {
             return new UpdateBuilder().Pull(name, value);
         }
 
+        public static UpdateBuilder Pull(
+            string name,
+            IMongoQuery query
+        ) {
+            return new UpdateBuilder().Pull(name, query);
+        }
+
         public static UpdateBuilder PullAll(
             string name,
             params BsonValue[] values
@@ -101,6 +136,13 @@ namespace MongoDB.Driver.Builders {
             return new UpdateBuilder().PushAll(name, values);
         }
 
+        // equivalent to Wrap, entire document will be replaced
+        public static IMongoUpdate Replace<T>(
+            T update
+        ) {
+            return new UpdateWrapper(typeof(T), update);
+        }
+
         public static UpdateBuilder Set(
             string name,
             BsonValue value
@@ -113,11 +155,17 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new UpdateBuilder().Unset(name);
         }
+
+        public static IMongoUpdate Wrap<T>(
+            T update
+        ) {
+            return new UpdateWrapper(typeof(T), update);
+        }
         #endregion
     }
 
     [Serializable]
-    public class UpdateBuilder : BuilderBase {
+    public class UpdateBuilder : BuilderBase, IMongoUpdate {
         #region private fields
         private BsonDocument document;
         #endregion
@@ -144,9 +192,9 @@ namespace MongoDB.Driver.Builders {
 
         public UpdateBuilder AddToSetEach(
             string name,
-            params BsonValue[] values
+            IEnumerable<BsonValue> values
         ) {
-            var arg = new BsonDocument("$each", new BsonArray((IEnumerable<BsonValue>) values));
+            var arg = new BsonDocument("$each", new BsonArray(values));
             BsonElement element;
             if (document.TryGetElement("$addToSet", out element)) {
                 element.Value.AsBsonDocument.Add(name, arg);
@@ -154,6 +202,34 @@ namespace MongoDB.Driver.Builders {
                 document.Add("$addToSet", new BsonDocument(name, arg));
             }
             return this;
+        }
+
+        public UpdateBuilder AddToSetEach(
+            string name,
+            params BsonValue[] values
+        ) {
+            return AddToSetEach(name, (IEnumerable<BsonValue>) values);
+        }
+
+        public UpdateBuilder AddToSetEachWrapped<T>(
+            string name,
+            IEnumerable<T> values
+        ) {
+            return AddToSetEach(name, BsonDocumentWrapper.CreateMultiple<T>(values).Cast<BsonValue>());// the cast to BsonValue is required
+        }
+
+        public UpdateBuilder AddToSetEachWrapped<T>(
+            string name,
+            params T[] values
+        ) {
+            return AddToSetEachWrapped(name, (IEnumerable<T>) values);
+        }
+
+        public UpdateBuilder AddToSetWrapped<T>(
+           string name,
+           T value
+       ) {
+            return AddToSet(name, (BsonValue) BsonDocumentWrapper.Create<T>(value)); // the cast to BsonValue is required
         }
 
         public UpdateBuilder Inc(
@@ -228,6 +304,20 @@ namespace MongoDB.Driver.Builders {
                 element.Value.AsBsonDocument.Add(name, value);
             } else {
                 document.Add("$pull", new BsonDocument(name, value));
+            }
+            return this;
+        }
+
+        public UpdateBuilder Pull(
+            string name,
+            IMongoQuery query
+        ) {
+            BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
+            BsonElement element;
+            if (document.TryGetElement("$pull", out element)) {
+                element.Value.AsBsonDocument.Add(name, wrappedQuery);
+            } else {
+                document.Add("$pull", new BsonDocument(name, wrappedQuery));
             }
             return this;
         }
@@ -307,9 +397,9 @@ namespace MongoDB.Driver.Builders {
         protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            document.Serialize(bsonWriter, nominalType, serializeIdFirst);
+            document.Serialize(bsonWriter, nominalType, options);
         }
         #endregion
     }

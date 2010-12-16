@@ -20,26 +20,18 @@ using System.Text;
 
 namespace MongoDB.Driver.GridFS {
     [Serializable]
-    public class MongoGridFSSettings {
-        #region private static fields
-        private static MongoGridFSSettings defaults = new MongoGridFSSettings();
-        #endregion
-
+    public class MongoGridFSSettings : IEquatable<MongoGridFSSettings> {
         #region private fields
+        private bool isFrozen;
         private string chunksCollectionName = "fs.chunks";
         private int defaultChunkSize = 256 * 1024; // 256KB
         private string filesCollectionName = "fs.files";
         private string root = "fs";
+        private SafeMode safeMode = SafeMode.False;
         #endregion
 
         #region constructors
         public MongoGridFSSettings() {
-        }
-        #endregion
-
-        #region public static properties
-        public static MongoGridFSSettings Defaults {
-            get { return defaults; }
         }
         #endregion
 
@@ -50,20 +42,52 @@ namespace MongoDB.Driver.GridFS {
 
         public int DefaultChunkSize {
             get { return defaultChunkSize; }
-            set { defaultChunkSize = value; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                defaultChunkSize = value;
+            }
         }
 
         public string FilesCollectionName {
             get { return filesCollectionName; }
         }
 
+        public bool IsFrozen {
+            get { return isFrozen; }
+        }
+
         public string Root {
             get { return root; }
             set {
+                if (isFrozen) { ThrowFrozen(); }
                 root = value;
                 filesCollectionName = value + ".files";
                 chunksCollectionName = value + ".chunks";
             }
+        }
+
+        public SafeMode SafeMode {
+            get { return safeMode; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                safeMode = value;
+            }
+        }
+        #endregion
+
+        #region public operators
+        public static bool operator !=(
+            MongoGridFSSettings lhs,
+            MongoGridFSSettings rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        public static bool operator ==(
+            MongoGridFSSettings lhs,
+            MongoGridFSSettings rhs
+        ) {
+            return object.Equals(lhs, rhs);
         }
         #endregion
 
@@ -71,8 +95,40 @@ namespace MongoDB.Driver.GridFS {
         public MongoGridFSSettings Clone() {
             return new MongoGridFSSettings {
                 DefaultChunkSize = defaultChunkSize,
-                Root = root
+                Root = root,
+                SafeMode = safeMode
             };
+        }
+
+        public bool Equals(
+            MongoGridFSSettings rhs
+        ) {
+            if (rhs == null) { return false; }
+            return this.defaultChunkSize == rhs.defaultChunkSize && this.root == rhs.root && this.safeMode == rhs.safeMode;
+        }
+
+        public override bool Equals(object obj) {
+            return Equals(obj as MongoGridFSSettings); // works even if obj is null
+        }
+
+        public MongoGridFSSettings Freeze() {
+            isFrozen = true;
+            return this;
+        }
+
+        public override int GetHashCode() {
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + defaultChunkSize.GetHashCode();
+            hash = 37 * hash + root.GetHashCode();
+            hash = 37 * hash + safeMode.GetHashCode();
+            return hash;
+        }
+        #endregion
+
+        #region private methods
+        private void ThrowFrozen() {
+            throw new InvalidOperationException("A MongoGridFSSettings object cannot be modified once it has been frozen");
         }
         #endregion
     }

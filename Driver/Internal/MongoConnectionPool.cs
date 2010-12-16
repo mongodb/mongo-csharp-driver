@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 
@@ -25,7 +26,7 @@ namespace MongoDB.Driver.Internal {
         private object connectionPoolLock = new object();
         private bool closed = false;
         private MongoServer server;
-        private MongoServerAddress address;
+        private IPEndPoint endPoint;
         private List<MongoConnection> pool = new List<MongoConnection>();
         private int maxPoolSize = 10; // TODO: make configurable?
         private TimeSpan maxIdleTime = TimeSpan.FromMinutes(10); // TODO: make configurable?
@@ -37,7 +38,7 @@ namespace MongoDB.Driver.Internal {
             MongoConnection firstConnection
         ) {
             this.server = server;
-            this.address = firstConnection.Address;
+            this.endPoint = firstConnection.EndPoint;
 
             pool.Add(firstConnection);
             firstConnection.JoinConnectionPool(this);
@@ -49,8 +50,8 @@ namespace MongoDB.Driver.Internal {
             get { return server; }
         }
 
-        internal MongoServerAddress Address {
-            get { return address; }
+        internal IPEndPoint EndPoint {
+            get { return endPoint; }
         }
         #endregion
 
@@ -100,7 +101,7 @@ namespace MongoDB.Driver.Internal {
             // if we have to create a new connection do it after releasing the connectionPoolLock
             // because it is a slow operation (it opens a TCP connection to the server)
             if (connection == null) {
-                connection = new MongoConnection(this, address);
+                connection = new MongoConnection(this, endPoint);
             }
 
             return connection;
@@ -111,6 +112,11 @@ namespace MongoDB.Driver.Internal {
         ) {
             if (connection.ConnectionPool != this) {
                 throw new ArgumentException("The connection being released does not belong to this connection pool.", "connection");
+            }
+
+            // don't put closed connections back in the connection pool
+            if (connection.Closed) {
+                return;
             }
 
             lock (connectionPoolLock) {

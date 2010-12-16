@@ -24,14 +24,14 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Internal {
-    internal class MongoQueryMessage<TQuery> : MongoRequestMessage {
+    internal class MongoQueryMessage : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
         private QueryFlags flags;
         private int numberToSkip;
         private int numberToReturn;
-        private TQuery query;
-        private BsonDocumentWrapper fields;
+        private IMongoQuery query;
+        private IMongoFields fields;
         #endregion
 
         #region constructors
@@ -40,8 +40,8 @@ namespace MongoDB.Driver.Internal {
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
-            TQuery query,
-            BsonDocumentWrapper fields
+            IMongoQuery query,
+            IMongoFields fields
         ) :
             this(collectionFullName, flags, numberToSkip, numberToReturn, query, fields, null) {
         }
@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Internal {
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
-            TQuery query,
-            BsonDocumentWrapper fields,
+            IMongoQuery query,
+            IMongoFields fields,
             BsonBuffer buffer
         ) :
             base(MessageOpcode.Query, buffer) {
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Internal {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
             } else {
-                BsonSerializer.Serialize(bsonWriter, query, true); // serializeIdFirst
+                BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
             if (fields != null) {
                 BsonSerializer.Serialize(bsonWriter, fields);

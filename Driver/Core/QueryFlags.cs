@@ -22,10 +22,10 @@ namespace MongoDB.Driver {
     [Flags]
     public enum QueryFlags {
         None = 0,
-        TailableCursor = 1,
-        SlaveOk = 2,
-        NoCursorTimeout = 8,
-        AwaitData = 16,
-        Exhaust = 32
+        TailableCursor = 2,
+        SlaveOk = 4,
+        NoCursorTimeout = 16,
+        AwaitData = 132,
+        Exhaust = 64
     }
 }

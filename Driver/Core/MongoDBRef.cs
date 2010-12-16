@@ -33,6 +33,10 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        // default constructor is private and only used for deserialization
+        private MongoDBRef() {
+        }
+
         public MongoDBRef(
             string collectionName,
             object id
@@ -57,10 +61,10 @@ namespace MongoDB.Driver {
             BsonDocument document
         ) {
             if (
-                (document.Count != 2 && document.Count != 3) ||
+                (document.ElementCount != 2 && document.ElementCount != 3) ||
                 document.GetElement(0).Name != "$ref" ||
                 document.GetElement(1).Name != "$id" ||
-                (document.Count == 3 && document.GetElement(2).Name != "$db")
+                (document.ElementCount == 3 && document.GetElement(2).Name != "$db")
             ) {
                 throw new MongoException("BsonDocument is not a valid MongoDBRef");
             }
@@ -88,7 +92,8 @@ namespace MongoDB.Driver {
         #region explicit interface implementations
         object IBsonSerializable.Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             bsonReader.ReadStartDocument();
             string message;
@@ -147,7 +152,7 @@ namespace MongoDB.Driver {
 
         bool IBsonSerializable.GetDocumentId(
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException();
         }
@@ -155,7 +160,7 @@ namespace MongoDB.Driver {
         void IBsonSerializable.Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteString("$ref", collectionName);

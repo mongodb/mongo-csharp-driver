@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 
@@ -34,6 +35,8 @@ namespace MongoDB.Driver {
         private object serverLock = new object();
         private object requestsLock = new object();
         private MongoUrl url;
+        private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+        private List<IPEndPoint> endPoints = new List<IPEndPoint>();
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> replicaSet;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
@@ -58,6 +61,11 @@ namespace MongoDB.Driver {
                 } else {
                     this.defaultCredentials = url.Credentials;
                 }
+            }
+
+            foreach (var address in url.Servers) {
+                addresses.Add(address);
+                endPoints.Add(address.ToIPEndPoint());
             }
         }
         #endregion
@@ -114,8 +122,16 @@ namespace MongoDB.Driver {
             get { return GetDatabase("admin", adminCredentials); }
         }
 
+        public IEnumerable<MongoServerAddress> Addresses {
+            get { return addresses; }
+        }
+
         public MongoCredentials DefaultCredentials {
             get { return defaultCredentials; }
+        }
+
+        public IEnumerable<IPEndPoint> EndPoints {
+            get { return endPoints; }
         }
 
         public IEnumerable<MongoServerAddress> ReplicaSet {
@@ -138,10 +154,6 @@ namespace MongoDB.Driver {
 
         public SafeMode SafeMode {
             get { return url.SafeMode; }
-        }
-
-        public IEnumerable<MongoServerAddress> SeedList {
-            get { return url.Servers; }
         }
 
         public bool SlaveOk {
@@ -178,6 +190,13 @@ namespace MongoDB.Driver {
         ] {
             get { return GetDatabase(databaseName, credentials, safeMode); }
         }
+
+        public MongoDatabase this[
+            string databaseName,
+            SafeMode safeMode
+        ] {
+            get { return GetDatabase(databaseName, safeMode); }
+        }
         #endregion
 
         #region public methods
@@ -200,14 +219,14 @@ namespace MongoDB.Driver {
                     try {
                         switch (url.ConnectionMode) {
                             case ConnectionMode.Direct:
-                                var directConnector = new DirectConnector(url);
+                                var directConnector = new DirectConnector(this);
                                 directConnector.Connect(timeout);
                                 primaryConnectionPool = new MongoConnectionPool(this, directConnector.Connection);
                                 secondaryConnectionPools = null;
                                 replicaSet = null;
                                 break;
                             case ConnectionMode.ReplicaSet:
-                                var replicaSetConnector = new ReplicaSetConnector(url);
+                                var replicaSetConnector = new ReplicaSetConnector(this);
                                 replicaSetConnector.Connect(timeout);
                                 primaryConnectionPool = new MongoConnectionPool(this, replicaSetConnector.PrimaryConnection);
                                 if (url.SlaveOk) {
@@ -263,8 +282,8 @@ namespace MongoDB.Driver {
             string databaseName
         ) {
             MongoDatabase database = GetDatabase(databaseName);
-            var command = new BsonDocument("dropDatabase", 1);
-            return database.RunCommand<CommandResult>(command);
+            var command = new CommandDocument("dropDatabase", 1);
+            return database.RunCommand(command);
         }
 
         public BsonDocument FetchDBRef(
@@ -313,17 +332,17 @@ namespace MongoDB.Driver {
             }
         }
 
-        public IEnumerable<string> GetDatabaseNames() {
-            return GetDatabaseNames(adminCredentials);
+        public MongoDatabase GetDatabase(
+            string databaseName,
+            SafeMode safeMode
+        ) {
+            return GetDatabase(databaseName, defaultCredentials, safeMode);
         }
 
-        public IEnumerable<string> GetDatabaseNames(
-            MongoCredentials adminCredentials
-        ) {
-            var adminDatabase = GetDatabase("admin", adminCredentials);
-            var result = adminDatabase.RunCommand<CommandResult>("listDatabases");
+        public IEnumerable<string> GetDatabaseNames() {
+            var result = AdminDatabase.RunCommand("listDatabases");
             var databaseNames = new List<string>();
-            foreach (BsonDocument database in result["databases"].AsBsonArray.Values) {
+            foreach (BsonDocument database in result.Response["databases"].AsBsonArray.Values) {
                 string databaseName = database["name"].AsString;
                 databaseNames.Add(databaseName);
             }
@@ -335,8 +354,8 @@ namespace MongoDB.Driver {
             if (RequestNestingLevel == 0) {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
-            var adminDatabase = GetDatabase("admin", null); // no credentials needed for getlasterror
-            return adminDatabase.RunCommand<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
+            var adminDatabase = GetDatabase("admin", (MongoCredentials) null); // no credentials needed for getlasterror
+            return adminDatabase.RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
         public void Reconnect() {
@@ -391,46 +410,28 @@ namespace MongoDB.Driver {
             }
         }
 
-        public TCommandResult RunAdminCommand<TCommand, TCommandResult>(
-            MongoCredentials adminCredentials,
-            TCommand command
-        ) where TCommandResult : CommandResult {
-            var adminDatabase = GetDatabase("admin", adminCredentials);
-            return adminDatabase.RunCommand<TCommand, TCommandResult>(command);
+        public CommandResult RunAdminCommand(
+            IMongoCommand command
+        ) {
+            return RunAdminCommandAs<CommandResult>(command);
         }
 
-        public TCommandResult RunAdminCommand<TCommand, TCommandResult>(
-            TCommand command
-        ) where TCommandResult : CommandResult {
-            return RunAdminCommand<TCommand, TCommandResult>(adminCredentials, command);
-        }
-
-        public TCommandResult RunAdminCommand<TCommandResult>(
-            IBsonSerializable command
-        ) where TCommandResult : CommandResult {
-            return RunAdminCommand<TCommandResult>(adminCredentials, command);
-        }
-
-        public TCommandResult RunAdminCommand<TCommandResult>(
-            MongoCredentials adminCredentials,
-            IBsonSerializable command
-        ) where TCommandResult : CommandResult {
-            var adminDatabase = GetDatabase("admin", adminCredentials);
-            return adminDatabase.RunCommand<TCommandResult>(command);
-        }
-
-        public TCommandResult RunAdminCommand<TCommandResult>(
-            MongoCredentials adminCredentials,
+        public CommandResult RunAdminCommand(
             string commandName
-        ) where TCommandResult : CommandResult {
-            var adminDatabase = GetDatabase("admin", adminCredentials);
-            return adminDatabase.RunCommand<TCommandResult>(commandName);
+        ) {
+            return RunAdminCommandAs<CommandResult>(commandName);
         }
 
-        public TCommandResult RunAdminCommand<TCommandResult>(
+        public TCommandResult RunAdminCommandAs<TCommandResult>(
+            IMongoCommand command
+        ) where TCommandResult : CommandResult, new() {
+            return AdminDatabase.RunCommandAs<TCommandResult>(command);
+        }
+
+        public TCommandResult RunAdminCommandAs<TCommandResult>(
             string commandName
-        ) where TCommandResult : CommandResult {
-            return RunAdminCommand<TCommandResult>(adminCredentials, commandName);
+        ) where TCommandResult : CommandResult, new() {
+            return AdminDatabase.RunCommandAs<TCommandResult>(commandName);
         }
         #endregion
 
@@ -493,6 +494,8 @@ namespace MongoDB.Driver {
                 }
             }
 
+            // the connection might belong to a connection pool that has already been discarded
+            // so always release it to the connection pool it came from and not the current pool
             connection.ConnectionPool.ReleaseConnection(connection);
         }
         #endregion

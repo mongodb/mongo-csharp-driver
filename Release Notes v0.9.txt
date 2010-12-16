@@ -1,0 +1,198 @@
+C# Driver Version 0.9 Release Notes
+
+Summary:
+    Simplified and improved serialization
+        (see IBsonSerializable and IBsonSerializer)
+    Serialization support for more .NET classes (including Dictionary)
+    Many bug fixes and usability enhancements
+    Some classes now immutable (MongoServer, MongoDatabase, etc...)
+    Other classes become immutable after Freeze is called
+    Redesigned low level I/O classes (to simplify serialization)
+    Improved compile time type safety
+
+BSON Library Changes:
+
+ArraySerializer
+    is now a generic serializer
+    serializers for 1-3 dimensional arrays
+BsonBuffer
+    Read/WriteObjectId changed to match new ObjectId internal representation
+    added Skip and SkipCString methods
+BsonClassMap
+    added Freeze method (immutable once frozen)
+    added SetIdMember method
+    added UnmapField, UnmapMember and UnmapProperty methods
+BsonClassMapSerializer
+    Support new GetDocumentId/SetDocumentId methods
+BsonDefaultSerializer
+    GetSerializer method
+        return serializers for 1-3 dimensional arrays
+        return serializer for enums
+        if invalid serialization options were provided use default options
+BsonDocument
+    renamed Count to ElementCount
+BsonDocumentWrapper
+    wrap nominalType also
+    added CreateMultiple method
+BsonElement
+    moved serialization logic to BsonValue
+BsonMemberMap
+    added SetRepresentation method
+    better error messages for missing get/set accessors
+BsonObjectId
+    changed to match new ObjectId internal representation
+BsonReader (and BsonBinaryReader)
+    added CurrentBsonType property
+    removed HasElement and PeekBsonType (were causing duplicate reads)
+    revised bookmark API (GetBookmark/ReturnToBookmark)
+    element name and value can now be read separately
+        (needed to unify DeserializeDocument/DeserializeElement)
+    ReadObjectId changed to match new ObjectId internal representation
+    added SkipName and SkipValue methods
+    added ReadBsonType and ReadName methods
+    added new array methods (ReadStartArray, ReadEndArray)
+    separated Bookmark class from Context class
+BsonRegularExpression
+    detects options in pattern (e.g. "/Hello/i")
+BsonSerializer
+    Same changes as IBsonSerializer
+    Added RegisterIdConvention (moved from BsonDefaultSerializer)
+BsonValue
+    added serialization logic (moved from BsonElement)
+BsonWriter (and BsonBinaryWriter, BsonJsonWriter)
+    element name and value can now be written separately
+        (needed to unify SerializeDocument/SerializeElement)
+    added WriteName method
+    WriteObjectId changed to match new ObjectId internal representation
+    added new array methods (WriteStartArray, WriteEndArray)
+Document ID detection and handling
+    replaced DocumentHasIdMember, DocumentHasIdValue and GenerateDocumentId
+    with GetDocumentId and SetDocumentId
+IBsonIdGeneratorConvention
+    shortened to IIdGeneratorConvention
+IBsonSerializable/IBsonSerializer
+    Document/Element distinction removed from serialization
+    DeserializeDocument/DeserializeElement now just Deserialize
+    SerializeDocument/SerializeElement now just Serialize
+IDiscriminatorConvention
+    GetActualDocumentType/GetActualElementType combined into single GetActualType
+Improved Enum serialization
+    added 64 bit representation
+    forgiving deserialization automatically converts between numeric types
+    doubles supported during deserialization (JavaScript related)
+New IdGenerators
+    NullIdChecker
+    ZeroIdChecker
+Nullable type serialization
+    now uses a generic serializer
+ObjectId
+    new internal representation:
+        int: timestamp
+        int: machine (only low order 3 bytes used)
+        short: pid
+        int: increment (only low order 3 bytes used)
+    new representation is much more efficient (no shifting and masking)
+    new representation serializes correctly to JavaScript clients
+    only two bytes larger (and additional bytes are not on heap but embedded in object)
+PublicMemberFinderConvention
+    ignore indexers
+    ignore overridden properties (base class already serializes them)
+Serialization support for additional .NET classes
+    legacy Dictionary classes
+    generic Dictionary classess
+    BitArray
+    ByteArray
+    Uri
+    Version
+
+Driver Changes:
+
+Builders
+    Most have a Null static property
+    All have a new Wrap method (see marker interfaces)
+CommandResult (and subclasses)
+    Subclass of BsonDocument
+    Holds results of RunCommand
+    Subclasses used to pick out details of results in a type safe way
+MongoCollection
+    Improved compile time type safety
+    Replaced TQuery with IMongoQuery
+    Replaced TIndexKeys/Options with IMongoIndexKeys/Options
+    Replaced TSortBy with IMongoSortBy
+    Replaced TUpdate with IMongoUpdate
+    Replaced TFields with IMongoFields
+    Replaced TGroupBy with IMongoGroupBy
+    Update methods now return a SafeModeResult
+    Added FindOneById and FindOneByIdAs
+    GetStats now returns CollectionStatsResult
+    Implemented GetTotalDataSize and GetTotalStorageSize
+    Fixed IdGenerator related bugs
+MongoCommandException
+    CommandResult is now added to Data property
+MongoConnection
+    Use IPEndPoint instead of MongoServerAddress
+    new RunCommand internal helper method
+MongoConnectionPool
+    use IPEndPoint instead of MongoServerAddress
+    moved RequestStart/Done to MongoServer
+MongoConnectionSettings removed
+    a similar class is MongoUrlBuilder
+MongoCursor
+    Type is now MongoCursor<TDocument> not MongoCursor<TQuery, TDocument>
+    SetFields parameter is now IMongoFields
+    SetSortOrder parameter is now IMongoSortBy
+    Added support to distribute reads to replica set secondaries when slaveok=true
+MongoDatabase
+    Now immutable (e.g. can't change SafeMode once created)
+    Route commands to primary even when slaveok=true
+    RunCommand parameter now IMongoCommand
+    RunCommand now returns CommandResult
+    RunCommandAs used to return subclass of CommandResult
+    GetStats now returns DatabaseStatsResult
+MongoDelete/Insert/Query/UpdateMessage
+    Replaced TQuery with IMongoQuery
+    Replaced TFields with IMongoFields
+    Replaced TUpdate with IMongoUpdate
+MongoGridFS
+    Immutable (e.g. can't change SafeMode once created)
+    Replace TQuery with IMongoQuery
+    New methods: AppendText, CopyTo, Create, CreateText, ExistsById, FindOneById, FindAll,
+        MoveTo, Open, OpenRead, OpenText, OpenWrite, SetAliases, SetContentType, SetMetadata
+        (note: not all implemented yet)
+MongoGridFSCreateOptions
+    Used when creating new MongoGridFSStreams
+MongoGridFSFileInfo
+    Added Aliases, ContentType and Metadata
+    Implemented !=, ==
+    Implemented GetHashcode, Equals (can be used as Dictionary key)
+MongoGridFSSettings
+    Added Freeze method
+MongoGridFSStream
+    Initial implementation of Stream interface to GridFS files
+MongoServer
+    Now immutable (e.g. can't change SafeMode once created)
+    MongoUrl is used as identity of server instance
+    Support multiple connection pools (used when distributing reads to secondaries)
+    Added support for connection modes: direct and replica set
+    Added RequestStart/RequestDone (moved from MongoConnectionPool)
+    RunAdminCommand parameter now IMongoCommnad
+    RunAdminCommand now returns CommandResult
+    RunAdminCommandAs used to return subclass of CommandResult
+MongoUrl
+    Support new connection string options
+    Immutable
+    Implements GetHashcode and Equals (can be used as Dictionary key)
+MongoUrlBuilder
+    Used to build MongoUrls
+    Mutable
+New connection mode classes
+    DirectConnector and ReplicaConnector
+    classes encapsulate connection mode logic
+New marker interfaces
+    These are used to give parameters strong types while still allowing
+        many actual types to be used as arguments
+    Each marker interface has a new subclass of BsonDocument
+    Each marker interface has a new wrapper class
+    Replaces unconstrained generic type parameters
+QueryFlags
+    Enum values were all wrong (shifted one bit to the right)

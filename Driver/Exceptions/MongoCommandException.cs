@@ -24,7 +24,17 @@ using MongoDB.Bson;
 namespace MongoDB.Driver {
     [Serializable]
     public class MongoCommandException : MongoException {
+        #region private fields
+        private CommandResult commandResult;
+        #endregion
+
         #region constructors
+        public MongoCommandException(
+            CommandResult commandResult
+        )
+            : this(FormatErrorMessage(commandResult), commandResult) {
+        }
+
         public MongoCommandException(
             string message
         )
@@ -40,10 +50,10 @@ namespace MongoDB.Driver {
 
         public MongoCommandException(
             string message,
-            BsonDocument commandResult
+            CommandResult commandResult
         )
             : this(message) {
-                Data.Add("CommandResult", commandResult);
+                this.commandResult = commandResult;
         }
 
         // this constructor needed to support deserialization
@@ -52,6 +62,20 @@ namespace MongoDB.Driver {
             StreamingContext context
         )
             : base(info, context) {
+        }
+        #endregion
+
+        #region public properties
+        public CommandResult CommandResult {
+            get { return commandResult; }
+        }
+        #endregion
+
+        #region private static methods
+        private static string FormatErrorMessage(
+            CommandResult commandResult
+        ) {
+            return string.Format("Command '{0}' failed: {1} (response: {2})", commandResult.CommandName, commandResult.ErrorMessage, commandResult.Response.ToJson());
         }
         #endregion
     }

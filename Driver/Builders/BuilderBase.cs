@@ -43,21 +43,22 @@ namespace MongoDB.Driver.Builders {
         protected abstract void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         );
         #endregion
 
         #region explicit interface implementations
         object IBsonSerializable.Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             throw new InvalidOperationException();
         }
 
         bool IBsonSerializable.GetDocumentId(
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException();
         }
@@ -65,9 +66,9 @@ namespace MongoDB.Driver.Builders {
         void IBsonSerializable.Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            Serialize(bsonWriter, nominalType, serializeIdFirst);
+            Serialize(bsonWriter, nominalType, options);
         }
 
         void IBsonSerializable.SetDocumentId(

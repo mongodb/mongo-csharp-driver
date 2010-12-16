@@ -38,17 +38,13 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region constructors
         public DictionarySerializer() {
         }
-
-        public DictionarySerializer(
-            object serializationOptions
-        ) {
-        }
         #endregion
 
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
             if (bsonType == BsonType.Null) {
@@ -62,7 +58,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     var key = (TKey) (object) bsonReader.ReadName();
                     var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                    var value = (TValue) valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType);
+                    var value = (TValue) valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType, null);
                     dictionary.Add(key, value);
                 }
                 bsonReader.ReadEndDocument();
@@ -79,12 +75,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonReader.SkipName();
                     var keyType = keyDiscriminatorConvention.GetActualType(bsonReader, typeof(TKey));
                     var keySerializer = BsonSerializer.LookupSerializer(keyType);
-                    var key = (TKey) keySerializer.Deserialize(bsonReader, typeof(TKey), keyType);
+                    var key = (TKey) keySerializer.Deserialize(bsonReader, typeof(TKey), keyType, null);
                     bsonReader.ReadBsonType();
                     bsonReader.SkipName();
                     var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                    var value = (TValue) valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType);
+                    var value = (TValue) valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType, null);
                     bsonReader.ReadEndArray();
                     dictionary.Add(key, value);
                 }
@@ -100,7 +96,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             if (value == null) {
                 bsonWriter.WriteNull();

@@ -49,24 +49,27 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             var value = (IBsonSerializable) Activator.CreateInstance(nominalType, true); // private default constructor OK
-            return value.Deserialize(bsonReader, nominalType);
+            return value.Deserialize(bsonReader, nominalType, options);
         }
 
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
-            Type actualType
+            Type actualType,
+            IBsonSerializationOptions options
         ) {
-            return Deserialize(bsonReader, nominalType);
+            var value = (IBsonSerializable) Activator.CreateInstance(actualType, true); // private default constructor OK
+            return value.Deserialize(bsonReader, nominalType, options);
         }
 
         public bool GetDocumentId(
             object document,
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             var bsonSerializable = (IBsonSerializable) document;
             return bsonSerializable.GetDocumentId(out id, out idGenerator);
@@ -76,10 +79,14 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            var serializable = (IBsonSerializable) value;
-            serializable.Serialize(bsonWriter, nominalType, serializeIdFirst);
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var serializable = (IBsonSerializable) value;
+                serializable.Serialize(bsonWriter, nominalType, options);
+            }
         }
 
         public void SetDocumentId(

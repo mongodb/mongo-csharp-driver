@@ -32,24 +32,45 @@ namespace MongoDB.Bson {
 
     public class BsonDocumentWrapper : BsonValue, IBsonSerializable {
         #region private fields
-        private object document;
+        private Type wrappedNominalType;
+        private object wrappedObject;
         #endregion
 
         #region constructors
         public BsonDocumentWrapper(
-            object document
+            object wrappedObject
         )
             : base(BsonType.Document) {
-            this.document = document;
+            this.wrappedNominalType = (wrappedObject == null) ? typeof(object) : wrappedObject.GetType();
+            this.wrappedObject = wrappedObject;
+        }
+
+        public BsonDocumentWrapper(
+            Type wrappedNominalType,
+            object wrappedObject
+        )
+            : base(BsonType.Document) {
+            this.wrappedNominalType = wrappedNominalType;
+            this.wrappedObject = wrappedObject;
         }
         #endregion
 
         #region public static methods
-        public static new BsonDocumentWrapper Create(
-            object document
+        public static BsonDocumentWrapper Create<T>(
+            T document
         ) {
             if (document != null) {
-                return new BsonDocumentWrapper(document);
+                return new BsonDocumentWrapper(typeof(T), document);
+            } else {
+                return null;
+            }
+        }
+
+        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<T>(
+            IEnumerable<T> documents
+        ) {
+            if (documents != null) {
+                return documents.Select(d => Create<T>(d));
             } else {
                 return null;
             }
@@ -65,14 +86,15 @@ namespace MongoDB.Bson {
 
         public object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
         }
 
         public bool GetDocumentId(
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException();
         }
@@ -90,9 +112,9 @@ namespace MongoDB.Bson {
         public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
-            BsonSerializer.Serialize(bsonWriter, document, serializeIdFirst);
+            BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, options);
         }
 
         public void SetDocumentId(

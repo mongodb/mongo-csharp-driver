@@ -33,7 +33,8 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public methods
         public virtual object Deserialize(
             BsonReader bsonReader,
-            Type nominalType
+            Type nominalType,
+            IBsonSerializationOptions options
         ) {
             throw new InvalidOperationException("Subclass must implement Deserialize");
         }
@@ -41,15 +42,16 @@ namespace MongoDB.Bson.DefaultSerializer {
         public virtual object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
-            Type actualType
+            Type actualType, // ignored
+            IBsonSerializationOptions options
         ) {
-            return Deserialize(bsonReader, nominalType);
+            return Deserialize(bsonReader, nominalType, options);
         }
 
         public virtual bool GetDocumentId(
             object document,
             out object id,
-            out IBsonIdGenerator idGenerator
+            out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException("Subclass must implement GetDocumentId");
         }
@@ -58,7 +60,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            bool serializeIdFirst
+            IBsonSerializationOptions options
         ) {
             throw new InvalidOperationException("Subclass must implement Serialize");
         }

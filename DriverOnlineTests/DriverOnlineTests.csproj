@@ -69,13 +69,29 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="Core\CommandResults\CollectionStatsResultTests.cs" />
+    <Compile Include="Core\CommandResults\CommandResultTests.cs" />
+    <Compile Include="Core\CommandResults\DatabaseStatsResultTests.cs" />
+    <Compile Include="Core\CommandResults\GetLastErrorResultTests.cs" />
+    <Compile Include="Core\CommandResults\ValidateCollectionResultTests.cs" />
     <Compile Include="Core\MongoCollectionTests.cs" />
     <Compile Include="Core\MongoDatabaseTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />
+    <Compile Include="GridFS\MongoGridFSStreamTests.cs" />
+    <Compile Include="GridFS\MongoGridFSTests.cs" />
     <Compile Include="Jira\CSharp101Tests.cs" />
     <Compile Include="Jira\CSharp103Tests.cs" />
+    <Compile Include="Jira\CSharp110Tests.cs" />
+    <Compile Include="Jira\CSharp111Tests.cs" />
+    <Compile Include="Jira\CSharp112Tests.cs" />
+    <Compile Include="Jira\CSharp130Tests.cs" />
+    <Compile Include="Jira\CSharp134Tests.cs" />
     <Compile Include="Jira\CSharp77Tests.cs" />
     <Compile Include="Jira\CSharp92Tests.cs" />
     <Compile Include="Jira\CSharp93Tests.cs" />

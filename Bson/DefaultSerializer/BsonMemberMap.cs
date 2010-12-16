@@ -35,9 +35,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         private Type memberType;
         private Func<object, object> getter;
         private Action<object, object> setter;
-        private object serializationOptions;
+        private IBsonSerializationOptions serializationOptions;
         private IBsonSerializer serializer;
-        private IBsonIdGenerator idGenerator;
+        private IIdGenerator idGenerator;
         private bool isRequired;
         private bool hasDefaultValue;
         private bool serializeDefaultValue = true;
@@ -91,7 +91,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public object SerializationOptions {
+        public IBsonSerializationOptions SerializationOptions {
             get { return serializationOptions; }
         }
 
@@ -108,10 +108,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
-        public IBsonIdGenerator IdGenerator {
+        public IIdGenerator IdGenerator {
             get {
                 if (idGenerator == null) {
-                    idGenerator = conventions.BsonIdGeneratorConvention.GetBsonIdGenerator(memberInfo);
+                    idGenerator = conventions.IdGeneratorConvention.GetIdGenerator(memberInfo);
                 }
                 return idGenerator;
             }
@@ -153,11 +153,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         ) {
             if (actualType == memberType) {
                 if (serializer == null) {
-                    serializer = BsonSerializer.LookupSerializer(memberType, serializationOptions);
+                    serializer = BsonSerializer.LookupSerializer(memberType);
                 }
                 return serializer;
             } else {
-                return BsonSerializer.LookupSerializer(actualType, serializationOptions);
+                return BsonSerializer.LookupSerializer(actualType);
             }
         }
 
@@ -185,7 +185,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         public BsonMemberMap SetIdGenerator(
-            IBsonIdGenerator idGenerator
+            IIdGenerator idGenerator
         ) {
             this.idGenerator = idGenerator;
             return this;
@@ -215,12 +215,12 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonMemberMap SetRepresentation(
             BsonType representation
         ) {
-            this.serializationOptions = representation;
+            this.serializationOptions = new RepresentationSerializationOptions(representation);
             return this;
         }
 
         public BsonMemberMap SetSerializationOptions(
-            object serializationOptions
+            IBsonSerializationOptions serializationOptions
         ) {
             this.serializationOptions = serializationOptions;
             return this;

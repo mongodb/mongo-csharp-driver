@@ -68,9 +68,10 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             BsonReader bsonReader,
             Type nominalType
         ) {
+            var bsonType = bsonReader.CurrentBsonType;
             if (bsonReader.ReadState == BsonReadState.Value) {
                 Type primitiveType = null;
-                switch (bsonReader.CurrentBsonType) {
+                switch (bsonType) {
                     case BsonType.Boolean: primitiveType = typeof(bool); break;
                     case BsonType.Binary:
                         var bookmark = bsonReader.GetBookmark();
@@ -95,7 +96,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 }
             }
 
-            if (bsonReader.CurrentBsonType == BsonType.Document) {
+            if (bsonType == BsonType.Document) {
                 var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
                 var actualType = nominalType;

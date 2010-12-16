@@ -33,9 +33,6 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        [Obsolete("Use BsonMinKey.Value instead (BsonMinKey.Singleton will be removed in version 0.9)")]
-        public static BsonMinKey Singleton { get { return singleton; } }
-
         public static BsonMinKey Value { get { return singleton; } }
         #endregion
 

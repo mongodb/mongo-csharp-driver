@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -28,7 +29,7 @@ namespace MongoDB.Driver.Internal {
         #region private fields
         private object connectionLock = new object();
         private MongoConnectionPool connectionPool;
-        private MongoServerAddress address;
+        private IPEndPoint endPoint;
         private bool closed;
         private TcpClient tcpClient;
         private DateTime lastUsed; // set every time the connection is Released
@@ -39,12 +40,14 @@ namespace MongoDB.Driver.Internal {
         #region constructors
         internal MongoConnection(
             MongoConnectionPool connectionPool,
-            MongoServerAddress address
+            IPEndPoint endPoint
         ) {
             this.connectionPool = connectionPool;
-            this.address = address;
+            this.endPoint = endPoint;
 
-            tcpClient = new TcpClient(address.Host, address.Port);
+            tcpClient = new TcpClient();
+            tcpClient.Connect(endPoint);
+
             tcpClient.NoDelay = true; // turn off Nagle
             tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
             tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
@@ -52,12 +55,16 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region internal properties
-        internal MongoServerAddress Address {
-            get { return address; }
+        internal IPEndPoint EndPoint {
+            get { return endPoint; }
         }
 
         internal MongoConnectionPool ConnectionPool {
             get { return connectionPool; }
+        }
+
+        internal bool Closed {
+            get { return closed; }
         }
 
         internal DateTime LastUsed {
@@ -77,26 +84,26 @@ namespace MongoDB.Driver.Internal {
         ) {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
-                var nonceCommand = new BsonDocument("getnonce", 1);
+                var nonceCommand = new CommandDocument("getnonce", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 string nonce;
                 try {
-                    var nonceResult = RunCommand<CommandResult>(commandCollectionName, QueryFlags.None, nonceCommand);
-                    nonce = nonceResult["nonce"].AsString;
+                    var nonceResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand);
+                    nonce = nonceResult.Response["nonce"].AsString;
                 } catch (MongoCommandException ex) {
                     throw new MongoAuthenticationException("Error getting nonce for authentication", ex);
                 }
 
                 var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
                 var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
-                var authenticateCommand = new BsonDocument {
+                var authenticateCommand = new CommandDocument {
                     { "authenticate", 1 },
                     { "user", credentials.Username },
                     { "nonce", nonce },
                     { "key", digest }
                 };
                 try {
-                    RunCommand<CommandResult>(commandCollectionName, QueryFlags.None, authenticateCommand);
+                    RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand);
                 } catch (MongoCommandException ex) {
                     var message = string.Format("Invalid credentials for database: {0}", databaseName);
                     throw new MongoAuthenticationException(message, ex);
@@ -182,15 +189,29 @@ namespace MongoDB.Driver.Internal {
         internal void Close() {
             lock (connectionLock) {
                 if (!closed) {
+                    Exception exception = null;
                     // note: TcpClient.Close doesn't close the NetworkStream!?
-                    NetworkStream networkStream = tcpClient.GetStream();
-                    if (networkStream != null) {
-                        networkStream.Close();
+                    try {
+                        var networkStream = tcpClient.GetStream();
+                        if (networkStream != null) {
+                            networkStream.Close();
+                        }
+                    } catch (Exception ex) {
+                        if (exception == null) { exception = ex; }
                     }
-                    tcpClient.Close();
-                    ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
+                    try {
+                        tcpClient.Close();
+                    } catch (Exception ex) {
+                        if (exception == null) { exception = ex; }
+                    }
+                    try {
+                        ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
+                    } catch (Exception ex) {
+                        if (exception == null) { exception = ex; }
+                    }
                     tcpClient = null;
                     closed = true;
+                    if (exception != null) { throw exception; }
                 }
             }
         }
@@ -224,8 +245,8 @@ namespace MongoDB.Driver.Internal {
             if (this.connectionPool != null) {
                 throw new ArgumentException("The connection is already in a connection pool", "this");
             }
-            if (connectionPool.Address != address) {
-                throw new ArgumentException("A connection can only join a connection pool with the same server address", "connectionPool");
+            if (connectionPool.EndPoint != endPoint) {
+                throw new ArgumentException("A connection can only join a connection pool with the same IP address", "connectionPool");
             }
 
             this.connectionPool = connectionPool;
@@ -237,10 +258,10 @@ namespace MongoDB.Driver.Internal {
         ) {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
-                var logoutCommand = new BsonDocument("logout", 1);
+                var logoutCommand = new CommandDocument("logout", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 try {
-                    RunCommand<CommandResult>(commandCollectionName, QueryFlags.None, logoutCommand);
+                    RunCommand(commandCollectionName, QueryFlags.None, logoutCommand);
                 } catch (MongoCommandException ex) {
                     throw new MongoAuthenticationException("Error logging off", ex);
                 }
@@ -251,19 +272,19 @@ namespace MongoDB.Driver.Internal {
 
         // this is a low level method that doesn't require a MongoServer
         // so it can be used while connecting to a MongoServer
-        internal TCommandResult RunCommand<TCommandResult>(
+        internal CommandResult RunCommand(
             string collectionName,
             QueryFlags queryFlags,
-            BsonDocument command
-        ) where TCommandResult : CommandResult {
+            CommandDocument command
+        ) {
             var commandName = command.GetElement(0).Name;
 
             using (
-                var message = new MongoQueryMessage<BsonDocument>(
+                var message = new MongoQueryMessage(
                     collectionName,
                     queryFlags,
                     0, // numberToSkip
-                    1, // numberToReturn
+                    1, // numberToReturn (must be 1 or -1 for commands)
                     command,
                     null // fields
                 )
@@ -271,29 +292,15 @@ namespace MongoDB.Driver.Internal {
                 SendMessage(message, SafeMode.False);
             }
 
-            var reply = ReceiveMessage<TCommandResult>();
-            if ((reply.ResponseFlags & ResponseFlags.QueryFailure) != 0) {
-                var message = string.Format("Command '{0}' failed (QueryFailure flag set)", commandName);
-                throw new MongoCommandException(message);
-            }
-            if (reply.NumberReturned != 1) {
-                var message = string.Format("Command '{0}' failed (wrong number of documents returned: {1})", commandName, reply.NumberReturned);
+            var reply = ReceiveMessage<BsonDocument>();
+            if (reply.NumberReturned == 0) {
+                var message = string.Format("Command '{0}' failed: no response returned", commandName);
                 throw new MongoCommandException(message);
             }
 
-            var commandResult = reply.Documents[0];
-            if (!commandResult.Contains("ok")) {
-                var message = string.Format("Command '{0}' failed (ok element missing in result)", commandName);
-            }
-            if (!commandResult["ok"].ToBoolean()) {
-                string message;
-                var err = commandResult["err", null];
-                if (err == null || err.IsBsonNull) {
-                    message = string.Format("Command '{0}' failed (no error message found)", commandName);
-                } else {
-                    message = string.Format("Command '{0}' failed ({1})", commandName, err.ToString());
-                }
-                throw new MongoCommandException(message, commandResult);
+            var commandResult = new CommandResult(command, reply.Documents[0]);
+            if (!commandResult.Ok) {
+                throw new MongoCommandException(commandResult);
             }
 
             return commandResult;
@@ -302,40 +309,41 @@ namespace MongoDB.Driver.Internal {
         internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>() {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
-                BsonBuffer buffer = new BsonBuffer();
                 try {
+                    var buffer = new BsonBuffer();
                     buffer.LoadFrom(tcpClient.GetStream());
-                } catch (SocketException ex) {
-                    HandleSocketException(ex);
+                    var reply = new MongoReplyMessage<TDocument>();
+                    reply.ReadFrom(buffer);
+                    return reply;
+                } catch (Exception ex) {
+                    HandleException(ex);
                     throw;
                 }
-                var reply = new MongoReplyMessage<TDocument>();
-                reply.ReadFrom(buffer);
-                return reply;
             }
         }
 
-        internal BsonDocument SendMessage(
+        internal SafeModeResult SendMessage(
             MongoRequestMessage message,
             SafeMode safeMode
         ) {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 message.WriteToBuffer();
+                CommandDocument safeModeCommand = null;
                 if (safeMode.Enabled) {
-                    var command = new BsonDocument {
+                    safeModeCommand = new CommandDocument {
                         { "getlasterror", 1 }, // use all lowercase for backward compatibility
                         { "fsync", true, safeMode.FSync },
                         { "w", safeMode.W, safeMode.W > 1 },
                         { "wtimeout", (int) safeMode.WTimeout.TotalMilliseconds, safeMode.W > 1 && safeMode.WTimeout != TimeSpan.Zero }
                     };
                     using (
-                        var getLastErrorMessage = new MongoQueryMessage<BsonDocument>(
+                        var getLastErrorMessage = new MongoQueryMessage(
                             "admin.$cmd", // collectionFullName
                             QueryFlags.None,
                             0, // numberToSkip
                             1, // numberToReturn
-                            command,
+                            safeModeCommand,
                             null, // fields
                             message.Buffer // piggy back on network transmission for message
                         )
@@ -345,49 +353,60 @@ namespace MongoDB.Driver.Internal {
                 }
 
                 try {
-                    NetworkStream networkStream = tcpClient.GetStream();
-                    message.Buffer.WriteTo(networkStream);
+                    message.Buffer.WriteTo(tcpClient.GetStream());
                     messageCounter++;
-                } catch (SocketException ex) {
-                    HandleSocketException(ex);
+                } catch (Exception ex) {
+                    HandleException(ex);
                     throw;
                 }
 
-                BsonDocument lastError = null;
+                SafeModeResult safeModeResult = null;
                 if (safeMode.Enabled) {
                     var replyMessage = ReceiveMessage<BsonDocument>();
-                    lastError = replyMessage.Documents[0];
+                    var safeModeResponse = replyMessage.Documents[0];
+                    safeModeResult = new SafeModeResult();
+                    safeModeResult.Initialize(safeModeCommand, safeModeResponse);
 
-                    if (!lastError.Contains("ok")) {
-                        throw new MongoSafeModeException("ok element is missing");
+                    if (!safeModeResult.Ok) {
+                        var errorMessage = string.Format("Safemode detected an error: {0} (response: {1})", safeModeResult.ErrorMessage, safeModeResponse.ToJson());
+                        throw new MongoSafeModeException(errorMessage, safeModeResult);
                     }
-                    if (!lastError["ok"].ToBoolean()) {
-                        string errmsg = lastError["errmsg"].AsString;
-                        string errorMessage = string.Format("Safemode detected an error ({0})", errmsg);
-                        throw new MongoSafeModeException(errorMessage);
-                    }
-
-                    if (lastError["err", false].ToBoolean()) {
-                        var err = lastError["err"].AsString;
-                        string errorMessage = string.Format("Safemode detected an error ({0})", err);
-                        throw new MongoSafeModeException(errorMessage);
+                    if (safeModeResult.HasLastErrorMessage) {
+                        var errorMessage = string.Format("Safemode detected an error: {0} (response: {1})", safeModeResult.LastErrorMessage, safeModeResponse.ToJson());
+                        throw new MongoSafeModeException(errorMessage, safeModeResult);
                     }
                 }
 
-                return lastError;
+                return safeModeResult;
             }
         }
         #endregion
 
         #region private methods
-        private void HandleSocketException(
-            SocketException ex
+        private void HandleException(
+            Exception ex
         ) {
-            if (connectionPool != null) {
-                // TODO: analyze SocketException to determine if the server is really down?
-                // for now assume it is and force MongoServer to find a new primary by calling Disconnect
+            // TODO: figure out which exceptions are more serious than others
+            // there are three possible situations:
+            // 1. we can keep using the connection
+            // 2. this one connection needs to be discarded
+            // 3. the whole connection pool needs to be discarded
+            // for now the only exception we know affects only one connection is FileFormatException
+
+            var disconnect = true;
+            if (ex is FileFormatException) {
+                disconnect = false;
+            }
+
+            if (disconnect) {
+                if (connectionPool != null) {
+                    try {
+                        connectionPool.Server.Disconnect();
+                    } catch { } // ignore any further exceptions
+                }
+            } else {
                 try {
-                    connectionPool.Server.Disconnect();
+                    Close();
                 } catch { } // ignore any further exceptions
             }
         }

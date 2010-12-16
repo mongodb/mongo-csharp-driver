@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
     // [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
@@ -50,7 +51,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
-        public override object GetOptions() {
+        public override IBsonSerializationOptions GetOptions() {
             return new DateTimeSerializationOptions { DateOnly = dateOnly, Kind = kind, Representation = representation };
         }
         #endregion

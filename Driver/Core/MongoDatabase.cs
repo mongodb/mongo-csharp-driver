@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver {
     public class MongoDatabase {
@@ -32,6 +33,7 @@ namespace MongoDB.Driver {
         private MongoCredentials credentials;
         private SafeMode safeMode;
         private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
+        private MongoCollection<BsonDocument> commandCollection;
         private MongoGridFS gridFS;
         #endregion
 
@@ -47,6 +49,16 @@ namespace MongoDB.Driver {
             this.name = name;
             this.credentials = credentials;
             this.safeMode = safeMode;
+
+            // if connected to a replica set with SlaveOk make sure commands get routed to primary
+            if (server.SlaveOk && server.Url.ConnectionMode == ConnectionMode.ReplicaSet) {
+                var primaryUrl = new MongoUrlBuilder(server.Url.ToString());
+                primaryUrl.SlaveOk = false;
+                var primaryServer = MongoServer.Create(primaryUrl.ToMongoUrl());
+                commandCollection = primaryServer[name, credentials]["$cmd"];
+            } else {
+                commandCollection = this["$cmd"];
+            }
         }
         #endregion
 
@@ -88,7 +100,7 @@ namespace MongoDB.Driver {
 
         #region public properties
         public MongoCollection<BsonDocument> CommandCollection {
-            get { return GetCollection<BsonDocument>("$cmd"); }
+            get { return commandCollection; }
         }
 
         public MongoCredentials Credentials {
@@ -99,7 +111,7 @@ namespace MongoDB.Driver {
             get {
                 lock (databaseLock) {
                     if (gridFS == null) {
-                        gridFS = new MongoGridFS(this, MongoGridFSSettings.Defaults.Clone());
+                        gridFS = new MongoGridFS(this, MongoGridFS.DefaultSettings);
                     }
                     return gridFS;
                 }
@@ -125,6 +137,13 @@ namespace MongoDB.Driver {
         ] {
             get { return GetCollection(collectionName); }
         }
+
+        public MongoCollection<BsonDocument> this[
+            string collectionName,
+            SafeMode safeMode
+        ] {
+            get { return GetCollection(collectionName, safeMode); }
+        }
         #endregion
 
         #region public methods
@@ -139,7 +158,7 @@ namespace MongoDB.Driver {
             bool readOnly
         ) {
             var users = GetCollection("system.users");
-            var user = users.FindOne(new BsonDocument("user", credentials.Username));
+            var user = users.FindOne(Query.EQ("user", credentials.Username));
             if (user == null) {
                 user = new BsonDocument("user", credentials.Username);
             }
@@ -158,33 +177,32 @@ namespace MongoDB.Driver {
             string collectionName,
             BsonDocument options
         ) {
-            BsonDocument command = new BsonDocument("create", collectionName);
+            var command = new CommandDocument("create", collectionName);
             command.Merge(options);
-            return RunCommand<CommandResult>(command);
+            return RunCommand(command);
         }
 
-        public BsonDocument CurrentOp() {
-            var collection = GetCollection("$cmd.sys.inprog");
-            return collection.FindOne();
+        public void Drop() {
+            server.DropDatabase(name);
         }
 
         public CommandResult DropCollection(
             string collectionName
         ) {
-            BsonDocument command = new BsonDocument("drop", collectionName);
-            return RunCommand<CommandResult>(command);
+            var command = new CommandDocument("drop", collectionName);
+            return RunCommand(command);
         }
 
         public BsonValue Eval(
             string code,
             params object[] args
         ) {
-            BsonDocument command = new BsonDocument {
+            var command = new CommandDocument {
                 { "$eval", code },
                 { "args", new BsonArray(args) }
             };
-            var result = RunCommand<CommandResult>(command);
-            return result["retval"];
+            var result = RunCommand(command);
+            return result.Response["retval"];
         }
 
         public BsonDocument FetchDBRef(
@@ -201,7 +219,7 @@ namespace MongoDB.Driver {
             }
 
             var collection = GetCollection(dbRef.CollectionName);
-            var query = new BsonDocument("_id", BsonValue.Create(dbRef.Id));
+            var query = Query.EQ("_id", BsonValue.Create(dbRef.Id));
             return collection.FindOneAs<TDocument>(query);
         }
 
@@ -229,7 +247,14 @@ namespace MongoDB.Driver {
         public MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
-            return GetCollection<BsonDocument>(collectionName);
+            return GetCollection<BsonDocument>(collectionName, safeMode);
+        }
+
+        public MongoCollection<BsonDocument> GetCollection(
+            string collectionName,
+            SafeMode safeMode
+        ) {
+            return GetCollection<BsonDocument>(collectionName, safeMode);
         }
 
         public IEnumerable<string> GetCollectionNames() {
@@ -246,6 +271,17 @@ namespace MongoDB.Driver {
             return collectionNames;
         }
 
+        public BsonDocument GetCurrentOp() {
+            var collection = GetCollection("$cmd.sys.inprog");
+            return collection.FindOne();
+        }
+
+        public MongoGridFS GetGridFS(
+            MongoGridFSSettings settings
+        ) {
+            return new MongoGridFS(this, settings);
+        }
+
         // TODO: mongo shell has GetPrevError at the database level?
         // TODO: mongo shell has GetProfilingLevel at the database level?
         // TODO: mongo shell has GetReplicationInfo at the database level?
@@ -257,7 +293,7 @@ namespace MongoDB.Driver {
         }
 
         public DatabaseStatsResult GetStats() {
-            return RunCommand<DatabaseStatsResult>("dbstats");
+            return RunCommandAs<DatabaseStatsResult>("dbstats");
         }
 
         // TODO: mongo shell has IsMaster at database level?
@@ -266,26 +302,18 @@ namespace MongoDB.Driver {
             string username
         ) {
             var users = GetCollection("system.users");
-            users.Remove(new BsonDocument("user", username));
+            users.Remove(Query.EQ("user", username));
         }
 
         public CommandResult RenameCollection(
-            MongoCredentials adminCredentials,
             string oldCollectionName,
             string newCollectionName
         ) {
-            var command = new BsonDocument {
+            var command = new CommandDocument {
                 { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
                 { "to", string.Format("{0}.{1}", name, newCollectionName) }
             };
-            return server.RunAdminCommand<CommandResult>(adminCredentials, command);
-        }
-
-        public BsonDocument RenameCollection(
-            string oldCollectionName,
-            string newCollectionName
-        ) {
-            return RenameCollection(server.AdminCredentials, oldCollectionName, newCollectionName);
+            return server.RunAdminCommand(command);
         }
 
         public void RequestDone() {
@@ -300,46 +328,47 @@ namespace MongoDB.Driver {
 
         // TODO: mongo shell has ResetError at the database level
 
-        public TCommandResult RunCommand<TCommand, TCommandResult>(
-            TCommand command
-        ) where TCommandResult : CommandResult {
-            var result = CommandCollection.FindOneAs<TCommand, TCommandResult>(command);
-            if (!result.Ok) {
-                string errorMessage = string.Format("Command failed: {0}", result.ErrorMessage);
-                throw new MongoCommandException(errorMessage);
-            }
-            return result;
+        public CommandResult RunCommand(
+            IMongoCommand command
+        ) {
+            return RunCommandAs<CommandResult>(command);
         }
 
-        public TCommandResult RunCommand<TCommandResult>(
-            IBsonSerializable command
-        ) where TCommandResult : CommandResult {
-            return RunCommand<IBsonSerializable, TCommandResult>(command);
-        }
-
-        public TCommandResult RunCommand<TCommandResult>(
+        public CommandResult RunCommand(
             string commandName
-        ) where TCommandResult : CommandResult {
-            BsonDocument command = new BsonDocument(commandName, true);
-            return RunCommand<BsonDocument, TCommandResult>(command);
+        ) {
+            return RunCommandAs<CommandResult>(commandName);
+        }
+
+        public TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command
+        ) where TCommandResult : CommandResult, new() {
+            var response = CommandCollection.FindOne(command);
+            if (response == null) {
+                var commandName = command.ToBsonDocument().GetElement(0).Name;
+                var message = string.Format("Command '{0}' failed: no response returned", commandName);
+                throw new MongoCommandException(message);
+            }
+            var commandResult = new TCommandResult(); // generic type constructor can't have arguments
+            commandResult.Initialize(command, response); // so two phase construction required
+            if (!commandResult.Ok) {
+                if (commandResult.ErrorMessage == "not master") {
+                    server.Disconnect();
+                }
+                throw new MongoCommandException(commandResult);
+            }
+            return commandResult;
+        }
+
+        public TCommandResult RunCommandAs<TCommandResult>(
+            string commandName
+        ) where TCommandResult : CommandResult, new() {
+            var command = new CommandDocument(commandName, true);
+            return RunCommandAs<TCommandResult>(command);
         }
 
         public override string ToString() {
             return name;
-        }
-        #endregion
-
-        #region internal methods
-        internal MongoConnection GetConnection(
-            bool slaveOk
-        ) {
-            return server.GetConnection(this, slaveOk);
-        }
-
-        internal void ReleaseConnection(
-            MongoConnection connection
-        ) {
-            server.ReleaseConnection(connection);
         }
         #endregion
 

@@ -27,18 +27,5 @@ namespace MongoDB.Bson {
         #region public static properties
         public static DateTime UnixEpoch { get { return unixEpoch; } }
         #endregion
-
-        #region obsolete members
-        [Obsolete("Use BsonBoolean.False instead (BsonConstants.False will be removed in version 0.9)")]
-        public static BsonBoolean False { get { return BsonBoolean.False; } }
-        [Obsolete("Use BsonMaxKey.Value instead (BsonConstants.MaxKey will be removed in version 0.9)")]
-        public static BsonMaxKey MaxKey { get { return BsonMaxKey.Value; } }
-        [Obsolete("Use BsonMinKey.Value instead (BsonConstants.MinKey will be removed in version 0.9)")]
-        public static BsonMinKey MinKey { get { return BsonMinKey.Value; } }
-        [Obsolete("Use BsonNull.Value instead (BsonConstants.Null will be removed in version 0.9)")]
-        public static BsonNull Null { get { return BsonNull.Value; } }
-        [Obsolete("Use BsonBoolean.True instead (BsonConstants.FalTruese will be removed in version 0.9)")]
-        public static BsonBoolean True { get { return BsonBoolean.True; } }
-        #endregion
     }
 }

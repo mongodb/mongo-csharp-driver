@@ -23,24 +23,25 @@ using NUnit.Framework;
 using MongoDB.Bson.DefaultSerializer.Conventions;
 using MongoDB.Bson;
 using MongoDB.Bson.DefaultSerializer;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions {
     [TestFixture]
-    public class BsonIdGeneratorConventionsTests {
+    public class IdGeneratorConventionsTests {
         private class TestClass {
             public Guid GuidId { get; set; }
             public ObjectId ObjectId { get; set; }
         }
 
         [Test]
-        public void TestBsonIdGeneratorConvention() {
-            var convention = new BsonSerializerBsonIdGeneratorConvention();
+        public void TestLookupIdGeneratorConvention() {
+            var convention = new LookupIdGeneratorConvention();
 
             var guidProperty = typeof(TestClass).GetProperty("GuidId");
             var objectIdProperty = typeof(TestClass).GetProperty("ObjectId");
 
-            Assert.IsInstanceOf<GuidGenerator>(convention.GetBsonIdGenerator(guidProperty));
-            Assert.IsInstanceOf<ObjectIdGenerator>(convention.GetBsonIdGenerator(objectIdProperty));
+            Assert.IsInstanceOf<GuidGenerator>(convention.GetIdGenerator(guidProperty));
+            Assert.IsInstanceOf<ObjectIdGenerator>(convention.GetIdGenerator(objectIdProperty));
         }
     }
 }

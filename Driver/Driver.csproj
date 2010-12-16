@@ -69,8 +69,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
+    <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
     <Compile Include="Builders\GroupByBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
@@ -81,11 +85,47 @@
     <Compile Include="Core\CommandResults\CollectionStatsResult.cs" />
     <Compile Include="Core\CommandResults\CommandResult.cs" />
     <Compile Include="Core\CommandResults\DatabaseStatsResult.cs" />
+    <Compile Include="Core\CommandResults\FindAndModifyResult.cs" />
     <Compile Include="Core\CommandResults\GeoNearResult.cs" />
     <Compile Include="Core\CommandResults\GetLastErrorResult.cs" />
+    <Compile Include="Core\CommandResults\SafeModeResult.cs" />
     <Compile Include="Core\CommandResults\ValidateCollectionResult.cs" />
+    <Compile Include="Core\Interfaces\IMongoCommand.cs" />
+    <Compile Include="Core\Interfaces\IMongoFields.cs" />
+    <Compile Include="Core\Interfaces\IMongoGeoNearOptions.cs" />
+    <Compile Include="Core\Interfaces\IMongoGroupBy.cs" />
+    <Compile Include="Core\Interfaces\IMongoIndexKeys.cs" />
+    <Compile Include="Core\Interfaces\IMongoIndexOptions.cs" />
+    <Compile Include="Core\Interfaces\IMongoMapReduceOptions.cs" />
+    <Compile Include="Core\Interfaces\IMongoQuery.cs" />
+    <Compile Include="Core\Interfaces\IMongoScope.cs" />
+    <Compile Include="Core\Interfaces\IMongoSortBy.cs" />
+    <Compile Include="Core\Interfaces\IMongoUpdate.cs" />
     <Compile Include="Core\MongoDBRef.cs" />
     <Compile Include="Core\MongoUrlBuilder.cs" />
+    <Compile Include="Core\Wrappers\BaseWrapper.cs" />
+    <Compile Include="Core\Wrappers\CommandDocument.cs" />
+    <Compile Include="Core\Wrappers\CommandWrapper.cs" />
+    <Compile Include="Core\Wrappers\FieldsDocument.cs" />
+    <Compile Include="Core\Wrappers\FieldsWrapper.cs" />
+    <Compile Include="Core\Wrappers\GeoNearOptionsDocument.cs" />
+    <Compile Include="Core\Wrappers\GeoNearOptionsWrapper.cs" />
+    <Compile Include="Core\Wrappers\GroupByDocument.cs" />
+    <Compile Include="Core\Wrappers\GroupByWrapper.cs" />
+    <Compile Include="Core\Wrappers\IndexKeysDocument.cs" />
+    <Compile Include="Core\Wrappers\IndexKeysWrapper.cs" />
+    <Compile Include="Core\Wrappers\IndexOptionsDocument.cs" />
+    <Compile Include="Core\Wrappers\IndexOptionsWrapper.cs" />
+    <Compile Include="Core\Wrappers\MapReduceOptionsDocument.cs" />
+    <Compile Include="Core\Wrappers\MapReduceOptionsWrapper.cs" />
+    <Compile Include="Core\Wrappers\QueryDocument.cs" />
+    <Compile Include="Core\Wrappers\QueryWrapper.cs" />
+    <Compile Include="Core\Wrappers\ScopeDocument.cs" />
+    <Compile Include="Core\Wrappers\ScopeWrapper.cs" />
+    <Compile Include="Core\Wrappers\SortByDocument.cs" />
+    <Compile Include="Core\Wrappers\SortByWrapper.cs" />
+    <Compile Include="Core\Wrappers\UpdateDocument.cs" />
+    <Compile Include="Core\Wrappers\UpdateWrapper.cs" />
     <Compile Include="Exceptions\MongoAuthenticationException.cs" />
     <Compile Include="Exceptions\MongoCommandException.cs" />
     <Compile Include="Exceptions\MongoConnectionException.cs" />
@@ -93,6 +133,7 @@
     <Compile Include="Exceptions\MongoInternalException.cs" />
     <Compile Include="Exceptions\MongoQueryException.cs" />
     <Compile Include="Exceptions\MongoSafeModeException.cs" />
+    <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
     <Compile Include="Internal\DirectConnector.cs" />
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
@@ -122,7 +163,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\MongoCredentials.cs" />
-    <Compile Include="Core\MongoMapReduceResult.cs" />
+    <Compile Include="Core\CommandResults\MapReduceResult.cs" />
     <Compile Include="Core\MongoServer.cs" />
     <Compile Include="Core\MongoCursor.cs" />
     <Compile Include="Core\MongoDatabase.cs" />

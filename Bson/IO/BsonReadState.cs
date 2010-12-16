@@ -26,6 +26,7 @@ namespace MongoDB.Bson.IO {
         Value,
         ScopeDocument,
         EndOfDocument,
+        EndOfArray,
         Done,
         Closed
     }

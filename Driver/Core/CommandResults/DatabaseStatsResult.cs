@@ -30,6 +30,41 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        public double AverageObjectSize {
+            get { return response["avgObjSize"].ToDouble(); }
+        }
+
+        public int CollectionCount {
+            get { return response["collections"].ToInt32(); }
+        }
+
+        public long DataSize {
+            get { return response["dataSize"].ToInt64(); }
+        }
+
+        public int ExtentCount {
+            get { return response["numExtents"].ToInt32(); }
+        }
+
+        public long FileSize {
+            get { return response["fileSize"].ToInt64(); }
+        }
+
+        public int IndexCount {
+            get { return response["indexes"].ToInt32(); }
+        }
+
+        public long IndexSize {
+            get { return response["indexSize"].ToInt64(); }
+        }
+
+        public long ObjectCount {
+            get { return response["objects"].ToInt64(); }
+        }
+
+        public long StorageSize {
+            get { return response["storageSize"].ToInt64(); }
+        }
         #endregion
     }
 }
