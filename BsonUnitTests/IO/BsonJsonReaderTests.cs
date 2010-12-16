@@ -26,17 +26,176 @@ using MongoDB.Bson.IO;
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
     public class BsonJsonReaderTests {
-        // TODO: not ready for this test yet (still working on BsonJsonScanner)
-        //[Test]
-        //public void TestEmptyDocument() {
-        //    var json = "{ }";
-        //    var stringReader = new StringReader(json);
-        //    using (BsonReader bsonReader = BsonReader.Create(stringReader)) {
-        //        Assert.AreEqual(BsonReadState.Initial, bsonReader.ReadState);
-        //        bsonReader.ReadStartDocument();
-        //        bsonReader.ReadEndDocument();
-        //        Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
-        //    }
-        //}
+        private BsonReader bsonReader;
+
+        [Test]
+        public void TestArrayEmpty() {
+            var json = "[]";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Array, bsonReader.ReadBsonType());
+                bsonReader.ReadStartArray();
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReadEndArray();
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestArrayOneElement() {
+            var json = "[1]";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Array, bsonReader.ReadBsonType());
+                bsonReader.ReadStartArray();
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual(1, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReadEndArray();
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestArrayTwoElements() {
+            var json = "[1, 2]";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Array, bsonReader.ReadBsonType());
+                bsonReader.ReadStartArray();
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual(1, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual(2, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReadEndArray();
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestBooleanFalse() {
+            var json = "false";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Boolean, bsonReader.ReadBsonType());
+                Assert.AreEqual(false, bsonReader.ReadBoolean());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestBooleanTrue() {
+            var json = "true";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Boolean, bsonReader.ReadBsonType());
+                Assert.AreEqual(true, bsonReader.ReadBoolean());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestDocumentEmpty() {
+            var json = "{ }";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
+                bsonReader.ReadStartDocument();
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReadEndDocument();
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestDocumentOneElement() {
+            var json = "{ x : 1 }";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
+                bsonReader.ReadStartDocument();
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual("x", bsonReader.ReadName());
+                Assert.AreEqual(1, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReadEndDocument();
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestDocumentTwoElements() {
+            var json = "{ x : 1, y : 2 }";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
+                bsonReader.ReadStartDocument();
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual("x", bsonReader.ReadName());
+                Assert.AreEqual(1, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual("y", bsonReader.ReadName());
+                Assert.AreEqual(2, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReadEndDocument();
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestDouble() {
+            var json = "1.5";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Double, bsonReader.ReadBsonType());
+                Assert.AreEqual(1.5, bsonReader.ReadDouble());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestInt32() {
+            var json = "123";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual(123, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestInt64() {
+            var json = "123456789012";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.Int64, bsonReader.ReadBsonType());
+                Assert.AreEqual(123456789012, bsonReader.ReadInt64());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestString() {
+            var json = "\"abc\"";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.String, bsonReader.ReadBsonType());
+                Assert.AreEqual("abc", bsonReader.ReadString());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
+
+        [Test]
+        public void TestStringEmpty() {
+            var json = "\"\"";
+            var stringReader = new StringReader(json);
+            using (bsonReader = BsonReader.Create(stringReader)) {
+                Assert.AreEqual(BsonType.String, bsonReader.ReadBsonType());
+                Assert.AreEqual("", bsonReader.ReadString());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+        }
     }
 }

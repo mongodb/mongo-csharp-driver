@@ -18,11 +18,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace MongoDB.Bson.IO {
     public class BsonJsonReader : BsonBaseReader {
         #region private fields
         private TextReader textReader;
+        private BsonJsonReaderContext context;
+        private string currentName;
+        private JsonToken currentToken;
+        private JsonToken pushedToken;
+        private long currentInteger; // used when currentToken is an integer to avoid extra call to XmlConvert.ToInt64
         #endregion
 
         #region constructors
@@ -30,6 +36,7 @@ namespace MongoDB.Bson.IO {
             TextReader textReader
         ) {
             this.textReader = textReader;
+            this.context = new BsonJsonReaderContext(null, ContextType.TopLevel);
         }
         #endregion
 
@@ -61,17 +68,80 @@ namespace MongoDB.Bson.IO {
         public override bool ReadBoolean() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBoolean", BsonType.Boolean);
-            throw new NotImplementedException();
+            state = GetNextState();
+            return XmlConvert.ToBoolean(currentToken.Lexeme);
         }
 
         public override BsonType ReadBsonType() {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReadState.Type) {
+            if (
+                state != BsonReadState.Initial &&
+                state != BsonReadState.Type
+            ) {
                 var message = string.Format("ReadBsonType cannot be called when ReadState is: {0}", state);
                 throw new InvalidOperationException(message);
             }
 
-            throw new NotImplementedException();
+            var token = PopToken();
+            if (context.ContextType == ContextType.Array) {
+                if (token.Type == JsonTokenType.EndArray) {
+                    PushToken(token);
+                    state = BsonReadState.EndOfArray;
+                    return BsonType.EndOfDocument;
+                }
+            } else if (context.ContextType == ContextType.Document) {
+                switch (token.Type) {
+                    case JsonTokenType.String:
+                    case JsonTokenType.UnquotedString:
+                        currentName = token.Lexeme;
+                        break;
+                    case JsonTokenType.EndObject:
+                        PushToken(token);
+                        state = BsonReadState.EndOfDocument;
+                        return BsonType.EndOfDocument;
+                    default:
+                        throw new FileFormatException(FormatInvalidTokenMessage(token));
+                }
+
+                token = PopToken();
+                if (token.Type != JsonTokenType.Colon) {
+                    throw new FileFormatException(FormatInvalidTokenMessage(token));
+                }
+
+                token = PopToken(); // value token
+            }
+
+            currentBsonType = token.BsonType;
+            switch (currentBsonType) {
+                case BsonType.Array:
+                case BsonType.Document:
+                    PushToken(token);
+                    return currentBsonType;
+            }
+
+            currentToken = token;
+            currentInteger = token.Integer;
+
+            if (context.ContextType == ContextType.Array || context.ContextType == ContextType.Document) {
+                token = PopToken();
+                if (token.Type != JsonTokenType.Comma) {
+                    PushToken(token);
+                }
+            }
+
+            switch (context.ContextType) {
+                case ContextType.Array:
+                case ContextType.TopLevel:
+                    state = BsonReadState.Value;
+                    break;
+                case ContextType.Document:
+                    state = BsonReadState.Name;
+                    break;
+                default:
+                    throw new BsonInternalException("Unexpected ContextType");
+            }
+
+            return currentBsonType;
         }
 
         public override DateTime ReadDateTime() {
@@ -83,29 +153,76 @@ namespace MongoDB.Bson.IO {
         public override double ReadDouble() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDouble", BsonType.Double);
-            throw new NotImplementedException();
+            state = GetNextState();
+            return XmlConvert.ToDouble(currentToken.Lexeme);
         }
 
         public override void ReadEndArray() {
             if (disposed) { ThrowObjectDisposedException(); }
-            throw new NotImplementedException();
+            if (context.ContextType != ContextType.Array) {
+                var message = string.Format("ReadEndArray cannot be called when ContextType is: {0}", context.ContextType);
+                throw new InvalidOperationException(message);
+            }
+            if (state == BsonReadState.Type) {
+                var token = PopToken();
+                if (token.Type != JsonTokenType.EndArray) {
+                    throw new FileFormatException("Expecting '}'");
+                }
+                state = BsonReadState.EndOfArray;
+            }
+            if (state != BsonReadState.EndOfArray) {
+                var message = string.Format("ReadEndArray cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            context = context.PopContext();
+            switch (context.ContextType) {
+                case ContextType.Array: state = BsonReadState.Type; break;
+                case ContextType.Document: state = BsonReadState.Name; break;
+                case ContextType.TopLevel: state = BsonReadState.Done; break;
+                default: throw new BsonInternalException("Unexpected ContextType");
+            }
         }
 
         public override void ReadEndDocument() {
             if (disposed) { ThrowObjectDisposedException(); }
-            throw new NotImplementedException();
+            if (context.ContextType != ContextType.Document) {
+                var message = string.Format("ReadEndDocument cannot be called when ContextType is: {0}", context.ContextType);
+                throw new InvalidOperationException(message);
+            }
+            if (state == BsonReadState.Type) {
+                var token = PopToken();
+                if (token.Type != JsonTokenType.EndObject) {
+                    throw new FileFormatException("Expecting '}'");
+                }
+                state = BsonReadState.EndOfDocument;
+            }
+            if (state != BsonReadState.EndOfDocument) {
+                var message = string.Format("ReadEndDocument cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            context = context.PopContext();
+            switch (context.ContextType) {
+                case ContextType.Array: state = BsonReadState.Type; break;
+                case ContextType.Document: state = BsonReadState.Name; break;
+                case ContextType.TopLevel: state = BsonReadState.Done; break;
+                default: throw new BsonInternalException("Unexpected ContextType");
+            }
         }
 
         public override int ReadInt32() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt32", BsonType.Int32);
-            throw new NotImplementedException();
+            state = GetNextState();
+            return (int) currentInteger;
         }
 
         public override long ReadInt64() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt64", BsonType.Int64);
-            throw new NotImplementedException();
+            state = GetNextState();
+            return currentInteger;
         }
 
         public override string ReadJavaScript() {
@@ -134,12 +251,16 @@ namespace MongoDB.Bson.IO {
 
         public override string ReadName() {
             if (disposed) { ThrowObjectDisposedException(); }
+            if (state == BsonReadState.EndOfDocument) {
+                return null;
+            }
             if (state != BsonReadState.Name) {
                 var message = string.Format("ReadName cannot be called when ReadState is: {0}", state);
                 throw new InvalidOperationException(message);
             }
 
-            throw new NotImplementedException();
+            state = BsonReadState.Value;
+            return currentName;
         }
 
         public override void ReadNull() {
@@ -170,12 +291,21 @@ namespace MongoDB.Bson.IO {
 
         public override void ReadStartArray() {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReadState.Value || currentBsonType != BsonType.Array) {
+            if (
+                state != BsonReadState.Initial &&
+                (state != BsonReadState.Value || currentBsonType != BsonType.Array)
+            ) {
                 string message = string.Format("ReadStartArray cannot be called when ReadState is: {0} and BsonType is: {1}", state, currentBsonType);
                 throw new InvalidOperationException(message);
             }
 
-            throw new NotImplementedException();
+            var token = PopToken();
+            if (token.Type != JsonTokenType.BeginArray) {
+                throw new FileFormatException(FormatInvalidTokenMessage(token));
+            }
+
+            context = new BsonJsonReaderContext(context, ContextType.Array);
+            state = BsonReadState.Type;
         }
 
         public override void ReadStartDocument() {
@@ -189,13 +319,20 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            throw new NotImplementedException();
+            var token = PopToken();
+            if (token.Type != JsonTokenType.BeginObject) {
+                throw new FileFormatException(FormatInvalidTokenMessage(token));
+            }
+
+            context = new BsonJsonReaderContext(context, ContextType.Document);
+            state = BsonReadState.Type;
         }
 
         public override string ReadString() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadString", BsonType.String);
-            throw new NotImplementedException();
+            state = GetNextState();
+            return currentToken.Lexeme;
         }
 
         public override string ReadSymbol() {
@@ -250,6 +387,43 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region private methods
+        private string FormatInvalidTokenMessage(
+            JsonToken token
+        ) {
+            return string.Format("Invalid JSON token: '{0}'", token.Lexeme);
+        }
+
+        private BsonReadState GetNextState() {
+            switch (context.ContextType) {
+                case ContextType.Array:
+                case ContextType.Document:
+                    return BsonReadState.Type;
+                case ContextType.TopLevel:
+                    return BsonReadState.Done;
+                default:
+                    throw new BsonInternalException("Unexpected ContextType");
+            }
+        }
+
+        private JsonToken PopToken() {
+            if (pushedToken != null) {
+                var token = pushedToken;
+                pushedToken = null;
+                return token;
+            } else {
+                return BsonJsonScanner.GetNextToken(textReader);
+            }
+        }
+
+        private void PushToken(
+            JsonToken token
+        ) {
+            if (pushedToken == null) {
+                pushedToken = token;
+            } else {
+                throw new BsonInternalException("There is already a pending token");
+            }
+        }
         #endregion
     }
 }

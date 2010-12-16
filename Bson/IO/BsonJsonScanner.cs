@@ -19,6 +19,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using MongoDB.Bson;
+using System.Xml;
+
 namespace MongoDB.Bson.IO {
     public enum JsonTokenType {
         Invalid,
@@ -26,10 +29,8 @@ namespace MongoDB.Bson.IO {
         BeginObject,
         EndArray,
         EndObject,
-        NameSeparator,
-        ValueSeparator,
-        Boolean,
-        Null,
+        Colon,
+        Comma,
         Integer,
         FloatingPoint,
         String,
@@ -38,8 +39,58 @@ namespace MongoDB.Bson.IO {
     }
 
     public class JsonToken {
-        public JsonTokenType Type;
-        public string Value;
+        private JsonTokenType type;
+        private string lexeme;
+        private long integer;
+
+        public JsonToken(
+            JsonTokenType type,
+            string lexeme
+        ) {
+            this.type = type;
+            this.lexeme = lexeme;
+        }
+
+        public JsonTokenType Type {
+            get { return type; }
+        }
+
+        public string Lexeme {
+            get { return lexeme; }
+        }
+
+        public BsonType BsonType {
+            get {
+                switch (type) {
+                    case JsonTokenType.BeginArray: return BsonType.Array;
+                    case JsonTokenType.BeginObject: return BsonType.Document;
+                    case JsonTokenType.FloatingPoint: return BsonType.Double;
+                    case JsonTokenType.Integer:
+                        integer = XmlConvert.ToInt64(lexeme);
+                        if (integer >= int.MinValue && integer <= int.MaxValue) {
+                            return BsonType.Int32;
+                        } else {
+                            return BsonType.Int64;
+                        }
+                    case JsonTokenType.String: return BsonType.String;
+                    case JsonTokenType.UnquotedString:
+                        switch (lexeme) {
+                            case "true":
+                            case "false":
+                                return BsonType.Boolean;
+                            case "null":
+                                return BsonType.Null;
+                        }
+                        break;
+                }
+                var message = string.Format("JSON token is not a value: '{0}'", lexeme);
+                throw new InvalidOperationException(message);
+            }
+        }
+
+        public long Integer {
+            get { return integer; }
+        }
     }
 
     public static class BsonJsonScanner {
@@ -56,17 +107,17 @@ namespace MongoDB.Bson.IO {
 
             // check for end of file
             if (c == -1) {
-                return new JsonToken { Type = JsonTokenType.EndOfFile };
+                return new JsonToken(JsonTokenType.EndOfFile, "<eof>");
             }
 
             // check for single character tokens
             switch (c) {
-                case '{': reader.Read(); return new JsonToken { Type = JsonTokenType.BeginObject };
-                case '}': reader.Read(); return new JsonToken { Type = JsonTokenType.EndObject };
-                case '[': reader.Read(); return new JsonToken { Type = JsonTokenType.BeginArray };
-                case ']': reader.Read(); return new JsonToken { Type = JsonTokenType.EndArray };
-                case ':': reader.Read(); return new JsonToken { Type = JsonTokenType.NameSeparator };
-                case ',': reader.Read(); return new JsonToken { Type = JsonTokenType.ValueSeparator };
+                case '{': reader.Read(); return new JsonToken(JsonTokenType.BeginObject, "{");
+                case '}': reader.Read(); return new JsonToken(JsonTokenType.EndObject, "}");
+                case '[': reader.Read(); return new JsonToken(JsonTokenType.BeginArray, "[");
+                case ']': reader.Read(); return new JsonToken(JsonTokenType.EndArray, "]");
+                case ':': reader.Read(); return new JsonToken(JsonTokenType.Colon, ":");
+                case ',': reader.Read(); return new JsonToken(JsonTokenType.Comma, ",");
             }
 
             // scan strings
@@ -79,9 +130,9 @@ namespace MongoDB.Bson.IO {
                 return GetNumberToken(reader);
             }
 
-            // scan unquoted strings (not strictly JSON but commonly supported for names)
+            // true, false and null are returned as unquoted strings and detected by the parser
             if (char.IsLetter((char) c)) {
-                return GetUnquotedStringToken(reader); // also checks for true, false and null
+                return GetUnquotedStringToken(reader);
             }
 
             throw new FileFormatException("Invalid JSON input");
@@ -256,7 +307,7 @@ namespace MongoDB.Bson.IO {
 
                 switch (state) {
                     case NumberState.Done:
-                        return new JsonToken { Type = type, Value = sb.ToString() };
+                        return new JsonToken(type, sb.ToString());
                     case NumberState.Invalid:
                         throw new FileFormatException("Invalid JSON number");
                     default:
@@ -309,7 +360,7 @@ namespace MongoDB.Bson.IO {
                         }
                         break;
                     case '"':
-                        return new JsonToken { Type = JsonTokenType.String, Value = sb.ToString() };
+                        return new JsonToken(JsonTokenType.String, sb.ToString());
                     case -1:
                         throw new FileFormatException("End of file in JSON string");
                     default:
@@ -329,16 +380,7 @@ namespace MongoDB.Bson.IO {
                     sb.Append((char) c);
                     reader.Read();
                 } else {
-                    var s = sb.ToString();
-                    switch (s) {
-                        case "true":
-                        case "false":
-                            return new JsonToken { Type = JsonTokenType.Boolean, Value = s };
-                        case "null":
-                            return new JsonToken { Type = JsonTokenType.Null };
-                        default:
-                            return new JsonToken { Type = JsonTokenType.UnquotedString, Value = s };
-                    }
+                    return new JsonToken(JsonTokenType.UnquotedString, sb.ToString());
                 }
             }
         }
