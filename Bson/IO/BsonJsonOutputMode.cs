@@ -22,6 +22,7 @@ namespace MongoDB.Bson.IO {
     public enum BsonJsonOutputMode {
         Strict,
         JavaScript,
-        TenGen
+        TenGen,
+        ISO
     }
 }

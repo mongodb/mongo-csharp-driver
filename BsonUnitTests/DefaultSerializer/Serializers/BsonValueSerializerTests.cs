@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -478,7 +479,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestMin() {
             var obj = new TestClass(double.MinValue);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", double.MinValue.ToString()).Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", double.MinValue.ToString(CultureInfo.InvariantCulture)).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -526,7 +527,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestMax() {
             var obj = new TestClass(double.MaxValue);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", double.MaxValue.ToString()).Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", double.MaxValue.ToString(CultureInfo.InvariantCulture)).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
