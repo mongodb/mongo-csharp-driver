@@ -41,7 +41,7 @@ namespace MongoDB.Bson.IO {
     public class JsonToken {
         private JsonTokenType type;
         private string lexeme;
-        private long integer;
+        private long integerValue;
 
         public JsonToken(
             JsonTokenType type,
@@ -59,37 +59,19 @@ namespace MongoDB.Bson.IO {
             get { return lexeme; }
         }
 
-        public BsonType BsonType {
+        public BsonType IntegerBsonType {
             get {
-                switch (type) {
-                    case JsonTokenType.BeginArray: return BsonType.Array;
-                    case JsonTokenType.BeginObject: return BsonType.Document;
-                    case JsonTokenType.FloatingPoint: return BsonType.Double;
-                    case JsonTokenType.Integer:
-                        integer = XmlConvert.ToInt64(lexeme);
-                        if (integer >= int.MinValue && integer <= int.MaxValue) {
-                            return BsonType.Int32;
-                        } else {
-                            return BsonType.Int64;
-                        }
-                    case JsonTokenType.String: return BsonType.String;
-                    case JsonTokenType.UnquotedString:
-                        switch (lexeme) {
-                            case "true":
-                            case "false":
-                                return BsonType.Boolean;
-                            case "null":
-                                return BsonType.Null;
-                        }
-                        break;
+                integerValue = XmlConvert.ToInt64(lexeme);
+                if (integerValue >= int.MinValue && integerValue <= int.MaxValue) {
+                    return BsonType.Int32;
+                } else {
+                    return BsonType.Int64;
                 }
-                var message = string.Format("JSON token is not a value: '{0}'", lexeme);
-                throw new InvalidOperationException(message);
             }
         }
 
-        public long Integer {
-            get { return integer; }
+        public long IntegerValue {
+            get { return integerValue; }
         }
     }
 

@@ -23,18 +23,18 @@ namespace MongoDB.Bson.IO {
         #region private fields
         private BsonDocumentReaderContext context;
         private BsonReadState state;
-        private BsonType currentBsonType;
+        private BsonValue currentValue;
         #endregion
 
         #region constructors
         internal BsonDocumentReaderBookmark(
             BsonDocumentReaderContext context,
             BsonReadState state,
-            BsonType currentBsonType
+            BsonValue currentValue
         ) {
             this.context = context.Clone();
             this.state = state;
-            this.currentBsonType = currentBsonType;
+            this.currentValue = currentValue;
         }
         #endregion
 
@@ -43,8 +43,8 @@ namespace MongoDB.Bson.IO {
             get { return context; }
         }
 
-        public BsonType CurrentBsonType {
-            get { return currentBsonType; }
+        public BsonValue CurrentValue {
+            get { return currentValue; }
         }
 
         public BsonReadState State {

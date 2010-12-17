@@ -50,7 +50,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadStartArray();
                 List<T> list = new List<T>();
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     var element = BsonSerializer.Deserialize<T>(bsonReader);
                     list.Add(element);
                 }
@@ -72,7 +71,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var array = (T[]) value;
                 bsonWriter.WriteStartArray();
                 for (int index = 0; index < array.Length; index++) {
-                    bsonWriter.WriteName(index.ToString());
                     BsonSerializer.Serialize(bsonWriter, typeof(T), array[index]);
                 }
                 bsonWriter.WriteEndArray();
@@ -118,11 +116,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadStartArray();
                 var outerList = new List<List<T>>();
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     bsonReader.ReadStartArray();
                     var innerList = new List<T>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                        bsonReader.SkipName();
                         var element = BsonSerializer.Deserialize<T>(bsonReader);
                         innerList.Add(element);
                     }
@@ -164,9 +160,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var length1 = array.GetLength(0);
                 var length2 = array.GetLength(1);
                 for (int i = 0; i < length1; i++) {
-                    bsonWriter.WriteStartArray(i.ToString());
+                    bsonWriter.WriteStartArray();
                     for (int j = 0; j < length2; j++) {
-                        bsonWriter.WriteName(j.ToString());
                         BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j]);
                     }
                     bsonWriter.WriteEndArray();
@@ -214,15 +209,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadStartArray();
                 var outerList = new List<List<List<T>>>();
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     bsonReader.ReadStartArray();
                     var middleList = new List<List<T>>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                        bsonReader.SkipName();
                         bsonReader.ReadStartArray();
                         var innerList = new List<T>();
                         while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                            bsonReader.SkipName();
                             var element = BsonSerializer.Deserialize<T>(bsonReader);
                             innerList.Add(element);
                         }
@@ -276,11 +268,10 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var length2 = array.GetLength(1);
                 var length3 = array.GetLength(2);
                 for (int i = 0; i < length1; i++) {
-                    bsonWriter.WriteStartArray(i.ToString());
+                    bsonWriter.WriteStartArray();
                     for (int j = 0; j < length2; j++) {
-                        bsonWriter.WriteStartArray(j.ToString());
+                        bsonWriter.WriteStartArray();
                         for (int k = 0; k < length3; k++) {
-                            bsonWriter.WriteName(k.ToString());
                             BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j, k]);
                         }
                         bsonWriter.WriteEndArray();

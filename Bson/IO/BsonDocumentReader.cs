@@ -23,14 +23,15 @@ namespace MongoDB.Bson.IO {
     public class BsonDocumentReader : BsonBaseReader {
         #region private fields
         private BsonDocumentReaderContext context;
-        private BsonElement currentElement;
+        private BsonValue currentValue;
         #endregion
 
         #region constructors
         public BsonDocumentReader(
             BsonDocument document
         ) {
-            context = new BsonDocumentReaderContext(null, ContextType.Document, document);
+            context = new BsonDocumentReaderContext(null, ContextType.TopLevel, document);
+            currentValue = document;
         }
         #endregion
 
@@ -46,7 +47,7 @@ namespace MongoDB.Bson.IO {
         }
 
         public override BsonReaderBookmark GetBookmark() {
-            return new BsonDocumentReaderBookmark(context, state, currentBsonType);
+            return new BsonDocumentReaderBookmark(context, state, currentValue);
         }
 
         public override void ReadBinaryData(
@@ -56,44 +57,71 @@ namespace MongoDB.Bson.IO {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
 
-            var binaryData = currentElement.Value.AsBsonBinaryData;
+            var binaryData = currentValue.AsBsonBinaryData;
             bytes = binaryData.Bytes;
             subType = binaryData.SubType;
-            state = BsonReadState.Type;
+            state = GetNextState();
         }
 
         public override bool ReadBoolean() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBoolean", BsonType.Boolean);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsBoolean;
+            state = GetNextState();
+            return currentValue.AsBoolean;
         }
 
         public override BsonType ReadBsonType() {
             if (disposed) { ThrowObjectDisposedException(); }
+            if (state == BsonReadState.Initial || state == BsonReadState.ScopeDocument) {
+                // there is an implied type of Document for the top level and for scope documents
+                currentBsonType = BsonType.Document;
+                state = BsonReadState.Value;
+                return currentBsonType;
+            }
             if (state != BsonReadState.Type) {
                 var message = string.Format("ReadBsonType cannot be called when ReadState is: {0}", state);
                 throw new InvalidOperationException(message);
             }
 
-            currentElement = context.GetNextElement();
-            currentBsonType = (currentElement != null) ? currentElement.Value.BsonType : BsonType.EndOfDocument; // set currentBsonType before state
-            state = (currentBsonType == BsonType.EndOfDocument) ? BsonReadState.EndOfDocument : BsonReadState.Name;
+            switch (context.ContextType) {
+                case ContextType.Array:
+                    currentValue = context.GetNextValue();
+                    if (currentValue == null) {
+                        state = BsonReadState.EndOfArray;
+                        return BsonType.EndOfDocument;
+                    }
+                    state = BsonReadState.Value;
+                    break;
+                case ContextType.Document:
+                    var currentElement = context.GetNextElement();
+                    if (currentElement == null) {
+                        state = BsonReadState.EndOfDocument;
+                        return BsonType.EndOfDocument;
+                    }
+                    currentName = currentElement.Name;
+                    currentValue = currentElement.Value;
+                    state = BsonReadState.Name;
+                    break;
+                default:
+                    throw new BsonInternalException("Invalid ContextType");
+            }
+
+            currentBsonType = currentValue.BsonType;
             return currentBsonType;
         }
 
         public override DateTime ReadDateTime() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsDateTime;
+            state = GetNextState();
+            return currentValue.AsDateTime;
         }
 
         public override double ReadDouble() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDouble", BsonType.Double);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsDouble;
+            state = GetNextState();
+            return currentValue.AsDouble;
         }
 
         public override void ReadEndArray() {
@@ -102,17 +130,21 @@ namespace MongoDB.Bson.IO {
                 var message = string.Format("ReadEndArray cannot be called when ContextType is: {0}", context.ContextType);
                 throw new InvalidOperationException(message);
             }
-            if (state == BsonReadState.Type && context.GetNextElement() == null) {
-                // automatically advance to EndOfDocument state
-                state = BsonReadState.EndOfDocument;
+            if (state == BsonReadState.Type) {
+                ReadBsonType(); // will set state to EndOfArray if at end of array
             }
-            if (state != BsonReadState.EndOfDocument) {
+            if (state != BsonReadState.EndOfArray) {
                 var message = string.Format("ReadEndArray cannot be called when ReadState is: {0}", state);
                 throw new InvalidOperationException(message);
             }
 
             context = context.PopContext();
-            state = BsonReadState.Type;
+            switch (context.ContextType) {
+                case ContextType.Array: state = BsonReadState.Type; break;
+                case ContextType.Document: state = BsonReadState.Type; break;
+                case ContextType.TopLevel: state = BsonReadState.Done; break;
+                default: throw new BsonInternalException("Unexpected ContextType");
+            }
         }
 
         public override void ReadEndDocument() {
@@ -124,9 +156,8 @@ namespace MongoDB.Bson.IO {
                 var message = string.Format("ReadEndDocument cannot be called when ContextType is: {0}", context.ContextType);
                 throw new InvalidOperationException(message);
             }
-            if (state == BsonReadState.Type && context.GetNextElement() == null) {
-                // automatically advance to EndOfDocument state
-                state = BsonReadState.EndOfDocument;
+            if (state == BsonReadState.Type) {
+                ReadBsonType(); // will set state to EndOfDocument if at end of document
             }
             if (state != BsonReadState.EndOfDocument) {
                 var message = string.Format("ReadEndDocument cannot be called when ReadState is: {0}", state);
@@ -134,28 +165,33 @@ namespace MongoDB.Bson.IO {
             }
 
             context = context.PopContext();
-            state = (context == null) ? BsonReadState.Done : BsonReadState.Type;
+            switch (context.ContextType) {
+                case ContextType.Array: state = BsonReadState.Type; break;
+                case ContextType.Document: state = BsonReadState.Type; break;
+                case ContextType.TopLevel: state = BsonReadState.Done; break;
+                default: throw new BsonInternalException("Unexpected ContextType");
+            }
         }
 
         public override int ReadInt32() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt32", BsonType.Int32);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsInt32;
+            state = GetNextState();
+            return currentValue.AsInt32;
         }
 
         public override long ReadInt64() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt64", BsonType.Int64);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsInt64;
+            state = GetNextState();
+            return currentValue.AsInt64;
         }
 
         public override string ReadJavaScript() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsBsonJavaScript.Code;
+            state = GetNextState();
+            return currentValue.AsBsonJavaScript.Code;
         }
 
         public override string ReadJavaScriptWithScope() {
@@ -163,19 +199,19 @@ namespace MongoDB.Bson.IO {
             VerifyBsonType("ReadJavaScriptWithScope", BsonType.JavaScriptWithScope);
 
             state = BsonReadState.ScopeDocument;
-            return currentElement.Value.AsBsonJavaScriptWithScope.Code;
+            return currentValue.AsBsonJavaScriptWithScope.Code;
         }
 
         public override void ReadMaxKey() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadMaxKey", BsonType.MaxKey);
-            state = BsonReadState.Type;
+            state = GetNextState();
         }
 
         public override void ReadMinKey() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadMinKey", BsonType.MinKey);
-            state = BsonReadState.Type;
+            state = GetNextState();
         }
 
         public override string ReadName() {
@@ -186,13 +222,13 @@ namespace MongoDB.Bson.IO {
             }
 
             state = BsonReadState.Value;
-            return currentElement.Name;
+            return currentName;
         }
 
         public override void ReadNull() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadNull", BsonType.Null);
-            state = BsonReadState.Type;
+            state = GetNextState();
         }
 
         public override void ReadObjectId(
@@ -203,12 +239,12 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadObjectId", BsonType.ObjectId);
-            var objectId = currentElement.Value.AsObjectId;
+            var objectId = currentValue.AsObjectId;
             timestamp = objectId.Timestamp;
             machine = objectId.Machine;
             pid = objectId.Pid;
             increment = objectId.Increment;
-            state = BsonReadState.Type;
+            state = GetNextState();
         }
 
         public override void ReadRegularExpression(
@@ -217,64 +253,55 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
-            var regex = currentElement.Value.AsBsonRegularExpression;
+            var regex = currentValue.AsBsonRegularExpression;
             pattern = regex.Pattern;
             options = regex.Options;
-            state = BsonReadState.Type;
+            state = GetNextState();
         }
 
         public override void ReadStartArray() {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReadState.Value || currentBsonType != BsonType.Array) {
-                string message = string.Format("ReadStartArray cannot be called when ReadState is: {0} and BsonType is: {1}", state, currentBsonType);
-                throw new InvalidOperationException(message);
-            }
+            VerifyBsonType("ReadStartArray", BsonType.Array);
 
-            var array = currentElement.Value.AsBsonArray;
+            var array = currentValue.AsBsonArray;
             context = new BsonDocumentReaderContext(context, ContextType.Array, array);
             state = BsonReadState.Type;
         }
 
         public override void ReadStartDocument() {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (
-                state != BsonReadState.Initial &&
-                state != BsonReadState.ScopeDocument &&
-                (state != BsonReadState.Value || currentBsonType != BsonType.Document)
-            ) {
-                string message = string.Format("ReadStartDocument cannot be called when ReadState is: {0} and BsonType is: {1}", state, currentBsonType);
-                throw new InvalidOperationException(message);
-            }
+            VerifyBsonType("ReadStartDocument", BsonType.Document);
 
-            if (state == BsonReadState.ScopeDocument) {
-                var scope = currentElement.Value.AsBsonJavaScriptWithScope.Scope;
-                context = new BsonDocumentReaderContext(context, ContextType.ScopeDocument, scope);
-            } else if (state == BsonReadState.Value) {
-                var document = currentElement.Value.AsBsonDocument;
-                context = new BsonDocumentReaderContext(context, ContextType.Document, document);
+            BsonDocument document;
+            var script = currentValue as BsonJavaScriptWithScope;
+            if (script != null) {
+                document = script.Scope;
+            } else {
+                document = currentValue.AsBsonDocument;
             }
+            context = new BsonDocumentReaderContext(context, ContextType.Document, document);
             state = BsonReadState.Type;
         }
 
         public override string ReadString() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadString", BsonType.String);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsString;
+            state = GetNextState();
+            return currentValue.AsString;
         }
 
         public override string ReadSymbol() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadSymbol", BsonType.Symbol);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsBsonSymbol.Name;
+            state = GetNextState();
+            return currentValue.AsBsonSymbol.Name;
         }
 
         public override long ReadTimestamp() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadTimestamp", BsonType.Timestamp);
-            state = BsonReadState.Type;
-            return currentElement.Value.AsBsonTimestamp.Value;
+            state = GetNextState();
+            return currentValue.AsBsonTimestamp.Value;
         }
 
         public override void ReturnToBookmark(
@@ -283,7 +310,8 @@ namespace MongoDB.Bson.IO {
             var documentReaderBookmark = (BsonDocumentReaderBookmark) bookmark;
             context = documentReaderBookmark.Context;
             state = documentReaderBookmark.State;
-            currentBsonType = documentReaderBookmark.CurrentBsonType;
+            currentValue = documentReaderBookmark.CurrentValue;
+            currentBsonType = currentValue.BsonType;
         }
 
         public override void SkipName() {
@@ -320,6 +348,17 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region private methods
+        private BsonReadState GetNextState() {
+            switch (context.ContextType) {
+                case ContextType.Array:
+                case ContextType.Document:
+                    return BsonReadState.Type;
+                case ContextType.TopLevel:
+                    return BsonReadState.Done;
+                default:
+                    throw new BsonInternalException("Unexpected ContextType");
+            }
+        }
         #endregion
     }
 }

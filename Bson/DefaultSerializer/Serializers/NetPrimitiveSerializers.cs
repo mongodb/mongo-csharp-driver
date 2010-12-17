@@ -526,8 +526,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             switch (bsonType) {
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    ticks = bsonReader.ReadInt64("0");
-                    offset = TimeSpan.FromMinutes(bsonReader.ReadInt32("1"));
+                    ticks = bsonReader.ReadInt64();
+                    offset = TimeSpan.FromMinutes(bsonReader.ReadInt32());
                     bsonReader.ReadEndArray();
                     return new DateTimeOffset(ticks, offset);
                 case BsonType.Document:
@@ -557,8 +557,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             switch (representation) {
                 case BsonType.Array:
                     bsonWriter.WriteStartArray();
-                    bsonWriter.WriteInt64("0", dateTimeOffset.Ticks);
-                    bsonWriter.WriteInt32("1", (int) dateTimeOffset.Offset.TotalMinutes);
+                    bsonWriter.WriteInt64(dateTimeOffset.Ticks);
+                    bsonWriter.WriteInt32((int) dateTimeOffset.Offset.TotalMinutes);
                     bsonWriter.WriteEndArray();
                     break;
                 case BsonType.Document:
@@ -637,10 +637,10 @@ namespace MongoDB.Bson.DefaultSerializer {
                 case BsonType.Array:
                     bsonWriter.WriteStartArray();
                     var bits = Decimal.GetBits(decimalValue);
-                    bsonWriter.WriteInt32("0", bits[0]);
-                    bsonWriter.WriteInt32("1", bits[1]);
-                    bsonWriter.WriteInt32("2", bits[2]);
-                    bsonWriter.WriteInt32("3", bits[3]);
+                    bsonWriter.WriteInt32(bits[0]);
+                    bsonWriter.WriteInt32(bits[1]);
+                    bsonWriter.WriteInt32(bits[2]);
+                    bsonWriter.WriteInt32(bits[3]);
                     bsonWriter.WriteEndArray();
                     break;
                 case BsonType.String:

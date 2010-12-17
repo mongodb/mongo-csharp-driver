@@ -22,6 +22,7 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
@@ -39,6 +40,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 bsonReader.ReadEndArray();
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonArray>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -54,6 +56,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 bsonReader.ReadEndArray();
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonArray>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -71,6 +74,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 bsonReader.ReadEndArray();
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonArray>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -82,6 +86,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(false, bsonReader.ReadBoolean());
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<bool>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -93,6 +98,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(true, bsonReader.ReadBoolean());
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<bool>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -106,11 +112,12 @@ namespace MongoDB.BsonUnitTests.IO {
                 bsonReader.ReadEndDocument();
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonDocument>(new StringReader(json)).ToJson());
         }
 
         [Test]
         public void TestDocumentOneElement() {
-            var json = "{ x : 1 }";
+            var json = "{ \"x\" : 1 }";
             var stringReader = new StringReader(json);
             using (bsonReader = BsonReader.Create(stringReader)) {
                 Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
@@ -122,11 +129,12 @@ namespace MongoDB.BsonUnitTests.IO {
                 bsonReader.ReadEndDocument();
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonDocument>(new StringReader(json)).ToJson());
         }
 
         [Test]
         public void TestDocumentTwoElements() {
-            var json = "{ x : 1, y : 2 }";
+            var json = "{ \"x\" : 1, \"y\" : 2 }";
             var stringReader = new StringReader(json);
             using (bsonReader = BsonReader.Create(stringReader)) {
                 Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
@@ -141,6 +149,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 bsonReader.ReadEndDocument();
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonDocument>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -152,6 +161,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(1.5, bsonReader.ReadDouble());
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<double>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -163,6 +173,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(123, bsonReader.ReadInt32());
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<int>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -174,6 +185,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(123456789012, bsonReader.ReadInt64());
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<long>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -185,6 +197,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual("abc", bsonReader.ReadString());
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<string>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -196,6 +209,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual("", bsonReader.ReadString());
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<string>(new StringReader(json)).ToJson());
         }
     }
 }

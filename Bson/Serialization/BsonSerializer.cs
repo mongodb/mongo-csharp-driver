@@ -75,6 +75,12 @@ namespace MongoDB.Bson.Serialization {
             return (T) Deserialize(stream, typeof(T));
         }
 
+        public static T Deserialize<T>(
+            TextReader textReader
+        ) {
+            return (T) Deserialize(textReader, typeof(T));
+        }
+
         public static object Deserialize(
             BsonDocument document,
             Type nominalType
@@ -108,6 +114,15 @@ namespace MongoDB.Bson.Serialization {
             Type nominalType
         ) {
             using (var bsonReader = BsonReader.Create(stream)) {
+                return Deserialize(bsonReader, nominalType);
+            }
+        }
+
+        public static object Deserialize(
+            TextReader textReader,
+            Type nominalType
+        ) {
+            using (var bsonReader = BsonReader.Create(textReader)) {
                 return Deserialize(bsonReader, nominalType);
             }
         }

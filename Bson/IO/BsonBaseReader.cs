@@ -25,12 +25,12 @@ namespace MongoDB.Bson.IO {
         protected bool disposed = false;
         protected BsonReadState state;
         protected BsonType currentBsonType;
+        protected string currentName;
         #endregion
 
         #region constructors
         protected BsonBaseReader() {
             state = BsonReadState.Initial;
-            currentBsonType = BsonType.Document;
         }
         #endregion
 
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.IO {
         public override BsonType CurrentBsonType {
             get {
                 if (state == BsonReadState.Initial || state == BsonReadState.Done || state == BsonReadState.ScopeDocument) {
-                    return BsonType.Document; // the root level is sort of like sitting at a value of type Document
+                    ReadBsonType();
                 }
                 if (state != BsonReadState.Value) {
                     var message = string.Format("CurrentBsonType cannot be called when ReadState is: {0}", state);
@@ -181,6 +181,17 @@ namespace MongoDB.Bson.IO {
             ReadMinKey();
         }
 
+        public override string ReadName() {
+            if (disposed) { ThrowObjectDisposedException(); }
+            if (state != BsonReadState.Name) {
+                var message = string.Format("ReadName cannot be called when ReadState is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            state = BsonReadState.Value;
+            return currentName;
+        }
+
         public override void ReadNull(
             string name
         ) {
@@ -244,6 +255,13 @@ namespace MongoDB.Bson.IO {
             string methodName,
             BsonType requiredBsonType
         ) {
+            if (state == BsonReadState.Initial || state == BsonReadState.Type) {
+                ReadBsonType();
+            }
+            if (state == BsonReadState.Name) {
+                // ignore name
+                state = BsonReadState.Value;
+            }
             if (state != BsonReadState.Value) {
                 var message = string.Format("{0} cannot be called when ReadState is: {1}", methodName, state);
                 throw new InvalidOperationException(message);

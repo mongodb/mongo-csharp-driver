@@ -58,7 +58,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var list = (nominalType == typeof(List<T>) || nominalType.IsInterface) ? new List<T>() : (ICollection<T>) Activator.CreateInstance(nominalType);
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     var element = (T) serializer.Deserialize(bsonReader, typeof(T), elementType, null);
@@ -82,11 +81,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 bsonWriter.WriteStartArray();
-                int index = 0;
                 foreach (var element in (IEnumerable<T>) value) {
-                    bsonWriter.WriteName(index.ToString());
                     BsonSerializer.Serialize(bsonWriter, typeof(T), element);
-                    index++;
                 }
                 bsonWriter.WriteEndArray();
             }
@@ -123,7 +119,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var queue = new Queue<T>();
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     var element = (T) serializer.Deserialize(bsonReader, typeof(T), elementType, null);
@@ -147,11 +142,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 bsonWriter.WriteStartArray();
-                int index = 0;
                 foreach (var element in (Queue<T>) value) {
-                    bsonWriter.WriteName(index.ToString());
                     BsonSerializer.Serialize(bsonWriter, typeof(T), element);
-                    index++;
                 }
                 bsonWriter.WriteEndArray();
             }
@@ -188,7 +180,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var stack = new Stack<T>();
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     var element = (T) serializer.Deserialize(bsonReader, typeof(T), elementType, null);
@@ -214,11 +205,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteStartArray();
                 var outputOrder = new List<T>((Stack<T>) value); // serialize first pushed item first (reverse of enumerator order)
                 outputOrder.Reverse();
-                int index = 0;
                 foreach (var element in outputOrder) {
-                    bsonWriter.WriteName(index.ToString());
                     BsonSerializer.Serialize(bsonWriter, typeof(T), element);
-                    index++;
                 }
                 bsonWriter.WriteEndArray();
             }
