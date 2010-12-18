@@ -9,15 +9,19 @@ namespace MongoDB.Bson.IO
     {
         public BsonDocumentWriter()
         {
-            _rootDoc = new BsonDocument();
-            _workStack.Push(_rootDoc);
         }
         private Stack<BsonValue> _workStack = new Stack<BsonValue>();
         private BsonWriteState _state = BsonWriteState.Initial;
-        private BsonDocument _rootDoc = null;
+        private BsonValue _rootDoc = null;
         private string _pendingElementName = "";
 
-        public BsonDocument Document { get { return _rootDoc; } }
+        public BsonValue WrittenValue { get { return _rootDoc; } }
+
+        private BsonValue PeekStack()
+        {
+            if (_workStack.Count == 0) return null;
+            return _workStack.Peek();
+        }
 
         public override BsonWriteState WriteState
         {
@@ -54,7 +58,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteBinaryData(byte[] bytes, MongoDB.Bson.BsonBinarySubType subType)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonBinaryData.Create(bytes, subType));
+            AddToCollection(PeekStack(), _pendingElementName, BsonBinaryData.Create(bytes, subType));
         }
 
         public override void WriteBoolean(string name, bool value)
@@ -64,7 +68,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteBoolean(bool value)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonBoolean.Create(value));
+            AddToCollection(PeekStack(), _pendingElementName, BsonBoolean.Create(value));
         }
 
         public override void WriteDateTime(string name, DateTime value)
@@ -74,7 +78,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteDateTime(DateTime value)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonDateTime.Create(value));
+            AddToCollection(PeekStack(), _pendingElementName, BsonDateTime.Create(value));
         }
 
         public override void WriteDouble(string name, double value)
@@ -84,7 +88,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteDouble(double value)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonDouble.Create(value));
+            AddToCollection(PeekStack(), _pendingElementName, BsonDouble.Create(value));
         }
 
         public override void WriteEndArray()
@@ -103,7 +107,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteInt32(int value)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonInt32.Create(value));
+            AddToCollection(PeekStack(), _pendingElementName, BsonInt32.Create(value));
         }
 
         public override void WriteInt64(string name, long value)
@@ -113,7 +117,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteInt64(long value)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonInt64.Create(value));
+            AddToCollection(PeekStack(), _pendingElementName, BsonInt64.Create(value));
         }
 
         public override void WriteJavaScript(string name, string code)
@@ -123,7 +127,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteJavaScript(string code)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonJavaScript.Create(code));
+            AddToCollection(PeekStack(), _pendingElementName, BsonJavaScript.Create(code));
         }
 
         public override void WriteJavaScriptWithScope(string name, string code)
@@ -133,7 +137,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteJavaScriptWithScope(string code)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonJavaScriptWithScope.Create(code));
+            AddToCollection(PeekStack(), _pendingElementName, BsonJavaScriptWithScope.Create(code));
         }
 
         public override void WriteMaxKey(string name)
@@ -163,7 +167,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteNull()
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonNull.Value);
+            AddToCollection(PeekStack(), _pendingElementName, BsonNull.Value);
         }
 
         public override void WriteObjectId(string name, int timestamp, int machine, short pid, int increment)
@@ -173,7 +177,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteObjectId(int timestamp, int machine, short pid, int increment)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonObjectId.Create(timestamp, machine, pid, increment));
+            AddToCollection(PeekStack(), _pendingElementName, BsonObjectId.Create(timestamp, machine, pid, increment));
         }
 
         public override void WriteRegularExpression(string name, string pattern, string options)
@@ -183,7 +187,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteRegularExpression(string pattern, string options)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonRegularExpression.Create(pattern, options));
+            AddToCollection(PeekStack(), _pendingElementName, BsonRegularExpression.Create(pattern, options));
         }
 
         public override void WriteStartArray(string name)
@@ -193,7 +197,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteStartArray()
         {
-            BsonValue parent = _workStack.Peek();
+            BsonValue parent = PeekStack();
             BsonValue newValue = new BsonArray();
             AddToCollection(parent, _pendingElementName, newValue);
             _workStack.Push(newValue);
@@ -206,7 +210,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteStartDocument()
         {
-            BsonValue parent = _workStack.Peek();
+            BsonValue parent = PeekStack();
             BsonValue newValue = new BsonDocument(false);
             AddToCollection(parent, _pendingElementName, newValue);
             _workStack.Push(newValue);
@@ -214,6 +218,10 @@ namespace MongoDB.Bson.IO
 
         private void AddToCollection(BsonValue parent, string name, BsonValue newValue)
         {
+            if (parent == null)
+            {
+                _rootDoc = newValue;
+            }
             if (parent is BsonDocument)
             {
                 parent.AsBsonDocument.Add(name, newValue);
@@ -231,7 +239,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteString(string value)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonString.Create(value));
+            AddToCollection(PeekStack(), _pendingElementName, BsonString.Create(value));
         }
 
         public override void WriteSymbol(string name, string value)
@@ -241,7 +249,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteSymbol(string value)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonSymbol.Create(value));
+            AddToCollection(PeekStack(), _pendingElementName, BsonSymbol.Create(value));
         }
 
         public override void WriteTimestamp(string name, long value)
@@ -251,7 +259,7 @@ namespace MongoDB.Bson.IO
         }
         public override void WriteTimestamp(long value)
         {
-            AddToCollection(_workStack.Peek(), _pendingElementName, BsonTimestamp.Create(value));
+            AddToCollection(PeekStack(), _pendingElementName, BsonTimestamp.Create(value));
         }
 
     }

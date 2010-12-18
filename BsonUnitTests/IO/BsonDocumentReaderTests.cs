@@ -21,6 +21,7 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
@@ -147,5 +148,36 @@ namespace MongoDB.BsonUnitTests.IO {
             var rehydrated = BsonDocument.ReadFrom(BsonReader.Create(document));
             Assert.IsTrue(document.Equals(rehydrated));
         }
+
+        [Test]
+        public void TestSerializeDeserializeCustomTypes()
+        {
+            A value = new B(){Num=3, Str="test"};
+            BsonDocumentWriter writer = new BsonDocumentWriter();
+            BsonSerializer.Serialize(writer, value);
+
+            Console.WriteLine(writer.WrittenValue.ToJson());
+
+            B dehydrated = (B)BsonSerializer.Deserialize(writer.WrittenValue.AsBsonDocument, typeof(A));
+
+            Assert.AreEqual(value.Num, dehydrated.Num);
+            Assert.AreEqual(value.Str, dehydrated.Str);
+        }
+        private class A
+        {
+            public int Num { get; set; }
+            public string Str { get; set; }
+            public override bool Equals(object obj)
+            {
+                A other = obj as A;
+                return Num.Equals(other.Num) && Str.Equals(other.Str);
+            }
+            public override int GetHashCode()
+            {
+                return Num.GetHashCode() + Str.GetHashCode();
+            }
+        }
+        private class B : A { }
+
     }
 }
