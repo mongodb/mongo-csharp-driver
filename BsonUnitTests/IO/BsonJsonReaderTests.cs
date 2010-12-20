@@ -74,6 +74,68 @@ namespace MongoDB.BsonUnitTests.IO {
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonArray>(new StringReader(json)).ToJson());
         }
 
+
+        [Test]
+        public void TestBookmark() {
+            var json = "{ \"x\" : 1, \"y\" : 2 }";
+            using (bsonReader = BsonReader.Create(json)) {
+                // do everything twice returning to bookmark in between
+                var bookmark = bsonReader.GetBookmark();
+                Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
+                bsonReader.ReturnToBookmark(bookmark);
+                Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
+
+                bookmark = bsonReader.GetBookmark();
+                bsonReader.ReadStartDocument();
+                bsonReader.ReturnToBookmark(bookmark);
+                bsonReader.ReadStartDocument();
+
+                bookmark = bsonReader.GetBookmark();
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                bsonReader.ReturnToBookmark(bookmark);
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+
+                bookmark = bsonReader.GetBookmark();
+                Assert.AreEqual("x", bsonReader.ReadName());
+                bsonReader.ReturnToBookmark(bookmark);
+                Assert.AreEqual("x", bsonReader.ReadName());
+
+                bookmark = bsonReader.GetBookmark();
+                Assert.AreEqual(1, bsonReader.ReadInt32());
+                bsonReader.ReturnToBookmark(bookmark);
+                Assert.AreEqual(1, bsonReader.ReadInt32());
+
+                bookmark = bsonReader.GetBookmark();
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                bsonReader.ReturnToBookmark(bookmark);
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+
+                bookmark = bsonReader.GetBookmark();
+                Assert.AreEqual("y", bsonReader.ReadName());
+                bsonReader.ReturnToBookmark(bookmark);
+                Assert.AreEqual("y", bsonReader.ReadName());
+
+                bookmark = bsonReader.GetBookmark();
+                Assert.AreEqual(2, bsonReader.ReadInt32());
+                bsonReader.ReturnToBookmark(bookmark);
+                Assert.AreEqual(2, bsonReader.ReadInt32());
+
+                bookmark = bsonReader.GetBookmark();
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReturnToBookmark(bookmark);
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+
+                bookmark = bsonReader.GetBookmark();
+                bsonReader.ReadEndDocument();
+                bsonReader.ReturnToBookmark(bookmark);
+                bsonReader.ReadEndDocument();
+
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+
+            }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonDocument>(new StringReader(json)).ToJson());
+        }
+
         [Test]
         public void TestBooleanFalse() {
             var json = "false";
