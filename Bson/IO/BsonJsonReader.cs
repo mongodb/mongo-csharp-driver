@@ -287,7 +287,10 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
-            throw new NotImplementedException();
+            state = GetNextState();
+            var regex = currentValue.AsBsonRegularExpression;
+            pattern = regex.Pattern;
+            options = regex.Options;
         }
 
         public override void ReadStartArray() {
@@ -316,13 +319,16 @@ namespace MongoDB.Bson.IO {
         public override string ReadSymbol() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadSymbol", BsonType.Symbol);
-            throw new NotImplementedException();
+            state = GetNextState();
+            return currentValue.AsString;
         }
 
         public override long ReadTimestamp() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadTimestamp", BsonType.Timestamp);
-            throw new NotImplementedException();
+            state = GetNextState();
+            var timestamp = currentValue.AsBsonTimestamp;
+            return timestamp.Value;
         }
 
         public override void ReturnToBookmark(
@@ -538,6 +544,9 @@ namespace MongoDB.Bson.IO {
                     case "$maxkey": return ParseMaxKey();
                     case "$minkey": return ParseMinKey();
                     case "$oid": return ParseObjectId();
+                    case "$regex": return ParseRegularExpression();
+                    case "$symbol": return ParseSymbol();
+                    case "$timestamp": return ParseTimestamp();
                 }
             }
             PushToken(nameToken);
@@ -568,6 +577,50 @@ namespace MongoDB.Bson.IO {
             VerifyToken("}");
             currentValue = BsonObjectId.Create(valueToken.Lexeme);
             return BsonType.ObjectId;
+        }
+
+        private BsonType ParseRegularExpression() {
+            VerifyToken(":");
+            var patternToken = PopToken();
+            if (patternToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found: '{0}'", patternToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(",");
+            VerifyToken("$options");
+            VerifyToken(":");
+            var optionsToken = PopToken();
+            if (optionsToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found: '{0}'", optionsToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken("}");
+            currentValue = BsonRegularExpression.Create(patternToken.Lexeme, optionsToken.Lexeme);
+            return BsonType.RegularExpression;
+        }
+
+        private BsonType ParseSymbol() {
+            VerifyToken(":");
+            var nameToken = PopToken();
+            if (nameToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found: '{0}'", nameToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken("}");
+            currentValue = BsonString.Create(nameToken.Lexeme); // will be converted to a BsonSymbol at a higher level
+            return BsonType.Symbol;
+        }
+
+        private BsonType ParseTimestamp() {
+            VerifyToken(":");
+            var valueToken = PopToken();
+            if (valueToken.Type != JsonTokenType.Integer) {
+                var message = string.Format("JSON reader expected an integer but found: '{0}'", valueToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken("}");
+            currentValue = BsonTimestamp.Create(XmlConvert.ToInt64(valueToken.Lexeme));
+            return BsonType.Timestamp;
         }
 
         private JsonToken PopToken() {

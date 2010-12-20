@@ -380,6 +380,20 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestRegularExpression() {
+            var json = "{ \"$regex\" : \"pattern\", \"$options\" : \"options\" }";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.RegularExpression, bsonReader.ReadBsonType());
+                string pattern, options;
+                bsonReader.ReadRegularExpression(out pattern, out options);
+                Assert.AreEqual("pattern", pattern);
+                Assert.AreEqual("options", options);
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonRegularExpression>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
         public void TestString() {
             var json = "\"abc\"";
             using (bsonReader = BsonReader.Create(json)) {
@@ -399,6 +413,28 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<string>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
+        public void TestSymbol() {
+            var json = "{ \"$symbol\" : \"symbol\" }";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.Symbol, bsonReader.ReadBsonType());
+                Assert.AreEqual("symbol", bsonReader.ReadSymbol());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonSymbol>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
+        public void TestTimestamp() {
+            var json = "{ \"$timestamp\" : 1234 }";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.Timestamp, bsonReader.ReadBsonType());
+                Assert.AreEqual(1234L, bsonReader.ReadTimestamp());
+                Assert.AreEqual(BsonReadState.Done, bsonReader.ReadState);
+            }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
         }
     }
 }
