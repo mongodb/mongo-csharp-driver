@@ -22,6 +22,7 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.DefaultSerializer;
 
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
@@ -153,17 +154,32 @@ namespace MongoDB.BsonUnitTests.IO {
         public void TestSerializeDeserializeCustomTypes()
         {
             A value = new B(){Num=3, Str="test"};
+            A dehydrated = SerializeDeserialize(value);
+            Assert.AreEqual(value.Num, dehydrated.Num);
+            Assert.AreEqual(value.Str, dehydrated.Str);
+        }
+        [Test]
+        public void TestSerializeDeserializeInterface()
+        {
+            BsonSerializer.RegisterSerializer(typeof(INum), BsonClassMapSerializer.Singleton);
+            INum value = new B() { Num = 3, Str = "test" };
+            INum dehydrated = SerializeDeserialize<INum>(value);
+            Assert.AreEqual(value.Num, dehydrated.Num);
+            Assert.AreEqual(((B)value).Str, ((B)dehydrated).Str);
+        }
+
+        private static T SerializeDeserialize<T>(T value)
+        {
             BsonDocumentWriter writer = new BsonDocumentWriter();
             BsonSerializer.Serialize(writer, value);
 
             Console.WriteLine(writer.WrittenValue.ToJson());
 
-            B dehydrated = (B)BsonSerializer.Deserialize(writer.WrittenValue.AsBsonDocument, typeof(A));
+            T dehydrated = (T)BsonSerializer.Deserialize(writer.WrittenValue.AsBsonDocument, typeof(T));
 
-            Assert.AreEqual(value.Num, dehydrated.Num);
-            Assert.AreEqual(value.Str, dehydrated.Str);
+            return dehydrated;
         }
-        private class A
+        private class A : INum
         {
             public int Num { get; set; }
             public string Str { get; set; }
@@ -178,6 +194,10 @@ namespace MongoDB.BsonUnitTests.IO {
             }
         }
         private class B : A { }
+        private interface INum
+        {
+            int Num { get; set; }
+        }
 
     }
 }
