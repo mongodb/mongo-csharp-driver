@@ -214,17 +214,6 @@ namespace MongoDB.Bson.IO {
             state = GetNextState();
         }
 
-        public override string ReadName() {
-            if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReadState.Name) {
-                var message = string.Format("ReadName cannot be called when ReadState is: {0}", state);
-                throw new InvalidOperationException(message);
-            }
-
-            state = BsonReadState.Value;
-            return currentName;
-        }
-
         public override void ReadNull() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadNull", BsonType.Null);

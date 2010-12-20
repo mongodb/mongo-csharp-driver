@@ -37,7 +37,7 @@ namespace MongoDB.Bson.IO {
         #region public properties
         public override BsonType CurrentBsonType {
             get {
-                if (state == BsonReadState.Initial || state == BsonReadState.Done || state == BsonReadState.ScopeDocument) {
+                if (state == BsonReadState.Initial || state == BsonReadState.Done || state == BsonReadState.ScopeDocument || state == BsonReadState.Type) {
                     ReadBsonType();
                 }
                 if (state != BsonReadState.Value) {
@@ -183,6 +183,9 @@ namespace MongoDB.Bson.IO {
 
         public override string ReadName() {
             if (disposed) { ThrowObjectDisposedException(); }
+            if (state == BsonReadState.Type) {
+                ReadBsonType();
+            }
             if (state != BsonReadState.Name) {
                 var message = string.Format("ReadName cannot be called when ReadState is: {0}", state);
                 throw new InvalidOperationException(message);
@@ -255,7 +258,7 @@ namespace MongoDB.Bson.IO {
             string methodName,
             BsonType requiredBsonType
         ) {
-            if (state == BsonReadState.Initial || state == BsonReadState.Type) {
+            if (state == BsonReadState.Initial || state == BsonReadState.ScopeDocument || state == BsonReadState.Type) {
                 ReadBsonType();
             }
             if (state == BsonReadState.Name) {

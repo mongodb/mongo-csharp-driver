@@ -26,6 +26,7 @@ namespace MongoDB.Bson.IO {
         private TextReader textReader;
         private BsonJsonReaderContext context;
         private JsonToken currentToken;
+        private BsonValue currentValue; // used for extended JSON
         private JsonToken pushedToken;
         #endregion
 
@@ -56,8 +57,10 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
-
-            throw new NotImplementedException();
+            state = GetNextState();
+            var binaryData = currentValue.AsBsonBinaryData;
+            bytes = binaryData.Bytes;
+            subType = binaryData.SubType;
         }
 
         public override bool ReadBoolean() {
@@ -69,7 +72,7 @@ namespace MongoDB.Bson.IO {
 
         public override BsonType ReadBsonType() {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state == BsonReadState.Initial) {
+            if (state == BsonReadState.Initial || state == BsonReadState.ScopeDocument) {
                 // in JSON the top level value can be of any type so fall through
                 state = BsonReadState.Type;
             }
@@ -108,7 +111,7 @@ namespace MongoDB.Bson.IO {
 
             switch (valueToken.Type) {
                 case JsonTokenType.BeginArray: currentBsonType = BsonType.Array; break;
-                case JsonTokenType.BeginObject: currentBsonType = BsonType.Document; break;
+                case JsonTokenType.BeginObject: currentBsonType = ParseExtendedJson(); break;
                 case JsonTokenType.FloatingPoint: currentBsonType = BsonType.Double; break;
                 case JsonTokenType.Integer: currentBsonType = valueToken.IntegerBsonType; break;
                 case JsonTokenType.String: currentBsonType = BsonType.String; break;
@@ -151,7 +154,8 @@ namespace MongoDB.Bson.IO {
         public override DateTime ReadDateTime() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
-            throw new NotImplementedException();
+            state = GetNextState();
+            return currentValue.AsDateTime;
         }
 
         public override double ReadDouble() {
@@ -186,7 +190,10 @@ namespace MongoDB.Bson.IO {
 
         public override void ReadEndDocument() {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (context.ContextType != ContextType.Document) {
+            if (
+                context.ContextType != ContextType.Document &&
+                context.ContextType != ContextType.ScopeDocument
+            ) {
                 var message = string.Format("ReadEndDocument cannot be called when ContextType is: {0}", context.ContextType);
                 throw new InvalidOperationException(message);
             }
@@ -199,6 +206,10 @@ namespace MongoDB.Bson.IO {
             }
 
             context = context.PopContext();
+            if (context != null && context.ContextType == ContextType.JavaScriptWithScope) {
+                context = context.PopContext(); // JavaScriptWithScope
+                VerifyToken("}"); // outermost closing bracket for JavaScriptWithScope
+            }
             switch (context.ContextType) {
                 case ContextType.Array: state = BsonReadState.Type; break;
                 case ContextType.Document: state = BsonReadState.Type; break;
@@ -224,31 +235,34 @@ namespace MongoDB.Bson.IO {
         public override string ReadJavaScript() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
-            throw new NotImplementedException();
+            state = GetNextState();
+            return currentValue.AsString;
         }
 
         public override string ReadJavaScriptWithScope() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScriptWithScope", BsonType.JavaScriptWithScope);
-            throw new NotImplementedException();
+            context = new BsonJsonReaderContext(context, ContextType.JavaScriptWithScope);
+            state = BsonReadState.ScopeDocument;
+            return currentValue.AsString;
         }
 
         public override void ReadMaxKey() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadMaxKey", BsonType.MaxKey);
-            throw new NotImplementedException();
+            state = GetNextState();
         }
 
         public override void ReadMinKey() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadMinKey", BsonType.MinKey);
-            throw new NotImplementedException();
+            state = GetNextState();
         }
 
         public override void ReadNull() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadNull", BsonType.Null);
-            state = BsonReadState.Type;
+            state = GetNextState();
         }
 
         public override void ReadObjectId(
@@ -259,7 +273,12 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadObjectId", BsonType.ObjectId);
-            throw new NotImplementedException();
+            var objectId = currentValue.AsObjectId;
+            timestamp = objectId.Timestamp;
+            machine = objectId.Machine;
+            pid = objectId.Pid;
+            increment = objectId.Increment;
+            state = GetNextState();
         }
 
         public override void ReadRegularExpression(
@@ -442,6 +461,107 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        private BsonType ParseBinary() {
+            VerifyToken(":");
+            var bytesToken = PopToken();
+            if (bytesToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found: '{0}'", bytesToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            var bytes = Convert.FromBase64String(bytesToken.Lexeme);
+            VerifyToken(",");
+            VerifyToken("$type");
+            VerifyToken(":");
+            var subTypeToken = PopToken();
+            if (subTypeToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found: '{0}'", subTypeToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            var subType = (BsonBinarySubType) Convert.ToInt32(subTypeToken.Lexeme, 16);
+            currentValue = new BsonBinaryData(bytes, subType);
+            return BsonType.Binary;
+        }
+
+        private BsonType ParseJavaScript() {
+            VerifyToken(":");
+            var codeToken = PopToken();
+            if (codeToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found: '{0}'", codeToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            var nextToken = PopToken();
+            switch (nextToken.Type) {
+                case JsonTokenType.Comma:
+                    VerifyToken("$scope");
+                    VerifyToken(":");
+                    state = BsonReadState.Value;
+                    currentBsonType = BsonType.JavaScriptWithScope;
+                    currentValue = codeToken.Lexeme;
+                    return BsonType.JavaScriptWithScope;
+                case JsonTokenType.EndObject:
+                    currentValue = codeToken.Lexeme;
+                    return BsonType.JavaScript;
+                default:
+                    var message = string.Format("JSON reader expected ',' or '}' but found: '{0}'", codeToken.Lexeme);
+                    throw new FileFormatException(message);
+            }
+        }
+
+        private BsonType ParseDateTime() {
+            VerifyToken(":");
+            var valueToken = PopToken();
+            if (valueToken.Type != JsonTokenType.Integer) {
+                var message = string.Format("JSON reader expected an integer but found: '{0}'", valueToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken("}");
+            var milliseconds = XmlConvert.ToInt64(valueToken.Lexeme);
+            currentValue = BsonConstants.UnixEpoch.AddMilliseconds(milliseconds);
+            return BsonType.DateTime;
+        }
+
+        private BsonType ParseExtendedJson() {
+            var nameToken = PopToken();
+            if (nameToken.Type == JsonTokenType.String || nameToken.Type == JsonTokenType.UnquotedString) {
+                switch (nameToken.Lexeme) {
+                    case "$binary": return ParseBinary();
+                    case "$code": return ParseJavaScript();
+                    case "$date": return ParseDateTime();
+                    case "$maxkey": return ParseMaxKey();
+                    case "$minkey": return ParseMinKey();
+                    case "$oid": return ParseObjectId();
+                }
+            }
+            PushToken(nameToken);
+            return BsonType.Document;
+        }
+
+        private BsonType ParseMaxKey() {
+            VerifyToken(":");
+            VerifyToken("1");
+            VerifyToken("}");
+            return BsonType.MaxKey;
+        }
+
+        private BsonType ParseMinKey() {
+            VerifyToken(":");
+            VerifyToken("1");
+            VerifyToken("}");
+            return BsonType.MinKey;
+        }
+
+        private BsonType ParseObjectId() {
+            VerifyToken(":");
+            var valueToken = PopToken();
+            if (valueToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found: '{0}'", valueToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken("}");
+            currentValue = BsonObjectId.Create(valueToken.Lexeme);
+            return BsonType.ObjectId;
+        }
+
         private JsonToken PopToken() {
             if (pushedToken != null) {
                 var token = pushedToken;
@@ -459,6 +579,16 @@ namespace MongoDB.Bson.IO {
                 pushedToken = token;
             } else {
                 throw new BsonInternalException("There is already a pending token");
+            }
+        }
+
+        private void VerifyToken(
+            string expectedLexeme
+        ) {
+            var token = PopToken();
+            if (token.Lexeme != expectedLexeme) {
+                var message = string.Format("JSON reader expected '{0}' but found: '{1}'", expectedLexeme, token.Lexeme);
+                throw new FileFormatException(message);
             }
         }
         #endregion
