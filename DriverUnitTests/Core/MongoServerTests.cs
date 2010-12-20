@@ -28,7 +28,6 @@ namespace MongoDB.DriverUnitTests {
         public void TestCreateNoArgs() {
             var server = MongoServer.Create();
             var expectedSeedList = new[] { new MongoServerAddress("localhost") };
-            Assert.IsNull(server.AdminCredentials);
             Assert.IsNull(server.DefaultCredentials);
             Assert.IsNull(server.ReplicaSet);
             Assert.AreEqual(SafeMode.False, server.SafeMode);
