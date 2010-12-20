@@ -20,8 +20,35 @@ using System.Text;
 
 namespace MongoDB.Bson.IO {
     public abstract class BsonReaderBookmark {
+        #region protected fields
+        protected BsonReadState state;
+        protected BsonType currentBsonType;
+        protected string currentName;
+        #endregion
+
         #region constructors
-        protected BsonReaderBookmark() {
+        protected BsonReaderBookmark(
+            BsonReadState state,
+            BsonType currentBsonType,
+            string currentName
+        ) {
+            this.state = state;
+            this.currentBsonType = currentBsonType;
+            this.currentName = currentName;
+        }
+        #endregion
+
+        #region public properties
+        public BsonReadState State {
+            get { return state; }
+        }
+
+        public BsonType CurrentBsonType {
+            get { return currentBsonType; }
+        }
+
+        public string CurrentName {
+            get { return currentName; }
         }
         #endregion
     }

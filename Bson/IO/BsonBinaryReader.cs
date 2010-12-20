@@ -55,7 +55,7 @@ namespace MongoDB.Bson.IO {
         }
 
         public override BsonReaderBookmark GetBookmark() {
-            return new BsonBinaryReaderBookmark(context, state, currentBsonType, buffer.Position);
+            return new BsonBinaryReaderBookmark(state, currentBsonType, currentName, context, buffer.Position);
         }
 
         #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
@@ -333,9 +333,10 @@ namespace MongoDB.Bson.IO {
             BsonReaderBookmark bookmark
         ) {
             var binaryReaderBookmark = (BsonBinaryReaderBookmark) bookmark;
-            context = binaryReaderBookmark.Context;
             state = binaryReaderBookmark.State;
             currentBsonType = binaryReaderBookmark.CurrentBsonType;
+            currentName = binaryReaderBookmark.CurrentName;
+            context = binaryReaderBookmark.Context;
             buffer.Position = binaryReaderBookmark.Position;
         }
 

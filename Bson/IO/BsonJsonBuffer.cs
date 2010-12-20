@@ -19,33 +19,35 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public class BsonDocumentReaderBookmark : BsonReaderBookmark {
+    public class BsonJsonBuffer {
         #region private fields
-        private BsonDocumentReaderContext context;
-        private BsonValue currentValue;
+        private string buffer;
+        private int position;
         #endregion
 
         #region constructors
-        internal BsonDocumentReaderBookmark(
-            BsonReadState state,
-            BsonType currentBsonType,
-            string currentName,
-            BsonDocumentReaderContext context,
-            BsonValue currentValue
-        )
-            : base(state, currentBsonType, currentName) {
-            this.context = context.Clone();
-            this.currentValue = currentValue;
+        public BsonJsonBuffer(
+            string buffer
+        ) {
+            this.buffer = buffer;
+            this.position = 0;
         }
         #endregion
 
         #region internal properties
-        internal BsonDocumentReaderContext Context {
-            get { return context; }
+        public int Position {
+            get { return position; }
+            set { position = value; }
+        }
+        #endregion
+
+        #region public methods
+        public int Peek() {
+            return (position >= buffer.Length) ? -1 : buffer[position];
         }
 
-        internal BsonValue CurrentValue {
-            get { return currentValue; }
+        public int Read() {
+            return (position >= buffer.Length) ? -1 : buffer[position++];
         }
         #endregion
     }

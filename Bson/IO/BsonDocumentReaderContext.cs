@@ -30,6 +30,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        // used by Clone
         private BsonDocumentReaderContext() {
         }
 

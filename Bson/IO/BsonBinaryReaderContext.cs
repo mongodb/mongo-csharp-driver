@@ -38,6 +38,10 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        // used by Clone
+        private BsonBinaryReaderContext() {
+        }
+
         internal BsonBinaryReaderContext(
             BsonBinaryReaderContext parentContext,
             ContextType contextType,
@@ -58,6 +62,15 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
+        public BsonBinaryReaderContext Clone() {
+            var clone = new BsonBinaryReaderContext();
+            clone.parentContext = this.parentContext;
+            clone.contextType = this.contextType;
+            clone.startPosition = this.startPosition;
+            clone.size = this.size;
+            return clone;
+        }
+
         public BsonBinaryReaderContext PopContext(
             int position
         ) {

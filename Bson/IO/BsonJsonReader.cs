@@ -23,7 +23,7 @@ using System.Xml;
 namespace MongoDB.Bson.IO {
     public class BsonJsonReader : BsonBaseReader {
         #region private fields
-        private TextReader textReader;
+        private BsonJsonBuffer buffer;
         private BsonJsonReaderContext context;
         private JsonToken currentToken;
         private BsonValue currentValue; // used for extended JSON
@@ -32,9 +32,9 @@ namespace MongoDB.Bson.IO {
 
         #region constructors
         public BsonJsonReader(
-            TextReader textReader
+            BsonJsonBuffer buffer
         ) {
-            this.textReader = textReader;
+            this.buffer = buffer;
             this.context = new BsonJsonReaderContext(null, ContextType.TopLevel);
         }
         #endregion
@@ -48,7 +48,7 @@ namespace MongoDB.Bson.IO {
         }
 
         public override BsonReaderBookmark GetBookmark() {
-            throw new NotImplementedException();
+            return new BsonJsonReaderBookmark(state, currentBsonType, currentName, context, currentValue, buffer.Position);
         }
 
         public override void ReadBinaryData(
@@ -328,7 +328,13 @@ namespace MongoDB.Bson.IO {
         public override void ReturnToBookmark(
             BsonReaderBookmark bookmark
         ) {
-            throw new NotImplementedException();
+            var jsonReaderBookmark = (BsonJsonReaderBookmark) bookmark;
+            state = jsonReaderBookmark.State;
+            currentBsonType = jsonReaderBookmark.CurrentBsonType;
+            currentName = jsonReaderBookmark.CurrentName;
+            context = jsonReaderBookmark.Context;
+            currentValue = jsonReaderBookmark.CurrentValue;
+            buffer.Position = jsonReaderBookmark.Position;
         }
 
         public override void SkipName() {
@@ -568,7 +574,7 @@ namespace MongoDB.Bson.IO {
                 pushedToken = null;
                 return token;
             } else {
-                return BsonJsonScanner.GetNextToken(textReader);
+                return BsonJsonScanner.GetNextToken(buffer);
             }
         }
 

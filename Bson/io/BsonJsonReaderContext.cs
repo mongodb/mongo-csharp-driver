@@ -27,6 +27,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        // used by Clone
         private BsonJsonReaderContext() {
         }
 
@@ -46,12 +47,12 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
-        //public BsonJsonReaderContext Clone() {
-        //    var clone = new BsonJsonReaderContext();
-        //    clone.parentContext = this.parentContext;
-        //    clone.contextType = this.contextType;
-        //    return clone;
-        //}
+        public BsonJsonReaderContext Clone() {
+            var clone = new BsonJsonReaderContext();
+            clone.parentContext = this.parentContext;
+            clone.contextType = this.contextType;
+            return clone;
+        }
 
         public BsonJsonReaderContext PopContext() {
             return parentContext;
