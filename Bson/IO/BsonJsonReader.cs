@@ -114,6 +114,10 @@ namespace MongoDB.Bson.IO {
                 case JsonTokenType.BeginObject: currentBsonType = ParseExtendedJson(); break;
                 case JsonTokenType.FloatingPoint: currentBsonType = BsonType.Double; break;
                 case JsonTokenType.Integer: currentBsonType = valueToken.IntegerBsonType; break;
+                case JsonTokenType.RegularExpression:
+                    currentBsonType = BsonType.RegularExpression;
+                    currentValue = BsonRegularExpression.Create(valueToken.Lexeme);
+                    break;
                 case JsonTokenType.String: currentBsonType = BsonType.String; break;
                 case JsonTokenType.UnquotedString:
                     var validConstant = true;

@@ -35,6 +35,10 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region internal properties
+        public int Length {
+            get { return buffer.Length; }
+        }
+
         public int Position {
             get { return position; }
             set { position = value; }
@@ -48,6 +52,19 @@ namespace MongoDB.Bson.IO {
 
         public int Read() {
             return (position >= buffer.Length) ? -1 : buffer[position++];
+        }
+
+        public string Substring(
+            int start
+        ) {
+            return buffer.Substring(start);
+        }
+
+        public string Substring(
+            int start,
+            int count
+        ) {
+            return buffer.Substring(start, count);
         }
         #endregion
     }

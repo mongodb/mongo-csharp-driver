@@ -365,5 +365,35 @@ namespace MongoDB.BsonUnitTests.IO {
             Assert.AreEqual("-1e-12", token.Lexeme);
             Assert.AreEqual(',', buffer.Peek());
         }
+
+        [Test]
+        public void TestRegularExpressionEmpty() {
+            var json = "\t //,";
+            var buffer = new BsonJsonBuffer(json);
+            var token = BsonJsonScanner.GetNextToken(buffer);
+            Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
+            Assert.AreEqual("//", token.Lexeme);
+            Assert.AreEqual(',', buffer.Peek());
+        }
+
+        [Test]
+        public void TestRegularExpressionPattern() {
+            var json = "\t /pattern/,";
+            var buffer = new BsonJsonBuffer(json);
+            var token = BsonJsonScanner.GetNextToken(buffer);
+            Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
+            Assert.AreEqual("/pattern/", token.Lexeme);
+            Assert.AreEqual(',', buffer.Peek());
+        }
+
+        [Test]
+        public void TestRegularExpressionPatternAndOptions() {
+            var json = "\t /pattern/gim,";
+            var buffer = new BsonJsonBuffer(json);
+            var token = BsonJsonScanner.GetNextToken(buffer);
+            Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
+            Assert.AreEqual("/pattern/gim", token.Lexeme);
+            Assert.AreEqual(',', buffer.Peek());
+        }
     }
 }
