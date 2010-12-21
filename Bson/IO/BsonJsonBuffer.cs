@@ -46,10 +46,6 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
-        public int Peek() {
-            return (position >= buffer.Length) ? -1 : buffer[position];
-        }
-
         public int Read() {
             return (position >= buffer.Length) ? -1 : buffer[position++];
         }
@@ -65,6 +61,14 @@ namespace MongoDB.Bson.IO {
             int count
         ) {
             return buffer.Substring(start, count);
+        }
+
+        public void UnRead(
+            int c
+        ) {
+            if (c != -1 && buffer[position - 1] == c) {
+                position -= 1;
+            }
         }
         #endregion
     }

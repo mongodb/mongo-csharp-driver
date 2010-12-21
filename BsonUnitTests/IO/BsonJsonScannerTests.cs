@@ -33,7 +33,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.EndOfFile, token.Type);
             Assert.AreEqual("<eof>", token.Lexeme);
-            Assert.AreEqual(-1, buffer.Peek());
+            Assert.AreEqual(-1, buffer.Read());
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.BeginObject, token.Type);
             Assert.AreEqual("{", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.EndObject, token.Type);
             Assert.AreEqual("}", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.BeginArray, token.Type);
             Assert.AreEqual("[", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.EndArray, token.Type);
             Assert.AreEqual("]", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.Colon, token.Type);
             Assert.AreEqual(":", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.Comma, token.Type);
             Assert.AreEqual(",", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.String, token.Type);
             Assert.AreEqual("", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.String, token.Type);
             Assert.AreEqual("1", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -123,7 +123,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.String, token.Type);
             Assert.AreEqual("12", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.String, token.Type);
             Assert.AreEqual("123", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.String, token.Type);
             Assert.AreEqual("x\"\\/\b\f\n\r\t0y", token.Lexeme);
-            Assert.AreEqual('x', buffer.Peek());
+            Assert.AreEqual('x', buffer.Read());
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
             Assert.AreEqual("true", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
             Assert.AreEqual("false", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
             Assert.AreEqual("null", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -183,7 +183,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
             Assert.AreEqual("name123", token.Lexeme);
-            Assert.AreEqual(':', buffer.Peek());
+            Assert.AreEqual(':', buffer.Read());
         }
 
         [Test]
@@ -193,7 +193,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.Integer, token.Type);
             Assert.AreEqual("0", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -203,7 +203,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.Integer, token.Type);
             Assert.AreEqual("-0", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -213,7 +213,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.Integer, token.Type);
             Assert.AreEqual("1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -223,7 +223,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.Integer, token.Type);
             Assert.AreEqual("-1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -233,7 +233,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.Integer, token.Type);
             Assert.AreEqual("12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -243,7 +243,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.Integer, token.Type);
             Assert.AreEqual("-12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("0.0", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -263,7 +263,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("-0.0", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -273,7 +273,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("0e1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -283,7 +283,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("-0e1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("0e-1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -303,7 +303,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("-0e-1", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -313,7 +313,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("1.2", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -323,7 +323,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("-1.2", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -333,7 +333,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("1e12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -343,7 +343,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("-1e12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -353,7 +353,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("1e-12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -363,7 +363,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.FloatingPoint, token.Type);
             Assert.AreEqual("-1e-12", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -373,7 +373,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
             Assert.AreEqual("//", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -383,7 +383,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
             Assert.AreEqual("/pattern/", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
 
         [Test]
@@ -393,7 +393,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var token = BsonJsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
             Assert.AreEqual("/pattern/gim", token.Lexeme);
-            Assert.AreEqual(',', buffer.Peek());
+            Assert.AreEqual(',', buffer.Read());
         }
     }
 }
