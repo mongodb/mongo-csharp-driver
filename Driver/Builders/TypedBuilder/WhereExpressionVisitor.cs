@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.DefaultSerializer;
+using MongoDB.Driver.Builders.TypedBuilder;
 
 namespace MongoDB.Driver.Builders
 {
