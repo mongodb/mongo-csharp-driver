@@ -78,15 +78,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadStartArray();
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     bsonReader.ReadStartArray();
                     bsonReader.ReadBsonType();
-                    bsonReader.SkipName();
                     var keyType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var keySerializer = BsonSerializer.LookupSerializer(keyType);
                     var key = keySerializer.Deserialize(bsonReader, typeof(object), keyType, null);
                     bsonReader.ReadBsonType();
-                    bsonReader.SkipName();
                     var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
                     var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType, null);
@@ -122,15 +119,11 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteEndDocument();
                 } else {
                     bsonWriter.WriteStartArray();
-                    int index = 0;
                     foreach (DictionaryEntry entry in dictionary) {
-                        bsonWriter.WriteStartArray(index.ToString());
-                        bsonWriter.WriteName("0");
+                        bsonWriter.WriteStartArray();
                         BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
-                        bsonWriter.WriteName("1");
                         BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
                         bsonWriter.WriteEndArray();
-                        index++;
                     }
                     bsonWriter.WriteEndArray();
                }

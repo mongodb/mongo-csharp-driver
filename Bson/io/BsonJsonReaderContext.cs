@@ -20,38 +20,23 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    // this enum is also used by the BsonWriters
-    internal enum ContextType {
-        TopLevel,
-        Document,
-        Array,
-        JavaScriptWithScope,
-        ScopeDocument
-    }
-
-    internal class BsonBinaryReaderContext {
+    internal class BsonJsonReaderContext {
         #region private fields
-        private BsonBinaryReaderContext parentContext;
+        private BsonJsonReaderContext parentContext;
         private ContextType contextType;
-        private int startPosition;
-        private int size;
         #endregion
 
         #region constructors
         // used by Clone
-        private BsonBinaryReaderContext() {
+        private BsonJsonReaderContext() {
         }
 
-        internal BsonBinaryReaderContext(
-            BsonBinaryReaderContext parentContext,
-            ContextType contextType,
-            int startPosition,
-            int size
+        internal BsonJsonReaderContext(
+            BsonJsonReaderContext parentContext,
+            ContextType contextType
         ) {
             this.parentContext = parentContext;
             this.contextType = contextType;
-            this.startPosition = startPosition;
-            this.size = size;
         }
         #endregion
 
@@ -62,23 +47,14 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
-        public BsonBinaryReaderContext Clone() {
-            var clone = new BsonBinaryReaderContext();
+        public BsonJsonReaderContext Clone() {
+            var clone = new BsonJsonReaderContext();
             clone.parentContext = this.parentContext;
             clone.contextType = this.contextType;
-            clone.startPosition = this.startPosition;
-            clone.size = this.size;
             return clone;
         }
 
-        public BsonBinaryReaderContext PopContext(
-            int position
-        ) {
-            int actualSize = position - startPosition;
-            if (actualSize != size) {
-                var message = string.Format("{0} size is incorrect", contextType);
-                throw new FileFormatException(message);
-            }
+        public BsonJsonReaderContext PopContext() {
             return parentContext;
         }
         #endregion

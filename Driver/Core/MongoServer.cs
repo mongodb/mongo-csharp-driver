@@ -43,7 +43,6 @@ namespace MongoDB.Driver {
         private MongoConnectionPool primaryConnectionPool;
         private List<MongoConnectionPool> secondaryConnectionPools;
         private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
-        private MongoCredentials adminCredentials;
         private MongoCredentials defaultCredentials;
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         #endregion
@@ -53,15 +52,7 @@ namespace MongoDB.Driver {
             MongoUrl url
         ) {
             this.url = url;
-
-            // credentials (if any) are for server only if no DatabaseName was provided
-            if (url.Credentials != null && url.DatabaseName == null) {
-                if (url.Credentials.Admin) {
-                    this.adminCredentials = url.Credentials;
-                } else {
-                    this.defaultCredentials = url.Credentials;
-                }
-            }
+            this.defaultCredentials = url.Credentials;
 
             foreach (var address in url.Servers) {
                 addresses.Add(address);
@@ -114,12 +105,8 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
-        public MongoCredentials AdminCredentials {
-            get { return adminCredentials; }
-        }
-
         public MongoDatabase AdminDatabase {
-            get { return GetDatabase("admin", adminCredentials); }
+            get { return GetDatabase("admin", defaultCredentials); }
         }
 
         public IEnumerable<MongoServerAddress> Addresses {

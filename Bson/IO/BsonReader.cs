@@ -52,6 +52,12 @@ namespace MongoDB.Bson.IO {
         }
 
         public static BsonReader Create(
+            BsonJsonBuffer buffer
+        ) {
+            return new BsonJsonReader(buffer);
+        }
+
+        public static BsonReader Create(
             Stream stream
         ) {
             return Create(stream, BsonBinaryReaderSettings.Defaults);
@@ -67,9 +73,17 @@ namespace MongoDB.Bson.IO {
         }
 
         public static BsonReader Create(
-            TextReader textReader
+            string json
         ) {
-            return new BsonJsonReader(textReader);
+            var buffer = new BsonJsonBuffer(json);
+            return Create(buffer);
+        }
+
+        public static BsonReader Create(
+            TextReader jsonTextReader
+        ) {
+            var json = new BsonJsonBuffer(jsonTextReader.ReadToEnd());
+            return Create(json);
         }
         #endregion
 

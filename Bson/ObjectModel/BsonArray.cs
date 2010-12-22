@@ -214,9 +214,9 @@ namespace MongoDB.Bson {
         ) {
             var array = new BsonArray();
             bsonReader.ReadStartArray();
-            BsonElement element;
-            while (BsonElement.ReadFrom(bsonReader, out element)) {
-                array.Add(element.Value); // names are ignored on input and regenerated on output
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                var value = BsonValue.ReadFrom(bsonReader);
+                array.Add(value);
             }
             bsonReader.ReadEndArray();
             return array;
@@ -472,7 +472,6 @@ namespace MongoDB.Bson {
         ) {
             bsonWriter.WriteStartArray();
             for (int i = 0; i < values.Count; i++) {
-                bsonWriter.WriteName(i.ToString());
                 values[i].WriteTo(bsonWriter);
             }
             bsonWriter.WriteEndArray();

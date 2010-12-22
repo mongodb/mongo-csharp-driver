@@ -25,6 +25,7 @@ namespace MongoDB.Bson.IO {
         private BsonBinaryWriterContext parentContext;
         private ContextType contextType;
         private int startPosition;
+        private int index; // used when contextType is Array
         #endregion
 
         #region constructors
@@ -50,6 +51,11 @@ namespace MongoDB.Bson.IO {
 
         internal int StartPosition {
             get { return startPosition; }
+        }
+
+        internal int Index {
+            get { return index; }
+            set { index = value; }
         }
         #endregion
     }

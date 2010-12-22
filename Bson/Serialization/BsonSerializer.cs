@@ -58,6 +58,12 @@ namespace MongoDB.Bson.Serialization {
         }
 
         public static T Deserialize<T>(
+            BsonJsonBuffer buffer
+        ) {
+            return (T) Deserialize(buffer, typeof(T));
+        }
+
+        public static T Deserialize<T>(
             BsonReader bsonReader
         ) {
             return (T) Deserialize(bsonReader, typeof(T));
@@ -75,11 +81,32 @@ namespace MongoDB.Bson.Serialization {
             return (T) Deserialize(stream, typeof(T));
         }
 
+        public static T Deserialize<T>(
+            string json
+        ) {
+            return (T) Deserialize(json, typeof(T));
+        }
+
+        public static T Deserialize<T>(
+            TextReader textReader
+        ) {
+            return (T) Deserialize(textReader, typeof(T));
+        }
+
         public static object Deserialize(
             BsonDocument document,
             Type nominalType
         ) {
             return Deserialize(BsonReader.Create(document), nominalType);
+        }
+
+        public static object Deserialize(
+            BsonJsonBuffer buffer,
+            Type nominalType
+        ) {
+            using (var bsonReader = BsonReader.Create(buffer)) {
+                return Deserialize(bsonReader, nominalType);
+            }
         }
 
         public static object Deserialize(
@@ -108,6 +135,24 @@ namespace MongoDB.Bson.Serialization {
             Type nominalType
         ) {
             using (var bsonReader = BsonReader.Create(stream)) {
+                return Deserialize(bsonReader, nominalType);
+            }
+        }
+
+        public static object Deserialize(
+            string json,
+            Type nominalType
+        ) {
+            using (var bsonReader = BsonReader.Create(json)) {
+                return Deserialize(bsonReader, nominalType);
+            }
+        }
+
+        public static object Deserialize(
+            TextReader textReader,
+            Type nominalType
+        ) {
+            using (var bsonReader = BsonReader.Create(textReader)) {
                 return Deserialize(bsonReader, nominalType);
             }
         }

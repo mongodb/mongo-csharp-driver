@@ -26,7 +26,7 @@ using MongoDB.Bson.DefaultSerializer;
 
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
-    public class BsonJDocumentReaderTests {
+    public class BsonDocumentReaderTests {
         [Test]
         public void TestEmptyDocument() {
             BsonDocument document = new BsonDocument();
