@@ -153,10 +153,11 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestSerializeDeserializeCustomTypes()
         {
-            A value = new B(){Num=3, Str="test"};
+            A value = new B(){Num=3, Str="test", Dec=2.001m};
             A dehydrated = SerializeDeserialize(value);
             Assert.AreEqual(value.Num, dehydrated.Num);
             Assert.AreEqual(value.Str, dehydrated.Str);
+            Assert.AreEqual(value.Dec, dehydrated.Dec);
         }
         [Test]
         public void TestSerializeDeserializeInterface()
@@ -166,6 +167,21 @@ namespace MongoDB.BsonUnitTests.IO {
             INum dehydrated = SerializeDeserialize<INum>(value);
             Assert.AreEqual(value.Num, dehydrated.Num);
             Assert.AreEqual(((B)value).Str, ((B)dehydrated).Str);
+        }
+        [Test]
+        public void TestBookmarksOnDocument()
+        {
+            BsonDocumentWriter writer = new BsonDocumentWriter();
+            BsonSerializer.Serialize(writer, new B() { Num = 3, Str = "test", Dec = 2.001m });
+            Console.WriteLine(writer.WrittenValue.ToJson());
+            BsonDocumentReader reader = new BsonDocumentReader(writer.WrittenValue.AsBsonDocument);
+            reader.ReadStartDocument();
+            var bm = reader.GetBookmark();
+            Assert.True(reader.FindElement("Dec"));
+            reader.ReturnToBookmark(bm);
+            Assert.True(reader.FindElement("Str"));
+
+
         }
 
         private static T SerializeDeserialize<T>(T value)
@@ -183,6 +199,7 @@ namespace MongoDB.BsonUnitTests.IO {
         {
             public int Num { get; set; }
             public string Str { get; set; }
+            public decimal Dec { get; set; }
             public override bool Equals(object obj)
             {
                 A other = obj as A;
