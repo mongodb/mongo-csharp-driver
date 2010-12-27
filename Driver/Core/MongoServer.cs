@@ -216,7 +216,7 @@ namespace MongoDB.Driver {
                                 var replicaSetConnector = new ReplicaSetConnector(this);
                                 replicaSetConnector.Connect(timeout);
                                 primaryConnectionPool = new MongoConnectionPool(this, replicaSetConnector.PrimaryConnection);
-                                if (url.SlaveOk) {
+                                if (url.SlaveOk && replicaSetConnector.SecondaryConnections.Count > 0) {
                                     secondaryConnectionPools = new List<MongoConnectionPool>();
                                     foreach (var connection in replicaSetConnector.SecondaryConnections) {
                                         var secondaryConnectionPool = new MongoConnectionPool(this, connection);
