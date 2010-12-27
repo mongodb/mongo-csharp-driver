@@ -173,11 +173,14 @@ namespace MongoDB.Bson.DefaultSerializer {
                 }
 
                 if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass) {
-                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
-                    var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                    if (discriminator != null) {
-                        bsonWriter.WriteName(discriminatorConvention.ElementName);
-                        discriminator.WriteTo(bsonWriter);
+                    // never write out a discriminator for an anonymous class
+                    if (!classMap.IsAnonymous) {
+                        var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                        var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                        if (discriminator != null) {
+                            bsonWriter.WriteName(discriminatorConvention.ElementName);
+                            discriminator.WriteTo(bsonWriter);
+                        }
                     }
                 }
 

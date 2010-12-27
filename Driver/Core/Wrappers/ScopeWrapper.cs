@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class ScopeWrapper : BaseWrapper, IMongoScope {
         #region constructors
         public ScopeWrapper(
-            Type nominalType,
             object scope
         )
-            : base(nominalType, scope) {
+            : base(scope) {
         }
         #endregion
 
         #region public static methods
-        public static ScopeWrapper Create<T>(
-            T scope
+        public static ScopeWrapper Create(
+            object scope
         ) {
-            return new ScopeWrapper(typeof(T), scope);
+            if (scope == null) {
+                return null;
+            } else {
+                return new ScopeWrapper(scope);
+            }
         }
         #endregion
     }

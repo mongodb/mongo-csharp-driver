@@ -59,10 +59,10 @@ namespace MongoDB.Driver.Builders {
             return new FieldsBuilder().Slice(name, skip, limit);
         }
 
-        public static IMongoFields Wrap<T>(
-            T fields
+        public static IMongoFields Wrap(
+            object fields
         ) {
-            return new FieldsWrapper(typeof(T), fields);
+            return FieldsWrapper.Create(fields);
         }
         #endregion
     }

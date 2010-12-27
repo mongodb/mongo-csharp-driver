@@ -30,6 +30,13 @@ namespace MongoDB.Driver {
 
         #region constructors
         protected BaseWrapper(
+            object obj
+        ) {
+            this.nominalType = obj.GetType();
+            this.obj = obj;
+        }
+
+        protected BaseWrapper(
             Type nominalType,
             object obj
         ) {

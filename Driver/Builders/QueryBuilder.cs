@@ -191,10 +191,10 @@ namespace MongoDB.Driver.Builders {
             return new QueryComplete(new BsonDocument("$where", javaScript));
         }
 
-        public static IMongoQuery Wrap<T>(
-            T query
+        public static IMongoQuery Wrap(
+            object query
         ) {
-            return new QueryWrapper(typeof(T), query);
+            return QueryWrapper.Create(query);
         }
         #endregion
     }

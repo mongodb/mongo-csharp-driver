@@ -86,10 +86,10 @@ namespace MongoDB.Driver.Builders {
             return new MapReduceOptionsBuilder().SetVerbose(value);
         }
 
-        public static IMongoMapReduceOptions Wrap<T>(
-            T options
+        public static IMongoMapReduceOptions Wrap(
+            object options
         ) {
-            return new MapReduceOptionsWrapper(typeof(T), options);
+            return MapReduceOptionsWrapper.Create(options);
         }
         #endregion
     }

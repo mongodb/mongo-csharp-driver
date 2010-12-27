@@ -38,10 +38,10 @@ namespace MongoDB.Driver.Builders {
             return new SortByBuilder().Descending(keys);
         }
 
-        public static IMongoSortBy Wrap<T>(
-            T sortBy
+        public static IMongoSortBy Wrap(
+            object sortBy
         ) {
-            return new SortByWrapper(typeof(T), sortBy);
+            return SortByWrapper.Create(sortBy);
         }
         #endregion
     }

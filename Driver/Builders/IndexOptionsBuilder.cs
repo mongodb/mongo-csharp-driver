@@ -63,10 +63,10 @@ namespace MongoDB.Driver.Builders {
             return new IndexOptionsBuilder().SetUnique(value);
         }
 
-        public static IMongoIndexOptions Wrap<T>(
-            T options
+        public static IMongoIndexOptions Wrap(
+            object options
         ) {
-            return new IndexOptionsWrapper(typeof(T), options);
+            return IndexOptionsWrapper.Create(options);
         }
         #endregion
     }

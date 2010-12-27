@@ -38,10 +38,10 @@ namespace MongoDB.Driver.Builders {
             return new GroupByBuilder(names);
         }
 
-        public static IMongoGroupBy Wrap<T>(
-            T groupBy
+        public static IMongoGroupBy Wrap(
+            object groupBy
         ) {
-            return new GroupByWrapper(typeof(T), groupBy);
+            return GroupByWrapper.Create(groupBy);
         }
         #endregion
     }

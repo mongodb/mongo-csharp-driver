@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class GeoNearOptionsWrapper : BaseWrapper, IMongoGeoNearOptions {
         #region constructors
         public GeoNearOptionsWrapper(
-            Type nominalType,
             object options
         )
-            : base(nominalType, options) {
+            : base(options) {
         }
         #endregion
 
         #region public static methods
-        public static GeoNearOptionsWrapper Create<T>(
-            T options
+        public static GeoNearOptionsWrapper Create(
+            object options
         ) {
-            return new GeoNearOptionsWrapper(typeof(T), options);
+            if (options == null) {
+                return null;
+            } else {
+                return new GeoNearOptionsWrapper(options);
+            }
         }
         #endregion
     }

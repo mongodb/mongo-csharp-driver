@@ -44,10 +44,10 @@ namespace MongoDB.Driver.Builders {
             return new GeoNearOptionsBuilder().SetMaxDistance(value);
         }
 
-        public static IMongoGeoNearOptions Wrap<T>(
-            T options
+        public static IMongoGeoNearOptions Wrap(
+            object options
         ) {
-            return new GeoNearOptionsWrapper(typeof(T), options);
+            return GeoNearOptionsWrapper.Create(options);
         }
         #endregion
     }
