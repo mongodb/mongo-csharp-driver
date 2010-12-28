@@ -24,7 +24,7 @@ namespace MongoDB.Bson.IO {
     public class BsonBuffer : IDisposable {
         #region private static fields
         private static Stack<byte[]> chunkPool = new Stack<byte[]>();
-        private const int chunkSize = 16 * 1024; // 16KB
+        private const int chunkSize = 16 * 1024; // 16KiB
         private static readonly bool[] validBsonTypes = new bool[256];
         #endregion
 

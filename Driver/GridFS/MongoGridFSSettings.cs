@@ -24,7 +24,7 @@ namespace MongoDB.Driver.GridFS {
         #region private fields
         private bool isFrozen;
         private string chunksCollectionName = "fs.chunks";
-        private int defaultChunkSize = 256 * 1024; // 256KB
+        private int defaultChunkSize = 256 * 1024; // 256KiB
         private string filesCollectionName = "fs.files";
         private string root = "fs";
         private SafeMode safeMode = SafeMode.False;
