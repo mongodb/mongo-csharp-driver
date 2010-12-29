@@ -20,15 +20,6 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    // this enum is also used by the BsonWriters
-    internal enum ContextType {
-        TopLevel,
-        Document,
-        Array,
-        JavaScriptWithScope,
-        ScopeDocument
-    }
-
     internal class BsonBinaryReaderContext {
         #region private fields
         private BsonBinaryReaderContext parentContext;
