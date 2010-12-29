@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public enum BsonJsonOutputMode {
+    public enum JsonOutputMode {
         Strict,
         JavaScript,
         TenGen

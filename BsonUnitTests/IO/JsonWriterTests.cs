@@ -24,7 +24,7 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
-    public class BsonJsonWriterTests {
+    public class JsonWriterTests {
         [Test]
         public void TestEmptyDocument() {
             BsonDocument document = new BsonDocument();
@@ -44,7 +44,7 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestIndentedEmptyDocument() {
             BsonDocument document = new BsonDocument();
-            var settings = new BsonJsonWriterSettings { Indent = true };
+            var settings = new JsonWriterSettings { Indent = true };
             string json = document.ToJson(settings);
             string expected = "{ }";
             Assert.AreEqual(expected, json);
@@ -53,7 +53,7 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestIndentedOneElement() {
             BsonDocument document = new BsonDocument() { { "name", "value" } };
-            var settings = new BsonJsonWriterSettings { Indent = true };
+            var settings = new JsonWriterSettings { Indent = true };
             string json = document.ToJson(settings);
             string expected = "{\r\n  \"name\" : \"value\"\r\n}";
             Assert.AreEqual(expected, json);
@@ -62,7 +62,7 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestIndentedTwoElements() {
             BsonDocument document = new BsonDocument() { { "a", "x" }, { "b", "y" } };
-            var settings = new BsonJsonWriterSettings { Indent = true };
+            var settings = new JsonWriterSettings { Indent = true };
             string json = document.ToJson(settings);
             string expected = "{\r\n  \"a\" : \"x\",\r\n  \"b\" : \"y\"\r\n}";
             Assert.AreEqual(expected, json);
@@ -83,7 +83,7 @@ namespace MongoDB.BsonUnitTests.IO {
             BsonDocument document = new BsonDocument() {
                 { "doc", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
-            var settings = new BsonJsonWriterSettings { Indent = true };
+            var settings = new JsonWriterSettings { Indent = true };
             string json = document.ToJson(settings);
             string expected = "{\r\n  \"doc\" : {\r\n    \"a\" : 1,\r\n    \"b\" : 2\r\n  }\r\n}";
             Assert.AreEqual(expected, json);
@@ -106,11 +106,11 @@ namespace MongoDB.BsonUnitTests.IO {
             BsonDocument document = new BsonDocument() {
                 { "date", jan_1_2010 }
             };
-            var settings = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.Strict };
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
             string json = document.ToJson(settings);
         	string expected = "{ \"date\" : { \"$date\" : # } }".Replace("#", expectedValue.ToString());
             Assert.AreEqual(expected, json);
-            settings = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.JavaScript };
+            settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             json = document.ToJson(settings);
 			expected = "{ \"date\" : Date(#) }".Replace("#", expectedValue.ToString());
             Assert.AreEqual(expected, json);

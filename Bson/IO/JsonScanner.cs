@@ -76,10 +76,10 @@ namespace MongoDB.Bson.IO {
         }
     }
 
-    public static class BsonJsonScanner {
+    public static class JsonScanner {
         #region public static methods
         public static JsonToken GetNextToken(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             // skip leading whitespace
             var c = buffer.Read();
@@ -116,7 +116,7 @@ namespace MongoDB.Bson.IO {
         #region private methods
         private static string FormatMessage(
             string message,
-            BsonJsonBuffer buffer,
+            JsonBuffer buffer,
             int start
         ) {
             var length = 20;
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetNumberToken(
-            BsonJsonBuffer buffer,
+            JsonBuffer buffer,
             int c // first character
         ) {
             // leading digit or '-' has already been read
@@ -296,7 +296,7 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetRegularExpressionToken(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             // opening slash has already been read
             var start = buffer.Position - 1;
@@ -350,7 +350,7 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetStringToken(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             // opening quote has already been read
             var start = buffer.Position - 1;
@@ -403,7 +403,7 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetUnquotedStringToken(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             // opening letter or $ has already been read
             var start = buffer.Position - 1;

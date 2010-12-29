@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization {
         }
 
         public static T Deserialize<T>(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             return (T) Deserialize(buffer, typeof(T));
         }
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Serialization {
         }
 
         public static object Deserialize(
-            BsonJsonBuffer buffer,
+            JsonBuffer buffer,
             Type nominalType
         ) {
             using (var bsonReader = BsonReader.Create(buffer)) {

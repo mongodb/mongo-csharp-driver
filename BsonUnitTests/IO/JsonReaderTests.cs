@@ -26,7 +26,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
-    public class BsonJsonReaderTests {
+    public class JsonReaderTests {
         private BsonReader bsonReader;
 
         [Test]
@@ -404,7 +404,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual("gim", options);
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
-            var tenGen = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.TenGen };
+            var tenGen = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonRegularExpression>(new StringReader(json)).ToJson(tenGen));
         }
 

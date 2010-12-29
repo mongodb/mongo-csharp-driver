@@ -19,14 +19,14 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public class BsonJsonBuffer {
+    public class JsonBuffer {
         #region private fields
         private string buffer;
         private int position;
         #endregion
 
         #region constructors
-        public BsonJsonBuffer(
+        public JsonBuffer(
             string buffer
         ) {
             this.buffer = buffer;
