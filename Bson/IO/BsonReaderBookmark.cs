@@ -21,14 +21,14 @@ using System.Text;
 namespace MongoDB.Bson.IO {
     public abstract class BsonReaderBookmark {
         #region protected fields
-        protected BsonReadState state;
+        protected BsonReaderState state;
         protected BsonType currentBsonType;
         protected string currentName;
         #endregion
 
         #region constructors
         protected BsonReaderBookmark(
-            BsonReadState state,
+            BsonReaderState state,
             BsonType currentBsonType,
             string currentName
         ) {
@@ -39,7 +39,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
-        public BsonReadState State {
+        public BsonReaderState State {
             get { return state; }
         }
 

@@ -76,7 +76,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
-        public abstract BsonWriteState WriteState { get; }
+        public abstract BsonWriterState State { get; }
         #endregion
 
         #region public methods

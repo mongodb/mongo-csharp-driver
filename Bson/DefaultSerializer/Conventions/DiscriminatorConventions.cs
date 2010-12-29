@@ -69,7 +69,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             Type nominalType
         ) {
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonReader.ReadState == BsonReadState.Value) {
+            if (bsonReader.State == BsonReaderState.Value) {
                 Type primitiveType = null;
                 switch (bsonType) {
                     case BsonType.Boolean: primitiveType = typeof(bool); break;

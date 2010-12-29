@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO {
 
         #region public properties
         public abstract BsonType CurrentBsonType { get; }
-        public abstract BsonReadState ReadState { get; }
+        public abstract BsonReaderState State { get; }
         #endregion
 
         #region public static methods

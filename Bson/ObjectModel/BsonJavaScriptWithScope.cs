@@ -30,7 +30,7 @@ namespace MongoDB.Bson {
             string code,
             BsonDocument scope
         )  
-            :base(code, BsonType.JavaScriptWithScope) {
+            : base(code, BsonType.JavaScriptWithScope) {
             this.scope = scope;
         }
         #endregion

@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO {
 
         #region constructors
         internal BsonDocumentReaderBookmark(
-            BsonReadState state,
+            BsonReaderState state,
             BsonType currentBsonType,
             string currentName,
             BsonDocumentReaderContext context,

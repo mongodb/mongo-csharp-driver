@@ -35,7 +35,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp103 {
             var collection = database["csharp103"];
             collection.RemoveAll();
             using (database.RequestStart()) {
-                for (int i = 0; i < 1000; i++) {
+                for (int i = 0; i < 1; i++) {
                     collection.Insert(new BsonDocument { { "blah", i } }, SafeMode.True);
                 }
             }
