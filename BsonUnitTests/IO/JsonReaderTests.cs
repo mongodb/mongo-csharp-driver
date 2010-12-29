@@ -183,6 +183,30 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestDocumentNested() {
+            var json = "{ \"a\" : { \"x\" : 1 }, \"y\" : 2 }";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
+                bsonReader.ReadStartDocument();
+                Assert.AreEqual(BsonType.Document, bsonReader.ReadBsonType());
+                Assert.AreEqual("a", bsonReader.ReadName());
+                bsonReader.ReadStartDocument();
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual("x", bsonReader.ReadName());
+                Assert.AreEqual(1, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReadEndDocument();
+                Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
+                Assert.AreEqual("y", bsonReader.ReadName());
+                Assert.AreEqual(2, bsonReader.ReadInt32());
+                Assert.AreEqual(BsonType.EndOfDocument, bsonReader.ReadBsonType());
+                bsonReader.ReadEndDocument();
+                Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
+            }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonDocument>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
         public void TestDocumentOneElement() {
             var json = "{ \"x\" : 1 }";
             using (bsonReader = BsonReader.Create(json)) {

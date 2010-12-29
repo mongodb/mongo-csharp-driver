@@ -190,6 +190,13 @@ namespace MongoDB.Bson.IO {
                 case ContextType.TopLevel: state = BsonReaderState.Done; break;
                 default: throw new BsonInternalException("Unexpected ContextType");
             }
+
+            if (context.ContextType == ContextType.Array || context.ContextType == ContextType.Document) {
+                var commaToken = PopToken();
+                if (commaToken.Type != JsonTokenType.Comma) {
+                    PushToken(commaToken);
+                }
+            }
         }
 
         public override void ReadEndDocument() {
@@ -219,6 +226,13 @@ namespace MongoDB.Bson.IO {
                 case ContextType.Document: state = BsonReaderState.Type; break;
                 case ContextType.TopLevel: state = BsonReaderState.Done; break;
                 default: throw new BsonInternalException("Unexpected ContextType");
+            }
+
+            if (context.ContextType == ContextType.Array || context.ContextType == ContextType.Document) {
+                var commaToken = PopToken();
+                if (commaToken.Type != JsonTokenType.Comma) {
+                    PushToken(commaToken);
+                }
             }
         }
 
