@@ -92,6 +92,7 @@
     <Compile Include="IO\JsonReaderContext.cs" />
     <Compile Include="IO\JsonScanner.cs" />
     <Compile Include="IO\BsonReaderBookmark.cs" />
+    <Compile Include="IO\JsonToken.cs" />
     <Compile Include="Serialization\IBsonSerializationOptions.cs" />
     <Compile Include="Serialization\IdGenerators.cs" />
     <Compile Include="DefaultSerializer\Conventions\ConventionProfile.cs" />

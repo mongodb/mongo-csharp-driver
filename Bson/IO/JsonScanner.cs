@@ -23,59 +23,6 @@ using MongoDB.Bson;
 using System.Xml;
 
 namespace MongoDB.Bson.IO {
-    public enum JsonTokenType {
-        Invalid,
-        BeginArray,
-        BeginObject,
-        EndArray,
-        EndObject,
-        Colon,
-        Comma,
-        Integer,
-        FloatingPoint,
-        String,
-        UnquotedString,
-        RegularExpression,
-        EndOfFile
-    }
-
-    public class JsonToken {
-        private JsonTokenType type;
-        private string lexeme;
-        private long integerValue;
-
-        public JsonToken(
-            JsonTokenType type,
-            string lexeme
-        ) {
-            this.type = type;
-            this.lexeme = lexeme;
-        }
-
-        public JsonTokenType Type {
-            get { return type; }
-        }
-
-        public string Lexeme {
-            get { return lexeme; }
-        }
-
-        public BsonType IntegerBsonType {
-            get {
-                integerValue = XmlConvert.ToInt64(lexeme);
-                if (integerValue >= int.MinValue && integerValue <= int.MaxValue) {
-                    return BsonType.Int32;
-                } else {
-                    return BsonType.Int64;
-                }
-            }
-        }
-
-        public long IntegerValue {
-            get { return integerValue; }
-        }
-    }
-
     public static class JsonScanner {
         #region public static methods
         public static JsonToken GetNextToken(
