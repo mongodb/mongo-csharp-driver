@@ -69,8 +69,6 @@ namespace MongoDB.Driver.Internal {
         public void Connect(
             TimeSpan timeout
         ) {
-            DateTime deadline = DateTime.UtcNow + timeout;
-
             // query all servers in seed list in parallel (they will report responses back through the responsesQueue)
             var responsesQueue = QueueSeedListQueries();
 
@@ -79,8 +77,10 @@ namespace MongoDB.Driver.Internal {
             // and eventually it will all get garbage collected
 
             var exceptions = new List<Exception>();
+            var timeoutAt = DateTime.UtcNow + timeout;
             while (responses.Count < queries.Count) {
-                var response = responsesQueue.Dequeue(deadline);
+                var timeRemaining = timeoutAt - DateTime.UtcNow;
+                var response = responsesQueue.Dequeue(timeRemaining);
                 if (response == null) {
                     break; // we timed out
                 }
