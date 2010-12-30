@@ -61,6 +61,34 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutReplace() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("name"));
+            var expected = "{ \"out\" : \"name\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutMerge() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("name"));
+            var expected = "{ \"out\" : { \"merge\" : \"name\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutReduce() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("name"));
+            var expected = "{ \"out\" : { \"reduce\" : \"name\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutInline() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Inline);
+            var expected = "{ \"out\" : { \"inline\" : 1 } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestQuery() {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1));
             var expected = "{ \"query\" : { \"x\" : 1 } }";

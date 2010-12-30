@@ -44,6 +44,10 @@ namespace MongoDB.Driver {
             get { return response["counts"].AsBsonDocument["output"].ToInt32(); }
         }
 
+        public IEnumerable<BsonDocument> InlineResults {
+            get { return response["results"].AsBsonArray.Cast<BsonDocument>(); }
+        }
+
         public int InputCount {
             get { return response["counts"].AsBsonDocument["input"].ToInt32(); }
         }
