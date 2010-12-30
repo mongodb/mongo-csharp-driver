@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Internal {
         private MongoConnection connection;
         private bool isPrimary;
         private int maxDocumentSize;
+        private int maxMessageLength;
         #endregion
 
         #region constructors
@@ -46,6 +47,10 @@ namespace MongoDB.Driver.Internal {
 
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
+        }
+
+        public int MaxMessageLength {
+            get { return maxMessageLength; }
         }
 
         public bool IsPrimary {
@@ -94,6 +99,7 @@ namespace MongoDB.Driver.Internal {
                 }
 
                 maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", server.MaxDocumentSize].ToInt32();
+                maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
             } catch {
                 try { connection.Close(); } catch { } // ignore exceptions
                 throw;

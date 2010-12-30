@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Internal {
         private List<MongoConnection> secondaryConnections = new List<MongoConnection>();
         private List<MongoServerAddress> replicaSet;
         private int maxDocumentSize;
+        private int maxMessageLength;
         #endregion
 
         #region constructors
@@ -45,6 +46,10 @@ namespace MongoDB.Driver.Internal {
         #region public properties
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
+        }
+
+        public int MaxMessageLength {
+            get { return maxMessageLength; }
         }
 
         public MongoConnection PrimaryConnection {
@@ -90,6 +95,7 @@ namespace MongoDB.Driver.Internal {
                     primaryConnection = response.Connection;
                     replicaSet = GetHostAddresses(response);
                     maxDocumentSize = response.MaxDocumentSize;
+                    maxMessageLength = response.MaxMessageLength;
                     if (!server.SlaveOk) {
                         break; // if we're not going to use the secondaries no need to wait for their replies
                     }
@@ -177,6 +183,7 @@ namespace MongoDB.Driver.Internal {
                     response.Connection = connection; // might become the first connection in the connection pool
                     response.IsPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
                     response.MaxDocumentSize = isMasterResult.Response["maxBsonObjectSize", server.MaxDocumentSize].ToInt32();
+                    response.MaxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, response.MaxDocumentSize + 1024); // derived from maxDocumentSize
 
                     if (server.Url.ReplicaSetName != null) {
                         var getStatusCommand = new CommandDocument("replSetGetStatus", 1);
@@ -215,6 +222,7 @@ namespace MongoDB.Driver.Internal {
             public CommandResult IsMasterResult { get; set; }
             public bool IsPrimary { get; set; }
             public int MaxDocumentSize { get; set; }
+            public int MaxMessageLength { get; set; }
             public MongoConnection Connection { get; set; }
             public Exception Exception { get; set; }
         }

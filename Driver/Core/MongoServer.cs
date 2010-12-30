@@ -44,6 +44,7 @@ namespace MongoDB.Driver {
         private List<MongoConnectionPool> secondaryConnectionPools;
         private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize; // will get overridden if server advertises different maxDocumentSize
+        private int maxMessageLength = MongoDefaults.MaxMessageLength; // will get overridden if server advertises different maxMessageLength
         private MongoCredentials defaultCredentials;
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         #endregion
@@ -124,6 +125,10 @@ namespace MongoDB.Driver {
 
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
+        }
+
+        public int MaxMessageLength {
+            get { return maxMessageLength; }
         }
 
         public IEnumerable<MongoServerAddress> ReplicaSet {
@@ -217,6 +222,7 @@ namespace MongoDB.Driver {
                                 secondaryConnectionPools = null;
                                 replicaSet = null;
                                 maxDocumentSize = directConnector.MaxDocumentSize;
+                                maxMessageLength = directConnector.MaxMessageLength;
                                 break;
                             case ConnectionMode.ReplicaSet:
                                 var replicaSetConnector = new ReplicaSetConnector(this);
@@ -233,6 +239,7 @@ namespace MongoDB.Driver {
                                 }
                                 replicaSet = replicaSetConnector.ReplicaSet;
                                 maxDocumentSize = replicaSetConnector.MaxDocumentSize;
+                                maxMessageLength = replicaSetConnector.MaxMessageLength;
                                 break;
                             default:
                                 throw new MongoInternalException("Invalid ConnectionMode");

@@ -475,7 +475,7 @@ namespace MongoDB.Driver {
                     }
                     message.AddDocument(document);
 
-                    if (message.MessageLength > MongoDefaults.MaxMessageLength) {
+                    if (message.MessageLength > server.MaxMessageLength) {
                         byte[] lastDocument = message.RemoveLastDocument();
                         var intermediateResult = connection.SendMessage(message, safeMode);
                         if (safeMode.Enabled) { results.Add(intermediateResult); }
