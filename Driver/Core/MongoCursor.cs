@@ -442,6 +442,7 @@ namespace MongoDB.Driver {
 
                     using (
                         var message = new MongoQueryMessage(
+                            cursor.server,
                             cursor.Collection.FullName,
                             cursor.flags,
                             cursor.skip,
@@ -472,6 +473,7 @@ namespace MongoDB.Driver {
 
                     using (
                         var message = new MongoGetMoreMessage(
+                            cursor.server,
                             cursor.Collection.FullName,
                             numberToReturn,
                             openCursorId
@@ -489,7 +491,7 @@ namespace MongoDB.Driver {
                 MongoRequestMessage message
             ) {
                 connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-                var reply = connection.ReceiveMessage<TDocument>();
+                var reply = connection.ReceiveMessage<TDocument>(cursor.server);
                 openCursorId = reply.CursorId;
                 if (openCursorId == 0) {
                     ReleaseConnection();
@@ -501,7 +503,7 @@ namespace MongoDB.Driver {
                 if (connection != null) {
                     try {
                         if (openCursorId != 0) {
-                            using (var message = new MongoKillCursorsMessage(openCursorId)) {
+                            using (var message = new MongoKillCursorsMessage(cursor.server, openCursorId)) {
                                 connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
                             }
                         }

@@ -30,7 +30,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp103 {
     public class CSharp103Tests {
         [Test]
         public void TestNullReferenceException() {
-            var server = MongoServer.Create();
+            var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database["csharp103"];
             collection.RemoveAll();

@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Internal {
 
         #region internal methods
         internal void Authenticate(
+            MongoServer server,
             string databaseName,
             MongoCredentials credentials
         ) {
@@ -88,7 +89,7 @@ namespace MongoDB.Driver.Internal {
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 string nonce;
                 try {
-                    var nonceResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand);
+                    var nonceResult = RunCommand(server, commandCollectionName, QueryFlags.None, nonceCommand);
                     nonce = nonceResult.Response["nonce"].AsString;
                 } catch (MongoCommandException ex) {
                     throw new MongoAuthenticationException("Error getting nonce for authentication", ex);
@@ -103,7 +104,7 @@ namespace MongoDB.Driver.Internal {
                     { "key", digest }
                 };
                 try {
-                    RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand);
+                    RunCommand(server, commandCollectionName, QueryFlags.None, authenticateCommand);
                 } catch (MongoCommandException ex) {
                     var message = string.Format("Invalid credentials for database: {0}", databaseName);
                     throw new MongoAuthenticationException(message, ex);
@@ -155,6 +156,7 @@ namespace MongoDB.Driver.Internal {
         }
 
         internal void CheckAuthentication(
+            MongoServer server,
             MongoDatabase database
         ) {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
@@ -181,7 +183,7 @@ namespace MongoDB.Driver.Internal {
                         // this shouldn't happen because a connection would have been chosen from the connection pool only if it was viable
                         throw new MongoInternalException("The connection cannot be authenticated against the admin database because it is already authenticated against other databases");
                     }
-                    Authenticate(authenticationDatabaseName, database.Credentials);
+                    Authenticate(server, authenticationDatabaseName, database.Credentials);
                 }
             }
         }
@@ -254,6 +256,7 @@ namespace MongoDB.Driver.Internal {
         }
 
         internal void Logout(
+            MongoServer server,
             string databaseName
         ) {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
@@ -261,7 +264,7 @@ namespace MongoDB.Driver.Internal {
                 var logoutCommand = new CommandDocument("logout", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 try {
-                    RunCommand(commandCollectionName, QueryFlags.None, logoutCommand);
+                    RunCommand(server, commandCollectionName, QueryFlags.None, logoutCommand);
                 } catch (MongoCommandException ex) {
                     throw new MongoAuthenticationException("Error logging off", ex);
                 }
@@ -273,6 +276,7 @@ namespace MongoDB.Driver.Internal {
         // this is a low level method that doesn't require a MongoServer
         // so it can be used while connecting to a MongoServer
         internal CommandResult RunCommand(
+            MongoServer server,
             string collectionName,
             QueryFlags queryFlags,
             CommandDocument command
@@ -281,6 +285,7 @@ namespace MongoDB.Driver.Internal {
 
             using (
                 var message = new MongoQueryMessage(
+                    server,
                     collectionName,
                     queryFlags,
                     0, // numberToSkip
@@ -292,7 +297,7 @@ namespace MongoDB.Driver.Internal {
                 SendMessage(message, SafeMode.False);
             }
 
-            var reply = ReceiveMessage<BsonDocument>();
+            var reply = ReceiveMessage<BsonDocument>(server);
             if (reply.NumberReturned == 0) {
                 var message = string.Format("Command '{0}' failed: no response returned", commandName);
                 throw new MongoCommandException(message);
@@ -306,13 +311,15 @@ namespace MongoDB.Driver.Internal {
             return commandResult;
         }
 
-        internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>() {
+        internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(
+            MongoServer server
+        ) {
             if (closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 try {
                     var buffer = new BsonBuffer();
                     buffer.LoadFrom(tcpClient.GetStream());
-                    var reply = new MongoReplyMessage<TDocument>();
+                    var reply = new MongoReplyMessage<TDocument>(server);
                     reply.ReadFrom(buffer);
                     return reply;
                 } catch (Exception ex) {
@@ -339,6 +346,7 @@ namespace MongoDB.Driver.Internal {
                     };
                     using (
                         var getLastErrorMessage = new MongoQueryMessage(
+                            message.Server,
                             "admin.$cmd", // collectionFullName
                             QueryFlags.None,
                             0, // numberToSkip
@@ -362,7 +370,7 @@ namespace MongoDB.Driver.Internal {
 
                 SafeModeResult safeModeResult = null;
                 if (safeMode.Enabled) {
-                    var replyMessage = ReceiveMessage<BsonDocument>();
+                    var replyMessage = ReceiveMessage<BsonDocument>(message.Server);
                     var safeModeResponse = replyMessage.Documents[0];
                     safeModeResult = new SafeModeResult();
                     safeModeResult.Initialize(safeModeCommand, safeModeResponse);

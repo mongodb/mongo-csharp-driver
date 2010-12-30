@@ -32,7 +32,7 @@ namespace MongoDB.DriverOnlineTests {
 
         [TestFixtureSetUp]
         public void Setup() {
-            server = MongoServer.Create();
+            server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
             database = server["onlinetests"];
             collection = database["testcollection"];
@@ -91,6 +91,7 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestDistinct() {
             collection.RemoveAll();
+            collection.DropAllIndexes();
             collection.Insert(new BsonDocument("x", 1));
             collection.Insert(new BsonDocument("x", 2));
             collection.Insert(new BsonDocument("x", 3));
@@ -106,6 +107,7 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestDistinctWithQuery() {
             collection.RemoveAll();
+            collection.DropAllIndexes();
             collection.Insert(new BsonDocument("x", 1));
             collection.Insert(new BsonDocument("x", 2));
             collection.Insert(new BsonDocument("x", 3));
@@ -300,7 +302,8 @@ namespace MongoDB.DriverOnlineTests {
                 "}\n";
 
             using (database.RequestStart()) {
-                var result = collection.MapReduce(map, reduce);
+                var options = MapReduceOptions.SetOutput("mrout");
+                var result = collection.MapReduce(map, reduce, options);
                 Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);

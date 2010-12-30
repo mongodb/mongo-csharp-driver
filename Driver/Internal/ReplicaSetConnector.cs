@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Internal {
         private MongoConnection primaryConnection;
         private List<MongoConnection> secondaryConnections = new List<MongoConnection>();
         private List<MongoServerAddress> replicaSet;
+        private int maxDocumentSize;
         #endregion
 
         #region constructors
@@ -42,6 +43,10 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region public properties
+        public int MaxDocumentSize {
+            get { return maxDocumentSize; }
+        }
+
         public MongoConnection PrimaryConnection {
             get { return primaryConnection; }
         }
@@ -84,6 +89,7 @@ namespace MongoDB.Driver.Internal {
                 if (response.IsPrimary) {
                     primaryConnection = response.Connection;
                     replicaSet = GetHostAddresses(response);
+                    maxDocumentSize = response.MaxDocumentSize;
                     if (!server.SlaveOk) {
                         break; // if we're not going to use the secondaries no need to wait for their replies
                     }
@@ -165,15 +171,16 @@ namespace MongoDB.Driver.Internal {
                 var connection = new MongoConnection(null, args.EndPoint); // no connection pool
                 try {
                     var isMasterCommand = new CommandDocument("ismaster", 1);
-                    var isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
+                    var isMasterResult = connection.RunCommand(server, "admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
 
                     response.IsMasterResult = isMasterResult;
                     response.Connection = connection; // might become the first connection in the connection pool
                     response.IsPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
+                    response.MaxDocumentSize = isMasterResult.Response["maxBsonObjectSize", server.MaxDocumentSize].ToInt32();
 
                     if (server.Url.ReplicaSetName != null) {
                         var getStatusCommand = new CommandDocument("replSetGetStatus", 1);
-                        var getStatusResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
+                        var getStatusResult = connection.RunCommand(server, "admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
 
                         var replicaSetName = getStatusResult.Response["set"].AsString;
                         if (replicaSetName != server.Url.ReplicaSetName) {
@@ -207,6 +214,7 @@ namespace MongoDB.Driver.Internal {
             public IPEndPoint EndPoint { get; set; }
             public CommandResult IsMasterResult { get; set; }
             public bool IsPrimary { get; set; }
+            public int MaxDocumentSize { get; set; }
             public MongoConnection Connection { get; set; }
             public Exception Exception { get; set; }
         }

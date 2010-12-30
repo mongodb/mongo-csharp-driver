@@ -43,6 +43,7 @@ namespace MongoDB.Driver {
         private MongoConnectionPool primaryConnectionPool;
         private List<MongoConnectionPool> secondaryConnectionPools;
         private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
+        private int maxDocumentSize = BsonDefaults.MaxDocumentSize; // will get overridden if server advertises different maxDocumentSize
         private MongoCredentials defaultCredentials;
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         #endregion
@@ -119,6 +120,10 @@ namespace MongoDB.Driver {
 
         public IEnumerable<IPEndPoint> EndPoints {
             get { return endPoints; }
+        }
+
+        public int MaxDocumentSize {
+            get { return maxDocumentSize; }
         }
 
         public IEnumerable<MongoServerAddress> ReplicaSet {
@@ -211,6 +216,7 @@ namespace MongoDB.Driver {
                                 primaryConnectionPool = new MongoConnectionPool(this, directConnector.Connection);
                                 secondaryConnectionPools = null;
                                 replicaSet = null;
+                                maxDocumentSize = directConnector.MaxDocumentSize;
                                 break;
                             case ConnectionMode.ReplicaSet:
                                 var replicaSetConnector = new ReplicaSetConnector(this);
@@ -226,6 +232,7 @@ namespace MongoDB.Driver {
                                     secondaryConnectionPools = null;
                                 }
                                 replicaSet = replicaSetConnector.ReplicaSet;
+                                maxDocumentSize = replicaSetConnector.MaxDocumentSize;
                                 break;
                             default:
                                 throw new MongoInternalException("Invalid ConnectionMode");
@@ -432,7 +439,7 @@ namespace MongoDB.Driver {
             lock (requestsLock) {
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
-                    request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
+                    request.Connection.CheckAuthentication(this, database); // will throw exception if authentication fails
                     return request.Connection;
                 }
             }
@@ -441,7 +448,7 @@ namespace MongoDB.Driver {
             var connection = connectionPool.GetConnection(database);
 
             try {
-                connection.CheckAuthentication(database); // will authenticate if necessary
+                connection.CheckAuthentication(this, database); // will authenticate if necessary
             } catch (MongoAuthenticationException) {
                 // don't let the connection go to waste just because authentication failed
                 connectionPool.ReleaseConnection(connection);

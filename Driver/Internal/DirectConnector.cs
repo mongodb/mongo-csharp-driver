@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Internal {
         private MongoServer server;
         private MongoConnection connection;
         private bool isPrimary;
+        private int maxDocumentSize;
         #endregion
 
         #region constructors
@@ -41,6 +42,10 @@ namespace MongoDB.Driver.Internal {
         #region public properties
         public MongoConnection Connection {
             get { return connection; }
+        }
+
+        public int MaxDocumentSize {
+            get { return maxDocumentSize; }
         }
 
         public bool IsPrimary {
@@ -81,12 +86,14 @@ namespace MongoDB.Driver.Internal {
 
             try {
                 var isMasterCommand = new CommandDocument("ismaster", 1);
-                var isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
+                var isMasterResult = connection.RunCommand(server, "admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
 
                 isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
                 if (!isPrimary && !server.SlaveOk) {
                     throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
                 }
+
+                maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", server.MaxDocumentSize].ToInt32();
             } catch {
                 try { connection.Close(); } catch { } // ignore exceptions
                 throw;

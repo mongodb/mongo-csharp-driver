@@ -36,7 +36,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp77 {
 
         [Test]
         public void TestSave() {
-            var server = MongoServer.Create();
+            var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection<Foo>("csharp77");
 
