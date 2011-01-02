@@ -26,7 +26,7 @@ namespace MongoDB.DriverUnitTests {
     public class MongoServerTests {
         [Test]
         public void TestCreateNoArgs() {
-            var server = MongoServer.Create();
+            var server = MongoServer.Create(); // no args!
             var expectedSeedList = new[] { new MongoServerAddress("localhost") };
             Assert.IsNull(server.DefaultCredentials);
             Assert.IsNull(server.ReplicaSet);

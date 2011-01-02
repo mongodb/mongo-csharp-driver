@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO {
 
         #region public properties
         public abstract BsonType CurrentBsonType { get; }
-        public abstract BsonReadState ReadState { get; }
+        public abstract BsonReaderState State { get; }
         #endregion
 
         #region public static methods
@@ -52,9 +52,9 @@ namespace MongoDB.Bson.IO {
         }
 
         public static BsonReader Create(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
-            return new BsonJsonReader(buffer);
+            return new JsonReader(buffer);
         }
 
         public static BsonReader Create(
@@ -75,14 +75,14 @@ namespace MongoDB.Bson.IO {
         public static BsonReader Create(
             string json
         ) {
-            var buffer = new BsonJsonBuffer(json);
+            var buffer = new JsonBuffer(json);
             return Create(buffer);
         }
 
         public static BsonReader Create(
-            TextReader jsonTextReader
+            TextReader textReader
         ) {
-            var json = new BsonJsonBuffer(jsonTextReader.ReadToEnd());
+            var json = textReader.ReadToEnd();
             return Create(json);
         }
         #endregion

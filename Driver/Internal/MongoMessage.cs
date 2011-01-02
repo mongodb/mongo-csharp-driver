@@ -25,6 +25,7 @@ using MongoDB.Bson.IO;
 namespace MongoDB.Driver.Internal {
     internal abstract class MongoMessage {
         #region protected fields
+        protected MongoServer server;
         protected int messageLength;
         protected int requestId;
         protected int responseTo;
@@ -33,13 +34,19 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         protected MongoMessage(
+            MongoServer server,
             MessageOpcode opcode
         ) {
+            this.server = server;
             this.opcode = opcode;
         }
         #endregion
 
         #region internal properties
+        internal MongoServer Server {
+            get { return server; }
+        }
+
         internal int MessageLength {
             get { return messageLength; }
         }

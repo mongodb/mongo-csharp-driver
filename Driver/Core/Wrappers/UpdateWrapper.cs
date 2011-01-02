@@ -25,9 +25,15 @@ namespace MongoDB.Driver {
     public class UpdateWrapper : BaseWrapper, IMongoUpdate {
         #region constructors
         public UpdateWrapper(
+            object update
+        )
+            : base(update) {
+        }
+
+        public UpdateWrapper(
             Type nominalType,
             object update
-        ) 
+        )
             : base(nominalType, update) {
         }
         #endregion
@@ -36,7 +42,21 @@ namespace MongoDB.Driver {
         public static UpdateWrapper Create<T>(
             T update
         ) {
-            return new UpdateWrapper(typeof(T), update);
+            if (update == null) {
+                return null;
+            } else {
+                return new UpdateWrapper(typeof(T), update);
+            }
+        }
+
+        public static UpdateWrapper Create(
+            object update
+        ) {
+            if (update == null) {
+                return null;
+            } else {
+                return new UpdateWrapper(update);
+            }
         }
         #endregion
     }

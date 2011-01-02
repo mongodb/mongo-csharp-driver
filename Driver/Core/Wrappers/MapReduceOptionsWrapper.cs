@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class MapReduceOptionsWrapper : BaseWrapper, IMongoMapReduceOptions {
         #region constructors
         public MapReduceOptionsWrapper(
-            Type nominalType,
             object options
         )
-            : base(nominalType, options) {
+            : base(options) {
         }
         #endregion
 
         #region public static methods
-        public static MapReduceOptionsWrapper Create<T>(
-            T options
+        public static MapReduceOptionsWrapper Create(
+            object options
         ) {
-            return new MapReduceOptionsWrapper(typeof(T), options);
+            if (options == null) {
+                return null;
+            } else {
+                return new MapReduceOptionsWrapper(options);
+            }
         }
         #endregion
     }

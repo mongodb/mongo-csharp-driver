@@ -33,9 +33,10 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoInsertMessage(
+            MongoServer server,
             string collectionFullName
         )
-            : base(MessageOpcode.Insert) {
+            : base(server, MessageOpcode.Insert) {
             this.collectionFullName = collectionFullName;
         }
         #endregion
@@ -45,7 +46,7 @@ namespace MongoDB.Driver.Internal {
             TDocument document
         ) {
             lastDocumentStartPosition = buffer.Position;
-            var bsonWriter = BsonWriter.Create(buffer);
+            var bsonWriter = CreateBsonWriter();
             BsonSerializer.Serialize(bsonWriter, document, DocumentSerializationOptions.SerializeIdFirstInstance);
             BackpatchMessageLength();
         }

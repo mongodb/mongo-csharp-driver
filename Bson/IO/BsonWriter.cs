@@ -64,19 +64,19 @@ namespace MongoDB.Bson.IO {
         public static BsonWriter Create(
             TextWriter writer
         ) {
-            return new BsonJsonWriter(writer, BsonJsonWriterSettings.Defaults);
+            return new JsonWriter(writer, JsonWriterSettings.Defaults);
         }
 
         public static BsonWriter Create(
             TextWriter writer,
-            BsonJsonWriterSettings settings
+            JsonWriterSettings settings
         ) {
-            return new BsonJsonWriter(writer, settings);
+            return new JsonWriter(writer, settings);
         }
         #endregion
 
         #region public properties
-        public abstract BsonWriteState WriteState { get; }
+        public abstract BsonWriterState State { get; }
         #endregion
 
         #region public methods

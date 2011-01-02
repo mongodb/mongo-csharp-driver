@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class GroupByWrapper : BaseWrapper, IMongoGroupBy {
         #region constructors
         public GroupByWrapper(
-            Type nominalType,
             object groupBy
         )
-            : base(nominalType, groupBy) {
+            : base(groupBy) {
         }
         #endregion
 
         #region public static methods
-        public static GroupByWrapper Create<T>(
-            T groupBy
+        public static GroupByWrapper Create(
+            object groupBy
         ) {
-            return new GroupByWrapper(typeof(T), groupBy);
+            if (groupBy == null) {
+                return null;
+            } else {
+                return new GroupByWrapper(groupBy);
+            }
         }
         #endregion
     }

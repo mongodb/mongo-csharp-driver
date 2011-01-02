@@ -19,14 +19,11 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public enum BsonReadState {
+    public enum BsonWriterState {
         Initial,
-        Type,
         Name,
         Value,
         ScopeDocument,
-        EndOfDocument,
-        EndOfArray,
         Done,
         Closed
     }

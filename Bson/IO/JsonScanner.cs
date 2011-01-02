@@ -23,63 +23,10 @@ using MongoDB.Bson;
 using System.Xml;
 
 namespace MongoDB.Bson.IO {
-    public enum JsonTokenType {
-        Invalid,
-        BeginArray,
-        BeginObject,
-        EndArray,
-        EndObject,
-        Colon,
-        Comma,
-        Integer,
-        FloatingPoint,
-        String,
-        UnquotedString,
-        RegularExpression,
-        EndOfFile
-    }
-
-    public class JsonToken {
-        private JsonTokenType type;
-        private string lexeme;
-        private long integerValue;
-
-        public JsonToken(
-            JsonTokenType type,
-            string lexeme
-        ) {
-            this.type = type;
-            this.lexeme = lexeme;
-        }
-
-        public JsonTokenType Type {
-            get { return type; }
-        }
-
-        public string Lexeme {
-            get { return lexeme; }
-        }
-
-        public BsonType IntegerBsonType {
-            get {
-                integerValue = XmlConvert.ToInt64(lexeme);
-                if (integerValue >= int.MinValue && integerValue <= int.MaxValue) {
-                    return BsonType.Int32;
-                } else {
-                    return BsonType.Int64;
-                }
-            }
-        }
-
-        public long IntegerValue {
-            get { return integerValue; }
-        }
-    }
-
-    public static class BsonJsonScanner {
+    public static class JsonScanner {
         #region public static methods
         public static JsonToken GetNextToken(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             // skip leading whitespace
             var c = buffer.Read();
@@ -116,7 +63,7 @@ namespace MongoDB.Bson.IO {
         #region private methods
         private static string FormatMessage(
             string message,
-            BsonJsonBuffer buffer,
+            JsonBuffer buffer,
             int start
         ) {
             var length = 20;
@@ -130,7 +77,7 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetNumberToken(
-            BsonJsonBuffer buffer,
+            JsonBuffer buffer,
             int c // first character
         ) {
             // leading digit or '-' has already been read
@@ -296,7 +243,7 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetRegularExpressionToken(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             // opening slash has already been read
             var start = buffer.Position - 1;
@@ -350,7 +297,7 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetStringToken(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             // opening quote has already been read
             var start = buffer.Position - 1;
@@ -403,7 +350,7 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetUnquotedStringToken(
-            BsonJsonBuffer buffer
+            JsonBuffer buffer
         ) {
             // opening letter or $ has already been read
             var start = buffer.Position - 1;

@@ -44,10 +44,10 @@ namespace MongoDB.Driver.Builders {
             return new IndexKeysBuilder().GeoSpatial(name);
         }
 
-        public static IMongoIndexKeys Wrap<T>(
-            T keys
+        public static IMongoIndexKeys Wrap(
+            object keys
         ) {
-            return new IndexKeysWrapper(typeof(T), keys);
+            return IndexKeysWrapper.Create(keys);
         }
         #endregion
     }

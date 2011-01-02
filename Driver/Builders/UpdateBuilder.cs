@@ -136,11 +136,11 @@ namespace MongoDB.Driver.Builders {
             return new UpdateBuilder().PushAll(name, values);
         }
 
-        // equivalent to Wrap, entire document will be replaced
+        // similar to wrap but used when a full document replacement is wanted (<T> allows control over discriminator)
         public static IMongoUpdate Replace<T>(
-            T update
+            T document
         ) {
-            return new UpdateWrapper(typeof(T), update);
+            return UpdateWrapper.Create<T>(document);
         }
 
         public static UpdateBuilder Set(
@@ -156,10 +156,11 @@ namespace MongoDB.Driver.Builders {
             return new UpdateBuilder().Unset(name);
         }
 
-        public static IMongoUpdate Wrap<T>(
-            T update
+        // use Replace when update is a complete document replacement
+        public static IMongoUpdate Wrap(
+            object update
         ) {
-            return new UpdateWrapper(typeof(T), update);
+            return UpdateWrapper.Create(update);
         }
         #endregion
     }

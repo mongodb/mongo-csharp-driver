@@ -30,7 +30,7 @@ namespace MongoDB.DriverOnlineTests {
 
         [TestFixtureSetUp]
         public void Setup() {
-            server = MongoServer.Create();
+            server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
             server.DropDatabase("onlinetests");
             database = server["onlinetests"];

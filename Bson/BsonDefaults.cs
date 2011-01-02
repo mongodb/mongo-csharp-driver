@@ -21,8 +21,8 @@ using System.Text;
 namespace MongoDB.Bson {
     public static class BsonDefaults {
         #region private static fields
-        private static int initialBsonBufferSize = 4 * 1024; // 4KB
-        private static int maxDocumentSize = 4 * 1024 * 1024; // 4MB
+        private static int initialBsonBufferSize = 4 * 1024; // 4KiB
+        private static int maxDocumentSize = 4 * 1024 * 1024; // 4MiB
         #endregion
 
         #region public static properties

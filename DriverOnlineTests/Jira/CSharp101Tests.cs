@@ -63,7 +63,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
 
         [TestFixtureSetUp]
         public void TestFixtureSetUpAttribute() {
-            server = MongoServer.Create();
+            server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database["csharp101"];
         }

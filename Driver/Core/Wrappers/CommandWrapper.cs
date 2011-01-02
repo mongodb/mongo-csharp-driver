@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class CommandWrapper : QueryWrapper, IMongoCommand {
         #region constructors
         public CommandWrapper(
-            Type nominalType,
             object command
         )
-            : base(nominalType, command) {
+            : base(command) {
         }
         #endregion
 
         #region public static methods
-        public static new CommandWrapper Create<T>(
-            T command
+        public static new CommandWrapper Create(
+            object command
         ) {
-            return new CommandWrapper(typeof(T), command);
+            if (command == null) {
+                return null;
+            } else {
+                return new CommandWrapper(command);
+            }
         }
         #endregion
     }

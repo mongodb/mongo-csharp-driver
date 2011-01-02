@@ -38,16 +38,18 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         protected MongoRequestMessage(
+            MongoServer server,
             MessageOpcode opcode
         )
-            : this(opcode, null) {
+            : this(server, opcode, null) {
         }
 
         protected MongoRequestMessage(
+            MongoServer server,
             MessageOpcode opcode,
             BsonBuffer buffer // not null if piggybacking this message onto an existing buffer
         )
-            : base(opcode) {
+            : base(server, opcode) {
             this.buffer = buffer ?? new BsonBuffer();
             this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
             this.requestId = Interlocked.Increment(ref lastRequestId);
@@ -85,6 +87,11 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region protected methods
+        protected BsonWriter CreateBsonWriter() {
+            var settings = new BsonBinaryWriterSettings { MaxDocumentSize = server.MaxDocumentSize };
+            return BsonWriter.Create(buffer, settings);
+        }
+
         protected void BackpatchMessageLength() {
             messageLength = buffer.Position - messageStartPosition;
             buffer.Backpatch(messageStartPosition, messageLength);

@@ -29,12 +29,15 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp93 {
     public class CSharp93Tests {
         [Test]
         public void TestDropAllIndexes() {
-            var server = MongoServer.Create();
+            var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection("csharp93");
 
-            collection.Insert(new BsonDocument()); // make sure collection exists
-            collection.DropAllIndexes();
+            if (collection.Exists()) {
+                collection.DropAllIndexes();
+            } else {
+                collection.Insert(new BsonDocument()); // make sure collection exists
+            }
 
             collection.EnsureIndex("x", "y");
             collection.DropIndex("x", "y");
@@ -45,12 +48,15 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp93 {
 
         [Test]
         public void EnsureIndex_SetUniqueTrue_Success() {
-            var server = MongoServer.Create();
+            var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection("csharp93");
 
-            collection.Insert(new BsonDocument()); // make sure collection exists
-            collection.DropAllIndexes();
+            if (collection.Exists()) {
+                collection.DropAllIndexes();
+            } else {
+                collection.Insert(new BsonDocument()); // make sure collection exists
+            }
 
             collection.EnsureIndex(IndexKeys.Ascending("x"), IndexOptions.SetUnique(true));
             collection.EnsureIndex(IndexKeys.Ascending("y"), IndexOptions.SetUnique(false));

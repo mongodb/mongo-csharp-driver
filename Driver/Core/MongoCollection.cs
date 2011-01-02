@@ -458,7 +458,7 @@ namespace MongoDB.Driver {
 
             var connection = server.GetConnection(database, false); // not slaveOk
 
-            using (var message = new MongoInsertMessage(FullName)) {
+            using (var message = new MongoInsertMessage(server, FullName)) {
                 message.WriteToBuffer(); // must be called before AddDocument
 
                 foreach (var document in documents) {
@@ -475,7 +475,7 @@ namespace MongoDB.Driver {
                     }
                     message.AddDocument(document);
 
-                    if (message.MessageLength > MongoDefaults.MaxMessageLength) {
+                    if (message.MessageLength > server.MaxMessageLength) {
                         byte[] lastDocument = message.RemoveLastDocument();
                         var intermediateResult = connection.SendMessage(message, safeMode);
                         if (safeMode.Enabled) { results.Add(intermediateResult); }
@@ -579,7 +579,7 @@ namespace MongoDB.Driver {
                 }
             }
 
-            using (var message = new MongoDeleteMessage(FullName, flags, query)) {
+            using (var message = new MongoDeleteMessage(server, FullName, flags, query)) {
                 var connection = server.GetConnection(database, false); // not slaveOk
                 var result = connection.SendMessage(message, safeMode);
                 server.ReleaseConnection(connection);
@@ -669,7 +669,7 @@ namespace MongoDB.Driver {
                 }
             }
 
-            using (var message = new MongoUpdateMessage(FullName, flags, query, update)) {
+            using (var message = new MongoUpdateMessage(server, FullName, flags, query, update)) {
                 var connection = server.GetConnection(database, false); // not slaveOk
                 var result = connection.SendMessage(message, safeMode);
                 server.ReleaseConnection(connection);

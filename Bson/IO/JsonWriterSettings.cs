@@ -20,9 +20,9 @@ using System.Text;
 
 namespace MongoDB.Bson.IO {
     [Serializable]
-    public class BsonJsonWriterSettings {
+    public class JsonWriterSettings {
         #region private static fields
-        private static BsonJsonWriterSettings defaults = new BsonJsonWriterSettings();
+        private static JsonWriterSettings defaults = new JsonWriterSettings();
         #endregion
 
         #region private fields
@@ -31,16 +31,16 @@ namespace MongoDB.Bson.IO {
         private bool indent = false;
         private string indentChars = "  ";
         private string newLineChars = "\r\n";
-        private BsonJsonOutputMode outputMode = BsonJsonOutputMode.Strict;
+        private JsonOutputMode outputMode = JsonOutputMode.Strict;
         #endregion
 
         #region constructors
-        public BsonJsonWriterSettings() {
+        public JsonWriterSettings() {
         }
         #endregion
 
         #region public static properties
-        public static BsonJsonWriterSettings Defaults {
+        public static JsonWriterSettings Defaults {
             get { return defaults; } // TODO: clone?
         }
         #endregion
@@ -71,7 +71,7 @@ namespace MongoDB.Bson.IO {
             set { newLineChars = value; }
         }
 
-        public BsonJsonOutputMode OutputMode {
+        public JsonOutputMode OutputMode {
             get { return outputMode; }
             set { outputMode = value; }
         }

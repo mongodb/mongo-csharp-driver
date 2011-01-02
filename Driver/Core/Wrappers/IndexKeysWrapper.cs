@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class IndexKeysWrapper : BaseWrapper, IMongoIndexKeys {
         #region constructors
         public IndexKeysWrapper(
-            Type nominalType,
             object keys
         )
-            : base(nominalType, keys) {
+            : base(keys) {
         }
         #endregion
 
         #region public static methods
-        public static IndexKeysWrapper Create<T>(
-            T keys
+        public static IndexKeysWrapper Create(
+            object keys
         ) {
-            return new IndexKeysWrapper(typeof(T), keys);
+            if (keys == null) {
+                return null;
+            } else {
+                return new IndexKeysWrapper(keys);
+            }
         }
         #endregion
     }

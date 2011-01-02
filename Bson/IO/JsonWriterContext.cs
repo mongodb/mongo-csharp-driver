@@ -20,17 +20,17 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    internal class BsonJsonWriterContext {
+    internal class JsonWriterContext {
         #region private fields
-        private BsonJsonWriterContext parentContext;
+        private JsonWriterContext parentContext;
         private ContextType contextType;
         private string indentation;
         private bool hasElements = false;
         #endregion
 
         #region constructors
-        internal BsonJsonWriterContext(
-            BsonJsonWriterContext parentContext,
+        internal JsonWriterContext(
+            JsonWriterContext parentContext,
             ContextType contextType,
             string indentChars
         ) {
@@ -41,7 +41,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region internal properties
-        internal BsonJsonWriterContext ParentContext {
+        internal JsonWriterContext ParentContext {
             get { return parentContext; }
         }
 

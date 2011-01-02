@@ -24,6 +24,67 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
+    public class MapReduceOutput {
+        #region private fields
+        private string option;
+        private BsonValue value;
+        #endregion
+
+        #region constructors
+        private MapReduceOutput(
+            string option,
+            BsonValue value
+        ) {
+            this.option = option;
+            this.value = value;
+        }
+        #endregion
+
+        #region implicit operators
+        public static implicit operator MapReduceOutput(
+            string collectionName
+        ) {
+            return MapReduceOutput.Replace(collectionName);
+        }
+        #endregion
+
+        #region public static properties
+        public static MapReduceOutput Inline {
+            get { return new MapReduceOutput("inline", 1); }
+        }
+        #endregion
+
+        #region public static methods
+        public static MapReduceOutput Replace(
+            string collectionName
+        ) {
+            return new MapReduceOutput(null, collectionName);
+        }
+
+        public static MapReduceOutput Merge(
+            string collectionName
+        ) {
+            return new MapReduceOutput("merge", collectionName);
+        }
+
+        public static MapReduceOutput Reduce(
+            string collectionName
+        ) {
+            return new MapReduceOutput("reduce", collectionName);
+        }
+        #endregion
+
+        #region internal methods
+        public BsonValue ToBsonValue() {
+            if (option == null) {
+                return value;
+            } else {
+                return new BsonDocument(option, value);
+            }
+        }
+        #endregion
+    }
+
     public static class MapReduceOptions {
         #region public static properties
         public static IMongoMapReduceOptions Null {
@@ -51,9 +112,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         public static MapReduceOptionsBuilder SetOutput(
-            string collectionName
+            MapReduceOutput output
         ) {
-            return new MapReduceOptionsBuilder().SetOutput(collectionName);
+            return new MapReduceOptionsBuilder().SetOutput(output);
         }
 
         public static MapReduceOptionsBuilder SetQuery(
@@ -86,10 +147,10 @@ namespace MongoDB.Driver.Builders {
             return new MapReduceOptionsBuilder().SetVerbose(value);
         }
 
-        public static IMongoMapReduceOptions Wrap<T>(
-            T options
+        public static IMongoMapReduceOptions Wrap(
+            object options
         ) {
-            return new MapReduceOptionsWrapper(typeof(T), options);
+            return MapReduceOptionsWrapper.Create(options);
         }
         #endregion
     }
@@ -129,9 +190,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         public MapReduceOptionsBuilder SetOutput(
-            string collectionName
+            MapReduceOutput output
         ) {
-            document["out"] = collectionName;
+            document["out"] = output.ToBsonValue();
             return this;
         }
 

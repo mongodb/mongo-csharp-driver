@@ -20,19 +20,19 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    internal class BsonJsonReaderContext {
+    internal class JsonReaderContext {
         #region private fields
-        private BsonJsonReaderContext parentContext;
+        private JsonReaderContext parentContext;
         private ContextType contextType;
         #endregion
 
         #region constructors
         // used by Clone
-        private BsonJsonReaderContext() {
+        private JsonReaderContext() {
         }
 
-        internal BsonJsonReaderContext(
-            BsonJsonReaderContext parentContext,
+        internal JsonReaderContext(
+            JsonReaderContext parentContext,
             ContextType contextType
         ) {
             this.parentContext = parentContext;
@@ -47,14 +47,14 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
-        public BsonJsonReaderContext Clone() {
-            var clone = new BsonJsonReaderContext();
+        public JsonReaderContext Clone() {
+            var clone = new JsonReaderContext();
             clone.parentContext = this.parentContext;
             clone.contextType = this.contextType;
             return clone;
         }
 
-        public BsonJsonReaderContext PopContext() {
+        public JsonReaderContext PopContext() {
             return parentContext;
         }
         #endregion

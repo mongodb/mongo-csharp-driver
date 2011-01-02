@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class IndexOptionsWrapper : BaseWrapper, IMongoIndexOptions {
         #region constructors
         public IndexOptionsWrapper(
-            Type nominalType,
             object options
         )
-            : base(nominalType, options) {
+            : base(options) {
         }
         #endregion
 
         #region public static methods
-        public static IndexOptionsWrapper Create<T>(
-            T options
+        public static IndexOptionsWrapper Create(
+            object options
         ) {
-            return new IndexOptionsWrapper(typeof(T), options);
+            if (options == null) {
+                return null;
+            } else {
+                return new IndexOptionsWrapper(options);
+            }
         }
         #endregion
     }

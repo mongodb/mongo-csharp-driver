@@ -19,9 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public class BsonJsonReaderBookmark : BsonReaderBookmark {
+    public class JsonReaderBookmark : BsonReaderBookmark {
         #region private fields
-        private BsonJsonReaderContext context;
+        private JsonReaderContext context;
         private JsonToken currentToken;
         private BsonValue currentValue;
         private JsonToken pushedToken;
@@ -29,11 +29,11 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
-        internal BsonJsonReaderBookmark(
-            BsonReadState state,
+        internal JsonReaderBookmark(
+            BsonReaderState state,
             BsonType currentBsonType,
             string currentName,
-            BsonJsonReaderContext context,
+            JsonReaderContext context,
             JsonToken currentToken,
             BsonValue currentValue,
             JsonToken pushedToken,
@@ -49,7 +49,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region internal properties
-        internal BsonJsonReaderContext Context {
+        internal JsonReaderContext Context {
             get { return context; }
         }
 

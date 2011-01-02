@@ -32,7 +32,7 @@ namespace MongoDB.DriverOnlineTests {
 
         [TestFixtureSetUp]
         public void Setup() {
-            server = MongoServer.Create();
+            server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
             database = server["onlinetests"];
             collection = database["testcollection"];
@@ -91,6 +91,7 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestDistinct() {
             collection.RemoveAll();
+            collection.DropAllIndexes();
             collection.Insert(new BsonDocument("x", 1));
             collection.Insert(new BsonDocument("x", 2));
             collection.Insert(new BsonDocument("x", 3));
@@ -106,6 +107,7 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestDistinctWithQuery() {
             collection.RemoveAll();
+            collection.DropAllIndexes();
             collection.Insert(new BsonDocument("x", 1));
             collection.Insert(new BsonDocument("x", 2));
             collection.Insert(new BsonDocument("x", 3));
@@ -300,7 +302,8 @@ namespace MongoDB.DriverOnlineTests {
                 "}\n";
 
             using (database.RequestStart()) {
-                var result = collection.MapReduce(map, reduce);
+                var options = MapReduceOptions.SetOutput("mrout");
+                var result = collection.MapReduce(map, reduce, options);
                 Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);
@@ -316,6 +319,57 @@ namespace MongoDB.DriverOnlineTests {
                     { "_id", 3 }
                 };
                 foreach (var document in database[result.CollectionName].FindAll()) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
+            }
+        }
+
+        [Test]
+        public void TestMapReduceInline() {
+            // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
+            // by Kristina Chodorow and Michael Dirolf
+
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+            collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+            collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+
+            var map =
+                "function() {\n" +
+                "    for (var key in this) {\n" +
+                "        emit(key, {count : 1});\n" +
+                "    }\n" +
+                "}\n";
+
+            var reduce =
+                "function(key, emits) {\n" +
+                "    total = 0;\n" +
+                "    for (var i in emits) {\n" +
+                "        total += emits[i].count;\n" +
+                "    }\n" +
+                "    return {count : total};\n" +
+                "}\n";
+
+            using (database.RequestStart()) {
+                var options = MapReduceOptions.SetOutput(MapReduceOutput.Inline);
+                var result = collection.MapReduce(map, reduce, options);
+                Assert.IsTrue(result.Ok);
+                Assert.IsTrue(result.Duration >= TimeSpan.Zero);
+                Assert.AreEqual(9, result.EmitCount);
+                Assert.AreEqual(5, result.OutputCount);
+                Assert.AreEqual(3, result.InputCount);
+                Assert.IsNullOrEmpty(result.CollectionName);
+
+                var expectedCounts = new Dictionary<string, int> {
+                    { "A", 1 },
+                    { "B", 3 },
+                    { "C", 1 },
+                    { "X", 1 },
+                    { "_id", 3 }
+                };
+                foreach (var document in result.InlineResults) {
                     var key = document["_id"].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);

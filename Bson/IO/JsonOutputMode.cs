@@ -18,29 +18,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-
-namespace MongoDB.Driver {
-    public class SortByWrapper : BaseWrapper, IMongoSortBy {
-        #region constructors
-        public SortByWrapper(
-            object sortBy
-        )
-            : base(sortBy) {
-        }
-        #endregion
-
-        #region public static methods
-        public static SortByWrapper Create(
-            object sortBy
-        ) {
-            if (sortBy == null) {
-                return null;
-            } else {
-                return new SortByWrapper(sortBy);
-            }
-        }
-        #endregion
+namespace MongoDB.Bson.IO {
+    public enum JsonOutputMode {
+        Strict,
+        JavaScript,
+        TenGen
     }
 }

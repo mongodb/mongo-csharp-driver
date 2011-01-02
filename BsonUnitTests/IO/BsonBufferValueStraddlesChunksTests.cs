@@ -27,7 +27,7 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
     public class BsonBufferValueStraddlesChunksTests {
-        private static int chunkSize = 16 * 1024; // 16KB
+        private static int chunkSize = 16 * 1024; // 16KiB
         private static int used = 16;
         private static int filler = chunkSize - used;
 

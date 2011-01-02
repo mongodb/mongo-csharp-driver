@@ -15,13 +15,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    public enum BsonJsonOutputMode {
-        Strict,
-        JavaScript,
-        TenGen
+    // this enum is used by BsonReaders and BsonWriters
+    internal enum ContextType {
+        TopLevel,
+        Document,
+        Array,
+        JavaScriptWithScope,
+        ScopeDocument
     }
 }
