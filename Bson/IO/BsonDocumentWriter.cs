@@ -11,7 +11,7 @@ namespace MongoDB.Bson.IO
         {
         }
         private Stack<BsonValue> _workStack = new Stack<BsonValue>();
-        private BsonWriteState _state = BsonWriteState.Initial;
+        private BsonWriterState _state = BsonWriterState.Initial;
         private BsonValue _rootDoc = null;
         private string _pendingElementName = "";
 
@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO
             return _workStack.Peek();
         }
 
-        public override BsonWriteState WriteState
+        public override BsonWriterState State
         {
             get
             {
