@@ -28,8 +28,7 @@ namespace MongoDB.Driver.Internal {
         private MongoServer server;
         private IPEndPoint endPoint;
         private List<MongoConnection> pool = new List<MongoConnection>();
-        private int maxPoolSize = 10; // TODO: make configurable?
-        private TimeSpan maxIdleTime = TimeSpan.FromMinutes(10); // TODO: make configurable?
+        private MongoConnectionPoolSettings settings;
         #endregion
 
         #region constructors
@@ -38,6 +37,7 @@ namespace MongoDB.Driver.Internal {
             MongoConnection firstConnection
         ) {
             this.server = server;
+            this.settings = server.ConnectionPoolSettings;
             this.endPoint = firstConnection.EndPoint;
 
             pool.Add(firstConnection);
@@ -122,13 +122,13 @@ namespace MongoDB.Driver.Internal {
             lock (connectionPoolLock) {
                 if (!closed) {
                     // close connections that haven't been used for 10 minutes or more (should this be on a timer?)
-                    DateTime cutoff = DateTime.UtcNow - maxIdleTime;
+                    DateTime cutoff = DateTime.UtcNow - settings.MaxConnectionIdleTime;
                     foreach (var idleConnection in pool.Where(c => c.LastUsed < cutoff).ToList()) {
                         ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, idleConnection);
                         pool.Remove(idleConnection);
                     }
 
-                    if (pool.Count == maxPoolSize) {
+                    if (pool.Count == settings.MaxConnectionPoolSize) {
                         ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, pool[0]); // close oldest connection
                         pool.RemoveAt(0);
                     }

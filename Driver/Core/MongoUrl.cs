@@ -37,13 +37,21 @@ namespace MongoDB.Driver {
 
         #region private fields
         private ConnectionMode connectionMode;
+        private TimeSpan connectTimeout;
         private MongoCredentials credentials;
         private string databaseName;
+        private TimeSpan maxConnectionIdleTime;
+        private TimeSpan maxConnectionLifeTime;
+        private int maxConnectionPoolSize;
+        private int minConnectionPoolSize;
         private string replicaSetName;
         private SafeMode safeMode;
         private IEnumerable<MongoServerAddress> servers;
         private bool slaveOk;
+        private TimeSpan socketTimeout;
         private string url;
+        private int waitQueueSize;
+        private TimeSpan waitQueueTimeout;
         #endregion
 
         #region constructors
@@ -51,14 +59,22 @@ namespace MongoDB.Driver {
             string url
         ) {
             var builder = new MongoUrlBuilder(url);
-            this.url = builder.ToString(); // keep canonical form
-            this.credentials = builder.Credentials;
-            this.servers = builder.Servers;
-            this.databaseName = builder.DatabaseName;
             this.connectionMode = builder.ConnectionMode;
+            this.connectTimeout = builder.ConnectTimeout;
+            this.credentials = builder.Credentials;
+            this.databaseName = builder.DatabaseName;
+            this.maxConnectionIdleTime = builder.MaxConnectionIdleTime;
+            this.maxConnectionLifeTime = builder.MaxConnectionLifeTime;
+            this.maxConnectionPoolSize = builder.MaxConnectionPoolSize;
+            this.minConnectionPoolSize = builder.MinConnectionPoolSize;
             this.replicaSetName = builder.ReplicaSetName;
             this.safeMode = builder.SafeMode ?? SafeMode.False; // never null
+            this.servers = builder.Servers;
             this.slaveOk = builder.SlaveOk;
+            this.socketTimeout = builder.SocketTimeout;
+            this.url = builder.ToString(); // keep canonical form
+            this.waitQueueSize = builder.WaitQueueSize;
+            this.waitQueueTimeout = builder.WaitQueueTimeout;
         }
         #endregion
 
@@ -67,12 +83,47 @@ namespace MongoDB.Driver {
             get { return connectionMode; }
         }
 
+        public MongoConnectionPoolSettings ConnectionPoolSettings {
+            get {
+                return new MongoConnectionPoolSettings(
+                    connectTimeout,
+                    maxConnectionIdleTime,
+                    maxConnectionLifeTime,
+                    maxConnectionPoolSize,
+                    minConnectionPoolSize,
+                    socketTimeout,
+                    waitQueueSize,
+                    waitQueueTimeout
+                );
+            }
+        }
+
+        public TimeSpan ConnectTimeout {
+            get { return connectTimeout; }
+        }
+
         public MongoCredentials Credentials {
             get { return credentials; }
         }
 
         public string DatabaseName {
             get { return databaseName; }
+        }
+
+        public TimeSpan MaxConnectionIdleTime {
+            get { return maxConnectionIdleTime; }
+        }
+
+        public TimeSpan MaxConnectionLifeTime {
+            get { return maxConnectionLifeTime; }
+        }
+
+        public int MaxConnectionPoolSize {
+            get { return maxConnectionPoolSize; }
+        }
+
+        public int MinConnectionPoolSize {
+            get { return minConnectionPoolSize; }
         }
 
         public string ReplicaSetName {
@@ -95,8 +146,20 @@ namespace MongoDB.Driver {
             get { return slaveOk; }
         }
 
+        public TimeSpan SocketTimeout {
+            get { return socketTimeout; }
+        }
+
         public string Url {
             get { return url; }
+        }
+
+        public int WaitQueueSize {
+            get { return waitQueueSize; }
+        }
+
+        public TimeSpan WaitQueueTimeout {
+            get { return waitQueueTimeout; }
         }
         #endregion
 

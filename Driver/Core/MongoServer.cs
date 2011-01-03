@@ -40,6 +40,7 @@ namespace MongoDB.Driver {
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> replicaSet;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
+        private MongoConnectionPoolSettings connectionPoolSettings;
         private MongoConnectionPool primaryConnectionPool;
         private List<MongoConnectionPool> secondaryConnectionPools;
         private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
@@ -55,6 +56,7 @@ namespace MongoDB.Driver {
         ) {
             this.url = url;
             this.defaultCredentials = url.Credentials;
+            this.connectionPoolSettings = url.ConnectionPoolSettings;
 
             foreach (var address in url.Servers) {
                 addresses.Add(address);
@@ -113,6 +115,10 @@ namespace MongoDB.Driver {
 
         public IEnumerable<MongoServerAddress> Addresses {
             get { return addresses; }
+        }
+
+        public MongoConnectionPoolSettings ConnectionPoolSettings {
+            get { return connectionPoolSettings; }
         }
 
         public MongoCredentials DefaultCredentials {
