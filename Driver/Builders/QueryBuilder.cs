@@ -50,7 +50,45 @@ namespace MongoDB.Driver.Builders {
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
-                document.Add(query.ToBsonDocument());
+                var queryDocument = query.ToBsonDocument();
+                foreach (BsonElement queryElement in queryDocument) {
+
+                    // Automatically support {"name": {$op1: ..., $op2: ...}} from a single Query.And(
+                    if (document.Contains(queryElement.Name)) {
+                        var subDocumentValue = document[queryElement.Name];
+                        var subQueriesValue = queryElement.Value;
+
+                        // Make sure that no conditions are Query.EQ, because duplicates aren't allowed
+                        if (
+                            subDocumentValue.BsonType != BsonType.Document ||
+                            subQueriesValue.BsonType != BsonType.Document) {
+
+                                throw new InvalidOperationException(
+                                    string.Format(
+                                    "Can not use Query.And with multiple Query.EQ for the same value: {0}",
+                                    queryElement.Name));
+                        }
+
+                        var subDocument = subDocumentValue.AsBsonDocument;
+                        var subQueries = subQueriesValue.AsBsonDocument;
+
+                        // Add each subquery
+                        foreach (BsonElement subQueryElement in subQueries) {
+                            // Make sure that there are no duplicate $operators
+                            if (subDocument.Contains(subQueryElement.Name)) {
+                                throw new InvalidOperationException(
+                                    string.Format(
+                                    "Can not use Query.And with multiple {1} for the same value: {0}",
+                                    queryElement.Name,
+                                    subQueryElement.Name));
+                            } else {
+                                subDocument[subQueryElement.Name] = subQueryElement.Value;
+                            }
+                        }
+                    } else {
+                        document[queryElement.Name] = queryElement.Value;
+                    }
+                }
             }
             return new QueryComplete(document);
         }
