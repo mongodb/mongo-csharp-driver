@@ -50,8 +50,7 @@ namespace MongoDB.Driver.Builders {
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
-                var queryDocument = query.ToBsonDocument();
-                foreach (BsonElement queryElement in queryDocument) {
+                foreach (BsonElement queryElement in query.ToBsonDocument()) {
 
                     // Automatically support {"name": {$op1: ..., $op2: ...}} from a single Query.And(
                     if (document.Contains(queryElement.Name)) {
@@ -72,7 +71,7 @@ namespace MongoDB.Driver.Builders {
                         var subDocument = subDocumentValue.AsBsonDocument;
                         var subQueries = subQueriesValue.AsBsonDocument;
 
-                        // Add each subquery
+                        // Add each subquery to the subdocument
                         foreach (BsonElement subQueryElement in subQueries) {
                             // Make sure that there are no duplicate $operators
                             if (subDocument.Contains(subQueryElement.Name)) {
@@ -82,11 +81,11 @@ namespace MongoDB.Driver.Builders {
                                     queryElement.Name,
                                     subQueryElement.Name));
                             } else {
-                                subDocument[subQueryElement.Name] = subQueryElement.Value;
+                                subDocument.Add(subQueryElement);
                             }
                         }
                     } else {
-                        document[queryElement.Name] = queryElement.Value;
+                        document.Add(queryElement);
                     }
                 }
             }

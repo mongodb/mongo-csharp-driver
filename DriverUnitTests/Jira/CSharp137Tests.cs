@@ -49,17 +49,19 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         [Test]
         public void TestAndGtLt() {
             var query = Query.And(
+                Query.NotIn("value", new BsonArray(new int[] {1,2,3})),
                 Query.EQ("OtherValue", 1),
                 Query.GT("value", 6),
                 Query.LT("value", 20));
 
             Assert.AreEqual(
                 new BsonDocument() {
-                    {"OtherValue", 1},
                     {"value", new BsonDocument() {
+                        {"$nin", new BsonArray(new int[] {1,2,3})},
                         {"$gt", 6},
                         {"$lt", 20}
-                    }}
+                    }},
+                    {"OtherValue", 1}
                 },
                 query.ToBsonDocument());
         }
@@ -71,6 +73,26 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         public void TestNoDuplicateEq() {
             var query = Query.And(
                 Query.EQ("value", 6),
+                Query.EQ("value", 20));
+        }
+
+        [Test]
+        [ExpectedException(
+            typeof(InvalidOperationException),
+            ExpectedMessage = "Can not use Query.And with multiple Query.EQ for the same value: value")]
+        public void TestNoEq1() {
+            var query = Query.And(
+                Query.EQ("value", 6),
+                Query.LT("value", 20));
+        }
+
+        [Test]
+        [ExpectedException(
+            typeof(InvalidOperationException),
+            ExpectedMessage = "Can not use Query.And with multiple Query.EQ for the same value: value")]
+        public void TestNoEq2() {
+            var query = Query.And(
+                Query.GT("value", 6),
                 Query.EQ("value", 20));
         }
 
