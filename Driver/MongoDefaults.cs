@@ -23,9 +23,17 @@ namespace MongoDB.Driver {
     public static class MongoDefaults {
         #region public static fields
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
+        private static TimeSpan maxConnectionIdleTime = TimeSpan.FromMinutes(10);
+        private static TimeSpan maxConnectionLifeTime = TimeSpan.FromMinutes(30);
+        private static int maxConnectionPoolSize = 100;
         private static int maxMessageLength = 16000000; // 16MB (not 16 MiB!)
+        private static int minConnectionPoolSize = 0;
+        private static TimeSpan socketTimeout = TimeSpan.FromSeconds(30);
         private static int tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
+        private static double waitQueueMultiple = 1; // default multiple of 1
+        private static int waitQueueSize = 0; // use multiple by default
+        private static TimeSpan waitQueueTimeout = TimeSpan.FromMilliseconds(500);
         #endregion
 
         #region public static properties
@@ -34,9 +42,34 @@ namespace MongoDB.Driver {
             set { connectTimeout = value; }
         }
 
+        public static TimeSpan MaxConnectionIdleTime {
+            get { return maxConnectionIdleTime; }
+            set { maxConnectionIdleTime = value; }
+        }
+
+        public static TimeSpan MaxConnectionLifeTime {
+            get { return maxConnectionLifeTime; }
+            set { maxConnectionLifeTime = value; }
+        }
+
+        public static int MaxConnectionPoolSize {
+            get { return maxConnectionPoolSize; }
+            set { maxConnectionPoolSize = value; }
+        }
+
         public static int MaxMessageLength {
             get { return maxMessageLength; }
             set { maxMessageLength = value; }
+        }
+
+        public static int MinConnectionPoolSize {
+            get { return minConnectionPoolSize; }
+            set { minConnectionPoolSize = value; }
+        }
+
+        public static TimeSpan SocketTimeout {
+            get { return socketTimeout; }
+            set { socketTimeout = value; }
         }
 
         public static int TcpReceiveBufferSize {
@@ -47,6 +80,27 @@ namespace MongoDB.Driver {
         public static int TcpSendBufferSize {
             get { return tcpSendBufferSize; }
             set { tcpSendBufferSize = value; }
+        }
+
+        public static double WaitQueueMultiple {
+            get { return waitQueueMultiple; }
+            set {
+                waitQueueMultiple = value;
+                waitQueueSize = 0;
+            }
+        }
+
+        public static int WaitQueueSize {
+            get { return waitQueueSize; }
+            set {
+                waitQueueMultiple = 0;
+                waitQueueSize = value;
+            }
+        }
+
+        public static TimeSpan WaitQueueTimeout {
+            get { return waitQueueTimeout; }
+            set { waitQueueTimeout = value; }
         }
         #endregion
     }

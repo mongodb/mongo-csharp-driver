@@ -50,6 +50,7 @@ namespace MongoDB.Driver {
         private bool slaveOk;
         private TimeSpan socketTimeout;
         private string url;
+        private double waitQueueMultiple;
         private int waitQueueSize;
         private TimeSpan waitQueueTimeout;
         #endregion
@@ -73,6 +74,7 @@ namespace MongoDB.Driver {
             this.slaveOk = builder.SlaveOk;
             this.socketTimeout = builder.SocketTimeout;
             this.url = builder.ToString(); // keep canonical form
+            this.waitQueueMultiple = builder.WaitQueueMultiple;
             this.waitQueueSize = builder.WaitQueueSize;
             this.waitQueueTimeout = builder.WaitQueueTimeout;
         }
@@ -92,7 +94,7 @@ namespace MongoDB.Driver {
                     maxConnectionPoolSize,
                     minConnectionPoolSize,
                     socketTimeout,
-                    waitQueueSize,
+                    (waitQueueMultiple != 0) ? (int) (waitQueueMultiple * maxConnectionPoolSize) : waitQueueSize, // waitQueueSize
                     waitQueueTimeout
                 );
             }
@@ -152,6 +154,10 @@ namespace MongoDB.Driver {
 
         public string Url {
             get { return url; }
+        }
+
+        public double WaitQueueMultiple {
+            get { return waitQueueMultiple; }
         }
 
         public int WaitQueueSize {

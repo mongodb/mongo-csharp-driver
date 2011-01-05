@@ -210,7 +210,7 @@ namespace MongoDB.Driver {
         }
 
         public void Connect() {
-            Connect(MongoDefaults.ConnectTimeout);
+            Connect(connectionPoolSettings.ConnectTimeout);
         }
 
         public void Connect(

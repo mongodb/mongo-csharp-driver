@@ -76,7 +76,9 @@ namespace MongoDB.Driver {
             }
             set {
                 connectionMode = value;
-                base["connect"] = value.ToString().ToLower();
+                var connectionModeString = connectionMode.ToString();
+                connectionModeString = connectionModeString.Substring(0, 1).ToLower() + connectionModeString.Substring(1);
+                base["connect"] = connectionModeString;
             }
         }
 
@@ -103,7 +105,7 @@ namespace MongoDB.Driver {
                 return replicaSetName;
             }
             set {
-                base["replicaset"] = replicaSetName = value;
+                base["replicaSet"] = replicaSetName = value;
             }
         }
 
@@ -159,7 +161,7 @@ namespace MongoDB.Driver {
             }
             set {
                 slaveOk = value;
-                base["slaveok"] = XmlConvert.ToString(value);
+                base["slaveOk"] = XmlConvert.ToString(value);
             }
         }
 
