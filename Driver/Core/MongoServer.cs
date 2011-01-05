@@ -408,7 +408,7 @@ namespace MongoDB.Driver {
             }
 
             // get the connection outside of the lock
-            var connection = GetConnection(initialDatabase, false); // not slaveOk
+            var connection = AcquireConnection(initialDatabase, false); // not slaveOk
 
             lock (requestsLock) {
                 var request = new Request(connection);
@@ -443,7 +443,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region internal methods
-        internal MongoConnection GetConnection(
+        internal MongoConnection AcquireConnection(
             MongoDatabase database,
             bool slaveOk
         ) {
@@ -458,7 +458,7 @@ namespace MongoDB.Driver {
             }
 
             var connectionPool = GetConnectionPool(slaveOk);
-            var connection = connectionPool.GetConnection(database);
+            var connection = connectionPool.AcquireConnection(database);
 
             try {
                 connection.CheckAuthentication(this, database); // will authenticate if necessary

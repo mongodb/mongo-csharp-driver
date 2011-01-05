@@ -25,14 +25,22 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Internal {
+    internal enum MongoConnectionState {
+        Initial,
+        Open,
+        Damaged,
+        Closed
+    }
+
     internal class MongoConnection {
         #region private fields
         private object connectionLock = new object();
         private MongoConnectionPool connectionPool;
         private IPEndPoint endPoint;
-        private bool closed;
+        private MongoConnectionState state;
         private TcpClient tcpClient;
-        private DateTime lastUsed; // set every time the connection is Released
+        private DateTime createdAt;
+        private DateTime lastUsedAt; // set every time the connection is Released
         private int messageCounter;
         private Dictionary<string, Authentication> authentications = new Dictionary<string, Authentication>();
         #endregion
@@ -44,36 +52,35 @@ namespace MongoDB.Driver.Internal {
         ) {
             this.connectionPool = connectionPool;
             this.endPoint = endPoint;
-
-            tcpClient = new TcpClient();
-            tcpClient.Connect(endPoint);
-
-            tcpClient.NoDelay = true; // turn off Nagle
-            tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
-            tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
+            this.createdAt = DateTime.UtcNow;
+            this.state = MongoConnectionState.Initial;
         }
         #endregion
 
         #region internal properties
-        internal IPEndPoint EndPoint {
-            get { return endPoint; }
-        }
-
         internal MongoConnectionPool ConnectionPool {
             get { return connectionPool; }
         }
 
-        internal bool Closed {
-            get { return closed; }
+        internal DateTime CreatedAt {
+            get { return createdAt; }
         }
 
-        internal DateTime LastUsed {
-            get { return lastUsed; }
-            set { lastUsed = value; }
+        internal IPEndPoint EndPoint {
+            get { return endPoint; }
+        }
+
+        internal DateTime LastUsedAt {
+            get { return lastUsedAt; }
+            set { lastUsedAt = value; }
         }
 
         internal int MessageCounter {
             get { return messageCounter; }
+        }
+
+        internal MongoConnectionState State {
+            get { return state; }
         }
         #endregion
 
@@ -83,7 +90,7 @@ namespace MongoDB.Driver.Internal {
             string databaseName,
             MongoCredentials credentials
         ) {
-            if (closed) { throw new InvalidOperationException("Connection is closed"); }
+            if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 var nonceCommand = new CommandDocument("getnonce", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
@@ -126,7 +133,7 @@ namespace MongoDB.Driver.Internal {
         internal bool CanAuthenticate(
             MongoDatabase database
         ) {
-            if (closed) { throw new InvalidOperationException("Connection is closed"); }
+            if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             if (authentications.Count == 0) {
                 // a connection with no existing authentications can authenticate anything
                 return true;
@@ -159,7 +166,7 @@ namespace MongoDB.Driver.Internal {
             MongoServer server,
             MongoDatabase database
         ) {
-            if (closed) { throw new InvalidOperationException("Connection is closed"); }
+            if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             if (database.Credentials == null) {
                 if (authentications.Count != 0) {
                     throw new InvalidOperationException("Connection requires credentials");
@@ -190,7 +197,7 @@ namespace MongoDB.Driver.Internal {
 
         internal void Close() {
             lock (connectionLock) {
-                if (!closed) {
+                if (state != MongoConnectionState.Initial && state != MongoConnectionState.Closed) {
                     Exception exception = null;
                     // note: TcpClient.Close doesn't close the NetworkStream!?
                     try {
@@ -212,7 +219,7 @@ namespace MongoDB.Driver.Internal {
                         if (exception == null) { exception = ex; }
                     }
                     tcpClient = null;
-                    closed = true;
+                    state = MongoConnectionState.Closed;
                     if (exception != null) { throw exception; }
                 }
             }
@@ -221,7 +228,7 @@ namespace MongoDB.Driver.Internal {
         internal bool IsAuthenticated(
             MongoDatabase database
         ) {
-            if (closed) { throw new InvalidOperationException("Connection is closed"); }
+            if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 if (database.Credentials == null) {
                     return authentications.Count == 0;
@@ -243,7 +250,7 @@ namespace MongoDB.Driver.Internal {
         internal void JoinConnectionPool(
             MongoConnectionPool connectionPool
         ) {
-            if (closed) { throw new InvalidOperationException("Connection is closed"); }
+            if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             if (this.connectionPool != null) {
                 throw new ArgumentException("The connection is already in a connection pool", "this");
             }
@@ -252,14 +259,14 @@ namespace MongoDB.Driver.Internal {
             }
 
             this.connectionPool = connectionPool;
-            this.lastUsed = DateTime.UtcNow;
+            this.lastUsedAt = DateTime.UtcNow;
         }
 
         internal void Logout(
             MongoServer server,
             string databaseName
         ) {
-            if (closed) { throw new InvalidOperationException("Connection is closed"); }
+            if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 var logoutCommand = new CommandDocument("logout", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
@@ -271,6 +278,21 @@ namespace MongoDB.Driver.Internal {
 
                 authentications.Remove(databaseName);
             }
+        }
+
+        internal void Open() {
+            if (state != MongoConnectionState.Initial) {
+                throw new InvalidOperationException("Open called more than once");
+            }
+
+            var tcpClient = new TcpClient();
+            tcpClient.NoDelay = true; // turn off Nagle
+            tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
+            tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
+            tcpClient.Connect(endPoint);
+
+            this.tcpClient = tcpClient;
+            this.state = MongoConnectionState.Open;
         }
 
         // this is a low level method that doesn't require a MongoServer
@@ -314,11 +336,13 @@ namespace MongoDB.Driver.Internal {
         internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(
             MongoServer server
         ) {
-            if (closed) { throw new InvalidOperationException("Connection is closed"); }
+            if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 try {
                     var buffer = new BsonBuffer();
-                    buffer.LoadFrom(tcpClient.GetStream());
+                    var networkStream = GetNetworkStream();
+                    networkStream.ReadTimeout = (int) server.Url.SocketTimeout.TotalMilliseconds;
+                    buffer.LoadFrom(networkStream);
                     var reply = new MongoReplyMessage<TDocument>(server);
                     reply.ReadFrom(buffer);
                     return reply;
@@ -333,7 +357,7 @@ namespace MongoDB.Driver.Internal {
             MongoRequestMessage message,
             SafeMode safeMode
         ) {
-            if (closed) { throw new InvalidOperationException("Connection is closed"); }
+            if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 message.WriteToBuffer();
                 CommandDocument safeModeCommand = null;
@@ -361,7 +385,9 @@ namespace MongoDB.Driver.Internal {
                 }
 
                 try {
-                    message.Buffer.WriteTo(tcpClient.GetStream());
+                    var networkStream = GetNetworkStream();
+                    networkStream.WriteTimeout = (int) message.Server.Url.SocketTimeout.TotalMilliseconds;
+                    message.Buffer.WriteTo(networkStream);
                     messageCounter++;
                 } catch (Exception ex) {
                     HandleException(ex);
@@ -391,31 +417,31 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region private methods
+        private NetworkStream GetNetworkStream() {
+            if (state == MongoConnectionState.Initial) {
+                Open();
+            }
+            return tcpClient.GetStream();
+        }
+
         private void HandleException(
             Exception ex
         ) {
             // TODO: figure out which exceptions are more serious than others
             // there are three possible situations:
             // 1. we can keep using the connection
-            // 2. this one connection needs to be discarded
+            // 2. just this one connection needs to be discarded
             // 3. the whole connection pool needs to be discarded
             // for now the only exception we know affects only one connection is FileFormatException
+            // and there are no cases where the connection can continue to be used
 
-            var disconnect = true;
-            if (ex is FileFormatException) {
-                disconnect = false;
-            }
-
-            if (disconnect) {
+            state = MongoConnectionState.Damaged;
+            if (!(ex is FileFormatException)) {
                 if (connectionPool != null) {
                     try {
                         connectionPool.Server.Disconnect();
                     } catch { } // ignore any further exceptions
                 }
-            } else {
-                try {
-                    Close();
-                } catch { } // ignore any further exceptions
             }
         }
         #endregion

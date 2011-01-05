@@ -451,45 +451,43 @@ namespace MongoDB.Driver {
             IEnumerable<TDocument> documents,
             SafeMode safeMode
         ) {
-            List<SafeModeResult> results = null;
-            if (safeMode.Enabled) {
-                results = new List<SafeModeResult>();
-            }
+            var connection = server.AcquireConnection(database, false); // not slaveOk
+            try {
+                List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
-            var connection = server.GetConnection(database, false); // not slaveOk
+                using (var message = new MongoInsertMessage(server, FullName)) {
+                    message.WriteToBuffer(); // must be called before AddDocument
 
-            using (var message = new MongoInsertMessage(server, FullName)) {
-                message.WriteToBuffer(); // must be called before AddDocument
-
-                foreach (var document in documents) {
-                    if (assignIdOnInsert) {
-                        var serializer = BsonSerializer.LookupSerializer(document.GetType());
-                        object id;
-                        IIdGenerator idGenerator;
-                        if (serializer.GetDocumentId(document, out id, out idGenerator)) {
-                            if (idGenerator != null && idGenerator.IsEmpty(id)) {
-                                id = idGenerator.GenerateId();
-                                serializer.SetDocumentId(document, id);
+                    foreach (var document in documents) {
+                        if (assignIdOnInsert) {
+                            var serializer = BsonSerializer.LookupSerializer(document.GetType());
+                            object id;
+                            IIdGenerator idGenerator;
+                            if (serializer.GetDocumentId(document, out id, out idGenerator)) {
+                                if (idGenerator != null && idGenerator.IsEmpty(id)) {
+                                    id = idGenerator.GenerateId();
+                                    serializer.SetDocumentId(document, id);
+                                }
                             }
                         }
-                    }
-                    message.AddDocument(document);
+                        message.AddDocument(document);
 
-                    if (message.MessageLength > server.MaxMessageLength) {
-                        byte[] lastDocument = message.RemoveLastDocument();
-                        var intermediateResult = connection.SendMessage(message, safeMode);
-                        if (safeMode.Enabled) { results.Add(intermediateResult); }
-                        message.ResetBatch(lastDocument);
+                        if (message.MessageLength > server.MaxMessageLength) {
+                            byte[] lastDocument = message.RemoveLastDocument();
+                            var intermediateResult = connection.SendMessage(message, safeMode);
+                            if (safeMode.Enabled) { results.Add(intermediateResult); }
+                            message.ResetBatch(lastDocument);
+                        }
                     }
+
+                    var finalResult = connection.SendMessage(message, safeMode);
+                    if (safeMode.Enabled) { results.Add(finalResult); }
+
+                    return results;
                 }
-
-                var finalResult = connection.SendMessage(message, safeMode);
-                if (safeMode.Enabled) { results.Add(finalResult); }
+            } finally {
+                server.ReleaseConnection(connection);
             }
-
-            server.ReleaseConnection(connection);
-
-            return results;
         }
 
         public bool IsCapped() {
@@ -580,10 +578,12 @@ namespace MongoDB.Driver {
             }
 
             using (var message = new MongoDeleteMessage(server, FullName, flags, query)) {
-                var connection = server.GetConnection(database, false); // not slaveOk
-                var result = connection.SendMessage(message, safeMode);
-                server.ReleaseConnection(connection);
-                return result;
+                var connection = server.AcquireConnection(database, false); // not slaveOk
+                try {
+                    return connection.SendMessage(message, safeMode);
+                } finally {
+                    server.ReleaseConnection(connection);
+                }
             }
         }
 
@@ -670,10 +670,12 @@ namespace MongoDB.Driver {
             }
 
             using (var message = new MongoUpdateMessage(server, FullName, flags, query, update)) {
-                var connection = server.GetConnection(database, false); // not slaveOk
-                var result = connection.SendMessage(message, safeMode);
-                server.ReleaseConnection(connection);
-                return result;
+                var connection = server.AcquireConnection(database, false); // not slaveOk
+                try {
+                    return connection.SendMessage(message, safeMode);
+                } finally {
+                    server.ReleaseConnection(connection);
+                }
             }
         }
 
