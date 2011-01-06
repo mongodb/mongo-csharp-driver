@@ -110,8 +110,10 @@ namespace MongoDB.Driver.Internal {
 
                         // create a new connection if maximum pool size has not been reached
                         if (poolSize < settings.MaxConnectionPoolSize) {
+                            // make sure connection is created successfully before incrementing poolSize
+                            var connection = new MongoConnection(this, endPoint);
                             poolSize += 1;
-                            return new MongoConnection(this, endPoint);
+                            return connection;
                         }
 
                         // wait for a connection to be released
