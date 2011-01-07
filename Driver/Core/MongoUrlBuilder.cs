@@ -45,6 +45,7 @@ namespace MongoDB.Driver {
 
         #region constructors
         public MongoUrlBuilder() {
+            ResetValues();
         }
 
         public MongoUrlBuilder(
@@ -147,10 +148,108 @@ namespace MongoDB.Driver {
         }
         #endregion
 
+        #region public static methods
+        public static string FormatTimeSpan(
+            TimeSpan value
+        ) {
+            const int oneSecond = 1000; // milliseconds
+            const int oneMinute = 60 * oneSecond;
+            const int oneHour = 60 * oneMinute;
+
+            var ms = (int) value.TotalMilliseconds;
+            if ((ms % oneHour) == 0) {
+                return string.Format("{0}h", ms / oneHour);
+            } else if ((ms % oneMinute) == 0) {
+                return string.Format("{0}m", ms / oneMinute);
+            } else if ((ms % oneSecond) == 0) {
+                return string.Format("{0}s", ms / oneSecond);
+            } else {
+                return string.Format("{0}ms", ms);
+            }
+        }
+
+        public static double ParseDouble(
+            string name,
+            string s
+        ) {
+            double result;
+            if (double.TryParse(s, out result)) {
+                return result;
+            } else {
+                var message = string.Format("Invalid connection string: {0}={1}", name, s);
+                throw new ArgumentException(message);
+            }
+        }
+
+        public static int ParseInt32(
+            string name,
+            string s
+        ) {
+            int result;
+            if (int.TryParse(s, out result)) {
+                return result;
+            } else {
+                var message = string.Format("Invalid connection string: {0}={1}", name, s);
+                throw new ArgumentException(message);
+            }
+        }
+
+        public static TimeSpan ParseTimeSpan(
+            string name,
+            string s
+        ) {
+            TimeSpan result;
+            if (TryParseTimeSpan(name, s, out result)) {
+                return result;
+            } else {
+                var message = string.Format("Invalid connection string: {0}={1}", name, s);
+                throw new ArgumentException(message);
+            }
+        }
+
+        public static bool TryParseTimeSpan(
+            string name,
+            string s,
+            out TimeSpan result
+        ) {
+            name = name.ToLower();
+            s = s.ToLower();
+
+            var multiplier = 1000;
+            if (name.EndsWith("ms")) {
+                multiplier = 1;
+            } else if (s.EndsWith("ms")) {
+                s = s.Substring(0, s.Length - 2);
+                multiplier = 1;
+            } else if (s.EndsWith("s")) {
+                s = s.Substring(0, s.Length - 1);
+                multiplier = 1000;
+            } else if (s.EndsWith("m")) {
+                s = s.Substring(0, s.Length - 1);
+                multiplier = 60 * 1000;
+            } else if (s.EndsWith("h")) {
+                s = s.Substring(0, s.Length - 1);
+                multiplier = 60 * 60 * 1000;
+            } else if (s.Contains(":")) {
+                return TimeSpan.TryParse(s, out result);
+            }
+
+            double n;
+            if (double.TryParse(s, out n)) {
+                result = TimeSpan.FromMilliseconds(n * multiplier);
+                return true;
+            } else {
+                result = TimeSpan.Zero;
+                return false;
+            }
+        }
+        #endregion
+
         #region public methods
         public void Parse(
             string url
         ) {
+            ResetValues();
             const string pattern =
                 @"^mongodb://" +
                 @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
@@ -220,9 +319,7 @@ namespace MongoDB.Driver {
                                 break;
                             case "connecttimeout":
                             case "connecttimeoutms":
-                                if (!TryParseTimeSpan(name, value, out connectTimeout)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                connectTimeout = ParseTimeSpan(name, value);
                                 break;
                             case "fsync":
                                 setSafeMode = true;
@@ -240,25 +337,17 @@ namespace MongoDB.Driver {
                                 break;
                             case "maxidletime":
                             case "maxidletimems":
-                                if (!TryParseTimeSpan(name, value, out maxConnectionIdleTime)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                maxConnectionIdleTime = ParseTimeSpan(name, value);
                                 break;
                             case "maxlifetime":
                             case "maxlifetimems":
-                                if (!TryParseTimeSpan(name, value, out maxConnectionLifeTime)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                maxConnectionLifeTime = ParseTimeSpan(name, value);
                                 break;
                             case "maxpoolsize":
-                                if (!int.TryParse(value, out maxConnectionPoolSize)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                maxConnectionPoolSize = ParseInt32(name, value);
                                 break;
                             case "minpoolsize":
-                                if (!int.TryParse(value, out minConnectionPoolSize)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                minConnectionPoolSize = ParseInt32(name, value);
                                 break;
                             case "replicaset":
                                 this.replicaSetName = value;
@@ -291,41 +380,29 @@ namespace MongoDB.Driver {
                                 break;
                             case "sockettimeout":
                             case "sockettimeoutms":
-                                if (!TryParseTimeSpan(name, value, out socketTimeout)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                socketTimeout = ParseTimeSpan(name, value);
                                 break;
                             case "w":
                                 setSafeMode = true;
-                                if (!int.TryParse(value, out w)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                w = ParseInt32(name, value);
                                 safe = true;
                                 break;
                             case "waitqueuemultiple":
-                                if (!double.TryParse(value, out waitQueueMultiple)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                waitQueueMultiple = ParseDouble(name, value);
                                 waitQueueSize = 0;
                                 break;
                             case "waitqueuesize":
-                                if (!int.TryParse(value, out waitQueueSize)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
                                 waitQueueMultiple = 0;
+                                waitQueueSize = ParseInt32(name, value);
                                 break;
                             case "waitqueuetimeout":
                             case "waitqueuetimeoutms":
-                                if (!TryParseTimeSpan(name, value, out waitQueueTimeout)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                waitQueueTimeout = ParseTimeSpan(name, value);
                                 break;
                             case "wtimeout":
                             case "wtimeoutms":
                                 setSafeMode = true;
-                                if (!TryParseTimeSpan(name, value, out wtimeout)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                wtimeout = ParseTimeSpan(name, value);
                                 safe = true;
                                 break;
                         }
@@ -338,6 +415,25 @@ namespace MongoDB.Driver {
             } else {
                 throw new ArgumentException("Invalid connection string");
             }
+        }
+
+        private void ResetValues() {
+            connectionMode = ConnectionMode.Direct;
+            connectTimeout = MongoDefaults.ConnectTimeout;
+            credentials = null;
+            databaseName = null;
+            maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
+            maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
+            maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
+            minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            replicaSetName = null;
+            safeMode = null;
+            servers = null;
+            slaveOk = false;
+            socketTimeout = MongoDefaults.SocketTimeout;
+            waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
+            waitQueueSize = MongoDefaults.WaitQueueSize;
+            waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
         }
 
         public MongoUrl ToMongoUrl() {
@@ -370,9 +466,7 @@ namespace MongoDB.Driver {
                 connectionMode == ConnectionMode.Direct && servers.Count() != 1 ||
                 connectionMode == Driver.ConnectionMode.ReplicaSet && servers.Count() == 1
             ) {
-                var connectionModeString = connectionMode.ToString();
-                connectionModeString = connectionModeString.Substring(0, 1).ToLower() + connectionModeString.Substring(1);
-                query.AppendFormat("connect={0};", connectionModeString);
+                query.AppendFormat("connect={0};", MongoUtils.ToCamelCase(connectionMode.ToString()));
             }
             if (!string.IsNullOrEmpty(replicaSetName)) {
                 query.AppendFormat("replicaSet={0};", replicaSetName);
@@ -428,64 +522,6 @@ namespace MongoDB.Driver {
                 url.Append(query.ToString());
             }
             return url.ToString();
-        }
-        #endregion
-
-        #region private methods
-        private string FormatTimeSpan(
-            TimeSpan value
-        ) {
-            const int oneSecond = 1000; // milliseconds
-            const int oneMinute = 60 * oneSecond;
-            const int oneHour = 60 * oneMinute;
-
-            var ms = (int) value.TotalMilliseconds;
-            if ((ms % oneHour) == 0) {
-                return string.Format("{0}h", ms / oneHour);
-            } else if ((ms % oneMinute) == 0) {
-                return string.Format("{0}m", ms / oneMinute);
-            } else if ((ms % oneSecond) == 0) {
-                return string.Format("{0}s", ms / oneSecond);
-            } else {
-                return string.Format("{0}ms", ms);
-            }
-        }
-
-        private bool TryParseTimeSpan(
-            string name,
-            string s,
-            out TimeSpan result
-        ) {
-            name = name.ToLower();
-            s = s.ToLower();
-
-            var multiplier = 1000;
-            if (name.EndsWith("ms")) {
-                multiplier = 1;
-            } else if (s.EndsWith("ms")) {
-                s = s.Substring(0, s.Length - 2);
-                multiplier = 1;
-            } else if (s.EndsWith("s")) {
-                s = s.Substring(0, s.Length - 1);
-                multiplier = 1000;
-            } else if (s.EndsWith("m")) {
-                s = s.Substring(0, s.Length - 1);
-                multiplier = 60 * 1000;
-            } else if (s.EndsWith("h")) {
-                s = s.Substring(0, s.Length - 1);
-                multiplier = 60 * 60 * 1000;
-            } else if (s.Contains(":")) {
-                return TimeSpan.TryParse(s, out result);
-            }
-
-            double n;
-            if (double.TryParse(s, out n)) {
-                result = TimeSpan.FromMilliseconds(n * multiplier);
-                return true;
-            } else {
-                result = TimeSpan.Zero;
-                return false;
-            }
         }
         #endregion
     }

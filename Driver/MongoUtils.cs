@@ -30,6 +30,12 @@ namespace MongoDB.Driver {
             var hash = BitConverter.ToString(bytes).Replace("-", "").ToLower();
             return hash;
         }
+
+        public static string ToCamelCase(
+            string value
+        ) {
+            return value.Substring(0, 1).ToLower() + value.Substring(1);
+        }
         #endregion
     }
 }
