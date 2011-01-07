@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 using MongoDB.Driver.Internal;
 
@@ -185,10 +186,9 @@ namespace MongoDB.Driver {
             string name,
             string s
         ) {
-            bool result;
-            if (bool.TryParse(s.ToLower(), out result)) {
-                return result;
-            } else {
+            try {
+                return XmlConvert.ToBoolean(s.ToLower());
+            } catch (FormatException) {
                 throw new FormatException(FormatMessage(name, s));
             }
         }
@@ -197,10 +197,9 @@ namespace MongoDB.Driver {
             string name,
             string s
         ) {
-            double result;
-            if (double.TryParse(s, out result)) {
-                return result;
-            } else {
+            try {
+                return XmlConvert.ToDouble(s);
+            } catch (FormatException) {
                 throw new FormatException(FormatMessage(name, s));
             }
         }
@@ -209,10 +208,9 @@ namespace MongoDB.Driver {
             string name,
             string s
         ) {
-            int result;
-            if (int.TryParse(s, out result)) {
-                return result;
-            } else {
+            try {
+                return XmlConvert.ToInt32(s);
+            } catch (FormatException) {
                 throw new FormatException(FormatMessage(name, s));
             }
         }
@@ -256,11 +254,10 @@ namespace MongoDB.Driver {
                 return TimeSpan.TryParse(s, out result);
             }
 
-            double n;
-            if (double.TryParse(s, out n)) {
-                result = TimeSpan.FromMilliseconds(n * multiplier);
+            try {
+                result = TimeSpan.FromMilliseconds(multiplier * XmlConvert.ToDouble(s));
                 return true;
-            } else {
+            } catch (FormatException) {
                 result = TimeSpan.Zero;
                 return false;
             }

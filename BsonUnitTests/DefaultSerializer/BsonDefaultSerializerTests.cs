@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using NUnit.Framework;
 
 using MongoDB.Bson;
@@ -50,7 +51,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                     Type nominalType,
                     IBsonSerializationOptions options
                 ) {
-                    return DateTime.Parse(bsonReader.ReadString());
+                    return XmlConvert.ToDateTime(bsonReader.ReadString());
                 }
 
                 public override void Serialize(

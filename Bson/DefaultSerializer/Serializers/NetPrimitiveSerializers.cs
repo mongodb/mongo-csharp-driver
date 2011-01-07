@@ -973,7 +973,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 case BsonType.Int64:
                     return new TimeSpan(bsonReader.ReadInt64());
                 case BsonType.String:
-                     return TimeSpan.Parse(bsonReader.ReadString());
+                     return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
                 default:
                     var message = string.Format("Cannot deserialize TimeSpan from BsonType: {0}", bsonType);
                     throw new FileFormatException(message);
@@ -993,7 +993,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteInt64(timeSpan.Ticks);
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(timeSpan.ToString());
+                    bsonWriter.WriteString(timeSpan.ToString()); // for TimeSpan use .NET's format instead of XmlConvert.ToString
                     break;
                 default:
                     var message = string.Format("'{0}' is not a valid representation for type 'TimeSpan'", representation);

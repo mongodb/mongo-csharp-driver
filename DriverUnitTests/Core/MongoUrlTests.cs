@@ -192,6 +192,11 @@ namespace MongoDB.DriverUnitTests {
             url = new MongoUrl(connectionString);
             Assert.AreEqual(TimeSpan.FromHours(123), url.ConnectTimeout);
             Assert.AreEqual(connectionString, url.ToString());
+
+            connectionString = "mongodb://localhost/?connectTimeoutMS=123";
+            url = new MongoUrl(connectionString);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(123), url.ConnectTimeout);
+            Assert.AreEqual("mongodb://localhost/?connectTimeout=123ms", url.ToString()); // changed to "ms" suffix
         }
 
         [Test]
