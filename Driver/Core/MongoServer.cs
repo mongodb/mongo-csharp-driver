@@ -28,7 +28,7 @@ namespace MongoDB.Driver {
     public class MongoServer {
         #region private static fields
         private static object staticLock = new object();
-        private static Dictionary<MongoUrl, MongoServer> servers = new Dictionary<MongoUrl, MongoServer>();
+        private static Dictionary<string, MongoServer> servers = new Dictionary<string, MongoServer>();
         #endregion
 
         #region private fields
@@ -52,9 +52,14 @@ namespace MongoDB.Driver {
 
         #region constructors
         public MongoServer(
-            MongoUrl url
+            string connectionString
         ) {
-            this.url = url;
+            if (connectionString.StartsWith("mongodb://")) {
+                this.url = MongoUrl.Create(connectionString);
+            } else {
+                var builder = new MongoConnectionStringBuilder(connectionString);
+                this.url = builder.ToMongoUrl();
+            }
             this.defaultCredentials = url.Credentials;
             this.connectionPoolSettings = url.ConnectionPoolSettings;
 
@@ -73,38 +78,32 @@ namespace MongoDB.Driver {
         public static MongoServer Create(
             MongoConnectionStringBuilder builder
         ) {
-            return Create(builder.ToMongoUrl());
+            return Create(builder.ToString());
         }
 
         public static MongoServer Create(
             MongoUrl url
         ) {
+            return Create(url.ToString());
+        }
+
+        public static MongoServer Create(
+            string connectionString
+        ) {
             lock (staticLock) {
                 MongoServer server;
-                if (!servers.TryGetValue(url, out server)) {
-                    server = new MongoServer(url);
-                    servers.Add(url, server);
+                if (!servers.TryGetValue(connectionString, out server)) {
+                    server = new MongoServer(connectionString);
+                    servers.Add(connectionString, server);
                 }
                 return server;
             }
         }
 
         public static MongoServer Create(
-            string connectionString
-        ) {
-            if (connectionString.StartsWith("mongodb://")) {
-                var url = MongoUrl.Create(connectionString);
-                return Create(url);
-            } else {
-                MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder.ToMongoUrl());
-            }
-        }
-
-        public static MongoServer Create(
             Uri uri
         ) {
-            return Create(MongoUrl.Create(uri.ToString()));
+            return Create(uri.ToString());
         }
         #endregion
 
