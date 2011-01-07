@@ -25,7 +25,7 @@ namespace MongoDB.DriverUnitTests {
     [TestFixture]
     public class MongoUrlTests {
         [Test]
-        public void TestLocalHost() {
+        public void TestDefaults() {
             string connectionString = "mongodb://localhost";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.IsNull(url.Credentials);
@@ -34,9 +34,17 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(27017, url.Servers.Single().Port);
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
+            Assert.AreEqual(MongoDefaults.ConnectTimeout, url.ConnectTimeout);
+            Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, url.MaxConnectionIdleTime);
+            Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, url.MaxConnectionLifeTime);
+            Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, url.MaxConnectionPoolSize);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
+            Assert.AreEqual(MongoDefaults.SocketTimeout, url.SocketTimeout);
+            Assert.AreEqual(MongoDefaults.WaitQueueMultiple, url.WaitQueueMultiple);
+            Assert.AreEqual(MongoDefaults.WaitQueueSize, url.WaitQueueSize);
+            Assert.AreEqual(MongoDefaults.WaitQueueTimeout, url.WaitQueueTimeout);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -48,11 +56,8 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("mongo.xyz.com", url.Servers.Single().Host);
             Assert.AreEqual(27017, url.Servers.Single().Port);
-            Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -64,11 +69,8 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("mongo.xyz.com", url.Servers.Single().Host);
             Assert.AreEqual(12345, url.Servers.Single().Port);
-            Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -82,11 +84,8 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(27017, url.Servers.First().Port);
             Assert.AreEqual("mongo2.xyz.com", url.Servers.Skip(1).Single().Host);
             Assert.AreEqual(27017, url.Servers.Skip(1).Single().Port);
-            Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -100,107 +99,99 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(12345, url.Servers.First().Port);
             Assert.AreEqual("mongo2.xyz.com", url.Servers.Skip(1).Single().Host);
             Assert.AreEqual(23456, url.Servers.Skip(1).Single().Port);
-            Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
         [Test]
         public void TestUsernamePasswordLocalhostDatabase() {
-            string connectionString = "mongodb://userx:pwd@localhost/dbname";
+            string connectionString = "mongodb://username:password@localhost/database";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual("userx", url.Credentials.Username);
-            Assert.AreEqual("pwd", url.Credentials.Password);
+            Assert.AreEqual("username", url.Credentials.Username);
+            Assert.AreEqual("password", url.Credentials.Password);
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("localhost", url.Servers.Single().Host);
             Assert.AreEqual(27017, url.Servers.Single().Port);
-            Assert.AreEqual("dbname", url.DatabaseName);
+            Assert.AreEqual("database", url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
         [Test]
         public void TestUsernamePasswordTwoHostsDatabase() {
-            string connectionString = "mongodb://userx:pwd@mongo1.xyz.com,mongo2.xyz.com/dbname";
+            string connectionString = "mongodb://username:password@mongo1.xyz.com,mongo2.xyz.com/database";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual("userx", url.Credentials.Username);
-            Assert.AreEqual("pwd", url.Credentials.Password);
+            Assert.AreEqual("username", url.Credentials.Username);
+            Assert.AreEqual("password", url.Credentials.Password);
             Assert.AreEqual(2, url.Servers.Count());
             Assert.AreEqual("mongo1.xyz.com", url.Servers.First().Host);
             Assert.AreEqual(27017, url.Servers.First().Port);
             Assert.AreEqual("mongo2.xyz.com", url.Servers.Skip(1).Single().Host);
             Assert.AreEqual(27017, url.Servers.Skip(1).Single().Port);
-            Assert.AreEqual("dbname", url.DatabaseName);
+            Assert.AreEqual("database", url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
         [Test]
         public void TestUsernamePasswordTwoHostsWithPortsDatabase() {
-            string connectionString = "mongodb://userx:pwd@mongo1.xyz.com:12345,mongo2.xyz.com:23456/dbname";
+            string connectionString = "mongodb://username:password@mongo1.xyz.com:12345,mongo2.xyz.com:23456/database";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual("userx", url.Credentials.Username);
-            Assert.AreEqual("pwd", url.Credentials.Password);
+            Assert.AreEqual("username", url.Credentials.Username);
+            Assert.AreEqual("password", url.Credentials.Password);
             Assert.AreEqual(2, url.Servers.Count());
             Assert.AreEqual("mongo1.xyz.com", url.Servers.First().Host);
             Assert.AreEqual(12345, url.Servers.First().Port);
             Assert.AreEqual("mongo2.xyz.com", url.Servers.Skip(1).Single().Host);
             Assert.AreEqual(23456, url.Servers.Skip(1).Single().Port);
-            Assert.AreEqual("dbname", url.DatabaseName);
+            Assert.AreEqual("database", url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
         [Test]
-        public void TestNoQueryString() {
-            string connectionString = "mongodb://localhost";
+        public void TestConnectionMode() {
+            string connectionString = "mongodb://localhost/?connect=direct";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
+            Assert.AreEqual("mongodb://localhost", url.ToString()); // connect=direct dropped
+
+            connectionString = "mongodb://localhost/?connect=replicaSet";
+            url = new MongoUrl(connectionString);
+            Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
         [Test]
         public void TestConnectTimeout() {
-            string connectionString = "mongodb://localhost/?connectTimeout=123ms";
+            string connectionString = "mongodb://localhost/?connectTimeout=123";
             MongoUrl url = new MongoUrl(connectionString);
+            Assert.AreEqual(TimeSpan.FromSeconds(123), url.ConnectTimeout);
+            Assert.AreEqual(connectionString + "s", url.ToString()); // "s" units added
+
+            connectionString = "mongodb://localhost/?connectTimeout=123ms";
+            url = new MongoUrl(connectionString);
             Assert.AreEqual(TimeSpan.FromMilliseconds(123), url.ConnectTimeout);
             Assert.AreEqual(connectionString, url.ToString());
-        }
 
-        [Test]
-        public void TestDirectConnectionMode() {
-            string connectionString = "mongodb://localhost/?connect=direct";
-            MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
-            Assert.AreEqual("mongodb://localhost", url.ToString()); // connect=direct dropped
+            connectionString = "mongodb://localhost/?connectTimeout=123s";
+            url = new MongoUrl(connectionString);
+            Assert.AreEqual(TimeSpan.FromSeconds(123), url.ConnectTimeout);
+            Assert.AreEqual(connectionString, url.ToString());
+
+            connectionString = "mongodb://localhost/?connectTimeout=123m";
+            url = new MongoUrl(connectionString);
+            Assert.AreEqual(TimeSpan.FromMinutes(123), url.ConnectTimeout);
+            Assert.AreEqual(connectionString, url.ToString());
+
+            connectionString = "mongodb://localhost/?connectTimeout=123h";
+            url = new MongoUrl(connectionString);
+            Assert.AreEqual(TimeSpan.FromHours(123), url.ConnectTimeout);
+            Assert.AreEqual(connectionString, url.ToString());
         }
 
         [Test]
@@ -236,34 +227,11 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestReplicaSetConnectionMode() {
-            string connectionString = "mongodb://localhost/?connect=replicaSet";
-            MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
-            Assert.AreEqual(connectionString, url.ToString());
-        }
-
-        [Test]
         public void TestReplicaSetName() {
             string connectionString = "mongodb://localhost/?replicaSet=name";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual("name", url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual("mongodb://localhost/?connect=replicaSet;replicaSet=name", url.ToString()); // connect=replicaSet added
         }
 
@@ -271,15 +239,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeFalse() {
             string connectionString = "mongodb://localhost/?safe=false";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual("mongodb://localhost", url.ToString()); // safe=false dropped
         }
 
@@ -287,15 +247,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeTrue() {
             string connectionString = "mongodb://localhost/?safe=true";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.True, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -303,15 +255,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeFSyncFalse() {
             string connectionString = "mongodb://localhost/?safe=true;fsync=false";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.True, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual("mongodb://localhost/?safe=true", url.ToString()); // fsync=false dropped
         }
 
@@ -319,15 +263,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeFSyncTrue() {
             string connectionString = "mongodb://localhost/?safe=true;fsync=true";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.FSyncTrue, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -335,15 +271,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeW2() {
             string connectionString = "mongodb://localhost/?w=2";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.W2, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual("mongodb://localhost/?safe=true;w=2", url.ToString()); // safe=true added
         }
 
@@ -351,15 +279,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeTrueW2() {
             string connectionString = "mongodb://localhost/?safe=true;w=2";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.W2, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -367,15 +287,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeTrueW2WTimeout() {
             string connectionString = "mongodb://localhost/?safe=true;w=2;wtimeout=2s";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.Create(2, TimeSpan.FromSeconds(2)), url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -383,15 +295,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeTrueFSyncTrueW2() {
             string connectionString = "mongodb://localhost/?safe=true;fsync=true;w=2";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.Create(true, true, 2), url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -399,15 +303,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestSafeModeTrueFSyncTrueW2WTimeout() {
             string connectionString = "mongodb://localhost/?safe=true;fsync=true;w=2;wtimeout=2s";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.Create(true, true, 2, TimeSpan.FromSeconds(2)), url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -415,14 +311,6 @@ namespace MongoDB.DriverUnitTests {
         public void TestSlaveOkFalse() {
             string connectionString = "mongodb://localhost/?slaveOk=false";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(false, url.SlaveOk);
             Assert.AreEqual("mongodb://localhost", url.ToString()); // slaveOk=false dropped
         }
@@ -431,14 +319,6 @@ namespace MongoDB.DriverUnitTests {
         public void TestSlaveOkTrue() {
             string connectionString = "mongodb://localhost/?slaveOk=true";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
-            Assert.AreEqual(1, url.Servers.Count());
-            Assert.AreEqual("localhost", url.Server.Host);
-            Assert.AreEqual(27017, url.Server.Port);
-            Assert.AreEqual(null, url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
-            Assert.AreEqual(null, url.ReplicaSetName);
-            Assert.AreEqual(SafeMode.False, url.SafeMode);
             Assert.AreEqual(true, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
