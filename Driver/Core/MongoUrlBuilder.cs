@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 using MongoDB.Driver.Internal;
 
@@ -25,23 +26,34 @@ namespace MongoDB.Driver {
     [Serializable]
     public class MongoUrlBuilder {
         #region private fields
+        // default values are set in ResetValues
         private ConnectionMode connectionMode;
+        private TimeSpan connectTimeout;
         private MongoCredentials credentials;
         private string databaseName;
+        private TimeSpan maxConnectionIdleTime;
+        private TimeSpan maxConnectionLifeTime;
+        private int maxConnectionPoolSize;
+        private int minConnectionPoolSize;
         private string replicaSetName;
         private SafeMode safeMode;
         private IEnumerable<MongoServerAddress> servers;
         private bool slaveOk;
+        private TimeSpan socketTimeout;
+        private double waitQueueMultiple;
+        private int waitQueueSize;
+        private TimeSpan waitQueueTimeout;
         #endregion
 
         #region constructors
         public MongoUrlBuilder() {
+            ResetValues();
         }
 
         public MongoUrlBuilder(
             string url
         ) {
-            Parse(url);
+            Parse(url); // Parse calls ResetValues
         }
         #endregion
 
@@ -49,6 +61,11 @@ namespace MongoDB.Driver {
         public ConnectionMode ConnectionMode {
             get { return connectionMode; }
             set { connectionMode = value; }
+        }
+
+        public TimeSpan ConnectTimeout {
+            get { return connectTimeout; }
+            set { connectTimeout = value; }
         }
 
         public MongoCredentials Credentials {
@@ -59,6 +76,26 @@ namespace MongoDB.Driver {
         public string DatabaseName {
             get { return databaseName; }
             set { databaseName = value; }
+        }
+
+        public TimeSpan MaxConnectionIdleTime {
+            get { return maxConnectionIdleTime; }
+            set { maxConnectionIdleTime = value; }
+        }
+
+        public TimeSpan MaxConnectionLifeTime {
+            get { return maxConnectionLifeTime; }
+            set { maxConnectionLifeTime = value; }
+        }
+
+        public int MaxConnectionPoolSize {
+            get { return maxConnectionPoolSize; }
+            set { maxConnectionPoolSize = value; }
+        }
+
+        public int MinConnectionPoolSize {
+            get { return minConnectionPoolSize; }
+            set { minConnectionPoolSize = value; }
         }
 
         public string ReplicaSetName {
@@ -85,12 +122,162 @@ namespace MongoDB.Driver {
             get { return slaveOk; }
             set { slaveOk = value; }
         }
+
+        public TimeSpan SocketTimeout {
+            get { return socketTimeout; }
+            set { socketTimeout = value; }
+        }
+
+        public double WaitQueueMultiple {
+            get { return waitQueueMultiple; }
+            set {
+                waitQueueMultiple = value;
+                waitQueueSize = 0;
+            }
+        }
+
+        public int WaitQueueSize {
+            get { return waitQueueSize; }
+            set {
+                waitQueueMultiple = 0;
+                waitQueueSize = value;
+            }
+        }
+
+        public TimeSpan WaitQueueTimeout {
+            get { return waitQueueTimeout; }
+            set { waitQueueTimeout = value; }
+        }
+        #endregion
+
+        #region internal static methods
+        // these helper methods are shared with MongoConnectionStringBuilder
+        internal static string FormatTimeSpan(
+            TimeSpan value
+        ) {
+            const int oneSecond = 1000; // milliseconds
+            const int oneMinute = 60 * oneSecond;
+            const int oneHour = 60 * oneMinute;
+
+            var ms = (int) value.TotalMilliseconds;
+            if ((ms % oneHour) == 0) {
+                return string.Format("{0}h", ms / oneHour);
+            } else if ((ms % oneMinute) == 0) {
+                return string.Format("{0}m", ms / oneMinute);
+            } else if ((ms % oneSecond) == 0) {
+                return string.Format("{0}s", ms / oneSecond);
+            } else {
+                return string.Format("{0}ms", ms);
+            }
+        }
+
+        internal static ConnectionMode ParseConnectionMode(
+            string name,
+            string s
+        ) {
+            try {
+                return (ConnectionMode) Enum.Parse(typeof(ConnectionMode), s, true); // ignoreCase
+            } catch (ArgumentException) {
+                throw new FormatException(FormatMessage(name, s));
+            }
+        }
+
+        internal static bool ParseBoolean(
+            string name,
+            string s
+        ) {
+            try {
+                return XmlConvert.ToBoolean(s.ToLower());
+            } catch (FormatException) {
+                throw new FormatException(FormatMessage(name, s));
+            }
+        }
+
+        internal static double ParseDouble(
+            string name,
+            string s
+        ) {
+            try {
+                return XmlConvert.ToDouble(s);
+            } catch (FormatException) {
+                throw new FormatException(FormatMessage(name, s));
+            }
+        }
+
+        internal static int ParseInt32(
+            string name,
+            string s
+        ) {
+            try {
+                return XmlConvert.ToInt32(s);
+            } catch (FormatException) {
+                throw new FormatException(FormatMessage(name, s));
+            }
+        }
+
+        internal static TimeSpan ParseTimeSpan(
+            string name,
+            string s
+        ) {
+            TimeSpan result;
+            if (TryParseTimeSpan(name, s, out result)) {
+                return result;
+            } else {
+                throw new FormatException(FormatMessage(name, s));
+            }
+        }
+
+        internal static bool TryParseTimeSpan(
+            string name,
+            string s,
+            out TimeSpan result
+        ) {
+            name = name.ToLower();
+            s = s.ToLower();
+
+            var multiplier = 1000;
+            if (name.EndsWith("ms")) {
+                multiplier = 1;
+            } else if (s.EndsWith("ms")) {
+                s = s.Substring(0, s.Length - 2);
+                multiplier = 1;
+            } else if (s.EndsWith("s")) {
+                s = s.Substring(0, s.Length - 1);
+                multiplier = 1000;
+            } else if (s.EndsWith("m")) {
+                s = s.Substring(0, s.Length - 1);
+                multiplier = 60 * 1000;
+            } else if (s.EndsWith("h")) {
+                s = s.Substring(0, s.Length - 1);
+                multiplier = 60 * 60 * 1000;
+            } else if (s.Contains(":")) {
+                return TimeSpan.TryParse(s, out result);
+            }
+
+            try {
+                result = TimeSpan.FromMilliseconds(multiplier * XmlConvert.ToDouble(s));
+                return true;
+            } catch (FormatException) {
+                result = TimeSpan.Zero;
+                return false;
+            }
+        }
+        #endregion
+
+        #region private static methods
+        private static string FormatMessage(
+            string name,
+            string value
+        ) {
+            return string.Format("Invalid connection string: {0}={1}", name, value);
+        }
         #endregion
 
         #region public methods
         public void Parse(
             string url
         ) {
+            ResetValues();
             const string pattern =
                 @"^mongodb://" +
                 @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
@@ -123,107 +310,100 @@ namespace MongoDB.Driver {
                     }
                     this.servers = addresses;
                 } else {
-                    throw new FormatException("Server component missing");
+                    throw new FormatException("Invalid connection string: server missing");
                 }
 
                 this.databaseName = (databaseName != "") ? databaseName : null;
 
-
                 if (!string.IsNullOrEmpty(query)) {
-                    var setSafeMode = false;
+                    var safeModeChanged = false;
                     var safe = false;
                     var w = 0;
-                    var wtimeout = 0;
+                    var wtimeout = TimeSpan.Zero;
                     var fsync = false;
 
                     foreach (var pair in query.Split('&', ';')) {
                         var parts = pair.Split('=');
                         if (parts.Length != 2) {
-                            throw new ArgumentException("Invalid connection string");
+                            throw new FormatException(string.Format("Invalid connection string: {0}", parts));
                         }
                         var name = parts[0];
                         var value = parts[1];
 
-                        switch (name) {
+                        switch (name.ToLower()) {
                             case "connect":
-                                switch (value) {
-                                    case "direct":
-                                        this.connectionMode = ConnectionMode.Direct;
-                                        this.replicaSetName = null;
-                                        break;
-                                    case "replicaset":
-                                        this.connectionMode = ConnectionMode.ReplicaSet;
-                                        break;
-                                    default:
-                                        throw new ArgumentException("Invalid connection string");
-                                }
+                                connectionMode = ParseConnectionMode(name, value);
+                                break;
+                            case "connecttimeout":
+                            case "connecttimeoutms":
+                                connectTimeout = ParseTimeSpan(name, value);
                                 break;
                             case "fsync":
-                                setSafeMode = true;
-                                switch (value) {
-                                    case "false":
-                                        fsync = false;
-                                        break;
-                                    case "true":
-                                        fsync = true;
-                                        break;
-                                    default:
-                                        throw new ArgumentException("Invalid connection string");
-                                }
+                                safeModeChanged = true;
                                 safe = true;
+                                fsync = ParseBoolean(name, value);
+                                break;
+                            case "maxidletime":
+                            case "maxidletimems":
+                                maxConnectionIdleTime = ParseTimeSpan(name, value);
+                                break;
+                            case "maxlifetime":
+                            case "maxlifetimems":
+                                maxConnectionLifeTime = ParseTimeSpan(name, value);
+                                break;
+                            case "maxpoolsize":
+                                maxConnectionPoolSize = ParseInt32(name, value);
+                                break;
+                            case "minpoolsize":
+                                minConnectionPoolSize = ParseInt32(name, value);
                                 break;
                             case "replicaset":
                                 this.replicaSetName = value;
                                 this.connectionMode = ConnectionMode.ReplicaSet;
                                 break;
                             case "safe":
-                                setSafeMode = true;
-                                switch (value) {
-                                    case "false":
-                                        safe = false;
-                                        break;
-                                    case "true":
-                                        safe = true;
-                                        break;
-                                    default:
-                                        throw new ArgumentException("Invalid connection string");
-                                }
+                                safeModeChanged = true;
+                                safe = ParseBoolean(name, value);
                                 break;
                             case "slaveok":
-                                switch (value) {
-                                    case "false":
-                                        this.slaveOk = false;
-                                        break;
-                                    case "true":
-                                        this.slaveOk = true;
-                                        break;
-                                    default:
-                                        throw new ArgumentException("Invalid connection string");
-                                }
+                                slaveOk = ParseBoolean(name, value);
+                                break;
+                            case "sockettimeout":
+                            case "sockettimeoutms":
+                                socketTimeout = ParseTimeSpan(name, value);
                                 break;
                             case "w":
-                                setSafeMode = true;
-                                if (!int.TryParse(value, out w)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                                safeModeChanged = true;
                                 safe = true;
+                                w = ParseInt32(name, value);
+                                break;
+                            case "waitqueuemultiple":
+                                waitQueueMultiple = ParseDouble(name, value);
+                                waitQueueSize = 0;
+                                break;
+                            case "waitqueuesize":
+                                waitQueueMultiple = 0;
+                                waitQueueSize = ParseInt32(name, value);
+                                break;
+                            case "waitqueuetimeout":
+                            case "waitqueuetimeoutms":
+                                waitQueueTimeout = ParseTimeSpan(name, value);
                                 break;
                             case "wtimeout":
-                                setSafeMode = true;
-                                if (!int.TryParse(value, out wtimeout)) {
-                                    throw new ArgumentException("Invalid connection string");
-                                }
+                            case "wtimeoutms":
+                                safeModeChanged = true;
                                 safe = true;
+                                wtimeout = ParseTimeSpan(name, value);
                                 break;
                         }
                     }
 
-                    if (setSafeMode) {
-                        this.safeMode = SafeMode.Create(safe, fsync, w, TimeSpan.FromMilliseconds(wtimeout));
+                    if (safeModeChanged) {
+                        this.safeMode = SafeMode.Create(safe, fsync, w, wtimeout);
                     }
                 }
             } else {
-                throw new ArgumentException("Invalid connection string");
+                throw new FormatException(string.Format("Invalid connection string: {0}", url));
             }
         }
 
@@ -257,10 +437,13 @@ namespace MongoDB.Driver {
                 connectionMode == ConnectionMode.Direct && servers.Count() != 1 ||
                 connectionMode == Driver.ConnectionMode.ReplicaSet && servers.Count() == 1
             ) {
-                query.AppendFormat("connect={0};", connectionMode.ToString().ToLower());
+                query.AppendFormat("connect={0};", MongoUtils.ToCamelCase(connectionMode.ToString()));
             }
             if (!string.IsNullOrEmpty(replicaSetName)) {
-                query.AppendFormat("replicaset={0};", replicaSetName);
+                query.AppendFormat("replicaSet={0};", replicaSetName);
+            }
+            if (slaveOk) {
+                query.AppendFormat("slaveOk={0};", (slaveOk) ? "true" : "false");
             }
             if (safeMode != null && safeMode.Enabled) {
                 query.AppendFormat("safe=true;");
@@ -270,12 +453,36 @@ namespace MongoDB.Driver {
                 if (safeMode.W != 0) {
                     query.AppendFormat("w={0};", safeMode.W);
                     if (safeMode.WTimeout != TimeSpan.Zero) {
-                        query.AppendFormat("wtimeout={0};", (int) safeMode.WTimeout.TotalMilliseconds);
+                        query.AppendFormat("wtimeout={0};", FormatTimeSpan(safeMode.WTimeout));
                     }
                 }
             }
-            if (slaveOk) {
-                query.AppendFormat("slaveok={0};", (slaveOk) ? "true" : "false");
+            if (connectTimeout != MongoDefaults.ConnectTimeout) {
+                query.AppendFormat("connectTimeout={0};", FormatTimeSpan(connectTimeout));
+            }
+            if (maxConnectionIdleTime != MongoDefaults.MaxConnectionIdleTime) {
+                query.AppendFormat("maxIdleTime={0};", FormatTimeSpan(maxConnectionIdleTime));
+            }
+            if (maxConnectionLifeTime != MongoDefaults.MaxConnectionLifeTime) {
+                query.AppendFormat("maxLifeTime={0};", FormatTimeSpan(maxConnectionLifeTime));
+            }
+            if (maxConnectionPoolSize != MongoDefaults.MaxConnectionPoolSize) {
+                query.AppendFormat("maxPoolSize={0};", maxConnectionPoolSize);
+            }
+            if (minConnectionPoolSize != MongoDefaults.MinConnectionPoolSize) {
+                query.AppendFormat("minPoolSize={0};", minConnectionPoolSize);
+            }
+            if (socketTimeout != MongoDefaults.SocketTimeout) {
+                query.AppendFormat("socketTimeout={0};", FormatTimeSpan(socketTimeout));
+            }
+            if (waitQueueMultiple != 00 && waitQueueMultiple != MongoDefaults.WaitQueueMultiple) {
+                query.AppendFormat("waitQueueMultiple={0};", waitQueueMultiple);
+            }
+            if (waitQueueSize != 0 && waitQueueSize != MongoDefaults.WaitQueueSize) {
+                query.AppendFormat("waitQueueSize={0};", waitQueueSize);
+            }
+            if (waitQueueTimeout != MongoDefaults.WaitQueueTimeout) {
+                query.AppendFormat("waitQueueTimeout={0};", FormatTimeSpan(WaitQueueTimeout));
             }
             if (query.Length != 0) {
                 query.Length = query.Length - 1; // remove trailing ";"
@@ -286,6 +493,27 @@ namespace MongoDB.Driver {
                 url.Append(query.ToString());
             }
             return url.ToString();
+        }
+        #endregion
+
+        #region private methods
+        private void ResetValues() {
+            connectionMode = ConnectionMode.Direct;
+            connectTimeout = MongoDefaults.ConnectTimeout;
+            credentials = null;
+            databaseName = null;
+            maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
+            maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
+            maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
+            minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            replicaSetName = null;
+            safeMode = null;
+            servers = null;
+            slaveOk = false;
+            socketTimeout = MongoDefaults.SocketTimeout;
+            waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
+            waitQueueSize = MongoDefaults.WaitQueueSize;
+            waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
         }
         #endregion
     }

@@ -28,7 +28,7 @@ namespace MongoDB.Driver {
     public class MongoServer {
         #region private static fields
         private static object staticLock = new object();
-        private static Dictionary<MongoUrl, MongoServer> servers = new Dictionary<MongoUrl, MongoServer>();
+        private static Dictionary<string, MongoServer> servers = new Dictionary<string, MongoServer>();
         #endregion
 
         #region private fields
@@ -40,6 +40,7 @@ namespace MongoDB.Driver {
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> replicaSet;
         private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
+        private MongoConnectionPoolSettings connectionPoolSettings;
         private MongoConnectionPool primaryConnectionPool;
         private List<MongoConnectionPool> secondaryConnectionPools;
         private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
@@ -51,10 +52,16 @@ namespace MongoDB.Driver {
 
         #region constructors
         public MongoServer(
-            MongoUrl url
+            string connectionString
         ) {
-            this.url = url;
+            if (connectionString.StartsWith("mongodb://")) {
+                this.url = MongoUrl.Create(connectionString);
+            } else {
+                var builder = new MongoConnectionStringBuilder(connectionString);
+                this.url = builder.ToMongoUrl();
+            }
             this.defaultCredentials = url.Credentials;
+            this.connectionPoolSettings = url.ConnectionPoolSettings;
 
             foreach (var address in url.Servers) {
                 addresses.Add(address);
@@ -71,38 +78,32 @@ namespace MongoDB.Driver {
         public static MongoServer Create(
             MongoConnectionStringBuilder builder
         ) {
-            return Create(builder.ToMongoUrl());
+            return Create(builder.ToString());
         }
 
         public static MongoServer Create(
             MongoUrl url
         ) {
+            return Create(url.ToString());
+        }
+
+        public static MongoServer Create(
+            string connectionString
+        ) {
             lock (staticLock) {
                 MongoServer server;
-                if (!servers.TryGetValue(url, out server)) {
-                    server = new MongoServer(url);
-                    servers.Add(url, server);
+                if (!servers.TryGetValue(connectionString, out server)) {
+                    server = new MongoServer(connectionString);
+                    servers.Add(connectionString, server);
                 }
                 return server;
             }
         }
 
         public static MongoServer Create(
-            string connectionString
-        ) {
-            if (connectionString.StartsWith("mongodb://")) {
-                var url = MongoUrl.Create(connectionString);
-                return Create(url);
-            } else {
-                MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder.ToMongoUrl());
-            }
-        }
-
-        public static MongoServer Create(
             Uri uri
         ) {
-            return Create(MongoUrl.Create(uri.ToString()));
+            return Create(uri.ToString());
         }
         #endregion
 
@@ -113,6 +114,10 @@ namespace MongoDB.Driver {
 
         public IEnumerable<MongoServerAddress> Addresses {
             get { return addresses; }
+        }
+
+        public MongoConnectionPoolSettings ConnectionPoolSettings {
+            get { return connectionPoolSettings; }
         }
 
         public MongoCredentials DefaultCredentials {
@@ -204,7 +209,7 @@ namespace MongoDB.Driver {
         }
 
         public void Connect() {
-            Connect(MongoDefaults.ConnectTimeout);
+            Connect(connectionPoolSettings.ConnectTimeout);
         }
 
         public void Connect(
@@ -402,7 +407,7 @@ namespace MongoDB.Driver {
             }
 
             // get the connection outside of the lock
-            var connection = GetConnection(initialDatabase, false); // not slaveOk
+            var connection = AcquireConnection(initialDatabase, false); // not slaveOk
 
             lock (requestsLock) {
                 var request = new Request(connection);
@@ -437,7 +442,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region internal methods
-        internal MongoConnection GetConnection(
+        internal MongoConnection AcquireConnection(
             MongoDatabase database,
             bool slaveOk
         ) {
@@ -452,7 +457,7 @@ namespace MongoDB.Driver {
             }
 
             var connectionPool = GetConnectionPool(slaveOk);
-            var connection = connectionPool.GetConnection(database);
+            var connection = connectionPool.AcquireConnection(database);
 
             try {
                 connection.CheckAuthentication(this, database); // will authenticate if necessary

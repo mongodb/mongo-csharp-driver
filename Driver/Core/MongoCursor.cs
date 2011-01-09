@@ -423,7 +423,7 @@ namespace MongoDB.Driver {
             #region private methods
             private MongoReplyMessage<TDocument> GetFirst() {
                 bool slaveOk = (cursor.flags & QueryFlags.SlaveOk) != 0;
-                connection = cursor.server.GetConnection(cursor.database, slaveOk);
+                connection = cursor.server.AcquireConnection(cursor.database, slaveOk);
                 try {
                     // some of these weird conditions are necessary to get commands to run correctly
                     // specifically numberToReturn has to be 1 or -1 for commands

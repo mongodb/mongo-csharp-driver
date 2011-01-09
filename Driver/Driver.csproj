@@ -135,6 +135,7 @@
     <Compile Include="Exceptions\MongoSafeModeException.cs" />
     <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
     <Compile Include="Internal\DirectConnector.cs" />
+    <Compile Include="Internal\MongoConnectionPoolSettings.cs" />
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
     <Compile Include="Internal\MongoConnection.cs" />
