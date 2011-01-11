@@ -39,6 +39,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        // used when update modifier is a replacement document
         public static UpdateWrapper Create<T>(
             T update
         ) {

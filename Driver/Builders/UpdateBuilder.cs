@@ -117,9 +117,37 @@ namespace MongoDB.Driver.Builders {
 
         public static UpdateBuilder PullAll(
             string name,
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().PullAll(name, values);
+        }
+
+        public static UpdateBuilder PullAll(
+            string name,
             params BsonValue[] values
         ) {
             return new UpdateBuilder().PullAll(name, values);
+        }
+
+        public static UpdateBuilder PullAllWrapped<T>(
+            string name,
+            IEnumerable<T> values
+        ) {
+            return new UpdateBuilder().PullAllWrapped<T>(name, values);
+        }
+
+        public static UpdateBuilder PullAllWrapped<T>(
+            string name,
+            params T[] values
+        ) {
+            return new UpdateBuilder().PullAllWrapped<T>(name, values);
+        }
+
+        public static UpdateBuilder PullWrapped<T>(
+            string name,
+            T value
+        ) {
+            return new UpdateBuilder().PullWrapped<T>(name, value);
         }
 
         public static UpdateBuilder Push(
@@ -131,9 +159,37 @@ namespace MongoDB.Driver.Builders {
 
         public static UpdateBuilder PushAll(
             string name,
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().PushAll(name, values);
+        }
+
+        public static UpdateBuilder PushAll(
+            string name,
             params BsonValue[] values
         ) {
             return new UpdateBuilder().PushAll(name, values);
+        }
+
+        public static UpdateBuilder PushAllWrapped<T>(
+            string name,
+            IEnumerable<T> values
+        ) {
+            return new UpdateBuilder().PushAllWrapped<T>(name, values);
+        }
+
+        public static UpdateBuilder PushAllWrapped<T>(
+            string name,
+            params T[] values
+        ) {
+            return new UpdateBuilder().PushAllWrapped<T>(name, values);
+        }
+
+        public static UpdateBuilder PushWrapped<T>(
+            string name,
+            T value
+        ) {
+            return new UpdateBuilder().PushWrapped<T>(name, value);
         }
 
         // similar to wrap but used when a full document replacement is wanted (<T> allows control over discriminator)
@@ -148,6 +204,13 @@ namespace MongoDB.Driver.Builders {
             BsonValue value
         ) {
             return new UpdateBuilder().Set(name, value);
+        }
+
+        public static UpdateBuilder SetWrapped<T>(
+            string name,
+            T value
+        ) {
+            return new UpdateBuilder().SetWrapped<T>(name, value);
         }
 
         public static UpdateBuilder Unset(
@@ -216,7 +279,8 @@ namespace MongoDB.Driver.Builders {
             string name,
             IEnumerable<T> values
         ) {
-            return AddToSetEach(name, BsonDocumentWrapper.CreateMultiple<T>(values).Cast<BsonValue>());// the cast to BsonValue is required
+            var wrappedValues = BsonDocument.WrapMultiple<T>(values).Cast<BsonValue>(); // the cast to BsonValue is required
+            return AddToSetEach(name, wrappedValues);
         }
 
         public UpdateBuilder AddToSetEachWrapped<T>(
@@ -227,10 +291,11 @@ namespace MongoDB.Driver.Builders {
         }
 
         public UpdateBuilder AddToSetWrapped<T>(
-           string name,
-           T value
-       ) {
-            return AddToSet(name, (BsonValue) BsonDocumentWrapper.Create<T>(value)); // the cast to BsonValue is required
+            string name,
+            T value
+        ) {
+            var wrappedValue = (BsonValue) BsonDocument.Wrap<T>(value); // the cast to BsonValue is required
+            return AddToSet(name, wrappedValue);
         }
 
         public UpdateBuilder Inc(
@@ -313,7 +378,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             IMongoQuery query
         ) {
-            BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
+            BsonValue wrappedQuery = BsonDocument.Wrap(query);
             BsonElement element;
             if (document.TryGetElement("$pull", out element)) {
                 element.Value.AsBsonDocument.Add(name, wrappedQuery);
@@ -325,14 +390,56 @@ namespace MongoDB.Driver.Builders {
 
         public UpdateBuilder PullAll(
             string name,
-            params BsonValue[] values
+            IEnumerable<BsonValue> values
         ) {
-            var array = new BsonArray((IEnumerable<BsonValue>) values);
+            var array = new BsonArray(values);
             BsonElement element;
             if (document.TryGetElement("$pullAll", out element)) {
                 element.Value.AsBsonDocument.Add(name, array);
             } else {
                 document.Add("$pullAll", new BsonDocument(name, array));
+            }
+            return this;
+        }
+
+        public UpdateBuilder PullAll(
+            string name,
+            params BsonValue[] values
+        ) {
+            return PullAll(name, (IEnumerable<BsonValue>) values);
+        }
+
+        public UpdateBuilder PullAllWrapped<T>(
+            string name,
+            IEnumerable<T> values
+        ) {
+            var wrappedValues = new BsonArray(BsonDocument.WrapMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
+            BsonElement element;
+            if (document.TryGetElement("$pullAll", out element)) {
+                element.Value.AsBsonDocument.Add(name, wrappedValues);
+            } else {
+                document.Add("$pullAll", new BsonDocument(name, wrappedValues));
+            }
+            return this;
+        }
+
+        public UpdateBuilder PullAllWrapped<T>(
+            string name,
+            params T[] values
+        ) {
+            return PullAllWrapped<T>(name, (IEnumerable<T>) values);
+        }
+
+        public UpdateBuilder PullWrapped<T>(
+            string name,
+            T value
+        ) {
+            var wrappedValue = BsonDocument.Wrap(value);
+            BsonElement element;
+            if (document.TryGetElement("$pull", out element)) {
+                element.Value.AsBsonDocument.Add(name, wrappedValue);
+            } else {
+                document.Add("$pull", new BsonDocument(name, wrappedValue));
             }
             return this;
         }
@@ -352,9 +459,9 @@ namespace MongoDB.Driver.Builders {
 
         public UpdateBuilder PushAll(
             string name,
-            params BsonValue[] values
+            IEnumerable<BsonValue> values
         ) {
-            var array = new BsonArray((IEnumerable<BsonValue>) values);
+            var array = new BsonArray(values);
             BsonElement element;
             if (document.TryGetElement("$pushAll", out element)) {
                 element.Value.AsBsonDocument.Add(name, array);
@@ -362,6 +469,48 @@ namespace MongoDB.Driver.Builders {
                 document.Add("$pushAll", new BsonDocument(name, array));
             }
             return this;
+        }
+
+        public UpdateBuilder PushAll(
+            string name,
+            params BsonValue[] values
+        ) {
+            return PushAll(name, (IEnumerable<BsonValue>) values);
+        }
+
+        public UpdateBuilder PushWrapped<T>(
+            string name,
+            T value
+        ) {
+            var wrappedValue = BsonDocument.Wrap<T>(value);
+            BsonElement element;
+            if (document.TryGetElement("$push", out element)) {
+                element.Value.AsBsonDocument.Add(name, wrappedValue);
+            } else {
+                document.Add("$push", new BsonDocument(name, wrappedValue));
+            }
+            return this;
+        }
+
+        public UpdateBuilder PushAllWrapped<T>(
+            string name,
+            IEnumerable<T> values
+        ) {
+            var wrappedValues = new BsonArray(BsonDocument.WrapMultiple<T>(values).Cast<BsonValue>()); // the cast to BsonValue is required
+            BsonElement element;
+            if (document.TryGetElement("$pushAll", out element)) {
+                element.Value.AsBsonDocument.Add(name, wrappedValues);
+            } else {
+                document.Add("$pushAll", new BsonDocument(name, wrappedValues));
+            }
+            return this;
+        }
+
+        public UpdateBuilder PushAllWrapped<T>(
+            string name,
+            params T[] values
+        ) {
+            return PushAllWrapped(name, (IEnumerable<T>) values);
         }
 
         public UpdateBuilder Set(
@@ -373,6 +522,20 @@ namespace MongoDB.Driver.Builders {
                 element.Value.AsBsonDocument.Add(name, value);
             } else {
                 document.Add("$set", new BsonDocument(name, value));
+            }
+            return this;
+        }
+
+        public UpdateBuilder SetWrapped<T>(
+            string name,
+            T value
+        ) {
+            var wrappedValue = BsonDocument.Wrap<T>(value);
+            BsonElement element;
+            if (document.TryGetElement("$set", out element)) {
+                element.Value.AsBsonDocument.Add(name, wrappedValue);
+            } else {
+                document.Add("$set", new BsonDocument(name, wrappedValue));
             }
             return this;
         }

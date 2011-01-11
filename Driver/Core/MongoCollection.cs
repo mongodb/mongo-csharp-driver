@@ -83,7 +83,7 @@ namespace MongoDB.Driver {
         ) {
             var command = new CommandDocument {
                 { "count", name },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", BsonDocument.Wrap(query) } // query is optional
             };
             var result = database.RunCommand(command);
             return result.Response["n"].ToInt32();
@@ -132,7 +132,7 @@ namespace MongoDB.Driver {
             var command = new CommandDocument {
                 { "distinct", name },
                 { "key", key },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", BsonDocument.Wrap(query) } // query is optional
             };
             var result = database.RunCommand(command);
             return result.Response["values"].AsBsonArray;
@@ -241,10 +241,10 @@ namespace MongoDB.Driver {
         ) {
             var command = new CommandDocument {
                 { "findAndModify", name },
-                { "query", BsonDocumentWrapper.Create(query) },
-                { "sort", BsonDocumentWrapper.Create(sortBy) },
-                { "update", BsonDocumentWrapper.Create(update) },
-                { "fields", BsonDocumentWrapper.Create(fields) },
+                { "query", BsonDocument.Wrap(query) },
+                { "sort", BsonDocument.Wrap(sortBy) },
+                { "update", BsonDocument.Wrap(update) },
+                { "fields", BsonDocument.Wrap(fields) },
                 { "new", true, returnNew }
             };
             return database.RunCommandAs<FindAndModifyResult>(command);
@@ -256,8 +256,8 @@ namespace MongoDB.Driver {
         ) {
             var command = new CommandDocument {
                 { "findAndModify", name },
-                { "query", BsonDocumentWrapper.Create(query) },
-                { "sort", BsonDocumentWrapper.Create(sortBy) },
+                { "query", BsonDocument.Wrap(query) },
+                { "sort", BsonDocument.Wrap(sortBy) },
                 { "remove", true }
             };
             return database.RunCommandAs<FindAndModifyResult>(command);
@@ -305,7 +305,7 @@ namespace MongoDB.Driver {
                 { "geoNear", name },
                 { "near", new BsonArray { x, y } },
                 { "num", limit },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", BsonDocument.Wrap(query) } // query is optional
             };
             command.Merge(options.ToBsonDocument());
             return database.RunCommandAs<GeoNearResult<TDocument>>(command);
@@ -356,7 +356,7 @@ namespace MongoDB.Driver {
             var command = new CommandDocument {
                 { "group", new BsonDocument {
                     { "ns", name },
-                    { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
+                    { "condition", BsonDocument.Wrap(query) }, // condition is optional
                     { "$keyf", keyFunction },
                     { "initial", initial },
                     { "$reduce", reduce },
@@ -377,8 +377,8 @@ namespace MongoDB.Driver {
             var command = new CommandDocument {
                 { "group", new BsonDocument {
                     { "ns", name },
-                    { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
-                    { "key", BsonDocumentWrapper.Create(keys) },
+                    { "condition", BsonDocument.Wrap(query) }, // condition is optional
+                    { "key", BsonDocument.Wrap(keys) },
                     { "initial", initial },
                     { "$reduce", reduce },
                     { "finalize", finalize }

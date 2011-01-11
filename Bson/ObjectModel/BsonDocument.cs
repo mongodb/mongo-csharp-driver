@@ -241,6 +241,26 @@ namespace MongoDB.Bson {
                 return ReadFrom(bsonReader);
             }
         }
+
+        public static BsonDocumentWrapper Wrap<T>(
+            T value
+        ) {
+            if (value != null) {
+                return new BsonDocumentWrapper(typeof(T), value);
+            } else {
+                return null;
+            }
+        }
+
+        public static IEnumerable<BsonDocumentWrapper> WrapMultiple<T>(
+            IEnumerable<T> values
+        ) {
+            if (values != null) {
+                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(T), v));
+            } else {
+                return null;
+            }
+        }
         #endregion
 
         #region public methods

@@ -37,8 +37,8 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public T GetModifiedDocument<T>() {
-            return BsonSerializer.Deserialize<T>(ModifiedDocument);
+        public TDocument GetModifiedDocument<TDocument>() {
+            return BsonSerializer.Deserialize<TDocument>(ModifiedDocument);
         }
         #endregion
     }

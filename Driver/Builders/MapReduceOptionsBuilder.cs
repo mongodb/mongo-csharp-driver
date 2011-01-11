@@ -199,21 +199,21 @@ namespace MongoDB.Driver.Builders {
         public MapReduceOptionsBuilder SetQuery(
             IMongoQuery query
         ) {
-            document["query"] = BsonDocumentWrapper.Create(query);
+            document["query"] = BsonDocument.Wrap(query);
             return this;
         }
 
         public MapReduceOptionsBuilder SetScope(
             IMongoScope scope
         ) {
-            document["scope"] = BsonDocumentWrapper.Create(scope);
+            document["scope"] = BsonDocument.Wrap(scope);
             return this;
         }
 
         public MapReduceOptionsBuilder SetSortOrder(
             IMongoSortBy sortBy
         ) {
-            document["sort"] = BsonDocumentWrapper.Create(sortBy);
+            document["sort"] = BsonDocument.Wrap(sortBy);
             return this;
         }
 

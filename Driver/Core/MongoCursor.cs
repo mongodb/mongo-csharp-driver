@@ -114,7 +114,7 @@ namespace MongoDB.Driver {
             isFrozen = true;
             var command = new CommandDocument {
                 { "count", collection.Name },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", BsonDocument.Wrap(query) } // query is optional
             };
             var result = database.RunCommand(command);
             return result.Response["n"].ToInt32();
@@ -276,7 +276,7 @@ namespace MongoDB.Driver {
             IMongoSortBy sortBy
         ) {
             if (isFrozen) { ThrowFrozen(); }
-            SetOption("$orderby", BsonDocumentWrapper.Create(sortBy));
+            SetOption("$orderby", BsonDocument.Wrap(sortBy));
             return this;
         }
 
@@ -291,7 +291,7 @@ namespace MongoDB.Driver {
             isFrozen = true;
             var command = new CommandDocument {
                 { "count", collection.Name },
-                { "query", BsonDocumentWrapper.Create(query) }, // query is optional
+                { "query", BsonDocument.Wrap(query) }, // query is optional
                 { "limit", limit, limit != 0 },
                 { "skip", skip, skip != 0 }
             };
@@ -519,7 +519,7 @@ namespace MongoDB.Driver {
                 if (cursor.options == null) {
                     return cursor.query;
                 } else {
-                    var query = (cursor.query == null) ? (BsonValue) new BsonDocument() : BsonDocumentWrapper.Create(cursor.query);
+                    var query = (cursor.query == null) ? (BsonValue) new BsonDocument() : BsonDocument.Wrap(cursor.query);
                     var wrappedQuery = new QueryDocument("$query", query);
                     wrappedQuery.Merge(cursor.options);
                     return wrappedQuery;
