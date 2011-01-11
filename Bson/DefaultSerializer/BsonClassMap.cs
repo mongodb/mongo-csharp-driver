@@ -233,15 +233,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             profiles.Add(filtered);
         }
 
-        // TODO: should unregistering class maps even be allowed?
-        public static void UnregisterClassMap(
-            Type classType
-        ) {
-            lock (staticLock) {
-                classMaps.Remove(classType);
-            }
-        }
-
         public static void UnregisterConventions(
             ConventionProfile conventions
         ) {
