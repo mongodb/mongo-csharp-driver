@@ -27,17 +27,17 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class BsonClassMapSerializer : IBsonSerializer {
         #region private static fields
-        private static BsonClassMapSerializer singleton = new BsonClassMapSerializer();
+        private static BsonClassMapSerializer instance = new BsonClassMapSerializer();
         #endregion
 
         #region constructors
-        private BsonClassMapSerializer() {
+        public BsonClassMapSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static BsonClassMapSerializer Singleton {
-            get { return singleton; }
+        public static BsonClassMapSerializer Instance {
+            get { return instance; }
         }
         #endregion
 

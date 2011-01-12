@@ -22,7 +22,7 @@ namespace MongoDB.Bson {
     [Serializable]
     public class BsonMinKey : BsonValue, IComparable<BsonMinKey>, IEquatable<BsonMinKey> {
         #region private static fields
-        private static BsonMinKey singleton = new BsonMinKey();
+        private static BsonMinKey value = new BsonMinKey();
         #endregion
 
         #region constructors
@@ -33,7 +33,7 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        public static BsonMinKey Value { get { return singleton; } }
+        public static BsonMinKey Value { get { return value; } }
         #endregion
 
         #region public methods

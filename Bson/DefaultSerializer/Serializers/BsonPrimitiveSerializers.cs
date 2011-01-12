@@ -27,23 +27,23 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class BooleanSerializer : BsonBaseSerializer {
         #region private static fields
-        private static BooleanSerializer singleton = new BooleanSerializer();
+        private static BooleanSerializer instance = new BooleanSerializer();
         #endregion
 
         #region constructors
-        private BooleanSerializer() {
+        public BooleanSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static BooleanSerializer Singleton {
-            get { return singleton; }
+        public static BooleanSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(bool), singleton);
+            BsonSerializer.RegisterSerializer(typeof(bool), instance);
         }
         #endregion
 
@@ -108,23 +108,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class DateTimeSerializer : BsonBaseSerializer {
         #region private static fields
-        private static DateTimeSerializer singleton = new DateTimeSerializer();
+        private static DateTimeSerializer instance = new DateTimeSerializer();
         #endregion
 
         #region constructors
-        private DateTimeSerializer() {
+        public DateTimeSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static DateTimeSerializer Singleton {
-            get { return singleton; }
+        public static DateTimeSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(DateTime), singleton);
+            BsonSerializer.RegisterSerializer(typeof(DateTime), instance);
         }
         #endregion
 
@@ -259,23 +259,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class DoubleSerializer : BsonBaseSerializer {
         #region private static fields
-        private static DoubleSerializer singleton = new DoubleSerializer();
+        private static DoubleSerializer instance = new DoubleSerializer();
         #endregion
 
         #region constructors
-        private DoubleSerializer() {
+        public DoubleSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static DoubleSerializer Singleton {
-            get { return singleton; }
+        public static DoubleSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(double), singleton);
+            BsonSerializer.RegisterSerializer(typeof(double), instance);
         }
         #endregion
 
@@ -347,23 +347,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class GuidSerializer : BsonBaseSerializer {
         #region private static fields
-        private static GuidSerializer singleton = new GuidSerializer();
+        private static GuidSerializer instance = new GuidSerializer();
         #endregion
 
         #region constructors
-        private GuidSerializer() {
+        public GuidSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static GuidSerializer Singleton {
-            get { return singleton; }
+        public static GuidSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Guid), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Guid), instance);
         }
         #endregion
 
@@ -419,23 +419,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class Int32Serializer : BsonBaseSerializer {
         #region private static fields
-        private static Int32Serializer singleton = new Int32Serializer();
+        private static Int32Serializer instance = new Int32Serializer();
         #endregion
 
         #region constructors
-        private Int32Serializer() {
+        public Int32Serializer() {
         }
         #endregion
 
         #region public static properties
-        public static Int32Serializer Singleton {
-            get { return singleton; }
+        public static Int32Serializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(int), singleton);
+            BsonSerializer.RegisterSerializer(typeof(int), instance);
         }
         #endregion
 
@@ -509,23 +509,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class Int64Serializer : BsonBaseSerializer {
         #region private static fields
-        private static Int64Serializer singleton = new Int64Serializer();
+        private static Int64Serializer instance = new Int64Serializer();
         #endregion
 
         #region constructors
-        private Int64Serializer() {
+        public Int64Serializer() {
         }
         #endregion
 
         #region public static properties
-        public static Int64Serializer Singleton {
-            get { return singleton; }
+        public static Int64Serializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(long), singleton);
+            BsonSerializer.RegisterSerializer(typeof(long), instance);
         }
         #endregion
 
@@ -597,23 +597,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class ObjectIdSerializer : BsonBaseSerializer {
         #region private static fields
-        private static ObjectIdSerializer singleton = new ObjectIdSerializer();
+        private static ObjectIdSerializer instance = new ObjectIdSerializer();
         #endregion
 
         #region constructors
-        private ObjectIdSerializer() {
+        public ObjectIdSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static ObjectIdSerializer Singleton {
-            get { return singleton; }
+        public static ObjectIdSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(ObjectId), singleton);
+            BsonSerializer.RegisterSerializer(typeof(ObjectId), instance);
         }
         #endregion
 
@@ -664,23 +664,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class StringSerializer : BsonBaseSerializer {
         #region private static fields
-        private static StringSerializer singleton = new StringSerializer();
+        private static StringSerializer instance = new StringSerializer();
         #endregion
 
         #region constructors
-        private StringSerializer() {
+        public StringSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static StringSerializer Singleton {
-            get { return singleton; }
+        public static StringSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(string), singleton);
+            BsonSerializer.RegisterSerializer(typeof(string), instance);
         }
         #endregion
 

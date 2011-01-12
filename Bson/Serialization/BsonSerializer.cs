@@ -206,7 +206,7 @@ namespace MongoDB.Bson.Serialization {
                 if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
                     if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type)) {
-                        serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Singleton;
+                        serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Instance;
                     }
 
                     if (serializer == null && type.IsGenericType) {
@@ -332,7 +332,7 @@ namespace MongoDB.Bson.Serialization {
                 // repeat the test for null but this time while holding the staticLock
                 if (serializationProvider == null) {
                     DefaultSerializer.BsonDefaultSerializer.Initialize();
-                    serializationProvider = DefaultSerializer.BsonDefaultSerializer.Singleton;
+                    serializationProvider = DefaultSerializer.BsonDefaultSerializer.Instance;
                 }
             }
         }

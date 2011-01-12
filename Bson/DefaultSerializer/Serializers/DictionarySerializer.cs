@@ -26,27 +26,27 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class DictionarySerializer : BsonBaseSerializer {
         #region private static fields
-        private static DictionarySerializer singleton = new DictionarySerializer();
+        private static DictionarySerializer instance = new DictionarySerializer();
         #endregion
 
         #region constructors
-        private DictionarySerializer() {
+        public DictionarySerializer() {
         }
         #endregion
 
         #region public static properties
-        public static DictionarySerializer Singleton {
-            get { return singleton; }
+        public static DictionarySerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Hashtable), singleton);
-            BsonSerializer.RegisterSerializer(typeof(IDictionary), singleton);
-            BsonSerializer.RegisterSerializer(typeof(ListDictionary), singleton);
-            BsonSerializer.RegisterSerializer(typeof(OrderedDictionary), singleton);
-            BsonSerializer.RegisterSerializer(typeof(SortedList), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Hashtable), instance);
+            BsonSerializer.RegisterSerializer(typeof(IDictionary), instance);
+            BsonSerializer.RegisterSerializer(typeof(ListDictionary), instance);
+            BsonSerializer.RegisterSerializer(typeof(OrderedDictionary), instance);
+            BsonSerializer.RegisterSerializer(typeof(SortedList), instance);
         }
         #endregion
 

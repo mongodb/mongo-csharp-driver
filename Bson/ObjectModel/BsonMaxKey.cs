@@ -22,7 +22,7 @@ namespace MongoDB.Bson {
     [Serializable]
     public class BsonMaxKey : BsonValue, IComparable<BsonMaxKey>, IEquatable<BsonMaxKey> {
         #region private static fields
-        private static BsonMaxKey singleton = new BsonMaxKey();
+        private static BsonMaxKey value = new BsonMaxKey();
         #endregion
 
         #region constructors
@@ -33,7 +33,7 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        public static BsonMaxKey Value { get { return singleton; } }
+        public static BsonMaxKey Value { get { return value; } }
         #endregion
 
         #region public methods

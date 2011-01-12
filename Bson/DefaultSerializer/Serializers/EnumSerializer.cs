@@ -26,17 +26,17 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class EnumSerializer : BsonBaseSerializer {
         #region private static fields
-        private static EnumSerializer singleton = new EnumSerializer();
+        private static EnumSerializer instance = new EnumSerializer();
         #endregion
 
         #region constructors
-        private EnumSerializer() {
+        public EnumSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static EnumSerializer Singleton {
-            get { return singleton; }
+        public static EnumSerializer Instance {
+            get { return instance; }
         }
         #endregion
 

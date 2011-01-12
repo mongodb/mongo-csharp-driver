@@ -22,7 +22,7 @@ namespace MongoDB.Bson {
     [Serializable]
     public class BsonNull : BsonValue, IComparable<BsonNull>, IEquatable<BsonNull> {
         #region private static fields
-        private static BsonNull singleton = new BsonNull();
+        private static BsonNull value = new BsonNull();
         #endregion
 
         #region constructors
@@ -33,7 +33,7 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        public static BsonNull Value { get { return singleton; } }
+        public static BsonNull Value { get { return value; } }
         #endregion
 
         #region public methods

@@ -26,26 +26,26 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class EnumerableSerializer : BsonBaseSerializer {
         #region private static fields
-        private static EnumerableSerializer singleton = new EnumerableSerializer();
+        private static EnumerableSerializer instance = new EnumerableSerializer();
         #endregion
 
         #region constructors
-        private EnumerableSerializer() {
+        public EnumerableSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static EnumerableSerializer Singleton {
-            get { return singleton; }
+        public static EnumerableSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(ArrayList), singleton);
-            BsonSerializer.RegisterSerializer(typeof(ICollection), singleton);
-            BsonSerializer.RegisterSerializer(typeof(IEnumerable), singleton);
-            BsonSerializer.RegisterSerializer(typeof(IList), singleton);
+            BsonSerializer.RegisterSerializer(typeof(ArrayList), instance);
+            BsonSerializer.RegisterSerializer(typeof(ICollection), instance);
+            BsonSerializer.RegisterSerializer(typeof(IEnumerable), instance);
+            BsonSerializer.RegisterSerializer(typeof(IList), instance);
         }
         #endregion
 
@@ -98,23 +98,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class QueueSerializer : BsonBaseSerializer {
         #region private static fields
-        private static QueueSerializer singleton = new QueueSerializer();
+        private static QueueSerializer instance = new QueueSerializer();
         #endregion
 
         #region constructors
-        private QueueSerializer() {
+        public QueueSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static QueueSerializer Singleton {
-            get { return singleton; }
+        public static QueueSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Queue), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Queue), instance);
         }
         #endregion
 
@@ -167,23 +167,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class StackSerializer : BsonBaseSerializer {
         #region private static fields
-        private static StackSerializer singleton = new StackSerializer();
+        private static StackSerializer instance = new StackSerializer();
         #endregion
 
         #region constructors
-        private StackSerializer() {
+        public StackSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static StackSerializer Singleton {
-            get { return singleton; }
+        public static StackSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Stack), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Stack), instance);
         }
         #endregion
 

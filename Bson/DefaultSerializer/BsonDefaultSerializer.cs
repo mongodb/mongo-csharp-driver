@@ -29,19 +29,19 @@ namespace MongoDB.Bson.DefaultSerializer {
     public class BsonDefaultSerializer : IBsonSerializationProvider {
         #region private static fields
         private static object staticLock = new object();
-        private static BsonDefaultSerializer singleton = new BsonDefaultSerializer();
+        private static BsonDefaultSerializer instance = new BsonDefaultSerializer();
         private static Dictionary<Type, IDiscriminatorConvention> discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
         private static Dictionary<BsonValue, HashSet<Type>> discriminators = new Dictionary<BsonValue, HashSet<Type>>();
         #endregion
 
         #region constructors
-        private BsonDefaultSerializer() {
+        public BsonDefaultSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static BsonDefaultSerializer Singleton {
-            get { return singleton; }
+        public static BsonDefaultSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
@@ -226,7 +226,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
 
             if (type.IsEnum) {
-                return EnumSerializer.Singleton;
+                return EnumSerializer.Instance;
             }
 
             if (
@@ -234,7 +234,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 !typeof(Array).IsAssignableFrom(type) &&
                 !typeof(Enum).IsAssignableFrom(type)
             ) {
-                return BsonClassMapSerializer.Singleton;
+                return BsonClassMapSerializer.Instance;
             }
 
             return null;

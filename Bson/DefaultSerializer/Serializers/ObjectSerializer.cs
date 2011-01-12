@@ -26,23 +26,23 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class ObjectSerializer : BsonBaseSerializer {
         #region private static fields
-        private static ObjectSerializer singleton = new ObjectSerializer();
+        private static ObjectSerializer instance = new ObjectSerializer();
         #endregion
 
         #region constructors
-        private ObjectSerializer() {
+        public ObjectSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static ObjectSerializer Singleton {
-            get { return singleton; }
+        public static ObjectSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(object), singleton);
+            BsonSerializer.RegisterSerializer(typeof(object), instance);
         }
         #endregion
 
