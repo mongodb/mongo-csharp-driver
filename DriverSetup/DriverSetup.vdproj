@@ -21,14 +21,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_22DFE61C26514E45B3D98A03CFA1E240"
+        "MsmKey" = "8:_435B810256DA4932BB8490C37CF59CDA"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
-        "OwnerKey" = "8:_22DFE61C26514E45B3D98A03CFA1E240"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -39,14 +33,20 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_22DFE61C26514E45B3D98A03CFA1E240"
+        "MsmKey" = "8:_A428BF2C6CA6D08EBFF534F4EFCC2308"
+        "OwnerKey" = "8:_435B810256DA4932BB8490C37CF59CDA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
+        "OwnerKey" = "8:_435B810256DA4932BB8490C37CF59CDA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A428BF2C6CA6D08EBFF534F4EFCC2308"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -174,14 +174,34 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_68791BFCA02EDE379F08E6AC19E7F96F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74791F8F0D7648F9A5F54C6AA3D9C0F2"
+            {
+            "SourcePath" = "8:..\\Release Notes v0.9.txt"
+            "TargetName" = "8:Release Notes v0.9.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A428BF2C6CA6D08EBFF534F4EFCC2308"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=0.9.0.3992, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=0.9.1.17036, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_68791BFCA02EDE379F08E6AC19E7F96F"
+                    "_A428BF2C6CA6D08EBFF534F4EFCC2308"
                     {
                     "Name" = "8:MongoDB.Bson.dll"
                     "Attributes" = "3:512"
@@ -203,26 +223,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74791F8F0D7648F9A5F54C6AA3D9C0F2"
-            {
-            "SourcePath" = "8:..\\Release Notes v0.9.txt"
-            "TargetName" = "8:Release Notes v0.9.txt"
-            "Tag" = "8:"
-            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
         }
@@ -304,7 +304,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:MongoDB CSharpDriver 0.9"
         "ProductCode" = "8:{A8292B35-4F6F-4408-9A44-17FD19B3EE57}"
-        "PackageCode" = "8:{FA97876D-572A-45BD-8E7B-9A230083DA55}"
+        "PackageCode" = "8:{AF0A1F4D-B7BA-41E4-AF8A-9CE17758BE2D}"
         "UpgradeCode" = "8:{46C749F8-EFFE-4D6F-A2DD-CEF13955021C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -962,9 +962,9 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_22DFE61C26514E45B3D98A03CFA1E240"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_435B810256DA4932BB8490C37CF59CDA"
             {
-            "SourcePath" = "8:..\\Driver\\obj\\Debug\\MongoDB.Driver.dll"
+            "SourcePath" = "8:..\\Driver\\obj\\Release\\MongoDB.Driver.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
@@ -985,6 +985,62 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C52E183CE767438A9A02072C9C995CB8"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Symbols"
+            "OutputProjectGuid" = "8:{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_FAC926A8AB1D44839037C725B9A2F0DF"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Symbols"
+            "OutputProjectGuid" = "8:{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
