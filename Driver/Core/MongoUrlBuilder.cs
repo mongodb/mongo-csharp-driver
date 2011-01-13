@@ -29,8 +29,8 @@ namespace MongoDB.Driver {
         // default values are set in ResetValues
         private ConnectionMode connectionMode;
         private TimeSpan connectTimeout;
-        private MongoCredentials credentials;
         private string databaseName;
+        private MongoCredentials defaultCredentials;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
         private int maxConnectionPoolSize;
@@ -58,6 +58,16 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        public int ComputedWaitQueueSize {
+            get {
+                if (waitQueueMultiple == 0.0) {
+                    return waitQueueSize;
+                } else {
+                    return (int) (waitQueueMultiple * maxConnectionPoolSize);
+                }
+            }
+        }
+
         public ConnectionMode ConnectionMode {
             get { return connectionMode; }
             set { connectionMode = value; }
@@ -68,14 +78,14 @@ namespace MongoDB.Driver {
             set { connectTimeout = value; }
         }
 
-        public MongoCredentials Credentials {
-            get { return credentials; }
-            set { credentials = value; }
-        }
-
         public string DatabaseName {
             get { return databaseName; }
             set { databaseName = value; }
+        }
+
+        public MongoCredentials DefaultCredentials {
+            get { return defaultCredentials; }
+            set { defaultCredentials = value; }
         }
 
         public TimeSpan MaxConnectionIdleTime {
@@ -292,9 +302,9 @@ namespace MongoDB.Driver {
                 string query = match.Groups["query"].Value;
 
                 if (username != "" && password != "") {
-                    this.credentials = new MongoCredentials(username, password);
+                    this.defaultCredentials = new MongoCredentials(username, password);
                 } else {
-                    this.credentials = null;
+                    this.defaultCredentials = null;
                 }
 
                 if (servers != "") {
@@ -411,12 +421,31 @@ namespace MongoDB.Driver {
             return MongoUrl.Create(ToString());
         }
 
+        public MongoServerSettings ToServerSettings() {
+            return new MongoServerSettings(
+                connectionMode,
+                connectTimeout,
+                defaultCredentials,
+                maxConnectionIdleTime,
+                maxConnectionLifeTime,
+                maxConnectionPoolSize,
+                minConnectionPoolSize,
+                replicaSetName,
+                (safeMode == null) ? SafeMode.False : safeMode,
+                servers,
+                slaveOk,
+                socketTimeout,
+                ComputedWaitQueueSize, // waitQueueSize
+                waitQueueTimeout
+            );
+        }
+
         // returns URL in canonical form
         public override string ToString() {
             StringBuilder url = new StringBuilder();
             url.Append("mongodb://");
-            if (credentials != null) {
-                url.AppendFormat("{0}:{1}@", credentials.Username, credentials.Password);
+            if (defaultCredentials != null) {
+                url.AppendFormat("{0}:{1}@", defaultCredentials.Username, defaultCredentials.Password);
             }
             bool firstServer = true;
             foreach (MongoServerAddress server in servers) {
@@ -500,8 +529,8 @@ namespace MongoDB.Driver {
         private void ResetValues() {
             connectionMode = ConnectionMode.Direct;
             connectTimeout = MongoDefaults.ConnectTimeout;
-            credentials = null;
             databaseName = null;
+            defaultCredentials = null;
             maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;

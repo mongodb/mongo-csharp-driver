@@ -28,43 +28,32 @@ namespace MongoDB.Driver {
     public class MongoServer {
         #region private static fields
         private static object staticLock = new object();
-        private static Dictionary<string, MongoServer> servers = new Dictionary<string, MongoServer>();
+        private static Dictionary<MongoServerSettings, MongoServer> servers = new Dictionary<MongoServerSettings, MongoServer>();
         #endregion
 
         #region private fields
         private object serverLock = new object();
         private object requestsLock = new object();
-        private MongoUrl url;
-        private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+        private MongoServerSettings settings;
         private List<IPEndPoint> endPoints = new List<IPEndPoint>();
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> replicaSet;
-        private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
-        private MongoConnectionPoolSettings connectionPoolSettings;
+        private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
         private MongoConnectionPool primaryConnectionPool;
         private List<MongoConnectionPool> secondaryConnectionPools;
         private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize; // will get overridden if server advertises different maxDocumentSize
         private int maxMessageLength = MongoDefaults.MaxMessageLength; // will get overridden if server advertises different maxMessageLength
-        private MongoCredentials defaultCredentials;
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         #endregion
 
         #region constructors
         public MongoServer(
-            string connectionString
+            MongoServerSettings settings
         ) {
-            if (connectionString.StartsWith("mongodb://")) {
-                this.url = MongoUrl.Create(connectionString);
-            } else {
-                var builder = new MongoConnectionStringBuilder(connectionString);
-                this.url = builder.ToMongoUrl();
-            }
-            this.defaultCredentials = url.Credentials;
-            this.connectionPoolSettings = url.ConnectionPoolSettings;
+            this.settings = settings;
 
-            foreach (var address in url.Servers) {
-                addresses.Add(address);
+            foreach (var address in settings.Servers) {
                 endPoints.Add(address.ToIPEndPoint());
             }
         }
@@ -78,50 +67,52 @@ namespace MongoDB.Driver {
         public static MongoServer Create(
             MongoConnectionStringBuilder builder
         ) {
-            return Create(builder.ToString());
+            return Create(builder.ToServerSettings());
         }
 
         public static MongoServer Create(
-            MongoUrl url
-        ) {
-            return Create(url.ToString());
-        }
-
-        public static MongoServer Create(
-            string connectionString
+            MongoServerSettings settings
         ) {
             lock (staticLock) {
                 MongoServer server;
-                if (!servers.TryGetValue(connectionString, out server)) {
-                    server = new MongoServer(connectionString);
-                    servers.Add(connectionString, server);
+                settings.Freeze();
+                if (!servers.TryGetValue(settings, out server)) {
+                    server = new MongoServer(settings);
+                    servers.Add(settings, server);
                 }
                 return server;
             }
         }
 
         public static MongoServer Create(
+            MongoUrl url
+        ) {
+            return Create(url.ToServerSettings());
+        }
+
+        public static MongoServer Create(
+            string connectionString
+        ) {
+            if (connectionString.StartsWith("mongodb://")) {
+                var url = MongoUrl.Create(connectionString);
+                return Create(url);
+            } else {
+                var builder = new MongoConnectionStringBuilder(connectionString);
+                return Create(builder);
+            }
+        }
+
+        public static MongoServer Create(
             Uri uri
         ) {
-            return Create(uri.ToString());
+            var url = MongoUrl.Create(uri.ToString());
+            return Create(url);
         }
         #endregion
 
         #region public properties
         public MongoDatabase AdminDatabase {
-            get { return GetDatabase("admin", defaultCredentials); }
-        }
-
-        public IEnumerable<MongoServerAddress> Addresses {
-            get { return addresses; }
-        }
-
-        public MongoConnectionPoolSettings ConnectionPoolSettings {
-            get { return connectionPoolSettings; }
-        }
-
-        public MongoCredentials DefaultCredentials {
-            get { return defaultCredentials; }
+            get { return GetDatabase("admin", settings.DefaultCredentials); }
         }
 
         public IEnumerable<IPEndPoint> EndPoints {
@@ -154,20 +145,12 @@ namespace MongoDB.Driver {
             }
         }
 
-        public SafeMode SafeMode {
-            get { return url.SafeMode; }
-        }
-
-        public bool SlaveOk {
-            get { return url.SlaveOk; }
+        public MongoServerSettings Settings {
+            get { return settings; }
         }
 
         public MongoServerState State {
             get { return state; }
-        }
-
-        public MongoUrl Url {
-            get { return url; }
         }
         #endregion
 
@@ -209,7 +192,7 @@ namespace MongoDB.Driver {
         }
 
         public void Connect() {
-            Connect(connectionPoolSettings.ConnectTimeout);
+            Connect(settings.ConnectTimeout);
         }
 
         public void Connect(
@@ -219,7 +202,7 @@ namespace MongoDB.Driver {
                 if (state != MongoServerState.Connected) {
                     state = MongoServerState.Connecting;
                     try {
-                        switch (url.ConnectionMode) {
+                        switch (settings.ConnectionMode) {
                             case ConnectionMode.Direct:
                                 var directConnector = new DirectConnector(this);
                                 directConnector.Connect(timeout);
@@ -233,7 +216,7 @@ namespace MongoDB.Driver {
                                 var replicaSetConnector = new ReplicaSetConnector(this);
                                 replicaSetConnector.Connect(timeout);
                                 primaryConnectionPool = new MongoConnectionPool(this, replicaSetConnector.PrimaryConnection);
-                                if (url.SlaveOk && replicaSetConnector.SecondaryConnections.Count > 0) {
+                                if (settings.SlaveOk && replicaSetConnector.SecondaryConnections.Count > 0) {
                                     secondaryConnectionPools = new List<MongoConnectionPool>();
                                     foreach (var connection in replicaSetConnector.SecondaryConnections) {
                                         var secondaryConnectionPool = new MongoConnectionPool(this, connection);
@@ -310,16 +293,30 @@ namespace MongoDB.Driver {
         }
 
         public MongoDatabase GetDatabase(
+            MongoDatabaseSettings databaseSettings
+        ) {
+            lock (serverLock) {
+                MongoDatabase database;
+                databaseSettings.Freeze();
+                if (!databases.TryGetValue(databaseSettings, out database)) {
+                    database = new MongoDatabase(this, databaseSettings);
+                    databases.Add(databaseSettings, database);
+                }
+                return database;
+            }
+        }
+
+        public MongoDatabase GetDatabase(
             string databaseName
         ) {
-            return GetDatabase(databaseName, defaultCredentials);
+            return GetDatabase(databaseName, settings.DefaultCredentials);
         }
 
         public MongoDatabase GetDatabase(
             string databaseName,
             MongoCredentials credentials
         ) {
-            return GetDatabase(databaseName, credentials, url.SafeMode);
+            return GetDatabase(databaseName, credentials, settings.SafeMode);
         }
 
         public MongoDatabase GetDatabase(
@@ -327,22 +324,19 @@ namespace MongoDB.Driver {
             MongoCredentials credentials,
             SafeMode safeMode
         ) {
-            lock (serverLock) {
-                var key = string.Format("{0}[{1},{2}]", databaseName, (credentials == null) ? "anon" : credentials.ToString(), safeMode);
-                MongoDatabase database;
-                if (!databases.TryGetValue(key, out database)) {
-                    database = new MongoDatabase(this, databaseName, credentials, safeMode);
-                    databases.Add(key, database);
-                }
-                return database;
-            }
+            var databaseSettings = new MongoDatabaseSettings(
+                databaseName,
+                credentials,
+                safeMode
+            );
+            return GetDatabase(databaseSettings);
         }
 
         public MongoDatabase GetDatabase(
             string databaseName,
             SafeMode safeMode
         ) {
-            return GetDatabase(databaseName, defaultCredentials, safeMode);
+            return GetDatabase(databaseName, settings.DefaultCredentials, safeMode);
         }
 
         public IEnumerable<string> GetDatabaseNames() {

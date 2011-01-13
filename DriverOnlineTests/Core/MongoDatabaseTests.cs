@@ -95,7 +95,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreSame(database, collection.Database);
             Assert.AreEqual(database.Name + "." + collectionName, collection.FullName);
             Assert.AreEqual(collectionName, collection.Name);
-            Assert.AreEqual(database.SafeMode, collection.SafeMode);
+            Assert.AreEqual(database.Settings.SafeMode, collection.Settings.SafeMode);
         }
 
         [Test]

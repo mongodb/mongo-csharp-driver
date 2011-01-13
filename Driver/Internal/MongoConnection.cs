@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Internal {
                 try {
                     var buffer = new BsonBuffer();
                     var networkStream = GetNetworkStream();
-                    networkStream.ReadTimeout = (int) server.Url.SocketTimeout.TotalMilliseconds;
+                    networkStream.ReadTimeout = (int) server.Settings.SocketTimeout.TotalMilliseconds;
                     buffer.LoadFrom(networkStream);
                     var reply = new MongoReplyMessage<TDocument>(server);
                     reply.ReadFrom(buffer);
@@ -386,7 +386,7 @@ namespace MongoDB.Driver.Internal {
 
                 try {
                     var networkStream = GetNetworkStream();
-                    networkStream.WriteTimeout = (int) message.Server.Url.SocketTimeout.TotalMilliseconds;
+                    networkStream.WriteTimeout = (int) message.Server.Settings.SocketTimeout.TotalMilliseconds;
                     message.Buffer.WriteTo(networkStream);
                     messageCounter++;
                 } catch (Exception ex) {

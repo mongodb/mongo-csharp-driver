@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Internal {
                 var isMasterResult = connection.RunCommand(server, "admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
 
                 isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
-                if (!isPrimary && !server.SlaveOk) {
+                if (!isPrimary && !server.Settings.SlaveOk) {
                     throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
                 }
 

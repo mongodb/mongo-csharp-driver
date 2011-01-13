@@ -31,12 +31,22 @@ namespace MongoDB.Driver {
         private static TimeSpan socketTimeout = TimeSpan.FromSeconds(30);
         private static int tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
-        private static double waitQueueMultiple = 1; // default multiple of 1
+        private static double waitQueueMultiple = 1.0; // default multiple of 1
         private static int waitQueueSize = 0; // use multiple by default
         private static TimeSpan waitQueueTimeout = TimeSpan.FromMilliseconds(500);
         #endregion
 
         #region public static properties
+        public static int ComputedWaitQueueSize {
+            get {
+                if (waitQueueMultiple == 0.0) {
+                    return waitQueueSize;
+                } else {
+                    return (int) (waitQueueMultiple * maxConnectionPoolSize);
+                }
+            }
+        }
+
         public static TimeSpan ConnectTimeout {
             get { return connectTimeout; }
             set { connectTimeout = value; }

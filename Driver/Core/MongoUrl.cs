@@ -32,124 +32,96 @@ namespace MongoDB.Driver {
     public class MongoUrl {
         #region private static fields
         private static object staticLock = new object();
-        private static Dictionary<string, MongoUrl> mongoUrls = new Dictionary<string, MongoUrl>();
+        private static Dictionary<string, MongoUrl> cache = new Dictionary<string, MongoUrl>();
         #endregion
 
         #region private fields
-        private ConnectionMode connectionMode;
-        private TimeSpan connectTimeout;
-        private MongoCredentials credentials;
-        private string databaseName;
-        private TimeSpan maxConnectionIdleTime;
-        private TimeSpan maxConnectionLifeTime;
-        private int maxConnectionPoolSize;
-        private int minConnectionPoolSize;
-        private string replicaSetName;
-        private SafeMode safeMode;
-        private IEnumerable<MongoServerAddress> servers;
-        private bool slaveOk;
-        private TimeSpan socketTimeout;
-        private string url;
+        private MongoServerSettings serverSettings = new MongoServerSettings();
         private double waitQueueMultiple;
         private int waitQueueSize;
-        private TimeSpan waitQueueTimeout;
+        private string databaseName;
+        private string url;
         #endregion
 
         #region constructors
         public MongoUrl(
             string url
         ) {
-            var builder = new MongoUrlBuilder(url);
-            this.connectionMode = builder.ConnectionMode;
-            this.connectTimeout = builder.ConnectTimeout;
-            this.credentials = builder.Credentials;
-            this.databaseName = builder.DatabaseName;
-            this.maxConnectionIdleTime = builder.MaxConnectionIdleTime;
-            this.maxConnectionLifeTime = builder.MaxConnectionLifeTime;
-            this.maxConnectionPoolSize = builder.MaxConnectionPoolSize;
-            this.minConnectionPoolSize = builder.MinConnectionPoolSize;
-            this.replicaSetName = builder.ReplicaSetName;
-            this.safeMode = builder.SafeMode ?? SafeMode.False; // never null
-            this.servers = builder.Servers;
-            this.slaveOk = builder.SlaveOk;
-            this.socketTimeout = builder.SocketTimeout;
-            this.url = builder.ToString(); // keep canonical form
+            var builder = new MongoUrlBuilder(url); // parses url
+            serverSettings = builder.ToServerSettings();
+            serverSettings.Freeze();
             this.waitQueueMultiple = builder.WaitQueueMultiple;
             this.waitQueueSize = builder.WaitQueueSize;
-            this.waitQueueTimeout = builder.WaitQueueTimeout;
+            this.databaseName = builder.DatabaseName;
+            this.url = builder.ToString(); // keep canonical form
         }
         #endregion
 
         #region public properties
-        public ConnectionMode ConnectionMode {
-            get { return connectionMode; }
-        }
-
-        public MongoConnectionPoolSettings ConnectionPoolSettings {
+        public int ComputedWaitQueueSize {
             get {
-                return new MongoConnectionPoolSettings(
-                    connectTimeout,
-                    maxConnectionIdleTime,
-                    maxConnectionLifeTime,
-                    maxConnectionPoolSize,
-                    minConnectionPoolSize,
-                    socketTimeout,
-                    (waitQueueMultiple != 0) ? (int) (waitQueueMultiple * maxConnectionPoolSize) : waitQueueSize, // waitQueueSize
-                    waitQueueTimeout
-                );
+                if (waitQueueMultiple == 0.0) {
+                    return waitQueueSize;
+                } else {
+                    return (int) (waitQueueMultiple * serverSettings.MaxConnectionPoolSize);
+                }
             }
         }
 
-        public TimeSpan ConnectTimeout {
-            get { return connectTimeout; }
+        public ConnectionMode ConnectionMode {
+            get { return serverSettings.ConnectionMode; }
         }
 
-        public MongoCredentials Credentials {
-            get { return credentials; }
+        public TimeSpan ConnectTimeout {
+            get { return serverSettings.ConnectTimeout; }
         }
 
         public string DatabaseName {
             get { return databaseName; }
         }
 
+        public MongoCredentials DefaultCredentials {
+            get { return serverSettings.DefaultCredentials; }
+        }
+
         public TimeSpan MaxConnectionIdleTime {
-            get { return maxConnectionIdleTime; }
+            get { return serverSettings.MaxConnectionIdleTime; }
         }
 
         public TimeSpan MaxConnectionLifeTime {
-            get { return maxConnectionLifeTime; }
+            get { return serverSettings.MaxConnectionLifeTime; }
         }
 
         public int MaxConnectionPoolSize {
-            get { return maxConnectionPoolSize; }
+            get { return serverSettings.MaxConnectionPoolSize; }
         }
 
         public int MinConnectionPoolSize {
-            get { return minConnectionPoolSize; }
+            get { return serverSettings.MinConnectionPoolSize; }
         }
 
         public string ReplicaSetName {
-            get { return replicaSetName; }
+            get { return serverSettings.ReplicaSetName; }
         }
 
         public SafeMode SafeMode {
-            get { return safeMode; }
+            get { return serverSettings.SafeMode; }
         }
 
         public MongoServerAddress Server {
-            get { return (servers == null) ? null : servers.Single(); }
+            get { return serverSettings.Server; }
         }
 
         public IEnumerable<MongoServerAddress> Servers {
-            get { return servers; }
+            get { return serverSettings.Servers; }
         }
 
         public bool SlaveOk {
-            get { return slaveOk; }
+            get { return serverSettings.SlaveOk; }
         }
 
         public TimeSpan SocketTimeout {
-            get { return socketTimeout; }
+            get { return serverSettings.SocketTimeout; }
         }
 
         public string Url {
@@ -165,7 +137,7 @@ namespace MongoDB.Driver {
         }
 
         public TimeSpan WaitQueueTimeout {
-            get { return waitQueueTimeout; }
+            get { return serverSettings.WaitQueueTimeout; }
         }
         #endregion
 
@@ -186,22 +158,27 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        public static void ClearCache() {
+            cache.Clear();
+        }
+
         public static MongoUrl Create(
             string url
         ) {
+            // cache previously seen urls to avoid repeated parsing
             lock (staticLock) {
                 MongoUrl mongoUrl;
-                if (!mongoUrls.TryGetValue(url, out mongoUrl)) {
+                if (!cache.TryGetValue(url, out mongoUrl)) {
                     mongoUrl = new MongoUrl(url);
                     var canonicalUrl = mongoUrl.ToString();
                     if (canonicalUrl != url) {
-                        if (mongoUrls.ContainsKey(canonicalUrl)) {
-                            mongoUrl = mongoUrls[canonicalUrl]; // use existing MongoUrl
+                        if (cache.ContainsKey(canonicalUrl)) {
+                            mongoUrl = cache[canonicalUrl]; // use existing MongoUrl
                         } else {
-                            mongoUrls[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
+                            cache[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
                         }
                     }
-                    mongoUrls[url] = mongoUrl;
+                    cache[url] = mongoUrl;
                 }
                 return mongoUrl;
             }
@@ -225,6 +202,10 @@ namespace MongoDB.Driver {
         public override int GetHashCode() {
             // this works because URL is in canonical form
             return url.GetHashCode();
+        }
+
+        public MongoServerSettings ToServerSettings() {
+            return serverSettings;
         }
 
         public override string ToString() {

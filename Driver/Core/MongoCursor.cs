@@ -49,7 +49,7 @@ namespace MongoDB.Driver {
             this.collection = collection;
             this.query = query;
 
-            if (server.SlaveOk) {
+            if (server.Settings.SlaveOk) {
                 this.flags |= QueryFlags.SlaveOk;
             }
         }

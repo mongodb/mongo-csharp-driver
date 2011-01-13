@@ -28,7 +28,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestDefaults() {
             string connectionString = "mongodb://localhost";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
+            Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("localhost", url.Servers.Single().Host);
             Assert.AreEqual(27017, url.Servers.Single().Port);
@@ -52,7 +52,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestHost() {
             string connectionString = "mongodb://mongo.xyz.com";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
+            Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("mongo.xyz.com", url.Servers.Single().Host);
             Assert.AreEqual(27017, url.Servers.Single().Port);
@@ -65,7 +65,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestHostWithPort() {
             string connectionString = "mongodb://mongo.xyz.com:12345";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
+            Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("mongo.xyz.com", url.Servers.Single().Host);
             Assert.AreEqual(12345, url.Servers.Single().Port);
@@ -78,7 +78,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestTwoHosts() {
             string connectionString = "mongodb://mongo1.xyz.com,mongo2.xyz.com";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
+            Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(2, url.Servers.Count());
             Assert.AreEqual("mongo1.xyz.com", url.Servers.First().Host);
             Assert.AreEqual(27017, url.Servers.First().Port);
@@ -93,7 +93,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestTwoHostsWithPorts() {
             string connectionString = "mongodb://mongo1.xyz.com:12345,mongo2.xyz.com:23456";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
+            Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(2, url.Servers.Count());
             Assert.AreEqual("mongo1.xyz.com", url.Servers.First().Host);
             Assert.AreEqual(12345, url.Servers.First().Port);
@@ -108,8 +108,8 @@ namespace MongoDB.DriverUnitTests {
         public void TestUsernamePasswordLocalhostDatabase() {
             string connectionString = "mongodb://username:password@localhost/database";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual("username", url.Credentials.Username);
-            Assert.AreEqual("password", url.Credentials.Password);
+            Assert.AreEqual("username", url.DefaultCredentials.Username);
+            Assert.AreEqual("password", url.DefaultCredentials.Password);
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("localhost", url.Servers.Single().Host);
             Assert.AreEqual(27017, url.Servers.Single().Port);
@@ -123,8 +123,8 @@ namespace MongoDB.DriverUnitTests {
         public void TestUsernamePasswordTwoHostsDatabase() {
             string connectionString = "mongodb://username:password@mongo1.xyz.com,mongo2.xyz.com/database";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual("username", url.Credentials.Username);
-            Assert.AreEqual("password", url.Credentials.Password);
+            Assert.AreEqual("username", url.DefaultCredentials.Username);
+            Assert.AreEqual("password", url.DefaultCredentials.Password);
             Assert.AreEqual(2, url.Servers.Count());
             Assert.AreEqual("mongo1.xyz.com", url.Servers.First().Host);
             Assert.AreEqual(27017, url.Servers.First().Port);
@@ -140,8 +140,8 @@ namespace MongoDB.DriverUnitTests {
         public void TestUsernamePasswordTwoHostsWithPortsDatabase() {
             string connectionString = "mongodb://username:password@mongo1.xyz.com:12345,mongo2.xyz.com:23456/database";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual("username", url.Credentials.Username);
-            Assert.AreEqual("password", url.Credentials.Password);
+            Assert.AreEqual("username", url.DefaultCredentials.Username);
+            Assert.AreEqual("password", url.DefaultCredentials.Password);
             Assert.AreEqual(2, url.Servers.Count());
             Assert.AreEqual("mongo1.xyz.com", url.Servers.First().Host);
             Assert.AreEqual(12345, url.Servers.First().Port);
@@ -366,7 +366,7 @@ namespace MongoDB.DriverUnitTests {
         public void TestAll() {
             string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.IsNull(url.Credentials);
+            Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("localhost", url.Server.Host);
             Assert.AreEqual(27017, url.Server.Port);

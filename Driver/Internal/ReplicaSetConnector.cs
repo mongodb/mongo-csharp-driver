@@ -96,11 +96,11 @@ namespace MongoDB.Driver.Internal {
                     replicaSet = GetHostAddresses(response);
                     maxDocumentSize = response.MaxDocumentSize;
                     maxMessageLength = response.MaxMessageLength;
-                    if (!server.SlaveOk) {
+                    if (!server.Settings.SlaveOk) {
                         break; // if we're not going to use the secondaries no need to wait for their replies
                     }
                 } else {
-                    if (server.SlaveOk) {
+                    if (server.Settings.SlaveOk) {
                         secondaryConnections.Add(response.Connection);
                     } else {
                         response.Connection.Close();
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Internal {
 
         private BlockingQueue<QueryNodeResponse> QueueSeedListQueries() {
             var responseQueue = new BlockingQueue<QueryNodeResponse>();
-            var addresses = (List<MongoServerAddress>) server.Addresses;
+            var addresses = (List<MongoServerAddress>) server.Settings.Servers;
             var endPoints = (List<IPEndPoint>) server.EndPoints;
             for (int i = 0; i < addresses.Count; i++) {
                 var args = new QueryNodeParameters {
@@ -185,12 +185,12 @@ namespace MongoDB.Driver.Internal {
                     response.MaxDocumentSize = isMasterResult.Response["maxBsonObjectSize", server.MaxDocumentSize].ToInt32();
                     response.MaxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, response.MaxDocumentSize + 1024); // derived from maxDocumentSize
 
-                    if (server.Url.ReplicaSetName != null) {
+                    if (server.Settings.ReplicaSetName != null) {
                         var getStatusCommand = new CommandDocument("replSetGetStatus", 1);
                         var getStatusResult = connection.RunCommand(server, "admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
 
                         var replicaSetName = getStatusResult.Response["set"].AsString;
-                        if (replicaSetName != server.Url.ReplicaSetName) {
+                        if (replicaSetName != server.Settings.ReplicaSetName) {
                             var message = string.Format("Host {0} belongs to a different replica set: {1}", args.EndPoint, replicaSetName);
                             throw new MongoConnectionException(message);
                         }

@@ -26,7 +26,6 @@ namespace MongoDB.Driver.Internal {
         private object connectionPoolLock = new object();
         private MongoServer server;
         private IPEndPoint endPoint;
-        private MongoConnectionPoolSettings settings;
         private bool closed = false;
         private int poolSize;
         private List<MongoConnection> availableConnections = new List<MongoConnection>();
@@ -41,7 +40,6 @@ namespace MongoDB.Driver.Internal {
             MongoConnection firstConnection
         ) {
             this.server = server;
-            this.settings = server.ConnectionPoolSettings;
             this.endPoint = firstConnection.EndPoint;
 
             firstConnection.JoinConnectionPool(this);
@@ -70,13 +68,13 @@ namespace MongoDB.Driver.Internal {
             }
 
             lock (connectionPoolLock) {
-                if (waitQueueSize >= settings.WaitQueueSize) {
+                if (waitQueueSize >= server.Settings.WaitQueueSize) {
                     throw new MongoConnectionException("Too many threads are already waiting for a connection");
                 }
 
                 waitQueueSize += 1;
                 try {
-                    DateTime timeoutAt = DateTime.UtcNow + settings.WaitQueueTimeout;
+                    DateTime timeoutAt = DateTime.UtcNow + server.Settings.WaitQueueTimeout;
                     while (true) {
                         if (closed) {
                             throw new InvalidOperationException("Attempt to get a connection from a closed connection pool");
@@ -109,7 +107,7 @@ namespace MongoDB.Driver.Internal {
                         }
 
                         // create a new connection if maximum pool size has not been reached
-                        if (poolSize < settings.MaxConnectionPoolSize) {
+                        if (poolSize < server.Settings.MaxConnectionPoolSize) {
                             // make sure connection is created successfully before incrementing poolSize
                             var connection = new MongoConnection(this, endPoint);
                             poolSize += 1;
@@ -164,7 +162,7 @@ namespace MongoDB.Driver.Internal {
                 // don't put connections that have reached their maximum lifetime back in the pool
                 // but only remove one connection at most per timer tick to avoid connection storms
                 if (connectionsRemovedSinceLastTimerTick == 0) {
-                    if (DateTime.UtcNow - connection.CreatedAt > settings.MaxConnectionLifeTime) {
+                    if (DateTime.UtcNow - connection.CreatedAt > server.Settings.MaxConnectionLifeTime) {
                         RemoveConnection(connection);
                         return;
                     }
@@ -222,9 +220,9 @@ namespace MongoDB.Driver.Internal {
 
                     // remove old connections before idle connections
                     var now = DateTime.UtcNow;
-                    if (oldestConnection != null && now > oldestConnection.CreatedAt + settings.MaxConnectionLifeTime) {
+                    if (oldestConnection != null && now > oldestConnection.CreatedAt + server.Settings.MaxConnectionLifeTime) {
                         RemoveConnection(oldestConnection);
-                    } else if (poolSize > settings.MinConnectionPoolSize && lruConnection != null && now > lruConnection.LastUsedAt + settings.MaxConnectionIdleTime) {
+                    } else if (poolSize > server.Settings.MinConnectionPoolSize && lruConnection != null && now > lruConnection.LastUsedAt + server.Settings.MaxConnectionIdleTime) {
                         RemoveConnection(lruConnection);
                     }
                 }

@@ -29,10 +29,9 @@ namespace MongoDB.Driver {
         #region private fields
         private object databaseLock = new object();
         private MongoServer server;
+        private MongoDatabaseSettings settings;
         private string name;
-        private MongoCredentials credentials;
-        private SafeMode safeMode;
-        private Dictionary<string, MongoCollection> collections = new Dictionary<string, MongoCollection>();
+        private Dictionary<MongoCollectionSettings, MongoCollection> collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
         private MongoCollection<BsonDocument> commandCollection;
         private MongoGridFS gridFS;
         #endregion
@@ -40,22 +39,19 @@ namespace MongoDB.Driver {
         #region constructors
         public MongoDatabase(
             MongoServer server,
-            string name,
-            MongoCredentials credentials,
-            SafeMode safeMode
+            MongoDatabaseSettings settings
         ) {
-            ValidateDatabaseName(name);
+            ValidateDatabaseName(settings.DatabaseName);
             this.server = server;
-            this.name = name;
-            this.credentials = credentials;
-            this.safeMode = safeMode;
+            this.settings = settings;
+            this.name = settings.DatabaseName;
 
             // if connected to a replica set with SlaveOk make sure commands get routed to primary
-            if (server.SlaveOk && server.Url.ConnectionMode == ConnectionMode.ReplicaSet) {
-                var primaryUrl = new MongoUrlBuilder(server.Url.ToString());
-                primaryUrl.SlaveOk = false;
-                var primaryServer = MongoServer.Create(primaryUrl.ToMongoUrl());
-                commandCollection = primaryServer[name, credentials]["$cmd"];
+            if (server.Settings.SlaveOk && server.Settings.ConnectionMode == ConnectionMode.ReplicaSet) {
+                var primaryServerSettings = server.Settings.Clone();
+                primaryServerSettings.SlaveOk = false;
+                var primaryServer = MongoServer.Create(primaryServerSettings);
+                commandCollection = primaryServer[settings.DatabaseName, settings.Credentials]["$cmd"];
             } else {
                 commandCollection = this["$cmd"];
             }
@@ -66,17 +62,28 @@ namespace MongoDB.Driver {
         public static MongoDatabase Create(
             MongoConnectionStringBuilder builder
         ) {
-            return Create(builder.ToMongoUrl());
+            var serverSettings = builder.ToServerSettings();
+            var databaseName = builder.DatabaseName;
+            return Create(serverSettings, databaseName);
+        }
+
+        public static MongoDatabase Create(
+            MongoServerSettings serverSettings,
+            string databaseName
+        ) {
+            if (databaseName == null) {
+                throw new ArgumentException("Database name is missing");
+            }
+            var server = MongoServer.Create(serverSettings);
+            return server.GetDatabase(databaseName);
         }
 
         public static MongoDatabase Create(
             MongoUrl url
         ) {
-            if (url.DatabaseName == null) {
-                throw new ArgumentException("Connection string must have database name");
-            }
-            MongoServer server = MongoServer.Create(url);
-            return server.GetDatabase(url.DatabaseName, url.Credentials);
+            var serverSettings = url.ToServerSettings();
+            var databaseName = url.DatabaseName;
+            return Create(serverSettings, databaseName);
         }
 
         public static MongoDatabase Create(
@@ -104,7 +111,7 @@ namespace MongoDB.Driver {
         }
 
         public MongoCredentials Credentials {
-            get { return credentials; }
+            get { return settings.Credentials; }
         }
 
         public MongoGridFS GridFS {
@@ -122,12 +129,12 @@ namespace MongoDB.Driver {
             get { return name; }
         }
 
-        public SafeMode SafeMode {
-            get { return safeMode; }
-        }
-
         public MongoServer Server {
             get { return server; }
+        }
+
+        public MongoDatabaseSettings Settings {
+            get { return settings; }
         }
         #endregion
 
@@ -224,30 +231,46 @@ namespace MongoDB.Driver {
         }
 
         public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+            MongoCollectionSettings collectionSettings
+        ) {
+            if (collectionSettings.DefaultDocumentType != typeof(TDefaultDocument)) {
+                throw new ArgumentException("CollectionSettings.DefaultDocumentType is not equal to <TDefaultDocument>");
+            }
+
+            lock (databaseLock) {
+                MongoCollection collection;
+                collectionSettings.Freeze();
+                if (!collections.TryGetValue(collectionSettings, out collection)) {
+                    collection = new MongoCollection<TDefaultDocument>(this, collectionSettings);
+                    collections.Add(collectionSettings, collection);
+                }
+                return (MongoCollection<TDefaultDocument>) collection;
+            }
+        }
+
+        public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName
         ) {
-            return GetCollection<TDefaultDocument>(collectionName, safeMode);
+            return GetCollection<TDefaultDocument>(collectionName, settings.SafeMode);
         }
 
         public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName,
             SafeMode safeMode
         ) {
-            lock (databaseLock) {
-                MongoCollection collection;
-                string key = string.Format("{0}<{1}>[{2}]", collectionName, typeof(TDefaultDocument).FullName, safeMode);
-                if (!collections.TryGetValue(key, out collection)) {
-                    collection = new MongoCollection<TDefaultDocument>(this, collectionName, safeMode);
-                    collections.Add(key, collection);
-                }
-                return (MongoCollection<TDefaultDocument>) collection;
-            }
+            var collectionSettings = new MongoCollectionSettings(
+                collectionName,
+                true, // asssignIdOnInsert
+                typeof(TDefaultDocument), // defaultDocumentType
+                safeMode
+            );
+            return GetCollection<TDefaultDocument>(collectionSettings);
         }
 
         public MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
-            return GetCollection<BsonDocument>(collectionName, safeMode);
+            return GetCollection<BsonDocument>(collectionName, settings.SafeMode);
         }
 
         public MongoCollection<BsonDocument> GetCollection(
@@ -277,9 +300,9 @@ namespace MongoDB.Driver {
         }
 
         public MongoGridFS GetGridFS(
-            MongoGridFSSettings settings
+            MongoGridFSSettings gridFSSettings
         ) {
-            return new MongoGridFS(this, settings);
+            return new MongoGridFS(this, gridFSSettings);
         }
 
         // TODO: mongo shell has GetPrevError at the database level?

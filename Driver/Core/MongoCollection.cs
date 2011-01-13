@@ -30,23 +30,21 @@ namespace MongoDB.Driver {
         #region private fields
         private MongoServer server;
         private MongoDatabase database;
+        private MongoCollectionSettings settings;
         private string name;
-        private SafeMode safeMode;
-        private bool assignIdOnInsert = true;
         private HashSet<string> indexCache = new HashSet<string>(); // serves as its own lock object also
         #endregion
 
         #region constructors
         protected MongoCollection(
             MongoDatabase database,
-            string name,
-            SafeMode safeMode
+            MongoCollectionSettings settings
         ) {
-            ValidateCollectionName(name);
+            ValidateCollectionName(settings.CollectionName);
             this.server = database.Server;
             this.database = database;
-            this.name = name;
-            this.safeMode = safeMode;
+            this.settings = settings;
+            this.name = settings.CollectionName;
         }
         #endregion
 
@@ -63,13 +61,8 @@ namespace MongoDB.Driver {
             get { return name; }
         }
 
-        public SafeMode SafeMode {
-            get { return safeMode; }
-        }
-
-        public bool AssignIdOnInsert {
-            get { return assignIdOnInsert; }
-            set { assignIdOnInsert = value; }
+        public MongoCollectionSettings Settings {
+            get { return settings; }
         }
         #endregion
 
@@ -430,7 +423,7 @@ namespace MongoDB.Driver {
         public SafeModeResult Insert<TDocument>(
             TDocument document
         ) {
-            return Insert(document, safeMode);
+            return Insert(document, settings.SafeMode);
         }
 
         public SafeModeResult Insert<TDocument>(
@@ -444,7 +437,7 @@ namespace MongoDB.Driver {
         public IEnumerable<SafeModeResult> InsertBatch<TDocument>(
             IEnumerable<TDocument> documents
         ) {
-            return InsertBatch<TDocument>(documents, safeMode);
+            return InsertBatch<TDocument>(documents, settings.SafeMode);
         }
 
         public IEnumerable<SafeModeResult> InsertBatch<TDocument>(
@@ -459,7 +452,7 @@ namespace MongoDB.Driver {
                     message.WriteToBuffer(); // must be called before AddDocument
 
                     foreach (var document in documents) {
-                        if (assignIdOnInsert) {
+                        if (settings.AssignIdOnInsert) {
                             var serializer = BsonSerializer.LookupSerializer(document.GetType());
                             object id;
                             IIdGenerator idGenerator;
@@ -540,7 +533,7 @@ namespace MongoDB.Driver {
         public SafeModeResult Remove(
             IMongoQuery query
         ) {
-            return Remove(query, RemoveFlags.None, safeMode);
+            return Remove(query, RemoveFlags.None, settings.SafeMode);
         }
 
         public SafeModeResult Remove(
@@ -554,7 +547,7 @@ namespace MongoDB.Driver {
             IMongoQuery query,
             RemoveFlags flags
         ) {
-            return Remove(query, flags, safeMode);
+            return Remove(query, flags, settings.SafeMode);
         }
 
         public SafeModeResult Remove(
@@ -588,7 +581,7 @@ namespace MongoDB.Driver {
         }
 
         public SafeModeResult RemoveAll() {
-            return Remove(Query.Null, RemoveFlags.None, safeMode);
+            return Remove(Query.Null, RemoveFlags.None, settings.SafeMode);
         }
 
         public SafeModeResult RemoveAll(
@@ -606,7 +599,7 @@ namespace MongoDB.Driver {
         public SafeModeResult Save<TDocument>(
             TDocument document
         ) {
-            return Save(document, safeMode);
+            return Save(document, settings.SafeMode);
         }
 
         public SafeModeResult Save<TDocument>(
@@ -636,7 +629,7 @@ namespace MongoDB.Driver {
             IMongoQuery query,
             IMongoUpdate update
         ) {
-            return Update(query, update, UpdateFlags.None, safeMode);
+            return Update(query, update, UpdateFlags.None, settings.SafeMode);
         }
 
         public SafeModeResult Update(
@@ -652,7 +645,7 @@ namespace MongoDB.Driver {
             IMongoUpdate update,
             UpdateFlags flags
         ) {
-            return Update(query, update, flags, safeMode);
+            return Update(query, update, flags, settings.SafeMode);
         }
 
         public SafeModeResult Update(
@@ -754,10 +747,9 @@ namespace MongoDB.Driver {
         #region constructors
         public MongoCollection(
             MongoDatabase database,
-            string name,
-            SafeMode safeMode
+            MongoCollectionSettings settings
         )
-            : base(database, name, safeMode) {
+            : base(database, settings) {
         }
         #endregion
 
