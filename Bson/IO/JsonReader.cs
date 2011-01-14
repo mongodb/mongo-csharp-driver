@@ -509,6 +509,7 @@ namespace MongoDB.Bson.IO {
                 var message = string.Format("JSON reader expected a string but found: '{0}'", subTypeToken.Lexeme);
                 throw new FileFormatException(message);
             }
+            VerifyToken("}");
             var subType = (BsonBinarySubType) Convert.ToInt32(subTypeToken.Lexeme, 16);
             currentValue = new BsonBinaryData(bytes, subType);
             return BsonType.Binary;
