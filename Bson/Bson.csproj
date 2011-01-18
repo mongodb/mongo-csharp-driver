@@ -86,6 +86,8 @@
     <Compile Include="IO\BsonDocumentReader.cs" />
     <Compile Include="IO\BsonDocumentReaderBookmark.cs" />
     <Compile Include="IO\BsonDocumentReaderContext.cs" />
+    <Compile Include="IO\BsonDocumentWriter.cs" />
+    <Compile Include="IO\BsonDocumentWriterContext.cs" />
     <Compile Include="IO\ContextType.cs" />
     <Compile Include="IO\JsonBuffer.cs" />
     <Compile Include="IO\JsonReader.cs" />

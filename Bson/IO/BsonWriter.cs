@@ -49,6 +49,12 @@ namespace MongoDB.Bson.IO {
         }
 
         public static BsonWriter Create(
+            BsonDocument document
+        ) {
+            return new BsonDocumentWriter(document);
+        }
+
+        public static BsonWriter Create(
             Stream stream
         ) {
             return Create(stream, BsonBinaryWriterSettings.Defaults);
