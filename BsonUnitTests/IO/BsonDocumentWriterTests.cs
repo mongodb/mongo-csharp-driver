@@ -25,6 +25,67 @@ using MongoDB.Bson.IO;
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
     public class BsonDocumentWriterTests {
+        // Empty Array tests
+        [Test]
+        public void TestOneEmptyArray() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartArray("a");
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : [] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestOneNestedEmptyArray() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteStartArray("a");
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : [] } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoEmptyArrays() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartArray("a");
+            writer.WriteEndArray();
+            writer.WriteStartArray("b");
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : [], 'b' : [] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoNestedEmptyArrays() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteStartArray("a");
+            writer.WriteEndArray();
+            writer.WriteStartArray("b");
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : [], 'b' : [] } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
         // Empty Document tests
         [Test]
         public void TestEmptyDocument() {
@@ -97,6 +158,162 @@ namespace MongoDB.BsonUnitTests.IO {
             Assert.AreEqual(expected, json);
         }
 
+        // Array tests
+        [Test]
+        public void TestArrayWithOneElement() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartArray("a");
+            writer.WriteInt32(1);
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : [1] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestArrayWithTwoElements() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartArray("a");
+            writer.WriteInt32(1);
+            writer.WriteInt32(2);
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : [1, 2] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestArrayWithNestedEmptyArray() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartArray("a");
+            writer.WriteStartArray();
+            writer.WriteEndArray();
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : [[]] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestArrayWithNestedArrayWithOneElement() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartArray("a");
+            writer.WriteStartArray();
+            writer.WriteString("a");
+            writer.WriteEndArray();
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : [['a']] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestArrayWithNestedArrayWithTwoElements() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartArray("a");
+            writer.WriteStartArray();
+            writer.WriteString("a");
+            writer.WriteString("b");
+            writer.WriteEndArray();
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : [['a', 'b']] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestArrayWithTwoNestedArrays() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartArray("a");
+            writer.WriteStartArray();
+            writer.WriteString("a");
+            writer.WriteString("b");
+            writer.WriteEndArray();
+            writer.WriteStartArray();
+            writer.WriteString("c");
+            writer.WriteStartDocument();
+            writer.WriteInt32("d", 9);
+            writer.WriteEndDocument();
+            writer.WriteEndArray();
+            writer.WriteEndArray();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : [['a', 'b'], ['c', { 'd' : 9 }]] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        // Binary tests
+        [Test]
+        public void TestOneBinary() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteBinaryData("a", new byte[] { 1 }, BsonBinarySubType.Binary);
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : { '$binary' : 'AQ==', '$type' : '00' } }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestOneNestedBinary() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteBinaryData("a", new byte[] { 1, 2 }, BsonBinarySubType.Binary);
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : { '$binary' : 'AQI=', '$type' : '00' } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoBinaries() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteBinaryData("a", new byte[] { 1 }, BsonBinarySubType.Binary);
+            writer.WriteBinaryData("b", new byte[] { 2 }, BsonBinarySubType.Binary);
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : { '$binary' : 'AQ==', '$type' : '00' }, 'b' : { '$binary' : 'Ag==', '$type' : '00' } }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoNestedBinaries() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteBinaryData("a", new byte[] { 1 }, BsonBinarySubType.Binary);
+            writer.WriteBinaryData("b", new byte[] { 2 }, BsonBinarySubType.Binary);
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : { '$binary' : 'AQ==', '$type' : '00' }, 'b' : { '$binary' : 'Ag==', '$type' : '00' } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
         // Boolean tests
         [Test]
         public void TestOneBoolean() {
@@ -149,6 +366,61 @@ namespace MongoDB.BsonUnitTests.IO {
             writer.WriteEndDocument();
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : true, 'b' : false } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        // DateTime tests
+        [Test]
+        public void TestOneDateTime() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteDateTime("a", BsonConstants.UnixEpoch);
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : { '$date' : 0 } }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestOneNestedDateTime() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteDateTime("a", BsonConstants.UnixEpoch);
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : { '$date' : 0 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoDateTimes() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteDateTime("a", BsonConstants.UnixEpoch);
+            writer.WriteDateTime("b", BsonConstants.UnixEpoch);
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : { '$date' : 0 }, 'b' : { '$date' : 0 } }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoNestedDateTimes() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteDateTime("a", BsonConstants.UnixEpoch);
+            writer.WriteDateTime("b", BsonConstants.UnixEpoch);
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : { '$date' : 0 }, 'b' : { '$date' : 0 } } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -314,6 +586,136 @@ namespace MongoDB.BsonUnitTests.IO {
             writer.WriteEndDocument();
             var json = document.ToJson();
             var expected = "{ 'nested' : { 'a' : 1, 'b' : 2 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        // JavaScript tests
+        [Test]
+        public void TestOneJavaScript() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteJavaScript("a", "x");
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : { '$code' : 'x' } }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestOneNestedJavaScript() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteJavaScript("a", "x");
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : { '$code' : 'x' } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoJavaScripts() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteJavaScript("a", "x");
+            writer.WriteJavaScript("b", "y");
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : { '$code' : 'x' }, 'b' : { '$code' : 'y' } }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoNestedJavaScripts() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteJavaScript("a", "x");
+            writer.WriteJavaScript("b", "y");
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : { '$code' : 'x' }, 'b' : { '$code' : 'y' } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        // JavaScriptWithScope tests
+        [Test]
+        public void TestOneJavaScriptWithScope() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteJavaScriptWithScope("a", "x");
+            writer.WriteStartDocument();
+            writer.WriteInt32("x", 1);
+            writer.WriteInt32("y", 2);
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : { '$code' : 'x', '$scope' : { 'x' : 1, 'y' : 2 } } }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestOneNestedJavaScriptWithScope() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteJavaScriptWithScope("a", "x");
+            writer.WriteStartDocument();
+            writer.WriteInt32("x", 1);
+            writer.WriteInt32("y", 2);
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : { '$code' : 'x', '$scope' : { 'x' : 1, 'y' : 2 } } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoJavaScriptWithScopes() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteJavaScriptWithScope("a", "x");
+            writer.WriteStartDocument();
+            writer.WriteInt32("x", 1);
+            writer.WriteEndDocument();
+            writer.WriteJavaScriptWithScope("b", "y");
+            writer.WriteStartDocument();
+            writer.WriteInt32("y", 2);
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'a' : { '$code' : 'x', '$scope' : { 'x' : 1 } }, 'b' : { '$code' : 'y', '$scope' : { 'y' : 2 } } }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoNestedJavaScriptWithScopes() {
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            writer.WriteStartDocument();
+            writer.WriteStartDocument("nested");
+            writer.WriteJavaScriptWithScope("a", "x");
+            writer.WriteStartDocument();
+            writer.WriteInt32("x", 1);
+            writer.WriteEndDocument();
+            writer.WriteJavaScriptWithScope("b", "y");
+            writer.WriteStartDocument();
+            writer.WriteInt32("y", 2);
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            writer.WriteEndDocument();
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : { '$code' : 'x', '$scope' : { 'x' : 1 } }, 'b' : { '$code' : 'y', '$scope' : { 'y' : 2 } } } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
