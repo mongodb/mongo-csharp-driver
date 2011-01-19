@@ -26,6 +26,7 @@ namespace MongoDB.Driver {
         private string databaseName;
         private MongoCredentials credentials;
         private SafeMode safeMode;
+        private bool slaveOk;
         // the following fields are set when Freeze is called
         private bool isFrozen;
         private int frozenHashCode;
@@ -37,16 +38,19 @@ namespace MongoDB.Driver {
             this.databaseName = null;
             this.credentials = null;
             this.safeMode = SafeMode.False;
+            this.slaveOk = false;
         }
 
         public MongoDatabaseSettings(
             string databaseName,
             MongoCredentials credentials,
-            SafeMode safeMode
+            SafeMode safeMode,
+            bool slaveOk
         ) {
             this.databaseName = databaseName;
             this.credentials = credentials;
             this.safeMode = safeMode;
+            this.slaveOk = slaveOk;
         }
         #endregion
 
@@ -78,6 +82,14 @@ namespace MongoDB.Driver {
                 safeMode = value;
             }
         }
+
+        public bool SlaveOk {
+            get { return slaveOk; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
+                slaveOk = value;
+            }
+        }
         #endregion
 
         #region public methods
@@ -85,7 +97,8 @@ namespace MongoDB.Driver {
             return new MongoDatabaseSettings(
                 databaseName,
                 credentials,
-                safeMode
+                safeMode,
+                slaveOk
             );
         }
 
@@ -108,7 +121,8 @@ namespace MongoDB.Driver {
                     return
                         this.databaseName == rhs.databaseName &&
                         this.credentials == rhs.credentials &&
-                        this.safeMode == rhs.safeMode;
+                        this.safeMode == rhs.safeMode &&
+                        this.slaveOk == rhs.slaveOk;
                 }
             }
         }
@@ -137,15 +151,17 @@ namespace MongoDB.Driver {
             hash = 37 * hash + ((databaseName == null) ? 0 : databaseName.GetHashCode());
             hash = 37 * hash + ((credentials == null) ? 0 : credentials.GetHashCode());
             hash = 37 * hash + ((safeMode == null) ? 0 : safeMode.GetHashCode());
+            hash = 37 * hash + slaveOk.GetHashCode();
             return hash;
         }
 
         private string ToStringHelper() {
             return string.Format(
-                "DatabaseName={0};Credentials={1};SafeMode={2}",
+                "DatabaseName={0};Credentials={1};SafeMode={2};SlaveOk={3}",
                 databaseName,
                 credentials,
-                safeMode
+                safeMode,
+                slaveOk
             );
         }
         #endregion

@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Internal {
             // query all servers in seed list in parallel (they will report responses back through the responsesQueue)
             var responsesQueue = QueueSeedListQueries();
 
-            // process the responses as they come back and stop as soon as we find the primary (unless slaveOk is true)
+            // process the responses as they come back and stop as soon as we find the primary (unless SlaveOk is true)
             // stragglers will continue to report responses to the responsesQueue but no one will read them
             // and eventually it will all get garbage collected
 

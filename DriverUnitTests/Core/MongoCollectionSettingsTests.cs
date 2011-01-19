@@ -30,10 +30,12 @@ namespace MongoDB.DriverUnitTests {
             settings.CollectionName = "collection";
             settings.AssignIdOnInsert = false;
             settings.SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5));
+            settings.SlaveOk = true;
 
             Assert.AreEqual("collection", settings.CollectionName);
             Assert.AreEqual(false, settings.AssignIdOnInsert);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(5)), settings.SafeMode);
+            Assert.AreEqual(true, settings.SlaveOk);
 
             Assert.IsFalse(settings.IsFrozen);
             var hashCode = settings.GetHashCode();
@@ -57,6 +59,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, settings.CollectionName);
             Assert.AreEqual(true, settings.AssignIdOnInsert);
             Assert.AreEqual(SafeMode.False, settings.SafeMode);
+            Assert.AreEqual(false, settings.SlaveOk);
 
             Assert.IsFalse(settings.IsFrozen);
             var hashCode = settings.GetHashCode();

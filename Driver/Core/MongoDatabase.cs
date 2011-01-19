@@ -46,15 +46,15 @@ namespace MongoDB.Driver {
             this.settings = settings;
             this.name = settings.DatabaseName;
 
-            // if connected to a replica set with SlaveOk make sure commands get routed to primary
-            if (server.Settings.SlaveOk && server.Settings.ConnectionMode == ConnectionMode.ReplicaSet) {
-                var primaryServerSettings = server.Settings.Clone();
-                primaryServerSettings.SlaveOk = false;
-                var primaryServer = MongoServer.Create(primaryServerSettings);
-                commandCollection = primaryServer[settings.DatabaseName, settings.Credentials]["$cmd"];
-            } else {
-                commandCollection = this["$cmd"];
-            }
+            // make sure commands get routed to the primary server by using slaveOk false
+            var commandCollectionSettings = new MongoCollectionSettings(
+                "$cmd",
+                false, // assignIdOnInsert
+                typeof(BsonDocument),
+                settings.SafeMode,
+                false // slaveOk
+            );
+            commandCollection = GetCollection<BsonDocument>(commandCollectionSettings);
         }
         #endregion
 
@@ -262,7 +262,8 @@ namespace MongoDB.Driver {
                 collectionName,
                 true, // asssignIdOnInsert
                 typeof(TDefaultDocument), // defaultDocumentType
-                safeMode
+                safeMode,
+                settings.SlaveOk
             );
             return GetCollection<TDefaultDocument>(collectionSettings);
         }

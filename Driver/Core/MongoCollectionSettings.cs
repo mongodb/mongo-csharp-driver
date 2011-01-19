@@ -27,6 +27,7 @@ namespace MongoDB.Driver {
         private bool assignIdOnInsert;
         private Type defaultDocumentType;
         private SafeMode safeMode;
+        private bool slaveOk;
         // the following fields are set when Freeze is called
         private bool isFrozen;
         private int frozenHashCode;
@@ -39,18 +40,21 @@ namespace MongoDB.Driver {
             this.assignIdOnInsert = true;
             this.defaultDocumentType = typeof(BsonDocument);
             this.safeMode = SafeMode.False;
+            this.slaveOk = false;
         }
 
         public MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
             Type defaultDocumentType,
-            SafeMode safeMode
+            SafeMode safeMode,
+            bool slaveOk
         ) {
             this.collectionName = collectionName;
             this.assignIdOnInsert = assignIdOnInsert;
             this.defaultDocumentType = defaultDocumentType;
             this.safeMode = safeMode;
+            this.slaveOk = slaveOk;
         }
         #endregion
 
@@ -90,6 +94,14 @@ namespace MongoDB.Driver {
                 safeMode = value;
             }
         }
+
+        public bool SlaveOk {
+            get { return slaveOk; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
+                slaveOk = value;
+            }
+        }
         #endregion
 
         #region public methods
@@ -98,7 +110,8 @@ namespace MongoDB.Driver {
                 collectionName,
                 assignIdOnInsert,
                 defaultDocumentType,
-                safeMode
+                safeMode,
+                slaveOk
             );
         }
 
@@ -122,7 +135,8 @@ namespace MongoDB.Driver {
                         this.collectionName == rhs.collectionName &&
                         this.assignIdOnInsert == rhs.assignIdOnInsert &&
                         this.defaultDocumentType == rhs.defaultDocumentType &&
-                        this.safeMode == rhs.safeMode;
+                        this.safeMode == rhs.safeMode &&
+                        this.slaveOk == rhs.slaveOk;
                 }
             }
         }
@@ -152,16 +166,18 @@ namespace MongoDB.Driver {
             hash = 37 * hash + assignIdOnInsert.GetHashCode();
             hash = 37 * hash + ((defaultDocumentType == null) ? 0 : defaultDocumentType.GetHashCode());
             hash = 37 * hash + ((safeMode == null) ? 0 : safeMode.GetHashCode());
+            hash = 37 * hash + slaveOk.GetHashCode();
             return hash;
         }
 
         private string ToStringHelper() {
             return string.Format(
-                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};SafeMode={3}",
+                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};SafeMode={3};SlaveOk={4}",
                 collectionName,
                 assignIdOnInsert,
                 defaultDocumentType,
-                safeMode
+                safeMode,
+                slaveOk
             );
         }
         #endregion

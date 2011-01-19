@@ -30,10 +30,12 @@ namespace MongoDB.DriverUnitTests {
             settings.DatabaseName = "database";
             settings.Credentials = MongoCredentials.Create("username", "password");
             settings.SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5));
+            settings.SlaveOk = true;
 
             Assert.AreEqual("database", settings.DatabaseName);
             Assert.AreEqual(MongoCredentials.Create("username", "password"), settings.Credentials);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(5)), settings.SafeMode);
+            Assert.AreEqual(true, settings.SlaveOk);
 
             Assert.IsFalse(settings.IsFrozen);
             var hashCode = settings.GetHashCode();
@@ -57,7 +59,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, settings.DatabaseName);
             Assert.AreEqual(null, settings.Credentials);
             Assert.AreEqual(SafeMode.False, settings.SafeMode);
-
+            Assert.AreEqual(false, settings.SlaveOk);
             Assert.IsFalse(settings.IsFrozen);
             var hashCode = settings.GetHashCode();
             var stringRepresentation = settings.ToString();

@@ -327,7 +327,8 @@ namespace MongoDB.Driver {
             var databaseSettings = new MongoDatabaseSettings(
                 databaseName,
                 credentials,
-                safeMode
+                safeMode,
+                settings.SlaveOk
             );
             return GetDatabase(databaseSettings);
         }
