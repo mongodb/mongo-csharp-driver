@@ -617,6 +617,15 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bits[2] = array[2].AsInt32;
                     bits[3] = array[3].AsInt32;
                     return new decimal(bits);
+                case BsonType.Double:
+                    var doubleValue = bsonReader.ReadDouble();
+                    return new Decimal(doubleValue);
+                case BsonType.Int32:
+                    var int32Value = bsonReader.ReadInt32();
+                    return new Decimal(int32Value);
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    return new Decimal(int64Value);
                 case BsonType.String:
                     return XmlConvert.ToDecimal(bsonReader.ReadString());
                 default:
