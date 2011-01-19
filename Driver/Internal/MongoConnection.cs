@@ -197,28 +197,30 @@ namespace MongoDB.Driver.Internal {
 
         internal void Close() {
             lock (connectionLock) {
-                if (state != MongoConnectionState.Initial && state != MongoConnectionState.Closed) {
+                if (state != MongoConnectionState.Closed) {
                     Exception exception = null;
-                    // note: TcpClient.Close doesn't close the NetworkStream!?
-                    try {
-                        var networkStream = tcpClient.GetStream();
-                        if (networkStream != null) {
-                            networkStream.Close();
+                    if (tcpClient != null) {
+                        // note: TcpClient.Close doesn't close the NetworkStream!?
+                        try {
+                            var networkStream = tcpClient.GetStream();
+                            if (networkStream != null) {
+                                networkStream.Close();
+                            }
+                        } catch (Exception ex) {
+                            if (exception == null) { exception = ex; }
                         }
-                    } catch (Exception ex) {
-                        if (exception == null) { exception = ex; }
+                        try {
+                            tcpClient.Close();
+                        } catch (Exception ex) {
+                            if (exception == null) { exception = ex; }
+                        }
+                        try {
+                            ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
+                        } catch (Exception ex) {
+                            if (exception == null) { exception = ex; }
+                        }
+                        tcpClient = null;
                     }
-                    try {
-                        tcpClient.Close();
-                    } catch (Exception ex) {
-                        if (exception == null) { exception = ex; }
-                    }
-                    try {
-                        ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
-                    } catch (Exception ex) {
-                        if (exception == null) { exception = ex; }
-                    }
-                    tcpClient = null;
                     state = MongoConnectionState.Closed;
                     if (exception != null) { throw exception; }
                 }
