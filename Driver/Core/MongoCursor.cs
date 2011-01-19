@@ -41,7 +41,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
-        internal MongoCursor(
+        public MongoCursor(
             MongoCollection collection,
             IMongoQuery query
         ) {
@@ -54,64 +54,64 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
-        public MongoServer Server {
+        public virtual MongoServer Server {
             get { return server; }
         }
 
-        public MongoDatabase Database {
+        public virtual MongoDatabase Database {
             get { return database; }
         }
 
-        public MongoCollection Collection {
+        public virtual MongoCollection Collection {
             get { return collection; }
         }
 
-        public IMongoQuery Query {
+        public virtual IMongoQuery Query {
             get { return query; }
         }
 
-        public IMongoFields Fields {
+        public virtual IMongoFields Fields {
             get { return fields; }
             set { fields = value; }
         }
 
-        public BsonDocument Options {
+        public virtual BsonDocument Options {
             get { return options; }
             set { options = value; }
         }
 
-        public QueryFlags Flags {
+        public virtual QueryFlags Flags {
             get { return flags | (slaveOk ? QueryFlags.SlaveOk : 0); }
             set { flags = value; }
         }
 
-        public bool SlaveOk {
+        public virtual bool SlaveOk {
             get { return slaveOk || ((flags & QueryFlags.SlaveOk) != 0); }
             set { slaveOk = value; }
         }
 
-        public int Skip {
+        public virtual int Skip {
             get { return skip; }
             set { skip = value; }
         }
 
-        public int Limit {
+        public virtual int Limit {
             get { return limit; }
             set { limit = value; }
         }
 
-        public int BatchSize {
+        public virtual int BatchSize {
             get { return batchSize; }
             set { batchSize = value; }
         }
 
-        public bool IsFrozen {
+        public virtual bool IsFrozen {
             get { return isFrozen; }
         }
         #endregion
 
         #region public methods
-        public MongoCursor<TNewDocument> Clone<TNewDocument>() {
+        public virtual MongoCursor<TNewDocument> Clone<TNewDocument>() {
             var clone = new MongoCursor<TNewDocument>(collection, query);
             clone.options = options == null ? null : (BsonDocument) options.Clone();
             clone.flags = flags;
@@ -122,7 +122,7 @@ namespace MongoDB.Driver {
             return clone;
         }
 
-        public int Count() {
+        public virtual int Count() {
             isFrozen = true;
             var command = new CommandDocument {
                 { "count", collection.Name },
@@ -132,11 +132,11 @@ namespace MongoDB.Driver {
             return result.Response["n"].ToInt32();
         }
 
-        public BsonDocument Explain() {
+        public virtual BsonDocument Explain() {
             return Explain(false);
         }
 
-        public BsonDocument Explain(
+        public virtual BsonDocument Explain(
             bool verbose
         ) {
             isFrozen = true;
@@ -164,12 +164,12 @@ namespace MongoDB.Driver {
             return explanation;
         }
 
-        public IEnumerator<TDocument> GetEnumerator() {
+        public virtual IEnumerator<TDocument> GetEnumerator() {
             isFrozen = true;
             return new MongoCursorEnumerator<TDocument>(this);
         }
 
-        public MongoCursor<TDocument> SetBatchSize(
+        public virtual MongoCursor<TDocument> SetBatchSize(
             int batchSize
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -178,7 +178,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetFields(
+        public virtual MongoCursor<TDocument> SetFields(
             IMongoFields fields
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -186,7 +186,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetFields(
+        public virtual MongoCursor<TDocument> SetFields(
             params string[] fields
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -194,7 +194,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetFlags(
+        public virtual MongoCursor<TDocument> SetFlags(
             QueryFlags flags
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -202,7 +202,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetHint(
+        public virtual MongoCursor<TDocument> SetHint(
             BsonDocument hint
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -210,7 +210,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetLimit(
+        public virtual MongoCursor<TDocument> SetLimit(
             int limit
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -218,7 +218,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetMax(
+        public virtual MongoCursor<TDocument> SetMax(
            BsonDocument max
        ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -226,7 +226,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetMaxScan(
+        public virtual MongoCursor<TDocument> SetMaxScan(
             int maxScan
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -234,7 +234,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetMin(
+        public virtual MongoCursor<TDocument> SetMin(
            BsonDocument min
        ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -242,7 +242,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetOption(
+        public virtual MongoCursor<TDocument> SetOption(
             string name,
             BsonValue value
         ) {
@@ -252,7 +252,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetOptions(
+        public virtual MongoCursor<TDocument> SetOptions(
             BsonDocument options
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -263,13 +263,13 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetShowDiskLoc() {
+        public virtual MongoCursor<TDocument> SetShowDiskLoc() {
             if (isFrozen) { ThrowFrozen(); }
             SetOption("$showDiskLoc", true);
             return this;
         }
 
-        public MongoCursor<TDocument> SetSkip(
+        public virtual MongoCursor<TDocument> SetSkip(
             int skip
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -278,7 +278,7 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetSlaveOk(
+        public virtual MongoCursor<TDocument> SetSlaveOk(
             bool slaveOk
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -286,13 +286,13 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetSnapshot() {
+        public virtual MongoCursor<TDocument> SetSnapshot() {
             if (isFrozen) { ThrowFrozen(); }
             SetOption("$snapshot", true);
             return this;
         }
 
-        public MongoCursor<TDocument> SetSortOrder(
+        public virtual MongoCursor<TDocument> SetSortOrder(
             IMongoSortBy sortBy
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -300,14 +300,14 @@ namespace MongoDB.Driver {
             return this;
         }
 
-        public MongoCursor<TDocument> SetSortOrder(
+        public virtual MongoCursor<TDocument> SetSortOrder(
             params string[] keys
         ) {
             if (isFrozen) { ThrowFrozen(); }
             return SetSortOrder(SortBy.Ascending(keys));
         }
 
-        public int Size() {
+        public virtual int Size() {
             isFrozen = true;
             var command = new CommandDocument {
                 { "count", collection.Name },

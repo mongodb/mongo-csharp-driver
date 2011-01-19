@@ -106,15 +106,15 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
-        public MongoCollection<BsonDocument> CommandCollection {
+        public virtual MongoCollection<BsonDocument> CommandCollection {
             get { return commandCollection; }
         }
 
-        public MongoCredentials Credentials {
+        public virtual MongoCredentials Credentials {
             get { return settings.Credentials; }
         }
 
-        public MongoGridFS GridFS {
+        public virtual MongoGridFS GridFS {
             get {
                 lock (databaseLock) {
                     if (gridFS == null) {
@@ -125,27 +125,27 @@ namespace MongoDB.Driver {
             }
         }
 
-        public string Name {
+        public virtual string Name {
             get { return name; }
         }
 
-        public MongoServer Server {
+        public virtual MongoServer Server {
             get { return server; }
         }
 
-        public MongoDatabaseSettings Settings {
+        public virtual MongoDatabaseSettings Settings {
             get { return settings; }
         }
         #endregion
 
         #region public indexers
-        public MongoCollection<BsonDocument> this[
+        public virtual MongoCollection<BsonDocument> this[
             string collectionName
         ] {
             get { return GetCollection(collectionName); }
         }
 
-        public MongoCollection<BsonDocument> this[
+        public virtual MongoCollection<BsonDocument> this[
             string collectionName,
             SafeMode safeMode
         ] {
@@ -154,13 +154,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public void AddUser(
+        public virtual void AddUser(
             MongoCredentials credentials
         ) {
             AddUser(credentials, false);
         }
 
-        public void AddUser(
+        public virtual void AddUser(
             MongoCredentials credentials,
             bool readOnly
         ) {
@@ -174,13 +174,13 @@ namespace MongoDB.Driver {
             users.Save(user);
         }
 
-        public bool CollectionExists(
+        public virtual bool CollectionExists(
             string collectionName
         ) {
             return GetCollectionNames().Contains(collectionName);
         }
 
-        public CommandResult CreateCollection(
+        public virtual CommandResult CreateCollection(
             string collectionName,
             BsonDocument options
         ) {
@@ -189,18 +189,18 @@ namespace MongoDB.Driver {
             return RunCommand(command);
         }
 
-        public void Drop() {
+        public virtual void Drop() {
             server.DropDatabase(name);
         }
 
-        public CommandResult DropCollection(
+        public virtual CommandResult DropCollection(
             string collectionName
         ) {
             var command = new CommandDocument("drop", collectionName);
             return RunCommand(command);
         }
 
-        public BsonValue Eval(
+        public virtual BsonValue Eval(
             string code,
             params object[] args
         ) {
@@ -212,13 +212,13 @@ namespace MongoDB.Driver {
             return result.Response["retval"];
         }
 
-        public BsonDocument FetchDBRef(
+        public virtual BsonDocument FetchDBRef(
             MongoDBRef dbRef
         ) {
             return FetchDBRefAs<BsonDocument>(dbRef);
         }
 
-        public TDocument FetchDBRefAs<TDocument>(
+        public virtual TDocument FetchDBRefAs<TDocument>(
             MongoDBRef dbRef
         ) {
             if (dbRef.DatabaseName != null && dbRef.DatabaseName != name) {
@@ -230,7 +230,7 @@ namespace MongoDB.Driver {
             return collection.FindOneAs<TDocument>(query);
         }
 
-        public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             MongoCollectionSettings collectionSettings
         ) {
             if (collectionSettings.DefaultDocumentType != typeof(TDefaultDocument)) {
@@ -248,13 +248,13 @@ namespace MongoDB.Driver {
             }
         }
 
-        public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName
         ) {
             return GetCollection<TDefaultDocument>(collectionName, settings.SafeMode);
         }
 
-        public MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName,
             SafeMode safeMode
         ) {
@@ -268,20 +268,20 @@ namespace MongoDB.Driver {
             return GetCollection<TDefaultDocument>(collectionSettings);
         }
 
-        public MongoCollection<BsonDocument> GetCollection(
+        public virtual MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
             return GetCollection<BsonDocument>(collectionName, settings.SafeMode);
         }
 
-        public MongoCollection<BsonDocument> GetCollection(
+        public virtual MongoCollection<BsonDocument> GetCollection(
             string collectionName,
             SafeMode safeMode
         ) {
             return GetCollection<BsonDocument>(collectionName, safeMode);
         }
 
-        public IEnumerable<string> GetCollectionNames() {
+        public virtual IEnumerable<string> GetCollectionNames() {
             List<string> collectionNames = new List<string>();
             var namespaces = GetCollection("system.namespaces");
             var prefix = name + ".";
@@ -295,12 +295,12 @@ namespace MongoDB.Driver {
             return collectionNames;
         }
 
-        public BsonDocument GetCurrentOp() {
+        public virtual BsonDocument GetCurrentOp() {
             var collection = GetCollection("$cmd.sys.inprog");
             return collection.FindOne();
         }
 
-        public MongoGridFS GetGridFS(
+        public virtual MongoGridFS GetGridFS(
             MongoGridFSSettings gridFSSettings
         ) {
             return new MongoGridFS(this, gridFSSettings);
@@ -310,26 +310,26 @@ namespace MongoDB.Driver {
         // TODO: mongo shell has GetProfilingLevel at the database level?
         // TODO: mongo shell has GetReplicationInfo at the database level?
 
-        public MongoDatabase GetSisterDatabase(
+        public virtual MongoDatabase GetSisterDatabase(
             string databaseName
         ) {
             return server.GetDatabase(databaseName);
         }
 
-        public DatabaseStatsResult GetStats() {
+        public virtual DatabaseStatsResult GetStats() {
             return RunCommandAs<DatabaseStatsResult>("dbstats");
         }
 
         // TODO: mongo shell has IsMaster at database level?
 
-        public void RemoveUser(
+        public virtual void RemoveUser(
             string username
         ) {
             var users = GetCollection("system.users");
             users.Remove(Query.EQ("user", username));
         }
 
-        public CommandResult RenameCollection(
+        public virtual CommandResult RenameCollection(
             string oldCollectionName,
             string newCollectionName
         ) {
@@ -340,31 +340,31 @@ namespace MongoDB.Driver {
             return server.RunAdminCommand(command);
         }
 
-        public void RequestDone() {
+        public virtual void RequestDone() {
             server.RequestDone();
         }
 
         // the result of RequestStart is IDisposable so you can use RequestStart in a using statment
         // and then RequestDone will be called automatically when leaving the using statement
-        public IDisposable RequestStart() {
+        public virtual IDisposable RequestStart() {
             return server.RequestStart(this);
         }
 
         // TODO: mongo shell has ResetError at the database level
 
-        public CommandResult RunCommand(
+        public virtual CommandResult RunCommand(
             IMongoCommand command
         ) {
             return RunCommandAs<CommandResult>(command);
         }
 
-        public CommandResult RunCommand(
+        public virtual CommandResult RunCommand(
             string commandName
         ) {
             return RunCommandAs<CommandResult>(commandName);
         }
 
-        public TCommandResult RunCommandAs<TCommandResult>(
+        public virtual TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command
         ) where TCommandResult : CommandResult, new() {
             var response = CommandCollection.FindOne(command);
@@ -384,7 +384,7 @@ namespace MongoDB.Driver {
             return commandResult;
         }
 
-        public TCommandResult RunCommandAs<TCommandResult>(
+        public virtual TCommandResult RunCommandAs<TCommandResult>(
             string commandName
         ) where TCommandResult : CommandResult, new() {
             var command = new CommandDocument(commandName, true);

@@ -111,27 +111,27 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
-        public MongoDatabase AdminDatabase {
+        public virtual MongoDatabase AdminDatabase {
             get { return GetDatabase("admin", settings.DefaultCredentials); }
         }
 
-        public IEnumerable<IPEndPoint> EndPoints {
+        public virtual IEnumerable<IPEndPoint> EndPoints {
             get { return endPoints; }
         }
 
-        public int MaxDocumentSize {
+        public virtual int MaxDocumentSize {
             get { return maxDocumentSize; }
         }
 
-        public int MaxMessageLength {
+        public virtual int MaxMessageLength {
             get { return maxMessageLength; }
         }
 
-        public IEnumerable<MongoServerAddress> ReplicaSet {
+        public virtual IEnumerable<MongoServerAddress> ReplicaSet {
             get { return replicaSet; }
         }
 
-        public int RequestNestingLevel {
+        public virtual int RequestNestingLevel {
             get {
                 int threadId = Thread.CurrentThread.ManagedThreadId;
                 lock (requestsLock) {
@@ -145,30 +145,30 @@ namespace MongoDB.Driver {
             }
         }
 
-        public MongoServerSettings Settings {
+        public virtual MongoServerSettings Settings {
             get { return settings; }
         }
 
-        public MongoServerState State {
+        public virtual MongoServerState State {
             get { return state; }
         }
         #endregion
 
         #region public indexers
-        public MongoDatabase this[
+        public virtual MongoDatabase this[
             string databaseName
         ] {
             get { return GetDatabase(databaseName); }
         }
 
-        public MongoDatabase this[
+        public virtual MongoDatabase this[
             string databaseName,
             MongoCredentials credentials
         ] {
             get { return GetDatabase(databaseName, credentials); }
         }
 
-        public MongoDatabase this[
+        public virtual MongoDatabase this[
             string databaseName,
             MongoCredentials credentials,
             SafeMode safeMode
@@ -176,7 +176,7 @@ namespace MongoDB.Driver {
             get { return GetDatabase(databaseName, credentials, safeMode); }
         }
 
-        public MongoDatabase this[
+        public virtual MongoDatabase this[
             string databaseName,
             SafeMode safeMode
         ] {
@@ -185,17 +185,17 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public void CloneDatabase(
+        public virtual void CloneDatabase(
             string fromHost
         ) {
             throw new NotImplementedException();
         }
 
-        public void Connect() {
+        public virtual void Connect() {
             Connect(settings.ConnectTimeout);
         }
 
-        public void Connect(
+        public virtual void Connect(
             TimeSpan timeout
         ) {
             lock (serverLock) {
@@ -242,14 +242,14 @@ namespace MongoDB.Driver {
         }
 
         // TODO: fromHost parameter?
-        public void CopyDatabase(
+        public virtual void CopyDatabase(
             string from,
             string to
         ) {
             throw new NotImplementedException();
         }
 
-        public void Disconnect() {
+        public virtual void Disconnect() {
             // normally called from a connection when there is a SocketException
             // but anyone can call it if they want to close all sockets to the server
             lock (serverLock) {
@@ -267,7 +267,7 @@ namespace MongoDB.Driver {
             }
         }
 
-        public CommandResult DropDatabase(
+        public virtual CommandResult DropDatabase(
             string databaseName
         ) {
             MongoDatabase database = GetDatabase(databaseName);
@@ -275,13 +275,13 @@ namespace MongoDB.Driver {
             return database.RunCommand(command);
         }
 
-        public BsonDocument FetchDBRef(
+        public virtual BsonDocument FetchDBRef(
             MongoDBRef dbRef
         ) {
             return FetchDBRefAs<BsonDocument>(dbRef);
         }
 
-        public TDocument FetchDBRefAs<TDocument>(
+        public virtual TDocument FetchDBRefAs<TDocument>(
             MongoDBRef dbRef
         ) {
             if (dbRef.DatabaseName == null) {
@@ -292,7 +292,7 @@ namespace MongoDB.Driver {
             return database.FetchDBRefAs<TDocument>(dbRef);
         }
 
-        public MongoDatabase GetDatabase(
+        public virtual MongoDatabase GetDatabase(
             MongoDatabaseSettings databaseSettings
         ) {
             lock (serverLock) {
@@ -306,20 +306,20 @@ namespace MongoDB.Driver {
             }
         }
 
-        public MongoDatabase GetDatabase(
+        public virtual MongoDatabase GetDatabase(
             string databaseName
         ) {
             return GetDatabase(databaseName, settings.DefaultCredentials);
         }
 
-        public MongoDatabase GetDatabase(
+        public virtual MongoDatabase GetDatabase(
             string databaseName,
             MongoCredentials credentials
         ) {
             return GetDatabase(databaseName, credentials, settings.SafeMode);
         }
 
-        public MongoDatabase GetDatabase(
+        public virtual MongoDatabase GetDatabase(
             string databaseName,
             MongoCredentials credentials,
             SafeMode safeMode
@@ -333,14 +333,14 @@ namespace MongoDB.Driver {
             return GetDatabase(databaseSettings);
         }
 
-        public MongoDatabase GetDatabase(
+        public virtual MongoDatabase GetDatabase(
             string databaseName,
             SafeMode safeMode
         ) {
             return GetDatabase(databaseName, settings.DefaultCredentials, safeMode);
         }
 
-        public IEnumerable<string> GetDatabaseNames() {
+        public virtual IEnumerable<string> GetDatabaseNames() {
             var result = AdminDatabase.RunCommand("listDatabases");
             var databaseNames = new List<string>();
             foreach (BsonDocument database in result.Response["databases"].AsBsonArray.Values) {
@@ -351,7 +351,7 @@ namespace MongoDB.Driver {
             return databaseNames;
         }
 
-        public GetLastErrorResult GetLastError() {
+        public virtual GetLastErrorResult GetLastError() {
             if (RequestNestingLevel == 0) {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
@@ -359,14 +359,14 @@ namespace MongoDB.Driver {
             return adminDatabase.RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
-        public void Reconnect() {
+        public virtual void Reconnect() {
             lock (serverLock) {
                 Disconnect();
                 Connect();
             }
         }
 
-        public void RequestDone() {
+        public virtual void RequestDone() {
             int threadId = Thread.CurrentThread.ManagedThreadId;
             MongoConnection connection = null;
             lock (requestsLock) {
@@ -389,7 +389,7 @@ namespace MongoDB.Driver {
 
         // the result of RequestStart is IDisposable so you can use RequestStart in a using statment
         // and then RequestDone will be called automatically when leaving the using statement
-        public IDisposable RequestStart(
+        public virtual IDisposable RequestStart(
             MongoDatabase initialDatabase
         ) {
             int threadId = Thread.CurrentThread.ManagedThreadId;
@@ -411,25 +411,25 @@ namespace MongoDB.Driver {
             }
         }
 
-        public CommandResult RunAdminCommand(
+        public virtual CommandResult RunAdminCommand(
             IMongoCommand command
         ) {
             return RunAdminCommandAs<CommandResult>(command);
         }
 
-        public CommandResult RunAdminCommand(
+        public virtual CommandResult RunAdminCommand(
             string commandName
         ) {
             return RunAdminCommandAs<CommandResult>(commandName);
         }
 
-        public TCommandResult RunAdminCommandAs<TCommandResult>(
+        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(
             IMongoCommand command
         ) where TCommandResult : CommandResult, new() {
             return AdminDatabase.RunCommandAs<TCommandResult>(command);
         }
 
-        public TCommandResult RunAdminCommandAs<TCommandResult>(
+        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(
             string commandName
         ) where TCommandResult : CommandResult, new() {
             return AdminDatabase.RunCommandAs<TCommandResult>(commandName);
