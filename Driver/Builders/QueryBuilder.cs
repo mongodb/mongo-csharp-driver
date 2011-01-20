@@ -50,38 +50,26 @@ namespace MongoDB.Driver.Builders {
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
-                foreach (BsonElement queryElement in query.ToBsonDocument()) {
-
-                    // Automatically support {"name": {$op1: ..., $op2: ...}} from a single Query.And(
+                foreach (var queryElement in query.ToBsonDocument()) {
+                    // if result document has existing operations for same field append the new ones
                     if (document.Contains(queryElement.Name)) {
-                        var subDocumentValue = document[queryElement.Name];
-                        var subQueriesValue = queryElement.Value;
+                        var existingOperations = document[queryElement.Name] as BsonDocument;
+                        var newOperations = queryElement.Value as BsonDocument;
 
-                        // Make sure that no conditions are Query.EQ, because duplicates aren't allowed
-                        if (
-                            subDocumentValue.BsonType != BsonType.Document ||
-                            subQueriesValue.BsonType != BsonType.Document) {
-
-                                throw new InvalidOperationException(
-                                    string.Format(
-                                    "Can not use Query.And with multiple Query.EQ for the same value: {0}",
-                                    queryElement.Name));
+                        // make sure that no conditions are Query.EQ, because duplicates aren't allowed
+                        if (existingOperations == null || newOperations == null) {
+                            var message = string.Format("Query.And does not support combining equality comparisons with other operators (field: '{0}')", queryElement.Name);
+                            throw new InvalidOperationException(message);
                         }
 
-                        var subDocument = subDocumentValue.AsBsonDocument;
-                        var subQueries = subQueriesValue.AsBsonDocument;
-
-                        // Add each subquery to the subdocument
-                        foreach (BsonElement subQueryElement in subQueries) {
-                            // Make sure that there are no duplicate $operators
-                            if (subDocument.Contains(subQueryElement.Name)) {
-                                throw new InvalidOperationException(
-                                    string.Format(
-                                    "Can not use Query.And with multiple {1} for the same value: {0}",
-                                    queryElement.Name,
-                                    subQueryElement.Name));
+                        // add each new operation to the existing operations
+                        foreach (var operation in newOperations) {
+                            // make sure that there are no duplicate $operators
+                            if (existingOperations.Contains(operation.Name)) {
+                                var message = string.Format("Query.And does not support using the same operator more than once (field: '{0}', operator: '{1}')", queryElement.Name, operation.Name);
+                                throw new InvalidOperationException(message);
                             } else {
-                                subDocument.Add(subQueryElement);
+                                existingOperations.Add(operation);
                             }
                         }
                     } else {

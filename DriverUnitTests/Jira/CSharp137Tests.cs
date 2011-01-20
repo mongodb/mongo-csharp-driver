@@ -69,7 +69,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         [Test]
         [ExpectedException(
             typeof(InvalidOperationException),
-            ExpectedMessage = "Can not use Query.And with multiple Query.EQ for the same value: value")]
+            ExpectedMessage = "Query.And does not support combining equality comparisons with other operators (field: 'value')")]
         public void TestNoDuplicateEq() {
             var query = Query.And(
                 Query.EQ("value", 6),
@@ -79,7 +79,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         [Test]
         [ExpectedException(
             typeof(InvalidOperationException),
-            ExpectedMessage = "Can not use Query.And with multiple Query.EQ for the same value: value")]
+            ExpectedMessage = "Query.And does not support combining equality comparisons with other operators (field: 'value')")]
         public void TestNoEq1() {
             var query = Query.And(
                 Query.EQ("value", 6),
@@ -89,7 +89,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         [Test]
         [ExpectedException(
             typeof(InvalidOperationException),
-            ExpectedMessage = "Can not use Query.And with multiple Query.EQ for the same value: value")]
+            ExpectedMessage = "Query.And does not support combining equality comparisons with other operators (field: 'value')")]
         public void TestNoEq2() {
             var query = Query.And(
                 Query.GT("value", 6),
@@ -99,7 +99,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         [Test]
         [ExpectedException(
             typeof(InvalidOperationException),
-            ExpectedMessage = "Can not use Query.And with multiple $lte for the same value: value")]
+            ExpectedMessage = "Query.And does not support using the same operator more than once (field: 'value', operator: '$lte')")]
         public void TestNoDuplicateOperation() {
             var query = Query.And(
                 Query.LTE("value", 6),
