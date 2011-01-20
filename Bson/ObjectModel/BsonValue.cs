@@ -23,7 +23,7 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson {
     [Serializable]
-    public abstract class BsonValue : IComparable<BsonValue>, IEquatable<BsonValue> {
+    public abstract class BsonValue : IComparable<BsonValue>, IConvertible, IEquatable<BsonValue> {
         #region private static fields
         private static Dictionary<BsonType, int> bsonTypeSortOrder = new Dictionary<BsonType, int> {
             { BsonType.MinKey, 1 },
@@ -770,6 +770,225 @@ namespace MongoDB.Bson {
                 case BsonType.Timestamp:
                     bsonWriter.WriteTimestamp(((BsonTimestamp) this).Value);
                     break;
+            }
+        }
+        #endregion
+
+        #region explicit IConvertible implementation
+        TypeCode IConvertible.GetTypeCode() {
+            switch (bsonType) {
+                case BsonType.Boolean: return TypeCode.Boolean;
+                case BsonType.DateTime: return TypeCode.DateTime;
+                case BsonType.Double: return TypeCode.Double;
+                case BsonType.Int32: return TypeCode.Int32;
+                case BsonType.Int64: return TypeCode.Int64;
+                case BsonType.String: return TypeCode.String;
+                default: return TypeCode.Object;
+            }
+        }
+
+        bool IConvertible.ToBoolean(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return this.AsBoolean;
+                case BsonType.Double: return Convert.ToBoolean(this.AsDouble);
+                case BsonType.Int32: return Convert.ToBoolean(this.AsInt32);
+                case BsonType.Int64: return Convert.ToBoolean(this.AsInt64);
+                case BsonType.String: return Convert.ToBoolean(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        byte IConvertible.ToByte(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToByte(this.AsBoolean);
+                case BsonType.Double: return Convert.ToByte(this.AsDouble);
+                case BsonType.Int32: return Convert.ToByte(this.AsInt32);
+                case BsonType.Int64: return Convert.ToByte(this.AsInt64);
+                case BsonType.String: return Convert.ToByte(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        char IConvertible.ToChar(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Int32: return Convert.ToChar(this.AsInt32);
+                case BsonType.Int64: return Convert.ToChar(this.AsInt64);
+                case BsonType.String: return Convert.ToChar(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        DateTime IConvertible.ToDateTime(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.DateTime: return this.AsDateTime;
+                case BsonType.String: return Convert.ToDateTime(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        decimal IConvertible.ToDecimal(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToDecimal(this.AsBoolean);
+                case BsonType.Double: return Convert.ToDecimal(this.AsDouble);
+                case BsonType.Int32: return Convert.ToDecimal(this.AsInt32);
+                case BsonType.Int64: return Convert.ToDecimal(this.AsInt64);
+                case BsonType.String: return Convert.ToDecimal(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        double IConvertible.ToDouble(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToDouble(this.AsBoolean);
+                case BsonType.Double: return this.AsDouble;
+                case BsonType.Int32: return Convert.ToDouble(this.AsInt32);
+                case BsonType.Int64: return Convert.ToDouble(this.AsInt64);
+                case BsonType.String: return Convert.ToDouble(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        short IConvertible.ToInt16(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToInt16(this.AsBoolean);
+                case BsonType.Double: return Convert.ToInt16(this.AsDouble);
+                case BsonType.Int32: return Convert.ToInt16(this.AsInt32);
+                case BsonType.Int64: return Convert.ToInt16(this.AsInt64);
+                case BsonType.String: return Convert.ToInt16(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        int IConvertible.ToInt32(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToInt32(this.AsBoolean);
+                case BsonType.Double: return Convert.ToInt32(this.AsDouble);
+                case BsonType.Int32: return this.AsInt32;
+                case BsonType.Int64: return Convert.ToInt32(this.AsInt64);
+                case BsonType.String: return Convert.ToInt32(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        long IConvertible.ToInt64(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToInt64(this.AsBoolean);
+                case BsonType.Double: return Convert.ToInt64(this.AsDouble);
+                case BsonType.Int32: return Convert.ToInt64(this.AsInt32);
+                case BsonType.Int64: return this.AsInt64;
+                case BsonType.String: return Convert.ToInt64(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        sbyte IConvertible.ToSByte(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToSByte(this.AsBoolean);
+                case BsonType.Double: return Convert.ToSByte(this.AsDouble);
+                case BsonType.Int32: return Convert.ToSByte(this.AsInt32);
+                case BsonType.Int64: return Convert.ToSByte(this.AsInt64);
+                case BsonType.String: return Convert.ToSByte(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        float IConvertible.ToSingle(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToSingle(this.AsBoolean);
+                case BsonType.Double: return Convert.ToSingle(this.AsDouble);
+                case BsonType.Int32: return Convert.ToSingle(this.AsInt32);
+                case BsonType.Int64: return Convert.ToSingle(this.AsInt64);
+                case BsonType.String: return Convert.ToSingle(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        string IConvertible.ToString(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToString(this.AsBoolean);
+                case BsonType.Double: return Convert.ToString(this.AsDouble);
+                case BsonType.Int32: return Convert.ToString(this.AsInt32);
+                case BsonType.Int64: return Convert.ToString(this.AsInt64);
+                case BsonType.String: return Convert.ToString(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        object IConvertible.ToType(
+            Type conversionType,
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ChangeType(this.AsBoolean, conversionType, provider);
+                case BsonType.DateTime: return Convert.ChangeType(this.AsDateTime, conversionType, provider);
+                case BsonType.Double: return Convert.ChangeType(this.AsDouble, conversionType, provider);
+                case BsonType.Int32: return Convert.ChangeType(this.AsInt32, conversionType, provider);
+                case BsonType.Int64: return Convert.ChangeType(this.AsInt64, conversionType, provider);
+                case BsonType.String: return Convert.ChangeType(this.AsString, conversionType, provider);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        ushort IConvertible.ToUInt16(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToUInt16(this.AsBoolean);
+                case BsonType.Double: return Convert.ToUInt16(this.AsDouble);
+                case BsonType.Int32: return Convert.ToUInt16(this.AsInt32);
+                case BsonType.Int64: return Convert.ToUInt16(this.AsInt64);
+                case BsonType.String: return Convert.ToUInt16(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        uint IConvertible.ToUInt32(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToUInt32(this.AsBoolean);
+                case BsonType.Double: return Convert.ToUInt32(this.AsDouble);
+                case BsonType.Int32: return Convert.ToUInt16(this.AsInt32);
+                case BsonType.Int64: return Convert.ToUInt32(this.AsInt64);
+                case BsonType.String: return Convert.ToUInt32(this.AsString);
+                default: throw new InvalidCastException();
+            }
+        }
+
+        ulong IConvertible.ToUInt64(
+            IFormatProvider provider
+        ) {
+            switch (bsonType) {
+                case BsonType.Boolean: return Convert.ToUInt64(this.AsBoolean);
+                case BsonType.Double: return Convert.ToUInt64(this.AsDouble);
+                case BsonType.Int32: return Convert.ToUInt64(this.AsInt32);
+                case BsonType.Int64: return Convert.ToUInt16(this.AsInt64);
+                case BsonType.String: return Convert.ToUInt64(this.AsString);
+                default: throw new InvalidCastException();
             }
         }
         #endregion
