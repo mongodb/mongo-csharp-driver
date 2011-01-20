@@ -159,7 +159,7 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestDateTime() {
+        public void TestDateTimeStrict() {
             var json = "{ \"$date\" : 0 }";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
@@ -167,6 +167,18 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<DateTime>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
+        public void TestDateTimeTengen() {
+            var json = "Date(0)";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
+                Assert.AreEqual(BsonConstants.UnixEpoch, bsonReader.ReadDateTime());
+                Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
+            }
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
+            Assert.AreEqual(json, BsonSerializer.Deserialize<DateTime>(new StringReader(json)).ToJson(settings));
         }
 
         [Test]
@@ -389,7 +401,7 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestObjectId() {
+        public void TestObjectIdStrict() {
             var json = "{ \"$oid\" : \"4d0ce088e447ad08b4721a37\" }";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.ObjectId, bsonReader.ReadBsonType());
@@ -401,6 +413,22 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<ObjectId>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
+        public void TestObjectIdStrictTenGen() {
+            var json = "ObjectId(\"4d0ce088e447ad08b4721a37\")";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.ObjectId, bsonReader.ReadBsonType());
+                int timestamp, machine, increment;
+                short pid;
+                bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                var objectId = new ObjectId(timestamp, machine, pid, increment);
+                Assert.AreEqual("4d0ce088e447ad08b4721a37", objectId.ToString());
+                Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
+            }
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
+            Assert.AreEqual(json, BsonSerializer.Deserialize<ObjectId>(new StringReader(json)).ToJson(settings));
         }
 
         [Test]
@@ -428,8 +456,8 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual("gim", options);
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
-            var tenGen = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
-            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonRegularExpression>(new StringReader(json)).ToJson(tenGen));
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonRegularExpression>(new StringReader(json)).ToJson(settings));
         }
 
         [Test]

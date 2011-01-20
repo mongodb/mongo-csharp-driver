@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 using System.Xml;
@@ -88,7 +89,7 @@ namespace MongoDB.Bson.IO {
                 case '0': state = NumberState.SawLeadingZero; break;
                 default: state = NumberState.SawIntegerDigits; break;
             }
-            var type = JsonTokenType.Integer; // assume integer until proved otherwise
+            var type = JsonTokenType.Int64; // assume integer until proved otherwise
 
             while (true) {
                 c = buffer.Read();
@@ -158,7 +159,7 @@ namespace MongoDB.Bson.IO {
                         }
                         break;
                     case NumberState.SawDecimalPoint:
-                        type = JsonTokenType.FloatingPoint;
+                        type = JsonTokenType.Double;
                         if (char.IsDigit((char) c)) {
                             state = NumberState.SawFractionDigits;
                         } else {
@@ -189,7 +190,7 @@ namespace MongoDB.Bson.IO {
                         }
                         break;
                     case NumberState.SawExponentLetter:
-                        type = JsonTokenType.FloatingPoint;
+                        type = JsonTokenType.Double;
                         switch (c) {
                             case '+':
                             case '-':
@@ -235,7 +236,18 @@ namespace MongoDB.Bson.IO {
                 switch (state) {
                     case NumberState.Done:
                         buffer.UnRead(c);
-                        return new JsonToken(type, buffer.Substring(start, buffer.Position - start));
+                        var lexeme = buffer.Substring(start, buffer.Position - start);
+                        if (type == JsonTokenType.Double) {
+                            var value = XmlConvert.ToDouble(lexeme);
+                            return new DoubleJsonToken(lexeme, value);
+                        } else {
+                            var value = XmlConvert.ToInt64(lexeme);
+                            if (value < int.MinValue || value > int.MaxValue) {
+                                return new Int64JsonToken(lexeme, value);
+                            } else {
+                                return new Int32JsonToken(lexeme, (int) value);
+                            }
+                        }
                     case NumberState.Invalid:
                         throw new FileFormatException(FormatMessage("Invalid JSON number", buffer, start));
                 }
@@ -288,8 +300,9 @@ namespace MongoDB.Bson.IO {
                 switch (state) {
                     case RegularExpressionState.Done:
                         buffer.UnRead(c);
-                        var count = buffer.Position - start;
-                        return new JsonToken(JsonTokenType.RegularExpression, buffer.Substring(start, count));
+                        var lexeme = buffer.Substring(start, buffer.Position - start);
+                        var regex = BsonRegularExpression.Create(lexeme);
+                        return new RegularExpressionJsonToken(lexeme, regex);
                     case RegularExpressionState.Invalid:
                         throw new FileFormatException(FormatMessage("Invalid JSON regular expression", buffer, start));
                 }
@@ -336,7 +349,8 @@ namespace MongoDB.Bson.IO {
                         }
                         break;
                     case '"':
-                        return new JsonToken(JsonTokenType.String, sb.ToString());
+                        var lexeme = buffer.Substring(start, buffer.Position - start);
+                        return new StringJsonToken(JsonTokenType.String, lexeme, sb.ToString());
                     default:
                         if (c != -1) {
                             sb.Append((char) c);
@@ -349,11 +363,66 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        private static JsonToken GetTenGenDate(
+            JsonBuffer buffer,
+            int start
+        ) {
+            var firstDigit = buffer.Position;
+            while (true) {
+                var c = buffer.Read();
+                if (c == ')') {
+                    var lexeme = buffer.Substring(start, buffer.Position - start);
+                    var digits = buffer.Substring(firstDigit, buffer.Position - firstDigit - 1);
+                    var ms = XmlConvert.ToInt64(digits);
+                    var value = BsonConstants.UnixEpoch.AddMilliseconds(ms);
+                    return new DateTimeJsonToken(lexeme, value);
+                }
+                if (c == -1 || !char.IsDigit((char) c)) {
+                    throw new FileFormatException(FormatMessage("Invalid JSON Date value", buffer, start));
+                }
+            }
+        }
+
+        private static JsonToken GetTenGenObjectId(
+            JsonBuffer buffer,
+            int start
+        ) {
+            var c = buffer.Read();
+            if (c != '"') {
+                throw new FileFormatException(FormatMessage("Invalid JSON ObjectId value", buffer, start));
+            }
+            var firstHexDigit = buffer.Position;
+            c = buffer.Read();
+            while (c != '"') {
+                if (
+                    !char.IsDigit((char) c) &&
+                    !(c >= 'a' && c <= 'f') &&
+                    !(c >= 'A' && c <= 'F')
+                ) {
+                    throw new FileFormatException(FormatMessage("Invalid JSON ObjectId value", buffer, start));
+                }
+                c = buffer.Read();
+            }
+            var count = buffer.Position - 1 - firstHexDigit;
+            if (count != 24) {
+                throw new FileFormatException(FormatMessage("Invalid JSON ObjectId value", buffer, start));
+            }
+            var hexDigits = buffer.Substring(firstHexDigit, count);
+            var objectId = ObjectId.Parse(hexDigits);
+            c = buffer.Read();
+            if (c != ')') {
+                throw new FileFormatException(FormatMessage("Invalid JSON ObjectId value", buffer, start));
+            }
+            var lexeme = buffer.Substring(start, buffer.Position - start);
+            return new ObjectIdJsonToken(lexeme, objectId);
+        }
+
         private static JsonToken GetUnquotedStringToken(
             JsonBuffer buffer
         ) {
             // opening letter or $ has already been read
             var start = buffer.Position - 1;
+            string lexeme;
             while (true) {
                 var c = buffer.Read();
                 switch (c) {
@@ -363,14 +432,23 @@ namespace MongoDB.Bson.IO {
                     case ']':
                     case -1:
                         buffer.UnRead(c);
-                        return new JsonToken(JsonTokenType.UnquotedString, buffer.Substring(start, buffer.Position - start));
+                        lexeme = buffer.Substring(start, buffer.Position - start);
+                        return new StringJsonToken(JsonTokenType.UnquotedString, lexeme, lexeme);
                     default:
                         if (c == '$' || char.IsLetterOrDigit((char) c)) {
                             // continue
                         } else if (char.IsWhiteSpace((char) c)) {
                             buffer.UnRead(c);
-                            return new JsonToken(JsonTokenType.UnquotedString, buffer.Substring(start, buffer.Position - start));
+                            lexeme = buffer.Substring(start, buffer.Position - start);
+                            return new StringJsonToken(JsonTokenType.UnquotedString, lexeme, lexeme);
                         } else {
+                            if (c == '(') {
+                                var value = buffer.Substring(start, buffer.Position - 1 - start);
+                                switch (value) {
+                                    case "Date": return GetTenGenDate(buffer, start);
+                                    case "ObjectId": return GetTenGenObjectId(buffer, start);
+                                }
+                            }
                             throw new FileFormatException(FormatMessage("Invalid JSON unquoted string", buffer, start));
                         }
                         break;
