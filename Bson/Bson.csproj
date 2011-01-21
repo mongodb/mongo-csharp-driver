@@ -82,6 +82,7 @@
     <Compile Include="DefaultSerializer\SerializationOptions\DateTimeSerializationOptions.cs" />
     <Compile Include="DefaultSerializer\SerializationOptions\DocumentSerializationOptions.cs" />
     <Compile Include="DefaultSerializer\SerializationOptions\RepresentationSerializationOptions.cs" />
+    <Compile Include="Exceptions\TruncationException.cs" />
     <Compile Include="IO\BsonBaseReader.cs" />
     <Compile Include="IO\BsonDocumentReader.cs" />
     <Compile Include="IO\BsonDocumentReaderBookmark.cs" />
