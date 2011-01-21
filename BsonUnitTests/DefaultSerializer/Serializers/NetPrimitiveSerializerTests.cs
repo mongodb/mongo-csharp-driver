@@ -716,9 +716,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public class TestClass {
             [BsonRepresentation(BsonType.Double)]
             public float D;
-            [BsonRepresentation(BsonType.Int32)]
+            [BsonRepresentation(BsonType.Int32, AllowTruncation = true)]
             public float I;
-            [BsonRepresentation(BsonType.Int64)]
+            [BsonRepresentation(BsonType.Int64, AllowTruncation = true)]
             public float L;
             [BsonRepresentation(BsonType.String)]
             public float S;
@@ -733,8 +733,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 S = float.MinValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
-            expected = expected.Replace("#", XmlConvert.ToString(double.MinValue));
+            var expected = "{ 'D' : #D, 'I' : 0, 'L' : 0, 'S' : '#S' }";
+            expected = expected.Replace("#D", XmlConvert.ToString(double.MinValue));
+            expected = expected.Replace("#S", XmlConvert.ToString(float.MinValue));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -820,8 +821,9 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 S = float.MaxValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
-            expected = expected.Replace("#", XmlConvert.ToString(double.MaxValue));
+            var expected = "{ 'D' : #D, 'I' : 0, 'L' : 0, 'S' : '#S' }";
+            expected = expected.Replace("#D", XmlConvert.ToString(double.MaxValue));
+            expected = expected.Replace("#S", XmlConvert.ToString(float.MaxValue));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -1100,7 +1102,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public class TestClass {
             [BsonRepresentation(BsonType.Double)]
             public uint D;
-            [BsonRepresentation(BsonType.Int32)]
+            [BsonRepresentation(BsonType.Int32, AllowOverflow=true)]
             public uint I;
             [BsonRepresentation(BsonType.Int64)]
             public uint L;
@@ -1184,7 +1186,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             public ulong D;
             [BsonRepresentation(BsonType.Int32)]
             public ulong I;
-            [BsonRepresentation(BsonType.Int64)]
+            [BsonRepresentation(BsonType.Int64, AllowOverflow=true)]
             public ulong L;
             [BsonRepresentation(BsonType.String)]
             public ulong S;

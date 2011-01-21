@@ -105,7 +105,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112 {
 
             for (int i = 0; i < values.Length; i++) {
                 var query = Query.EQ("_id", i + 1);
-                Assert.Throws<FileFormatException>(() => collection.FindOneAs<D>(query));
+                Assert.Throws<OverflowException>(() => collection.FindOneAs<D>(query));
             }
         }
 
@@ -161,7 +161,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112 {
 
             for (int i = 0; i < values.Length; i++) {
                 var query = Query.EQ("_id", i + 1);
-                Assert.Throws<FileFormatException>(() => collection.FindOneAs<I>(query));
+                Assert.Throws<OverflowException>(() => collection.FindOneAs<I>(query));
             }
         }
 
@@ -218,7 +218,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112 {
 
             for (int i = 0; i < values.Length; i++) {
                 var query = Query.EQ("_id", i + 1);
-                Assert.Throws<FileFormatException>(() => collection.FindOneAs<L>(query));
+                Assert.Throws<OverflowException>(() => collection.FindOneAs<L>(query));
             }
         }
     }

@@ -25,6 +25,8 @@ namespace MongoDB.Bson.DefaultSerializer {
     public class BsonRepresentationAttribute : BsonSerializationOptionsAttribute {
         #region private fields
         private BsonType representation;
+        private bool allowOverflow;
+        private bool allowTruncation;
         #endregion
 
         #region constructors
@@ -39,11 +41,21 @@ namespace MongoDB.Bson.DefaultSerializer {
         public BsonType Representation {
             get { return representation; }
         }
+
+        public bool AllowOverflow {
+            get { return allowOverflow; }
+            set { allowOverflow = value; }
+        }
+
+        public bool AllowTruncation {
+            get { return allowTruncation; }
+            set { allowTruncation = value; }
+        }
         #endregion
 
         #region public methods
         public override IBsonSerializationOptions GetOptions() {
-            return new RepresentationSerializationOptions(representation);
+            return new RepresentationSerializationOptions(representation, allowOverflow, allowTruncation);
         }
         #endregion
     }
