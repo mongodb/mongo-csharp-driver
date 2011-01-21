@@ -77,8 +77,10 @@
     </Compile>
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonDateTimeOptionsAttribute.cs" />
+    <Compile Include="DefaultSerializer\Attributes\BsonExtraElementsAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonSerializationOptionsAttribute.cs" />
+    <Compile Include="DefaultSerializer\Conventions\ExtraElementsMemberConventions.cs" />
     <Compile Include="DefaultSerializer\SerializationOptions\DateTimeSerializationOptions.cs" />
     <Compile Include="DefaultSerializer\SerializationOptions\DocumentSerializationOptions.cs" />
     <Compile Include="DefaultSerializer\SerializationOptions\RepresentationSerializationOptions.cs" />

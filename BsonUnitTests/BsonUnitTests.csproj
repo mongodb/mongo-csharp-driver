@@ -79,10 +79,12 @@
     <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttributeTests.cs" />
     <Compile Include="DefaultSerializer\BsonClassMapTests.cs" />
     <Compile Include="DefaultSerializer\BsonMemberMapTests.cs" />
+    <Compile Include="DefaultSerializer\Conventions\ExtraElementsConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdGeneratorConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdMemberConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
+    <Compile Include="DefaultSerializer\ExtraElementsTests.cs" />
     <Compile Include="DefaultSerializer\SerializationOptions\RepresentationSerializationOptionsTests.cs" />
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithAttributesTests.cs" />
