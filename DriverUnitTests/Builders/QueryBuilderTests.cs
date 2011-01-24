@@ -136,7 +136,6 @@ namespace MongoDB.DriverUnitTests.Builders {
 
         [Test]
         public void TestIn() {
-            //var query = Query.@in("j", new BsonArray { 2, 4, 6 });
             var query = Query.In("j", 2, 4, 6);
             var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
@@ -171,9 +170,37 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestMatches() {
+            var query = Query.Matches("a", "/abc/");
+            var expected = "{ 'a' : { '$regex' : 'abc', '$options' : '' } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestMod() {
             var query = Query.Mod("a", 10, 1);
             var expected = "{ \"a\" : { \"$mod\" : [10, 1] } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNear() {
+            var query = Query.Near("loc", 1.1, 2.2);
+            var expected = "{ 'loc' : { '$near' : [1.1, 2.2] } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNearWithMaxDistance() {
+            var query = Query.Near("loc", 1.1, 2.2, 3.3);
+            var expected = "{ 'loc' : { '$near' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNearWithSphericalTrue() {
+            var query = Query.Near("loc", 1.1, 2.2, 3.3, true);
+            var expected = "{ 'loc' : { '$nearSphere' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
         }
 
@@ -194,6 +221,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         public void TestNotEquals() {
             var query = Query.NE("j", 3);
             var expected = "{ \"j\" : { \"$ne\" : 3 } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNotIn() {
+            var query = Query.NotIn("j", 2, 4, 6);
+            var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
@@ -250,6 +284,27 @@ namespace MongoDB.DriverUnitTests.Builders {
         public void TestWhere() {
             var query = Query.Where("this.a > 3");
             var expected = "{ \"$where\" : { \"$code\" : \"this.a > 3\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestWithinCircle() {
+            var query = Query.WithinCircle("loc", 1.1, 2.2, 3.3);
+            var expected = "{ 'loc' : { '$within' : { '$center' : [[1.1, 2.2], 3.3] } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestWithinCircleSpherical() {
+            var query = Query.WithinCircle("loc", 1.1, 2.2, 3.3, true);
+            var expected = "{ 'loc' : { '$within' : { '$centerSphere' : [[1.1, 2.2], 3.3] } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestWithinRectangle() {
+            var query = Query.WithinRectangle("loc", 1.1, 2.2, 3.3, 4.4);
+            var expected = "{ 'loc' : { '$within' : { '$box' : [[1.1, 2.2], [3.3, 4.4]] } } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
         }
     }

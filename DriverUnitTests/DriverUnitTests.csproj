@@ -74,6 +74,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Builders\FieldsBuilderTests.cs" />
+    <Compile Include="Builders\GeoNearOptionsBuilderTests.cs" />
     <Compile Include="Builders\GroupByBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
     <Compile Include="Builders\IndexOptionsBuilderTests.cs" />

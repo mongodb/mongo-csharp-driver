@@ -44,6 +44,12 @@ namespace MongoDB.Driver.Builders {
             return new GeoNearOptionsBuilder().SetMaxDistance(value);
         }
 
+        public static GeoNearOptionsBuilder SetSpherical(
+            bool value
+        ) {
+            return new GeoNearOptionsBuilder().SetSpherical(value);
+        }
+
         public static IMongoGeoNearOptions Wrap(
             object options
         ) {
@@ -78,6 +84,18 @@ namespace MongoDB.Driver.Builders {
             document["maxDistance"] = value;
             return this;
         }
+
+        public GeoNearOptionsBuilder SetSpherical(
+            bool value
+        ) {
+            if (value) {
+                document["spherical"] = true;
+            } else {
+                document.Remove("spherical");
+            }
+            return this;
+        }
+        
         public override BsonDocument ToBsonDocument() {
             return document;
         }
