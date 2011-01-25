@@ -58,6 +58,38 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region public methods
+        public decimal ToDecimal(
+            double value
+        ) {
+            if (value < (double) decimal.MinValue || value > (double) decimal.MaxValue) {
+                if (!allowOverflow) { throw new OverflowException(); }
+            } else if (value != (double) (decimal) value) {
+                if (!allowTruncation) { throw new TruncationException(); }
+            }
+            return (decimal) value;
+        }
+
+        public decimal ToDecimal(
+            int value
+        ) {
+            return (decimal) value;
+        }
+
+        public decimal ToDecimal(
+            long value
+        ) {
+            return (decimal) value;
+        }
+
+        public double ToDouble(
+            decimal value
+        ) {
+            if (value != (decimal) (double) value) {
+                if (!allowTruncation) { throw new TruncationException(); }
+            }
+            return (double) value;
+        }
+
         public double ToDouble(
             double value
         ) {
@@ -153,6 +185,17 @@ namespace MongoDB.Bson.Serialization {
         }
 
         public int ToInt32(
+            decimal value
+        ) {
+            if (value < int.MinValue || value > int.MaxValue) {
+                if (!allowOverflow) { throw new OverflowException(); }
+            } else if (value != (decimal) (int) value) {
+                if (!allowTruncation) { throw new TruncationException(); }
+            }
+            return (int) value;
+        }
+
+        public int ToInt32(
             double value
         ) {
             if (value < int.MinValue || value > int.MaxValue) {
@@ -217,6 +260,17 @@ namespace MongoDB.Bson.Serialization {
             ushort value
         ) {
             return value;
+        }
+
+        public long ToInt64(
+            decimal value
+        ) {
+            if (value < long.MinValue || value > long.MaxValue) {
+                if (!allowOverflow) { throw new OverflowException(); }
+            } else if (value != (decimal) (long) value) {
+                if (!allowTruncation) { throw new TruncationException(); }
+            }
+            return (long) value;
         }
 
         public long ToInt64(

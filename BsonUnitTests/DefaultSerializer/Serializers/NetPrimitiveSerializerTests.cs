@@ -511,7 +511,40 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
     }
 
-    // TODO: DecimalSerializerTests
+    [TestFixture]
+    public class DecimalSerializerTests {
+        public class TestClass {
+            public decimal X;
+            [BsonRepresentation(BsonType.Array)]
+            public decimal A;
+            [BsonRepresentation(BsonType.Double)]
+            public decimal D;
+            [BsonRepresentation(BsonType.Int32)]
+            public decimal I;
+            [BsonRepresentation(BsonType.Int64)]
+            public decimal L;
+            [BsonRepresentation(BsonType.String)]
+            public decimal S;
+        }
+
+        // TODO: work on unit tests
+        //[Test]
+        //public void TestMin() {
+        //    var obj = new TestClass {
+        //        X = decimal.MinValue,
+        //        A = decimal.MinValue,
+        //        D = decimal.MinValue,
+        //        I = int.MinValue,
+        //        L = long.MinValue,
+        //        S = decimal.MinValue
+        //    };
+        //    var json = obj.ToJson();
+        //    var expected = "{ 'X' : '#', 'X' : '#', 'X' : '#', 'X' : '#', 'X' : '#', 'X' : '#' }";
+        //    expected = expected.Replace("#", "-79228162514264337593543950335");
+        //    expected = expected.Replace("'", "\"");
+        //    Assert.AreEqual(expected, json);
+        //}
+    }
 
     [TestFixture]
     public class Int16SerializerTests {

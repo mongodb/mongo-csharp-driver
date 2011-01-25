@@ -582,6 +582,7 @@ namespace MongoDB.Bson.DefaultSerializer {
     public class DecimalSerializer : BsonBaseSerializer {
         #region private static fields
         private static DecimalSerializer instance = new DecimalSerializer();
+        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.String);
         #endregion
 
         #region constructors
@@ -607,6 +608,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType) {
                 case BsonType.Array:
@@ -618,14 +620,11 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bits[3] = array[3].AsInt32;
                     return new decimal(bits);
                 case BsonType.Double:
-                    var doubleValue = bsonReader.ReadDouble();
-                    return new Decimal(doubleValue);
+                    return representationOptions.ToDecimal(bsonReader.ReadDouble());
                 case BsonType.Int32:
-                    var int32Value = bsonReader.ReadInt32();
-                    return new Decimal(int32Value);
+                    return representationOptions.ToDecimal(bsonReader.ReadInt32());
                 case BsonType.Int64:
-                    var int64Value = bsonReader.ReadInt64();
-                    return new Decimal(int64Value);
+                    return representationOptions.ToDecimal(bsonReader.ReadInt64());
                 case BsonType.String:
                     return XmlConvert.ToDecimal(bsonReader.ReadString());
                 default:
@@ -641,8 +640,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             var decimalValue = (Decimal) value;
-            var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            switch (representationOptions.Representation) {
                 case BsonType.Array:
                     bsonWriter.WriteStartArray();
                     var bits = Decimal.GetBits(decimalValue);
@@ -652,11 +651,20 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteInt32(bits[3]);
                     bsonWriter.WriteEndArray();
                     break;
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(representationOptions.ToDouble(decimalValue));
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(representationOptions.ToInt32(decimalValue));
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(representationOptions.ToInt64(decimalValue));
+                    break;
                 case BsonType.String:
                     bsonWriter.WriteString(XmlConvert.ToString(decimalValue));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Decimal'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'Decimal'", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
