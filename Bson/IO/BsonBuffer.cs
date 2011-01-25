@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ namespace MongoDB.Bson.IO {
     public class BsonBuffer : IDisposable {
         #region private static fields
         private static Stack<byte[]> chunkPool = new Stack<byte[]>();
-        private const int chunkSize = 16 * 1024; // 16KB
+        private const int chunkSize = 16 * 1024; // 16KiB
         private static readonly bool[] validBsonTypes = new bool[256];
         #endregion
 

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        // used by Clone
         private BsonDocumentReaderContext() {
         }
 
@@ -85,20 +86,18 @@ namespace MongoDB.Bson.IO {
         }
 
         public BsonElement GetNextElement() {
-            if (contextType == ContextType.Array) {
-                if (index < array.Count) {
-                    var name = index.ToString();
-                    var value = array[index++];
-                    return new BsonElement(name, value);
-                } else {
-                    return null;
-                }
+            if (index < document.ElementCount) {
+                return document.GetElement(index++);
             } else {
-                if (index < document.ElementCount) {
-                    return document.GetElement(index++);
-                } else {
-                    return null;
-                }
+                return null;
+            }
+        }
+
+        public BsonValue GetNextValue() {
+            if (index < array.Count) {
+                return array[index++];
+            } else {
+                return null;
             }
         }
 

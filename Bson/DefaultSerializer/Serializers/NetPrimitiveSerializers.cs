@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,23 +29,23 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class BitArraySerializer : BsonBaseSerializer {
         #region private static fields
-        private static BitArraySerializer singleton = new BitArraySerializer();
+        private static BitArraySerializer instance = new BitArraySerializer();
         #endregion
 
         #region constructors
-        private BitArraySerializer() {
+        public BitArraySerializer() {
         }
         #endregion
 
         #region public static properties
-        public static BitArraySerializer Singleton {
-            get { return singleton; }
+        public static BitArraySerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(BitArray), singleton);
+            BsonSerializer.RegisterSerializer(typeof(BitArray), instance);
         }
         #endregion
 
@@ -166,23 +166,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class ByteArraySerializer : BsonBaseSerializer {
         #region private static fields
-        private static ByteArraySerializer singleton = new ByteArraySerializer();
+        private static ByteArraySerializer instance = new ByteArraySerializer();
         #endregion
 
         #region constructors
-        private ByteArraySerializer() {
+        public ByteArraySerializer() {
         }
         #endregion
 
         #region public static properties
-        public static ByteArraySerializer Singleton {
-            get { return singleton; }
+        public static ByteArraySerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(byte[]), singleton);
+            BsonSerializer.RegisterSerializer(typeof(byte[]), instance);
         }
         #endregion
 
@@ -260,23 +260,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class ByteSerializer : BsonBaseSerializer {
         #region private static fields
-        private static ByteSerializer singleton = new ByteSerializer();
+        private static ByteSerializer instance = new ByteSerializer();
         #endregion
 
         #region constructors
-        private ByteSerializer() {
+        public ByteSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static ByteSerializer Singleton {
-            get { return singleton; }
+        public static ByteSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(byte), singleton);
+            BsonSerializer.RegisterSerializer(typeof(byte), instance);
         }
         #endregion
 
@@ -360,23 +360,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class CharSerializer : BsonBaseSerializer {
         #region private static fields
-        private static CharSerializer singleton = new CharSerializer();
+        private static CharSerializer instance = new CharSerializer();
         #endregion
 
         #region constructors
-        private CharSerializer() {
+        public CharSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static CharSerializer Singleton {
-            get { return singleton; }
+        public static CharSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(char), singleton);
+            BsonSerializer.RegisterSerializer(typeof(char), instance);
         }
         #endregion
 
@@ -423,23 +423,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class CultureInfoSerializer : BsonBaseSerializer {
         #region private static fields
-        private static CultureInfoSerializer singleton = new CultureInfoSerializer();
+        private static CultureInfoSerializer instance = new CultureInfoSerializer();
         #endregion
 
         #region constructors
-        private CultureInfoSerializer() {
+        public CultureInfoSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static CultureInfoSerializer Singleton {
-            get { return singleton; }
+        public static CultureInfoSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(CultureInfo), singleton);
+            BsonSerializer.RegisterSerializer(typeof(CultureInfo), instance);
         }
         #endregion
 
@@ -494,23 +494,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class DateTimeOffsetSerializer : BsonBaseSerializer {
         #region private static fields
-        private static DateTimeOffsetSerializer singleton = new DateTimeOffsetSerializer();
+        private static DateTimeOffsetSerializer instance = new DateTimeOffsetSerializer();
         #endregion
 
         #region constructors
-        private DateTimeOffsetSerializer() {
+        public DateTimeOffsetSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static DateTimeOffsetSerializer Singleton {
-            get { return singleton; }
+        public static DateTimeOffsetSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(DateTimeOffset), singleton);
+            BsonSerializer.RegisterSerializer(typeof(DateTimeOffset), instance);
         }
         #endregion
 
@@ -526,8 +526,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             switch (bsonType) {
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    ticks = bsonReader.ReadInt64("0");
-                    offset = TimeSpan.FromMinutes(bsonReader.ReadInt32("1"));
+                    ticks = bsonReader.ReadInt64();
+                    offset = TimeSpan.FromMinutes(bsonReader.ReadInt32());
                     bsonReader.ReadEndArray();
                     return new DateTimeOffset(ticks, offset);
                 case BsonType.Document:
@@ -557,8 +557,8 @@ namespace MongoDB.Bson.DefaultSerializer {
             switch (representation) {
                 case BsonType.Array:
                     bsonWriter.WriteStartArray();
-                    bsonWriter.WriteInt64("0", dateTimeOffset.Ticks);
-                    bsonWriter.WriteInt32("1", (int) dateTimeOffset.Offset.TotalMinutes);
+                    bsonWriter.WriteInt64(dateTimeOffset.Ticks);
+                    bsonWriter.WriteInt32((int) dateTimeOffset.Offset.TotalMinutes);
                     bsonWriter.WriteEndArray();
                     break;
                 case BsonType.Document:
@@ -581,23 +581,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class DecimalSerializer : BsonBaseSerializer {
         #region private static fields
-        private static DecimalSerializer singleton = new DecimalSerializer();
+        private static DecimalSerializer instance = new DecimalSerializer();
         #endregion
 
         #region constructors
-        private DecimalSerializer() {
+        public DecimalSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static DecimalSerializer Singleton {
-            get { return singleton; }
+        public static DecimalSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Decimal), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Decimal), instance);
         }
         #endregion
 
@@ -617,6 +617,15 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bits[2] = array[2].AsInt32;
                     bits[3] = array[3].AsInt32;
                     return new decimal(bits);
+                case BsonType.Double:
+                    var doubleValue = bsonReader.ReadDouble();
+                    return new Decimal(doubleValue);
+                case BsonType.Int32:
+                    var int32Value = bsonReader.ReadInt32();
+                    return new Decimal(int32Value);
+                case BsonType.Int64:
+                    var int64Value = bsonReader.ReadInt64();
+                    return new Decimal(int64Value);
                 case BsonType.String:
                     return XmlConvert.ToDecimal(bsonReader.ReadString());
                 default:
@@ -637,10 +646,10 @@ namespace MongoDB.Bson.DefaultSerializer {
                 case BsonType.Array:
                     bsonWriter.WriteStartArray();
                     var bits = Decimal.GetBits(decimalValue);
-                    bsonWriter.WriteInt32("0", bits[0]);
-                    bsonWriter.WriteInt32("1", bits[1]);
-                    bsonWriter.WriteInt32("2", bits[2]);
-                    bsonWriter.WriteInt32("3", bits[3]);
+                    bsonWriter.WriteInt32(bits[0]);
+                    bsonWriter.WriteInt32(bits[1]);
+                    bsonWriter.WriteInt32(bits[2]);
+                    bsonWriter.WriteInt32(bits[3]);
                     bsonWriter.WriteEndArray();
                     break;
                 case BsonType.String:
@@ -656,23 +665,24 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class Int16Serializer : BsonBaseSerializer {
         #region private static fields
-        private static Int16Serializer singleton = new Int16Serializer();
+        private static Int16Serializer instance = new Int16Serializer();
+        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
         #endregion
 
         #region constructors
-        private Int16Serializer() {
+        public Int16Serializer() {
         }
         #endregion
 
         #region public static properties
-        public static Int16Serializer Singleton {
-            get { return singleton; }
+        public static Int16Serializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(short), singleton);
+            BsonSerializer.RegisterSerializer(typeof(short), instance);
         }
         #endregion
 
@@ -682,39 +692,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            short value;
-
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
-            var lostData = false;
             switch (bsonType) {
                 case BsonType.Double:
-                    var doubleValue = bsonReader.ReadDouble();
-                    value = (short) doubleValue;
-                    lostData = (double) value != doubleValue;
-                    break;
+                    return representationOptions.ToInt16(bsonReader.ReadDouble());
                 case BsonType.Int32:
-                    var int32Value = bsonReader.ReadInt32();
-                    value = (short) int32Value;
-                    lostData = (int) value != int32Value;
-                    break;
+                    return representationOptions.ToInt16(bsonReader.ReadInt32());
                 case BsonType.Int64:
-                    var int64Value = bsonReader.ReadInt64();
-                    value = (short) int64Value;
-                    lostData = (long) value != int64Value;
-                    break;
+                    return representationOptions.ToInt16(bsonReader.ReadInt64());
                 case BsonType.String:
-                    value = XmlConvert.ToInt16(bsonReader.ReadString());
-                    break;
+                    return XmlConvert.ToInt16(bsonReader.ReadString());
                 default:
                     var message = string.Format("Cannot deserialize Int16 from BsonType: {0}", bsonType);
                     throw new FileFormatException(message);
             }
-            if (lostData) {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to Int16", bsonType);
-                throw new FileFormatException(message);
-            }
-
-            return value;
         }
 
         public override void Serialize(
@@ -724,22 +716,22 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             var int16Value = (short) value;
-            var representation = (options == null) ? BsonType.Int32 : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            switch (representationOptions.Representation) {
                 case BsonType.Double:
-                    bsonWriter.WriteDouble(int16Value);
+                    bsonWriter.WriteDouble(representationOptions.ToDouble(int16Value));
                     break;
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32(int16Value);
+                    bsonWriter.WriteInt32(representationOptions.ToInt32(int16Value));
                     break;
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(int16Value);
+                    bsonWriter.WriteInt64(representationOptions.ToInt64(int16Value));
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(XmlConvert.ToString(int16Value));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Int16'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'Int16'", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -748,23 +740,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class SByteSerializer : BsonBaseSerializer {
         #region private static fields
-        private static SByteSerializer singleton = new SByteSerializer();
+        private static SByteSerializer instance = new SByteSerializer();
         #endregion
 
         #region constructors
-        private SByteSerializer() {
+        public SByteSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static SByteSerializer Singleton {
-            get { return singleton; }
+        public static SByteSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(sbyte), singleton);
+            BsonSerializer.RegisterSerializer(typeof(sbyte), instance);
         }
         #endregion
 
@@ -848,23 +840,24 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class SingleSerializer : BsonBaseSerializer {
         #region private static fields
-        private static SingleSerializer singleton = new SingleSerializer();
+        private static SingleSerializer instance = new SingleSerializer();
+        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Double);
         #endregion
 
         #region constructors
-        private SingleSerializer() {
+        public SingleSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static SingleSerializer Singleton {
-            get { return singleton; }
+        public static SingleSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(float), singleton);
+            BsonSerializer.RegisterSerializer(typeof(float), instance);
         }
         #endregion
 
@@ -874,38 +867,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            double doubleValue;
-
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
-            bool lostData = false;
             switch (bsonType) {
                 case BsonType.Double:
-                    doubleValue = bsonReader.ReadDouble();
-                    break;
+                    return representationOptions.ToSingle(bsonReader.ReadDouble());
                 case BsonType.Int32:
-                    var int32Value = bsonReader.ReadInt32();
-                    doubleValue = int32Value;
-                    lostData = (int) doubleValue != int32Value;
-                    break;
+                    return representationOptions.ToSingle(bsonReader.ReadInt32());
                 case BsonType.Int64:
-                    var int64Value = bsonReader.ReadInt64();
-                    doubleValue = int64Value;
-                    lostData = (long) doubleValue != int64Value;
-                    break;
+                    return representationOptions.ToSingle(bsonReader.ReadInt64());
                 case BsonType.String:
-                    doubleValue = XmlConvert.ToDouble(bsonReader.ReadString());
-                    break;
+                    return XmlConvert.ToSingle(bsonReader.ReadString());
                 default:
                     var message = string.Format("Cannot deserialize Single from BsonType: {0}", bsonType);
                     throw new FileFormatException(message);
             }
-            if (lostData) {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to Single", bsonType);
-                throw new FileFormatException(message);
-            }
-
-            var floatValue = (doubleValue == double.MinValue) ? float.MinValue : (doubleValue == double.MaxValue) ? float.MaxValue : (float) doubleValue;
-            return floatValue;
         }
 
         public override void Serialize(
@@ -915,23 +891,22 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             var floatValue = (float) value;
-            var doubleValue = (floatValue == float.MinValue) ? double.MinValue : (floatValue == float.MaxValue) ? double.MaxValue : floatValue;
-            var representation = (options == null) ? BsonType.Double : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            switch (representationOptions.Representation) {
                 case BsonType.Double:
-                    bsonWriter.WriteDouble(doubleValue);
+                    bsonWriter.WriteDouble(representationOptions.ToDouble(floatValue));
                     break;
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32((int) doubleValue);
+                    bsonWriter.WriteInt32(representationOptions.ToInt32(floatValue));
                     break;
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64((long) doubleValue);
+                    bsonWriter.WriteInt64(representationOptions.ToInt64(floatValue));
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(XmlConvert.ToString(doubleValue));
+                    bsonWriter.WriteString(XmlConvert.ToString(floatValue));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Single'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'Single'", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -940,23 +915,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class TimeSpanSerializer : BsonBaseSerializer {
         #region private static fields
-        private static TimeSpanSerializer singleton = new TimeSpanSerializer();
+        private static TimeSpanSerializer instance = new TimeSpanSerializer();
         #endregion
 
         #region constructors
-        private TimeSpanSerializer() {
+        public TimeSpanSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static TimeSpanSerializer Singleton {
-            get { return singleton; }
+        public static TimeSpanSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(TimeSpan), singleton);
+            BsonSerializer.RegisterSerializer(typeof(TimeSpan), instance);
         }
         #endregion
 
@@ -973,7 +948,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 case BsonType.Int64:
                     return new TimeSpan(bsonReader.ReadInt64());
                 case BsonType.String:
-                     return TimeSpan.Parse(bsonReader.ReadString());
+                     return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
                 default:
                     var message = string.Format("Cannot deserialize TimeSpan from BsonType: {0}", bsonType);
                     throw new FileFormatException(message);
@@ -993,7 +968,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteInt64(timeSpan.Ticks);
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(timeSpan.ToString());
+                    bsonWriter.WriteString(timeSpan.ToString()); // for TimeSpan use .NET's format instead of XmlConvert.ToString
                     break;
                 default:
                     var message = string.Format("'{0}' is not a valid representation for type 'TimeSpan'", representation);
@@ -1005,23 +980,24 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class UInt16Serializer : BsonBaseSerializer {
         #region private static fields
-        private static UInt16Serializer singleton = new UInt16Serializer();
+        private static UInt16Serializer instance = new UInt16Serializer();
+        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
         #endregion
 
         #region constructors
-        private UInt16Serializer() {
+        public UInt16Serializer() {
         }
         #endregion
 
         #region public static properties
-        public static UInt16Serializer Singleton {
-            get { return singleton; }
+        public static UInt16Serializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(ushort), singleton);
+            BsonSerializer.RegisterSerializer(typeof(ushort), instance);
         }
         #endregion
 
@@ -1031,39 +1007,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            ushort value;
-
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
-            var lostData = false;
             switch (bsonType) {
                 case BsonType.Double:
-                    var doubleValue = bsonReader.ReadDouble();
-                    value = (ushort) doubleValue;
-                    lostData = (double) value != doubleValue;
-                    break;
+                    return representationOptions.ToUInt16(bsonReader.ReadDouble());
                 case BsonType.Int32:
-                    var int32Value = bsonReader.ReadInt32();
-                    value = (ushort) int32Value;
-                    lostData = (int) value != int32Value;
-                    break;
+                    return representationOptions.ToUInt16(bsonReader.ReadInt32());
                 case BsonType.Int64:
-                    var int64Value = bsonReader.ReadInt64();
-                    value = (ushort) int64Value;
-                    lostData = (long) value != int64Value;
-                    break;
+                    return representationOptions.ToUInt16(bsonReader.ReadInt64());
                 case BsonType.String:
-                    value = XmlConvert.ToUInt16(bsonReader.ReadString());
-                    break;
+                    return XmlConvert.ToUInt16(bsonReader.ReadString());
                 default:
                     var message = string.Format("Cannot deserialize uInt16 from BsonType: {0}", bsonType);
                     throw new FileFormatException(message);
             }
-            if (lostData) {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to uInt16", bsonType);
-                throw new FileFormatException(message);
-            }
-
-            return value;
         }
 
         public override void Serialize(
@@ -1073,22 +1031,22 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             var uint16Value = (ushort) value;
-            var representation = (options == null) ? BsonType.Int32 : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            switch (representationOptions.Representation) {
                 case BsonType.Double:
-                    bsonWriter.WriteDouble(uint16Value);
+                    bsonWriter.WriteDouble(representationOptions.ToDouble(uint16Value));
                     break;
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32(uint16Value);
+                    bsonWriter.WriteInt32(representationOptions.ToInt32(uint16Value));
                     break;
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(uint16Value);
+                    bsonWriter.WriteInt64(representationOptions.ToInt64(uint16Value));
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(XmlConvert.ToString(uint16Value));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'UInt16'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'UInt16'", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -1097,23 +1055,24 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class UInt32Serializer : BsonBaseSerializer {
         #region private static fields
-        private static UInt32Serializer singleton = new UInt32Serializer();
+        private static UInt32Serializer instance = new UInt32Serializer();
+        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
         #endregion
 
         #region constructors
-        private UInt32Serializer() {
+        public UInt32Serializer() {
         }
         #endregion
 
         #region public static properties
-        public static UInt32Serializer Singleton {
-            get { return singleton; }
+        public static UInt32Serializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(uint), singleton);
+            BsonSerializer.RegisterSerializer(typeof(uint), instance);
         }
         #endregion
 
@@ -1123,37 +1082,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            uint value;
-
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
-            var lostData = false;
             switch (bsonType) {
                 case BsonType.Double:
-                    var doubleValue = bsonReader.ReadDouble();
-                    value = (uint) doubleValue;
-                    lostData = (double) value != doubleValue;
-                    break;
+                    return representationOptions.ToUInt32(bsonReader.ReadDouble());
                 case BsonType.Int32:
-                    value = (uint) bsonReader.ReadInt32();
-                    break;
+                    return representationOptions.ToUInt32(bsonReader.ReadInt32());
                 case BsonType.Int64:
-                    var int64Value = bsonReader.ReadInt64();
-                    value = (uint) int64Value;
-                    lostData = (long) value != int64Value;
-                    break;
+                    return representationOptions.ToUInt32(bsonReader.ReadInt64());
                 case BsonType.String:
-                    value = XmlConvert.ToUInt32(bsonReader.ReadString());
-                    break;
+                    return XmlConvert.ToUInt32(bsonReader.ReadString());
                 default:
                     var message = string.Format("Cannot deserialize uInt32 from BsonType: {0}", bsonType);
                     throw new FileFormatException(message);
             }
-            if (lostData) {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to uInt32", bsonType);
-                throw new FileFormatException(message);
-            }
-
-            return value;
         }
 
         public override void Serialize(
@@ -1163,22 +1106,22 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             var uint32Value = (uint) value;
-            var representation = (options == null) ? BsonType.Int32 : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            switch (representationOptions.Representation) {
                 case BsonType.Double:
-                    bsonWriter.WriteDouble(uint32Value);
+                    bsonWriter.WriteDouble(representationOptions.ToDouble(uint32Value));
                     break;
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32((int) uint32Value);
+                    bsonWriter.WriteInt32(representationOptions.ToInt32(uint32Value));
                     break;
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(uint32Value);
+                    bsonWriter.WriteInt64(representationOptions.ToInt64(uint32Value));
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(XmlConvert.ToString(uint32Value));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'UInt32'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'UInt32'", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -1187,23 +1130,24 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class UInt64Serializer : BsonBaseSerializer {
         #region private static fields
-        private static UInt64Serializer singleton = new UInt64Serializer();
+        private static UInt64Serializer instance = new UInt64Serializer();
+        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int64);
         #endregion
 
         #region constructors
-        private UInt64Serializer() {
+        public UInt64Serializer() {
         }
         #endregion
 
         #region public static properties
-        public static UInt64Serializer Singleton {
-            get { return singleton; }
+        public static UInt64Serializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(ulong), singleton);
+            BsonSerializer.RegisterSerializer(typeof(ulong), instance);
         }
         #endregion
 
@@ -1213,35 +1157,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            ulong value;
-
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
-            var lostData = false;
             switch (bsonType) {
                 case BsonType.Double:
-                    var doubleValue = bsonReader.ReadDouble();
-                    value = (ulong) doubleValue;
-                    lostData = (double) value != doubleValue;
-                    break;
+                    return representationOptions.ToUInt64(bsonReader.ReadDouble());
                 case BsonType.Int32:
-                    value = (ulong) bsonReader.ReadInt32();
-                    break;
+                    return representationOptions.ToUInt64(bsonReader.ReadInt32());
                 case BsonType.Int64:
-                    value = (ulong) bsonReader.ReadInt64();
-                    break;
+                    return representationOptions.ToUInt64(bsonReader.ReadInt64());
                 case BsonType.String:
-                    value = XmlConvert.ToUInt64(bsonReader.ReadString());
-                    break;
+                    return XmlConvert.ToUInt64(bsonReader.ReadString());
                 default:
                     var message = string.Format("Cannot deserialize UInt64 from BsonType: {0}", bsonType);
                     throw new FileFormatException(message);
             }
-            if (lostData) {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to UInt64", bsonType);
-                throw new FileFormatException(message);
-            }
-
-            return value;
         }
 
         public override void Serialize(
@@ -1251,22 +1181,22 @@ namespace MongoDB.Bson.DefaultSerializer {
             IBsonSerializationOptions options
         ) {
             var uint64Value = (ulong) value;
-            var representation = (options == null) ? BsonType.Int64 : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            switch (representationOptions.Representation) {
                 case BsonType.Double:
-                    bsonWriter.WriteDouble(uint64Value);
+                    bsonWriter.WriteDouble(representationOptions.ToDouble(uint64Value));
                     break;
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32((int) uint64Value);
+                    bsonWriter.WriteInt32(representationOptions.ToInt32(uint64Value));
                     break;
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64((long) uint64Value);
+                    bsonWriter.WriteInt64(representationOptions.ToInt64(uint64Value));
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(XmlConvert.ToString(uint64Value));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'UInt64'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'UInt64'", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -1275,23 +1205,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class UriSerializer : BsonBaseSerializer {
         #region private static fields
-        private static UriSerializer singleton = new UriSerializer();
+        private static UriSerializer instance = new UriSerializer();
         #endregion
 
         #region constructors
-        private UriSerializer() {
+        public UriSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static UriSerializer Singleton {
-            get { return singleton; }
+        public static UriSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Uri), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Uri), instance);
         }
         #endregion
 
@@ -1331,23 +1261,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class VersionSerializer : BsonBaseSerializer {
         #region private static fields
-        private static VersionSerializer singleton = new VersionSerializer();
+        private static VersionSerializer instance = new VersionSerializer();
         #endregion
 
         #region constructors
-        private VersionSerializer() {
+        public VersionSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static VersionSerializer Singleton {
-            get { return singleton; }
+        public static VersionSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Version), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Version), instance);
         }
         #endregion
 

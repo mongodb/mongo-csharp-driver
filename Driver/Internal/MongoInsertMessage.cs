@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,9 +33,10 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoInsertMessage(
+            MongoServer server,
             string collectionFullName
         )
-            : base(MessageOpcode.Insert) {
+            : base(server, MessageOpcode.Insert) {
             this.collectionFullName = collectionFullName;
         }
         #endregion
@@ -45,7 +46,7 @@ namespace MongoDB.Driver.Internal {
             TDocument document
         ) {
             lastDocumentStartPosition = buffer.Position;
-            var bsonWriter = BsonWriter.Create(buffer);
+            var bsonWriter = CreateBsonWriter();
             BsonSerializer.Serialize(bsonWriter, document, DocumentSerializationOptions.SerializeIdFirstInstance);
             BackpatchMessageLength();
         }

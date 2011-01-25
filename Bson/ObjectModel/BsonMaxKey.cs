@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ namespace MongoDB.Bson {
     [Serializable]
     public class BsonMaxKey : BsonValue, IComparable<BsonMaxKey>, IEquatable<BsonMaxKey> {
         #region private static fields
-        private static BsonMaxKey singleton = new BsonMaxKey();
+        private static BsonMaxKey value = new BsonMaxKey();
         #endregion
 
         #region constructors
@@ -33,7 +33,7 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        public static BsonMaxKey Value { get { return singleton; } }
+        public static BsonMaxKey Value { get { return value; } }
         #endregion
 
         #region public methods

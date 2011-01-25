@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -78,6 +78,13 @@ namespace MongoDB.Bson {
 
         public BsonArray(
             IEnumerable<object> values
+        )
+            : base(BsonType.Array) {
+            AddRange(values);
+        }
+
+        public BsonArray(
+            IEnumerable<ObjectId> values
         )
             : base(BsonType.Array) {
             AddRange(values);
@@ -190,6 +197,16 @@ namespace MongoDB.Bson {
         }
 
         public static BsonArray Create(
+            IEnumerable<ObjectId> values
+        ) {
+            if (values != null) {
+                return new BsonArray(values);
+            } else {
+                return null;
+            }
+        }
+
+        public static BsonArray Create(
             IEnumerable<string> values
         ) {
             if (values != null) {
@@ -214,9 +231,9 @@ namespace MongoDB.Bson {
         ) {
             var array = new BsonArray();
             bsonReader.ReadStartArray();
-            BsonElement element;
-            while (BsonElement.ReadFrom(bsonReader, out element)) {
-                array.Add(element.Value); // names are ignored on input and regenerated on output
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                var value = BsonValue.ReadFrom(bsonReader);
+                array.Add(value);
             }
             bsonReader.ReadEndArray();
             return array;
@@ -303,6 +320,17 @@ namespace MongoDB.Bson {
             if (values != null) {
                 foreach (var value in values) {
                     this.values.Add(BsonValue.Create(value));
+                }
+            }
+            return this;
+        }
+
+        public BsonArray AddRange(
+            IEnumerable<ObjectId> values
+        ) {
+            if (values != null) {
+                foreach (var value in values) {
+                    this.values.Add(BsonObjectId.Create(value));
                 }
             }
             return this;
@@ -472,7 +500,6 @@ namespace MongoDB.Bson {
         ) {
             bsonWriter.WriteStartArray();
             for (int i = 0; i < values.Count; i++) {
-                bsonWriter.WriteName(i.ToString());
                 values[i].WriteTo(bsonWriter);
             }
             bsonWriter.WriteEndArray();

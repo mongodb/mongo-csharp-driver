@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ namespace MongoDB.Bson.IO {
         private BsonBinaryWriterContext parentContext;
         private ContextType contextType;
         private int startPosition;
+        private int index; // used when contextType is Array
         #endregion
 
         #region constructors
@@ -50,6 +51,11 @@ namespace MongoDB.Bson.IO {
 
         internal int StartPosition {
             get { return startPosition; }
+        }
+
+        internal int Index {
+            get { return index; }
+            set { index = value; }
         }
         #endregion
     }

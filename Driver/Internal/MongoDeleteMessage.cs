@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,11 +33,12 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoDeleteMessage(
+            MongoServer server,
             string collectionFullName,
             RemoveFlags flags,
             IMongoQuery query
         ) :
-            base(MessageOpcode.Delete) {
+            base(server, MessageOpcode.Delete) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;
@@ -50,7 +51,7 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteCString(collectionFullName);
             buffer.WriteInt32((int) flags);
 
-            BsonWriter bsonWriter = BsonWriter.Create(buffer);
+            var bsonWriter = CreateBsonWriter();
             if (query == null) {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();

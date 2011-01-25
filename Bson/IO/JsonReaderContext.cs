@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,42 +20,42 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    internal class BsonJsonWriterContext {
+    internal class JsonReaderContext {
         #region private fields
-        private BsonJsonWriterContext parentContext;
+        private JsonReaderContext parentContext;
         private ContextType contextType;
-        private string indentation;
-        private bool hasElements = false;
         #endregion
 
         #region constructors
-        internal BsonJsonWriterContext(
-            BsonJsonWriterContext parentContext,
-            ContextType contextType,
-            string indentChars
+        // used by Clone
+        private JsonReaderContext() {
+        }
+
+        internal JsonReaderContext(
+            JsonReaderContext parentContext,
+            ContextType contextType
         ) {
             this.parentContext = parentContext;
             this.contextType = contextType;
-            this.indentation = (parentContext == null) ? indentChars : parentContext.Indentation + indentChars;
         }
         #endregion
 
         #region internal properties
-        internal BsonJsonWriterContext ParentContext {
-            get { return parentContext; }
-        }
-
         internal ContextType ContextType {
             get { return contextType; }
         }
+        #endregion
 
-        internal string Indentation {
-            get { return indentation; }
+        #region public methods
+        public JsonReaderContext Clone() {
+            var clone = new JsonReaderContext();
+            clone.parentContext = this.parentContext;
+            clone.contextType = this.contextType;
+            return clone;
         }
 
-        internal bool HasElements {
-            get { return hasElements; }
-            set { hasElements = value; }
+        public JsonReaderContext PopContext() {
+            return parentContext;
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,6 +58,12 @@ namespace MongoDB.Bson.Serialization {
         }
 
         public static T Deserialize<T>(
+            JsonBuffer buffer
+        ) {
+            return (T) Deserialize(buffer, typeof(T));
+        }
+
+        public static T Deserialize<T>(
             BsonReader bsonReader
         ) {
             return (T) Deserialize(bsonReader, typeof(T));
@@ -75,11 +81,32 @@ namespace MongoDB.Bson.Serialization {
             return (T) Deserialize(stream, typeof(T));
         }
 
+        public static T Deserialize<T>(
+            string json
+        ) {
+            return (T) Deserialize(json, typeof(T));
+        }
+
+        public static T Deserialize<T>(
+            TextReader textReader
+        ) {
+            return (T) Deserialize(textReader, typeof(T));
+        }
+
         public static object Deserialize(
             BsonDocument document,
             Type nominalType
         ) {
             return Deserialize(BsonReader.Create(document), nominalType);
+        }
+
+        public static object Deserialize(
+            JsonBuffer buffer,
+            Type nominalType
+        ) {
+            using (var bsonReader = BsonReader.Create(buffer)) {
+                return Deserialize(bsonReader, nominalType);
+            }
         }
 
         public static object Deserialize(
@@ -108,6 +135,24 @@ namespace MongoDB.Bson.Serialization {
             Type nominalType
         ) {
             using (var bsonReader = BsonReader.Create(stream)) {
+                return Deserialize(bsonReader, nominalType);
+            }
+        }
+
+        public static object Deserialize(
+            string json,
+            Type nominalType
+        ) {
+            using (var bsonReader = BsonReader.Create(json)) {
+                return Deserialize(bsonReader, nominalType);
+            }
+        }
+
+        public static object Deserialize(
+            TextReader textReader,
+            Type nominalType
+        ) {
+            using (var bsonReader = BsonReader.Create(textReader)) {
                 return Deserialize(bsonReader, nominalType);
             }
         }
@@ -161,7 +206,7 @@ namespace MongoDB.Bson.Serialization {
                 if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
                     if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type)) {
-                        serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Singleton;
+                        serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Instance;
                     }
 
                     if (serializer == null && type.IsGenericType) {
@@ -287,7 +332,7 @@ namespace MongoDB.Bson.Serialization {
                 // repeat the test for null but this time while holding the staticLock
                 if (serializationProvider == null) {
                     DefaultSerializer.BsonDefaultSerializer.Initialize();
-                    serializationProvider = DefaultSerializer.BsonDefaultSerializer.Singleton;
+                    serializationProvider = DefaultSerializer.BsonDefaultSerializer.Instance;
                 }
             }
         }

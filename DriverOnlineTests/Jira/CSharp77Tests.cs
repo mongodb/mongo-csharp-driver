@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp77 {
 
         [Test]
         public void TestSave() {
-            var server = MongoServer.Create();
+            var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection<Foo>("csharp77");
 

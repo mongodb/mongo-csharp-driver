@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,17 +27,17 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class BsonClassMapSerializer : IBsonSerializer {
         #region private static fields
-        private static BsonClassMapSerializer singleton = new BsonClassMapSerializer();
+        private static BsonClassMapSerializer instance = new BsonClassMapSerializer();
         #endregion
 
         #region constructors
-        private BsonClassMapSerializer() {
+        public BsonClassMapSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static BsonClassMapSerializer Singleton {
-            get { return singleton; }
+        public static BsonClassMapSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
@@ -94,12 +94,13 @@ namespace MongoDB.Bson.DefaultSerializer {
                     }
 
                     var memberMap = classMap.GetMemberMapForElement(elementName);
-                    if (memberMap != null) {
+                    if (memberMap != null && memberMap != classMap.ExtraElementsMemberMap) {
                         DeserializeMember(bsonReader, obj, memberMap);
                         missingElementMemberMaps.Remove(memberMap);
                     } else {
-                        // TODO: send extra elements to a catch-all property
-                        if (classMap.IgnoreExtraElements) {
+                        if (classMap.ExtraElementsMemberMap != null) {
+                            DeserializeExtraElement(bsonReader, obj, elementName, classMap.ExtraElementsMemberMap);
+                        } else if (classMap.IgnoreExtraElements) {
                             bsonReader.SkipValue();
                         } else {
                             string message = string.Format("Unexpected element: {0}", elementName);
@@ -173,18 +174,25 @@ namespace MongoDB.Bson.DefaultSerializer {
                 }
 
                 if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass) {
-                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
-                    var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                    if (discriminator != null) {
-                        bsonWriter.WriteName(discriminatorConvention.ElementName);
-                        discriminator.WriteTo(bsonWriter);
+                    // never write out a discriminator for an anonymous class
+                    if (!classMap.IsAnonymous) {
+                        var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                        var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                        if (discriminator != null) {
+                            bsonWriter.WriteName(discriminatorConvention.ElementName);
+                            discriminator.WriteTo(bsonWriter);
+                        }
                     }
                 }
 
                 foreach (var memberMap in classMap.MemberMaps) {
                     // note: if serializeIdFirst is false then idMemberMap will be null (so no property will be skipped)
                     if (memberMap != idMemberMap) {
-                        SerializeMember(bsonWriter, value, memberMap);
+                        if (memberMap == classMap.ExtraElementsMemberMap) {
+                            SerializeExtraElements(bsonWriter, value, memberMap);
+                        } else {
+                            SerializeMember(bsonWriter, value, memberMap);
+                        }
                     }
                 }
                 bsonWriter.WriteEndDocument();
@@ -207,6 +215,21 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private methods
+        private void DeserializeExtraElement(
+            BsonReader bsonReader,
+            object obj,
+            string elementName,
+            BsonMemberMap extraElementsMemberMap
+        ) {
+            var extraElements = (BsonDocument) extraElementsMemberMap.Getter(obj);
+            if (extraElements == null) {
+                extraElements = new BsonDocument();
+                extraElementsMemberMap.Setter(obj, extraElements);
+            }
+            var value = BsonValue.ReadFrom(bsonReader);
+            extraElements[elementName] = value;
+        }
+
         private void DeserializeMember(
             BsonReader bsonReader,
             object obj,
@@ -223,6 +246,19 @@ namespace MongoDB.Bson.DefaultSerializer {
             var serializer = memberMap.GetSerializerForActualType(actualType);
             var value = serializer.Deserialize(bsonReader, nominalType, actualType, memberMap.SerializationOptions);
             memberMap.Setter(obj, value);
+        }
+
+        private void SerializeExtraElements(
+            BsonWriter bsonWriter,
+            object obj,
+            BsonMemberMap extraElementsMemberMap
+        ) {
+            var extraElements = (BsonDocument) extraElementsMemberMap.Getter(obj);
+            if (extraElements != null) {
+                foreach (var element in extraElements) {
+                    element.WriteTo(bsonWriter);
+                }
+            }
         }
 
         private void SerializeMember(

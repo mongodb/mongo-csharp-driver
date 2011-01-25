@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -862,7 +862,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
 
         [Test]
-        public void TestSingleton() {
+        public void TestValue() {
             var obj = new TestClass(BsonMaxKey.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$maxkey' : 1 }").Replace("'", "\"");
@@ -904,7 +904,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
 
         [Test]
-        public void TestSingleton() {
+        public void TestValue() {
             var obj = new TestClass(BsonMinKey.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$minkey' : 1 }").Replace("'", "\"");
@@ -946,7 +946,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
 
         [Test]
-        public void TestSingleton() {
+        public void TestValue() {
             var obj = new TestClass(BsonNull.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");

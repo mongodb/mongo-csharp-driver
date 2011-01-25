@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,15 +20,6 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    // this enum is also used by the BsonWriters
-    internal enum ContextType {
-        TopLevel,
-        Document,
-        Array,
-        JavaScriptWithScope,
-        ScopeDocument
-    }
-
     internal class BsonBinaryReaderContext {
         #region private fields
         private BsonBinaryReaderContext parentContext;
@@ -38,6 +29,10 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        // used by Clone
+        private BsonBinaryReaderContext() {
+        }
+
         internal BsonBinaryReaderContext(
             BsonBinaryReaderContext parentContext,
             ContextType contextType,
@@ -58,6 +53,15 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
+        public BsonBinaryReaderContext Clone() {
+            var clone = new BsonBinaryReaderContext();
+            clone.parentContext = this.parentContext;
+            clone.contextType = this.contextType;
+            clone.startPosition = this.startPosition;
+            clone.size = this.size;
+            return clone;
+        }
+
         public BsonBinaryReaderContext PopContext(
             int position
         ) {

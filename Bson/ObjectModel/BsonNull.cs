@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ namespace MongoDB.Bson {
     [Serializable]
     public class BsonNull : BsonValue, IComparable<BsonNull>, IEquatable<BsonNull> {
         #region private static fields
-        private static BsonNull singleton = new BsonNull();
+        private static BsonNull value = new BsonNull();
         #endregion
 
         #region constructors
@@ -33,7 +33,7 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
-        public static BsonNull Value { get { return singleton; } }
+        public static BsonNull Value { get { return value; } }
         #endregion
 
         #region public methods

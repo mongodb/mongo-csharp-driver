@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -90,20 +90,20 @@ namespace MongoDB.Bson {
         public static string ToJson<T>(
             this T obj
         ) {
-            return ToJson(obj, BsonJsonWriterSettings.Defaults);
+            return ToJson(obj, JsonWriterSettings.Defaults);
         }
 
         public static string ToJson<T>(
             this T obj,
             IBsonSerializationOptions options
         ) {
-            return ToJson(obj, options, BsonJsonWriterSettings.Defaults);
+            return ToJson(obj, options, JsonWriterSettings.Defaults);
         }
 
         public static string ToJson<T>(
             this T obj,
             IBsonSerializationOptions options,
-            BsonJsonWriterSettings settings
+            JsonWriterSettings settings
         ) {
             using (var stringWriter = new StringWriter()) {
                 using (var bsonWriter = BsonWriter.Create(stringWriter, settings)) {
@@ -115,7 +115,7 @@ namespace MongoDB.Bson {
 
         public static string ToJson<T>(
             this T obj,
-            BsonJsonWriterSettings settings
+            JsonWriterSettings settings
         ) {
             return ToJson(obj, null, settings);
         }

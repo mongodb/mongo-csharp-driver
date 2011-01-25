@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,19 +22,20 @@ namespace MongoDB.Bson.IO {
     public class BsonDocumentReaderBookmark : BsonReaderBookmark {
         #region private fields
         private BsonDocumentReaderContext context;
-        private BsonReadState state;
-        private BsonType currentBsonType;
+        private BsonValue currentValue;
         #endregion
 
         #region constructors
         internal BsonDocumentReaderBookmark(
+            BsonReaderState state,
+            BsonType currentBsonType,
+            string currentName,
             BsonDocumentReaderContext context,
-            BsonReadState state,
-            BsonType currentBsonType
-        ) {
+            BsonValue currentValue
+        )
+            : base(state, currentBsonType, currentName) {
             this.context = context.Clone();
-            this.state = state;
-            this.currentBsonType = currentBsonType;
+            this.currentValue = currentValue;
         }
         #endregion
 
@@ -43,12 +44,8 @@ namespace MongoDB.Bson.IO {
             get { return context; }
         }
 
-        public BsonType CurrentBsonType {
-            get { return currentBsonType; }
-        }
-
-        public BsonReadState State {
-            get { return state; }
+        internal BsonValue CurrentValue {
+            get { return currentValue; }
         }
         #endregion
     }

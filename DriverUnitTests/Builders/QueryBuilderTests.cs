@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -211,7 +211,7 @@ namespace MongoDB.DriverUnitTests.Builders {
         public void TestRegex() {
             var query = Query.Matches("name", new BsonRegularExpression("acme.*corp", "i"));
             var expected = "{ \"name\" : /acme.*corp/i }";
-            BsonJsonWriterSettings settings = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.JavaScript };
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
             Assert.AreEqual(expected, actual);
         }
@@ -220,7 +220,7 @@ namespace MongoDB.DriverUnitTests.Builders {
         public void TestNotRegex() {
             var query = Query.Not("name").Matches(new BsonRegularExpression("acme.*corp", "i"));
             var expected = "{ \"name\" : { \"$not\" : /acme.*corp/i } }";
-            BsonJsonWriterSettings settings = new BsonJsonWriterSettings { OutputMode = BsonJsonOutputMode.JavaScript };
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
             Assert.AreEqual(expected, actual);
         }

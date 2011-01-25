@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,15 +26,14 @@ namespace MongoDB.DriverUnitTests {
     public class MongoServerTests {
         [Test]
         public void TestCreateNoArgs() {
-            var server = MongoServer.Create();
+            var server = MongoServer.Create(); // no args!
             var expectedSeedList = new[] { new MongoServerAddress("localhost") };
-            Assert.IsNull(server.AdminCredentials);
-            Assert.IsNull(server.DefaultCredentials);
+            Assert.IsNull(server.Settings.DefaultCredentials);
             Assert.IsNull(server.ReplicaSet);
-            Assert.AreEqual(SafeMode.False, server.SafeMode);
-            Assert.AreEqual(false, server.SlaveOk);
+            Assert.AreEqual(SafeMode.False, server.Settings.SafeMode);
+            Assert.AreEqual(false, server.Settings.SlaveOk);
             Assert.AreEqual(MongoServerState.Disconnected, server.State);
-            Assert.IsTrue(expectedSeedList.SequenceEqual(server.Url.Servers));
+            Assert.IsTrue(expectedSeedList.SequenceEqual(server.Settings.Servers));
         }
     }
 }

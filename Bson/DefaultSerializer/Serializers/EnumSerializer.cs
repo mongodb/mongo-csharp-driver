@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,17 +26,17 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class EnumSerializer : BsonBaseSerializer {
         #region private static fields
-        private static EnumSerializer singleton = new EnumSerializer();
+        private static EnumSerializer instance = new EnumSerializer();
         #endregion
 
         #region constructors
-        private EnumSerializer() {
+        public EnumSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static EnumSerializer Singleton {
-            get { return singleton; }
+        public static EnumSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            VerifyNominalType(nominalType);
+            VerifyDeserializeType(nominalType);
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType) {
                 case BsonType.Int32: return Enum.ToObject(nominalType, bsonReader.ReadInt32());
@@ -65,11 +65,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             object value,
             IBsonSerializationOptions options
         ) {
-            VerifyNominalType(nominalType);
+            var actualType = value.GetType();
+            VerifySerializeTypes(nominalType, actualType);
             var representation = (options == null) ? 0 : ((RepresentationSerializationOptions) options).Representation;
             switch (representation) {
                 case 0:
-                    var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(nominalType));
+                    var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(actualType));
                     if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64) {
                         goto case BsonType.Int64;
                     } else {
@@ -91,11 +92,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region private methods
-        private void VerifyNominalType(
+        private void VerifyDeserializeType(
             Type nominalType
         ) {
             if (!nominalType.IsEnum) {
-                var message = string.Format("EnumSerializer cannot be used with type: {0}", nominalType.FullName);
+                var message = string.Format("EnumSerializer.Deserialize cannot be used with nominal type: {0}", nominalType.FullName);
+                throw new BsonSerializationException(message);
+            }
+        }
+
+        private void VerifySerializeTypes(
+            Type nominalType,
+            Type actualType
+        ) {
+            if (nominalType != typeof(object) && nominalType != actualType) {
+                var message = string.Format("EnumSerializer.Serialize cannot be used with nominal type: {0}", nominalType.FullName);
+                throw new BsonSerializationException(message);
+            }           
+            
+            if (!actualType.IsEnum) {
+                var message = string.Format("EnumSerializer.Serialize cannot be used with actual type: {0}", actualType.FullName);
                 throw new BsonSerializationException(message);
             }
         }

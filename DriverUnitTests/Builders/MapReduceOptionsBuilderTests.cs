@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,6 +57,34 @@ namespace MongoDB.DriverUnitTests.Builders {
         public void TestOut() {
             var options = MapReduceOptions.SetOutput("name");
             var expected = "{ \"out\" : \"name\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutReplace() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("name"));
+            var expected = "{ \"out\" : \"name\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutMerge() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("name"));
+            var expected = "{ \"out\" : { \"merge\" : \"name\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutReduce() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("name"));
+            var expected = "{ \"out\" : { \"reduce\" : \"name\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutInline() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Inline);
+            var expected = "{ \"out\" : { \"inline\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 

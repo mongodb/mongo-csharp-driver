@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,6 +29,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        protected BaseWrapper(
+            object obj
+        ) {
+            this.nominalType = obj.GetType();
+            this.obj = obj;
+        }
+
         protected BaseWrapper(
             Type nominalType,
             object obj

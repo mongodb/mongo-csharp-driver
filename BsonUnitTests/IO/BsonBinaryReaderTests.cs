@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,13 +51,10 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual("BSON", bsonReader.ReadName());
                 bsonReader.ReadStartArray();
                 Assert.AreEqual(BsonType.String, bsonReader.ReadBsonType());
-                Assert.AreEqual("0", bsonReader.ReadName());
                 Assert.AreEqual("awesome", bsonReader.ReadString());
                 Assert.AreEqual(BsonType.Double, bsonReader.ReadBsonType());
-                Assert.AreEqual("1", bsonReader.ReadName());
                 Assert.AreEqual(5.05, bsonReader.ReadDouble());
                 Assert.AreEqual(BsonType.Int32, bsonReader.ReadBsonType());
-                Assert.AreEqual("2", bsonReader.ReadName());
                 Assert.AreEqual(1986, bsonReader.ReadInt32());
                 bsonReader.ReadEndArray();
                 bsonReader.ReadEndDocument();

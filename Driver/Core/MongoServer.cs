@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,43 +28,32 @@ namespace MongoDB.Driver {
     public class MongoServer {
         #region private static fields
         private static object staticLock = new object();
-        private static Dictionary<MongoUrl, MongoServer> servers = new Dictionary<MongoUrl, MongoServer>();
+        private static Dictionary<MongoServerSettings, MongoServer> servers = new Dictionary<MongoServerSettings, MongoServer>();
         #endregion
 
         #region private fields
         private object serverLock = new object();
         private object requestsLock = new object();
-        private MongoUrl url;
-        private List<MongoServerAddress> addresses = new List<MongoServerAddress>();
+        private MongoServerSettings settings;
         private List<IPEndPoint> endPoints = new List<IPEndPoint>();
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> replicaSet;
-        private Dictionary<string, MongoDatabase> databases = new Dictionary<string, MongoDatabase>();
+        private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
         private MongoConnectionPool primaryConnectionPool;
         private List<MongoConnectionPool> secondaryConnectionPools;
         private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
-        private MongoCredentials adminCredentials;
-        private MongoCredentials defaultCredentials;
+        private int maxDocumentSize = BsonDefaults.MaxDocumentSize; // will get overridden if server advertises different maxDocumentSize
+        private int maxMessageLength = MongoDefaults.MaxMessageLength; // will get overridden if server advertises different maxMessageLength
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         #endregion
 
         #region constructors
         public MongoServer(
-            MongoUrl url
+            MongoServerSettings settings
         ) {
-            this.url = url;
+            this.settings = settings;
 
-            // credentials (if any) are for server only if no DatabaseName was provided
-            if (url.Credentials != null && url.DatabaseName == null) {
-                if (url.Credentials.Admin) {
-                    this.adminCredentials = url.Credentials;
-                } else {
-                    this.defaultCredentials = url.Credentials;
-                }
-            }
-
-            foreach (var address in url.Servers) {
-                addresses.Add(address);
+            foreach (var address in settings.Servers) {
                 endPoints.Add(address.ToIPEndPoint());
             }
         }
@@ -78,20 +67,27 @@ namespace MongoDB.Driver {
         public static MongoServer Create(
             MongoConnectionStringBuilder builder
         ) {
-            return Create(builder.ToMongoUrl());
+            return Create(builder.ToServerSettings());
+        }
+
+        public static MongoServer Create(
+            MongoServerSettings settings
+        ) {
+            lock (staticLock) {
+                MongoServer server;
+                settings.Freeze();
+                if (!servers.TryGetValue(settings, out server)) {
+                    server = new MongoServer(settings);
+                    servers.Add(settings, server);
+                }
+                return server;
+            }
         }
 
         public static MongoServer Create(
             MongoUrl url
         ) {
-            lock (staticLock) {
-                MongoServer server;
-                if (!servers.TryGetValue(url, out server)) {
-                    server = new MongoServer(url);
-                    servers.Add(url, server);
-                }
-                return server;
-            }
+            return Create(url.ToServerSettings());
         }
 
         public static MongoServer Create(
@@ -101,44 +97,41 @@ namespace MongoDB.Driver {
                 var url = MongoUrl.Create(connectionString);
                 return Create(url);
             } else {
-                MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder.ToMongoUrl());
+                var builder = new MongoConnectionStringBuilder(connectionString);
+                return Create(builder);
             }
         }
 
         public static MongoServer Create(
             Uri uri
         ) {
-            return Create(MongoUrl.Create(uri.ToString()));
+            var url = MongoUrl.Create(uri.ToString());
+            return Create(url);
         }
         #endregion
 
         #region public properties
-        public MongoCredentials AdminCredentials {
-            get { return adminCredentials; }
+        public virtual MongoDatabase AdminDatabase {
+            get { return GetDatabase("admin", settings.DefaultCredentials); }
         }
 
-        public MongoDatabase AdminDatabase {
-            get { return GetDatabase("admin", adminCredentials); }
-        }
-
-        public IEnumerable<MongoServerAddress> Addresses {
-            get { return addresses; }
-        }
-
-        public MongoCredentials DefaultCredentials {
-            get { return defaultCredentials; }
-        }
-
-        public IEnumerable<IPEndPoint> EndPoints {
+        public virtual IEnumerable<IPEndPoint> EndPoints {
             get { return endPoints; }
         }
 
-        public IEnumerable<MongoServerAddress> ReplicaSet {
+        public virtual int MaxDocumentSize {
+            get { return maxDocumentSize; }
+        }
+
+        public virtual int MaxMessageLength {
+            get { return maxMessageLength; }
+        }
+
+        public virtual IEnumerable<MongoServerAddress> ReplicaSet {
             get { return replicaSet; }
         }
 
-        public int RequestNestingLevel {
+        public virtual int RequestNestingLevel {
             get {
                 int threadId = Thread.CurrentThread.ManagedThreadId;
                 lock (requestsLock) {
@@ -152,38 +145,30 @@ namespace MongoDB.Driver {
             }
         }
 
-        public SafeMode SafeMode {
-            get { return url.SafeMode; }
+        public virtual MongoServerSettings Settings {
+            get { return settings; }
         }
 
-        public bool SlaveOk {
-            get { return url.SlaveOk; }
-        }
-
-        public MongoServerState State {
+        public virtual MongoServerState State {
             get { return state; }
-        }
-
-        public MongoUrl Url {
-            get { return url; }
         }
         #endregion
 
         #region public indexers
-        public MongoDatabase this[
+        public virtual MongoDatabase this[
             string databaseName
         ] {
             get { return GetDatabase(databaseName); }
         }
 
-        public MongoDatabase this[
+        public virtual MongoDatabase this[
             string databaseName,
             MongoCredentials credentials
         ] {
             get { return GetDatabase(databaseName, credentials); }
         }
 
-        public MongoDatabase this[
+        public virtual MongoDatabase this[
             string databaseName,
             MongoCredentials credentials,
             SafeMode safeMode
@@ -191,7 +176,7 @@ namespace MongoDB.Driver {
             get { return GetDatabase(databaseName, credentials, safeMode); }
         }
 
-        public MongoDatabase this[
+        public virtual MongoDatabase this[
             string databaseName,
             SafeMode safeMode
         ] {
@@ -200,36 +185,38 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public void CloneDatabase(
+        public virtual void CloneDatabase(
             string fromHost
         ) {
             throw new NotImplementedException();
         }
 
-        public void Connect() {
-            Connect(MongoDefaults.ConnectTimeout);
+        public virtual void Connect() {
+            Connect(settings.ConnectTimeout);
         }
 
-        public void Connect(
+        public virtual void Connect(
             TimeSpan timeout
         ) {
             lock (serverLock) {
                 if (state != MongoServerState.Connected) {
                     state = MongoServerState.Connecting;
                     try {
-                        switch (url.ConnectionMode) {
+                        switch (settings.ConnectionMode) {
                             case ConnectionMode.Direct:
                                 var directConnector = new DirectConnector(this);
                                 directConnector.Connect(timeout);
                                 primaryConnectionPool = new MongoConnectionPool(this, directConnector.Connection);
                                 secondaryConnectionPools = null;
                                 replicaSet = null;
+                                maxDocumentSize = directConnector.MaxDocumentSize;
+                                maxMessageLength = directConnector.MaxMessageLength;
                                 break;
                             case ConnectionMode.ReplicaSet:
                                 var replicaSetConnector = new ReplicaSetConnector(this);
                                 replicaSetConnector.Connect(timeout);
                                 primaryConnectionPool = new MongoConnectionPool(this, replicaSetConnector.PrimaryConnection);
-                                if (url.SlaveOk) {
+                                if (settings.SlaveOk && replicaSetConnector.SecondaryConnections.Count > 0) {
                                     secondaryConnectionPools = new List<MongoConnectionPool>();
                                     foreach (var connection in replicaSetConnector.SecondaryConnections) {
                                         var secondaryConnectionPool = new MongoConnectionPool(this, connection);
@@ -239,6 +226,8 @@ namespace MongoDB.Driver {
                                     secondaryConnectionPools = null;
                                 }
                                 replicaSet = replicaSetConnector.ReplicaSet;
+                                maxDocumentSize = replicaSetConnector.MaxDocumentSize;
+                                maxMessageLength = replicaSetConnector.MaxMessageLength;
                                 break;
                             default:
                                 throw new MongoInternalException("Invalid ConnectionMode");
@@ -253,14 +242,14 @@ namespace MongoDB.Driver {
         }
 
         // TODO: fromHost parameter?
-        public void CopyDatabase(
+        public virtual void CopyDatabase(
             string from,
             string to
         ) {
             throw new NotImplementedException();
         }
 
-        public void Disconnect() {
+        public virtual void Disconnect() {
             // normally called from a connection when there is a SocketException
             // but anyone can call it if they want to close all sockets to the server
             lock (serverLock) {
@@ -278,7 +267,7 @@ namespace MongoDB.Driver {
             }
         }
 
-        public CommandResult DropDatabase(
+        public virtual CommandResult DropDatabase(
             string databaseName
         ) {
             MongoDatabase database = GetDatabase(databaseName);
@@ -286,13 +275,13 @@ namespace MongoDB.Driver {
             return database.RunCommand(command);
         }
 
-        public BsonDocument FetchDBRef(
+        public virtual BsonDocument FetchDBRef(
             MongoDBRef dbRef
         ) {
             return FetchDBRefAs<BsonDocument>(dbRef);
         }
 
-        public TDocument FetchDBRefAs<TDocument>(
+        public virtual TDocument FetchDBRefAs<TDocument>(
             MongoDBRef dbRef
         ) {
             if (dbRef.DatabaseName == null) {
@@ -303,43 +292,55 @@ namespace MongoDB.Driver {
             return database.FetchDBRefAs<TDocument>(dbRef);
         }
 
-        public MongoDatabase GetDatabase(
-            string databaseName
-        ) {
-            return GetDatabase(databaseName, defaultCredentials);
-        }
-
-        public MongoDatabase GetDatabase(
-            string databaseName,
-            MongoCredentials credentials
-        ) {
-            return GetDatabase(databaseName, credentials, url.SafeMode);
-        }
-
-        public MongoDatabase GetDatabase(
-            string databaseName,
-            MongoCredentials credentials,
-            SafeMode safeMode
+        public virtual MongoDatabase GetDatabase(
+            MongoDatabaseSettings databaseSettings
         ) {
             lock (serverLock) {
-                var key = string.Format("{0}[{1},{2}]", databaseName, (credentials == null) ? "anon" : credentials.ToString(), safeMode);
                 MongoDatabase database;
-                if (!databases.TryGetValue(key, out database)) {
-                    database = new MongoDatabase(this, databaseName, credentials, safeMode);
-                    databases.Add(key, database);
+                databaseSettings.Freeze();
+                if (!databases.TryGetValue(databaseSettings, out database)) {
+                    database = new MongoDatabase(this, databaseSettings);
+                    databases.Add(databaseSettings, database);
                 }
                 return database;
             }
         }
 
-        public MongoDatabase GetDatabase(
+        public virtual MongoDatabase GetDatabase(
+            string databaseName
+        ) {
+            return GetDatabase(databaseName, settings.DefaultCredentials);
+        }
+
+        public virtual MongoDatabase GetDatabase(
+            string databaseName,
+            MongoCredentials credentials
+        ) {
+            return GetDatabase(databaseName, credentials, settings.SafeMode);
+        }
+
+        public virtual MongoDatabase GetDatabase(
+            string databaseName,
+            MongoCredentials credentials,
+            SafeMode safeMode
+        ) {
+            var databaseSettings = new MongoDatabaseSettings(
+                databaseName,
+                credentials,
+                safeMode,
+                settings.SlaveOk
+            );
+            return GetDatabase(databaseSettings);
+        }
+
+        public virtual MongoDatabase GetDatabase(
             string databaseName,
             SafeMode safeMode
         ) {
-            return GetDatabase(databaseName, defaultCredentials, safeMode);
+            return GetDatabase(databaseName, settings.DefaultCredentials, safeMode);
         }
 
-        public IEnumerable<string> GetDatabaseNames() {
+        public virtual IEnumerable<string> GetDatabaseNames() {
             var result = AdminDatabase.RunCommand("listDatabases");
             var databaseNames = new List<string>();
             foreach (BsonDocument database in result.Response["databases"].AsBsonArray.Values) {
@@ -350,7 +351,7 @@ namespace MongoDB.Driver {
             return databaseNames;
         }
 
-        public GetLastErrorResult GetLastError() {
+        public virtual GetLastErrorResult GetLastError() {
             if (RequestNestingLevel == 0) {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
@@ -358,14 +359,14 @@ namespace MongoDB.Driver {
             return adminDatabase.RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
-        public void Reconnect() {
+        public virtual void Reconnect() {
             lock (serverLock) {
                 Disconnect();
                 Connect();
             }
         }
 
-        public void RequestDone() {
+        public virtual void RequestDone() {
             int threadId = Thread.CurrentThread.ManagedThreadId;
             MongoConnection connection = null;
             lock (requestsLock) {
@@ -388,7 +389,7 @@ namespace MongoDB.Driver {
 
         // the result of RequestStart is IDisposable so you can use RequestStart in a using statment
         // and then RequestDone will be called automatically when leaving the using statement
-        public IDisposable RequestStart(
+        public virtual IDisposable RequestStart(
             MongoDatabase initialDatabase
         ) {
             int threadId = Thread.CurrentThread.ManagedThreadId;
@@ -401,7 +402,7 @@ namespace MongoDB.Driver {
             }
 
             // get the connection outside of the lock
-            var connection = GetConnection(initialDatabase, false); // not slaveOk
+            var connection = AcquireConnection(initialDatabase, false); // not slaveOk
 
             lock (requestsLock) {
                 var request = new Request(connection);
@@ -410,25 +411,25 @@ namespace MongoDB.Driver {
             }
         }
 
-        public CommandResult RunAdminCommand(
+        public virtual CommandResult RunAdminCommand(
             IMongoCommand command
         ) {
             return RunAdminCommandAs<CommandResult>(command);
         }
 
-        public CommandResult RunAdminCommand(
+        public virtual CommandResult RunAdminCommand(
             string commandName
         ) {
             return RunAdminCommandAs<CommandResult>(commandName);
         }
 
-        public TCommandResult RunAdminCommandAs<TCommandResult>(
+        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(
             IMongoCommand command
         ) where TCommandResult : CommandResult, new() {
             return AdminDatabase.RunCommandAs<TCommandResult>(command);
         }
 
-        public TCommandResult RunAdminCommandAs<TCommandResult>(
+        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(
             string commandName
         ) where TCommandResult : CommandResult, new() {
             return AdminDatabase.RunCommandAs<TCommandResult>(commandName);
@@ -436,7 +437,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region internal methods
-        internal MongoConnection GetConnection(
+        internal MongoConnection AcquireConnection(
             MongoDatabase database,
             bool slaveOk
         ) {
@@ -445,16 +446,16 @@ namespace MongoDB.Driver {
             lock (requestsLock) {
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
-                    request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
+                    request.Connection.CheckAuthentication(this, database); // will throw exception if authentication fails
                     return request.Connection;
                 }
             }
 
             var connectionPool = GetConnectionPool(slaveOk);
-            var connection = connectionPool.GetConnection(database);
+            var connection = connectionPool.AcquireConnection(database);
 
             try {
-                connection.CheckAuthentication(database); // will authenticate if necessary
+                connection.CheckAuthentication(this, database); // will authenticate if necessary
             } catch (MongoAuthenticationException) {
                 // don't let the connection go to waste just because authentication failed
                 connectionPool.ReleaseConnection(connection);

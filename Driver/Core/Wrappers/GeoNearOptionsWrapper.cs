@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class GeoNearOptionsWrapper : BaseWrapper, IMongoGeoNearOptions {
         #region constructors
         public GeoNearOptionsWrapper(
-            Type nominalType,
             object options
         )
-            : base(nominalType, options) {
+            : base(options) {
         }
         #endregion
 
         #region public static methods
-        public static GeoNearOptionsWrapper Create<T>(
-            T options
+        public static GeoNearOptionsWrapper Create(
+            object options
         ) {
-            return new GeoNearOptionsWrapper(typeof(T), options);
+            if (options == null) {
+                return null;
+            } else {
+                return new GeoNearOptionsWrapper(options);
+            }
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,18 +25,39 @@ namespace MongoDB.Driver {
     public class UpdateWrapper : BaseWrapper, IMongoUpdate {
         #region constructors
         public UpdateWrapper(
+            object update
+        )
+            : base(update) {
+        }
+
+        public UpdateWrapper(
             Type nominalType,
             object update
-        ) 
+        )
             : base(nominalType, update) {
         }
         #endregion
 
         #region public static methods
+        // used when update modifier is a replacement document
         public static UpdateWrapper Create<T>(
             T update
         ) {
-            return new UpdateWrapper(typeof(T), update);
+            if (update == null) {
+                return null;
+            } else {
+                return new UpdateWrapper(typeof(T), update);
+            }
+        }
+
+        public static UpdateWrapper Create(
+            object update
+        ) {
+            if (update == null) {
+                return null;
+            } else {
+                return new UpdateWrapper(update);
+            }
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,41 +20,42 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    internal class BsonJsonReaderContext {
+    internal class JsonWriterContext {
         #region private fields
-        private BsonJsonReaderContext parentContext;
+        private JsonWriterContext parentContext;
         private ContextType contextType;
+        private string indentation;
+        private bool hasElements = false;
         #endregion
 
         #region constructors
-        private BsonJsonReaderContext() {
-        }
-
-        internal BsonJsonReaderContext(
-            BsonJsonReaderContext parentContext,
-            ContextType contextType
+        internal JsonWriterContext(
+            JsonWriterContext parentContext,
+            ContextType contextType,
+            string indentChars
         ) {
             this.parentContext = parentContext;
             this.contextType = contextType;
+            this.indentation = (parentContext == null) ? indentChars : parentContext.Indentation + indentChars;
         }
         #endregion
 
         #region internal properties
+        internal JsonWriterContext ParentContext {
+            get { return parentContext; }
+        }
+
         internal ContextType ContextType {
             get { return contextType; }
         }
-        #endregion
 
-        #region public methods
-        //public BsonJsonReaderContext Clone() {
-        //    var clone = new BsonJsonReaderContext();
-        //    clone.parentContext = this.parentContext;
-        //    clone.contextType = this.contextType;
-        //    return clone;
-        //}
+        internal string Indentation {
+            get { return indentation; }
+        }
 
-        public BsonJsonReaderContext PopContext() {
-            return parentContext;
+        internal bool HasElements {
+            get { return hasElements; }
+            set { hasElements = value; }
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ namespace MongoDB.Driver.Builders {
             return new SortByBuilder().Descending(keys);
         }
 
-        public static IMongoSortBy Wrap<T>(
-            T sortBy
+        public static IMongoSortBy Wrap(
+            object sortBy
         ) {
-            return new SortByWrapper(typeof(T), sortBy);
+            return SortByWrapper.Create(sortBy);
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected List<BsonMemberMap> declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
         protected Dictionary<string, BsonMemberMap> elementDictionary = new Dictionary<string, BsonMemberMap>();
         protected bool ignoreExtraElements = true;
+        protected BsonMemberMap extraElementsMemberMap;
         protected List<Type> knownTypes = new List<Type>();
         #endregion
 
@@ -84,6 +85,10 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         public bool DiscriminatorIsRequired {
             get { return discriminatorIsRequired; }
+        }
+
+        public BsonMemberMap ExtraElementsMemberMap {
+            get { return extraElementsMemberMap; }
         }
 
         public bool HasRootClass {
@@ -233,15 +238,6 @@ namespace MongoDB.Bson.DefaultSerializer {
             profiles.Add(filtered);
         }
 
-        // TODO: should unregistering class maps even be allowed?
-        public static void UnregisterClassMap(
-            Type classType
-        ) {
-            lock (staticLock) {
-                classMaps.Remove(classType);
-            }
-        }
-
         public static void UnregisterConventions(
             ConventionProfile conventions
         ) {
@@ -298,6 +294,24 @@ namespace MongoDB.Bson.DefaultSerializer {
                             }
                         }
 
+                        if (extraElementsMemberMap == null) {
+                            // see if we can inherit the extraElementsMemberMap from our base class
+                            if (baseClassMap != null) {
+                                extraElementsMemberMap = baseClassMap.ExtraElementsMemberMap;
+                            }
+
+                            // if our base class did not have an extraElementsMemberMap maybe we have one?
+                            if (extraElementsMemberMap == null) {
+                                var memberName = conventions.ExtraElementsMemberConvention.FindExtraElementsMember(classType);
+                                if (memberName != null) {
+                                    var memberMap = GetMemberMap(memberName);
+                                    if (memberMap != null) {
+                                        SetExtraElementsMember(memberMap);
+                                    }
+                                }
+                            }
+                        }
+
                         foreach (var memberMap in allMemberMaps) {
                             if (!elementDictionary.ContainsKey(memberMap.ElementName)) {
                                 elementDictionary.Add(memberMap.ElementName, memberMap);
@@ -345,6 +359,33 @@ namespace MongoDB.Bson.DefaultSerializer {
             BsonMemberMap memberMap;
             elementDictionary.TryGetValue(elementName, out memberMap);
             return memberMap;
+        }
+
+        public BsonMemberMap MapExtraElementsField(
+            string fieldName
+        ) {
+            if (frozen) { ThrowFrozenException(); }
+            var fieldMap = MapField(fieldName);
+            SetExtraElementsMember(fieldMap);
+            return fieldMap;
+        }
+
+        public BsonMemberMap MapExtraElementsMember(
+            MemberInfo memberInfo
+        ) {
+            if (frozen) { ThrowFrozenException(); }
+            var memberMap = MapMember(memberInfo);
+            SetExtraElementsMember(memberMap);
+            return memberMap;
+        }
+
+        public BsonMemberMap MapExtraElementsProperty(
+            string propertyName
+        ) {
+            if (frozen) { ThrowFrozenException(); }
+            var propertyMap = MapProperty(propertyName);
+            SetExtraElementsMember(propertyMap);
+            return propertyMap;
         }
 
         public BsonMemberMap MapField(
@@ -432,6 +473,25 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        public void SetExtraElementsMember(
+            BsonMemberMap memberMap
+        ) {
+            if (frozen) { ThrowFrozenException(); }
+            if (extraElementsMemberMap != null) {
+                var message = string.Format("Class {0} already has an extra elements member", classType.FullName);
+                throw new InvalidOperationException(message);
+            }
+            if (!declaredMemberMaps.Contains(memberMap)) {
+                throw new BsonInternalException("Invalid memberMap");
+            }
+            if (memberMap.MemberType != typeof(BsonDocument)) {
+                var message = string.Format("Type of ExtraElements member must be BsonDocument");
+                throw new InvalidOperationException(message);
+            }
+
+            extraElementsMemberMap = memberMap;
+        }
+
         public void SetIdMember(
             BsonMemberMap memberMap
         ) {
@@ -491,6 +551,9 @@ namespace MongoDB.Bson.DefaultSerializer {
                 declaredMemberMaps.Remove(memberMap);
                 if (idMemberMap == memberMap) {
                     idMemberMap = null;
+                }
+                if (extraElementsMemberMap == memberMap) {
+                    extraElementsMemberMap = null;
                 }
             }
         }
@@ -578,6 +641,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                 if (elementAttribute != null) {
                     memberMap.SetElementName(elementAttribute.ElementName);
                     memberMap.SetOrder(elementAttribute.Order);
+                    continue;
+                }
+
+                var extraElementsAttribute = attribute as BsonExtraElementsAttribute;
+                if (extraElementsAttribute != null) {
+                    SetExtraElementsMember(memberMap);
                     continue;
                 }
 
@@ -725,6 +794,30 @@ namespace MongoDB.Bson.DefaultSerializer {
             Expression<Func<TClass, TMember>> fieldLambda
         ) {
             return MapMember(fieldLambda);
+        }
+
+        public BsonMemberMap MapExtraElementsField<TMember>(
+            Expression<Func<TClass, TMember>> fieldLambda
+        ) {
+            var fieldMap = MapField(fieldLambda);
+            SetExtraElementsMember(fieldMap);
+            return fieldMap;
+        }
+
+        public BsonMemberMap MapExtraElementsMember<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
+        ) {
+            var memberMap = MapMember(memberLambda);
+            SetExtraElementsMember(memberMap);
+            return memberMap;
+        }
+
+        public BsonMemberMap MapExtraElementsProperty<TMember>(
+            Expression<Func<TClass, TMember>> propertyLambda
+        ) {
+            var propertyMap = MapProperty(propertyLambda);
+            SetExtraElementsMember(propertyMap);
+            return propertyMap;
         }
 
         public BsonMemberMap MapIdField<TMember>(

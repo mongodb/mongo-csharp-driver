@@ -76,12 +76,16 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttributeTests.cs" />
     <Compile Include="DefaultSerializer\BsonClassMapTests.cs" />
     <Compile Include="DefaultSerializer\BsonMemberMapTests.cs" />
+    <Compile Include="DefaultSerializer\Conventions\ExtraElementsConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdGeneratorConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\IdMemberConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\ElementNameConventionsTests.cs" />
+    <Compile Include="DefaultSerializer\ExtraElementsTests.cs" />
+    <Compile Include="DefaultSerializer\SerializationOptions\RepresentationSerializationOptionsTests.cs" />
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithAttributesTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithoutAttributesTests.cs" />
@@ -99,8 +103,9 @@
     <Compile Include="DefaultSerializer\Serializers\StructSerializerTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="IO\BsonDocumentReaderTests.cs" />
-    <Compile Include="IO\BsonJsonReaderTests.cs" />
-    <Compile Include="IO\BsonJsonScannerTests.cs" />
+    <Compile Include="IO\BsonDocumentWriterTests.cs" />
+    <Compile Include="IO\JsonReaderTests.cs" />
+    <Compile Include="IO\JsonScannerTests.cs" />
     <Compile Include="Jira\CSharp102Tests.cs" />
     <Compile Include="Jira\CSharp104Tests.cs" />
     <Compile Include="Jira\CSharp116Tests.cs" />
@@ -108,6 +113,9 @@
     <Compile Include="Jira\CSharp121Tests.cs" />
     <Compile Include="Jira\CSharp122Tests.cs" />
     <Compile Include="Jira\CSharp133Tests.cs" />
+    <Compile Include="Jira\CSharp146Tests.cs" />
+    <Compile Include="Jira\CSharp147Tests.cs" />
+    <Compile Include="Jira\CSharp151Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
@@ -115,12 +123,14 @@
     <Compile Include="Jira\CSharp78Tests.cs" />
     <Compile Include="Jira\CSharp81Tests.cs" />
     <Compile Include="Jira\CSharp83Tests.cs" />
+    <Compile Include="ObjectModel\BsonArrayTests.cs" />
     <Compile Include="ObjectModel\BsonDocumentTests.cs" />
     <Compile Include="ObjectModel\BsonElementTests.cs" />
     <Compile Include="ObjectModel\BsonEqualsTests.cs" />
-    <Compile Include="IO\BsonJsonWriterTests.cs" />
+    <Compile Include="IO\JsonWriterTests.cs" />
     <Compile Include="ObjectModel\BsonObjectIdTests.cs" />
     <Compile Include="ObjectModel\BsonTypeMapperTests.cs" />
+    <Compile Include="ObjectModel\BsonValueIConvertibleTests.cs" />
     <Compile Include="ObjectModel\BsonValueTests.cs" />
     <Compile Include="ObjectModel\ObjectIdTests.cs" />
     <Compile Include="IO\BsonBinaryReaderTests.cs" />

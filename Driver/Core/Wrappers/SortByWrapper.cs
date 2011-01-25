@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class SortByWrapper : BaseWrapper, IMongoSortBy {
         #region constructors
         public SortByWrapper(
-            Type nominalType,
             object sortBy
         )
-            : base(nominalType, sortBy) {
+            : base(sortBy) {
         }
         #endregion
 
         #region public static methods
-        public static SortByWrapper Create<T>(
-            T sortBy
+        public static SortByWrapper Create(
+            object sortBy
         ) {
-            return new SortByWrapper(typeof(T), sortBy);
+            if (sortBy == null) {
+                return null;
+            } else {
+                return new SortByWrapper(sortBy);
+            }
         }
         #endregion
     }

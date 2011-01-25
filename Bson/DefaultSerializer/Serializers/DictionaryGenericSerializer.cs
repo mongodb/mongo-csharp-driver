@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -69,15 +69,12 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var keyDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(TKey));
                 var valueDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(TValue));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     bsonReader.ReadStartArray();
                     bsonReader.ReadBsonType();
-                    bsonReader.SkipName();
                     var keyType = keyDiscriminatorConvention.GetActualType(bsonReader, typeof(TKey));
                     var keySerializer = BsonSerializer.LookupSerializer(keyType);
                     var key = (TKey) keySerializer.Deserialize(bsonReader, typeof(TKey), keyType, null);
                     bsonReader.ReadBsonType();
-                    bsonReader.SkipName();
                     var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
                     var value = (TValue) valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType, null);
@@ -116,15 +113,11 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteEndDocument();
                 } else {
                     bsonWriter.WriteStartArray();
-                    int index = 0;
                     foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
-                        bsonWriter.WriteStartArray(index.ToString());
-                        bsonWriter.WriteName("0");
+                        bsonWriter.WriteStartArray();
                         BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
-                        bsonWriter.WriteName("1");
                         BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
                         bsonWriter.WriteEndArray();
-                        index++;
                     }
                     bsonWriter.WriteEndArray();
                 }

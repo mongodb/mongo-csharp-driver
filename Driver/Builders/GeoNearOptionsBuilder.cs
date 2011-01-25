@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,10 +44,10 @@ namespace MongoDB.Driver.Builders {
             return new GeoNearOptionsBuilder().SetMaxDistance(value);
         }
 
-        public static IMongoGeoNearOptions Wrap<T>(
-            T options
+        public static IMongoGeoNearOptions Wrap(
+            object options
         ) {
-            return new GeoNearOptionsWrapper(typeof(T), options);
+            return GeoNearOptionsWrapper.Create(options);
         }
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class ScopeWrapper : BaseWrapper, IMongoScope {
         #region constructors
         public ScopeWrapper(
-            Type nominalType,
             object scope
         )
-            : base(nominalType, scope) {
+            : base(scope) {
         }
         #endregion
 
         #region public static methods
-        public static ScopeWrapper Create<T>(
-            T scope
+        public static ScopeWrapper Create(
+            object scope
         ) {
-            return new ScopeWrapper(typeof(T), scope);
+            if (scope == null) {
+                return null;
+            } else {
+                return new ScopeWrapper(scope);
+            }
         }
         #endregion
     }

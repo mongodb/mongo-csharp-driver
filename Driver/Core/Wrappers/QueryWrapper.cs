@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class QueryWrapper : BaseWrapper, IMongoQuery {
         #region constructors
         public QueryWrapper(
-            Type nominalType,
             object query
         )
-            : base(nominalType, query) {
+            : base(query) {
         }
         #endregion
 
         #region public static methods
-        public static QueryWrapper Create<T>(
-            T query
+        public static QueryWrapper Create(
+            object query
         ) {
-            return new QueryWrapper(typeof(T), query);
+            if (query == null) {
+                return null;
+            } else {
+                return new QueryWrapper(query);
+            }
         }
         #endregion
     }

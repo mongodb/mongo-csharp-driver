@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ namespace MongoDB.Driver.GridFS {
         #region private fields
         private bool isFrozen;
         private string chunksCollectionName = "fs.chunks";
-        private int defaultChunkSize = 256 * 1024; // 256KB
+        private int defaultChunkSize = 256 * 1024; // 256KiB
         private string filesCollectionName = "fs.files";
         private string root = "fs";
         private SafeMode safeMode = SafeMode.False;

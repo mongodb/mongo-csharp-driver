@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,12 +30,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp103 {
     public class CSharp103Tests {
         [Test]
         public void TestNullReferenceException() {
-            var server = MongoServer.Create();
+            var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database["csharp103"];
             collection.RemoveAll();
             using (database.RequestStart()) {
-                for (int i = 0; i < 1000; i++) {
+                for (int i = 0; i < 1; i++) {
                     collection.Insert(new BsonDocument { { "blah", i } }, SafeMode.True);
                 }
             }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,26 +26,26 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class EnumerableSerializer : BsonBaseSerializer {
         #region private static fields
-        private static EnumerableSerializer singleton = new EnumerableSerializer();
+        private static EnumerableSerializer instance = new EnumerableSerializer();
         #endregion
 
         #region constructors
-        private EnumerableSerializer() {
+        public EnumerableSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static EnumerableSerializer Singleton {
-            get { return singleton; }
+        public static EnumerableSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(ArrayList), singleton);
-            BsonSerializer.RegisterSerializer(typeof(ICollection), singleton);
-            BsonSerializer.RegisterSerializer(typeof(IEnumerable), singleton);
-            BsonSerializer.RegisterSerializer(typeof(IList), singleton);
+            BsonSerializer.RegisterSerializer(typeof(ArrayList), instance);
+            BsonSerializer.RegisterSerializer(typeof(ICollection), instance);
+            BsonSerializer.RegisterSerializer(typeof(IEnumerable), instance);
+            BsonSerializer.RegisterSerializer(typeof(IList), instance);
         }
         #endregion
 
@@ -64,7 +64,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var list = new ArrayList();
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
@@ -88,11 +87,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 bsonWriter.WriteStartArray();
-                int index = 0;
                 foreach (var element in (IEnumerable) value) {
-                    bsonWriter.WriteName(index.ToString());
                     BsonSerializer.Serialize(bsonWriter, typeof(object), element);
-                    index++;
                 }
                 bsonWriter.WriteEndArray();
             }
@@ -102,23 +98,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class QueueSerializer : BsonBaseSerializer {
         #region private static fields
-        private static QueueSerializer singleton = new QueueSerializer();
+        private static QueueSerializer instance = new QueueSerializer();
         #endregion
 
         #region constructors
-        private QueueSerializer() {
+        public QueueSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static QueueSerializer Singleton {
-            get { return singleton; }
+        public static QueueSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Queue), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Queue), instance);
         }
         #endregion
 
@@ -137,7 +133,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var queue = new Queue();
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
@@ -161,11 +156,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteNull();
             } else {
                 bsonWriter.WriteStartArray();
-                int index = 0;
                 foreach (var element in (Queue) value) {
-                    bsonWriter.WriteName(index.ToString());
                     BsonSerializer.Serialize(bsonWriter, typeof(object), element);
-                    index++;
                 }
                 bsonWriter.WriteEndArray();
             }
@@ -175,23 +167,23 @@ namespace MongoDB.Bson.DefaultSerializer {
 
     public class StackSerializer : BsonBaseSerializer {
         #region private static fields
-        private static StackSerializer singleton = new StackSerializer();
+        private static StackSerializer instance = new StackSerializer();
         #endregion
 
         #region constructors
-        private StackSerializer() {
+        public StackSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static StackSerializer Singleton {
-            get { return singleton; }
+        public static StackSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Stack), singleton);
+            BsonSerializer.RegisterSerializer(typeof(Stack), instance);
         }
         #endregion
 
@@ -210,7 +202,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var stack = new Stack();
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    bsonReader.SkipName();
                     var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var serializer = BsonSerializer.LookupSerializer(elementType);
                     var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
@@ -236,11 +227,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonWriter.WriteStartArray();
                 var outputOrder = new ArrayList((Stack) value); // serialize first pushed item first (reverse of enumerator order)
                 outputOrder.Reverse();
-                int index = 0;
                 foreach (var element in outputOrder) {
-                    bsonWriter.WriteName(index.ToString());
                     BsonSerializer.Serialize(bsonWriter, typeof(object),  element);
-                    index++;
                 }
                 bsonWriter.WriteEndArray();
             }

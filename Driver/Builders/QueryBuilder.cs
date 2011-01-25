@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,7 +50,32 @@ namespace MongoDB.Driver.Builders {
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
-                document.Add(query.ToBsonDocument());
+                foreach (var queryElement in query.ToBsonDocument()) {
+                    // if result document has existing operations for same field append the new ones
+                    if (document.Contains(queryElement.Name)) {
+                        var existingOperations = document[queryElement.Name] as BsonDocument;
+                        var newOperations = queryElement.Value as BsonDocument;
+
+                        // make sure that no conditions are Query.EQ, because duplicates aren't allowed
+                        if (existingOperations == null || newOperations == null) {
+                            var message = string.Format("Query.And does not support combining equality comparisons with other operators (field: '{0}')", queryElement.Name);
+                            throw new InvalidOperationException(message);
+                        }
+
+                        // add each new operation to the existing operations
+                        foreach (var operation in newOperations) {
+                            // make sure that there are no duplicate $operators
+                            if (existingOperations.Contains(operation.Name)) {
+                                var message = string.Format("Query.And does not support using the same operator more than once (field: '{0}', operator: '{1}')", queryElement.Name, operation.Name);
+                                throw new InvalidOperationException(message);
+                            } else {
+                                existingOperations.Add(operation);
+                            }
+                        }
+                    } else {
+                        document.Add(queryElement);
+                    }
+                }
             }
             return new QueryComplete(document);
         }
@@ -191,10 +216,10 @@ namespace MongoDB.Driver.Builders {
             return new QueryComplete(new BsonDocument("$where", javaScript));
         }
 
-        public static IMongoQuery Wrap<T>(
-            T query
+        public static IMongoQuery Wrap(
+            object query
         ) {
-            return new QueryWrapper(typeof(T), query);
+            return QueryWrapper.Create(query);
         }
         #endregion
     }

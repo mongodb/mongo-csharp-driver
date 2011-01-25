@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,21 +22,19 @@ namespace MongoDB.Bson.IO {
     public class BsonBinaryReaderBookmark : BsonReaderBookmark {
         #region private fields
         private BsonBinaryReaderContext context;
-        private BsonReadState state;
-        private BsonType currentBsonType;
         private int position;
         #endregion
 
         #region constructors
         internal BsonBinaryReaderBookmark(
-            BsonBinaryReaderContext context,
-            BsonReadState state,
+            BsonReaderState state,
             BsonType currentBsonType,
+            string currentName,
+            BsonBinaryReaderContext context,
             int position
-        ) {
-            this.context = context;
-            this.state = state;
-            this.currentBsonType = currentBsonType;
+        )
+            : base(state, currentBsonType, currentName) {
+            this.context = context.Clone();
             this.position = position;
         }
         #endregion
@@ -44,14 +42,6 @@ namespace MongoDB.Bson.IO {
         #region internal properties
         internal BsonBinaryReaderContext Context {
             get { return context; }
-        }
-
-        internal BsonReadState State {
-            get { return state; }
-        }
-
-        internal BsonType CurrentBsonType {
-            get { return currentBsonType; }
         }
 
         internal int Position {

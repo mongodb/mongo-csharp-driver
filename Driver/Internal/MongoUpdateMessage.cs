@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,12 +34,13 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoUpdateMessage(
+            MongoServer server,
             string collectionFullName,
             UpdateFlags flags,
             IMongoQuery query,
             IMongoUpdate update
         ) :
-            base(MessageOpcode.Update) {
+            base(server, MessageOpcode.Update) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;
@@ -53,7 +54,7 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteCString(collectionFullName);
             buffer.WriteInt32((int) flags);
 
-            BsonWriter bsonWriter = BsonWriter.Create(buffer);
+            var bsonWriter = CreateBsonWriter();
             BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
             BsonSerializer.Serialize(bsonWriter, update.GetType(), update, DocumentSerializationOptions.SerializeIdFirstInstance);
         }

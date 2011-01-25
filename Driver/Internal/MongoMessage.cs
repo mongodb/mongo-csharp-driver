@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ using MongoDB.Bson.IO;
 namespace MongoDB.Driver.Internal {
     internal abstract class MongoMessage {
         #region protected fields
+        protected MongoServer server;
         protected int messageLength;
         protected int requestId;
         protected int responseTo;
@@ -33,13 +34,19 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         protected MongoMessage(
+            MongoServer server,
             MessageOpcode opcode
         ) {
+            this.server = server;
             this.opcode = opcode;
         }
         #endregion
 
         #region internal properties
+        internal MongoServer Server {
+            get { return server; }
+        }
+
         internal int MessageLength {
             get { return messageLength; }
         }

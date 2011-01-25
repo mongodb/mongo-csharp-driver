@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ namespace MongoDB.Driver.Builders {
             return new GroupByBuilder(names);
         }
 
-        public static IMongoGroupBy Wrap<T>(
-            T groupBy
+        public static IMongoGroupBy Wrap(
+            object groupBy
         ) {
-            return new GroupByWrapper(typeof(T), groupBy);
+            return GroupByWrapper.Create(groupBy);
         }
         #endregion
     }

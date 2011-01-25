@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,18 +25,21 @@ namespace MongoDB.Driver {
     public class FieldsWrapper : BaseWrapper, IMongoFields {
         #region constructors
         public FieldsWrapper(
-            Type nominalType,
             object fields
         )
-            : base(nominalType, fields) {
+            : base(fields) {
         }
         #endregion
 
         #region public static methods
-        public static FieldsWrapper Create<T>(
-            T fields
+        public static FieldsWrapper Create(
+            object fields
         ) {
-            return new FieldsWrapper(typeof(T), fields);
+            if (fields == null) {
+                return null;
+            } else {
+                return new FieldsWrapper(fields);
+            }
         }
         #endregion
     }

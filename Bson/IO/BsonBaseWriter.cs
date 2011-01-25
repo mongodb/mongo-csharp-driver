@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,11 +23,18 @@ namespace MongoDB.Bson.IO {
     public abstract class BsonBaseWriter : BsonWriter {
         #region protected fields
         protected bool disposed = false;
+        protected BsonWriterState state;
         protected string name;
         #endregion
 
         #region constructors
         protected BsonBaseWriter() {
+        }
+        #endregion
+
+        #region public properties
+        public override BsonWriterState State {
+            get { return state; }
         }
         #endregion
 
@@ -116,6 +123,19 @@ namespace MongoDB.Bson.IO {
         ) {
             WriteName(name);
             WriteMinKey();
+        }
+
+        public override void WriteName(
+            string name
+        ) {
+            if (disposed) { throw new ObjectDisposedException(this.GetType().Name); }
+            if (state != BsonWriterState.Name) {
+                var message = string.Format("WriteName cannot be called when State is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            this.name = name;
+            state = BsonWriterState.Value;
         }
 
         public override void WriteNull(

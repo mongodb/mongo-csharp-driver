@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -209,6 +209,7 @@ namespace MongoDB.Driver.GridFS {
         public void Delete() {
             if (Exists) {
                 using (gridFS.Database.RequestStart()) {
+                    gridFS.Chunks.EnsureIndex("files_id", "n");
                     gridFS.Files.Remove(Query.EQ("_id", id), gridFS.Settings.SafeMode);
                     gridFS.Chunks.Remove(Query.EQ("files_id", id), gridFS.Settings.SafeMode);
                 }
@@ -287,6 +288,7 @@ namespace MongoDB.Driver.GridFS {
             if (id != null) {
                 cursor = gridFS.Files.Find(Query.EQ("_id", id));
             } else {
+                gridFS.Files.EnsureIndex("filename", "uploadDate");
                 cursor = gridFS.Files.Find(Query.EQ("filename", name)).SetSortOrder(SortBy.Descending("uploadDate"));
             }
             var fileInfo = cursor.SetLimit(1).FirstOrDefault();

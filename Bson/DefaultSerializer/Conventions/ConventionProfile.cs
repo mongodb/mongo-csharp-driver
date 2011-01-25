@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
 
         public IElementNameConvention ElementNameConvention { get; private set; }
 
+        public IExtraElementsMemberConvention ExtraElementsMemberConvention { get; private set; }
+
         public IIdMemberConvention IdMemberConvention { get; private set; }
 
         public IIgnoreExtraElementsConvention IgnoreExtraElementsConvention { get; private set; }
@@ -44,6 +46,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 .SetIdGeneratorConvention(new LookupIdGeneratorConvention())
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
+                .SetExtraElementsMemberConvention(new NamedExtraElementsMemberConvention("ExtraElements"))
                 .SetIdMemberConvention(new NamedIdMemberConvention("Id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
@@ -64,6 +67,9 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             }
             if (ElementNameConvention == null) {
                 ElementNameConvention = other.ElementNameConvention;
+            }
+            if (ExtraElementsMemberConvention == null) {
+                ExtraElementsMemberConvention = other.ExtraElementsMemberConvention;
             }
             if (IdMemberConvention == null) {
                 IdMemberConvention = other.IdMemberConvention;
@@ -100,6 +106,13 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             IElementNameConvention convention
         ) {
             ElementNameConvention = convention;
+            return this;
+        }
+
+        public ConventionProfile SetExtraElementsMemberConvention(
+            IExtraElementsMemberConvention convention
+        ) {
+            ExtraElementsMemberConvention = convention;
             return this;
         }
 

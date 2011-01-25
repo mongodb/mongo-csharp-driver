@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,23 +26,23 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Bson.DefaultSerializer {
     public class BsonIBsonSerializableSerializer : IBsonSerializer {
         #region private static fields
-        private static BsonIBsonSerializableSerializer singleton = new BsonIBsonSerializableSerializer();
+        private static BsonIBsonSerializableSerializer instance = new BsonIBsonSerializableSerializer();
         #endregion
 
         #region constructors
-        private BsonIBsonSerializableSerializer() {
+        public BsonIBsonSerializableSerializer() {
         }
         #endregion
 
         #region public static properties
-        public static BsonIBsonSerializableSerializer Singleton {
-            get { return singleton; }
+        public static BsonIBsonSerializableSerializer Instance {
+            get { return instance; }
         }
         #endregion
 
         #region public static methods
         public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(IBsonSerializable), singleton);
+            BsonSerializer.RegisterSerializer(typeof(IBsonSerializable), instance);
         }
         #endregion
 

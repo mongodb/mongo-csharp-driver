@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -59,10 +59,10 @@ namespace MongoDB.Driver.Builders {
             return new FieldsBuilder().Slice(name, skip, limit);
         }
 
-        public static IMongoFields Wrap<T>(
-            T fields
+        public static IMongoFields Wrap(
+            object fields
         ) {
-            return new FieldsWrapper(typeof(T), fields);
+            return FieldsWrapper.Create(fields);
         }
         #endregion
     }

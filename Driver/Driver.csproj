@@ -101,7 +101,10 @@
     <Compile Include="Core\Interfaces\IMongoScope.cs" />
     <Compile Include="Core\Interfaces\IMongoSortBy.cs" />
     <Compile Include="Core\Interfaces\IMongoUpdate.cs" />
+    <Compile Include="Core\MongoCollectionSettings.cs" />
+    <Compile Include="Core\MongoDatabaseSettings.cs" />
     <Compile Include="Core\MongoDBRef.cs" />
+    <Compile Include="Core\MongoServerSettings.cs" />
     <Compile Include="Core\MongoUrlBuilder.cs" />
     <Compile Include="Core\Wrappers\BaseWrapper.cs" />
     <Compile Include="Core\Wrappers\CommandDocument.cs" />
@@ -135,6 +138,7 @@
     <Compile Include="Exceptions\MongoSafeModeException.cs" />
     <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
     <Compile Include="Internal\DirectConnector.cs" />
+    <Compile Include="Internal\MongoCursorEnumerator.cs" />
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
     <Compile Include="Internal\MongoConnection.cs" />

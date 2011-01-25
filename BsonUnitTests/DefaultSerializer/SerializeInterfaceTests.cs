@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,14 +34,14 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         private class A : IX {
             static A() {
-                BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Singleton);
+                BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Instance);
             }
             public string FX { get; set; }
         }
 
         private class B : IX {
             static B() {
-                BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Singleton);
+                BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Instance);
             }
             public string FX { get; set; }
         }

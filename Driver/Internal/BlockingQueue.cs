@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,26 +33,20 @@ namespace MongoDB.Driver.Internal {
 
         #region public methods
         public T Dequeue(
-            DateTime deadline
+            TimeSpan timeout
         ) {
             lock (syncRoot) {
-                deadline = deadline.ToUniversalTime();
+                var timeoutAt = DateTime.UtcNow + timeout;
                 while (queue.Count == 0) {
-                    var timeout = deadline - DateTime.UtcNow;
-                    if (timeout > TimeSpan.Zero) {
-                        Monitor.Wait(syncRoot, timeout);
+                    var timeRemaining = timeoutAt - DateTime.UtcNow;
+                    if (timeRemaining > TimeSpan.Zero) {
+                        Monitor.Wait(syncRoot, timeRemaining);
                     } else {
                         return default(T);
                     }
                 }
                 return queue.Dequeue();
             }
-        }
-
-        public T Dequeue(
-            TimeSpan timeout
-        ) {
-            return Dequeue(DateTime.UtcNow + timeout);
         }
 
         public void Enqueue(

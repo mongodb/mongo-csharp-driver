@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -63,10 +63,10 @@ namespace MongoDB.Driver.Builders {
             return new IndexOptionsBuilder().SetUnique(value);
         }
 
-        public static IMongoIndexOptions Wrap<T>(
-            T options
+        public static IMongoIndexOptions Wrap(
+            object options
         ) {
-            return new IndexOptionsWrapper(typeof(T), options);
+            return IndexOptionsWrapper.Create(options);
         }
         #endregion
     }

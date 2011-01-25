@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -239,6 +239,26 @@ namespace MongoDB.Bson {
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
             using (BsonReader bsonReader = BsonReader.Create(stream)) {
                 return ReadFrom(bsonReader);
+            }
+        }
+
+        public static BsonDocumentWrapper Wrap<T>(
+            T value
+        ) {
+            if (value != null) {
+                return new BsonDocumentWrapper(typeof(T), value);
+            } else {
+                return null;
+            }
+        }
+
+        public static IEnumerable<BsonDocumentWrapper> WrapMultiple<T>(
+            IEnumerable<T> values
+        ) {
+            if (values != null) {
+                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(T), v));
+            } else {
+                return null;
             }
         }
         #endregion

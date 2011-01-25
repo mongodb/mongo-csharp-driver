@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO {
 
         #region public properties
         public abstract BsonType CurrentBsonType { get; }
-        public abstract BsonReadState ReadState { get; }
+        public abstract BsonReaderState State { get; }
         #endregion
 
         #region public static methods
@@ -52,6 +52,12 @@ namespace MongoDB.Bson.IO {
         }
 
         public static BsonReader Create(
+            JsonBuffer buffer
+        ) {
+            return new JsonReader(buffer);
+        }
+
+        public static BsonReader Create(
             Stream stream
         ) {
             return Create(stream, BsonBinaryReaderSettings.Defaults);
@@ -67,9 +73,17 @@ namespace MongoDB.Bson.IO {
         }
 
         public static BsonReader Create(
+            string json
+        ) {
+            var buffer = new JsonBuffer(json);
+            return Create(buffer);
+        }
+
+        public static BsonReader Create(
             TextReader textReader
         ) {
-            return new BsonJsonReader(textReader);
+            var json = textReader.ReadToEnd();
+            return Create(json);
         }
         #endregion
 

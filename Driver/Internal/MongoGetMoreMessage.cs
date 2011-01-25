@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,11 +31,12 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoGetMoreMessage(
+            MongoServer server,
             string collectionFullName,
             int numberToReturn,
             long cursorId
         )
-            : base(MessageOpcode.GetMore) {
+            : base(server, MessageOpcode.GetMore) {
             this.collectionFullName = collectionFullName;
             this.numberToReturn = numberToReturn;
             this.cursorId = cursorId;

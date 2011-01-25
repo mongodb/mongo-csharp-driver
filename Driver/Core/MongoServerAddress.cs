@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace MongoDB.Driver {
     [Serializable]
@@ -68,7 +69,7 @@ namespace MongoDB.Driver {
             if (match.Success) {
                 string host = match.Groups["host"].Value;
                 string portString = match.Groups["port"].Value;
-                int port = (portString == "") ? 27017 : int.Parse(portString);
+                int port = (portString == "") ? 27017 : XmlConvert.ToInt32(portString);
                 address = new MongoServerAddress(host, port);
                 return true;
 

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,20 +57,20 @@ namespace MongoDB.Bson {
 
         #region public static methods
         public static BsonDocumentWrapper Create<T>(
-            T document
+            T value
         ) {
-            if (document != null) {
-                return new BsonDocumentWrapper(typeof(T), document);
+            if (value != null) {
+                return new BsonDocumentWrapper(typeof(T), value);
             } else {
                 return null;
             }
         }
 
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple<T>(
-            IEnumerable<T> documents
+            IEnumerable<T> values
         ) {
-            if (documents != null) {
-                return documents.Select(d => Create<T>(d));
+            if (values != null) {
+                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(T), v));
             } else {
                 return null;
             }

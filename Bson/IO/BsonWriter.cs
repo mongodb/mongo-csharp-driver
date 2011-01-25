@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,6 +49,12 @@ namespace MongoDB.Bson.IO {
         }
 
         public static BsonWriter Create(
+            BsonDocument document
+        ) {
+            return new BsonDocumentWriter(document);
+        }
+
+        public static BsonWriter Create(
             Stream stream
         ) {
             return Create(stream, BsonBinaryWriterSettings.Defaults);
@@ -64,19 +70,19 @@ namespace MongoDB.Bson.IO {
         public static BsonWriter Create(
             TextWriter writer
         ) {
-            return new BsonJsonWriter(writer, BsonJsonWriterSettings.Defaults);
+            return new JsonWriter(writer, JsonWriterSettings.Defaults);
         }
 
         public static BsonWriter Create(
             TextWriter writer,
-            BsonJsonWriterSettings settings
+            JsonWriterSettings settings
         ) {
-            return new BsonJsonWriter(writer, settings);
+            return new JsonWriter(writer, settings);
         }
         #endregion
 
         #region public properties
-        public abstract BsonWriteState WriteState { get; }
+        public abstract BsonWriterState State { get; }
         #endregion
 
         #region public methods

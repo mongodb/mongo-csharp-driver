@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,8 +20,35 @@ using System.Text;
 
 namespace MongoDB.Bson.IO {
     public abstract class BsonReaderBookmark {
+        #region protected fields
+        protected BsonReaderState state;
+        protected BsonType currentBsonType;
+        protected string currentName;
+        #endregion
+
         #region constructors
-        protected BsonReaderBookmark() {
+        protected BsonReaderBookmark(
+            BsonReaderState state,
+            BsonType currentBsonType,
+            string currentName
+        ) {
+            this.state = state;
+            this.currentBsonType = currentBsonType;
+            this.currentName = currentName;
+        }
+        #endregion
+
+        #region public properties
+        public BsonReaderState State {
+            get { return state; }
+        }
+
+        public BsonType CurrentBsonType {
+            get { return currentBsonType; }
+        }
+
+        public string CurrentName {
+            get { return currentName; }
         }
         #endregion
     }

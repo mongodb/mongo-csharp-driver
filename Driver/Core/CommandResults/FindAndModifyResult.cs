@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,8 +37,8 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public T GetModifiedDocument<T>() {
-            return BsonSerializer.Deserialize<T>(ModifiedDocument);
+        public TDocument GetModifiedDocument<TDocument>() {
+            return BsonSerializer.Deserialize<TDocument>(ModifiedDocument);
         }
         #endregion
     }

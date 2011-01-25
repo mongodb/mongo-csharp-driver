@@ -15,10 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using NUnit.Framework;
 
 using MongoDB.Bson;
@@ -30,16 +30,26 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class BooleanSerializerTests {
         public class TestClass {
-            public bool Boolean { get; set; }
+            public bool N;
+            [BsonRepresentation(BsonType.Boolean)]
+            public bool B;
+            [BsonRepresentation(BsonType.Double)]
+            public bool D;
+            [BsonRepresentation(BsonType.Int32)]
+            public bool I;
+            [BsonRepresentation(BsonType.Int64)]
+            public bool L;
+            [BsonRepresentation(BsonType.String)]
+            public bool S;
         }
 
         [Test]
         public void TestFalse() {
             var obj = new TestClass {
-                Boolean = false
+                N = false, B = false, D = false, I = false, L = false, S = false
             };
             var json = obj.ToJson();
-            var expected = "{ 'Boolean' : false }".Replace("'", "\"");
+            var expected = "{ 'N' : false, 'B' : false, 'D' : 0, 'I' : 0, 'L' : 0, 'S' : 'false' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -50,10 +60,10 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestTrue() {
             var obj = new TestClass {
-                Boolean = true
+                N = true, B = true, D = true, I = true, L = true, S = true
             };
             var json = obj.ToJson();
-            var expected = "{ 'Boolean' : true }".Replace("'", "\"");
+            var expected = "{ 'N' : true, 'B' : true, 'D' : 1, 'I' : 1, 'L' : 1, 'S' : 'true' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -65,159 +75,479 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class DateTimeSerializerTests {
         public class TestClass {
+            public DateTime Default;
             [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-            public DateTime DateTime { get; set; }
+            public DateTime Local;
+            [BsonDateTimeOptions(Kind = DateTimeKind.Unspecified)]
+            public DateTime Unspecified;
+            [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+            public DateTime Utc;
+            [BsonDateTimeOptions(Representation = BsonType.Int64)]
+            public DateTime Ticks;
+            [BsonDateTimeOptions(Representation = BsonType.String)]
+            public DateTime String;
+            [BsonDateTimeOptions(Representation = BsonType.String, DateOnly = true)]
+            public DateTime DateOnlyString;
+            [BsonDateTimeOptions(Representation = BsonType.Document)]
+            public DateTime Document;
         }
+
+        private static string expectedTemplate = 
+            "{ 'Default' : #Default, 'Local' : #Local, 'Unspecified' : #Unspecified, 'Utc' : #Utc, 'Ticks' : #Ticks, 'String' : '#String', 'DateOnlyString' : '#DateOnlyString', 'Document' : #Document }";
 
         [Test]
         public void TestMinLocal() {
+            var minLocal = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local);
             var obj = new TestClass {
-                DateTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local)
+                Default = minLocal,
+                Local = minLocal,
+                Unspecified = minLocal,
+                Utc = minLocal,
+                Ticks = minLocal,
+                String = minLocal,
+                DateOnlyString = minLocal.Date,
+                Document = minLocal
             };
-            long milliseconds = (long) (DateTime.MinValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            expected = expected.Replace("#Default", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Local", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Utc", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Ticks", "0");
+            expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
+            expected = expected.Replace("#DateOnlyString", "0001-01-01");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Default);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Local);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Unspecified);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Utc);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Ticks);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.String);
+            Assert.AreEqual(DateTime.MinValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
         public void TestMinUnspecified() {
+            var minUnspecified = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified);
             var obj = new TestClass {
-                DateTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified)
+                Default = minUnspecified,
+                Local = minUnspecified,
+                Unspecified = minUnspecified,
+                Utc = minUnspecified,
+                Ticks = minUnspecified,
+                String = minUnspecified,
+                DateOnlyString = minUnspecified.Date,
+                Document = minUnspecified
             };
-            long milliseconds = (long) (DateTime.MinValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            expected = expected.Replace("#Default", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Local", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Utc", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Ticks", "0");
+            expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
+            expected = expected.Replace("#DateOnlyString", "0001-01-01");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Default);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Local);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Unspecified);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Utc);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Ticks);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.String);
+            Assert.AreEqual(DateTime.MinValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
         public void TestMinUtc() {
+            var minUtc = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
             var obj = new TestClass {
-                DateTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc)
+                Default = minUtc,
+                Local = minUtc,
+                Unspecified = minUtc,
+                Utc = minUtc,
+                Ticks = minUtc,
+                String = minUtc,
+                DateOnlyString = minUtc.Date,
+                Document = minUtc
             };
-            long milliseconds = (long) (DateTime.MinValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            expected = expected.Replace("#Default", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Local", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Utc", "{ '$date' : -62135596800000 }");
+            expected = expected.Replace("#Ticks", "0");
+            expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
+            expected = expected.Replace("#DateOnlyString", "0001-01-01");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Default);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Local);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Unspecified);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Utc);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Ticks);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.String);
+            Assert.AreEqual(DateTime.MinValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
         public void TestMaxLocal() {
+            var maxLocal = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local);
             var obj = new TestClass {
-                DateTime = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local)
+                Default = maxLocal,
+                Local = maxLocal,
+                Unspecified = maxLocal,
+                Utc = maxLocal,
+                Ticks = maxLocal,
+                String = maxLocal,
+                DateOnlyString = maxLocal.Date,
+                Document = maxLocal
             };
-            long milliseconds = (long) (DateTime.MaxValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            expected = expected.Replace("#Default", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Local", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Ticks", "3155378975999999999");
+            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
+            expected = expected.Replace("#DateOnlyString", "9999-12-31");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Default);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Local);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Unspecified);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Utc);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Ticks);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.String);
+            Assert.AreEqual(DateTime.MaxValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
         public void TestMaxUnspecified() {
+            var maxUnspecified = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified);
             var obj = new TestClass {
-                DateTime = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified)
+                Default = maxUnspecified,
+                Local = maxUnspecified,
+                Unspecified = maxUnspecified,
+                Utc = maxUnspecified,
+                Ticks = maxUnspecified,
+                String = maxUnspecified,
+                DateOnlyString = maxUnspecified.Date,
+                Document = maxUnspecified
             };
-            long milliseconds = (long) (DateTime.MaxValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            expected = expected.Replace("#Default", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Local", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Ticks", "3155378975999999999");
+            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
+            expected = expected.Replace("#DateOnlyString", "9999-12-31");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Default);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Local);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Unspecified);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Utc);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Ticks);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.String);
+            Assert.AreEqual(DateTime.MaxValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
         public void TestMaxUtc() {
+            var maxUtc = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
             var obj = new TestClass {
-                DateTime = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc)
+                Default = maxUtc,
+                Local = maxUtc,
+                Unspecified = maxUtc,
+                Utc = maxUtc,
+                Ticks = maxUtc,
+                String = maxUtc,
+                DateOnlyString = maxUtc.Date,
+                Document = maxUtc
             };
-            long milliseconds = (long) (DateTime.MaxValue - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            expected = expected.Replace("#Default", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Local", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Ticks", "3155378975999999999");
+            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
+            expected = expected.Replace("#DateOnlyString", "9999-12-31");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Default);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Local);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Unspecified);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Utc);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Ticks);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.String);
+            Assert.AreEqual(DateTime.MaxValue.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(DateTime.MaxValue, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
         public void TestLocal() {
+            var local = DateTime.Now;
+            var utc = local.ToUniversalTime();
             var obj = new TestClass {
-                DateTime = new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Local)
+                Default = local,
+                Local = local,
+                Unspecified = local,
+                Utc = local,
+                Ticks = local,
+                String = local,
+                DateOnlyString = local.Date,
+                Document = local
             };
-            long milliseconds = (long) (obj.DateTime.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            var milliseconds = (long) (utc - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var utcJson = "{ '$date' : # }".Replace("#", milliseconds.ToString());
+            expected = expected.Replace("#Default", utcJson);
+            expected = expected.Replace("#Local", utcJson);
+            expected = expected.Replace("#Unspecified", utcJson);
+            expected = expected.Replace("#Utc", utcJson);
+            expected = expected.Replace("#Ticks", utc.Ticks.ToString());
+            expected = expected.Replace("#String", XmlConvert.ToString(local, XmlDateTimeSerializationMode.RoundtripKind));
+            expected = expected.Replace("#DateOnlyString", local.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            var utcTruncated = BsonConstants.UnixEpoch.AddMilliseconds(milliseconds); // loss of precision
+            var localTruncated = utcTruncated.ToLocalTime();
+            Assert.AreEqual(utcTruncated, rehydrated.Default);
+            Assert.AreEqual(localTruncated, rehydrated.Local);
+            Assert.AreEqual(localTruncated, rehydrated.Unspecified);
+            Assert.AreEqual(utcTruncated, rehydrated.Utc);
+            Assert.AreEqual(utc, rehydrated.Ticks);
+            Assert.AreEqual(utc, rehydrated.String);
+            Assert.AreEqual(local.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(utc, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
         public void TestUnspecified() {
+            var unspecified = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+            var utc = unspecified.ToUniversalTime();
             var obj = new TestClass {
-                DateTime = new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Unspecified)
+                Default = unspecified,
+                Local = unspecified,
+                Unspecified = unspecified,
+                Utc = unspecified,
+                Ticks = unspecified,
+                String = unspecified,
+                DateOnlyString = unspecified.Date,
+                Document = unspecified
             };
-            long milliseconds = (long) (obj.DateTime.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            var milliseconds = (long) (utc - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var utcJson = "{ '$date' : # }".Replace("#", milliseconds.ToString());
+            expected = expected.Replace("#Default", utcJson);
+            expected = expected.Replace("#Local", utcJson);
+            expected = expected.Replace("#Unspecified", utcJson);
+            expected = expected.Replace("#Utc", utcJson);
+            expected = expected.Replace("#Ticks", utc.Ticks.ToString());
+            expected = expected.Replace("#String", XmlConvert.ToString(unspecified, XmlDateTimeSerializationMode.RoundtripKind));
+            expected = expected.Replace("#DateOnlyString", unspecified.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            var utcTruncated = BsonConstants.UnixEpoch.AddMilliseconds(milliseconds); // loss of precision
+            var localTruncated = utcTruncated.ToLocalTime();
+            Assert.AreEqual(utcTruncated, rehydrated.Default);
+            Assert.AreEqual(localTruncated, rehydrated.Local);
+            Assert.AreEqual(localTruncated, rehydrated.Unspecified);
+            Assert.AreEqual(utcTruncated, rehydrated.Utc);
+            Assert.AreEqual(utc, rehydrated.Ticks);
+            Assert.AreEqual(utc, rehydrated.String);
+            Assert.AreEqual(unspecified.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(utc, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
 
         [Test]
         public void TestUtc() {
+            var utc = DateTime.UtcNow;
             var obj = new TestClass {
-                DateTime = new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Utc)
+                Default = utc,
+                Local = utc,
+                Unspecified = utc,
+                Utc = utc,
+                Ticks = utc,
+                String = utc,
+                DateOnlyString = utc.Date,
+                Document = utc
             };
-            long milliseconds = (long) (obj.DateTime - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = ("{ 'DateTime' : { '$date' : " + milliseconds.ToString() + " } }").Replace("'", "\"");
+            var expected = expectedTemplate;
+            var milliseconds = (long) (utc - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var utcJson = "{ '$date' : # }".Replace("#", milliseconds.ToString());
+            expected = expected.Replace("#Default", utcJson);
+            expected = expected.Replace("#Local", utcJson);
+            expected = expected.Replace("#Unspecified", utcJson);
+            expected = expected.Replace("#Utc", utcJson);
+            expected = expected.Replace("#Ticks", utc.Ticks.ToString());
+            expected = expected.Replace("#String", XmlConvert.ToString(utc, XmlDateTimeSerializationMode.RoundtripKind));
+            expected = expected.Replace("#DateOnlyString", utc.Date.ToString("yyyy-MM-dd"));
+            expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            var utcTruncated = BsonConstants.UnixEpoch.AddMilliseconds(milliseconds); // loss of precision
+            var localTruncated = utcTruncated.ToLocalTime();
+            Assert.AreEqual(utcTruncated, rehydrated.Default);
+            Assert.AreEqual(localTruncated, rehydrated.Local);
+            Assert.AreEqual(localTruncated, rehydrated.Unspecified);
+            Assert.AreEqual(utcTruncated, rehydrated.Utc);
+            Assert.AreEqual(utc, rehydrated.Ticks);
+            Assert.AreEqual(utc, rehydrated.String);
+            Assert.AreEqual(utc.Date, rehydrated.DateOnlyString);
+            Assert.AreEqual(utc, rehydrated.Document);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Default.Kind);
+            Assert.AreEqual(DateTimeKind.Local, rehydrated.Local.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, rehydrated.Unspecified.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Utc.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Ticks.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.String.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
+            Assert.AreEqual(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
     }
 
     [TestFixture]
     public class DoubleSerializerTests {
         public class TestClass {
-            public double Double { get; set; }
+            public double D;
+            [BsonRepresentation(BsonType.Int32)]
+            public double I;
+            [BsonRepresentation(BsonType.Int64)]
+            public double L;
+            [BsonRepresentation(BsonType.String)]
+            public double S;
         }
 
         [Test]
         public void TestMin() {
             var obj = new TestClass {
-                Double = double.MinValue
+                D = double.MinValue,
+                I = 0,
+                L = 0,
+                S = double.MinValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Double' : " + double.MinValue.ToString(CultureInfo.InvariantCulture) + " }").Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", XmlConvert.ToString(double.MinValue));
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -228,10 +558,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMinusOne() {
             var obj = new TestClass {
-                Double = -1.0
+                D = -1.0,
+                I = -1.0,
+                L = -1.0,
+                S = -1.0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : -1 }".Replace("'", "\"");
+            var expected = "{ 'D' : -1, 'I' : -1, 'L' : -1, 'S' : '-1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -242,10 +575,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestZero() {
             var obj = new TestClass {
-                Double = 0.0
+                D = 0.0,
+                I = 0.0,
+                L = 0.0,
+                S = 0.0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : 0 }".Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : 0, 'S' : '0' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -256,10 +592,30 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestOne() {
             var obj = new TestClass {
-                Double = 1.0
+                D = 1.0,
+                I = 1.0,
+                L = 1.0,
+                S = 1.0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : 1 }".Replace("'", "\"");
+            var expected = "{ 'D' : 1, 'I' : 1, 'L' : 1, 'S' : '1' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestOnePointFive() {
+            var obj = new TestClass {
+                D = 1.5,
+                I = 1.5,
+                L = 1.5,
+                S = 1.5
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'D' : 1.5, 'I' : 1, 'L' : 1, 'S' : '1.5' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -270,10 +626,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMax() {
             var obj = new TestClass {
-                Double = double.MaxValue
+                D = double.MaxValue,
+                I = 0,
+                L = 0,
+                S = double.MaxValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Double' : " + double.MaxValue.ToString(CultureInfo.InvariantCulture) + " }").Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", XmlConvert.ToString(double.MaxValue));
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -284,10 +645,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestNaN() {
             var obj = new TestClass {
-                Double = double.NaN
+                D = double.NaN,
+                I = 0,
+                L = 0,
+                S = double.NaN
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : NaN }".Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", "NaN");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -298,10 +664,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestNegativeInfinity() {
             var obj = new TestClass {
-                Double = double.NegativeInfinity
+                D = double.NegativeInfinity,
+                I = 0,
+                L = 0,
+                S = double.NegativeInfinity
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : -Infinity }".Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", "-INF");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -312,10 +683,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestPositiveInfinity() {
             var obj = new TestClass {
-                Double = double.PositiveInfinity
+                D = double.PositiveInfinity,
+                I = 0,
+                L = 0,
+                S = double.PositiveInfinity
             };
             var json = obj.ToJson();
-            var expected = "{ 'Double' : Infinity }".Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : 0, 'L' : 0, 'S' : '#' }";
+            expected = expected.Replace("#", "INF");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -327,16 +703,23 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class GuidSerializerTests {
         public class TestClass {
-            public Guid Guid { get; set; }
+            public Guid Binary { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public Guid String { get; set; }
         }
 
         [Test]
         public void TestEmpty() {
+            var guid = Guid.Empty;
             var obj = new TestClass {
-                Guid = Guid.Empty
+                Binary = guid,
+                String = guid
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Guid' : { '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' } }").Replace("'", "\"");
+            var expected = "{ 'Binary' : #B, 'String' : #S }";
+            expected = expected.Replace("#B", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }");
+            expected = expected.Replace("#S", "'00000000-0000-0000-0000-000000000000'");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -346,12 +729,17 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestNew() {
+            var guid = Guid.NewGuid();
             var obj = new TestClass {
-                Guid = Guid.NewGuid()
+                Binary = guid,
+                String = guid
             };
             var json = obj.ToJson();
-            var base64 = Convert.ToBase64String(obj.Guid.ToByteArray()).Replace("\\", "\\\\");
-            var expected = ("{ 'Guid' : { '$binary' : '" + base64 + "', '$type' : '03' } }").Replace("'", "\"");
+            var base64 = Convert.ToBase64String(obj.Binary.ToByteArray()).Replace("\\", "\\\\");
+            var expected = "{ 'Binary' : #B, 'String' : #S }";
+            expected = expected.Replace("#B", "{ '$binary' : '" + base64 + "', '$type' : '03' }");
+            expected = expected.Replace("#S", "'" + guid.ToString() + "'");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -363,16 +751,28 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class Int32SerializerTests {
         public class TestClass {
-            public int Int32 { get; set; }
+            [BsonRepresentation(BsonType.Double)]
+            public int D;
+            [BsonRepresentation(BsonType.Int32)]
+            public int I;
+            [BsonRepresentation(BsonType.Int64)]
+            public int L;
+            [BsonRepresentation(BsonType.String)]
+            public int S;
         }
 
         [Test]
         public void TestMin() {
             var obj = new TestClass {
-                Int32 = int.MinValue
+                D = int.MinValue,
+                I = int.MinValue,
+                L = int.MinValue,
+                S = int.MinValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Int32' : " + int.MinValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : #, 'L' : #, 'S' : '#' }";
+            expected = expected.Replace("#", int.MinValue.ToString());
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -383,10 +783,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMinusOne() {
             var obj = new TestClass {
-                Int32 = -1
+                D = -1,
+                I = -1,
+                L = -1,
+                S = -1
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int32' : -1 }".Replace("'", "\"");
+            var expected = "{ 'D' : -1, 'I' : -1, 'L' : -1, 'S' : '-1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -397,10 +800,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestZero() {
             var obj = new TestClass {
-                Int32 = 0
+                D = 0,
+                I = 0,
+                L = 0,
+                S = 0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int32' : 0 }".Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : 0, 'S' : '0' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -411,10 +817,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestOne() {
             var obj = new TestClass {
-                Int32 = 1
+                D = 1,
+                I = 1,
+                L = 1,
+                S = 1
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int32' : 1 }".Replace("'", "\"");
+            var expected = "{ 'D' : 1, 'I' : 1, 'L' : 1, 'S' : '1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -425,10 +834,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMax() {
             var obj = new TestClass {
-                Int32 = int.MaxValue
+                D = int.MaxValue,
+                I = int.MaxValue,
+                L = int.MaxValue,
+                S = int.MaxValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Int32' : " + int.MaxValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : #, 'I' : #, 'L' : #, 'S' : '#' }";
+            expected = expected.Replace("#", int.MaxValue.ToString());
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -440,16 +854,28 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class Int64SerializerTests {
         public class TestClass {
-            public long Int64 { get; set; }
+            [BsonRepresentation(BsonType.Double)]
+            public long D;
+            [BsonRepresentation(BsonType.Int32)]
+            public long I;
+            [BsonRepresentation(BsonType.Int64)]
+            public long L;
+            [BsonRepresentation(BsonType.String)]
+            public long S;
         }
 
         [Test]
         public void TestMin() {
             var obj = new TestClass {
-                Int64 = long.MinValue
+                D = 0,
+                I = 0,
+                L = long.MinValue,
+                S = long.MinValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Int64' : " + long.MinValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : #, 'S' : '#' }";
+            expected = expected.Replace("#", long.MinValue.ToString());
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -460,10 +886,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMinusOne() {
             var obj = new TestClass {
-                Int64 = -1
+                D = -1,
+                I = -1,
+                L = -1,
+                S = -1
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int64' : -1 }".Replace("'", "\"");
+            var expected = "{ 'D' : -1, 'I' : -1, 'L' : -1, 'S' : '-1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -474,10 +903,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestZero() {
             var obj = new TestClass {
-                Int64 = 0
+                D = 0,
+                I = 0,
+                L = 0,
+                S = 0
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int64' : 0 }".Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : 0, 'S' : '0' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -488,10 +920,13 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestOne() {
             var obj = new TestClass {
-                Int64 = 1
+                D = 1,
+                I = 1,
+                L = 1,
+                S = 1
             };
             var json = obj.ToJson();
-            var expected = "{ 'Int64' : 1 }".Replace("'", "\"");
+            var expected = "{ 'D' : 1, 'I' : 1, 'L' : 1, 'S' : '1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -502,10 +937,15 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestMax() {
             var obj = new TestClass {
-                Int64 = long.MaxValue
+                D = 0,
+                I = 0,
+                L = long.MaxValue,
+                S = long.MaxValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'Int64' : " + long.MaxValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'D' : 0, 'I' : 0, 'L' : #, 'S' : '#' }";
+            expected = expected.Replace("#", long.MaxValue.ToString());
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -518,15 +958,22 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     public class ObjectIdSerializerTests {
         public class TestClass {
             public ObjectId ObjectId { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public ObjectId String { get; set; }
         }
 
         [Test]
         public void TestSerializer() {
+            var objectId = new ObjectId(1, 2, 3, 4);
             var obj = new TestClass {
-                ObjectId = new ObjectId(1, 2, 3, 4)
+                ObjectId = objectId,
+                String = objectId
             };
             var json = obj.ToJson();
-            var expected = ("{ 'ObjectId' : { '$oid' : '000000010000020003000004' } }").Replace("'", "\"");
+            var expected = ("{ 'ObjectId' : #O, 'String' : #S }");
+            expected = expected.Replace("#O", "{ '$oid' : '000000010000020003000004' }");
+            expected = expected.Replace("#S", "'000000010000020003000004'");
+            expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

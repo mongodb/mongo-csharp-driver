@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,17 +32,14 @@ namespace MongoDB.Driver {
     public class MongoUrl {
         #region private static fields
         private static object staticLock = new object();
-        private static Dictionary<string, MongoUrl> mongoUrls = new Dictionary<string, MongoUrl>();
+        private static Dictionary<string, MongoUrl> cache = new Dictionary<string, MongoUrl>();
         #endregion
 
         #region private fields
-        private ConnectionMode connectionMode;
-        private MongoCredentials credentials;
+        private MongoServerSettings serverSettings = new MongoServerSettings();
+        private double waitQueueMultiple;
+        private int waitQueueSize;
         private string databaseName;
-        private string replicaSetName;
-        private SafeMode safeMode;
-        private IEnumerable<MongoServerAddress> servers;
-        private bool slaveOk;
         private string url;
         #endregion
 
@@ -50,53 +47,97 @@ namespace MongoDB.Driver {
         public MongoUrl(
             string url
         ) {
-            var builder = new MongoUrlBuilder(url);
-            this.url = builder.ToString(); // keep canonical form
-            this.credentials = builder.Credentials;
-            this.servers = builder.Servers;
+            var builder = new MongoUrlBuilder(url); // parses url
+            serverSettings = builder.ToServerSettings();
+            serverSettings.Freeze();
+            this.waitQueueMultiple = builder.WaitQueueMultiple;
+            this.waitQueueSize = builder.WaitQueueSize;
             this.databaseName = builder.DatabaseName;
-            this.connectionMode = builder.ConnectionMode;
-            this.replicaSetName = builder.ReplicaSetName;
-            this.safeMode = builder.SafeMode ?? SafeMode.False; // never null
-            this.slaveOk = builder.SlaveOk;
+            this.url = builder.ToString(); // keep canonical form
         }
         #endregion
 
         #region public properties
-        public ConnectionMode ConnectionMode {
-            get { return connectionMode; }
+        public int ComputedWaitQueueSize {
+            get {
+                if (waitQueueMultiple == 0.0) {
+                    return waitQueueSize;
+                } else {
+                    return (int) (waitQueueMultiple * serverSettings.MaxConnectionPoolSize);
+                }
+            }
         }
 
-        public MongoCredentials Credentials {
-            get { return credentials; }
+        public ConnectionMode ConnectionMode {
+            get { return serverSettings.ConnectionMode; }
+        }
+
+        public TimeSpan ConnectTimeout {
+            get { return serverSettings.ConnectTimeout; }
         }
 
         public string DatabaseName {
             get { return databaseName; }
         }
 
+        public MongoCredentials DefaultCredentials {
+            get { return serverSettings.DefaultCredentials; }
+        }
+
+        public TimeSpan MaxConnectionIdleTime {
+            get { return serverSettings.MaxConnectionIdleTime; }
+        }
+
+        public TimeSpan MaxConnectionLifeTime {
+            get { return serverSettings.MaxConnectionLifeTime; }
+        }
+
+        public int MaxConnectionPoolSize {
+            get { return serverSettings.MaxConnectionPoolSize; }
+        }
+
+        public int MinConnectionPoolSize {
+            get { return serverSettings.MinConnectionPoolSize; }
+        }
+
         public string ReplicaSetName {
-            get { return replicaSetName; }
+            get { return serverSettings.ReplicaSetName; }
         }
 
         public SafeMode SafeMode {
-            get { return safeMode; }
+            get { return serverSettings.SafeMode; }
         }
 
         public MongoServerAddress Server {
-            get { return (servers == null) ? null : servers.Single(); }
+            get { return serverSettings.Server; }
         }
 
         public IEnumerable<MongoServerAddress> Servers {
-            get { return servers; }
+            get { return serverSettings.Servers; }
         }
 
         public bool SlaveOk {
-            get { return slaveOk; }
+            get { return serverSettings.SlaveOk; }
+        }
+
+        public TimeSpan SocketTimeout {
+            get { return serverSettings.SocketTimeout; }
         }
 
         public string Url {
             get { return url; }
+        }
+
+        public double WaitQueueMultiple {
+            get { return waitQueueMultiple; }
+        }
+
+        public int WaitQueueSize {
+            get { return waitQueueSize; }
+        }
+
+        public TimeSpan WaitQueueTimeout {
+            get { return serverSettings.WaitQueueTimeout; }
         }
         #endregion
 
@@ -117,22 +158,27 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        public static void ClearCache() {
+            cache.Clear();
+        }
+
         public static MongoUrl Create(
             string url
         ) {
+            // cache previously seen urls to avoid repeated parsing
             lock (staticLock) {
                 MongoUrl mongoUrl;
-                if (!mongoUrls.TryGetValue(url, out mongoUrl)) {
+                if (!cache.TryGetValue(url, out mongoUrl)) {
                     mongoUrl = new MongoUrl(url);
                     var canonicalUrl = mongoUrl.ToString();
                     if (canonicalUrl != url) {
-                        if (mongoUrls.ContainsKey(canonicalUrl)) {
-                            mongoUrl = mongoUrls[canonicalUrl]; // use existing MongoUrl
+                        if (cache.ContainsKey(canonicalUrl)) {
+                            mongoUrl = cache[canonicalUrl]; // use existing MongoUrl
                         } else {
-                            mongoUrls[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
+                            cache[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
                         }
                     }
-                    mongoUrls[url] = mongoUrl;
+                    cache[url] = mongoUrl;
                 }
                 return mongoUrl;
             }
@@ -156,6 +202,10 @@ namespace MongoDB.Driver {
         public override int GetHashCode() {
             // this works because URL is in canonical form
             return url.GetHashCode();
+        }
+
+        public MongoServerSettings ToServerSettings() {
+            return serverSettings;
         }
 
         public override string ToString() {

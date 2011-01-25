@@ -1,4 +1,4 @@
-﻿/* Copyright 2010 10gen Inc.
+﻿/* Copyright 2010-2011 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,32 +23,32 @@ namespace MongoDB.Bson.IO {
     public abstract class BsonBaseReader : BsonReader {
         #region protected fields
         protected bool disposed = false;
-        protected BsonReadState state;
+        protected BsonReaderState state;
         protected BsonType currentBsonType;
+        protected string currentName;
         #endregion
 
         #region constructors
         protected BsonBaseReader() {
-            state = BsonReadState.Initial;
-            currentBsonType = BsonType.Document;
+            state = BsonReaderState.Initial;
         }
         #endregion
 
         #region public properties
         public override BsonType CurrentBsonType {
             get {
-                if (state == BsonReadState.Initial || state == BsonReadState.Done || state == BsonReadState.ScopeDocument) {
-                    return BsonType.Document; // the root level is sort of like sitting at a value of type Document
+                if (state == BsonReaderState.Initial || state == BsonReaderState.Done || state == BsonReaderState.ScopeDocument || state == BsonReaderState.Type) {
+                    ReadBsonType();
                 }
-                if (state != BsonReadState.Value) {
-                    var message = string.Format("CurrentBsonType cannot be called when ReadState is: {0}", state);
+                if (state != BsonReaderState.Value) {
+                    var message = string.Format("CurrentBsonType cannot be called when State is: {0}", state);
                     throw new InvalidOperationException(message);
                 }
                 return currentBsonType;
             }
         }
 
-        public override BsonReadState ReadState {
+        public override BsonReaderState State {
             get { return state; }
         }
         #endregion
@@ -67,8 +67,8 @@ namespace MongoDB.Bson.IO {
             string name
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReadState.Type) {
-                var message = string.Format("FindElement cannot be called when ReadState is: {0}", state);
+            if (state != BsonReaderState.Type) {
+                var message = string.Format("FindElement cannot be called when State is: {0}", state);
                 throw new InvalidOperationException(message);
             }
 
@@ -91,8 +91,8 @@ namespace MongoDB.Bson.IO {
             string name
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReadState.Type) {
-                var message = string.Format("FindString cannot be called when ReadState is: {0}", state);
+            if (state != BsonReaderState.Type) {
+                var message = string.Format("FindString cannot be called when State is: {0}", state);
                 throw new InvalidOperationException(message);
             }
 
@@ -181,6 +181,20 @@ namespace MongoDB.Bson.IO {
             ReadMinKey();
         }
 
+        public override string ReadName() {
+            if (disposed) { ThrowObjectDisposedException(); }
+            if (state == BsonReaderState.Type) {
+                ReadBsonType();
+            }
+            if (state != BsonReaderState.Name) {
+                var message = string.Format("ReadName cannot be called when State is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            state = BsonReaderState.Value;
+            return currentName;
+        }
+
         public override void ReadNull(
             string name
         ) {
@@ -244,8 +258,15 @@ namespace MongoDB.Bson.IO {
             string methodName,
             BsonType requiredBsonType
         ) {
-            if (state != BsonReadState.Value) {
-                var message = string.Format("{0} cannot be called when ReadState is: {1}", methodName, state);
+            if (state == BsonReaderState.Initial || state == BsonReaderState.ScopeDocument || state == BsonReaderState.Type) {
+                ReadBsonType();
+            }
+            if (state == BsonReaderState.Name) {
+                // ignore name
+                state = BsonReaderState.Value;
+            }
+            if (state != BsonReaderState.Value) {
+                var message = string.Format("{0} cannot be called when State is: {1}", methodName, state);
                 throw new InvalidOperationException(message);
             }
             if (currentBsonType != requiredBsonType) {
