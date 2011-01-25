@@ -551,7 +551,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestNegativeInfinity() {
             var obj = new TestClass(double.NegativeInfinity);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-Infinity").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-INF").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -563,7 +563,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         public void TestPositiveInfinity() {
             var obj = new TestClass(double.PositiveInfinity);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Infinity").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "INF").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

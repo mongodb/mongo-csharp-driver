@@ -117,7 +117,7 @@ namespace MongoDB.Bson.IO {
                     WriteNameHelper(name);
                     textWriter.Write("Date({0})", milliseconds);
                     break;
-                case BsonJsonOutputMode.ISO:
+                case JsonOutputMode.ISO:
                     WriteNameHelper(name);
                     textWriter.Write("\"{0}\"", value.ToString("yyyy-MM-ddTHH:mm:ssZ"));
                     break;
