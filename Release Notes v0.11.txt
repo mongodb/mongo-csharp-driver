@@ -1,46 +1,45 @@
-0.11 Release Notes
+C# Driver Version 0.11 Release Notes
 
-New public interfaces:
+Summary:
+    Low level serialization and I/O changes
+    Can deserialize extra elements into a BsonDocument property
+    New DateTimeSerializationOptions
+    New RepresentationSerializationOptions (more types and control over overflow and truncation)
+    New settings classes (MongoServerSettings, MongoDatabaseSettings, MongoCollectionSettings)
+    New JsonReader
+    JsonWriter class names shortened (BsonJsonXyz -> JsonXyz)
+    New BsonDocumentReader/Writer (can serialize/deserialize to/from BsonDocument)
+    GeoNear command fully implemented
+    Query builder support for Near, WithinCircle and WithinRectangle geo queries
+    Query.And can now handle some queries that previously resulted in duplicate name exceptions
+    Support for new inline map/reduce results
+    Connection pool settings (min/max size, timeouts)
+    MaxDocumentSize retrieved from server (was 4MiB in 1.6.x and is changing over time)
+
+
+
+BSON Library changes:
+
+New public interfaces
     IBsonSerializationOptions
     IExtraElementsMemberConvention
-    IMongoGeoNearOptions
 
-New public classes classes:
-    BsonExtraElementsAttributes
-    NamedExtraElementsMemberConvention
-    DateTimeSerializationOptions
-    DocumentSerializationOptions
-    RepresentationSerializationOptions
-    TruncationException
+New public lasses:
     BsonBaseReader
     BsonDocumentReader
     BsonDocumentWriter
+    BsonExtraElementsAttributes
+    DateTimeSerializationOptions
+    DocumentSerializationOptions
     JsonOutputMode (renamed, was BsonJsonOutputMode)
     JsonReader
     JsonWriter (renamed, was BsonJsonWriter)
     JsonWriterSettings (renamed, was BsonJsonWriterSettings)
-    GeoNearOptionsBuilder
-    GeoNearOptionsDocument
-    GeoNearOptionsWrapper
-    MongoServerSettings
-    MongoDatabaseSettings
-    MongoCollectionSettings
-
-BsonRepresentationAttribute
-    added AllowOverflow
-    added AllowTruncation
-
-ConventionProfile
-    added ExtraElementsMemberConvention
-    added SetExtraElementsMemberConvention
+    NamedExtraElementsMemberConvention
+    RepresentationSerializationOptions
+    TruncationException
 
 BooleanSerializer
-DoubleSerializer
-GuidSerializer
-Int16Serializer
-Int32Serializer
-Int64Serializer
-ObjectIdSerializer
 BsonBinaryDataSerializer
 BsonBooleanSerializer
 BsonDoubleSerializer
@@ -54,24 +53,18 @@ ByteSerializer
 CultureInfoSerializer
 DateTimeOffsetSerializer
 DecimalSerializer
+DoubleSerializer
+GuidSerializer
+Int16Serializer
+Int32Serializer
+Int64Serializer
+ObjectIdSerializer
 SByteSerializer
 SingleSerializer
 UInt16Serializer
 UInt32Serializer
 UInt64Serializer
     added support for RepresentationSerializationOptions
-
-BsonSerializer
-    RegisterSerializer uses only type
-    Serialize now takes an options parameter
-
-DateTimeSerializer
-BsonDateTimeSerializer
-    added support for DateTimeSerializationOptions
-
-BsonDocumentSerializer
-BsonDocumentWrapperSerializer
-    added support for DocumentSerializationOptions
 
 BsonClassMap
     added support for extra elements member
@@ -80,54 +73,77 @@ BsonClassMapSerializer
     added support for extra elements member
     added support for serialization options
 
-BsonReader
-    removed FindElement
-    GetBookmark and ReturnToBookmark now use abstract BsonReaderBookmark class
+BsonDateTimeSerializer
+DateTimeSerializer
+    added support for DateTimeSerializationOptions
 
 BsonDocument
     added Wrap and WrapMultiple methods
     added support for DocumentSerializationOptions
 
+BsonDocumentSerializer
+BsonDocumentWrapperSerializer
+    added support for DocumentSerializationOptions
+
 BsonDocumentWrapper
     added support for serialization options
-
-Singletons renamed Instance
-
-BsonValue
-    now implements IConvertible
 
 BsonExtensionMethods
     added overloads of ToBson, ToJson and ToBsonDocument that take options parameter
 
-MapReduceOptions
-    added MapReduceOutput helper class
+BsonReader(and subclasses)
+    removed FindElement
+    GetBookmark and ReturnToBookmark now use abstract BsonReaderBookmark class
 
-Query builder
-    Query.And now rewrites some queries that used to result in duplicate element name exceptions
-    added Near methods
-    added WithinCircle and WithinRectangle methods
+BsonRepresentationAttribute
+    added AllowOverflow
+    added AllowTruncation
+
+BsonSerializer
+    RegisterSerializer by type only (not options)
+    Serialize now takes an options parameter
+
+BsonValue
+    now implements IConvertible
+
+ConventionProfile
+    added ExtraElementsMemberConvention
+    added SetExtraElementsMemberConvention
 
 
-Update builder
-    added Pull(name, query) overload
-    added PullAllWrapped methods
-    added PullWrapped method
-    added PushAllWrapped methods
-    added PushWrapped method
-    added SetWrapped method
+
+Driver changes:
+
+New public interfaces:
+    IMongoGeoNearOptions
+
+New public classes:
+    GeoNearOptionsBuilder
+    GeoNearOptionsDocument
+    GeoNearOptionsWrapper
+    MongoServerSettings
+    MongoDatabaseSettings
+    MongoCollectionSettings
 
 CommandResult
     no longer a subclass of BsonDocument
     instead has Response property of type BsonDocument
+
+DirectConnector
+ReplicaSetConnector
+    get MaxDocumentSize and MaxMessageLength from server
 
 FindAndModifyResult
     renamed Document property to ModifiedDocument
     renamed GetDocument method to GetModifiedDocument
 
 GeoNearResult
-    implemented
+    now fully implemented
     added GeoNearHits and GeoNearHit helper classes
     added GeoNearStats helper class
+
+MapReduceOptions
+    added MapReduceOutput helper class
 
 MapReduceResults
     moved file to CommandResults folder
@@ -139,6 +155,15 @@ MongoCollection
     added settings field (replaces safeMode and assignIdOnInsert)
     added overload of GeoNearAs that takes options parameter
     added GeoNear methods to MongoCollection<TDefaultDocument>
+
+MongoConnection
+    don't connect in constructor (fast construction)
+    instead connect on first use
+
+MongoConnectionPool
+    implemented wait queue
+    implemented min and max size
+    implemented recycling of very old connections (max lifetime)
 
 MongoConnectionStringBuilder
     use only if you want to use .NET connection string format
@@ -174,15 +199,17 @@ MongoUrlBuilder
         MaxConnectionIdleTime, MaxConnectionLifeTime, MaxConnectionPoolSize, MinConnectionPoolSize,
         SocketTimeout, WaitQueueMultiple, WaitQueueSize, WaitQueueTimeout
 
-DirectConnector
-ReplicaSetConnector
-    get MaxDocumentSize and MaxMessageLength from server
+Query builder
+    Query.And now rewrites some queries that used to result in duplicate element name exceptions
+    added Near methods
+    added WithinCircle and WithinRectangle methods
 
-MongoConnection
-    don't connect in constructor (fast construction)
-    instead connect on first use
+Singletons renamed Instance
 
-MongoConnectionPool
-    implemented wait queue
-    implemented min and max size
-    implemented recycling of very old connections (max lifetime)
+Update builder
+    added Pull(name, query) overload
+    added PullAllWrapped methods
+    added PullWrapped method
+    added PushAllWrapped methods
+    added PushWrapped method
+    added SetWrapped method
