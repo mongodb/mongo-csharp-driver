@@ -180,6 +180,20 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(40.74, hit2["Location"].AsBsonArray[1].AsDouble);
             Assert.AreEqual("Two", hit2["Name"].AsString);
             Assert.AreEqual("Coffee", hit2["Type"].AsString);
+
+            query = Query.Near("Location", -74.0, 40.74, 0.5); // with maxDistance
+            hits = collection.Find(query).ToArray();
+            Assert.AreEqual(1, hits.Length);
+
+            hit0 = hits[0];
+            Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("10gen", hit0["Name"].AsString);
+            Assert.AreEqual("Office", hit0["Type"].AsString);
+
+            query = Query.Near("Location", -174.0, 40.74, 0.5); // with no hits
+            hits = collection.Find(query).ToArray();
+            Assert.AreEqual(0, hits.Length);
         }
 
         [Test]
@@ -212,6 +226,20 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(41.73, hit2["Location"].AsBsonArray[1].AsDouble);
             Assert.AreEqual("Three", hit2["Name"].AsString);
             Assert.AreEqual("Coffee", hit2["Type"].AsString);
+
+            query = Query.Near("Location", -74.0, 40.74, 0.5); // with maxDistance
+            hits = collection.Find(query).ToArray();
+            Assert.AreEqual(1, hits.Length);
+
+            hit0 = hits[0];
+            Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("10gen", hit0["Name"].AsString);
+            Assert.AreEqual("Office", hit0["Type"].AsString);
+
+            query = Query.Near("Location", -174.0, 40.74, 0.5); // with no hits
+            hits = collection.Find(query).ToArray();
+            Assert.AreEqual(0, hits.Length);
         }
 
         [Test]
@@ -244,8 +272,15 @@ namespace MongoDB.DriverOnlineTests {
             var query = Query.WithinCircle("Location", -74.0, 40.74, 1.0, false); // not spherical
             var hits = collection.Find(query).ToArray();
             Assert.AreEqual(3, hits.Length);
-
             // note: the hits are unordered
+
+            query = Query.WithinCircle("Location", -74.0, 40.74, 0.5, false); // smaller radius
+            hits = collection.Find(query).ToArray();
+            Assert.AreEqual(1, hits.Length);
+
+            query = Query.WithinCircle("Location", -174.0, 40.74, 1.0, false); // different part of the world
+            hits = collection.Find(query).ToArray();
+            Assert.AreEqual(0, hits.Length);
         }
 
         [Test]
@@ -259,7 +294,28 @@ namespace MongoDB.DriverOnlineTests {
             var query = Query.WithinCircle("Location", -74.0, 40.74, 1.0, true); // spherical
             var hits = collection.Find(query).ToArray();
             Assert.AreEqual(3, hits.Length);
+            // note: the hits are unordered
 
+            query = Query.WithinCircle("Location", -74.0, 40.74, 0.5, false); // smaller radius
+            hits = collection.Find(query).ToArray();
+            Assert.AreEqual(1, hits.Length);
+
+            query = Query.WithinCircle("Location", -174.0, 40.74, 1.0, false); // different part of the world
+            hits = collection.Find(query).ToArray();
+            Assert.AreEqual(0, hits.Length);
+        }
+
+        [Test]
+        public void TestFindWithinRectangle() {
+            if (collection.Exists()) { collection.Drop(); }
+            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+
+            var query = Query.WithinRectangle("Location", -75.0, 40, -73.0, 42.0);
+            var hits = collection.Find(query).ToArray();
+            Assert.AreEqual(3, hits.Length);
             // note: the hits are unordered
         }
 
