@@ -192,6 +192,13 @@ namespace MongoDB.Driver.Builders {
             return new UpdateBuilder().PushWrapped<T>(name, value);
         }
 
+        public static IMongoUpdate Rename(
+            string oldElementName,
+            string newElementName
+        ) {
+            return new UpdateDocument("$rename", new BsonDocument(oldElementName, newElementName));
+        }
+
         // similar to wrap but used when a full document replacement is wanted (<T> allows control over discriminator)
         public static IMongoUpdate Replace<T>(
             T document

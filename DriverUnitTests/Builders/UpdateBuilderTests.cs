@@ -153,6 +153,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestRename() {
+            var update = Update.Rename("old", "new");
+            var expected = "{ '$rename' : { 'old' : 'new' } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestPushAllWrapped() {
             var update = Update.PushAllWrapped("name", a, b);
             var expected = "{ \"$pushAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } }";
