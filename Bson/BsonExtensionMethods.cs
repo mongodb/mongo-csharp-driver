@@ -81,17 +81,11 @@ namespace MongoDB.Bson {
                 return convertibleToBsonDocument.ToBsonDocument(); // use the provided ToBsonDocument method
             }
 
-            // otherwise serialize it and then deserialize it into a new BsonDocument
-            using (var buffer = new BsonBuffer()) {
-                using (var bsonWriter = BsonWriter.Create(buffer)) {
-                    BsonSerializer.Serialize<T>(bsonWriter, obj, options);
-                }
-                buffer.Position = 0;
-                using (var bsonReader = BsonReader.Create(buffer)) {
-                    var document = BsonSerializer.Deserialize<BsonDocument>(bsonReader);
-                    return document;
-                }
-            }
+            // otherwise serialize into a new BsonDocument
+            var document = new BsonDocument();
+            var writer = BsonWriter.Create(document);
+            BsonSerializer.Serialize<T>(writer, obj, options);
+            return document;
         }
 
         public static string ToJson<T>(

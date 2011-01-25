@@ -291,16 +291,16 @@ namespace MongoDB.DriverOnlineTests {
             collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
             collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
-            var query = Query.WithinCircle("Location", -74.0, 40.74, 1.0, true); // spherical
+            var query = Query.WithinCircle("Location", -74.0, 40.74, 0.1, true); // spherical
             var hits = collection.Find(query).ToArray();
             Assert.AreEqual(3, hits.Length);
             // note: the hits are unordered
 
-            query = Query.WithinCircle("Location", -74.0, 40.74, 0.5, false); // smaller radius
+            query = Query.WithinCircle("Location", -74.0, 40.74, 0.01, false); // smaller radius
             hits = collection.Find(query).ToArray();
             Assert.AreEqual(1, hits.Length);
 
-            query = Query.WithinCircle("Location", -174.0, 40.74, 1.0, false); // different part of the world
+            query = Query.WithinCircle("Location", -174.0, 40.74, 0.1, false); // different part of the world
             hits = collection.Find(query).ToArray();
             Assert.AreEqual(0, hits.Length);
         }
