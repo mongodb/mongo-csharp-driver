@@ -478,20 +478,6 @@ namespace MongoDB.Driver.Builders {
             return PushAll(name, (IEnumerable<BsonValue>) values);
         }
 
-        public UpdateBuilder PushWrapped<T>(
-            string name,
-            T value
-        ) {
-            var wrappedValue = BsonDocument.Wrap<T>(value);
-            BsonElement element;
-            if (document.TryGetElement("$push", out element)) {
-                element.Value.AsBsonDocument.Add(name, wrappedValue);
-            } else {
-                document.Add("$push", new BsonDocument(name, wrappedValue));
-            }
-            return this;
-        }
-
         public UpdateBuilder PushAllWrapped<T>(
             string name,
             IEnumerable<T> values
@@ -511,6 +497,20 @@ namespace MongoDB.Driver.Builders {
             params T[] values
         ) {
             return PushAllWrapped(name, (IEnumerable<T>) values);
+        }
+
+        public UpdateBuilder PushWrapped<T>(
+            string name,
+            T value
+        ) {
+            var wrappedValue = BsonDocument.Wrap<T>(value);
+            BsonElement element;
+            if (document.TryGetElement("$push", out element)) {
+                element.Value.AsBsonDocument.Add(name, wrappedValue);
+            } else {
+                document.Add("$push", new BsonDocument(name, wrappedValue));
+            }
+            return this;
         }
 
         public UpdateBuilder Set(
