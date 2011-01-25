@@ -61,6 +61,11 @@ namespace MongoDB.Bson.Serialization {
         public decimal ToDecimal(
             double value
         ) {
+            if (value == double.MinValue) {
+                return decimal.MinValue;
+            } else if (value == double.MaxValue) {
+                return decimal.MaxValue;
+            }
             if (value < (double) decimal.MinValue || value > (double) decimal.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
             } else if (value != (double) (decimal) value) {
@@ -84,6 +89,11 @@ namespace MongoDB.Bson.Serialization {
         public double ToDouble(
             decimal value
         ) {
+            if (value == decimal.MinValue) {
+                return double.MinValue;
+            } else if (value == decimal.MaxValue) {
+                return double.MaxValue;
+            }
             if (value != (decimal) (double) value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
@@ -187,6 +197,11 @@ namespace MongoDB.Bson.Serialization {
         public int ToInt32(
             decimal value
         ) {
+            if (value == decimal.MinValue) {
+                return int.MinValue;
+            } else if (value == decimal.MaxValue) {
+                return int.MaxValue;
+            }
             if (value < int.MinValue || value > int.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
             } else if (value != (decimal) (int) value) {
@@ -265,6 +280,11 @@ namespace MongoDB.Bson.Serialization {
         public long ToInt64(
             decimal value
         ) {
+            if (value == decimal.MinValue) {
+                return long.MinValue;
+            } else if (value == decimal.MaxValue) {
+                return long.MaxValue;
+            }
             if (value < long.MinValue || value > long.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
             } else if (value != (decimal) (long) value) {
