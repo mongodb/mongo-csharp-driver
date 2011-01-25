@@ -213,6 +213,94 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestGeoNearSphericalFalse() {
+            if (collection.Exists()) { collection.Drop(); }
+            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+
+            var options = GeoNearOptions.SetSpherical(false);
+            var result = collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
+            Assert.IsTrue(result.Ok);
+            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+            Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
+            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+            Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
+            Assert.IsTrue(result.Stats.NumberScanned >= 0);
+            Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
+            Assert.AreEqual(3, result.Hits.Count);
+
+            var hit0 = result.Hits[0];
+            Assert.IsTrue(hit0.Distance == 0.0);
+            Assert.AreEqual(-74.0, hit0.RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(40.74, hit0.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("10gen", hit0.RawDocument["Name"].AsString);
+            Assert.AreEqual("Office", hit0.RawDocument["Type"].AsString);
+
+            // with spherical false "Three" is slightly closer than "Two"
+            var hit1 = result.Hits[1];
+            Assert.IsTrue(hit1.Distance > 0.0);
+            Assert.AreEqual(-74.0, hit1.RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(41.73, hit1.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("Three", hit1.RawDocument["Name"].AsString);
+            Assert.AreEqual("Coffee", hit1.RawDocument["Type"].AsString);
+
+            var hit2 = result.Hits[2];
+            Assert.IsTrue(hit2.Distance > 0.0);
+            Assert.IsTrue(hit2.Distance > hit1.Distance);
+            Assert.AreEqual(-75.0, hit2.RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(40.74, hit2.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("Two", hit2.RawDocument["Name"].AsString);
+            Assert.AreEqual("Coffee", hit2.RawDocument["Type"].AsString);
+        }
+
+        [Test]
+        public void TestGeoNearSphericalTrue() {
+            if (collection.Exists()) { collection.Drop(); }
+            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+
+            var options = GeoNearOptions.SetSpherical(true);
+            var result = collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
+            Assert.IsTrue(result.Ok);
+            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+            Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
+            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+            Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
+            Assert.IsTrue(result.Stats.NumberScanned >= 0);
+            Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
+            Assert.AreEqual(3, result.Hits.Count);
+
+            var hit0 = result.Hits[0];
+            Assert.IsTrue(hit0.Distance == 0.0);
+            Assert.AreEqual(-74.0, hit0.RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(40.74, hit0.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("10gen", hit0.RawDocument["Name"].AsString);
+            Assert.AreEqual("Office", hit0.RawDocument["Type"].AsString);
+
+            // with spherical true "Two" is considerably closer than "Three"
+            var hit1 = result.Hits[1];
+            Assert.IsTrue(hit1.Distance > 0.0);
+            Assert.AreEqual(-75.0, hit1.RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(40.74, hit1.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("Two", hit1.RawDocument["Name"].AsString);
+            Assert.AreEqual("Coffee", hit1.RawDocument["Type"].AsString);
+
+            var hit2 = result.Hits[2];
+            Assert.IsTrue(hit2.Distance > 0.0);
+            Assert.IsTrue(hit2.Distance > hit1.Distance);
+            Assert.AreEqual(-74.0, hit2.RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(41.73, hit2.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("Three", hit2.RawDocument["Name"].AsString);
+            Assert.AreEqual("Coffee", hit2.RawDocument["Type"].AsString);
+        }
+
+        [Test]
         public void TestGetIndexes() {
             collection.DropAllIndexes();
             var indexes = collection.GetIndexes().ToArray();
