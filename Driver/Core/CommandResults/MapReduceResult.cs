@@ -29,7 +29,7 @@ namespace MongoDB.Driver {
 
         #region public properties
         public string CollectionName {
-            get { return response["result"].AsString; }
+            get { return (string) response["result", null]; }
         }
 
         public TimeSpan Duration {
