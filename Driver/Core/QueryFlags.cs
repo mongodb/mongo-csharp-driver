@@ -25,7 +25,8 @@ namespace MongoDB.Driver {
         TailableCursor = 2,
         SlaveOk = 4,
         NoCursorTimeout = 16,
-        AwaitData = 132,
-        Exhaust = 64
+        AwaitData = 32,
+        Exhaust = 64,
+        Partial = 128
     }
 }
