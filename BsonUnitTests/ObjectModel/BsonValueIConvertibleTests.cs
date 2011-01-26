@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -140,7 +141,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual(2, Convert.ToInt64(value));
             Assert.AreEqual(2, Convert.ToSByte(value));
             Assert.AreEqual(1.5F, Convert.ToSingle(value));
-            Assert.AreEqual("1.5", Convert.ToString(value));
+            Assert.AreEqual("1.5", Convert.ToString(value, CultureInfo.InvariantCulture));
             Assert.AreEqual(2, Convert.ToUInt16(value));
             Assert.AreEqual(2, Convert.ToUInt32(value));
             Assert.AreEqual(2, Convert.ToUInt64(value));
@@ -337,14 +338,14 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual(1, Convert.ToByte(intString));
             Assert.AreEqual('1', Convert.ToChar(intString));
             Assert.AreEqual(new DateTime(2011, 1, 20), Convert.ToDateTime(dateTimeString));
-            Assert.AreEqual(1.5m, Convert.ToDecimal(doubleString));
-            Assert.AreEqual(1.5, Convert.ToDouble(doubleString));
+            Assert.AreEqual(1.5m, Convert.ToDecimal(doubleString, CultureInfo.InvariantCulture));
+            Assert.AreEqual(1.5, Convert.ToDouble(doubleString, CultureInfo.InvariantCulture));
             Assert.AreEqual(1, Convert.ToInt16(intString));
             Assert.AreEqual(1, Convert.ToInt32(intString));
             Assert.AreEqual(1, Convert.ToInt64(intString));
             Assert.AreEqual(1, Convert.ToSByte(intString));
-            Assert.AreEqual(1.5F, Convert.ToSingle(doubleString));
-            Assert.AreEqual("1.5", Convert.ToString(doubleString));
+            Assert.AreEqual(1.5F, Convert.ToSingle(doubleString, CultureInfo.InvariantCulture));
+            Assert.AreEqual("1.5", Convert.ToString(doubleString, CultureInfo.InvariantCulture));
             Assert.AreEqual(1, Convert.ToUInt16(intString));
             Assert.AreEqual(1, Convert.ToUInt32(intString));
             Assert.AreEqual(1, Convert.ToUInt64(intString));

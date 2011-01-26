@@ -792,10 +792,10 @@ namespace MongoDB.Bson {
         ) {
             switch (bsonType) {
                 case BsonType.Boolean: return this.AsBoolean;
-                case BsonType.Double: return Convert.ToBoolean(this.AsDouble);
-                case BsonType.Int32: return Convert.ToBoolean(this.AsInt32);
-                case BsonType.Int64: return Convert.ToBoolean(this.AsInt64);
-                case BsonType.String: return Convert.ToBoolean(this.AsString);
+                case BsonType.Double: return Convert.ToBoolean(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToBoolean(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToBoolean(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToBoolean(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -804,11 +804,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToByte(this.AsBoolean);
-                case BsonType.Double: return Convert.ToByte(this.AsDouble);
-                case BsonType.Int32: return Convert.ToByte(this.AsInt32);
-                case BsonType.Int64: return Convert.ToByte(this.AsInt64);
-                case BsonType.String: return Convert.ToByte(this.AsString);
+                case BsonType.Boolean: return Convert.ToByte(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToByte(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToByte(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToByte(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToByte(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -817,9 +817,9 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Int32: return Convert.ToChar(this.AsInt32);
-                case BsonType.Int64: return Convert.ToChar(this.AsInt64);
-                case BsonType.String: return Convert.ToChar(this.AsString);
+                case BsonType.Int32: return Convert.ToChar(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToChar(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToChar(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -829,7 +829,7 @@ namespace MongoDB.Bson {
         ) {
             switch (bsonType) {
                 case BsonType.DateTime: return this.AsDateTime;
-                case BsonType.String: return Convert.ToDateTime(this.AsString);
+                case BsonType.String: return Convert.ToDateTime(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -838,11 +838,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToDecimal(this.AsBoolean);
-                case BsonType.Double: return Convert.ToDecimal(this.AsDouble);
-                case BsonType.Int32: return Convert.ToDecimal(this.AsInt32);
-                case BsonType.Int64: return Convert.ToDecimal(this.AsInt64);
-                case BsonType.String: return Convert.ToDecimal(this.AsString);
+                case BsonType.Boolean: return Convert.ToDecimal(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToDecimal(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToDecimal(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToDecimal(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToDecimal(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -851,11 +851,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToDouble(this.AsBoolean);
+                case BsonType.Boolean: return Convert.ToDouble(this.AsBoolean, provider);
                 case BsonType.Double: return this.AsDouble;
-                case BsonType.Int32: return Convert.ToDouble(this.AsInt32);
-                case BsonType.Int64: return Convert.ToDouble(this.AsInt64);
-                case BsonType.String: return Convert.ToDouble(this.AsString);
+                case BsonType.Int32: return Convert.ToDouble(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToDouble(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToDouble(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -864,11 +864,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToInt16(this.AsBoolean);
-                case BsonType.Double: return Convert.ToInt16(this.AsDouble);
-                case BsonType.Int32: return Convert.ToInt16(this.AsInt32);
-                case BsonType.Int64: return Convert.ToInt16(this.AsInt64);
-                case BsonType.String: return Convert.ToInt16(this.AsString);
+                case BsonType.Boolean: return Convert.ToInt16(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToInt16(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToInt16(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToInt16(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToInt16(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -877,11 +877,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToInt32(this.AsBoolean);
-                case BsonType.Double: return Convert.ToInt32(this.AsDouble);
+                case BsonType.Boolean: return Convert.ToInt32(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToInt32(this.AsDouble, provider);
                 case BsonType.Int32: return this.AsInt32;
-                case BsonType.Int64: return Convert.ToInt32(this.AsInt64);
-                case BsonType.String: return Convert.ToInt32(this.AsString);
+                case BsonType.Int64: return Convert.ToInt32(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToInt32(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -890,11 +890,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToInt64(this.AsBoolean);
-                case BsonType.Double: return Convert.ToInt64(this.AsDouble);
-                case BsonType.Int32: return Convert.ToInt64(this.AsInt32);
+                case BsonType.Boolean: return Convert.ToInt64(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToInt64(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToInt64(this.AsInt32, provider);
                 case BsonType.Int64: return this.AsInt64;
-                case BsonType.String: return Convert.ToInt64(this.AsString);
+                case BsonType.String: return Convert.ToInt64(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -903,11 +903,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToSByte(this.AsBoolean);
-                case BsonType.Double: return Convert.ToSByte(this.AsDouble);
-                case BsonType.Int32: return Convert.ToSByte(this.AsInt32);
-                case BsonType.Int64: return Convert.ToSByte(this.AsInt64);
-                case BsonType.String: return Convert.ToSByte(this.AsString);
+                case BsonType.Boolean: return Convert.ToSByte(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToSByte(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToSByte(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToSByte(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToSByte(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -916,11 +916,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToSingle(this.AsBoolean);
-                case BsonType.Double: return Convert.ToSingle(this.AsDouble);
-                case BsonType.Int32: return Convert.ToSingle(this.AsInt32);
-                case BsonType.Int64: return Convert.ToSingle(this.AsInt64);
-                case BsonType.String: return Convert.ToSingle(this.AsString);
+                case BsonType.Boolean: return Convert.ToSingle(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToSingle(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToSingle(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToSingle(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToSingle(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -929,11 +929,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToString(this.AsBoolean);
-                case BsonType.Double: return Convert.ToString(this.AsDouble);
-                case BsonType.Int32: return Convert.ToString(this.AsInt32);
-                case BsonType.Int64: return Convert.ToString(this.AsInt64);
-                case BsonType.String: return Convert.ToString(this.AsString);
+                case BsonType.Boolean: return Convert.ToString(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToString(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToString(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToString(this.AsInt64, provider);
+                case BsonType.String: return this.AsString;
                 default: throw new InvalidCastException();
             }
         }
@@ -957,11 +957,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToUInt16(this.AsBoolean);
-                case BsonType.Double: return Convert.ToUInt16(this.AsDouble);
-                case BsonType.Int32: return Convert.ToUInt16(this.AsInt32);
-                case BsonType.Int64: return Convert.ToUInt16(this.AsInt64);
-                case BsonType.String: return Convert.ToUInt16(this.AsString);
+                case BsonType.Boolean: return Convert.ToUInt16(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToUInt16(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToUInt16(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToUInt16(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToUInt16(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -970,11 +970,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToUInt32(this.AsBoolean);
-                case BsonType.Double: return Convert.ToUInt32(this.AsDouble);
-                case BsonType.Int32: return Convert.ToUInt16(this.AsInt32);
-                case BsonType.Int64: return Convert.ToUInt32(this.AsInt64);
-                case BsonType.String: return Convert.ToUInt32(this.AsString);
+                case BsonType.Boolean: return Convert.ToUInt32(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToUInt32(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToUInt16(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToUInt32(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToUInt32(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
@@ -983,11 +983,11 @@ namespace MongoDB.Bson {
             IFormatProvider provider
         ) {
             switch (bsonType) {
-                case BsonType.Boolean: return Convert.ToUInt64(this.AsBoolean);
-                case BsonType.Double: return Convert.ToUInt64(this.AsDouble);
-                case BsonType.Int32: return Convert.ToUInt64(this.AsInt32);
-                case BsonType.Int64: return Convert.ToUInt16(this.AsInt64);
-                case BsonType.String: return Convert.ToUInt64(this.AsString);
+                case BsonType.Boolean: return Convert.ToUInt64(this.AsBoolean, provider);
+                case BsonType.Double: return Convert.ToUInt64(this.AsDouble, provider);
+                case BsonType.Int32: return Convert.ToUInt64(this.AsInt32, provider);
+                case BsonType.Int64: return Convert.ToUInt16(this.AsInt64, provider);
+                case BsonType.String: return Convert.ToUInt64(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
