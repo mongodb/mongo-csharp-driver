@@ -24,7 +24,7 @@ New public interfaces
     IBsonSerializationOptions
     IExtraElementsMemberConvention
 
-New public lasses:
+New public classes:
     BsonBaseReader
     BsonDocumentReader
     BsonDocumentWriter
