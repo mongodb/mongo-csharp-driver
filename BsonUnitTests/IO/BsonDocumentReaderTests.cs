@@ -147,5 +147,29 @@ namespace MongoDB.BsonUnitTests.IO {
             var rehydrated = BsonDocument.ReadFrom(BsonReader.Create(document));
             Assert.IsTrue(document.Equals(rehydrated));
         }
+
+        [Test]
+        public void TestUseBookmarkToSkipBack()
+        {
+            BsonDocument doc = new BsonDocument(
+                new BsonElement("elem1", BsonString.Create("1st")), 
+                new BsonElement("elem2", BsonString.Create("2nd")), 
+                new BsonElement("elem3", BsonString.Create("3rd")), 
+                new BsonElement("elem4", BsonString.Create("4th")), 
+                new BsonElement("elem5", BsonString.Create("5th")) 
+                );
+            BsonDocumentReader reader = new BsonDocumentReader(doc);
+            reader.ReadStartDocument();
+            BsonReaderBookmark bm = reader.GetBookmark();
+
+            Assert.That(reader.FindElement("elem4"));
+            reader.ReturnToBookmark(bm);
+            Assert.That(reader.FindElement("elem2"));
+            reader.ReturnToBookmark(bm);
+            Assert.That(reader.FindElement("elem1"));
+            reader.ReturnToBookmark(bm);
+            Assert.That(reader.FindElement("elem4"));
+
+        }
     }
 }
