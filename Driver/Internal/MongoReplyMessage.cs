@@ -74,7 +74,6 @@ namespace MongoDB.Driver.Internal {
             cursorId = buffer.ReadInt64();
             startingFrom = buffer.ReadInt32();
             numberReturned = buffer.ReadInt32();
-            documents = new List<TDocument>();
 
             var settings = new BsonBinaryReaderSettings { MaxDocumentSize = server.MaxDocumentSize };
             using (BsonReader bsonReader = BsonReader.Create(buffer, settings)) {
@@ -88,6 +87,7 @@ namespace MongoDB.Driver.Internal {
                     throw new MongoQueryException(message);
                 }
 
+                documents = new List<TDocument>(numberReturned);
                 while (buffer.Position - messageStartPosition < messageLength) {
                     var document = BsonSerializer.Deserialize<TDocument>(bsonReader);
                     documents.Add(document);
