@@ -382,7 +382,7 @@ namespace MongoDB.Bson.IO {
             state = jsonReaderBookmark.State;
             currentBsonType = jsonReaderBookmark.CurrentBsonType;
             currentName = jsonReaderBookmark.CurrentName;
-            context = jsonReaderBookmark.Context;
+            context = jsonReaderBookmark.CloneContext();
             currentToken = jsonReaderBookmark.CurrentToken;
             currentValue = jsonReaderBookmark.CurrentValue;
             pushedToken = jsonReaderBookmark.PushedToken;

@@ -300,7 +300,7 @@ namespace MongoDB.Bson.IO {
             state = documentReaderBookmark.State;
             currentBsonType = documentReaderBookmark.CurrentBsonType;
             currentName = documentReaderBookmark.CurrentName;
-            context = documentReaderBookmark.Context;
+            context = documentReaderBookmark.CloneContext();
             currentValue = documentReaderBookmark.CurrentValue;
         }
 

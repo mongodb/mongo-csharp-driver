@@ -40,12 +40,14 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region internal properties
-        internal BsonBinaryReaderContext Context {
-            get { return context; }
-        }
-
         internal int Position {
             get { return position; }
+        }
+        #endregion
+
+        #region internal methods
+        internal BsonBinaryReaderContext CloneContext() {
+            return context.Clone();
         }
         #endregion
     }

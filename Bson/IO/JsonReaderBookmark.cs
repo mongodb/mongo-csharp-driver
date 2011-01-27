@@ -49,24 +49,26 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region internal properties
-        internal JsonReaderContext Context {
-            get { return context; }
-        }
-
-        public JsonToken CurrentToken {
+        internal JsonToken CurrentToken {
             get { return currentToken; }
         }
 
-        public BsonValue CurrentValue {
+        internal BsonValue CurrentValue {
             get { return currentValue; }
         }
 
-        public int Position {
+        internal int Position {
             get { return position; }
         }
 
-        public JsonToken PushedToken {
+        internal JsonToken PushedToken {
             get { return pushedToken; }
+        }
+        #endregion
+
+        #region internal methods
+        internal JsonReaderContext CloneContext() {
+            return context.Clone();
         }
         #endregion
     }

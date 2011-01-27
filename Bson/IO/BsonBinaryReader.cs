@@ -341,7 +341,7 @@ namespace MongoDB.Bson.IO {
             state = binaryReaderBookmark.State;
             currentBsonType = binaryReaderBookmark.CurrentBsonType;
             currentName = binaryReaderBookmark.CurrentName;
-            context = binaryReaderBookmark.Context;
+            context = binaryReaderBookmark.CloneContext();
             buffer.Position = binaryReaderBookmark.Position;
         }
 
