@@ -67,9 +67,9 @@ namespace MongoDB.Bson.IO {
             Stream stream,
             BsonBinaryReaderSettings settings
         ) {
-            BsonBuffer buffer = new BsonBuffer();
-            buffer.LoadFrom(stream);
-            return new BsonBinaryReader(buffer, settings);
+            var reader = new BsonBinaryReader(null, settings);
+            reader.Buffer.LoadFrom(stream);
+            return reader;
         }
 
         public static BsonReader Create(

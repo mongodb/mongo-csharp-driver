@@ -54,9 +54,10 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteCString(collectionFullName);
             buffer.WriteInt32((int) flags);
 
-            var bsonWriter = CreateBsonWriter();
-            BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
-            BsonSerializer.Serialize(bsonWriter, update.GetType(), update, DocumentSerializationOptions.SerializeIdFirstInstance);
+            using (var bsonWriter = CreateBsonWriter()) {
+                BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                BsonSerializer.Serialize(bsonWriter, update.GetType(), update, DocumentSerializationOptions.SerializeIdFirstInstance);
+            }
         }
         #endregion
     }

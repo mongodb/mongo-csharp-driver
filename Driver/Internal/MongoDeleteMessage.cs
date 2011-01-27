@@ -51,12 +51,13 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteCString(collectionFullName);
             buffer.WriteInt32((int) flags);
 
-            var bsonWriter = CreateBsonWriter();
-            if (query == null) {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteEndDocument();
-            } else {
-                BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
+            using (var bsonWriter = CreateBsonWriter()) {
+                if (query == null) {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteEndDocument();
+                } else {
+                    BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                }
             }
         }
         #endregion

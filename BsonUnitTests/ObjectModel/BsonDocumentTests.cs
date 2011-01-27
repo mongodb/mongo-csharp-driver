@@ -65,9 +65,10 @@ namespace MongoDB.BsonUnitTests {
                 //    { "e", BsonValue.Create((object) true) }
                 //};
                 byte[] value = { 1, 2, 3, 4 };
-                var buffer = new BsonBuffer();
-                for (int n = 0; n < 100000; n++) {
-                    buffer.WriteBytes(value);
+                using (var buffer = new BsonBuffer()) {
+                    for (int n = 0; n < 100000; n++) {
+                        buffer.WriteBytes(value);
+                    }
                 }
             }
             end = DateTime.UtcNow;

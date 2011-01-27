@@ -97,7 +97,9 @@ namespace MongoDB.Bson.Serialization {
             BsonDocument document,
             Type nominalType
         ) {
-            return Deserialize(BsonReader.Create(document), nominalType);
+            using (var bsonReader = BsonReader.Create(document)) {
+                return Deserialize(bsonReader, nominalType);
+            }
         }
 
         public static object Deserialize(

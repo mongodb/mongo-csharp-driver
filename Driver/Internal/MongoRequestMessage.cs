@@ -50,8 +50,13 @@ namespace MongoDB.Driver.Internal {
             BsonBuffer buffer // not null if piggybacking this message onto an existing buffer
         )
             : base(server, opcode) {
-            this.buffer = buffer ?? new BsonBuffer();
-            this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
+            if (buffer == null) {
+                this.buffer = new BsonBuffer();
+                this.disposeBuffer = true; // only call Dispose if we allocated the buffer
+            } else {
+                this.buffer = buffer;
+                this.disposeBuffer = false;
+            }
             this.requestId = Interlocked.Increment(ref lastRequestId);
         }
         #endregion

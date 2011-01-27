@@ -83,8 +83,9 @@ namespace MongoDB.Bson {
 
             // otherwise serialize into a new BsonDocument
             var document = new BsonDocument();
-            var writer = BsonWriter.Create(document);
-            BsonSerializer.Serialize<T>(writer, obj, options);
+            using (var writer = BsonWriter.Create(document)) {
+                BsonSerializer.Serialize<T>(writer, obj, options);
+            }
             return document;
         }
 

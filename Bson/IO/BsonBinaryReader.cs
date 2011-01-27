@@ -33,8 +33,13 @@ namespace MongoDB.Bson.IO {
             BsonBuffer buffer,
             BsonBinaryReaderSettings settings
         ) {
-            this.buffer = buffer ?? new BsonBuffer();
-            this.disposeBuffer = buffer == null; // only call Dispose if we allocated the buffer
+            if (buffer == null) {
+                this.buffer = new BsonBuffer();
+                this.disposeBuffer = true; // only call Dispose if we allocated the buffer
+            } else {
+                this.buffer = buffer;
+                this.disposeBuffer = false;
+            }
             this.settings = settings;
             context = new BsonBinaryReaderContext(null, ContextType.TopLevel, 0, 0);
         }

@@ -74,15 +74,16 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteInt32(numberToSkip);
             buffer.WriteInt32(numberToReturn);
 
-            var bsonWriter = CreateBsonWriter();
-            if (query == null) {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteEndDocument();
-            } else {
-                BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
-            }
-            if (fields != null) {
-                BsonSerializer.Serialize(bsonWriter, fields);
+            using (var bsonWriter = CreateBsonWriter()) {
+                if (query == null) {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteEndDocument();
+                } else {
+                    BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                }
+                if (fields != null) {
+                    BsonSerializer.Serialize(bsonWriter, fields);
+                }
             }
         }
         #endregion

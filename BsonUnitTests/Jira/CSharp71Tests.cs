@@ -317,10 +317,13 @@ namespace MongoDB.BsonUnitTests.Jira {
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
 
             // test failure mode when 20 bytes are truncated from the buffer
-            var buffer = new BsonBuffer();
-            buffer.LoadFrom(new MemoryStream(bson));
-            buffer.Length -= 20;
-            Assert.Throws<EndOfStreamException>(() => BsonSerializer.Deserialize<BsonDocument>(BsonReader.Create(buffer)));
+            using (var buffer = new BsonBuffer()) {
+                buffer.LoadFrom(new MemoryStream(bson));
+                buffer.Length -= 20;
+                using (var bsonReader = BsonReader.Create(buffer)) {
+                    Assert.Throws<EndOfStreamException>(() => BsonSerializer.Deserialize<BsonDocument>(bsonReader));
+                }
+            }
         }
 
         [Test]
