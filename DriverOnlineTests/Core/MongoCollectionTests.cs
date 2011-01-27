@@ -20,6 +20,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
+using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
@@ -564,6 +565,17 @@ namespace MongoDB.DriverOnlineTests {
             }
         }
 
+        private class TestInlineResultDocument {
+            public string Id;
+            [BsonElement("value")]
+            public TestInlineResultValue Value;
+        }
+
+        private class TestInlineResultValue {
+            [BsonElement("count")]
+            public int Count;
+        }
+
         [Test]
         public void TestMapReduceInline() {
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
@@ -607,9 +619,18 @@ namespace MongoDB.DriverOnlineTests {
                     { "X", 1 },
                     { "_id", 3 }
                 };
+
+                // test InlineResults as BsonDocuments
                 foreach (var document in result.InlineResults) {
                     var key = document["_id"].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
+
+                // test InlineResults as TestInlineResultDocument
+                foreach (var document in result.GetInlineResultsAs<TestInlineResultDocument>()) {
+                    var key = document.Id;
+                    var count = document.Value.Count;
                     Assert.AreEqual(expectedCounts[key], count);
                 }
             }

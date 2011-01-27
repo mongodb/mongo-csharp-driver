@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
     public class MapReduceResult : CommandResult {
@@ -50,6 +51,12 @@ namespace MongoDB.Driver {
 
         public int InputCount {
             get { return response["counts"].AsBsonDocument["input"].ToInt32(); }
+        }
+        #endregion
+
+        #region public methods
+        public IEnumerable<TDocument> GetInlineResultsAs<TDocument>() {
+            return InlineResults.Select(document => BsonSerializer.Deserialize<TDocument>(document));
         }
         #endregion
     }
