@@ -341,13 +341,14 @@ namespace MongoDB.Driver.Internal {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 try {
-                    var buffer = new BsonBuffer();
-                    var networkStream = GetNetworkStream();
-                    networkStream.ReadTimeout = (int) server.Settings.SocketTimeout.TotalMilliseconds;
-                    buffer.LoadFrom(networkStream);
-                    var reply = new MongoReplyMessage<TDocument>(server);
-                    reply.ReadFrom(buffer);
-                    return reply;
+                    using (var buffer = new BsonBuffer()) {
+                        var networkStream = GetNetworkStream();
+                        networkStream.ReadTimeout = (int) server.Settings.SocketTimeout.TotalMilliseconds;
+                        buffer.LoadFrom(networkStream);
+                        var reply = new MongoReplyMessage<TDocument>(server);
+                        reply.ReadFrom(buffer);
+                        return reply;
+                    }
                 } catch (Exception ex) {
                     HandleException(ex);
                     throw;

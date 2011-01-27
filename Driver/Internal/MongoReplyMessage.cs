@@ -77,21 +77,21 @@ namespace MongoDB.Driver.Internal {
             documents = new List<TDocument>();
 
             var settings = new BsonBinaryReaderSettings { MaxDocumentSize = server.MaxDocumentSize };
-            BsonReader bsonReader = BsonReader.Create(buffer, settings);
+            using (BsonReader bsonReader = BsonReader.Create(buffer, settings)) {
+                if ((responseFlags & ResponseFlags.CursorNotFound) != 0) {
+                    throw new MongoQueryException("Cursor not found.");
+                }
+                if ((responseFlags & ResponseFlags.QueryFailure) != 0) {
+                    var document = BsonDocument.ReadFrom(bsonReader);
+                    var err = document["$err", null].AsString ?? "Unknown error.";
+                    var message = string.Format("QueryFailure flag set: {0} (response: {1})", err, document.ToJson());
+                    throw new MongoQueryException(message);
+                }
 
-            if ((responseFlags & ResponseFlags.CursorNotFound) != 0) {
-                throw new MongoQueryException("Cursor not found.");
-            }
-            if ((responseFlags & ResponseFlags.QueryFailure) != 0) {
-                var document = BsonDocument.ReadFrom(bsonReader);
-                var err = document["$err", null].AsString ?? "Unknown error.";
-                var message = string.Format("QueryFailure flag set: {0} (response: {1})", err, document.ToJson());
-                throw new MongoQueryException(message);
-            }
-
-            while (buffer.Position - messageStartPosition < messageLength) {
-                var document = BsonSerializer.Deserialize<TDocument>(bsonReader);
-                documents.Add(document);
+                while (buffer.Position - messageStartPosition < messageLength) {
+                    var document = BsonSerializer.Deserialize<TDocument>(bsonReader);
+                    documents.Add(document);
+                }
             }
         }
         #endregion

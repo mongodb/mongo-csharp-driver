@@ -24,6 +24,7 @@ namespace MongoDB.Bson.IO {
     public class BsonBuffer : IDisposable {
         #region private static fields
         private static Stack<byte[]> chunkPool = new Stack<byte[]>();
+        private static int maxChunkPoolSize = 64;
         private const int chunkSize = 16 * 1024; // 16KiB
         private static readonly bool[] validBsonTypes = new bool[256];
         #endregion
@@ -50,6 +51,21 @@ namespace MongoDB.Bson.IO {
         #region constructors
         public BsonBuffer() {
             // let EnsureAvailable get the first chunk
+        }
+        #endregion
+
+        #region public static properties
+        public static int MaxChunkPoolSize {
+            get {
+                lock (chunkPool) {
+                    return maxChunkPoolSize;
+                }
+            }
+            set {
+                lock (chunkPool) {
+                    maxChunkPoolSize = value;
+                }
+            }
         }
         #endregion
 
@@ -113,7 +129,7 @@ namespace MongoDB.Bson.IO {
             byte[] chunk
         ) {
             lock (chunkPool) {
-                if (chunkPool.Count < 64) {
+                if (chunkPool.Count < maxChunkPoolSize) {
                     chunkPool.Push(chunk);
                 }
             }
