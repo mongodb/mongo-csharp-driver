@@ -187,14 +187,25 @@ namespace MongoDB.Driver.GridFS {
         public MongoGridFSFileInfo CopyTo(
             string destFileName
         ) {
-            throw new NotImplementedException();
+            // copy all createOptions except Aliases (which are considered alternate filenames)
+            var createOptions = new MongoGridFSCreateOptions {
+                ChunkSize = chunkSize,
+                ContentType = contentType,
+                Metadata = metadata,
+                UploadDate = uploadDate
+            };
+            return CopyTo(destFileName, createOptions);
         }
 
         public MongoGridFSFileInfo CopyTo(
             string destFileName,
-            bool overwrite
+            MongoGridFSCreateOptions createOptions
         ) {
-            throw new NotImplementedException();
+            // note: we are aware that the data is making a round trip from and back to the server
+            // but we choose not to use a script to copy the data locally on the server
+            // because that would lock the database for too long
+            var stream = OpenRead();
+            return gridFS.Upload(stream, destFileName, createOptions);
         }
 
         public MongoGridFSStream Create() {

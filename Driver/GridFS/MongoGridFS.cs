@@ -97,10 +97,10 @@ namespace MongoDB.Driver.GridFS {
         public MongoGridFSFileInfo CopyTo(
             string sourceFileName,
             string destFileName,
-            bool overwrite
+            MongoGridFSCreateOptions createOptions
         ) {
             var fileInfo = new MongoGridFSFileInfo(this, sourceFileName);
-            return fileInfo.CopyTo(destFileName, overwrite);
+            return fileInfo.CopyTo(destFileName, createOptions);
         }
 
         public MongoGridFSStream Create(
