@@ -265,7 +265,9 @@ namespace MongoDB.Driver.GridFS {
         public void MoveTo(
             string destFileName
         ) {
-            throw new NotImplementedException();
+            var query = Query.EQ("_id", id);
+            var update = Update.Set("filename", destFileName);
+            gridFS.Files.Update(query, update, gridFS.Settings.SafeMode);
         }
 
         public MongoGridFSStream Open(

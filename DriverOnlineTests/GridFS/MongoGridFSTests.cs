@@ -250,6 +250,27 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
+        public void TestMoveTo() {
+            gridFS.Delete(Query.Null);
+            Assert.AreEqual(0, gridFS.Chunks.Count());
+            Assert.AreEqual(0, gridFS.Files.Count());
+
+            var contents = "Hello World";
+            var bytes = Encoding.UTF8.GetBytes(contents);
+            var uploadStream = new MemoryStream(bytes);
+            var fileInfo = gridFS.Upload(uploadStream, "HelloWorld.txt");
+            Assert.AreEqual(1, gridFS.Chunks.Count());
+            Assert.AreEqual(1, gridFS.Files.Count());
+
+            gridFS.MoveTo("HelloWorld.txt", "HelloWorld2.txt");
+            Assert.AreEqual(1, gridFS.Chunks.Count());
+            Assert.AreEqual(1, gridFS.Files.Count());
+            var movedInfo = gridFS.FindOne("HelloWorld2.txt");
+            Assert.AreEqual("HelloWorld2.txt", movedInfo.Name);
+            Assert.AreEqual(fileInfo.Id, movedInfo.Id);
+        }
+
+        [Test]
         public void TestSetAliases() {
             var fileInfo = UploadHelloWord();
             Assert.IsNull(fileInfo.Aliases);

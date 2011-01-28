@@ -90,7 +90,11 @@ namespace MongoDB.Driver.GridFS {
             string sourceFileName,
             string destFileName
         ) {
-            var fileInfo = new MongoGridFSFileInfo(this, sourceFileName);
+            var fileInfo = FindOne(sourceFileName);
+            if (fileInfo == null) {
+                var message = string.Format("GridFS file not found: {0}", sourceFileName);
+                throw new FileNotFoundException(message);
+            }
             return fileInfo.CopyTo(destFileName);
         }
 
@@ -99,7 +103,11 @@ namespace MongoDB.Driver.GridFS {
             string destFileName,
             MongoGridFSCreateOptions createOptions
         ) {
-            var fileInfo = new MongoGridFSFileInfo(this, sourceFileName);
+            var fileInfo = FindOne(sourceFileName);
+            if (fileInfo == null) {
+                var message = string.Format("GridFS file not found: {0}", sourceFileName);
+                throw new FileNotFoundException(message);
+            }
             return fileInfo.CopyTo(destFileName, createOptions);
         }
 
@@ -364,7 +372,11 @@ namespace MongoDB.Driver.GridFS {
             string sourceFileName,
             string destFileName
         ) {
-            var fileInfo = new MongoGridFSFileInfo(this, sourceFileName);
+            var fileInfo = FindOne(sourceFileName);
+            if (fileInfo == null) {
+                var message = string.Format("GridFS file not found: {0}", sourceFileName);
+                throw new FileNotFoundException(message);
+            }
             fileInfo.MoveTo(destFileName);
         }
 
