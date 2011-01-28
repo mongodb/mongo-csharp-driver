@@ -110,10 +110,26 @@ namespace MongoDB.Driver.GridFS {
             return fileInfo.Create();
         }
 
+        public MongoGridFSStream Create(
+            string remoteFileName,
+            MongoGridFSCreateOptions createOptions
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName, createOptions);
+            return fileInfo.Create();
+        }
+
         public StreamWriter CreateText(
             string remoteFileName
         ) {
             var fileInfo = new MongoGridFSFileInfo(this, remoteFileName);
+            return fileInfo.CreateText();
+        }
+
+        public StreamWriter CreateText(
+            string remoteFileName,
+            MongoGridFSCreateOptions createOptions
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName, createOptions);
             return fileInfo.CreateText();
         }
 
@@ -369,6 +385,16 @@ namespace MongoDB.Driver.GridFS {
             return fileInfo.Open(mode, access);
         }
 
+        public MongoGridFSStream Open(
+            string remoteFileName,
+            FileMode mode,
+            FileAccess access,
+            MongoGridFSCreateOptions createOptions
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName, createOptions);
+            return fileInfo.Open(mode, access);
+        }
+
         public MongoGridFSStream OpenRead(
             string remoteFileName
         ) {
@@ -390,36 +416,63 @@ namespace MongoDB.Driver.GridFS {
             return fileInfo.OpenWrite();
         }
 
+        public MongoGridFSStream OpenWrite(
+            string remoteFileName,
+            MongoGridFSCreateOptions createOptions
+        ) {
+            var fileInfo = new MongoGridFSFileInfo(this, remoteFileName, createOptions);
+            return fileInfo.OpenWrite();
+        }
+
         public void SetAliases(
             MongoGridFSFileInfo fileInfo,
             string[] aliases
         ) {
-            throw new NotImplementedException();
+            var query = Query.EQ("_id", fileInfo.Id);
+            var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create((IEnumerable<string>) aliases));
+            files.Update(query, update);
         }
 
         public void SetContentType(
             MongoGridFSFileInfo fileInfo,
             string contentType
         ) {
-            throw new NotImplementedException();
+            var query = Query.EQ("_id", fileInfo.Id);
+            var update = (contentType == null) ? Update.Unset("contentType") : Update.Set("contentType", contentType);
+            files.Update(query, update);
         }
 
         public void SetMetadata(
             MongoGridFSFileInfo fileInfo,
             BsonValue metadata
         ) {
-            throw new NotImplementedException();
+            var query = Query.EQ("_id", fileInfo.Id);
+            var update = (metadata == null) ? Update.Unset("metadata") : Update.Set("metadata", metadata);
+            files.Update(query, update);
         }
 
         public MongoGridFSFileInfo Upload(
             Stream stream,
             string remoteFileName
         ) {
+            var options = new MongoGridFSCreateOptions {
+                ChunkSize = settings.DefaultChunkSize,
+                Id = BsonObjectId.GenerateNewId(),
+                UploadDate = DateTime.UtcNow
+            };
+            return Upload(stream, remoteFileName, options);
+        }
+
+        public MongoGridFSFileInfo Upload(
+            Stream stream,
+            string remoteFileName,
+            MongoGridFSCreateOptions createOptions
+        ) {
             using (database.RequestStart()) {
                 chunks.EnsureIndex("files_id", "n");
 
-                BsonObjectId files_id = BsonObjectId.GenerateNewId();
-                var chunkSize = settings.DefaultChunkSize;
+                var files_id = createOptions.Id ?? BsonObjectId.GenerateNewId();
+                var chunkSize = createOptions.ChunkSize == 0 ? settings.DefaultChunkSize : createOptions.ChunkSize;
                 var buffer = new byte[chunkSize];
 
                 var length = 0;
@@ -456,13 +509,17 @@ namespace MongoDB.Driver.GridFS {
                 var md5Result = database.RunCommand(md5Command);
                 var md5 = md5Result.Response["md5"].AsString;
 
+                var uploadDate = createOptions.UploadDate == DateTime.MinValue ? DateTime.UtcNow : createOptions.UploadDate;
                 BsonDocument fileInfo = new BsonDocument {
                     { "_id", files_id },
                     { "filename", remoteFileName },
                     { "length", length },
                     { "chunkSize", chunkSize },
-                    { "uploadDate", DateTime.UtcNow },
-                    { "md5", md5 }
+                    { "uploadDate", uploadDate },
+                    { "md5", md5 },
+                    { "contentType", createOptions.ContentType }, // optional
+                    { "aliases", BsonArray.Create((IEnumerable<string>) createOptions.Aliases) }, // optional
+                    { "metadata", createOptions.Metadata } // optional
                 };
                 files.Insert(fileInfo, settings.SafeMode);
 

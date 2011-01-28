@@ -221,7 +221,7 @@ namespace MongoDB.Driver.GridFS {
         ) {
             if (rhs == null) { return false; }
             return
-                (this.aliases == rhs.aliases && (this.aliases == null || this.aliases.SequenceEqual(rhs.aliases))) &&
+                (this.aliases == null && rhs.aliases == null || this.aliases != null && rhs.aliases != null && this.aliases.SequenceEqual(rhs.aliases)) &&
                 this.chunkSize == rhs.chunkSize &&
                 this.contentType == rhs.contentType &&
                 this.id == rhs.id &&
@@ -323,6 +323,8 @@ namespace MongoDB.Driver.GridFS {
                         list.Add(alias.AsString);
                     }
                     aliases = list.ToArray();
+                } else {
+                    aliases = null;
                 }
                 chunkSize = fileInfo["chunkSize"].ToInt32();
                 contentType = (string) fileInfo["contentType", null];
