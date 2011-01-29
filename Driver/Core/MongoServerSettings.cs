@@ -222,25 +222,6 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public MongoServerSettings Clone() {
-            return new MongoServerSettings(
-                connectionMode,
-                connectTimeout,
-                defaultCredentials,
-                maxConnectionIdleTime,
-                maxConnectionLifeTime,
-                maxConnectionPoolSize,
-                minConnectionPoolSize,
-                replicaSetName,
-                safeMode,
-                servers,
-                slaveOk,
-                socketTimeout,
-                waitQueueSize,
-                waitQueueTimeout
-            );
-        }
-
         public void Freeze() {
             if (!isFrozen) {
                 frozenHashCode = GetHashCodeHelper();

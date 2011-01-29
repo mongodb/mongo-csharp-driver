@@ -36,7 +36,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region private fields
-        private MongoServerSettings serverSettings = new MongoServerSettings();
+        private MongoServerSettings serverSettings;
         private double waitQueueMultiple;
         private int waitQueueSize;
         private string databaseName;

@@ -66,10 +66,6 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsTrue(settings.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
-
-            var clone = settings.Clone();
-            Assert.IsFalse(clone.IsFrozen);
-            Assert.AreEqual(settings, clone);
         }
 
         [Test]
@@ -99,10 +95,6 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsTrue(settings.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
-
-            var clone = settings.Clone();
-            Assert.IsFalse(clone.IsFrozen);
-            Assert.AreEqual(settings, clone);
         }
 
         [Test]
