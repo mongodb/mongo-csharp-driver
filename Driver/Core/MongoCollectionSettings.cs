@@ -21,7 +21,7 @@ using System.Text;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver {
-    public class MongoCollectionSettings {
+    public abstract class MongoCollectionSettings {
         #region private fields
         private string collectionName;
         private bool assignIdOnInsert;
@@ -35,15 +35,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
-        public MongoCollectionSettings() {
-            this.collectionName = null;
-            this.assignIdOnInsert = true;
-            this.defaultDocumentType = typeof(BsonDocument);
-            this.safeMode = SafeMode.False;
-            this.slaveOk = false;
-        }
-
-        public MongoCollectionSettings(
+        protected MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
             Type defaultDocumentType,
@@ -69,18 +61,10 @@ namespace MongoDB.Driver {
 
         public string CollectionName {
             get { return collectionName; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
-                collectionName = value;
-            }
         }
 
         public Type DefaultDocumentType {
             get { return defaultDocumentType; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
-                defaultDocumentType = value;
-            }
         }
 
         public bool IsFrozen {
@@ -105,16 +89,6 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public MongoCollectionSettings Clone() {
-            return new MongoCollectionSettings(
-                collectionName,
-                assignIdOnInsert,
-                defaultDocumentType,
-                safeMode,
-                slaveOk
-            );
-        }
-
         public void Freeze() {
             if (!isFrozen) {
                 frozenHashCode = GetHashCodeHelper();
@@ -179,6 +153,19 @@ namespace MongoDB.Driver {
                 safeMode,
                 slaveOk
             );
+        }
+        #endregion
+    }
+
+    public class MongoCollectionSettings<TDefaultDocument> : MongoCollectionSettings {
+        #region constructors
+        public MongoCollectionSettings(
+            string collectionName,
+            bool assignIdOnInsert,
+            SafeMode safeMode,
+            bool slaveOk
+        )
+            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), safeMode, slaveOk) {
         }
         #endregion
     }

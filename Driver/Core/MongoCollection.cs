@@ -747,7 +747,7 @@ namespace MongoDB.Driver {
         #region constructors
         public MongoCollection(
             MongoDatabase database,
-            MongoCollectionSettings settings
+            MongoCollectionSettings<TDefaultDocument> settings
         )
             : base(database, settings) {
         }

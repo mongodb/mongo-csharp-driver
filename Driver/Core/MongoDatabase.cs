@@ -47,14 +47,10 @@ namespace MongoDB.Driver {
             this.name = settings.DatabaseName;
 
             // make sure commands get routed to the primary server by using slaveOk false
-            var commandCollectionSettings = new MongoCollectionSettings(
-                "$cmd",
-                false, // assignIdOnInsert
-                typeof(BsonDocument),
-                settings.SafeMode,
-                false // slaveOk
-            );
-            commandCollection = GetCollection<BsonDocument>(commandCollectionSettings);
+            var commandCollectionSettings = GetCollectionSettings<BsonDocument>("$cmd");
+            commandCollectionSettings.AssignIdOnInsert = false;
+            commandCollectionSettings.SlaveOk = false;
+            commandCollection = GetCollection(commandCollectionSettings);
         }
         #endregion
 
@@ -231,12 +227,8 @@ namespace MongoDB.Driver {
         }
 
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
-            MongoCollectionSettings collectionSettings
+            MongoCollectionSettings<TDefaultDocument> collectionSettings
         ) {
-            if (collectionSettings.DefaultDocumentType != typeof(TDefaultDocument)) {
-                throw new ArgumentException("CollectionSettings.DefaultDocumentType is not equal to <TDefaultDocument>");
-            }
-
             lock (databaseLock) {
                 MongoCollection collection;
                 collectionSettings.Freeze();
@@ -251,34 +243,33 @@ namespace MongoDB.Driver {
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName
         ) {
-            return GetCollection<TDefaultDocument>(collectionName, settings.SafeMode);
+            var collectionSettings = GetCollectionSettings<TDefaultDocument>(collectionName);
+            return GetCollection(collectionSettings);
         }
 
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName,
             SafeMode safeMode
         ) {
-            var collectionSettings = new MongoCollectionSettings(
-                collectionName,
-                true, // asssignIdOnInsert
-                typeof(TDefaultDocument), // defaultDocumentType
-                safeMode,
-                settings.SlaveOk
-            );
-            return GetCollection<TDefaultDocument>(collectionSettings);
+            var collectionSettings = GetCollectionSettings<TDefaultDocument>(collectionName);
+            collectionSettings.SafeMode = safeMode;
+            return GetCollection(collectionSettings);
         }
 
         public virtual MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
-            return GetCollection<BsonDocument>(collectionName, settings.SafeMode);
+            var collectionSettings = GetCollectionSettings<BsonDocument>(collectionName);
+            return GetCollection(collectionSettings);
         }
 
         public virtual MongoCollection<BsonDocument> GetCollection(
             string collectionName,
             SafeMode safeMode
         ) {
-            return GetCollection<BsonDocument>(collectionName, safeMode);
+            var collectionSettings = GetCollectionSettings<BsonDocument>(collectionName);
+            collectionSettings.SafeMode = safeMode;
+            return GetCollection(collectionSettings);
         }
 
         public virtual IEnumerable<string> GetCollectionNames() {
@@ -293,6 +284,17 @@ namespace MongoDB.Driver {
             }
             collectionNames.Sort();
             return collectionNames;
+        }
+
+        public virtual MongoCollectionSettings<TDefaultDocument> GetCollectionSettings<TDefaultDocument>(
+            string collectionName
+        ) {
+            return new MongoCollectionSettings<TDefaultDocument>(
+                collectionName,
+                MongoDefaults.AssignIdOnInsert,
+                settings.SafeMode,
+                settings.SlaveOk
+            );
         }
 
         public virtual BsonDocument GetCurrentOp() {

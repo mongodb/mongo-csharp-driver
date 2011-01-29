@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MongoDB.DriverUnitTests {
@@ -26,14 +27,16 @@ namespace MongoDB.DriverUnitTests {
     public class MongoCollectionSettingsTests {
         [Test]
         public void TestAll() {
-            var settings = new MongoCollectionSettings();
-            settings.CollectionName = "collection";
-            settings.AssignIdOnInsert = false;
-            settings.SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5));
-            settings.SlaveOk = true;
+            var settings = new MongoCollectionSettings<BsonDocument>(
+                "collection",
+                true, // asssignIdOnInsert
+                SafeMode.Create(5, TimeSpan.FromSeconds(5)),
+                true // slaveOkd
+            );
 
             Assert.AreEqual("collection", settings.CollectionName);
-            Assert.AreEqual(false, settings.AssignIdOnInsert);
+            Assert.AreEqual(true, settings.AssignIdOnInsert);
+            Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(5)), settings.SafeMode);
             Assert.AreEqual(true, settings.SlaveOk);
 
@@ -46,34 +49,6 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsTrue(settings.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
-
-            var clone = settings.Clone();
-            Assert.IsFalse(clone.IsFrozen);
-            Assert.AreEqual(settings, clone);
-        }
-
-        [Test]
-        public void TestDefaults() {
-            var settings = new MongoCollectionSettings();
-
-            Assert.AreEqual(null, settings.CollectionName);
-            Assert.AreEqual(true, settings.AssignIdOnInsert);
-            Assert.AreEqual(SafeMode.False, settings.SafeMode);
-            Assert.AreEqual(false, settings.SlaveOk);
-
-            Assert.IsFalse(settings.IsFrozen);
-            var hashCode = settings.GetHashCode();
-            var stringRepresentation = settings.ToString();
-            Assert.AreEqual(settings, settings);
-
-            settings.Freeze();
-            Assert.IsTrue(settings.IsFrozen);
-            Assert.AreEqual(hashCode, settings.GetHashCode());
-            Assert.AreEqual(stringRepresentation, settings.ToString());
-
-            var clone = settings.Clone();
-            Assert.IsFalse(clone.IsFrozen);
-            Assert.AreEqual(settings, clone);
         }
     }
 }

@@ -22,6 +22,7 @@ using System.Text;
 namespace MongoDB.Driver {
     public static class MongoDefaults {
         #region public static fields
+        private static bool assignIdOnInsert = true;
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan maxConnectionLifeTime = TimeSpan.FromMinutes(30);
@@ -37,6 +38,11 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static properties
+        public static bool AssignIdOnInsert {
+            get { return assignIdOnInsert; }
+            set { assignIdOnInsert = value; }
+        }
+
         public static int ComputedWaitQueueSize {
             get {
                 if (waitQueueMultiple == 0.0) {
