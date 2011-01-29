@@ -34,13 +34,6 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
-        public MongoDatabaseSettings() {
-            this.databaseName = null;
-            this.credentials = null;
-            this.safeMode = SafeMode.False;
-            this.slaveOk = false;
-        }
-
         public MongoDatabaseSettings(
             string databaseName,
             MongoCredentials credentials,
@@ -65,10 +58,6 @@ namespace MongoDB.Driver {
 
         public string DatabaseName {
             get { return databaseName; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
-                databaseName = value;
-            }
         }
 
         public bool IsFrozen {
@@ -93,15 +82,6 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public MongoDatabaseSettings Clone() {
-            return new MongoDatabaseSettings(
-                databaseName,
-                credentials,
-                safeMode,
-                slaveOk
-            );
-        }
-
         public void Freeze() {
             if (!isFrozen) {
                 frozenHashCode = GetHashCodeHelper();

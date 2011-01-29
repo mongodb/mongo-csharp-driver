@@ -29,6 +29,7 @@ namespace MongoDB.Driver {
         private static int maxConnectionPoolSize = 100;
         private static int maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int minConnectionPoolSize = 0;
+        private static SafeMode safeMode = SafeMode.False;
         private static TimeSpan socketTimeout = TimeSpan.FromSeconds(30);
         private static int tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
@@ -81,6 +82,11 @@ namespace MongoDB.Driver {
         public static int MinConnectionPoolSize {
             get { return minConnectionPoolSize; }
             set { minConnectionPoolSize = value; }
+        }
+
+        public static SafeMode SafeMode {
+            get { return safeMode; }
+            set { safeMode = value; }
         }
 
         public static TimeSpan SocketTimeout {

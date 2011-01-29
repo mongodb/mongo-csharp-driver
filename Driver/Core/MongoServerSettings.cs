@@ -54,7 +54,7 @@ namespace MongoDB.Driver {
             maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
             replicaSetName = null;
-            safeMode = SafeMode.False;
+            safeMode = MongoDefaults.SafeMode;
             servers = null;
             slaveOk = false;
             socketTimeout = MongoDefaults.SocketTimeout;

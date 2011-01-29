@@ -309,14 +309,17 @@ namespace MongoDB.Driver {
         public virtual MongoDatabase GetDatabase(
             string databaseName
         ) {
-            return GetDatabase(databaseName, settings.DefaultCredentials);
+            var databaseSettings = GetDatabaseSettings(databaseName);
+            return GetDatabase(databaseSettings);
         }
 
         public virtual MongoDatabase GetDatabase(
             string databaseName,
             MongoCredentials credentials
         ) {
-            return GetDatabase(databaseName, credentials, settings.SafeMode);
+            var databaseSettings = GetDatabaseSettings(databaseName);
+            databaseSettings.Credentials = credentials;
+            return GetDatabase(databaseSettings);
         }
 
         public virtual MongoDatabase GetDatabase(
@@ -324,12 +327,9 @@ namespace MongoDB.Driver {
             MongoCredentials credentials,
             SafeMode safeMode
         ) {
-            var databaseSettings = new MongoDatabaseSettings(
-                databaseName,
-                credentials,
-                safeMode,
-                settings.SlaveOk
-            );
+            var databaseSettings = GetDatabaseSettings(databaseName);
+            databaseSettings.Credentials = credentials;
+            databaseSettings.SafeMode = safeMode;
             return GetDatabase(databaseSettings);
         }
 
@@ -337,7 +337,9 @@ namespace MongoDB.Driver {
             string databaseName,
             SafeMode safeMode
         ) {
-            return GetDatabase(databaseName, settings.DefaultCredentials, safeMode);
+            var databaseSettings = GetDatabaseSettings(databaseName);
+            databaseSettings.SafeMode = safeMode;
+            return GetDatabase(databaseSettings);
         }
 
         public virtual IEnumerable<string> GetDatabaseNames() {
@@ -349,6 +351,17 @@ namespace MongoDB.Driver {
             }
             databaseNames.Sort();
             return databaseNames;
+        }
+
+        public virtual MongoDatabaseSettings GetDatabaseSettings(
+            string databaseName
+        ) {
+            return new MongoDatabaseSettings(
+                databaseName,
+                settings.DefaultCredentials,
+                settings.SafeMode,
+                settings.SlaveOk
+            );
         }
 
         public virtual GetLastErrorResult GetLastError() {
