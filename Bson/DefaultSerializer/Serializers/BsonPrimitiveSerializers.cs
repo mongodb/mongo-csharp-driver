@@ -153,7 +153,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     break;
                 case BsonType.String:
                     if (dateTimeOptions.DateOnly) {
-                        value = DateTime.SpecifyKind(XmlConvert.ToDateTime(bsonReader.ReadString()), DateTimeKind.Utc);
+                        value = DateTime.SpecifyKind(XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind), DateTimeKind.Utc);
                     } else {
                         value = XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
                     }

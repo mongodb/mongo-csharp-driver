@@ -320,12 +320,14 @@ namespace MongoDB.DriverOnlineTests {
             // note: the hits are unordered
         }
 
+#pragma warning disable 649 // never assigned to
         private class Place {
             public ObjectId Id;
             public double[] Location;
             public string Name;
             public string Type;
         }
+#pragma warning restore
 
         [Test]
         public void TestGeoNear() {
@@ -565,6 +567,7 @@ namespace MongoDB.DriverOnlineTests {
             }
         }
 
+#pragma warning disable 649 // never assigned to
         private class TestInlineResultDocument {
             public string Id;
             [BsonElement("value")]
@@ -575,6 +578,7 @@ namespace MongoDB.DriverOnlineTests {
             [BsonElement("count")]
             public int Count;
         }
+#pragma warning restore
 
         [Test]
         public void TestMapReduceInline() {

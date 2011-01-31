@@ -26,6 +26,7 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class BsonRepresentationAttributeTests {
+#pragma warning disable 649 // never assigned to
         private class C {
             public int I;
             [BsonRepresentation(BsonType.Int64)]
@@ -39,6 +40,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             [BsonRepresentation(BsonType.Int32, AllowOverflow = true, AllowTruncation = true)]
             public double DIOT;
         }
+#pragma warning restore
 
         [Test]
         public void TestRepresentationAttributeForI() {

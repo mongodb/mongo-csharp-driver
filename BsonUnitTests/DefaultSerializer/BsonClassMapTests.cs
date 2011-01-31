@@ -29,6 +29,8 @@ using System.Reflection;
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class BsonClassMapTests {
+#pragma warning disable 169 // never used
+#pragma warning disable 649 // never assigned to
         private class A {
             private int fieldNotMapped;
             public readonly int FieldNotMapped2;
@@ -45,6 +47,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             [BsonElement("PropertyMappedByAttribute")]
             private int PropertyMappedByAttribute { get; set; }
         }
+#pragma warning restore
 
         [Test]
         public void TestMappingPicksUpAllMembersWithAttributes() {
@@ -55,10 +58,12 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
     [TestFixture]
     public class BsonClassMapMapByNameTests {
+#pragma warning disable 169 // never used
         private class C {
             private string f;
             private string p { get; set; }
         }
+#pragma warning restore
 
         [Test]
         public void TestMapField() {
@@ -119,10 +124,12 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
     [TestFixture]
     public class BsonClassMapMapByLamdaTests {
+#pragma warning disable 649 // never assigned to
         private class C {
             public string F;
             public string P { get; set; }
         }
+#pragma warning restore
 
         [Test]
         public void TestMapField() {

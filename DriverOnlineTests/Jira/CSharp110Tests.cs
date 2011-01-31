@@ -29,10 +29,12 @@ using MongoDB.Driver.Builders;
 namespace MongoDB.DriverOnlineTests.Jira.CSharp110 {
     [TestFixture]
     public class CSharp110Tests {
+#pragma warning disable 649 // never assigned to
         private class C {
             public ObjectId Id;
             public int X;
         }
+#pragma warning restore
 
         [Test]
         public void TestFind() {

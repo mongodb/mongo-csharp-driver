@@ -51,7 +51,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                     Type nominalType,
                     IBsonSerializationOptions options
                 ) {
-                    return XmlConvert.ToDateTime(bsonReader.ReadString());
+                    return XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
                 }
 
                 public override void Serialize(

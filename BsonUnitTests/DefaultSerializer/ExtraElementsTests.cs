@@ -29,6 +29,7 @@ using System.Reflection;
 namespace MongoDB.BsonUnitTests.DefaultSerializer {
     [TestFixture]
     public class BsonExtraElementsTests {
+#pragma warning disable 649 // never assigned to
         private class C {
             public int Id;
             public int A;
@@ -36,6 +37,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             [BsonExtraElements]
             public BsonDocument X;
         }
+#pragma warning restore
 
         [Test]
         public void TestNoExtraElements() {

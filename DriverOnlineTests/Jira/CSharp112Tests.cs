@@ -30,6 +30,7 @@ using MongoDB.Driver.Builders;
 namespace MongoDB.DriverOnlineTests.Jira.CSharp112 {
     [TestFixture]
     public class CSharp112Tests {
+#pragma warning disable 649 // never assigned to
         private class D {
             public int Id;
             public double N;
@@ -44,6 +45,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112 {
             public int Id;
             public long N;
         }
+#pragma warning restore
 
         private MongoServer server;
         private MongoDatabase database;
