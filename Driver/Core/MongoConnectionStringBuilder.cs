@@ -392,7 +392,7 @@ namespace MongoDB.Driver {
                 maxConnectionPoolSize,
                 minConnectionPoolSize,
                 replicaSetName,
-                safeMode,
+                safeMode ?? MongoDefaults.SafeMode,
                 servers,
                 slaveOk,
                 socketTimeout,

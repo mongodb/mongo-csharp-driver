@@ -104,7 +104,10 @@ namespace MongoDB.Driver.GridFS {
             MongoGridFSSettings rhs
         ) {
             if (rhs == null) { return false; }
-            return this.defaultChunkSize == rhs.defaultChunkSize && this.root == rhs.root && this.safeMode == rhs.safeMode;
+            return 
+                this.defaultChunkSize == rhs.defaultChunkSize &&
+                this.root == rhs.root && 
+                this.safeMode == rhs.safeMode;
         }
 
         public override bool Equals(object obj) {

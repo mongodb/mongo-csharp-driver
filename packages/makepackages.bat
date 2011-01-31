@@ -14,7 +14,9 @@ set ZIPFILE=%PACKAGES%\CSharpDriver-%VER%.zip
 %ZIPEXE% a %ZIPFILE% ..\License.txt
 %ZIPEXE% a %ZIPFILE% "..\Release Notes v0.11.txt"
 %ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.dll
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.pdb
 %ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.dll
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.pdb
 
 echo Created %PACKAGES%
 pause
