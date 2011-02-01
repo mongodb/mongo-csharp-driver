@@ -330,9 +330,10 @@ namespace MongoDB.Driver.GridFS {
                 md5 = null;
                 uploadDate = default(DateTime);
             } else {
-                if (fileInfo.Contains("aliases")) {
+                var aliasesValue = fileInfo["aliases", null];
+                if (aliasesValue != null && !aliasesValue.IsBsonNull) {
                     var list = new List<string>();
-                    foreach (var alias in fileInfo["aliases"].AsBsonArray) {
+                    foreach (var alias in aliasesValue.AsBsonArray) {
                         list.Add(alias.AsString);
                     }
                     aliases = list.ToArray();
@@ -340,12 +341,22 @@ namespace MongoDB.Driver.GridFS {
                     aliases = null;
                 }
                 chunkSize = fileInfo["chunkSize"].ToInt32();
-                contentType = (string) fileInfo["contentType", null];
+                var contentTypeValue = fileInfo["contentType", null];
+                if (contentTypeValue != null && !contentTypeValue.IsBsonNull) {
+                    contentType = contentTypeValue.AsString;
+                } else {
+                    contentType = null;
+                }
                 exists = true;
                 id = fileInfo["_id"];
                 length = fileInfo["length"].ToInt32();
                 md5 = (string) fileInfo["md5", null];
-                metadata = (BsonDocument) fileInfo["metadata", null];
+                var metadataValue = fileInfo["metadata", null];
+                if (metadataValue != null && !metadataValue.IsBsonNull) {
+                    metadata = metadataValue.AsBsonDocument;
+                } else {
+                    metadata = null;
+                }
                 name = fileInfo["filename"].AsString;
                 uploadDate = fileInfo["uploadDate"].AsDateTime;
             }
