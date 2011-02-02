@@ -47,20 +47,24 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp163 {
             var text = "Hello World";
             var bytes = Encoding.UTF8.GetBytes(text);
             var stream = new MemoryStream(bytes);
-            var fileInfo = database.GridFS.Upload(stream, "Hello World.txt");
+            var fileInfo = database.GridFS.Upload(stream, null); // test no filename!
             Assert.IsNull(fileInfo.Aliases);
             Assert.IsNull(fileInfo.ContentType);
+            Assert.IsNull(fileInfo.Metadata);
+            Assert.IsNull(fileInfo.Name);
 
             var query = Query.EQ("_id", fileInfo.Id);
             var files = database.GridFS.Files.FindOne(query);
             Assert.IsFalse(files.Contains("aliases"));
             Assert.IsFalse(files.Contains("contentType"));
+            Assert.IsFalse(files.Contains("filename"));
             Assert.IsFalse(files.Contains("metadata"));
 
             // simulate null values as stored by other drivers
             var update = Update
                 .Set("aliases", BsonNull.Value)
                 .Set("contentType", BsonNull.Value)
+                .Set("filename", BsonNull.Value)
                 .Set("metadata", BsonNull.Value);
             database.GridFS.Files.Update(query, update);
 
@@ -68,19 +72,23 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp163 {
             Assert.IsNull(fileInfo2.Aliases);
             Assert.IsNull(fileInfo2.ContentType);
             Assert.IsNull(fileInfo2.Metadata);
+            Assert.IsNull(fileInfo2.Name);
 
             // test that non-null values still work
             var aliases = new[] { "a", "b", "c" };
             var contentType = "text/plain";
             var metadata = new BsonDocument { { "x", 1 }, { "y", 2 } };
+            var name = "HelloWorld.txt";
             database.GridFS.SetAliases(fileInfo, aliases);
             database.GridFS.SetContentType(fileInfo, contentType);
             database.GridFS.SetMetadata(fileInfo, metadata);
+            fileInfo.MoveTo(name);
 
             var fileInfo3 = database.GridFS.FindOne(query);
             Assert.IsTrue(aliases.SequenceEqual(fileInfo3.Aliases));
             Assert.AreEqual(contentType, fileInfo3.ContentType);
             Assert.AreEqual(metadata, fileInfo3.Metadata);
+            Assert.AreEqual(name, fileInfo3.Name);
         }
     }
 }

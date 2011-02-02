@@ -357,7 +357,12 @@ namespace MongoDB.Driver.GridFS {
                 } else {
                     metadata = null;
                 }
-                name = fileInfo["filename"].AsString;
+                var filenameValue = fileInfo["filename", null];
+                if (filenameValue != null && !filenameValue.IsBsonNull) {
+                    name = filenameValue.AsString;
+                } else {
+                    name = null;
+                }
                 uploadDate = fileInfo["uploadDate"].AsDateTime;
             }
             cached = true;

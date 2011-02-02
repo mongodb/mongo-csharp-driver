@@ -169,6 +169,12 @@ namespace MongoDB.Driver {
         }
 
         public virtual MongoDatabase this[
+            MongoDatabaseSettings databaseSettings
+        ] {
+            get { return GetDatabase(databaseSettings); }
+        }
+
+        public virtual MongoDatabase this[
             string databaseName,
             MongoCredentials credentials,
             SafeMode safeMode
