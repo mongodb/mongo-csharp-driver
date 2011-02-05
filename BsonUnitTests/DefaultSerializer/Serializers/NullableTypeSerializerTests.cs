@@ -38,6 +38,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             public int? Int32 { get; set; }
             public long? Int64 { get; set; }
             public ObjectId? ObjectId { get; set; }
+            [BsonRepresentation(BsonType.String)]
+            public ConsoleColor? Enum { get; set; }
             // public Struct? Struct { get; set; }
         }
 
@@ -54,7 +56,8 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             "'Guid' : null, " +
             "'Int32' : null, " +
             "'Int64' : null, " +
-            "'ObjectId' : null" +
+            "'ObjectId' : null, " +
+            "'Enum' : null" +
             // "'Struct' : null" +
             " }";
 
@@ -118,6 +121,18 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
+        [Test]
+        public void TestEnum()
+        {
+            C c = new C { Enum = ConsoleColor.Red};
+            var json = c.ToJson();
+            var expected = template.Replace("'Enum' : null", "'Enum' : \"Red\"").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
         [Test]
         public void TestGuid() {
             C c = new C { Guid = Guid.Empty };
