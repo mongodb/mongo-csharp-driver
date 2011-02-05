@@ -95,59 +95,64 @@ namespace MongoDB.Driver {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            bsonReader.ReadStartDocument();
-            string message;
-            BsonType bsonType;
-            while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument) {
-                var name = bsonReader.ReadName();
-                switch (name) {
-                    case "$ref":
-                        collectionName = bsonReader.ReadString();
-                        break;
-                    case "$id":
-                        switch (bsonType) {
-                            case BsonType.Binary:
-                                byte[] bytes;
-                                BsonBinarySubType subType;
-                                bsonReader.ReadBinaryData(out bytes, out subType);
-                                if (bytes.Length == 16 && subType == BsonBinarySubType.Uuid) {
-                                    id = new Guid(bytes);
-                                } else {
-                                    throw new FileFormatException("Binary data is not valid for Guid");
-                                }
-                                break;
-                            case BsonType.Int32:
-                                id = bsonReader.ReadInt32();
-                                break;
-                            case BsonType.Int64:
-                                id = bsonReader.ReadInt64();
-                                break;
-                            case BsonType.ObjectId:
-                                int timestamp;
-                                int machine;
-                                short pid;
-                                int increment;
-                                bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
-                                id = new ObjectId(timestamp, machine, pid, increment);
-                                break;
-                            case BsonType.String:
-                                id = bsonReader.ReadString();
-                                break;
-                            default:
-                                message = string.Format("Unsupported BsonType for $id element of a DBRef: {0}", bsonType);
-                                throw new MongoException(message);
-                        }
-                        break;
-                    case "$db":
-                        databaseName = bsonReader.ReadString();
-                        break;
-                    default:
-                        message = string.Format("Invalid element for DBRef: {0}", name);
-                        throw new FileFormatException(message);
+            if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else {
+                bsonReader.ReadStartDocument();
+                string message;
+                BsonType bsonType;
+                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument) {
+                    var name = bsonReader.ReadName();
+                    switch (name) {
+                        case "$ref":
+                            collectionName = bsonReader.ReadString();
+                            break;
+                        case "$id":
+                            switch (bsonType) {
+                                case BsonType.Binary:
+                                    byte[] bytes;
+                                    BsonBinarySubType subType;
+                                    bsonReader.ReadBinaryData(out bytes, out subType);
+                                    if (bytes.Length == 16 && subType == BsonBinarySubType.Uuid) {
+                                        id = new Guid(bytes);
+                                    } else {
+                                        throw new FileFormatException("Binary data is not valid for Guid");
+                                    }
+                                    break;
+                                case BsonType.Int32:
+                                    id = bsonReader.ReadInt32();
+                                    break;
+                                case BsonType.Int64:
+                                    id = bsonReader.ReadInt64();
+                                    break;
+                                case BsonType.ObjectId:
+                                    int timestamp;
+                                    int machine;
+                                    short pid;
+                                    int increment;
+                                    bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                                    id = new ObjectId(timestamp, machine, pid, increment);
+                                    break;
+                                case BsonType.String:
+                                    id = bsonReader.ReadString();
+                                    break;
+                                default:
+                                    message = string.Format("Unsupported BsonType for $id element of a DBRef: {0}", bsonType);
+                                    throw new MongoException(message);
+                            }
+                            break;
+                        case "$db":
+                            databaseName = bsonReader.ReadString();
+                            break;
+                        default:
+                            message = string.Format("Invalid element for DBRef: {0}", name);
+                            throw new FileFormatException(message);
+                    }
                 }
+                bsonReader.ReadEndDocument();
+                return this;
             }
-            bsonReader.ReadEndDocument();
-            return this;
         }
 
         bool IBsonSerializable.GetDocumentId(

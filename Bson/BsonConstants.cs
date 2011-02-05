@@ -21,7 +21,7 @@ using System.Text;
 namespace MongoDB.Bson {
     public static class BsonConstants {
         #region private static fields
-        private static DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         #endregion
 
         #region public static properties
