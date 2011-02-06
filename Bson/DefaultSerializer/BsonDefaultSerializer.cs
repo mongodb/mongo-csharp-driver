@@ -32,6 +32,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         private static BsonDefaultSerializer instance = new BsonDefaultSerializer();
         private static Dictionary<Type, IDiscriminatorConvention> discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
         private static Dictionary<BsonValue, HashSet<Type>> discriminators = new Dictionary<BsonValue, HashSet<Type>>();
+        private static Func<Type, IBsonSerializer> missingSerializerCallback = t => null;
         #endregion
 
         #region constructors
@@ -142,6 +143,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        public static void RegisterMissingSerializerCallback(Func<Type, IBsonSerializer> callback){
+            if (callback == null)
+                callback = t => null;
+            missingSerializerCallback = callback;
+        }
+
         public static void RegisterDiscriminator(
             Type type,
             BsonValue discriminator
@@ -228,6 +235,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (type.IsEnum) {
                 return EnumSerializer.Instance;
             }
+
+            var missing = missingSerializerCallback(type);
+            if (missing != null)
+                return missing;
 
             if (
                 (type.IsClass || (type.IsValueType && !type.IsPrimitive)) &&
