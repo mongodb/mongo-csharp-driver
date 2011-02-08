@@ -213,7 +213,7 @@ namespace MongoDB.Driver {
             IMongoSortBy sortBy,
             IMongoUpdate update
         ) {
-            return FindAndModify(query, sortBy, update, Fields.Null, false);
+            return FindAndModify(query, sortBy, update, Fields.Null, false, false);
         }
 
         public virtual FindAndModifyResult FindAndModify(
@@ -222,7 +222,17 @@ namespace MongoDB.Driver {
             IMongoUpdate update,
             bool returnNew
         ) {
-            return FindAndModify(query, sortBy, update, Fields.Null, returnNew);
+            return FindAndModify(query, sortBy, update, Fields.Null, returnNew, false);
+        }
+
+        public virtual FindAndModifyResult FindAndModify(
+            IMongoQuery query,
+            IMongoSortBy sortBy,
+            IMongoUpdate update,
+            bool returnNew,
+            bool upsert
+        ) {
+            return FindAndModify(query, sortBy, update, Fields.Null, returnNew, upsert);
         }
 
         public virtual FindAndModifyResult FindAndModify(
@@ -230,7 +240,8 @@ namespace MongoDB.Driver {
             IMongoSortBy sortBy,
             IMongoUpdate update,
             IMongoFields fields,
-            bool returnNew
+            bool returnNew,
+            bool upsert
         ) {
             var command = new CommandDocument {
                 { "findAndModify", name },
@@ -238,7 +249,8 @@ namespace MongoDB.Driver {
                 { "sort", BsonDocument.Wrap(sortBy) },
                 { "update", BsonDocument.Wrap(update) },
                 { "fields", BsonDocument.Wrap(fields) },
-                { "new", true, returnNew }
+                { "new", true, returnNew },
+                { "upsert", true, upsert}
             };
             return database.RunCommandAs<FindAndModifyResult>(command);
         }
