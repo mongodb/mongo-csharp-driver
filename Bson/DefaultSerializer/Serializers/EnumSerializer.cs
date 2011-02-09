@@ -105,7 +105,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             Type nominalType,
             Type actualType
         ) {
-            if (nominalType != typeof(object) && nominalType != actualType) {
+
+            if ((nominalType.IsGenericType && nominalType.GetGenericTypeDefinition() != typeof(Nullable<>)) &&
+                nominalType != typeof(object) && nominalType != actualType)
+            {
                 var message = string.Format("EnumSerializer.Serialize cannot be used with nominal type: {0}", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }           
