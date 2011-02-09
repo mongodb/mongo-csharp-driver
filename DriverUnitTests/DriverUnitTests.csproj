@@ -86,6 +86,7 @@
     <Compile Include="Core\MongoServerSettingsTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />
     <Compile Include="Core\MongoUrlTests.cs" />
+    <Compile Include="Bugs\GenericIEnumerableSerializationIssues.cs" />
     <Compile Include="GridFS\MongoGridFSSettingsTests.cs" />
     <Compile Include="Jira\CSharp137Tests.cs" />
     <Compile Include="Jira\CSharp140Tests.cs" />
