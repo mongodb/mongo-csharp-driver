@@ -108,10 +108,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             // problem is that the actual type of a nullable type that is not null will appear as the non-nullable type
             // we want to allow both Enum and Nullable<Enum> here 
             bool isNullableOfActual = (
-                nominalType.GetGenericTypeDefinition() == typeof(Nullable<>)
-                && nominalType.GetGenericArguments().FirstOrDefault() == actualType
-                );
-            if (nominalType != typeof(object) && nominalType != actualType && (!isNullableOfActual)) {
+                nominalType.IsGenericType &&
+                nominalType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                nominalType.GetGenericArguments().Single() == actualType
+            );
+            if (nominalType != typeof(object) && nominalType != actualType && !isNullableOfActual) {
                 var message = string.Format("EnumSerializer.Serialize cannot be used with nominal type: {0}", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }           

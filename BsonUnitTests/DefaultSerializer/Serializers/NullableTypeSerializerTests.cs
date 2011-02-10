@@ -122,17 +122,17 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         }
 
         [Test]
-        public void TestEnum()
-        {
-            C c = new C { Enum = ConsoleColor.Red};
+        public void TestEnum() {
+            var c = new C { Enum = ConsoleColor.Red };
             var json = c.ToJson();
-            var expected = template.Replace("'Enum' : null", "'Enum' : \"Red\"").Replace("'", "\"");
+            var expected = template.Replace("'Enum' : null", "'Enum' : 'Red'").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
         [Test]
         public void TestGuid() {
             C c = new C { Guid = Guid.Empty };
