@@ -152,6 +152,23 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestFindAndModify() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 2 }, { "inprogress", false }, { "name", "abc" } });
+            var query = Query.EQ("_id", 1);
+            var sortBy = SortBy.Descending("priority");
+            var started = DateTime.UtcNow;
+            var update = Update.Set("inprogress", true).Set("started", started);
+            var result = collection.FindAndModify(query, sortBy, update, true); // return new
+            Assert.IsTrue(result.Ok);
+            Assert.AreEqual(1, result.ModifiedDocument["_id"].AsInt32);
+            Assert.AreEqual(2, result.ModifiedDocument["priority"].AsInt32);
+            Assert.AreEqual(true, result.ModifiedDocument["inprogress"].AsBoolean);
+            Assert.AreEqual("abc", result.ModifiedDocument["name"].AsString);
+            Assert.AreEqual(started, result.ModifiedDocument["started"].AsDateTime);
+        }
+
+        [Test]
         public void TestFindNearSphericalFalse() {
             if (collection.Exists()) { collection.Drop(); }
             collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });

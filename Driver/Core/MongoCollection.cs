@@ -213,7 +213,7 @@ namespace MongoDB.Driver {
             IMongoSortBy sortBy,
             IMongoUpdate update
         ) {
-            return FindAndModify(query, sortBy, update, Fields.Null, false, false);
+            return FindAndModify(query, sortBy, update, false);
         }
 
         public virtual FindAndModifyResult FindAndModify(
@@ -222,7 +222,7 @@ namespace MongoDB.Driver {
             IMongoUpdate update,
             bool returnNew
         ) {
-            return FindAndModify(query, sortBy, update, Fields.Null, returnNew, false);
+            return FindAndModify(query, sortBy, update, returnNew, false);
         }
 
         public virtual FindAndModifyResult FindAndModify(
