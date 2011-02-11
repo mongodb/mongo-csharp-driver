@@ -24,14 +24,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public static class NullableSerializerRegistration {
-        #region public static methods
-        public static void RegisterGenericSerializerDefinitions() {
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(Nullable<>), typeof(NullableSerializer<>));
-        }
-        #endregion
-    }
-
     public class NullableSerializer<T> : BsonBaseSerializer where T : struct {
         #region private fields
         private IBsonSerializer serializer;

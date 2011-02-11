@@ -37,6 +37,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        private BsonDocumentWrapper()
+            : base(BsonType.Document) {
+        }
+
         public BsonDocumentWrapper(
             object wrappedObject
         )

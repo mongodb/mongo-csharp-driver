@@ -23,17 +23,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public static class DictionarySerializerRegistration {
-        #region public static methods
-        public static void RegisterGenericSerializerDefinitions() {
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(Dictionary<,>), typeof(DictionarySerializer<,>));
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(IDictionary<,>), typeof(DictionarySerializer<,>));
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(SortedDictionary<,>), typeof(DictionarySerializer<,>));
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(SortedList<,>), typeof(DictionarySerializer<,>));
-        }
-        #endregion
-    }
-
     public class DictionarySerializer<TKey, TValue> : BsonBaseSerializer {
         #region constructors
         public DictionarySerializer() {

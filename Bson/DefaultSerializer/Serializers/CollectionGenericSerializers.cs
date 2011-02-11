@@ -24,19 +24,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    public static class EnumerableSerializerRegistration {
-        #region public static methods
-        public static void RegisterGenericSerializerDefinitions() {
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(HashSet<>), typeof(EnumerableSerializer<>));
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(ICollection<>), typeof(EnumerableSerializer<>));
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(IEnumerable<>), typeof(EnumerableSerializer<>));
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(IList<>), typeof(EnumerableSerializer<>));
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(List<>), typeof(EnumerableSerializer<>));
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(LinkedList<>), typeof(EnumerableSerializer<>));
-        }
-        #endregion
-    }
-
     public class EnumerableSerializer<T> : BsonBaseSerializer {
         #region constructors
         public EnumerableSerializer() {
@@ -90,14 +77,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
-    public static class QueueSerializerRegistration {
-        #region public static methods
-        public static void RegisterGenericSerializerDefinitions() {
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(Queue<>), typeof(QueueSerializer<>));
-        }
-        #endregion
-    }
-
     public class QueueSerializer<T> : BsonBaseSerializer {
         #region constructors
         public QueueSerializer() {
@@ -147,14 +126,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 }
                 bsonWriter.WriteEndArray();
             }
-        }
-        #endregion
-    }
-
-    public static class StackSerializerRegistration {
-        #region public static methods
-        public static void RegisterGenericSerializerDefinitions() {
-            BsonSerializer.RegisterGenericSerializerDefinition(typeof(Stack<>), typeof(StackSerializer<>));
         }
         #endregion
     }

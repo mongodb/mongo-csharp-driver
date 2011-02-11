@@ -40,15 +40,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
         #endregion
 
-        #region public static methods
-        public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(ArrayList), instance);
-            BsonSerializer.RegisterSerializer(typeof(ICollection), instance);
-            BsonSerializer.RegisterSerializer(typeof(IEnumerable), instance);
-            BsonSerializer.RegisterSerializer(typeof(IList), instance);
-        }
-        #endregion
-
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
@@ -112,12 +103,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
         #endregion
 
-        #region public static methods
-        public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Queue), instance);
-        }
-        #endregion
-
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
@@ -178,12 +163,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         #region public static properties
         public static StackSerializer Instance {
             get { return instance; }
-        }
-        #endregion
-
-        #region public static methods
-        public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Stack), instance);
         }
         #endregion
 

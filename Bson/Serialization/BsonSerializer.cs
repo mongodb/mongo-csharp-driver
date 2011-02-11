@@ -327,7 +327,6 @@ namespace MongoDB.Bson.Serialization {
 
         #region private static methods
         private static void RegisterDefaultSerializationProvider() {
-            DefaultSerializer.BsonDefaultSerializer.Initialize();
             RegisterSerializationProvider(DefaultSerializer.BsonDefaultSerializer.Instance);
         }
 

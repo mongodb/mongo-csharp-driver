@@ -40,12 +40,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
         #endregion
 
-        #region public static methods
-        public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(object), instance);
-        }
-        #endregion
-
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,

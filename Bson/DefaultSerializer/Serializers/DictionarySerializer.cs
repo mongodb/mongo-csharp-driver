@@ -40,16 +40,6 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
         #endregion
 
-        #region public static methods
-        public static void RegisterSerializers() {
-            BsonSerializer.RegisterSerializer(typeof(Hashtable), instance);
-            BsonSerializer.RegisterSerializer(typeof(IDictionary), instance);
-            BsonSerializer.RegisterSerializer(typeof(ListDictionary), instance);
-            BsonSerializer.RegisterSerializer(typeof(OrderedDictionary), instance);
-            BsonSerializer.RegisterSerializer(typeof(SortedList), instance);
-        }
-        #endregion
-
         #region public methods
         public override object Deserialize(
             BsonReader bsonReader,
