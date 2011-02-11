@@ -25,6 +25,12 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     public static class SortBy {
+        #region public static properties
+        public static IMongoSortBy Null {
+            get { return null; }
+        }
+        #endregion
+
         #region public static methods
         public static SortByBuilder Ascending(
             params string[] keys

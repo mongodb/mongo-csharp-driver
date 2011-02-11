@@ -154,18 +154,45 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestFindAndModify() {
             collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 2 }, { "inprogress", false }, { "name", "abc" } });
-            var query = Query.EQ("_id", 1);
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
+
+            var query = Query.EQ("inprogress", false);
             var sortBy = SortBy.Descending("priority");
             var started = DateTime.UtcNow;
+            started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
             var update = Update.Set("inprogress", true).Set("started", started);
-            var result = collection.FindAndModify(query, sortBy, update, true); // return new
+            var result = collection.FindAndModify(query, sortBy, update, false); // return old
+            Assert.IsTrue(result.Ok);
+            Assert.AreEqual(2, result.ModifiedDocument["_id"].AsInt32);
+            Assert.AreEqual(2, result.ModifiedDocument["priority"].AsInt32);
+            Assert.AreEqual(false, result.ModifiedDocument["inprogress"].AsBoolean);
+            Assert.AreEqual("def", result.ModifiedDocument["name"].AsString);
+            Assert.IsFalse(result.ModifiedDocument.Contains("started"));
+
+            started = DateTime.UtcNow;
+            started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
+            update = Update.Set("inprogress", true).Set("started", started);
+            result = collection.FindAndModify(query, sortBy, update, true); // return new
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(1, result.ModifiedDocument["_id"].AsInt32);
-            Assert.AreEqual(2, result.ModifiedDocument["priority"].AsInt32);
+            Assert.AreEqual(1, result.ModifiedDocument["priority"].AsInt32);
             Assert.AreEqual(true, result.ModifiedDocument["inprogress"].AsBoolean);
             Assert.AreEqual("abc", result.ModifiedDocument["name"].AsString);
             Assert.AreEqual(started, result.ModifiedDocument["started"].AsDateTime);
+        }
+
+
+        [Test]
+        public void TestFindAndModifyUpsert() {
+            collection.RemoveAll();
+
+            var query = Query.EQ("name", "Tom");
+            var sortBy = SortBy.Null;
+            var update = Update.Inc("count", 1);
+            var result = collection.FindAndModify(query, sortBy, update, true, true); // upsert
+            Assert.AreEqual("Tom", result.ModifiedDocument["name"].AsString);
+            Assert.AreEqual(1, result.ModifiedDocument["count"].AsInt32);
         }
 
         [Test]
