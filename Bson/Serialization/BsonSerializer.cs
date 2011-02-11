@@ -29,24 +29,13 @@ namespace MongoDB.Bson.Serialization {
         private static Dictionary<Type, IIdGenerator> idGenerators = new Dictionary<Type, IIdGenerator>();
         private static Dictionary<Type, IBsonSerializer> serializers = new Dictionary<Type, IBsonSerializer>();
         private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
-        private static IBsonSerializationProvider serializationProvider = null;
+        private static List<IBsonSerializationProvider> serializationProviders = new List<IBsonSerializationProvider>();
         #endregion
 
         #region static constructor
         static BsonSerializer() {
+            RegisterDefaultSerializationProvider();
             RegisterIdGenerators();
-        }
-        #endregion
-
-        #region public static properties
-        public static IBsonSerializationProvider SerializationProvider {
-            get { return serializationProvider; }
-            set {
-                if (serializationProvider != null) {
-                    throw new BsonSerializationException("SerializationProvider has already been set");
-                }
-                serializationProvider = value;
-            }
         }
         #endregion
 
@@ -198,12 +187,6 @@ namespace MongoDB.Bson.Serialization {
             Type type
         ) {
             lock (staticLock) {
-                // initialize the serialization provider before calling serializers.TryGetValue
-                // so the serialization provider gets a chance to register the serializers first
-                if (serializationProvider == null) {
-                    InitializeSerializationProvider();
-                }
-
                 IBsonSerializer serializer;
                 if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
@@ -221,7 +204,12 @@ namespace MongoDB.Bson.Serialization {
                     }
 
                     if (serializer == null) {
-                        serializer = serializationProvider.GetSerializer(type);
+                        foreach (var serializationProvider in serializationProviders) {
+                            serializer = serializationProvider.GetSerializer(type);
+                            if (serializer != null) {
+                                break;
+                            }
+                        }
                     }
 
                     if (serializer == null) {
@@ -251,6 +239,15 @@ namespace MongoDB.Bson.Serialization {
         ) {
             lock (staticLock) {
                 idGenerators[type] = idGenerator;
+            }
+        }
+
+        public static void RegisterSerializationProvider(
+            IBsonSerializationProvider provider
+        ) {
+            lock (staticLock) {
+                // add new provider to the front of the list
+                serializationProviders.Insert(0, provider);
             }
         }
 
@@ -329,14 +326,9 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region private static methods
-        private static void InitializeSerializationProvider() {
-            lock (staticLock) {
-                // repeat the test for null but this time while holding the staticLock
-                if (serializationProvider == null) {
-                    DefaultSerializer.BsonDefaultSerializer.Initialize();
-                    serializationProvider = DefaultSerializer.BsonDefaultSerializer.Instance;
-                }
-            }
+        private static void RegisterDefaultSerializationProvider() {
+            DefaultSerializer.BsonDefaultSerializer.Initialize();
+            RegisterSerializationProvider(DefaultSerializer.BsonDefaultSerializer.Instance);
         }
 
         private static void RegisterIdGenerators() {
