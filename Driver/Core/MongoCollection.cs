@@ -194,7 +194,9 @@ namespace MongoDB.Driver {
             lock (indexCache) {
                 string indexName = GetIndexName(keyNames);
                 if (!indexCache.Contains(indexName)) {
-                    CreateIndex(IndexKeys.Ascending(keyNames), IndexOptions.SetName(indexName));
+                    if (!IndexExists(keyNames)) {
+                        CreateIndex(IndexKeys.Ascending(keyNames), IndexOptions.SetName(indexName));
+                    }
                     indexCache.Add(indexName);
                 }
             }
