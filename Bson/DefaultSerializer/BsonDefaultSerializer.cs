@@ -103,6 +103,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             };
 
             genericSerializerDefinitions = new Dictionary<Type, Type> {
+                { typeof(Collection<>), typeof(EnumerableSerializer<>)},
                 { typeof(Dictionary<,>), typeof(DictionarySerializer<,>) },
                 { typeof(HashSet<>), typeof(EnumerableSerializer<>) },
                 { typeof(ICollection<>), typeof(EnumerableSerializer<>) },

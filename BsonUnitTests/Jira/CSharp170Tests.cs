@@ -43,8 +43,19 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp170 {
                 Observable = new ObservableCollection<int> { 1, 2, 3 }
             };
             var json = obj.ToJson();
-            var expected = "{ Collection : [1, 2, 3], Observable : [1, 2, 3] }";
+            var expected = "{ 'Collection' : [1, 2, 3], 'Observable' : [1, 2, 3] }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.AreEqual(3, rehydrated.Collection.Count);
+            Assert.AreEqual(1, rehydrated.Collection[0]);
+            Assert.AreEqual(2, rehydrated.Collection[1]);
+            Assert.AreEqual(3, rehydrated.Collection[2]);
+            Assert.AreEqual(3, rehydrated.Observable.Count);
+            Assert.AreEqual(1, rehydrated.Observable[0]);
+            Assert.AreEqual(2, rehydrated.Observable[1]);
+            Assert.AreEqual(3, rehydrated.Observable[2]);
         }
     }
 }
