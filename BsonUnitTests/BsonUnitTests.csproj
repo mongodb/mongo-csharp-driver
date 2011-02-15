@@ -71,6 +71,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\GlobalAssemblyInfo.cs">
@@ -117,6 +118,7 @@
     <Compile Include="Jira\CSharp146Tests.cs" />
     <Compile Include="Jira\CSharp147Tests.cs" />
     <Compile Include="Jira\CSharp151Tests.cs" />
+    <Compile Include="Jira\CSharp170Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
