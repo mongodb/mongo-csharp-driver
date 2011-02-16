@@ -354,6 +354,10 @@ namespace MongoDB.Driver {
 
         // TODO: mongo shell has ResetError at the database level
 
+        public virtual void ResetIndexCache() {
+            server.IndexCache.Reset(this);
+        }
+
         public virtual CommandResult RunCommand(
             IMongoCommand command
         ) {

@@ -45,6 +45,7 @@ namespace MongoDB.Driver {
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize; // will get overridden if server advertises different maxDocumentSize
         private int maxMessageLength = MongoDefaults.MaxMessageLength; // will get overridden if server advertises different maxMessageLength
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
+        private IndexCache indexCache = new IndexCache();
         #endregion
 
         #region constructors
@@ -117,6 +118,10 @@ namespace MongoDB.Driver {
 
         public virtual IEnumerable<IPEndPoint> EndPoints {
             get { return endPoints; }
+        }
+
+        public virtual IndexCache IndexCache {
+            get { return indexCache; }
         }
 
         public virtual int MaxDocumentSize {
@@ -428,6 +433,10 @@ namespace MongoDB.Driver {
                 requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
+        }
+
+        public virtual void ResetIndexCache() {
+            indexCache.Reset();
         }
 
         public virtual CommandResult RunAdminCommand(
