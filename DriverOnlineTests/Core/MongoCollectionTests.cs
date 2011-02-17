@@ -195,6 +195,26 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(1, result.ModifiedDocument["count"].AsInt32);
         }
 
+        private class FindAndModifyClass {
+            public ObjectId Id;
+            public int Value;
+        }
+
+        [Test]
+        public void TestFindAndModifyTyped() {
+            collection.RemoveAll();
+            var obj = new FindAndModifyClass { Id = ObjectId.GenerateNewId(), Value = 1 };
+            collection.Insert(obj);
+
+            var query = Query.EQ("_id", obj.Id);
+            var sortBy = SortBy.Null;
+            var update = Update.Inc("Value", 1);
+            var result = collection.FindAndModify(query, sortBy, update, true); // returnNew
+            var rehydrated = result.GetModifiedDocumentAs<FindAndModifyClass>();
+            Assert.AreEqual(obj.Id, rehydrated.Id);
+            Assert.AreEqual(2, rehydrated.Value);
+        }
+
         [Test]
         public void TestFindNearSphericalFalse() {
             if (collection.Exists()) { collection.Drop(); }
