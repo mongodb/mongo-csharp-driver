@@ -580,6 +580,19 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(true, collection.IndexExists(IndexKeys.Ascending("y")));
         }
 
+#pragma warning disable 649 // never assigned to
+        private class TestMapReduceDocument {
+            public string Id;
+            [BsonElement("value")]
+            public TestMapReduceValue Value;
+        }
+
+        private class TestMapReduceValue {
+            [BsonElement("count")]
+            public int Count;
+        }
+#pragma warning restore
+
         [Test]
         public void TestMapReduce() {
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
@@ -623,26 +636,27 @@ namespace MongoDB.DriverOnlineTests {
                     { "X", 1 },
                     { "_id", 3 }
                 };
+
+                // read output collection ourselves
                 foreach (var document in database[result.CollectionName].FindAll()) {
                     var key = document["_id"].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
+
+                // test GetResults
+                foreach (var document in result.GetResults()) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
+
+                // test GetResultsAs<>
+                foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                    Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
+                }
             }
         }
-
-#pragma warning disable 649 // never assigned to
-        private class TestInlineResultDocument {
-            public string Id;
-            [BsonElement("value")]
-            public TestInlineResultValue Value;
-        }
-
-        private class TestInlineResultValue {
-            [BsonElement("count")]
-            public int Count;
-        }
-#pragma warning restore
 
         [Test]
         public void TestMapReduceInline() {
@@ -696,10 +710,22 @@ namespace MongoDB.DriverOnlineTests {
                 }
 
                 // test InlineResults as TestInlineResultDocument
-                foreach (var document in result.GetInlineResultsAs<TestInlineResultDocument>()) {
+                foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
                     var key = document.Id;
                     var count = document.Value.Count;
                     Assert.AreEqual(expectedCounts[key], count);
+                }
+
+                // test GetResults
+                foreach (var document in result.GetResults()) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
+
+                // test GetResultsAs<>
+                foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                    Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
                 }
             }
         }

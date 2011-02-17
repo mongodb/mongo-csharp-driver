@@ -507,7 +507,9 @@ namespace MongoDB.Driver {
                 { "reduce", reduce }
             };
             command.Merge(options.ToBsonDocument());
-            return database.RunCommandAs<MapReduceResult>(command);
+            var result = database.RunCommandAs<MapReduceResult>(command);
+            result.SetDatabase(database);
+            return result;
         }
 
         public virtual MapReduceResult MapReduce(
