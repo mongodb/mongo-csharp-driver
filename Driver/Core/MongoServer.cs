@@ -113,7 +113,7 @@ namespace MongoDB.Driver {
 
         #region public properties
         public virtual MongoDatabase AdminDatabase {
-            get { return GetDatabase("admin", settings.DefaultCredentials); }
+            get { return GetDatabase("admin"); }
         }
 
         public virtual IEnumerable<IPEndPoint> EndPoints {
@@ -309,6 +309,25 @@ namespace MongoDB.Driver {
             return database.FetchDBRefAs<TDocument>(dbRef);
         }
 
+        public virtual MongoDatabase GetAdminDatabase(
+            MongoCredentials credentials
+        ) {
+            return GetDatabase("admin", credentials);
+        }
+
+        public virtual MongoDatabase GetAdminDatabase(
+            MongoCredentials credentials,
+            SafeMode safeMode
+        ) {
+            return GetDatabase("admin", credentials, safeMode);
+        }
+
+        public virtual MongoDatabase GetAdminDatabase(
+            SafeMode safeMode
+        ) {
+            return GetDatabase("admin", safeMode);
+        }
+
         public virtual MongoDatabase GetDatabase(
             MongoDatabaseSettings databaseSettings
         ) {
@@ -385,7 +404,7 @@ namespace MongoDB.Driver {
             if (RequestNestingLevel == 0) {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
-            var adminDatabase = GetDatabase("admin", (MongoCredentials) null); // no credentials needed for getlasterror
+            var adminDatabase = GetAdminDatabase((MongoCredentials) null); // no credentials needed for getlasterror
             return adminDatabase.RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
