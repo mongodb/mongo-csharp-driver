@@ -21,10 +21,14 @@ using System.Text;
 namespace MongoDB.Driver.GridFS {
     [Serializable]
     public class MongoGridFSSettings : IEquatable<MongoGridFSSettings> {
+        #region private static fields
+        private static MongoGridFSSettings defaults = new MongoGridFSSettings();
+        #endregion
+
         #region private fields
         private bool isFrozen;
         private string chunksCollectionName = "fs.chunks";
-        private int defaultChunkSize = 256 * 1024; // 256KiB
+        private int chunkSize = 256 * 1024; // 256KiB
         private string filesCollectionName = "fs.files";
         private string root = "fs";
         private SafeMode safeMode = SafeMode.False;
@@ -35,16 +39,23 @@ namespace MongoDB.Driver.GridFS {
         }
         #endregion
 
+        #region public static properties
+        public static MongoGridFSSettings Defaults {
+            get { return defaults; }
+            set { defaults = value; }
+        }
+        #endregion
+
         #region public properties
         public string ChunksCollectionName {
             get { return chunksCollectionName; }
         }
 
-        public int DefaultChunkSize {
-            get { return defaultChunkSize; }
+        public int ChunkSize {
+            get { return chunkSize; }
             set {
                 if (isFrozen) { ThrowFrozen(); }
-                defaultChunkSize = value;
+                chunkSize = value;
             }
         }
 
@@ -94,7 +105,7 @@ namespace MongoDB.Driver.GridFS {
         #region public methods
         public MongoGridFSSettings Clone() {
             return new MongoGridFSSettings {
-                DefaultChunkSize = defaultChunkSize,
+                ChunkSize = chunkSize,
                 Root = root,
                 SafeMode = safeMode
             };
@@ -105,7 +116,7 @@ namespace MongoDB.Driver.GridFS {
         ) {
             if (rhs == null) { return false; }
             return 
-                this.defaultChunkSize == rhs.defaultChunkSize &&
+                this.chunkSize == rhs.chunkSize &&
                 this.root == rhs.root && 
                 this.safeMode == rhs.safeMode;
         }
@@ -122,7 +133,7 @@ namespace MongoDB.Driver.GridFS {
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + defaultChunkSize.GetHashCode();
+            hash = 37 * hash + chunkSize.GetHashCode();
             hash = 37 * hash + root.GetHashCode();
             hash = 37 * hash + safeMode.GetHashCode();
             return hash;

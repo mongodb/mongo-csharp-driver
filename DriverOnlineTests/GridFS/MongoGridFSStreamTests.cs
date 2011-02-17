@@ -38,7 +38,7 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             var settings = new MongoGridFSSettings {
-                DefaultChunkSize = 16,
+                ChunkSize = 16,
                 SafeMode = SafeMode.True
             };
             gridFS = database.GetGridFS(settings);
@@ -65,7 +65,7 @@ namespace MongoDB.DriverOnlineTests.GridFS {
                 Assert.IsTrue(fileInfo.Exists);
                 Assert.IsNull(fileInfo.Aliases);
                 Assert.AreEqual("test", fileInfo.Name);
-                Assert.AreEqual(gridFS.Settings.DefaultChunkSize, fileInfo.ChunkSize);
+                Assert.AreEqual(gridFS.Settings.ChunkSize, fileInfo.ChunkSize);
                 Assert.IsNull(fileInfo.ContentType);
                 Assert.AreEqual(0, fileInfo.Length);
                 Assert.IsNull(fileInfo.MD5);

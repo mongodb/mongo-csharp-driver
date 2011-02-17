@@ -45,6 +45,7 @@ namespace MongoDB.Driver {
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize; // will get overridden if server advertises different maxDocumentSize
         private int maxMessageLength = MongoDefaults.MaxMessageLength; // will get overridden if server advertises different maxMessageLength
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
+        private IndexCache indexCache = new IndexCache();
         #endregion
 
         #region constructors
@@ -112,11 +113,15 @@ namespace MongoDB.Driver {
 
         #region public properties
         public virtual MongoDatabase AdminDatabase {
-            get { return GetDatabase("admin", settings.DefaultCredentials); }
+            get { return GetDatabase("admin"); }
         }
 
         public virtual IEnumerable<IPEndPoint> EndPoints {
             get { return endPoints; }
+        }
+
+        public virtual IndexCache IndexCache {
+            get { return indexCache; }
         }
 
         public virtual int MaxDocumentSize {
@@ -255,6 +260,12 @@ namespace MongoDB.Driver {
             throw new NotImplementedException();
         }
 
+        public virtual bool DatabaseExists(
+            string databaseName
+        ) {
+            return GetDatabaseNames().Contains(databaseName);
+        }
+
         public virtual void Disconnect() {
             // normally called from a connection when there is a SocketException
             // but anyone can call it if they want to close all sockets to the server
@@ -296,6 +307,25 @@ namespace MongoDB.Driver {
 
             var database = GetDatabase(dbRef.DatabaseName);
             return database.FetchDBRefAs<TDocument>(dbRef);
+        }
+
+        public virtual MongoDatabase GetAdminDatabase(
+            MongoCredentials credentials
+        ) {
+            return GetDatabase("admin", credentials);
+        }
+
+        public virtual MongoDatabase GetAdminDatabase(
+            MongoCredentials credentials,
+            SafeMode safeMode
+        ) {
+            return GetDatabase("admin", credentials, safeMode);
+        }
+
+        public virtual MongoDatabase GetAdminDatabase(
+            SafeMode safeMode
+        ) {
+            return GetDatabase("admin", safeMode);
         }
 
         public virtual MongoDatabase GetDatabase(
@@ -374,7 +404,7 @@ namespace MongoDB.Driver {
             if (RequestNestingLevel == 0) {
                 throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first");
             }
-            var adminDatabase = GetDatabase("admin", (MongoCredentials) null); // no credentials needed for getlasterror
+            var adminDatabase = GetAdminDatabase((MongoCredentials) null); // no credentials needed for getlasterror
             return adminDatabase.RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
         }
 
@@ -428,6 +458,10 @@ namespace MongoDB.Driver {
                 requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
+        }
+
+        public virtual void ResetIndexCache() {
+            indexCache.Reset();
         }
 
         public virtual CommandResult RunAdminCommand(

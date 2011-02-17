@@ -114,7 +114,7 @@ namespace MongoDB.Driver {
             get {
                 lock (databaseLock) {
                     if (gridFS == null) {
-                        gridFS = new MongoGridFS(this, MongoGridFS.DefaultSettings);
+                        gridFS = new MongoGridFS(this);
                     }
                     return gridFS;
                 }
@@ -353,6 +353,10 @@ namespace MongoDB.Driver {
         }
 
         // TODO: mongo shell has ResetError at the database level
+
+        public virtual void ResetIndexCache() {
+            server.IndexCache.Reset(this);
+        }
 
         public virtual CommandResult RunCommand(
             IMongoCommand command

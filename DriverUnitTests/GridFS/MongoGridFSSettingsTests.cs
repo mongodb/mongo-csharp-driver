@@ -31,7 +31,7 @@ namespace MongoDB.DriverUnitTests.GridFS {
             var settings = new MongoGridFSSettings();
             Assert.IsFalse(settings.IsFrozen);
             Assert.AreEqual("fs.chunks", settings.ChunksCollectionName);
-            Assert.AreEqual(256 * 1024, settings.DefaultChunkSize);
+            Assert.AreEqual(256 * 1024, settings.ChunkSize);
             Assert.AreEqual("fs.files", settings.FilesCollectionName);
             Assert.AreEqual("fs", settings.Root);
             Assert.AreEqual(SafeMode.False, settings.SafeMode);
@@ -40,13 +40,13 @@ namespace MongoDB.DriverUnitTests.GridFS {
         [Test]
         public void TestCreation() {
             var settings = new MongoGridFSSettings {
-                DefaultChunkSize = 64 * 1024,
+                ChunkSize = 64 * 1024,
                 Root = "root",
                 SafeMode = SafeMode.True
             };
             Assert.IsFalse(settings.IsFrozen);
             Assert.AreEqual("root.chunks", settings.ChunksCollectionName);
-            Assert.AreEqual(64 * 1024, settings.DefaultChunkSize);
+            Assert.AreEqual(64 * 1024, settings.ChunkSize);
             Assert.AreEqual("root.files", settings.FilesCollectionName);
             Assert.AreEqual("root", settings.Root);
             Assert.AreEqual(SafeMode.True, settings.SafeMode);
@@ -55,7 +55,7 @@ namespace MongoDB.DriverUnitTests.GridFS {
         [Test]
         public void TestCloneAndEquals() {
             var settings = new MongoGridFSSettings {
-                DefaultChunkSize = 64 * 1024,
+                ChunkSize = 64 * 1024,
                 Root = "root",
                 SafeMode = SafeMode.True
             };
@@ -72,7 +72,7 @@ namespace MongoDB.DriverUnitTests.GridFS {
             Assert.IsTrue(settings.IsFrozen);
             settings.Freeze(); // test that it's OK to call Freeze more than once
             Assert.IsTrue(settings.IsFrozen);
-            Assert.Throws<InvalidOperationException>(() => settings.DefaultChunkSize = 64 * 1024);
+            Assert.Throws<InvalidOperationException>(() => settings.ChunkSize = 64 * 1024);
             Assert.Throws<InvalidOperationException>(() => settings.Root = "root");
             Assert.Throws<InvalidOperationException>(() => settings.SafeMode = SafeMode.True);
         }

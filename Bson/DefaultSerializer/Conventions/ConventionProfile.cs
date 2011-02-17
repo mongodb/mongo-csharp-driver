@@ -47,7 +47,7 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
                 .SetExtraElementsMemberConvention(new NamedExtraElementsMemberConvention("ExtraElements"))
-                .SetIdMemberConvention(new NamedIdMemberConvention("Id"))
+                .SetIdMemberConvention(new NamedIdMemberConvention("Id", "id", "_id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
                 .SetMemberFinderConvention(new PublicMemberFinderConvention())

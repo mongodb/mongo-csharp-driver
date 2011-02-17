@@ -22,7 +22,13 @@ see also: BreakingChanges.txt
 
 ### Contributors:
 * Justin Dearing        zippy1981@gmail.com
+* Teun Duynstee		teun@duynstee.com
 * Ken Egozi             mail@kenegozi.com
+* Simon Green		simon@captaincodeman.com
 * Richard Kreuter       richard@10gen.com
+* Kevin Lewis		kevin.l.lewis@gmail.com
+* Andrew Rondeau	github@andrewrondeau.com
 * Testo                 test1@doramail.com   
 * Craig Wilson          craiggwilson@gmail.com
+
+If you have contributed and I have neglected to add you to this list please contact me at robert@10gen.com to be added to the list (with apologies).

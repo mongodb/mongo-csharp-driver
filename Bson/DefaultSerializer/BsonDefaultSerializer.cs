@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -102,6 +103,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             };
 
             genericSerializerDefinitions = new Dictionary<Type, Type> {
+                { typeof(Collection<>), typeof(EnumerableSerializer<>)},
                 { typeof(Dictionary<,>), typeof(DictionarySerializer<,>) },
                 { typeof(HashSet<>), typeof(EnumerableSerializer<>) },
                 { typeof(ICollection<>), typeof(EnumerableSerializer<>) },
@@ -111,6 +113,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 { typeof(LinkedList<>), typeof(EnumerableSerializer<>) },
                 { typeof(List<>), typeof(EnumerableSerializer<>) },
                 { typeof(Nullable<>), typeof(NullableSerializer<>) },
+                { typeof(ObservableCollection<>), typeof(EnumerableSerializer<>)},
                 { typeof(Queue<>), typeof(QueueSerializer<>) },
                 { typeof(SortedDictionary<,>), typeof(DictionarySerializer<,>) },
                 { typeof(SortedList<,>), typeof(DictionarySerializer<,>) },

@@ -243,7 +243,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
                 actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
             }
-            var serializer = memberMap.GetSerializerForActualType(actualType);
+            var serializer = memberMap.GetSerializer(actualType);
             var value = serializer.Deserialize(bsonReader, nominalType, actualType, memberMap.SerializationOptions);
             memberMap.Setter(obj, value);
         }
@@ -274,11 +274,10 @@ namespace MongoDB.Bson.DefaultSerializer {
                 return; // don't serialize default value
             }
 
+            bsonWriter.WriteName(memberMap.ElementName);
             var nominalType = memberMap.MemberType;
             var actualType = (value == null) ? nominalType : value.GetType();
-            var serializer = memberMap.GetSerializerForActualType(actualType);
-            var elementName = memberMap.ElementName;
-            bsonWriter.WriteName(elementName);
+            var serializer = memberMap.GetSerializer(actualType);
             serializer.Serialize(bsonWriter, nominalType, value, memberMap.SerializationOptions);
         }
 

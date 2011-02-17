@@ -32,7 +32,6 @@ namespace MongoDB.Driver {
         private MongoDatabase database;
         private MongoCollectionSettings settings;
         private string name;
-        private HashSet<string> indexCache = new HashSet<string>(); // serves as its own lock object also
         #endregion
 
         #region constructors
@@ -156,29 +155,29 @@ namespace MongoDB.Driver {
         public virtual CommandResult DropIndexByName(
             string indexName
         ) {
-            lock (indexCache) {
-                var command = new CommandDocument {
+            // remove from cache first (even if command ends up failing)
+            if (indexName == "*") {
+                server.IndexCache.Reset(this);
+            } else {
+                server.IndexCache.Remove(this, indexName);
+            }
+            var command = new CommandDocument {
                     { "deleteIndexes", name }, // not FullName
                     { "index", indexName }
                 };
-                var result = database.RunCommand(command);
-                ResetIndexCache(); // TODO: what if RunCommand throws an exception
-                return result;
-            }
+            return database.RunCommand(command);
         }
 
         public virtual void EnsureIndex(
            IMongoIndexKeys keys,
            IMongoIndexOptions options
         ) {
-            lock (indexCache) {
-                var keysDocument = keys.ToBsonDocument();
-                var optionsDocument = options.ToBsonDocument();
-                var indexName = GetIndexName(keysDocument, optionsDocument);
-                if (!indexCache.Contains(indexName)) {
-                    CreateIndex(keys, options);
-                    indexCache.Add(indexName);
-                }
+            var keysDocument = keys.ToBsonDocument();
+            var optionsDocument = options.ToBsonDocument();
+            var indexName = GetIndexName(keysDocument, optionsDocument);
+            if (!server.IndexCache.Contains(this, indexName)) {
+                CreateIndex(keys, options);
+                server.IndexCache.Add(this, indexName);
             }
         }
 
@@ -191,14 +190,10 @@ namespace MongoDB.Driver {
         public virtual void EnsureIndex(
             params string[] keyNames
         ) {
-            lock (indexCache) {
-                string indexName = GetIndexName(keyNames);
-                if (!indexCache.Contains(indexName)) {
-                    if (!IndexExists(keyNames)) {
-                        CreateIndex(IndexKeys.Ascending(keyNames), IndexOptions.SetName(indexName));
-                    }
-                    indexCache.Add(indexName);
-                }
+            string indexName = GetIndexName(keyNames);
+            if (!server.IndexCache.Contains(this, indexName)) {
+                CreateIndex(IndexKeys.Ascending(keyNames), IndexOptions.SetName(indexName));
+                server.IndexCache.Add(this, indexName);
             }
         }
 
@@ -512,7 +507,9 @@ namespace MongoDB.Driver {
                 { "reduce", reduce }
             };
             command.Merge(options.ToBsonDocument());
-            return database.RunCommandAs<MapReduceResult>(command);
+            var result = database.RunCommandAs<MapReduceResult>(command);
+            result.SetDatabase(database);
+            return result;
         }
 
         public virtual MapReduceResult MapReduce(
@@ -605,9 +602,7 @@ namespace MongoDB.Driver {
         }
 
         public virtual void ResetIndexCache() {
-            lock (indexCache) {
-                indexCache.Clear();
-            }
+            server.IndexCache.Reset(this);
         }
 
         public virtual SafeModeResult Save<TDocument>(

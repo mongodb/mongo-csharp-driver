@@ -148,13 +148,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             this.Setter(obj, defaultValue);
         }
 
-        public IBsonSerializer GetSerializerForActualType(
+        public IBsonSerializer GetSerializer(
             Type actualType
         ) {
-            if (actualType == memberType) {
-                if (serializer == null) {
-                    serializer = BsonSerializer.LookupSerializer(memberType);
-                }
+            if (serializer != null) {
                 return serializer;
             } else {
                 return BsonSerializer.LookupSerializer(actualType);

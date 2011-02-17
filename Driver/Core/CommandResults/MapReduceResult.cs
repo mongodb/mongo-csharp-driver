@@ -23,6 +23,10 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
     public class MapReduceResult : CommandResult {
+        #region private fields
+        private MongoDatabase database;
+        #endregion
+
         #region constructors
         public MapReduceResult() {
         }
@@ -57,6 +61,30 @@ namespace MongoDB.Driver {
         #region public methods
         public IEnumerable<TDocument> GetInlineResultsAs<TDocument>() {
             return InlineResults.Select(document => BsonSerializer.Deserialize<TDocument>(document));
+        }
+
+        public IEnumerable<BsonDocument> GetResults() {
+            if (response.Contains("results")) {
+                return InlineResults;
+            } else {
+                return database[CollectionName].FindAll();
+            }
+        }
+
+        public IEnumerable<TDocument> GetResultsAs<TDocument>() {
+            if (response.Contains("results")) {
+                return GetInlineResultsAs<TDocument>();
+            } else {
+                return database[CollectionName].FindAllAs<TDocument>();
+            }
+        }
+        #endregion
+
+        #region internal methods
+        internal void SetDatabase(
+            MongoDatabase database
+        ) {
+            this.database = database;
         }
         #endregion
     }
