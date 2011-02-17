@@ -619,15 +619,22 @@ namespace MongoDB.Driver {
             object id;
             IIdGenerator idGenerator;
             if (serializer.GetDocumentId(document, out id, out idGenerator)) {
+                if (id == null && idGenerator == null) {
+                    throw new InvalidOperationException("No IdGenerator found");
+                }
+
                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
                     id = idGenerator.GenerateId();
                     serializer.SetDocumentId(document, id);
-                } else if (id != null) {
+                    return Insert(document, safeMode);
+                } else {
                     var query = Query.EQ("_id", BsonValue.Create(id));
-                    return Update(query, Builders.Update.Replace(document), UpdateFlags.Upsert, safeMode);
+                    var update = Builders.Update.Replace(document);
+                    return Update(query, update, UpdateFlags.Upsert, safeMode);
                 }
+            } else {
+                throw new InvalidOperationException("Save can only be used with documents that have an Id");
             }
-            return Insert(document, safeMode);
         }
 
         public override string ToString() {
