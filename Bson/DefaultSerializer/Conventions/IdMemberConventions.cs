@@ -25,19 +25,24 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
     }
 
     public class NamedIdMemberConvention : IIdMemberConvention {
-        public string Name { get; private set; }
+        public string[] Names { get; private set; }
 
         public NamedIdMemberConvention(
-            string name
+            params string[] names
         ) {
-            Name = name;
+            Names = names;
         }
 
         public string FindIdMember(
             Type type
         ) {
-            var memberInfo = type.GetMember(Name).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
-            return (memberInfo != null) ? Name : null;
+            foreach (string name in Names) {
+                var memberInfo = type.GetMember(name).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
+                if (memberInfo != null) {
+                    return name;
+                }
+            }
+            return null;
         }
     }
 }
