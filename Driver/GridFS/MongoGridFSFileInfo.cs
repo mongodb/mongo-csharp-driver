@@ -56,7 +56,7 @@ namespace MongoDB.Driver.GridFS {
             MongoGridFS gridFS,
             string remoteFileName
         ) 
-            : this(gridFS, remoteFileName, gridFS.Settings.DefaultChunkSize) {
+            : this(gridFS, remoteFileName, gridFS.Settings.ChunkSize) {
         }
 
         public MongoGridFSFileInfo(

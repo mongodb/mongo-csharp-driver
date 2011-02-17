@@ -47,8 +47,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         public void TestConstructorFeezesSettings() {
             var settings = new MongoGridFSSettings();
             Assert.IsFalse(settings.IsFrozen);
-            var gridFs = new MongoGridFS(database, settings);
-            Assert.IsTrue(settings.IsFrozen);
+            var gridFS = new MongoGridFS(database, settings);
+            Assert.IsTrue(gridFS.Settings.IsFrozen);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var uploadStream = new MemoryStream(bytes);
             var createOptions = new MongoGridFSCreateOptions {
                 Aliases = new[] { "HelloWorld", "HelloUniverse" },
-                ChunkSize = gridFS.Settings.DefaultChunkSize,
+                ChunkSize = gridFS.Settings.ChunkSize,
                 ContentType = "text/plain",
                 Id = ObjectId.GenerateNewId(),
                 Metadata = new BsonDocument { { "a", 1 }, { "b", 2 } },
@@ -325,7 +325,7 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var uploadStream = new MemoryStream(bytes);
             var createOptions = new MongoGridFSCreateOptions {
                 Aliases = new[] { "HelloWorld", "HelloUniverse" },
-                ChunkSize = gridFS.Settings.DefaultChunkSize,
+                ChunkSize = gridFS.Settings.ChunkSize,
                 ContentType = "text/plain",
                 Id = ObjectId.GenerateNewId(),
                 Metadata = new BsonDocument { { "a", 1 }, { "b", 2 } },

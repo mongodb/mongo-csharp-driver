@@ -24,10 +24,6 @@ using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.GridFS {
     public class MongoGridFS {
-        #region private static fields
-        private static MongoGridFSSettings defaultSettings = new MongoGridFSSettings();
-        #endregion
-
         #region private fields
         private MongoDatabase database;
         private MongoGridFSSettings settings;
@@ -39,24 +35,20 @@ namespace MongoDB.Driver.GridFS {
         public MongoGridFS(
             MongoDatabase database
         )
-            : this(database, defaultSettings) {
+            : this(database, MongoGridFSSettings.Defaults) {
         }
 
         public MongoGridFS(
             MongoDatabase database,
             MongoGridFSSettings settings
         ) {
+            if (!settings.IsFrozen) {
+                settings = settings.Clone().Freeze();
+            }
             this.database = database;
-            this.settings = settings.Freeze();
+            this.settings = settings;
             this.chunks = database[settings.ChunksCollectionName, settings.SafeMode];
             this.files = database[settings.FilesCollectionName, settings.SafeMode];
-        }
-        #endregion
-
-        #region public static properties
-        public static MongoGridFSSettings DefaultSettings {
-            get { return defaultSettings; }
-            set { defaultSettings = value.Freeze(); }
         }
         #endregion
 
@@ -468,7 +460,7 @@ namespace MongoDB.Driver.GridFS {
             string remoteFileName
         ) {
             var options = new MongoGridFSCreateOptions {
-                ChunkSize = settings.DefaultChunkSize,
+                ChunkSize = settings.ChunkSize,
                 Id = BsonObjectId.GenerateNewId(),
                 UploadDate = DateTime.UtcNow
             };
@@ -484,7 +476,7 @@ namespace MongoDB.Driver.GridFS {
                 chunks.EnsureIndex("files_id", "n");
 
                 var files_id = createOptions.Id ?? BsonObjectId.GenerateNewId();
-                var chunkSize = createOptions.ChunkSize == 0 ? settings.DefaultChunkSize : createOptions.ChunkSize;
+                var chunkSize = createOptions.ChunkSize == 0 ? settings.ChunkSize : createOptions.ChunkSize;
                 var buffer = new byte[chunkSize];
 
                 var length = 0;

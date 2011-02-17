@@ -114,7 +114,7 @@ namespace MongoDB.Driver {
             get {
                 lock (databaseLock) {
                     if (gridFS == null) {
-                        gridFS = new MongoGridFS(this, MongoGridFS.DefaultSettings);
+                        gridFS = new MongoGridFS(this);
                     }
                     return gridFS;
                 }
