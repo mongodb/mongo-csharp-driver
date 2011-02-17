@@ -260,6 +260,12 @@ namespace MongoDB.Driver {
             throw new NotImplementedException();
         }
 
+        public virtual bool DatabaseExists(
+            string databaseName
+        ) {
+            return GetDatabaseNames().Contains(databaseName);
+        }
+
         public virtual void Disconnect() {
             // normally called from a connection when there is a SocketException
             // but anyone can call it if they want to close all sockets to the server
