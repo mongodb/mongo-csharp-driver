@@ -203,6 +203,15 @@ namespace MongoDB.Driver {
         }
 
         public virtual MongoCursor<TDocument> SetHint(
+            string indexName
+        )
+        {
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$hint", indexName);
+            return this;
+        }
+
+        public virtual MongoCursor<TDocument> SetHint(
             BsonDocument hint
         ) {
             if (isFrozen) { ThrowFrozen(); }

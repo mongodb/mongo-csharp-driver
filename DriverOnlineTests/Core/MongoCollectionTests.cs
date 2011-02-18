@@ -715,6 +715,15 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestSetHint()
+        {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetName("xIndex"));
+            var result = collection.FindAll().SetHint("xIndex");
+        }
+
+        [Test]
         public void TestSortAndLimit() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
