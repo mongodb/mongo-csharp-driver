@@ -47,7 +47,7 @@ namespace MongoDB.Driver {
             this.name = settings.DatabaseName;
 
             // make sure commands get routed to the primary server by using slaveOk false
-            var commandCollectionSettings = GetCollectionSettings<BsonDocument>("$cmd");
+            var commandCollectionSettings = CreateCollectionSettings<BsonDocument>("$cmd");
             commandCollectionSettings.AssignIdOnInsert = false;
             commandCollectionSettings.SlaveOk = false;
             commandCollection = GetCollection(commandCollectionSettings);
@@ -185,6 +185,17 @@ namespace MongoDB.Driver {
             return RunCommand(command);
         }
 
+        public virtual MongoCollectionSettings<TDefaultDocument> CreateCollectionSettings<TDefaultDocument>(
+            string collectionName
+        ) {
+            return new MongoCollectionSettings<TDefaultDocument>(
+                collectionName,
+                MongoDefaults.AssignIdOnInsert,
+                settings.SafeMode,
+                settings.SlaveOk
+            );
+        }
+
         public virtual void Drop() {
             server.DropDatabase(name);
         }
@@ -243,7 +254,7 @@ namespace MongoDB.Driver {
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName
         ) {
-            var collectionSettings = GetCollectionSettings<TDefaultDocument>(collectionName);
+            var collectionSettings = CreateCollectionSettings<TDefaultDocument>(collectionName);
             return GetCollection(collectionSettings);
         }
 
@@ -251,7 +262,7 @@ namespace MongoDB.Driver {
             string collectionName,
             SafeMode safeMode
         ) {
-            var collectionSettings = GetCollectionSettings<TDefaultDocument>(collectionName);
+            var collectionSettings = CreateCollectionSettings<TDefaultDocument>(collectionName);
             collectionSettings.SafeMode = safeMode;
             return GetCollection(collectionSettings);
         }
@@ -259,7 +270,7 @@ namespace MongoDB.Driver {
         public virtual MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
-            var collectionSettings = GetCollectionSettings<BsonDocument>(collectionName);
+            var collectionSettings = CreateCollectionSettings<BsonDocument>(collectionName);
             return GetCollection(collectionSettings);
         }
 
@@ -267,7 +278,7 @@ namespace MongoDB.Driver {
             string collectionName,
             SafeMode safeMode
         ) {
-            var collectionSettings = GetCollectionSettings<BsonDocument>(collectionName);
+            var collectionSettings = CreateCollectionSettings<BsonDocument>(collectionName);
             collectionSettings.SafeMode = safeMode;
             return GetCollection(collectionSettings);
         }
@@ -284,17 +295,6 @@ namespace MongoDB.Driver {
             }
             collectionNames.Sort();
             return collectionNames;
-        }
-
-        public virtual MongoCollectionSettings<TDefaultDocument> GetCollectionSettings<TDefaultDocument>(
-            string collectionName
-        ) {
-            return new MongoCollectionSettings<TDefaultDocument>(
-                collectionName,
-                MongoDefaults.AssignIdOnInsert,
-                settings.SafeMode,
-                settings.SlaveOk
-            );
         }
 
         public virtual BsonDocument GetCurrentOp() {
