@@ -960,6 +960,53 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    public class BsonUndefinedSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static BsonUndefinedSerializer instance = new BsonUndefinedSerializer();
+        #endregion
+
+        #region constructors
+        public BsonUndefinedSerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        public static BsonUndefinedSerializer Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            IBsonSerializationOptions options
+        ) {
+            var bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.Null) {
+                bsonReader.ReadNull();
+                return null;
+            } else {
+                bsonReader.ReadUndefined();
+                return BsonUndefined.Value;
+            }
+        }
+
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                bsonWriter.WriteUndefined();
+            }
+        }
+        #endregion
+    }
+
     public class BsonValueSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonValueSerializer instance = new BsonValueSerializer();

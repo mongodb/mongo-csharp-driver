@@ -242,6 +242,13 @@ namespace MongoDB.Bson.IO {
             VerifyName(name);
             return ReadTimestamp();
         }
+
+        public override void ReadUndefined(
+            string name
+        ) {
+            VerifyName(name);
+            ReadUndefined();
+        }
         #endregion
 
         #region protected methods

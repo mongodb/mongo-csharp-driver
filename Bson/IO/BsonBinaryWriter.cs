@@ -427,6 +427,19 @@ namespace MongoDB.Bson.IO {
 
             state = GetNextState();
         }
+
+        public override void WriteUndefined() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if (state != BsonWriterState.Value) {
+                var message = string.Format("WriteUndefined cannot be called when State is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            buffer.WriteByte((byte) BsonType.Undefined);
+            WriteNameHelper();
+
+            state = GetNextState();
+        }
         #endregion
 
         #region protected methods

@@ -503,5 +503,16 @@ namespace MongoDB.BsonUnitTests.IO {
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
         }
+
+        [Test]
+        public void TestUndefined() {
+            var json = "undefined";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.Undefined, bsonReader.ReadBsonType());
+                bsonReader.ReadUndefined();
+                Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
+            }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonUndefined>(new StringReader(json)).ToJson());
+        }
     }
 }

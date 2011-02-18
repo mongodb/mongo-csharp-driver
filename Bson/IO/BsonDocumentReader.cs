@@ -293,6 +293,12 @@ namespace MongoDB.Bson.IO {
             return currentValue.AsBsonTimestamp.Value;
         }
 
+        public override void ReadUndefined() {
+            if (disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadUndefined", BsonType.Undefined);
+            state = GetNextState();
+        }
+
         public override void ReturnToBookmark(
             BsonReaderBookmark bookmark
         ) {

@@ -20,25 +20,25 @@ using System.Text;
 
 namespace MongoDB.Bson {
     [Serializable]
-    public class BsonNull : BsonValue, IComparable<BsonNull>, IEquatable<BsonNull> {
+    public class BsonUndefined : BsonValue, IComparable<BsonUndefined>, IEquatable<BsonUndefined> {
         #region private static fields
-        private static BsonNull value = new BsonNull();
+        private static BsonUndefined value = new BsonUndefined();
         #endregion
 
         #region constructors
         // private so only the singleton instance can be created
-        private BsonNull()
-            : base(BsonType.Null) {
+        private BsonUndefined()
+            : base(BsonType.Undefined) {
         }
         #endregion
 
         #region public static properties
-        public static BsonNull Value { get { return value; } }
+        public static BsonUndefined Value { get { return value; } }
         #endregion
 
         #region public methods
         public int CompareTo(
-            BsonNull other
+            BsonUndefined other
         ) {
             if (other == null) { return 1; }
             return 0; // it's a singleton
@@ -49,13 +49,12 @@ namespace MongoDB.Bson {
         ) {
             if (other == null) { return 1; }
             if (other is BsonMinKey) { return 1; }
-            if (other is BsonUndefined) { return 1; }
-            if (other is BsonNull) { return 0; }
+            if (other is BsonUndefined) { return 0; }
             return -1;
         }
 
         public bool Equals(
-            BsonNull rhs
+            BsonUndefined rhs
         ) {
             return rhs != null; // it's a singleton
         }
@@ -63,7 +62,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonNull); // works even if obj is null
+            return Equals(obj as BsonUndefined); // works even if obj is null
         }
 
         public override int GetHashCode() {
@@ -71,7 +70,7 @@ namespace MongoDB.Bson {
         }
 
         public override string ToString() {
-            return "BsonNull";
+            return "BsonUndefined";
         }
         #endregion
     }

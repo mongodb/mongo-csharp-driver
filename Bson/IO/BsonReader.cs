@@ -186,6 +186,10 @@ namespace MongoDB.Bson.IO {
         public abstract long ReadTimestamp(
             string name
         );
+        public abstract void ReadUndefined();
+        public abstract void ReadUndefined(
+            string name
+        );
         public abstract void ReturnToBookmark(BsonReaderBookmark bookmark);
         public abstract void SkipName();
         public abstract void SkipValue();

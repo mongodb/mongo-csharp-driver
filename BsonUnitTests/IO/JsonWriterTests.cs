@@ -179,9 +179,9 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestNull() {
             var document = new BsonDocument {
-                { "maxkey", BsonNull.Value }
+                { "null", BsonNull.Value }
             };
-            string expected = "{ \"maxkey\" : null }";
+            string expected = "{ \"null\" : null }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
         }
@@ -202,6 +202,16 @@ namespace MongoDB.BsonUnitTests.IO {
                 { "timestamp", new BsonTimestamp(1234567890) }
             };
             string expected = "{ \"timestamp\" : { \"$timestamp\" : 1234567890 } }";
+            string actual = document.ToJson();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestUndefined() {
+            var document = new BsonDocument {
+                { "undefined", BsonUndefined.Value }
+            };
+            string expected = "{ \"undefined\" : undefined }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
         }

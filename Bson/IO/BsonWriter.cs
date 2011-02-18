@@ -215,6 +215,10 @@ namespace MongoDB.Bson.IO {
             string name,
             long value
         );
+        public abstract void WriteUndefined();
+        public abstract void WriteUndefined(
+            string name
+        );
         #endregion
     }
 }

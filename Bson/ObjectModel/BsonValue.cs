@@ -27,23 +27,24 @@ namespace MongoDB.Bson {
         #region private static fields
         private static Dictionary<BsonType, int> bsonTypeSortOrder = new Dictionary<BsonType, int> {
             { BsonType.MinKey, 1 },
-            { BsonType.Null, 2 },
-            { BsonType.Double, 3 },
-            { BsonType.Int32, 3 },
-            { BsonType.Int64, 3 },
-            { BsonType.String, 4 },
-            { BsonType.Symbol, 4 },
-            { BsonType.Document, 5 },
-            { BsonType.Array, 6 },
-            { BsonType.Binary, 7 },
-            { BsonType.ObjectId, 8 },
-            { BsonType.Boolean, 9 },
-            { BsonType.DateTime, 10 },
-            { BsonType.Timestamp, 10 },
-            { BsonType.RegularExpression, 11 },
-            { BsonType.JavaScript, 12 }, // TODO: confirm where JavaScript and JavaScriptWithScope are in the sort order
-            { BsonType.JavaScriptWithScope, 13 },
-            { BsonType.MaxKey, 14 },
+            { BsonType.Undefined, 2 },
+            { BsonType.Null, 3 },
+            { BsonType.Double, 4 },
+            { BsonType.Int32, 4 },
+            { BsonType.Int64, 4 },
+            { BsonType.String, 5 },
+            { BsonType.Symbol, 5 },
+            { BsonType.Document, 6 },
+            { BsonType.Array, 7 },
+            { BsonType.Binary, 8 },
+            { BsonType.ObjectId, 9 },
+            { BsonType.Boolean, 10 },
+            { BsonType.DateTime, 11 },
+            { BsonType.Timestamp, 11 },
+            { BsonType.RegularExpression, 12 },
+            { BsonType.JavaScript, 13 }, // TODO: confirm where JavaScript and JavaScriptWithScope are in the sort order
+            { BsonType.JavaScriptWithScope, 14 },
+            { BsonType.MaxKey, 15 },
         };
         #endregion
 
@@ -106,6 +107,10 @@ namespace MongoDB.Bson {
 
         public BsonTimestamp AsBsonTimestamp {
             get { return (BsonTimestamp) this; }
+        }
+
+        public BsonUndefined AsBsonUndefined {
+            get { return (BsonUndefined) this; }
         }
 
         public byte[] AsByteArray {
@@ -222,6 +227,10 @@ namespace MongoDB.Bson {
 
         public bool IsBsonTimestamp {
             get { return bsonType == BsonType.Timestamp; }
+        }
+
+        public bool IsBsonUndefined {
+            get { return bsonType == BsonType.Undefined; }
         }
 
         public bool IsDateTime {
@@ -612,6 +621,9 @@ namespace MongoDB.Bson {
                     return BsonSymbol.Create(bsonReader.ReadSymbol());
                 case BsonType.Timestamp:
                     return new BsonTimestamp(bsonReader.ReadTimestamp());
+                case BsonType.Undefined:
+                    bsonReader.ReadUndefined();
+                    return BsonUndefined.Value;
                 default:
                     var message = string.Format("Invalid BsonType: {0}", bsonType);
                     throw new BsonInternalException(message);
@@ -664,6 +676,7 @@ namespace MongoDB.Bson {
                 case BsonType.Int64: return ((BsonInt64) this).Value != 0;
                 case BsonType.Null: return false;
                 case BsonType.String: return ((BsonString) this).Value != "";
+                case BsonType.Undefined: return false;
                 default: return true; // everything else is true
             }
         }
@@ -769,6 +782,9 @@ namespace MongoDB.Bson {
                     break;
                 case BsonType.Timestamp:
                     bsonWriter.WriteTimestamp(((BsonTimestamp) this).Value);
+                    break;
+                case BsonType.Undefined:
+                    bsonWriter.WriteUndefined();
                     break;
             }
         }

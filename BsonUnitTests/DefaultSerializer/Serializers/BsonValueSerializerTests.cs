@@ -1267,4 +1267,46 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
+
+    [TestFixture]
+    public class BsonUndefinedSerializerTests {
+        public class TestClass {
+            public TestClass() { }
+
+            public TestClass(
+                BsonUndefined value
+            ) {
+                this.B = value;
+                this.V = value;
+            }
+
+            public BsonValue B { get; set; }
+            public BsonUndefined V { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass(null);
+            var json = obj.ToJson();
+            var expected = "{ 'B' : null, 'V' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestValue() {
+            var obj = new TestClass(BsonUndefined.Value);
+            var json = obj.ToJson();
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "undefined").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreSame(obj.V, rehydrated.V);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
 }

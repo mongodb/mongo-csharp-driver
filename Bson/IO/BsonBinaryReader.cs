@@ -334,6 +334,12 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadInt64();
         }
 
+        public override void ReadUndefined() {
+            if (disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadUndefined", BsonType.Undefined);
+            state = GetNextState();
+        }
+
         public override void ReturnToBookmark(
             BsonReaderBookmark bookmark
         ) {
@@ -382,6 +388,7 @@ namespace MongoDB.Bson.IO {
                 case BsonType.String: skip = ReadSize(); break;
                 case BsonType.Symbol: skip = ReadSize(); break;
                 case BsonType.Timestamp: skip = 8; break;
+                case BsonType.Undefined: skip = 0; break;
                 default: throw new BsonInternalException("Unexpected BsonType");
             }
             buffer.Skip(skip);

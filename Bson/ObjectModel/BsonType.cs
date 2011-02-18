@@ -27,6 +27,7 @@ namespace MongoDB.Bson {
         Document = 0x03,
         Array = 0x04,
         Binary = 0x05,
+        Undefined = 0x06,
         ObjectId = 0x07,
         Boolean = 0x08,
         DateTime = 0x09,
