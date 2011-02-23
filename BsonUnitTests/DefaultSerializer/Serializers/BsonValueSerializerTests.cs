@@ -1055,6 +1055,40 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
     }
 
     [TestFixture]
+    public class BsonStringObjectIdTests {
+        public class C {
+            [BsonRepresentation(BsonType.ObjectId)]
+            public string Id;
+            public int N;
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new C { Id = null, N = 1 };
+            var json = obj.ToJson();
+            var expected = "{ '_id' : null, 'N' : 1 }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestNotNull() {
+            var id = ObjectId.Parse("123456789012345678901234");
+            var obj = new C { Id = id.ToString(), N = 1 };
+            var json = obj.ToJson();
+            var expected = "{ '_id' : { '$oid' : '123456789012345678901234' }, 'N' : 1 }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
     public class BsonStringSerializerTests {
         public class TestClass {
             public TestClass() { }

@@ -157,6 +157,35 @@ namespace MongoDB.Bson.Serialization {
         #endregion
     }
 
+    public class StringObjectIdGenerator : IIdGenerator {
+        #region private static fields
+        private static StringObjectIdGenerator instance = new StringObjectIdGenerator();
+        #endregion
+
+        #region constructors
+        public StringObjectIdGenerator() {
+        }
+        #endregion
+
+        #region public static properties
+        public static StringObjectIdGenerator Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        public object GenerateId() {
+            return ObjectId.GenerateNewId().ToString();
+        }
+
+        public bool IsEmpty(
+            object id
+        ) {
+            return string.IsNullOrEmpty((string) id);
+        }
+        #endregion
+    }
+
     // TODO: is it worth trying to remove the dependency on IEquatable<T>?
     public class ZeroIdChecker<T> : IIdGenerator where T : struct, IEquatable<T> {
         #region constructors
