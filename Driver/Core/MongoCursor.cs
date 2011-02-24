@@ -256,9 +256,9 @@ namespace MongoDB.Driver {
             BsonDocument options
         ) {
             if (isFrozen) { ThrowFrozen(); }
-            this.options = options;
-            foreach (var option in options) {
-                this.options[option.Name] = option.Value;
+            if (options != null) {
+                if (this.options == null) { this.options = new BsonDocument(); }
+                this.options.Merge(options, true); // overwriteExistingElements
             }
             return this;
         }
