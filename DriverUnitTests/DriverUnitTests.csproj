@@ -83,6 +83,7 @@
     <Compile Include="Core\MongoCollectionSettingsTests.cs" />
     <Compile Include="Core\MongoConnectionStringBuilderTests.cs" />
     <Compile Include="Core\MongoDatabaseSettingsTests.cs" />
+    <Compile Include="Core\MongoDBRefTests.cs" />
     <Compile Include="Core\MongoServerSettingsTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />
     <Compile Include="Core\MongoUrlTests.cs" />
