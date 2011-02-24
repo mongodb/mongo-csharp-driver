@@ -74,6 +74,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Builders\BuilderBase.cs" />
+    <Compile Include="Builders\CollectionOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
     <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
     <Compile Include="Builders\GroupByBuilder.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Core\CommandResults\GetLastErrorResult.cs" />
     <Compile Include="Core\CommandResults\SafeModeResult.cs" />
     <Compile Include="Core\CommandResults\ValidateCollectionResult.cs" />
+    <Compile Include="Core\Interfaces\IMongoCollectionOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoCommand.cs" />
     <Compile Include="Core\Interfaces\IMongoFields.cs" />
     <Compile Include="Core\Interfaces\IMongoGeoNearOptions.cs" />
@@ -108,6 +110,8 @@
     <Compile Include="Core\MongoServerSettings.cs" />
     <Compile Include="Core\MongoUrlBuilder.cs" />
     <Compile Include="Core\Wrappers\BaseWrapper.cs" />
+    <Compile Include="Core\Wrappers\CollectionOptionsDocument.cs" />
+    <Compile Include="Core\Wrappers\CollectionOptionsWrapper.cs" />
     <Compile Include="Core\Wrappers\CommandDocument.cs" />
     <Compile Include="Core\Wrappers\CommandWrapper.cs" />
     <Compile Include="Core\Wrappers\FieldsDocument.cs" />

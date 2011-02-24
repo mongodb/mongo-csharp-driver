@@ -21,6 +21,7 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 
 namespace MongoDB.DriverOnlineTests {
     [TestFixture]
@@ -52,8 +53,7 @@ namespace MongoDB.DriverOnlineTests {
             var collectionName = "testcreatecollection";
             Assert.IsFalse(database.CollectionExists(collectionName));
 
-            var options = new BsonDocument();
-            database.CreateCollection(collectionName, options);
+            database.CreateCollection(collectionName, CollectionOptions.Null);
             Assert.IsTrue(database.CollectionExists(collectionName));
         }
 

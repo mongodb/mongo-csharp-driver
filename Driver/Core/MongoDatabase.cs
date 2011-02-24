@@ -282,14 +282,16 @@ namespace MongoDB.Driver {
         /// you only need to call this method if you want to provide non-default options.
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
-        /// <param name="options">Options for creating this collection.</param>
+        /// <param name="options">Options for creating this collection (usually a CollectionOptionsDocument or constructed using the CollectionOptions builder).</param>
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult CreateCollection(
             string collectionName,
-            BsonDocument options
+            IMongoCollectionOptions options
         ) {
             var command = new CommandDocument("create", collectionName);
-            command.Merge(options);
+            if (options != null) {
+                command.Merge(options.ToBsonDocument());
+            }
             return RunCommand(command);
         }
 
