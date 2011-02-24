@@ -707,10 +707,8 @@ namespace MongoDB.Bson {
                 default: return ((BsonInt64) this).Value;
             }
         }
-        #endregion
 
-        #region internal methods
-        internal void WriteTo(
+        public void WriteTo(
             BsonWriter bsonWriter
         ) {
             switch (bsonType) {
