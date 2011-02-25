@@ -891,21 +891,6 @@ namespace MongoDB.Driver {
            RemoveFlags flags,
            SafeMode safeMode
         ) {
-            // special case for query on _id
-            // TODO: find _id even when type is not BsonDocument
-            if (query != null) {
-                BsonDocument queryBsonDocument = query as BsonDocument;
-                if (queryBsonDocument != null) {
-                    if (
-                        queryBsonDocument.ElementCount == 1 &&
-                        queryBsonDocument.GetElement(0).Name == "_id" &&
-                        queryBsonDocument[0].BsonType == BsonType.ObjectId
-                    ) {
-                        flags |= RemoveFlags.Single;
-                    }
-                }
-            }
-
             using (var message = new MongoDeleteMessage(server, FullName, flags, query)) {
                 var connection = server.AcquireConnection(database, false); // not slaveOk
                 try {
