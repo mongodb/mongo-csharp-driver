@@ -1056,14 +1056,6 @@ namespace MongoDB.Driver {
             UpdateFlags flags,
             SafeMode safeMode
         ) {
-            // TODO: remove this sanity check or make it configurable?
-            var queryBsonDocument = query as BsonDocument;
-            if (queryBsonDocument != null) {
-                if (queryBsonDocument.Any(e => e.Name.StartsWith("$"))) {
-                    throw new ArgumentException("Found atomic modifiers in query (are your arguments to Update in the wrong order?)");
-                }
-            }
-
             using (var message = new MongoUpdateMessage(server, FullName, flags, query, update)) {
                 var connection = server.AcquireConnection(database, false); // not slaveOk
                 try {
