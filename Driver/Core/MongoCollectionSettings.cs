@@ -89,12 +89,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public void Freeze() {
+        public MongoCollectionSettings Freeze() {
             if (!isFrozen) {
                 frozenHashCode = GetHashCodeHelper();
                 frozenStringRepresentation = ToStringHelper();
                 isFrozen = true;
             }
+            return this;
         }
 
         public override bool Equals(object obj) {

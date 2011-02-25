@@ -43,7 +43,7 @@ namespace MongoDB.Bson.IO {
                 this.buffer = buffer;
                 this.disposeBuffer = false;
             }
-            this.settings = settings;
+            this.settings = settings.Freeze();
 
             context = null;
             state = BsonWriterState.Initial;

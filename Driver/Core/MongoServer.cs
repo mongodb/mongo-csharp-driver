@@ -60,7 +60,7 @@ namespace MongoDB.Driver {
         public MongoServer(
             MongoServerSettings settings
         ) {
-            this.settings = settings;
+            this.settings = settings.Freeze();
 
             foreach (var address in settings.Servers) {
                 endPoints.Add(address.ToIPEndPoint());
@@ -107,7 +107,6 @@ namespace MongoDB.Driver {
         ) {
             lock (staticLock) {
                 MongoServer server;
-                settings.Freeze();
                 if (!servers.TryGetValue(settings, out server)) {
                     server = new MongoServer(settings);
                     servers.Add(settings, server);
@@ -533,7 +532,6 @@ namespace MongoDB.Driver {
         ) {
             lock (serverLock) {
                 MongoDatabase database;
-                databaseSettings.Freeze();
                 if (!databases.TryGetValue(databaseSettings, out database)) {
                     database = new MongoDatabase(this, databaseSettings);
                     databases.Add(databaseSettings, database);

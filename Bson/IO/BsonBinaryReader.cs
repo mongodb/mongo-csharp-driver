@@ -40,7 +40,7 @@ namespace MongoDB.Bson.IO {
                 this.buffer = buffer;
                 this.disposeBuffer = false;
             }
-            this.settings = settings;
+            this.settings = settings.Freeze();
             context = new BsonBinaryReaderContext(null, ContextType.TopLevel, 0, 0);
         }
         #endregion

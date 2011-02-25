@@ -29,6 +29,7 @@ namespace MongoDB.Bson.IO {
         private bool closeOutput = false;
         private bool fixOldBinarySubTypeOnOutput = true;
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
+        private bool isFrozen;
         #endregion
 
         #region constructors
@@ -39,23 +40,44 @@ namespace MongoDB.Bson.IO {
         #region public static properties
         public static BsonBinaryWriterSettings Defaults {
             get { return defaults; }
+            set { defaults = value; }
         }
         #endregion
 
         #region public properties
         public bool CloseOutput {
             get { return closeOutput; }
-            set { closeOutput = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen"); }
+                closeOutput = value;
+            }
         }
 
         public bool FixOldBinarySubTypeOnOutput {
             get { return fixOldBinarySubTypeOnOutput; }
-            set { fixOldBinarySubTypeOnOutput = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen"); }
+                fixOldBinarySubTypeOnOutput = value;
+            }
+        }
+
+        public bool IsFrozen {
+            get { return isFrozen; }
         }
 
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
-            set { maxDocumentSize = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen"); }
+                maxDocumentSize = value;
+            }
+        }
+        #endregion
+
+        #region public methods
+        public BsonBinaryWriterSettings Freeze() {
+            isFrozen = true;
+            return this;
         }
         #endregion
     }

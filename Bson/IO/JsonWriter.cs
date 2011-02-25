@@ -35,7 +35,7 @@ namespace MongoDB.Bson.IO {
             JsonWriterSettings settings
         ) {
             this.textWriter = writer;
-            this.settings = settings;
+            this.settings = settings.Freeze();
             context = new JsonWriterContext(null, ContextType.TopLevel, "");
             state = BsonWriterState.Initial;
         }

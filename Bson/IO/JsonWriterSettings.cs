@@ -32,6 +32,7 @@ namespace MongoDB.Bson.IO {
         private string indentChars = "  ";
         private string newLineChars = "\r\n";
         private JsonOutputMode outputMode = JsonOutputMode.Strict;
+        private bool isFrozen;
         #endregion
 
         #region constructors
@@ -41,39 +42,69 @@ namespace MongoDB.Bson.IO {
 
         #region public static properties
         public static JsonWriterSettings Defaults {
-            get { return defaults; } // TODO: clone?
+            get { return defaults; }
+            set { defaults = value; }
         }
         #endregion
 
         #region public properties
         public bool CloseOutput {
             get { return closeOutput; }
-            set { closeOutput = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                closeOutput = value;
+            }
         }
 
         public Encoding Encoding {
             get { return encoding; }
-            set { encoding = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                encoding = value;
+            }
         }
 
         public bool Indent {
             get { return indent; }
-            set { indent = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                indent = value;
+            }
         }
 
         public string IndentChars {
             get { return indentChars; }
-            set { indentChars = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                indentChars = value;
+            }
+        }
+
+        public bool IsFrozen {
+            get { return isFrozen; }
         }
 
         public string NewLineChars {
             get { return newLineChars; }
-            set { newLineChars = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                newLineChars = value;
+            }
         }
 
         public JsonOutputMode OutputMode {
             get { return outputMode; }
-            set { outputMode = value; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                outputMode = value;
+            }
+        }
+        #endregion
+
+        #region public methods
+        public JsonWriterSettings Freeze() {
+            isFrozen = true;
+            return this;
         }
         #endregion
     }

@@ -52,7 +52,7 @@ namespace MongoDB.Driver {
         ) {
             ValidateDatabaseName(settings.DatabaseName);
             this.server = server;
-            this.settings = settings;
+            this.settings = settings.Freeze();
             this.name = settings.DatabaseName;
 
             // make sure commands get routed to the primary server by using slaveOk false
@@ -390,7 +390,6 @@ namespace MongoDB.Driver {
         ) {
             lock (databaseLock) {
                 MongoCollection collection;
-                collectionSettings.Freeze();
                 if (!collections.TryGetValue(collectionSettings, out collection)) {
                     collection = new MongoCollection<TDefaultDocument>(this, collectionSettings);
                     collections.Add(collectionSettings, collection);

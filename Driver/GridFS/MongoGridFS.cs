@@ -42,11 +42,8 @@ namespace MongoDB.Driver.GridFS {
             MongoDatabase database,
             MongoGridFSSettings settings
         ) {
-            if (!settings.IsFrozen) {
-                settings = settings.Clone().Freeze();
-            }
             this.database = database;
-            this.settings = settings;
+            this.settings = settings.Freeze();
             this.chunks = database[settings.ChunksCollectionName, settings.SafeMode];
             this.files = database[settings.FilesCollectionName, settings.SafeMode];
         }
