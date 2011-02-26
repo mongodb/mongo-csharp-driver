@@ -37,6 +37,16 @@ namespace MongoDB.Driver.GridFS {
         #region constructors
         public MongoGridFSSettings() {
         }
+
+        public MongoGridFSSettings(
+            int chunkSize,
+            string root,
+            SafeMode safeMode
+        ) {
+            this.chunkSize = chunkSize;
+            this.Root = root; // use property not field
+            this.safeMode = safeMode;
+        }
         #endregion
 
         #region public static properties
@@ -104,11 +114,11 @@ namespace MongoDB.Driver.GridFS {
 
         #region public methods
         public MongoGridFSSettings Clone() {
-            return new MongoGridFSSettings {
-                ChunkSize = chunkSize,
-                Root = root,
-                SafeMode = safeMode
-            };
+            return new MongoGridFSSettings(
+                chunkSize,
+                root,
+                safeMode
+            );
         }
 
         public bool Equals(

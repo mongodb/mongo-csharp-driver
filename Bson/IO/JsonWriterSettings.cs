@@ -38,6 +38,22 @@ namespace MongoDB.Bson.IO {
         #region constructors
         public JsonWriterSettings() {
         }
+   
+        public JsonWriterSettings(
+            bool closeOutput,
+            Encoding encoding,
+            bool indent,
+            string indentChars,
+            string newLineChars,
+            JsonOutputMode outputMode
+        ) {
+            this.closeOutput = closeOutput;
+            this.encoding = encoding;
+            this.indent = indent;
+            this.indentChars = indentChars;
+            this.newLineChars = newLineChars;
+            this.outputMode = outputMode;
+        }
         #endregion
 
         #region public static properties
@@ -102,6 +118,17 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
+        public JsonWriterSettings Clone() {
+            return new JsonWriterSettings(
+                closeOutput,
+                encoding,
+                indent,
+                indentChars,
+                newLineChars,
+                outputMode
+            );
+        }
+
         public JsonWriterSettings Freeze() {
             isFrozen = true;
             return this;

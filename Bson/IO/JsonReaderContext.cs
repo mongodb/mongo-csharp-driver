@@ -48,10 +48,10 @@ namespace MongoDB.Bson.IO {
 
         #region public methods
         public JsonReaderContext Clone() {
-            var clone = new JsonReaderContext();
-            clone.parentContext = this.parentContext;
-            clone.contextType = this.contextType;
-            return clone;
+            return new JsonReaderContext(
+                parentContext,
+                contextType
+            );
         }
 
         public JsonReaderContext PopContext() {

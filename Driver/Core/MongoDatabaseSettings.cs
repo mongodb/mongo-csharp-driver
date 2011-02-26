@@ -82,13 +82,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public MongoDatabaseSettings Freeze() {
-            if (!isFrozen) {
-                frozenHashCode = GetHashCodeHelper();
-                frozenStringRepresentation = ToStringHelper();
-                isFrozen = true;
-            }
-            return this;
+        public MongoDatabaseSettings Clone() {
+            return new MongoDatabaseSettings(
+                databaseName,
+                credentials,
+                safeMode,
+                slaveOk
+            );
         }
 
         public override bool Equals(object obj) {
@@ -106,6 +106,15 @@ namespace MongoDB.Driver {
                         this.slaveOk == rhs.slaveOk;
                 }
             }
+        }
+
+        public MongoDatabaseSettings Freeze() {
+            if (!isFrozen) {
+                frozenHashCode = GetHashCodeHelper();
+                frozenStringRepresentation = ToStringHelper();
+                isFrozen = true;
+            }
+            return this;
         }
 
         public override int GetHashCode() {

@@ -222,13 +222,23 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public MongoServerSettings Freeze() {
-            if (!isFrozen) {
-                frozenHashCode = GetHashCodeHelper();
-                frozenStringRepresentation = ToStringHelper();
-                isFrozen = true;
-            }
-            return this;
+        public MongoServerSettings Clone() {
+            return new MongoServerSettings(
+                connectionMode,
+                connectTimeout,
+                defaultCredentials,
+                maxConnectionIdleTime,
+                maxConnectionLifeTime,
+                maxConnectionPoolSize,
+                minConnectionPoolSize,
+                replicaSetName,
+                safeMode,
+                servers,
+                slaveOk,
+                socketTimeout,
+                waitQueueSize,
+                waitQueueTimeout
+            );
         }
 
         public override bool Equals(object obj) {
@@ -256,6 +266,15 @@ namespace MongoDB.Driver {
                         this.waitQueueTimeout == rhs.waitQueueTimeout;
                 }
             }
+        }
+
+        public MongoServerSettings Freeze() {
+            if (!isFrozen) {
+                frozenHashCode = GetHashCodeHelper();
+                frozenStringRepresentation = ToStringHelper();
+                isFrozen = true;
+            }
+            return this;
         }
 
         public override int GetHashCode() {

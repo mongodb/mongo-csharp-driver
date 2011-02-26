@@ -155,10 +155,7 @@ namespace MongoDB.Bson {
 
         #region public methods
         public BsonElement Clone() {
-            var clone = new BsonElement();
-            clone.name = name;
-            clone.value = value.Clone();
-            return clone;
+            return new BsonElement(name, value.Clone());
         }
 
         public BsonElement DeepClone() {

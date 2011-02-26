@@ -34,6 +34,16 @@ namespace MongoDB.Bson.IO {
         #region constructors
         public BsonBinaryReaderSettings() {
         }
+
+        public BsonBinaryReaderSettings(
+            bool closeInput,
+            bool fixOldBinarySubTypeOnInput,
+            int maxDocumentSize
+        ) {
+            this.closeInput = closeInput;
+            this.fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
+            this.maxDocumentSize = maxDocumentSize;
+        }
         #endregion
 
         #region public static properties
@@ -74,6 +84,14 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
+        public BsonBinaryReaderSettings Clone() {
+            return new BsonBinaryReaderSettings(
+                closeInput,
+                fixOldBinarySubTypeOnInput,
+                maxDocumentSize
+            );
+        }
+
         public BsonBinaryReaderSettings Freeze() {
             isFrozen = true;
             return this;
