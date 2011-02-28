@@ -141,7 +141,7 @@ namespace MongoDB.Driver.GridFS {
         public void Delete(
             string remoteFileName
         ) {
-            files.EnsureIndex("filename", "uploadDate");
+            EnsureIndexes();
             Delete(Query.EQ("filename", remoteFileName));
         }
 
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.GridFS {
             MongoGridFSFileInfo fileInfo
         ) {
             using (database.RequestStart()) {
-                chunks.EnsureIndex("files_id", "n");
+                EnsureIndexes();
 
                 var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
                 for (int n = 0; n < numberOfChunks; n++) {
@@ -215,7 +215,7 @@ namespace MongoDB.Driver.GridFS {
             string remoteFileName,
             int version
         ) {
-            files.EnsureIndex("filename", "uploadDate");
+            EnsureIndexes();
             Download(stream, Query.EQ("filename", remoteFileName), version);
         }
 
@@ -275,6 +275,43 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        public void EnsureIndexes() {
+            EnsureIndexes(1000);
+        }
+
+        public void EnsureIndexes(
+            int maxFiles
+        ) {
+            // don't try to create indexes on secondaries
+            if (files.Settings.SlaveOk) {
+                return;
+            }
+
+            // avoid round trip to count files if possible
+            var indexCache = database.Server.IndexCache;
+            if (
+                indexCache.Contains(files, "filename_1_uploadDate_1") &&
+                indexCache.Contains(chunks, "files_id_1_n_1")
+            ) {
+                return;
+            }
+
+            // only create indexes if number of GridFS files is still small (to avoid performance surprises)
+            var count = files.Count();
+            if (count < maxFiles) {
+                files.EnsureIndex("filename", "uploadDate");
+                chunks.EnsureIndex("files_id", "n");
+            } else {
+                // at least check to see if the indexes exist so we can stop calling files.Count()
+                if (files.IndexExistsByName("filename_1_uploadDate_1")) {
+                    indexCache.Add(files, "filename_1_uploadDate_1");
+                }
+                if (chunks.IndexExistsByName("files_id_1_n_")) {
+                    indexCache.Add(chunks, "files_id_1_n_");
+                }
+            }
+        }
+
         public bool Exists(
             IMongoQuery query
         ) {
@@ -284,7 +321,7 @@ namespace MongoDB.Driver.GridFS {
         public bool Exists(
             string fileName
         ) {
-            files.EnsureIndex("filename", "uploadDate");
+            EnsureIndexes();
             return Exists(Query.EQ("filename", fileName));
         }
 
@@ -303,7 +340,7 @@ namespace MongoDB.Driver.GridFS {
         public IEnumerable<MongoGridFSFileInfo> Find(
             string fileName
         ) {
-            files.EnsureIndex("filename", "uploadDate");
+            EnsureIndexes();
             return Find(Query.EQ("filename", fileName));
         }
 
@@ -347,7 +384,7 @@ namespace MongoDB.Driver.GridFS {
             string remoteFileName,
             int version
         ) {
-            files.EnsureIndex("filename", "uploadDate");
+            EnsureIndexes();
             return FindOne(Query.EQ("filename", remoteFileName), version);
         }
 
@@ -470,7 +507,7 @@ namespace MongoDB.Driver.GridFS {
             MongoGridFSCreateOptions createOptions
         ) {
             using (database.RequestStart()) {
-                chunks.EnsureIndex("files_id", "n");
+                EnsureIndexes();
 
                 var files_id = createOptions.Id ?? BsonObjectId.GenerateNewId();
                 var chunkSize = createOptions.ChunkSize == 0 ? settings.ChunkSize : createOptions.ChunkSize;

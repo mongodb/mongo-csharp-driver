@@ -220,7 +220,7 @@ namespace MongoDB.Driver.GridFS {
         public void Delete() {
             if (Exists) {
                 using (gridFS.Database.RequestStart()) {
-                    gridFS.Chunks.EnsureIndex("files_id", "n");
+                    gridFS.EnsureIndexes();
                     gridFS.Files.Remove(Query.EQ("_id", id), gridFS.Settings.SafeMode);
                     gridFS.Chunks.Remove(Query.EQ("files_id", id), gridFS.Settings.SafeMode);
                 }
@@ -301,7 +301,7 @@ namespace MongoDB.Driver.GridFS {
             if (id != null) {
                 cursor = gridFS.Files.Find(Query.EQ("_id", id));
             } else {
-                gridFS.Files.EnsureIndex("filename", "uploadDate");
+                gridFS.EnsureIndexes();
                 cursor = gridFS.Files.Find(Query.EQ("filename", name)).SetSortOrder(SortBy.Descending("uploadDate"));
             }
             var fileInfo = cursor.SetLimit(1).FirstOrDefault();
