@@ -303,6 +303,18 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestInt64NumberLong() {
+            var json = "NumberLong(123)";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.Int64, bsonReader.ReadBsonType());
+                Assert.AreEqual(123, bsonReader.ReadInt64());
+                Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
+            }
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
+            Assert.AreEqual(json, BsonSerializer.Deserialize<long>(new StringReader(json)).ToJson(settings));
+        }
+
+        [Test]
         public void TestJavaScript() {
             string json = "{ \"$code\" : \"function f() { return 1; }\" }";
             using (bsonReader = BsonReader.Create(json)) {
@@ -416,7 +428,7 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestObjectIdStrictTenGen() {
+        public void TestObjectIdTenGen() {
             var json = "ObjectId(\"4d0ce088e447ad08b4721a37\")";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.ObjectId, bsonReader.ReadBsonType());

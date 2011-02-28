@@ -207,8 +207,16 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            WriteNameHelper(name);
-            textWriter.Write(value);
+            switch (settings.OutputMode) {
+                case JsonOutputMode.TenGen:
+                    WriteNameHelper(name);
+                    textWriter.Write("NumberLong({0})", value);
+                    break;
+                default:
+                    WriteNameHelper(name);
+                    textWriter.Write(value);
+                    break;
+            }
 
             state = GetNextState();
         }

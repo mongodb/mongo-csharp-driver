@@ -69,6 +69,23 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestInt64() {
+            var document = new BsonDocument { { "a", 1L } };
+            var json = document.ToJson();
+            var expected = "{ 'a' : 1 }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestInt64TenGen() {
+            var document = new BsonDocument { { "a", 1L } };
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
+            var json = document.ToJson(settings);
+            var expected = "{ 'a' : NumberLong(1) }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
         public void TestEmbeddedDocument() {
             BsonDocument document = new BsonDocument() {
                 { "doc", new BsonDocument { { "a", 1 }, { "b", 2 } } }
