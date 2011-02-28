@@ -111,7 +111,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         public IIdGenerator IdGenerator {
             get {
                 if (idGenerator == null) {
-                    idGenerator = conventions.IdGeneratorConvention.GetIdGenerator(memberInfo);
+                    // special case IdGenerator for strings represented externally as ObjectId
+                    var memberInfoType = BsonClassMap.GetMemberInfoType(memberInfo);
+                    var representationOptions = serializationOptions as RepresentationSerializationOptions;
+                    if (memberInfoType == typeof(string) && representationOptions != null && representationOptions.Representation == BsonType.ObjectId) {
+                        idGenerator = StringObjectIdGenerator.Instance;
+                    } else {
+                        idGenerator = conventions.IdGeneratorConvention.GetIdGenerator(memberInfo);
+                    }
                 }
                 return idGenerator;
             }

@@ -187,8 +187,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     classMap.AutoMap();
                     RegisterClassMap(classMap);
                 }
-                classMap.Freeze();
-                return classMap;
+                return classMap.Freeze();
             }
         }
 
@@ -262,7 +261,7 @@ namespace MongoDB.Bson.DefaultSerializer {
             return creator.Invoke();
         }
 
-        public void Freeze() {
+        public BsonClassMap Freeze() {
             lock (staticLock) {
                 if (!frozen) {
                     freezeNestingLevel++;
@@ -342,6 +341,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                         freezeNestingLevel--;
                     }
                 }
+                return this;
             }
         }
 

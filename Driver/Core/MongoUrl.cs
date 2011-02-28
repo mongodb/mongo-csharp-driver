@@ -48,8 +48,7 @@ namespace MongoDB.Driver {
             string url
         ) {
             var builder = new MongoUrlBuilder(url); // parses url
-            serverSettings = builder.ToServerSettings();
-            serverSettings.Freeze();
+            serverSettings = builder.ToServerSettings().Freeze();
             this.waitQueueMultiple = builder.WaitQueueMultiple;
             this.waitQueueSize = builder.WaitQueueSize;
             this.databaseName = builder.DatabaseName;

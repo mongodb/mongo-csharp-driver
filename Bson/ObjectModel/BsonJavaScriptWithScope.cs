@@ -66,11 +66,7 @@ namespace MongoDB.Bson {
 
         #region public methods
         public override BsonValue Clone() {
-            BsonJavaScriptWithScope clone = new BsonJavaScriptWithScope(code, new BsonDocument());
-            foreach (BsonElement element in scope) {
-                clone.scope.Add(element.Clone());
-            }
-            return clone;
+            return new BsonJavaScriptWithScope(code, (BsonDocument) scope.Clone());
         }
 
         public override BsonValue DeepClone() {

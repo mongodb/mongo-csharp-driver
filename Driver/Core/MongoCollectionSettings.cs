@@ -22,16 +22,16 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver {
     public abstract class MongoCollectionSettings {
-        #region private fields
-        private string collectionName;
-        private bool assignIdOnInsert;
-        private Type defaultDocumentType;
-        private SafeMode safeMode;
-        private bool slaveOk;
+        #region protected fields
+        protected string collectionName;
+        protected bool assignIdOnInsert;
+        protected Type defaultDocumentType;
+        protected SafeMode safeMode;
+        protected bool slaveOk;
         // the following fields are set when Freeze is called
-        private bool isFrozen;
-        private int frozenHashCode;
-        private string frozenStringRepresentation;
+        protected bool isFrozen;
+        protected int frozenHashCode;
+        protected string frozenStringRepresentation;
         #endregion
 
         #region constructors
@@ -89,13 +89,7 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        public void Freeze() {
-            if (!isFrozen) {
-                frozenHashCode = GetHashCodeHelper();
-                frozenStringRepresentation = ToStringHelper();
-                isFrozen = true;
-            }
-        }
+        public abstract MongoCollectionSettings Clone();
 
         public override bool Equals(object obj) {
             var rhs = obj as MongoCollectionSettings;
@@ -113,6 +107,15 @@ namespace MongoDB.Driver {
                         this.slaveOk == rhs.slaveOk;
                 }
             }
+        }
+
+        public MongoCollectionSettings Freeze() {
+            if (!isFrozen) {
+                frozenHashCode = GetHashCodeHelper();
+                frozenStringRepresentation = ToStringHelper();
+                isFrozen = true;
+            }
+            return this;
         }
 
         public override int GetHashCode() {
@@ -166,6 +169,17 @@ namespace MongoDB.Driver {
             bool slaveOk
         )
             : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), safeMode, slaveOk) {
+        }
+        #endregion
+
+        #region public methods
+        public override MongoCollectionSettings Clone() {
+            return new MongoCollectionSettings<TDefaultDocument>(
+                collectionName,
+                assignIdOnInsert,
+                safeMode,
+                slaveOk
+            );
         }
         #endregion
     }

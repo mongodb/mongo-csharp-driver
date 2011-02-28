@@ -202,6 +202,13 @@ namespace MongoDB.Bson.IO {
             WriteName(name);
             WriteTimestamp(value);
         }
+
+        public override void WriteUndefined(
+            string name
+        ) {
+            WriteName(name);
+            WriteUndefined();
+        }
         #endregion
 
         #region protected methods

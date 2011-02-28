@@ -43,7 +43,7 @@ namespace MongoDB.Bson.IO {
                 this.buffer = buffer;
                 this.disposeBuffer = false;
             }
-            this.settings = settings;
+            this.settings = settings.Freeze();
 
             context = null;
             state = BsonWriterState.Initial;
@@ -424,6 +424,19 @@ namespace MongoDB.Bson.IO {
             buffer.WriteByte((byte) BsonType.Timestamp);
             WriteNameHelper();
             buffer.WriteInt64(value);
+
+            state = GetNextState();
+        }
+
+        public override void WriteUndefined() {
+            if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if (state != BsonWriterState.Value) {
+                var message = string.Format("WriteUndefined cannot be called when State is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            buffer.WriteByte((byte) BsonType.Undefined);
+            WriteNameHelper();
 
             state = GetNextState();
         }

@@ -149,6 +149,17 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
+        public void TestMerge() {
+            var document = new BsonDocument();
+            document.Merge(new BsonDocument("x", 1));
+            Assert.AreEqual(1, document["x"].AsInt32);
+            document.Merge(new BsonDocument("x", 2)); // don't overwriteExistingElements
+            Assert.AreEqual(1, document["x"].AsInt32); // has old value
+            document.Merge(new BsonDocument("x", 2), true); // overwriteExistingElements
+            Assert.AreEqual(2, document["x"].AsInt32); // has new value
+        }
+
+        [Test]
         public void TestNullableBoolean() {
             var document = new BsonDocument { { "v", true }, { "n", BsonNull.Value }, { "s", "" } };
             Assert.AreEqual(true, (bool?) document["v"]);

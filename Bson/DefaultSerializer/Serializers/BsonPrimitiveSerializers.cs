@@ -606,7 +606,22 @@ namespace MongoDB.Bson.DefaultSerializer {
                 bsonReader.ReadNull();
                 return null;
             } else {
-                return bsonReader.ReadString();
+                var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions) options).Representation;
+                switch (representation) {
+                    case BsonType.ObjectId:
+                        int timestamp, machine, increment;
+                        short pid;
+                        bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                        var objectId = new ObjectId(timestamp, machine, pid, increment);
+                        return objectId.ToString();
+                    case BsonType.String:
+                        return bsonReader.ReadString();
+                    case BsonType.Symbol:
+                        return bsonReader.ReadSymbol();
+                    default:
+                        var message = string.Format("Cannot deserialize string from BsonType: {0}", bsonType);
+                        throw new FileFormatException(message);
+                }
             }
         }
 
@@ -619,7 +634,22 @@ namespace MongoDB.Bson.DefaultSerializer {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                bsonWriter.WriteString((string) value);
+                var stringValue = (string) value;
+                var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions) options).Representation;
+                switch (representation) {
+                    case BsonType.ObjectId:
+                        var id = ObjectId.Parse(stringValue);
+                        bsonWriter.WriteObjectId(id.Timestamp, id.Machine, id.Pid, id.Increment);
+                        break;
+                    case BsonType.String:
+                        bsonWriter.WriteString(stringValue);
+                        break;
+                    case BsonType.Symbol:
+                        bsonWriter.WriteSymbol(stringValue);
+                        break;
+                    default:
+                        throw new BsonInternalException("Unexpected representation");
+                }
             }
         }
         #endregion

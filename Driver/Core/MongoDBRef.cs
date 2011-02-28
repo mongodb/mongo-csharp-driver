@@ -29,7 +29,7 @@ namespace MongoDB.Driver {
         #region private fields
         private string databaseName;
         private string collectionName;
-        private object id;
+        private BsonValue id;
         #endregion
 
         #region constructors
@@ -39,7 +39,7 @@ namespace MongoDB.Driver {
 
         public MongoDBRef(
             string collectionName,
-            object id
+            BsonValue id
         ) {
             this.collectionName = collectionName;
             this.id = id;
@@ -48,31 +48,11 @@ namespace MongoDB.Driver {
         public MongoDBRef(
             string databaseName,
             string collectionName,
-            object id
+            BsonValue id
         ) {
             this.databaseName = databaseName;
             this.collectionName = collectionName;
             this.id = id;
-        }
-        #endregion
-
-        #region public operators
-        public static implicit operator MongoDBRef(
-            BsonDocument document
-        ) {
-            if (
-                (document.ElementCount != 2 && document.ElementCount != 3) ||
-                document.GetElement(0).Name != "$ref" ||
-                document.GetElement(1).Name != "$id" ||
-                (document.ElementCount == 3 && document.GetElement(2).Name != "$db")
-            ) {
-                throw new MongoException("BsonDocument is not a valid MongoDBRef");
-            }
-
-            var databaseName = document.Contains("$db") ? document["$db"].AsString : null;
-            var collectionName = document["$ref"].AsString;
-            var id = document["$id"].RawValue;
-            return new MongoDBRef(databaseName, collectionName, id);
         }
         #endregion
 
@@ -84,7 +64,8 @@ namespace MongoDB.Driver {
         public string CollectionName {
             get { return collectionName; }
         }
-        public object Id {
+
+        public BsonValue Id {
            get { return id; }
         }
         #endregion
@@ -109,38 +90,7 @@ namespace MongoDB.Driver {
                             collectionName = bsonReader.ReadString();
                             break;
                         case "$id":
-                            switch (bsonType) {
-                                case BsonType.Binary:
-                                    byte[] bytes;
-                                    BsonBinarySubType subType;
-                                    bsonReader.ReadBinaryData(out bytes, out subType);
-                                    if (bytes.Length == 16 && subType == BsonBinarySubType.Uuid) {
-                                        id = new Guid(bytes);
-                                    } else {
-                                        throw new FileFormatException("Binary data is not valid for Guid");
-                                    }
-                                    break;
-                                case BsonType.Int32:
-                                    id = bsonReader.ReadInt32();
-                                    break;
-                                case BsonType.Int64:
-                                    id = bsonReader.ReadInt64();
-                                    break;
-                                case BsonType.ObjectId:
-                                    int timestamp;
-                                    int machine;
-                                    short pid;
-                                    int increment;
-                                    bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
-                                    id = new ObjectId(timestamp, machine, pid, increment);
-                                    break;
-                                case BsonType.String:
-                                    id = bsonReader.ReadString();
-                                    break;
-                                default:
-                                    message = string.Format("Unsupported BsonType for $id element of a DBRef: {0}", bsonType);
-                                    throw new MongoException(message);
-                            }
+                            id = BsonValue.ReadFrom(bsonReader);;
                             break;
                         case "$db":
                             databaseName = bsonReader.ReadString();
@@ -169,22 +119,8 @@ namespace MongoDB.Driver {
         ) {
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteString("$ref", collectionName);
-            if (id is ObjectId) {
-                var objectId = (ObjectId) id;
-                bsonWriter.WriteObjectId("$id", objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
-            } else if (id is Guid) {
-                var guid = (Guid) id;
-                bsonWriter.WriteBinaryData("$id", guid.ToByteArray(), BsonBinarySubType.Uuid);
-            } else if (id is int) {
-                bsonWriter.WriteInt32("$id", (int) id);
-            } else if (id is long) {
-                bsonWriter.WriteInt64("$id", (long) id);
-            } else if (id is string) {
-                bsonWriter.WriteString("$id", (string) id);
-            } else {
-                var message = string.Format("Unexpected Id type: {0}", id.GetType().FullName);
-                throw new BsonInternalException(message); 
-            }
+            bsonWriter.WriteName("$id");
+            id.WriteTo(bsonWriter);
             if (databaseName != null) {
                 bsonWriter.WriteString("$db", databaseName);
             }

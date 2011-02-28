@@ -155,6 +155,9 @@ namespace MongoDB.Bson.IO {
                         case "null":
                             currentBsonType = BsonType.Null;
                             break;
+                        case "undefined":
+                            currentBsonType = BsonType.Undefined;
+                            break;
                         default:
                             validConstant = false;
                             break;
@@ -375,6 +378,12 @@ namespace MongoDB.Bson.IO {
             return timestamp.Value;
         }
 
+        public override void ReadUndefined() {
+            if (disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadUndefined", BsonType.Undefined);
+            state = GetNextState();
+        }
+
         public override void ReturnToBookmark(
             BsonReaderBookmark bookmark
         ) {
@@ -480,6 +489,9 @@ namespace MongoDB.Bson.IO {
                     break;
                 case BsonType.Timestamp:
                     ReadTimestamp();
+                    break;
+                case BsonType.Undefined:
+                    ReadUndefined();
                     break;
                 default:
                     throw new BsonInternalException("Invalid BsonType");

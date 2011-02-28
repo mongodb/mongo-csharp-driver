@@ -30,10 +30,6 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
-        // used by Clone
-        private BsonDocumentReaderContext() {
-        }
-
         internal BsonDocumentReaderContext(
             BsonDocumentReaderContext parentContext,
             ContextType contextType,
@@ -52,6 +48,21 @@ namespace MongoDB.Bson.IO {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.document = document;
+        }
+
+        // used by Clone
+        private BsonDocumentReaderContext(
+            BsonDocumentReaderContext parentContext,
+            ContextType contextType,
+            BsonDocument document,
+            BsonArray array,
+            int index
+        ) {
+            this.parentContext = parentContext;
+            this.contextType = contextType;
+            this.document = document;
+            this.array = array;
+            this.index = index;
         }
         #endregion
 
@@ -76,13 +87,13 @@ namespace MongoDB.Bson.IO {
 
         #region public methods
         public BsonDocumentReaderContext Clone() {
-            var clone = new BsonDocumentReaderContext();
-            clone.parentContext = this.parentContext;
-            clone.contextType = this.contextType;
-            clone.document = this.document;
-            clone.array = this.array;
-            clone.index = this.index;
-            return clone;
+            return new BsonDocumentReaderContext(
+                parentContext,
+                contextType,
+                document,
+                array,
+                index
+            );
         }
 
         public BsonElement GetNextElement() {

@@ -65,6 +65,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                 { typeof(BsonString), BsonStringSerializer.Instance },
                 { typeof(BsonSymbol), BsonSymbolSerializer.Instance },
                 { typeof(BsonTimestamp), BsonTimestampSerializer.Instance },
+                { typeof(BsonUndefined), BsonUndefinedSerializer.Instance },
                 { typeof(BsonValue), BsonValueSerializer.Instance },
                 { typeof(Byte), ByteSerializer.Instance },
                 { typeof(Byte[]), ByteArraySerializer.Instance },

@@ -513,10 +513,18 @@ namespace MongoDB.Bson {
         public BsonDocument Merge(
             BsonDocument document
         ) {
+            Merge(document, false); // don't overwriteExistingElements
+            return this;
+        }
+
+        public BsonDocument Merge(
+            BsonDocument document,
+            bool overwriteExistingElements
+        ) {
             if (document != null) {
                 foreach (BsonElement element in document) {
-                    if (!Contains(element.Name)) {
-                        Add(element);
+                    if (overwriteExistingElements || !Contains(element.Name)) {
+                        this[element.Name] = element.Value;
                     }
                 }
             }

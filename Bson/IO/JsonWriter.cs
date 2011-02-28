@@ -35,7 +35,7 @@ namespace MongoDB.Bson.IO {
             JsonWriterSettings settings
         ) {
             this.textWriter = writer;
-            this.settings = settings;
+            this.settings = settings.Freeze();
             context = new JsonWriterContext(null, ContextType.TopLevel, "");
             state = BsonWriterState.Initial;
         }
@@ -207,8 +207,16 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            WriteNameHelper(name);
-            textWriter.Write(value);
+            switch (settings.OutputMode) {
+                case JsonOutputMode.TenGen:
+                    WriteNameHelper(name);
+                    textWriter.Write("NumberLong({0})", value);
+                    break;
+                default:
+                    WriteNameHelper(name);
+                    textWriter.Write(value);
+                    break;
+            }
 
             state = GetNextState();
         }
@@ -427,6 +435,19 @@ namespace MongoDB.Bson.IO {
             WriteStartDocument();
             WriteInt64("$timestamp", value);
             WriteEndDocument();
+
+            state = GetNextState();
+        }
+
+        public override void WriteUndefined() {
+            if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
+            if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
+                var message = string.Format("WriteUndefined cannot be called when State is: {0}", state);
+                throw new InvalidOperationException(message);
+            }
+
+            WriteNameHelper(name);
+            textWriter.Write("undefined");
 
             state = GetNextState();
         }

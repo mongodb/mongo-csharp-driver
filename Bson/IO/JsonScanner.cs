@@ -383,6 +383,25 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        private static JsonToken GetTenGenInt64(
+            JsonBuffer buffer,
+            int start
+        ) {
+            var firstDigit = buffer.Position;
+            while (true) {
+                var c = buffer.Read();
+                if (c == ')') {
+                    var lexeme = buffer.Substring(start, buffer.Position - start);
+                    var digits = buffer.Substring(firstDigit, buffer.Position - firstDigit - 1);
+                    var value = XmlConvert.ToInt64(digits);
+                    return new Int64JsonToken(lexeme, value);
+                }
+                if (c == -1 || !char.IsDigit((char) c)) {
+                    throw new FileFormatException(FormatMessage("Invalid JSON NumberLong value", buffer, start));
+                }
+            }
+        }
+
         private static JsonToken GetTenGenObjectId(
             JsonBuffer buffer,
             int start
@@ -446,6 +465,7 @@ namespace MongoDB.Bson.IO {
                                 var value = buffer.Substring(start, buffer.Position - 1 - start);
                                 switch (value) {
                                     case "Date": return GetTenGenDate(buffer, start);
+                                    case "NumberLong": return GetTenGenInt64(buffer, start);
                                     case "ObjectId": return GetTenGenObjectId(buffer, start);
                                 }
                             }

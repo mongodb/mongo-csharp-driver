@@ -1241,5 +1241,64 @@ namespace MongoDB.BsonUnitTests.IO {
             var expected = "{ 'nested' : { 'a' : { '$timestamp' : 1 }, 'b' : { '$timestamp' : 2 } } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
+
+        // Undefined tests
+        [Test]
+        public void TestOneUndefined() {
+            var document = new BsonDocument();
+            using (var writer = BsonWriter.Create(document)) {
+                writer.WriteStartDocument();
+                writer.WriteUndefined("a");
+                writer.WriteEndDocument();
+            }
+            var json = document.ToJson();
+            var expected = "{ 'a' : undefined }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestOneNestedUndefined() {
+            var document = new BsonDocument();
+            using (var writer = BsonWriter.Create(document)) {
+                writer.WriteStartDocument();
+                writer.WriteStartDocument("nested");
+                writer.WriteUndefined("a");
+                writer.WriteEndDocument();
+                writer.WriteEndDocument();
+            }
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : undefined } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoUndefineds() {
+            var document = new BsonDocument();
+            using (var writer = BsonWriter.Create(document)) {
+                writer.WriteStartDocument();
+                writer.WriteUndefined("a");
+                writer.WriteUndefined("b");
+                writer.WriteEndDocument();
+            }
+            var json = document.ToJson();
+            var expected = "{ 'a' : undefined, 'b' : undefined }".Replace("'", "\""); ;
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestTwoNestedUndefineds() {
+            var document = new BsonDocument();
+            using (var writer = BsonWriter.Create(document)) {
+                writer.WriteStartDocument();
+                writer.WriteStartDocument("nested");
+                writer.WriteUndefined("a");
+                writer.WriteUndefined("b");
+                writer.WriteEndDocument();
+                writer.WriteEndDocument();
+            }
+            var json = document.ToJson();
+            var expected = "{ 'nested' : { 'a' : undefined, 'b' : undefined } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
     }
 }

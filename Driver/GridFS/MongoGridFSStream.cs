@@ -110,7 +110,7 @@ namespace MongoDB.Driver.GridFS {
                     message = string.Format("Invalid FileMode: {0}", fileInfo.Name);
                     throw new ArgumentException(message, "mode");
             }
-            gridFS.Chunks.EnsureIndex("files_id", "n");
+            gridFS.EnsureIndexes();
         }
         #endregion
 
@@ -356,11 +356,6 @@ namespace MongoDB.Driver.GridFS {
                     gridFS.Chunks.Insert(missingChunk);
                 }
             }
-        }
-
-        private void EnsureChunksIndex() {
-            var keys = IndexKeys.Ascending("files_id", "n");
-            gridFS.Chunks.EnsureIndex(keys);
         }
 
         private void LoadChunk(

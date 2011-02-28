@@ -177,6 +177,16 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestUndefined() {
+            var json = "\t undefined,";
+            var buffer = new JsonBuffer(json);
+            var token = JsonScanner.GetNextToken(buffer);
+            Assert.AreEqual(JsonTokenType.UnquotedString, token.Type);
+            Assert.AreEqual("undefined", token.StringValue);
+            Assert.AreEqual(',', buffer.Read());
+        }
+
+        [Test]
         public void TestUnquotedString() {
             var json = "\t name123:1";
             var buffer = new JsonBuffer(json);
