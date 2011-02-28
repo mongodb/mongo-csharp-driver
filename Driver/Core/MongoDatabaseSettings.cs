@@ -21,6 +21,9 @@ using System.Text;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// The settings used to access a database.
+    /// </summary>
     public class MongoDatabaseSettings {
         #region private fields
         private string databaseName;
@@ -34,6 +37,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Creates a new instance of MongoDatabaseSettings. Usually you would call MongoServer.CreateDatabaseSettings instead.
+        /// </summary>
+        /// <param name="databaseName">The name of the database.</param>
+        /// <param name="credentials">The credentials to access the database.</param>
+        /// <param name="safeMode">The safe mode to use.</param>
+        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         public MongoDatabaseSettings(
             string databaseName,
             MongoCredentials credentials,
@@ -48,6 +58,9 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets the credentials to access the database.
+        /// </summary>
         public MongoCredentials Credentials {
             get { return credentials; }
             set {
@@ -56,14 +69,23 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets the name of the database.
+        /// </summary>
         public string DatabaseName {
             get { return databaseName; }
         }
 
+        /// <summary>
+        /// Gets whether the settings have been frozen to prevent further changes.
+        /// </summary>
         public bool IsFrozen {
             get { return isFrozen; }
         }
 
+        /// <summary>
+        /// Gets or sets the SafeMode to use.
+        /// </summary>
         public SafeMode SafeMode {
             get { return safeMode; }
             set {
@@ -72,6 +94,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether queries should be sent to secondary servers.
+        /// </summary>
         public bool SlaveOk {
             get { return slaveOk; }
             set {
@@ -82,6 +107,10 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a new instance of MongoDatabaseSettings with the same values.
+        /// </summary>
+        /// <returns>A new instance of MongoDatabaseSettings.</returns>
         public MongoDatabaseSettings Clone() {
             return new MongoDatabaseSettings(
                 databaseName,
@@ -91,6 +120,11 @@ namespace MongoDB.Driver {
             );
         }
 
+        /// <summary>
+        /// Compares two MongoDatabaseSettings instances.
+        /// </summary>
+        /// <param name="obj">The other instance.</param>
+        /// <returns>True if the two instances are equal.</returns>
         public override bool Equals(object obj) {
             var rhs = obj as MongoDatabaseSettings;
             if (rhs == null) {
@@ -108,6 +142,10 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Freezes the settings to prevent any further changes to them.
+        /// </summary>
+        /// <returns>Itself.</returns>
         public MongoDatabaseSettings Freeze() {
             if (!isFrozen) {
                 frozenHashCode = GetHashCodeHelper();
@@ -117,6 +155,10 @@ namespace MongoDB.Driver {
             return this;
         }
 
+        /// <summary>
+        /// Get the hash code for the settings.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             if (isFrozen) {
                 return frozenHashCode;
@@ -125,6 +167,10 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Returns a string representation of the settings.
+        /// </summary>
+        /// <returns>A string representation of the settings.</returns>
         public override string ToString() {
             if (isFrozen) {
                 return frozenStringRepresentation;

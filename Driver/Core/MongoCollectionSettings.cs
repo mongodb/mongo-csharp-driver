@@ -21,7 +21,11 @@ using System.Text;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// The settings used to access a collection (an abstract class, see MongoCollectionSettings{TDefaultDocument}).
+    /// </summary>
     public abstract class MongoCollectionSettings {
+#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)     
         #region protected fields
         protected string collectionName;
         protected bool assignIdOnInsert;
@@ -49,8 +53,12 @@ namespace MongoDB.Driver {
             this.slaveOk = slaveOk;
         }
         #endregion
+#pragma warning restore
 
         #region public properties
+        /// <summary>
+        /// Gets or sets whether the driver should assign Id values when missing.
+        /// </summary>
         public bool AssignIdOnInsert {
             get { return assignIdOnInsert; }
             set {
@@ -59,18 +67,30 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets the name of the collection.
+        /// </summary>
         public string CollectionName {
             get { return collectionName; }
         }
 
+        /// <summary>
+        /// Gets the default document type of the collection.
+        /// </summary>
         public Type DefaultDocumentType {
             get { return defaultDocumentType; }
         }
 
+        /// <summary>
+        /// Gets whether the settings have been frozen to prevent further changes.
+        /// </summary>
         public bool IsFrozen {
             get { return isFrozen; }
         }
 
+        /// <summary>
+        /// Gets or sets the SafeMode to use.
+        /// </summary>
         public SafeMode SafeMode {
             get { return safeMode; }
             set {
@@ -79,6 +99,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether queries should be sent to secondary servers.
+        /// </summary>
         public bool SlaveOk {
             get { return slaveOk; }
             set {
@@ -89,8 +112,17 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a new instance of MongoCollectionSettings with the same values.
+        /// </summary>
+        /// <returns>A new instance of MongoCollectionSettings.</returns>
         public abstract MongoCollectionSettings Clone();
 
+        /// <summary>
+        /// Compares two MongoCollectionSettings instances.
+        /// </summary>
+        /// <param name="obj">The other instance.</param>
+        /// <returns>True if the two instances are equal.</returns>
         public override bool Equals(object obj) {
             var rhs = obj as MongoCollectionSettings;
             if (rhs == null) {
@@ -109,6 +141,10 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Freezes the settings to prevent any further changes to them.
+        /// </summary>
+        /// <returns>Itself.</returns>
         public MongoCollectionSettings Freeze() {
             if (!isFrozen) {
                 frozenHashCode = GetHashCodeHelper();
@@ -118,6 +154,10 @@ namespace MongoDB.Driver {
             return this;
         }
 
+        /// <summary>
+        /// Get the hash code for the settings.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             if (isFrozen) {
                 return frozenHashCode;
@@ -126,6 +166,10 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Returns a string representation of the settings.
+        /// </summary>
+        /// <returns>A string representation of the settings.</returns>
         public override string ToString() {
             if (isFrozen) {
                 return frozenStringRepresentation;
@@ -160,8 +204,19 @@ namespace MongoDB.Driver {
         #endregion
     }
 
+    /// <summary>
+    /// Settings used to access a collection.
+    /// </summary>
+    /// <typeparam name="TDefaultDocument">The default document type of the collection.</typeparam>
     public class MongoCollectionSettings<TDefaultDocument> : MongoCollectionSettings {
         #region constructors
+        /// <summary>
+        /// Creates a new instance of MongoCollectionSettings. Usually you would call MongoDatabase.CreateCollectionSettings instead.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="assignIdOnInsert">Whether the driver should assign the Id values if necessary.</param>
+        /// <param name="safeMode">The safe mode to use.</param>
+        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         public MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
@@ -173,6 +228,10 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a new instance of MongoCollectionSettings with the same values.
+        /// </summary>
+        /// <returns>A new instance of MongoCollectionSettings.</returns>
         public override MongoCollectionSettings Clone() {
             return new MongoCollectionSettings<TDefaultDocument>(
                 collectionName,
