@@ -19,10 +19,22 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Flags used with the Update method in MongoCollection.
+    /// </summary>
     [Flags]
     public enum UpdateFlags {
+        /// <summary>
+        /// No flags.
+        /// </summary>
         None = 0,
+        /// <summary>
+        /// If document doesn't exist then do an Insert.
+        /// </summary>
         Upsert = 1,
+        /// <summary>
+        /// Update all matching documents (instead of just one).
+        /// </summary>
         Multi = 2
     }
 }

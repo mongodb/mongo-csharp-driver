@@ -25,6 +25,9 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents a DBRef (a convenient way to refer to a document).
+    /// </summary>
     public class MongoDBRef : IBsonSerializable {
         #region private fields
         private string databaseName;
@@ -37,6 +40,11 @@ namespace MongoDB.Driver {
         private MongoDBRef() {
         }
 
+        /// <summary>
+        /// Creates a MongoDBRef.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection that contains the document.</param>
+        /// <param name="id">The Id of the document.</param>
         public MongoDBRef(
             string collectionName,
             BsonValue id
@@ -45,6 +53,12 @@ namespace MongoDB.Driver {
             this.id = id;
         }
 
+        /// <summary>
+        /// Creates a MongoDBRef.
+        /// </summary>
+        /// <param name="databaseName">The name of the database that contains the document.</param>
+        /// <param name="collectionName">The name of the collection that contains the document.</param>
+        /// <param name="id">The Id of the document.</param>
         public MongoDBRef(
             string databaseName,
             string collectionName,
@@ -57,14 +71,23 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the name of the database that contains the document.
+        /// </summary>
         public string DatabaseName {
             get { return databaseName; }
         }
 
+        /// <summary>
+        /// Gets the name of the collection that contains the document.
+        /// </summary>
         public string CollectionName {
             get { return collectionName; }
         }
 
+        /// <summary>
+        /// Gets the Id of the document.
+        /// </summary>
         public BsonValue Id {
            get { return id; }
         }
