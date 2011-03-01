@@ -237,7 +237,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets or sets the list of server addresses.
+        /// Gets or sets the list of server addresses (see also Server if using only one address).
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers {
             get { return servers; }

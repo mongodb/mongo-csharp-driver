@@ -24,6 +24,10 @@ using System.Xml;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents .NET style connection strings. We recommend you use URL style connection strings
+    /// (see MongoUrl and MongoUrlBuilder).
+    /// </summary>
     public class MongoConnectionStringBuilder : DbConnectionStringBuilder {
         #region private static fields
         private static Dictionary<string, string> canonicalKeywords = new Dictionary<string, string> {
@@ -77,11 +81,18 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Creates a new instance of MongoConnectionStringBuilder.
+        /// </summary>
         public MongoConnectionStringBuilder()
             : base() {
             ResetValues();
         }
 
+        /// <summary>
+        /// Creates a new instance of MongoConnectionStringBuilder.
+        /// </summary>
+        /// <param name="connectionString">The initial settings.</param>
         public MongoConnectionStringBuilder(
             string connectionString
         ) {
@@ -90,6 +101,9 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
+        /// </summary>
         public int ComputedWaitQueueSize {
             get {
                 if (waitQueueMultiple == 0.0) {
@@ -100,6 +114,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the connection mode.
+        /// </summary>
         public ConnectionMode ConnectionMode {
             get { return connectionMode; }
             set {
@@ -108,6 +125,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the connect timeout.
+        /// </summary>
         public TimeSpan ConnectTimeout {
             get { return connectTimeout; }
             set {
@@ -116,6 +136,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the optional database name.
+        /// </summary>
         public string DatabaseName {
             get { return databaseName; }
             set {
@@ -123,6 +146,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the max connection idle time.
+        /// </summary>
         public TimeSpan MaxConnectionIdleTime {
             get { return maxConnectionIdleTime; }
             set {
@@ -131,6 +157,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the max connection life time.
+        /// </summary>
         public TimeSpan MaxConnectionLifeTime {
             get { return maxConnectionLifeTime; }
             set {
@@ -139,6 +168,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the max connection pool size.
+        /// </summary>
         public int MaxConnectionPoolSize {
             get { return maxConnectionPoolSize; }
             set {
@@ -147,6 +179,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the min connection pool size.
+        /// </summary>
         public int MinConnectionPoolSize {
             get { return minConnectionPoolSize; }
             set {
@@ -155,6 +190,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the default password.
+        /// </summary>
         public string Password {
             get { return password; }
             set {
@@ -162,6 +200,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the replica set.
+        /// </summary>
         public string ReplicaSetName {
             get { return replicaSetName; }
             set {
@@ -170,6 +211,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the SafeMode to use.
+        /// </summary>
         public SafeMode SafeMode {
             get { return safeMode; }
             set {
@@ -195,6 +239,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the address of the server (see also Servers if using more than one address).
+        /// </summary>
         public MongoServerAddress Server {
             get { return (servers == null) ? null : servers.Single(); }
             set {
@@ -202,6 +249,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the list of server addresses (see also Server if using only one address).
+        /// </summary>
         public IEnumerable<MongoServerAddress> Servers {
             get { return servers; }
             set {
@@ -211,6 +261,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether queries should be sent to secondary servers.
+        /// </summary>
         public bool SlaveOk {
             get { return slaveOk; }
             set {
@@ -219,6 +272,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the socket timeout.
+        /// </summary>
         public TimeSpan SocketTimeout {
             get { return socketTimeout; }
             set {
@@ -227,6 +283,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the default username.
+        /// </summary>
         public string Username {
             get { return username; }
             set {
@@ -234,6 +293,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize).
+        /// </summary>
         public double WaitQueueMultiple {
             get { return waitQueueMultiple; }
             set {
@@ -242,6 +304,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue size.
+        /// </summary>
         public int WaitQueueSize {
             get { return waitQueueSize; }
             set {
@@ -250,6 +315,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue timeout.
+        /// </summary>
         public TimeSpan WaitQueueTimeout {
             get { return waitQueueTimeout; }
             set {
@@ -260,6 +328,11 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public indexers
+        /// <summary>
+        /// Gets or sets individual settings by keyword.
+        /// </summary>
+        /// <param name="keyword">The keyword.</param>
+        /// <returns>The value of the setting.</returns>
         public override object this[
             string keyword
         ] {
@@ -371,17 +444,29 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Clears all settings to their default values.
+        /// </summary>
         public override void Clear() {
             base.Clear();
             ResetValues();
         }
 
+        /// <summary>
+        /// Tests whether a keyword is valid.
+        /// </summary>
+        /// <param name="keyword">The keyword.</param>
+        /// <returns>True if the keyword is valid.</returns>
         public override bool ContainsKey(
             string keyword
         ) {
             return canonicalKeywords.ContainsKey(keyword.ToLower());
         }
 
+        /// <summary>
+        /// Creates a new instance of MongoServerSettings based on the settings in this MongoConnectionStringBuilder.
+        /// </summary>
+        /// <returns>A new instance of MongoServerSettings.</returns>
         public MongoServerSettings ToServerSettings() {
             return new MongoServerSettings(
                 connectionMode,
