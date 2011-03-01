@@ -233,7 +233,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets the current state of this server.
+        /// Gets the current state of this server (as of the last operation, not updated until another operation is performed).
         /// </summary>
         public virtual MongoServerState State {
             get { return state; }
@@ -311,16 +311,6 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        /// <summary>
-        /// Clones a database.
-        /// </summary>
-        /// <param name="fromHost"></param>
-        public virtual void CloneDatabase(
-            string fromHost
-        ) {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Connects to the server. Normally there is no need to call this method as
         /// the driver will connect to the server automatically when needed.
