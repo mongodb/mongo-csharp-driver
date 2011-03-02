@@ -22,6 +22,9 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Abstract base class for wrapper classes.
+    /// </summary>
     public abstract class BaseWrapper : IBsonSerializable {
         #region private fields
         private Type nominalType;
@@ -29,6 +32,10 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BaseWrapper class.
+        /// </summary>
+        /// <param name="obj">The wrapped object.</param>
         protected BaseWrapper(
             object obj
         ) {
@@ -36,6 +43,11 @@ namespace MongoDB.Driver {
             this.obj = obj;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BaseWrapper class.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the wrapped object.</param>
+        /// <param name="obj">The wrapped object.</param>
         protected BaseWrapper(
             Type nominalType,
             object obj
@@ -46,6 +58,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserialize is an invalid operation for wrapper classes.
+        /// </summary>
+        /// <param name="bsonReader">The reader.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns></returns>
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -55,6 +74,12 @@ namespace MongoDB.Driver {
             throw new InvalidOperationException(message);
         }
 
+        /// <summary>
+        /// GetDocumentId is an invalid operation for wrapper classes.
+        /// </summary>
+        /// <param name="id">The Id value.</param>
+        /// <param name="idGenerator">The Id generator.</param>
+        /// <returns></returns>
         public bool GetDocumentId(
             out object id,
             out IIdGenerator idGenerator
@@ -63,6 +88,12 @@ namespace MongoDB.Driver {
             throw new InvalidOperationException(message);
         }
 
+        /// <summary>
+        /// Serializes a wrapped object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type (ignored).</param>
+        /// <param name="options">The serialization options.</param>
         public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType, // ignored
@@ -71,6 +102,10 @@ namespace MongoDB.Driver {
             BsonSerializer.Serialize(bsonWriter, this.nominalType, obj, options); // use wrapped nominalType
         }
 
+        /// <summary>
+        /// SetDocumentId is an invalid operation for wrapper classes.
+        /// </summary>
+        /// <param name="id">The Id value.</param>
         public void SetDocumentId(
             object id
         ) {

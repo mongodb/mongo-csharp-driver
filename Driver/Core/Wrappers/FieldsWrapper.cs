@@ -22,8 +22,15 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents a wrapped object that can be used where an IMongoFields is expected (the wrapped object is expected to serialize properly).
+    /// </summary>
     public class FieldsWrapper : BaseWrapper, IMongoFields {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the FieldsWrapper class.
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
         public FieldsWrapper(
             object fields
         )
@@ -32,6 +39,11 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the FieldsWrapper class.
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
+        /// <returns>A new instance of FieldsWrapper or null.</returns>
         public static FieldsWrapper Create(
             object fields
         ) {

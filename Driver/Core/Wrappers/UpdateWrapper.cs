@@ -22,14 +22,26 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents a wrapped object that can be used where an IMongoUpdate is expected (the wrapped object is expected to serialize properly).
+    /// </summary>
     public class UpdateWrapper : BaseWrapper, IMongoUpdate {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the UpdateWrapper class.
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
         public UpdateWrapper(
             object update
         )
             : base(update) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the UpdateWrapper class.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the wrapped object.</param>
+        /// <param name="options">The wrapped object.</param>
         public UpdateWrapper(
             Type nominalType,
             object update
@@ -39,7 +51,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
-        // used when update modifier is a replacement document
+        /// <summary>
+        /// Creates a new instance of the UpdateWrapper class (this overload is used when the update
+        /// modifier is a replacement document).
+        /// </summary>
+        /// <typeparam name="T">The nominal type of the wrapped object.</typeparam>
+        /// <param name="options">The wrapped object.</param>
+        /// <returns>A new instance of UpdateWrapper or null.</returns>
         public static UpdateWrapper Create<T>(
             T update
         ) {
@@ -50,6 +68,11 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the UpdateWrapper class.
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
+        /// <returns>A new instance of UpdateWrapper or null.</returns>
         public static UpdateWrapper Create(
             object update
         ) {
