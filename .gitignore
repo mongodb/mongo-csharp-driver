@@ -5,3 +5,8 @@ obj
 *.vsp
 *.csproj.VisualState.xml
 TestResult.xml
+# This folder gets created if you use resharper.
+_ReSharper.*
+# For the vim users out there
+*.swp
+*~
