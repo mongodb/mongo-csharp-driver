@@ -24,20 +24,38 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
+    /// <summary>
+    /// Represents an instance of IMongoGroupBy that was created using a builder.
+    /// </summary>
     public static class GroupBy {
         #region public static methods
+        /// <summary>
+        /// Sets a key function.
+        /// </summary>
+        /// <param name="keyFunction">The key function.</param>
+        /// <returns>A BsonJavaScript.</returns>
         public static BsonJavaScript Function(
             BsonJavaScript keyFunction
         ) {
             return keyFunction;
         }
 
+        /// <summary>
+        /// Sets one or more key names.
+        /// </summary>
+        /// <param name="names">One or more key names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static GroupByBuilder Keys(
             params string[] names
         ) {
             return new GroupByBuilder(names);
         }
 
+        /// <summary>
+        /// Wraps an object so that it can be used where an IMongoGroupBy is expected (the wrapped object is expected to serialize properly).
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
+        /// <returns>A GroupByWrapper.</returns>
         public static IMongoGroupBy Wrap(
             object groupBy
         ) {
@@ -46,6 +64,9 @@ namespace MongoDB.Driver.Builders {
         #endregion
     }
 
+    /// <summary>
+    /// Represents an instance of IMongoGroupBy that was created using a builder.
+    /// </summary>
     [Serializable]
     public class GroupByBuilder : BuilderBase, IMongoGroupBy {
         #region private fields
@@ -53,6 +74,10 @@ namespace MongoDB.Driver.Builders {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the GroupByBuilder class.
+        /// </summary>
+        /// <param name="names">One or more key names.</param>
         public GroupByBuilder(
             string[] names
         ) {
@@ -64,12 +89,22 @@ namespace MongoDB.Driver.Builders {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Returns the result of the builder as a BsonDocument.
+        /// </summary>
+        /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument() {
             return document;
         }
         #endregion
 
         #region explicit interface implementations
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
         protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,

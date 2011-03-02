@@ -24,26 +24,48 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
+    /// <summary>
+    /// Represents an instance of IMongoFields that was created using a builder.
+    /// </summary>
     public static class Fields {
         #region public static properties
+        /// <summary>
+        /// Gets a null value with a type of IMongoFields.
+        /// </summary>
         public static IMongoFields Null {
             get { return null; }
         }
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Adds one or more field names to be excluded from the results.
+        /// </summary>
+        /// <param name="names">One or more field names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static FieldsBuilder Exclude(
             params string[] names
         ) {
             return new FieldsBuilder().Exclude(names);
         }
 
+        /// <summary>
+        /// Adds one or more field names to be included in the results.
+        /// </summary>
+        /// <param name="names">One or more field names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static FieldsBuilder Include(
             params string[] names
         ) {
             return new FieldsBuilder().Include(names);
         }
 
+        /// <summary>
+        /// Adds a slice to be included in the results.
+        /// </summary>
+        /// <param name="name">The name of the field to slice.</param>
+        /// <param name="size">The size of the slice (negative sizes are taken from the end).</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static FieldsBuilder Slice(
             string name,
             int size // negative sizes are from the end
@@ -51,6 +73,13 @@ namespace MongoDB.Driver.Builders {
             return new FieldsBuilder().Slice(name, size);
         }
 
+        /// <summary>
+        /// Adds a slice to be included in the results.
+        /// </summary>
+        /// <param name="name">The name of the field to slice.</param>
+        /// <param name="skip">The number of values to skip.</param>
+        /// <param name="limit">The number of values to extract.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static FieldsBuilder Slice(
             string name,
             int skip,
@@ -59,6 +88,11 @@ namespace MongoDB.Driver.Builders {
             return new FieldsBuilder().Slice(name, skip, limit);
         }
 
+        /// <summary>
+        /// Wraps an object so that it can be used where an IMongoFields is expected (the wrapped object is expected to serialize properly).
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
+        /// <returns>A FieldsWrapper.</returns>
         public static IMongoFields Wrap(
             object fields
         ) {
@@ -67,6 +101,9 @@ namespace MongoDB.Driver.Builders {
         #endregion
     }
 
+    /// <summary>
+    /// Represents an instance of IMongoFields that was created using a builder.
+    /// </summary>
     [Serializable]
     public class FieldsBuilder : BuilderBase, IMongoFields {
         #region private fields
@@ -74,12 +111,20 @@ namespace MongoDB.Driver.Builders {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the FieldsBuilder class.
+        /// </summary>
         public FieldsBuilder() {
             document = new BsonDocument();
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Adds one or more field names to be excluded from the results.
+        /// </summary>
+        /// <param name="names">One or more field names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder Exclude(
             params string[] names
         ) {
@@ -89,6 +134,11 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
+        /// <summary>
+        /// Adds one or more field names to be included in the results.
+        /// </summary>
+        /// <param name="names">One or more field names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder Include(
             params string[] names
         ) {
@@ -98,6 +148,12 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
+        /// <summary>
+        /// Adds a slice to be included in the results.
+        /// </summary>
+        /// <param name="name">The name of the field to slice.</param>
+        /// <param name="size">The size of the slice (negative sizes are taken from the end).</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder Slice(
             string name,
             int size // negative sizes are from the end
@@ -106,6 +162,13 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
+        /// <summary>
+        /// Adds a slice to be included in the results.
+        /// </summary>
+        /// <param name="name">The name of the field to slice.</param>
+        /// <param name="skip">The number of values to skip.</param>
+        /// <param name="limit">The number of values to extract.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder Slice(
             string name,
             int skip,
@@ -115,12 +178,22 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
+        /// <summary>
+        /// Returns the result of the builder as a BsonDocument.
+        /// </summary>
+        /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument() {
             return document;
         }
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
         protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
