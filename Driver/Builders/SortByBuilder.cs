@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Builders {
 
         #region constructors
         /// <summary>
-        /// Initializes an instance of the SortByBuider class.
+        /// Initializes a new instance of the SortByBuider class.
         /// </summary>
         public SortByBuilder() {
             document = new BsonDocument();

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         /// <summary>
-        /// Initializes an instance of the IndexCache class.
+        /// Initializes a new instance of the IndexCache class.
         /// </summary>
         public IndexCache() {
         }

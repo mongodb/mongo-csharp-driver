@@ -22,9 +22,15 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents the results of an operation performed with a safe mode.
+    /// </summary>
     [Serializable]
     public class SafeModeResult : GetLastErrorResult {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the SafeModeResult class.
+        /// </summary>
         public SafeModeResult() {
         }
         #endregion

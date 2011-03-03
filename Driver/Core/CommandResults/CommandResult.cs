@@ -22,19 +22,32 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents the result of a command (there are also subclasses for various commands).
+    /// </summary>
     [Serializable]
     public class CommandResult {
         #region protected fields
+#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)
         protected IMongoCommand command;
         protected BsonDocument response;
+#pragma warning restore
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the CommandResult class.
+        /// </summary>
         // since we often create instances of CommandResult using a generic type parameter
         // we need a constructor with no arguments (see also the Initialize method below)
         public CommandResult() {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the CommandResult class.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="response">The response.</param>
         public CommandResult(
             IMongoCommand command,
             BsonDocument response
@@ -45,18 +58,30 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the command.
+        /// </summary>
         public IMongoCommand Command {
             get { return command; }
         }
 
+        /// <summary>
+        /// Gets the command name.
+        /// </summary>
         public string CommandName {
             get { return command.ToBsonDocument().GetElement(0).Name; }
         }
 
+        /// <summary>
+        /// Gets the response.
+        /// </summary>
         public BsonDocument Response {
             get { return response; }
         }
 
+        /// <summary>
+        /// Gets the error message (null if none).
+        /// </summary>
         public string ErrorMessage {
             get {
                 BsonValue ok;
@@ -73,6 +98,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets the Ok value from the response.
+        /// </summary>
         public bool Ok {
             get {
                 BsonValue ok;
@@ -87,6 +115,11 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Initializes an existing instance of the CommandResult class.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="response">The response.</param>
 		// used after a constructor with no arguments (when creating a CommandResult from a generic type parameter)
         public void Initialize(
             IMongoCommand command,

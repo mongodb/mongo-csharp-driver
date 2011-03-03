@@ -22,22 +22,37 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents the results of a GetLastError command.
+    /// </summary>
     [Serializable]
     public class GetLastErrorResult : CommandResult {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the GetLastErrorResult class.
+        /// </summary>
         public GetLastErrorResult() {
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the number of documents affected.
+        /// </summary>
         public int DocumentsAffected {
             get { return response["n"].ToInt32(); }
         }
 
+        /// <summary>
+        /// Gets whether the result has a LastErrorMessage.
+        /// </summary>
         public bool HasLastErrorMessage {
             get { return response["err", false].ToBoolean(); }
         }
 
+        /// <summary>
+        /// Gets the last error message (null if none).
+        /// </summary>
         public string LastErrorMessage {
             get { 
                 var err = response["err", false];
@@ -45,6 +60,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets whether the last command updated an existing document.
+        /// </summary>
         public bool UpdatedExisting {
             get {
                 var updatedExisting = response["updatedExisting", false];
