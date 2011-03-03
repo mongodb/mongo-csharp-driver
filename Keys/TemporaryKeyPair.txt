@@ -1,0 +1,4 @@
+The TemporaryKeyPair.snk file contains a temporary public/private key pair so that
+you can build signed assemblies directly from the source tree retrieved from github.
+
+The official releases will resign the DLLs with a different public/private key pair.
