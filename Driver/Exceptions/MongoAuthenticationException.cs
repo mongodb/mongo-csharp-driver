@@ -20,15 +20,27 @@ using System.Runtime.Serialization;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents a MongoDB authentication exception
+    /// </summary>
     [Serializable]
     public class MongoAuthenticationException : MongoException {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MongoAuthenticationException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public MongoAuthenticationException(
             string message
         )
             : base(message) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the MongoAuthenticationException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public MongoAuthenticationException(
             string message,
             Exception innerException
@@ -36,7 +48,11 @@ namespace MongoDB.Driver {
             : base(message, innerException) {
         }
 
-        // this constructor needed to support deserialization
+        /// <summary>
+        /// Initializes a new instance of the MongoAuthenticationException class (this overload supports deserialization).
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         public MongoAuthenticationException(
             SerializationInfo info,
             StreamingContext context
