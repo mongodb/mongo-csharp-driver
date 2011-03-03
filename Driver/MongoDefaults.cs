@@ -20,6 +20,9 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Default values for various Mongo settings.
+    /// </summary>
     public static class MongoDefaults {
         #region public static fields
         private static bool assignIdOnInsert = true;
@@ -39,11 +42,17 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets whether the driver should assign a value to empty Ids on Insert.
+        /// </summary>
         public static bool AssignIdOnInsert {
             get { return assignIdOnInsert; }
             set { assignIdOnInsert = value; }
         }
 
+        /// <summary>
+        /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
+        /// </summary>
         public static int ComputedWaitQueueSize {
             get {
                 if (waitQueueMultiple == 0.0) {
@@ -54,56 +63,89 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the connect timeout.
+        /// </summary>
         public static TimeSpan ConnectTimeout {
             get { return connectTimeout; }
             set { connectTimeout = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the max connection idle time.
+        /// </summary>
         public static TimeSpan MaxConnectionIdleTime {
             get { return maxConnectionIdleTime; }
             set { maxConnectionIdleTime = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the max connection life time.
+        /// </summary>
         public static TimeSpan MaxConnectionLifeTime {
             get { return maxConnectionLifeTime; }
             set { maxConnectionLifeTime = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the max connection pool size.
+        /// </summary>
         public static int MaxConnectionPoolSize {
             get { return maxConnectionPoolSize; }
             set { maxConnectionPoolSize = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the max message length.
+        /// </summary>
         public static int MaxMessageLength {
             get { return maxMessageLength; }
             set { maxMessageLength = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the min connection pool size.
+        /// </summary>
         public static int MinConnectionPoolSize {
             get { return minConnectionPoolSize; }
             set { minConnectionPoolSize = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the safe mode.
+        /// </summary>
         public static SafeMode SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the socket timeout.
+        /// </summary>
         public static TimeSpan SocketTimeout {
             get { return socketTimeout; }
             set { socketTimeout = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the TCP receive buffer size.
+        /// </summary>
         public static int TcpReceiveBufferSize {
             get { return tcpReceiveBufferSize; }
             set { tcpReceiveBufferSize = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the TCP send buffer size.
+        /// </summary>
         public static int TcpSendBufferSize {
             get { return tcpSendBufferSize; }
             set { tcpSendBufferSize = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize, see also WaitQueueSize).
+        /// </summary>
         public static double WaitQueueMultiple {
             get { return waitQueueMultiple; }
             set {
@@ -112,6 +154,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue size (see also WaitQueueMultiple).
+        /// </summary>
         public static int WaitQueueSize {
             get { return waitQueueSize; }
             set {
@@ -120,6 +165,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue timeout.
+        /// </summary>
         public static TimeSpan WaitQueueTimeout {
             get { return waitQueueTimeout; }
             set { waitQueueTimeout = value; }

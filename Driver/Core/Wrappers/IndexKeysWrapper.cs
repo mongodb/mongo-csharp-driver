@@ -30,7 +30,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the IndexKeysWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="keys">The wrapped object.</param>
         public IndexKeysWrapper(
             object keys
         )
@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Creates a new instance of the IndexKeysWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="keys">The wrapped object.</param>
         /// <returns>A new instance of IndexKeysWrapper or null.</returns>
         public static IndexKeysWrapper Create(
             object keys

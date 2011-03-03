@@ -30,7 +30,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the QueryWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="query">The wrapped object.</param>
         public QueryWrapper(
             object query
         )
@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Creates a new instance of the QueryWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="query">The wrapped object.</param>
         /// <returns>A new instance of QueryWrapper or null.</returns>
         public static QueryWrapper Create(
             object query

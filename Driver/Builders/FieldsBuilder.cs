@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Wraps an object so that it can be used where an IMongoFields is expected (the wrapped object is expected to serialize properly).
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="fields">The wrapped object.</param>
         /// <returns>A FieldsWrapper.</returns>
         public static IMongoFields Wrap(
             object fields

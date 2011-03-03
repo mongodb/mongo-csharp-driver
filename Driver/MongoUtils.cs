@@ -20,8 +20,16 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Various static utility methods.
+    /// </summary>
     public static class MongoUtils {
         #region public static methods
+        /// <summary>
+        /// Gets the MD5 hash of a string.
+        /// </summary>
+        /// <param name="text">The string to get the MD5 hash of.</param>
+        /// <returns>The MD5 hash.</returns>
         public static string Hash(
             string text
         ) {
@@ -31,6 +39,11 @@ namespace MongoDB.Driver {
             return hash;
         }
 
+        /// <summary>
+        /// Converts a string to camel case by lower casing the first letter (only the first letter is modified).
+        /// </summary>
+        /// <param name="value">The string to camel case.</param>
+        /// <returns>The camel cased string.</returns>
         public static string ToCamelCase(
             string value
         ) {

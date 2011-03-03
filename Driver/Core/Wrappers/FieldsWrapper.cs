@@ -30,7 +30,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the FieldsWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="fields">The wrapped object.</param>
         public FieldsWrapper(
             object fields
         )
@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Creates a new instance of the FieldsWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="fields">The wrapped object.</param>
         /// <returns>A new instance of FieldsWrapper or null.</returns>
         public static FieldsWrapper Create(
             object fields

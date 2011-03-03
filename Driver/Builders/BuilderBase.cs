@@ -44,6 +44,10 @@ namespace MongoDB.Driver.Builders {
         /// <returns>A BsonDocument.</returns>
         public abstract BsonDocument ToBsonDocument();
 
+        /// <summary>
+        /// Returns a string representation of the settings.
+        /// </summary>
+        /// <returns>A string representation of the settings.</returns>
         public override string ToString() {
             return this.ToJson(); // "this." required to access extension method
         }

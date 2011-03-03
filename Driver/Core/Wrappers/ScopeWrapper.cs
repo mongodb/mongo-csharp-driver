@@ -30,7 +30,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the ScopeWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="scope">The wrapped object.</param>
         public ScopeWrapper(
             object scope
         )
@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Creates a new instance of the ScopeWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="scope">The wrapped object.</param>
         /// <returns>A new instance of ScopeWrapper or null.</returns>
         public static ScopeWrapper Create(
             object scope

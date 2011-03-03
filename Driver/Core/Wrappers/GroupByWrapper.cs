@@ -30,7 +30,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the GroupByWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="groupBy">The wrapped object.</param>
         public GroupByWrapper(
             object groupBy
         )
@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Creates a new instance of the GroupByWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="groupBy">The wrapped object.</param>
         /// <returns>A new instance of GroupByWrapper or null.</returns>
         public static GroupByWrapper Create(
             object groupBy

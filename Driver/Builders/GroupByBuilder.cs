@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Wraps an object so that it can be used where an IMongoGroupBy is expected (the wrapped object is expected to serialize properly).
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="groupBy">The wrapped object.</param>
         /// <returns>A GroupByWrapper.</returns>
         public static IMongoGroupBy Wrap(
             object groupBy

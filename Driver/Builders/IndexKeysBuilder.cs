@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Wraps an object so that it can be used where an IMongoIndexKeys is expected (the wrapped object is expected to serialize properly).
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="keys">The wrapped object.</param>
         /// <returns>A IndexKeysWrapper.</returns>
         public static IMongoIndexKeys Wrap(
             object keys

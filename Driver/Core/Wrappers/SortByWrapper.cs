@@ -30,7 +30,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the SortByWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="sortBy">The wrapped object.</param>
         public SortByWrapper(
             object sortBy
         )
@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Creates a new instance of the SortByWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="sortBy">The wrapped object.</param>
         /// <returns>A new instance of SortByWrapper or null.</returns>
         public static SortByWrapper Create(
             object sortBy
