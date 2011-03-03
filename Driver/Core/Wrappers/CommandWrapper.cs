@@ -30,7 +30,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the CommandWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="command">The wrapped object.</param>
         public CommandWrapper(
             object command
         )
@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Creates a new instance of the CommandWrapper class.
         /// </summary>
-        /// <param name="options">The wrapped object.</param>
+        /// <param name="command">The wrapped object.</param>
         /// <returns>A new instance of CommandWrapper or null.</returns>
         public static new CommandWrapper Create(
             object command
