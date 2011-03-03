@@ -72,7 +72,7 @@ namespace MongoDB.Bson.IO {
 
         public override BsonType ReadBsonType() {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state == BsonReaderState.Initial || state == BsonReaderState.ScopeDocument) {
+            if (state == BsonReaderState.Initial || state == BsonReaderState.Done || state == BsonReaderState.ScopeDocument) {
                 // in JSON the top level value can be of any type so fall through
                 state = BsonReaderState.Type;
             }
@@ -123,6 +123,9 @@ namespace MongoDB.Bson.IO {
                 case JsonTokenType.Double:
                     currentBsonType = BsonType.Double;
                     currentValue = valueToken.DoubleValue;
+                    break;
+                case JsonTokenType.EndOfFile:
+                    currentBsonType = BsonType.EndOfDocument;
                     break;
                 case JsonTokenType.Int32:
                     currentBsonType = BsonType.Int32;
