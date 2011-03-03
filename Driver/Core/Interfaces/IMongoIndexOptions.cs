@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// A marker interface that represents options for creating an index (see IndexOptionsDocument and the IndexOptions builder).
+    /// </summary>
     public interface IMongoIndexOptions {
     }
 }

@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// A marker interface that represents a list of fields (see FieldsDocument and the Fields builder).
+    /// </summary>
     public interface IMongoFields {
     }
 }

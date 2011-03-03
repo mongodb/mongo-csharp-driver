@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// A marker interface that represents a scope (a set of variables with values, see ScopeDocument).
+    /// </summary>
     public interface IMongoScope {
     }
 }
