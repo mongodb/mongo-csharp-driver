@@ -132,6 +132,59 @@ namespace MongoDB.Bson {
         }
         #endregion
 
+        #region public operators
+        /// <summary>
+        /// Converts a <see cref="Hashtable">Hashtable</see> into a BsonDocument.
+        /// </summary>
+        /// <remarks>
+        /// The main advantage for this implicit cast is to ease use of the Bson library and MongoDB driver with Windows Powershell.
+        /// Powershell has native support for Hashtables.
+        /// </remarks>
+        /// <param name="ht">
+        /// A Hashtable. The keys in this hashtable must be such that when <c>key.ToString()</c>
+        /// is called on them their values is unique.
+        /// </param>
+        /// <returns>A BsonDocument</returns>
+        /// <example>
+        /// Using this implicit cast to create a <c>BsonDocument</c> with PowerShell's Hashtable notation:
+        /// <code lang="powershell">
+        /// # We assume that the driver is installed via the MSI.
+        /// [string] $mongoDriverPath = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\.NETFramework\v3.5\AssemblyFoldersEx\MongoDB CSharpDriver 0.11").'(default)';
+        /// Add-Type -Path "$($mongoDriverPath)\MongoDB.Bson.dll";
+        /// [MongoDB.Bson.BsonDocument] $doc = @{
+        ///     "_id"= [MongoDB.Bson.ObjectId]::GenerateNewId();
+        ///     "FirstName"= "Justin";
+        ///     "LastName"= "Dearing";
+        ///     "PhoneNumbers"= [MongoDB.Bson.BsonDocument] @{
+        ///         'Home'= '718-641-2098';
+        ///         'Mobile'= '646-288-5621';
+        ///     };
+        /// };
+        /// $doc;
+        /// </code>
+        /// <b>Output:</b>
+        /// <pre>
+        /// Name                                                                                                        Value
+        /// ----                                                                                                        -----
+        /// _id                                                                                                         4d711f54d9a8b11fe4d4395d
+        /// FirstName                                                                                                   Justin
+        /// LastName                                                                                                    Dearing
+        /// PhoneNumbers                                                                                                {Mobile=646-288-5621, Home=718-641-2098}
+        /// </pre>
+        /// <br/>
+        /// </example>
+        /// <seealso cref="Hashtable" />
+        public static implicit operator BsonDocument(Hashtable ht)
+        {
+            var doc = new BsonDocument();
+            foreach (var key in ht.Keys)
+            {
+                doc.Add(key.ToString(), BsonValue.Create(ht[key]));
+            }
+            return doc;
+        }
+        #endregion
+
         #region public properties
         public bool AllowDuplicateNames {
             get { return allowDuplicateNames; }
