@@ -20,19 +20,34 @@ using System.Runtime.Serialization;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON serialization exception.
+    /// </summary>
     [Serializable]
     public class BsonSerializationException : BsonException {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonSerializationException class.
+        /// </summary>
         public BsonSerializationException()
             : base() {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonSerializationException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public BsonSerializationException(
             string message
         )
             : base(message) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonSerializationException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public BsonSerializationException(
             string message,
             Exception innerException
@@ -40,6 +55,11 @@ namespace MongoDB.Bson {
             : base(message, innerException) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonSerializationException class.
+        /// </summary>
+        /// <param name="format">The error message format string.</param>
+        /// <param name="args">One or more args for the error message.</param>
         public BsonSerializationException(
             string format,
             params object[] args
@@ -47,7 +67,11 @@ namespace MongoDB.Bson {
             : base(string.Format(format, args)) {
         }
 
-        // this constructor needed to support deserialization
+        /// <summary>
+        /// Initializes a new instance of the BsonSerializationException class (this overload used by deserialization).
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         public BsonSerializationException(
             SerializationInfo info,
             StreamingContext context
