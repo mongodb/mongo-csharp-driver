@@ -18,11 +18,48 @@ using System;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
+    /// <summary>
+    /// An interface implemented by BSON serializers.
+    /// </summary>
     public interface IBsonSerializer {
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options);
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options);
+        /// <summary>
+        /// Gets the document Id.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="id">The Id.</param>
+        /// <param name="idGenerator">The IdGenerator for the Id type.</param>
+        /// <returns>True if the document has an Id.</returns>
         bool GetDocumentId(object document, out object id, out IIdGenerator idGenerator);
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options);
+        /// <summary>
+        /// Sets the document Id.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="id">The Id.</param>
         void SetDocumentId(object document, object id);
     }
 }
