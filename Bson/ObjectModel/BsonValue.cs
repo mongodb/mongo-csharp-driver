@@ -22,6 +22,9 @@ using System.Xml;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON value (this is an abstract class, see the various subclasses).
+    /// </summary>
     [Serializable]
     public abstract class BsonValue : IComparable<BsonValue>, IConvertible, IEquatable<BsonValue> {
         #region private static fields
@@ -277,210 +280,385 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Casts a BsonValue to a bool.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A bool.</returns>
         public static explicit operator bool(
             BsonValue value
         ) {
             return value.AsBoolean;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a bool?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A bool?.</returns>
         public static explicit operator bool?(
             BsonValue value
         ) {
             return (value == null) ? null : value.AsNullableBoolean;
         }
 
+        /// <summary>
+        /// Converts a bool to a BsonValue.
+        /// </summary>
+        /// <param name="value">A bool.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             bool value
         ) {
             return BsonBoolean.Create(value);
         }
 
+        /// <summary>
+        /// Converts a bool? to a BsonValue.
+        /// </summary>
+        /// <param name="value">A bool?.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             bool? value
         ) {
             return value.HasValue ? (BsonValue) BsonBoolean.Create(value.Value) : BsonNull.Value;
         }
 
+        /// <summary>
+        /// Converts a byte[] to a BsonValue.
+        /// </summary>
+        /// <param name="value">A byte[].</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             byte[] value
         ) {
             return BsonBinaryData.Create(value);
         }
 
+        /// <summary>
+        /// Converts a DateTime to a BsonValue.
+        /// </summary>
+        /// <param name="value">A DateTime.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             DateTime value
         ) {
             return new BsonDateTime(value);
         }
 
+        /// <summary>
+        /// Converts a DateTime? to a BsonValue.
+        /// </summary>
+        /// <param name="value">A DateTime?.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             DateTime? value
         ) {
             return value.HasValue ? (BsonValue) BsonDateTime.Create(value.Value) : BsonNull.Value;
         }
 
+        /// <summary>
+        /// Converts a double to a BsonValue.
+        /// </summary>
+        /// <param name="value">A double.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             double value
         ) {
             return new BsonDouble(value);
         }
 
+        /// <summary>
+        /// Converts a double? to a BsonValue.
+        /// </summary>
+        /// <param name="value">A double?.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             double? value
         ) {
             return value.HasValue ? (BsonValue) BsonDouble.Create(value.Value) : BsonNull.Value;
         }
 
+        /// <summary>
+        /// Converts an Enum to a BsonValue.
+        /// </summary>
+        /// <param name="value">An Enum.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             Enum value
         ) {
             return BsonTypeMapper.MapToBsonValue(value);
         }
 
+        /// <summary>
+        /// Converts a Guid to a BsonValue.
+        /// </summary>
+        /// <param name="value">A Guid.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             Guid value
         ) {
             return BsonBinaryData.Create(value);
         }
 
+        /// <summary>
+        /// Converts a Guid? to a BsonValue.
+        /// </summary>
+        /// <param name="value">A Guid?.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             Guid? value
         ) {
             return value.HasValue ? (BsonValue) BsonBinaryData.Create(value.Value) : BsonNull.Value;
         }
 
+        /// <summary>
+        /// Converts an int to a BsonValue.
+        /// </summary>
+        /// <param name="value">An int.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             int value
         ) {
             return BsonInt32.Create(value);
         }
 
+        /// <summary>
+        /// Converts an int? to a BsonValue.
+        /// </summary>
+        /// <param name="value">An int?.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             int? value
         ) {
             return value.HasValue ? (BsonValue) BsonInt32.Create(value.Value) : BsonNull.Value;
         }
 
+        /// <summary>
+        /// Converts a long to a BsonValue.
+        /// </summary>
+        /// <param name="value">A long.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             long value
         ) {
             return new BsonInt64(value);
         }
 
+        /// <summary>
+        /// Converts a long? to a BsonValue.
+        /// </summary>
+        /// <param name="value">A long?.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             long? value
         ) {
             return value.HasValue ? (BsonValue) BsonInt64.Create(value.Value) : BsonNull.Value;
         }
 
+        /// <summary>
+        /// Converts an ObjectId to a BsonValue.
+        /// </summary>
+        /// <param name="value">An ObjectId.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             ObjectId value
         ) {
             return new BsonObjectId(value);
         }
 
+        /// <summary>
+        /// Converts an ObjectId? to a BsonValue.
+        /// </summary>
+        /// <param name="value">An ObjectId?.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             ObjectId? value
         ) {
             return value.HasValue ? (BsonValue) BsonObjectId.Create(value.Value) : BsonNull.Value;
         }
 
+        /// <summary>
+        /// Converts a Regex to a BsonValue.
+        /// </summary>
+        /// <param name="value">A Regex.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             Regex value
         ) {
             return BsonRegularExpression.Create(value);
         }
 
+        /// <summary>
+        /// Converts a string to a BsonValue.
+        /// </summary>
+        /// <param name="value">A string.</param>
+        /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(
             string value
         ) {
             return BsonString.Create(value);
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a byte[].
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A byte[].</returns>
         public static explicit operator byte[](
             BsonValue value
         ) {
             return (value == null) ? null : value.AsByteArray;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a DateTime.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A DateTime.</returns>
         public static explicit operator DateTime(
             BsonValue value
         ) {
             return value.AsDateTime;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a DateTime?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A DateTime?.</returns>
         public static explicit operator DateTime?(
             BsonValue value
         ) {
             return (value == null) ? null : value.AsNullableDateTime;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a double.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A double.</returns>
         public static explicit operator double(
             BsonValue value
         ) {
             return value.AsDouble;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a double?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A double?.</returns>
         public static explicit operator double?(
             BsonValue value
         ) {
             return (value == null) ? null : value.AsNullableDouble;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a Guid.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A Guid.</returns>
         public static explicit operator Guid(
             BsonValue value
         ) {
             return value.AsGuid;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a Guid?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A Guid?.</returns>
         public static explicit operator Guid?(
             BsonValue value
         ) {
             return (value == null) ? null : value.AsNullableGuid;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to an int.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>An int.</returns>
         public static explicit operator int(
             BsonValue value
         ) {
             return value.AsInt32;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to an int?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>An int?.</returns>
         public static explicit operator int?(
             BsonValue value
         ) {
             return value == null ? null : value.AsNullableInt32;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a long.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A long.</returns>
         public static explicit operator long(
             BsonValue value
         ) {
             return value.AsInt64;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a long?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A long?.</returns>
         public static explicit operator long?(
             BsonValue value
         ) {
             return (value == null) ? null : value.AsNullableInt64;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to an ObjectId.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>An ObjectId.</returns>
         public static explicit operator ObjectId(
             BsonValue value
         ) {
             return value.AsObjectId;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to an ObjectId?.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>An ObjectId?.</returns>
         public static explicit operator ObjectId?(
             BsonValue value
         ) {
             return (value == null) ? null : value.AsNullableObjectId;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a Regex.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A Regex.</returns>
         public static explicit operator Regex(
             BsonValue value
         ) {
             return (value == null) ? null : value.AsRegex;
         }
 
+        /// <summary>
+        /// Casts a BsonValue to a string.
+        /// </summary>
+        /// <param name="value">The BsonValue.</param>
+        /// <returns>A string.</returns>
         public static explicit operator string(
             BsonValue value
         ) {
@@ -651,18 +829,32 @@ namespace MongoDB.Bson {
             return this; // subclasses override DeepClone if necessary
         }
 
+        /// <summary>
+        /// Compares this BsonValue to another BsonValue.
+        /// </summary>
+        /// <param name="rhs">The other BsonValue.</param>
+        /// <returns>True if the two BsonValues are equal.</returns>
         public bool Equals(
             BsonValue rhs
         ) {
             return object.Equals(this, rhs);
         }
 
+        /// <summary>
+        /// Compares this BsonValue to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonValue and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             throw new BsonInternalException("A subclass of BsonValue did not override Equals");
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             throw new BsonInternalException("A subclass of BsonValue did not override GetHashCode");
         }

@@ -20,6 +20,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON regular expression value.
+    /// </summary>
     [Serializable]
     public class BsonRegularExpression : BsonValue, IComparable<BsonRegularExpression>, IEquatable<BsonRegularExpression> {
         #region private fields
@@ -75,12 +78,22 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Converts a Regex to a BsonRegularExpression.
+        /// </summary>
+        /// <param name="value">A Regex.</param>
+        /// <returns>A BsonRegularExpression.</returns>
         public static implicit operator BsonRegularExpression(
             Regex value
         ) {
             return BsonRegularExpression.Create(value);
         }
 
+        /// <summary>
+        /// Converts a string to a BsonRegularExpression.
+        /// </summary>
+        /// <param name="value">A string.</param>
+        /// <returns>A BsonRegularExpression.</returns>
         public static implicit operator BsonRegularExpression(
             string value
         ) {
@@ -132,6 +145,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this BsonRegularExpression to another BsonRegularExpression.
+        /// </summary>
+        /// <param name="other">The other BsonRegularExpression.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonRegularExpression is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonRegularExpression other
         ) {
@@ -141,6 +159,11 @@ namespace MongoDB.Bson {
             return options.CompareTo(other.options);
         }
 
+        /// <summary>
+        /// Compares the BsonRegularExpression to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonRegularExpression is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -152,6 +175,11 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonRegularExpression to another BsonRegularExpression.
+        /// </summary>
+        /// <param name="rhs">The other BsonRegularExpression.</param>
+        /// <returns>True if the two BsonRegularExpressions are equal.</returns>
         public bool Equals(
             BsonRegularExpression rhs
         ) {
@@ -159,12 +187,21 @@ namespace MongoDB.Bson {
             return this.pattern == rhs.pattern && this.options == rhs.options;
         }
 
+        /// <summary>
+        /// Compares this BsonRegularExpression to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonRegularExpression and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonRegularExpression); // works even if obj is null
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -183,6 +220,10 @@ namespace MongoDB.Bson {
             return new Regex(pattern, options);
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return string.Format("/{0}/{1}", pattern, options);
         }

@@ -186,7 +186,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Get the hash code for this object.
+        /// Gets the hash code for this object.
         /// </summary>
         /// <returns>The hash code.</returns>
         public override int GetHashCode() {

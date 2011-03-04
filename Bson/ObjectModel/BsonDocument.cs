@@ -488,7 +488,7 @@ namespace MongoDB.Bson {
         /// Compares this document to another document.
         /// </summary>
         /// <param name="other">The other document.</param>
-        /// <returns>A 32-bit singed integer that indicates whether the current document is less than, equal to, or greather than other.</returns>
+        /// <returns>A 32-bit signed integer that indicates whether this document is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonDocument other
         ) {
@@ -503,10 +503,10 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Compares this document to another BsonValue (which may or may not be a BsonDocument).
+        /// Compares the BsonDocument to another BsonValue.
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
-        /// <returns>A 32-bit singed integer that indicates whether the current document is less than, equal to, or greather than other.</returns>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonDocument is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -610,7 +610,7 @@ namespace MongoDB.Bson {
         /// Compares this document to another document.
         /// </summary>
         /// <param name="rhs">The other document.</param>
-        /// <returns>True if both documents are equal.</returns>
+        /// <returns>True if the two documents are equal.</returns>
         public bool Equals(
             BsonDocument rhs
         ) {
@@ -619,10 +619,10 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Compares this document to another document.
+        /// Compares this BsonDocument to another object.
         /// </summary>
-        /// <param name="rhs">The other document.</param>
-        /// <returns>True if both documents are equal.</returns>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonDocument and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
@@ -666,7 +666,7 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Get the hash code for the document.
+        /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
         public override int GetHashCode() {

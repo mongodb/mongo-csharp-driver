@@ -421,7 +421,11 @@ namespace MongoDB.Bson {
             public Type NetType { get { return netType; } }
             public BsonType BsonType { get { return bsonType; } }
 
-            // implement just enough equality functionality to work as a Dictionary key
+            /// <summary>
+            /// Compares this Mapping to another object.
+            /// </summary>
+            /// <param name="obj">The other object.</param>
+            /// <returns>True if the other object is a Mapping and equal to this one.</returns>
             public override bool Equals(
                 object obj
             ) {
@@ -429,6 +433,10 @@ namespace MongoDB.Bson {
                 return netType == rhs.netType && bsonType == rhs.bsonType;
             }
 
+            /// <summary>
+            /// Gets the hash code.
+            /// </summary>
+            /// <returns>The hash code.</returns>
             public override int GetHashCode() {
                 return netType.GetHashCode() + (int) bsonType;
             }

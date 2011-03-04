@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// An interface implemented by objects that convert themselves to a BsonDocument.
+    /// </summary>
     public interface IConvertibleToBsonDocument {
         BsonDocument ToBsonDocument();
     }

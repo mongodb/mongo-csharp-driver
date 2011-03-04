@@ -20,6 +20,9 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON timestamp value.
+    /// </summary>
     [Serializable]
     public class BsonTimestamp : BsonValue, IComparable<BsonTimestamp>, IEquatable<BsonTimestamp> {
         #region private fields
@@ -44,10 +47,16 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the BsonTimestamp as a long.
+        /// </summary>
         public override object RawValue {
             get { return value; }
         }
 
+        /// <summary>
+        /// Gets the value of this BsonTimestamp.
+        /// </summary>
         public long Value {
             get { return value; }
         }
@@ -87,6 +96,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this BsonTimestamp to another BsonTimestamp.
+        /// </summary>
+        /// <param name="other">The other BsonTimestamp.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonTimestamp is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonTimestamp other
         ) {
@@ -94,6 +108,11 @@ namespace MongoDB.Bson {
             return value.CompareTo(other.value);
         }
 
+        /// <summary>
+        /// Compares the BsonTimestamp to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonTimestamp is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -111,6 +130,11 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonTimestamp to another BsonTimestamp.
+        /// </summary>
+        /// <param name="rhs">The other BsonTimestamp.</param>
+        /// <returns>True if the two BsonTimestamps are equal.</returns>
         public bool Equals(
             BsonTimestamp rhs
         ) {
@@ -118,12 +142,21 @@ namespace MongoDB.Bson {
             return this.value == rhs.value;
         }
 
+        /// <summary>
+        /// Compares this BsonTimestamp to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonTimestamp and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonTimestamp); // works even if obj is null
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -132,6 +165,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return XmlConvert.ToString(value);
         }

@@ -22,6 +22,9 @@ using System.Text;
 using System.Threading;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents an ObjectId (see also BsonObjectId).
+    /// </summary>
     [Serializable]
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId> {
         #region private static fields
@@ -240,6 +243,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this ObjectId to another ObjectId.
+        /// </summary>
+        /// <param name="other">The other ObjectId.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this ObjectId is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             ObjectId other
         ) {
@@ -252,6 +260,11 @@ namespace MongoDB.Bson {
             return increment.CompareTo(other.increment);
         }
 
+        /// <summary>
+        /// Compares this ObjectId to another ObjectId.
+        /// </summary>
+        /// <param name="rhs">The other ObjectId.</param>
+        /// <returns>True if the two ObjectIds are equal.</returns>
         public bool Equals(
             ObjectId rhs
         ) {
@@ -262,6 +275,11 @@ namespace MongoDB.Bson {
                 this.increment == rhs.increment;
         }
 
+        /// <summary>
+        /// Compares this ObjectId to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is an ObjectId and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
@@ -272,6 +290,10 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             int hash = 17;
             hash = 37 * hash + timestamp.GetHashCode();
@@ -285,6 +307,10 @@ namespace MongoDB.Bson {
             return Pack(timestamp, machine, pid, increment);
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return BsonUtils.ToHexString(Pack(timestamp, machine, pid, increment));
         }

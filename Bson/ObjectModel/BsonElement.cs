@@ -24,6 +24,9 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON element.
+    /// </summary>
     [Serializable]
     public class BsonElement : IComparable<BsonElement>, IEquatable<BsonElement> {
         #region private fields
@@ -165,6 +168,11 @@ namespace MongoDB.Bson {
             return clone;
         }
 
+        /// <summary>
+        /// Compares this BsonElement to another BsonElement.
+        /// </summary>
+        /// <param name="other">The other BsonElement.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonElement is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonElement other
         ) {
@@ -174,6 +182,11 @@ namespace MongoDB.Bson {
             return this.value.CompareTo(other.value);
         }
 
+        /// <summary>
+        /// Compares this BsonElement to another BsonElement.
+        /// </summary>
+        /// <param name="rhs">The other BsonElement.</param>
+        /// <returns>True if the two BsonElements are equal.</returns>
         public bool Equals(
             BsonElement rhs
         ) {
@@ -181,12 +194,21 @@ namespace MongoDB.Bson {
             return this.name == rhs.name && this.value == rhs.value;
         }
 
+        /// <summary>
+        /// Compares this BsonElement to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonElement and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonElement); // works even if obj is null or of a different type
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -195,6 +217,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return string.Format("{0}={1}", name, value);
         }

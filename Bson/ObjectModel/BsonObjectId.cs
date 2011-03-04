@@ -22,6 +22,9 @@ using System.Text;
 using System.Threading;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON ObjectId value (see also ObjectId).
+    /// </summary>
     [Serializable]
     public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId> {
         #region private static fields
@@ -93,16 +96,27 @@ namespace MongoDB.Bson {
             get { return value.CreationTime; }
         }
 
+        /// <summary>
+        /// Gets the BsonObjectId as an ObjectId.
+        /// </summary>
         public override object RawValue {
             get { return value; }
         }
 
+        /// <summary>
+        /// Gets the value of this BsonObjectId.
+        /// </summary>
         public ObjectId Value {
             get { return value; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Converts an ObjectId to a BsonObjectId.
+        /// </summary>
+        /// <param name="value">An ObjectId.</param>
+        /// <returns>A BsonObjectId.</returns>
         public static implicit operator BsonObjectId(
             ObjectId value
         ) {
@@ -182,6 +196,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this BsonObjectId to another BsonObjectId.
+        /// </summary>
+        /// <param name="other">The other BsonObjectId.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonObjectId is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonObjectId other
         ) {
@@ -189,6 +208,11 @@ namespace MongoDB.Bson {
             return value.CompareTo(other.Value);
         }
 
+        /// <summary>
+        /// Compares the BsonObjectId to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonObjectId is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -200,6 +224,11 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonObjectId to another BsonObjectId.
+        /// </summary>
+        /// <param name="rhs">The other BsonObjectId.</param>
+        /// <returns>True if the two BsonObjectIds are equal.</returns>
         public bool Equals(
             BsonObjectId rhs
         ) {
@@ -207,12 +236,21 @@ namespace MongoDB.Bson {
             return this.Value == rhs.Value;
         }
 
+        /// <summary>
+        /// Compares this BsonObjectId to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonObjectId and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonObjectId); // works even if obj is null
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             int hash = 17;
             hash = 37 * hash + bsonType.GetHashCode();
@@ -224,6 +262,10 @@ namespace MongoDB.Bson {
             return value.ToByteArray();
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return value.ToString();
         }

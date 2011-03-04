@@ -20,6 +20,9 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON DateTime value.
+    /// </summary>
     [Serializable]
     public class BsonDateTime : BsonValue, IComparable<BsonDateTime>, IEquatable<BsonDateTime> {
         #region private fields
@@ -36,16 +39,27 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the BsonDateTime as a DateTime.
+        /// </summary>
         public override object RawValue {
             get { return value; }
         }
 
+        /// <summary>
+        /// Gets the value of this BsonDateTime.
+        /// </summary>
         public DateTime Value {
             get { return value; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Converts a DateTime to a BsonDateTime.
+        /// </summary>
+        /// <param name="value">A DateTime.</param>
+        /// <returns>A BsonDateTime.</returns>
         public static implicit operator BsonDateTime(
             DateTime value
         ) {
@@ -72,6 +86,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this BsonDateTime to another BsonDateTime.
+        /// </summary>
+        /// <param name="other">The other BsonDateTime.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonDateTime is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonDateTime other
         ) {
@@ -79,6 +98,11 @@ namespace MongoDB.Bson {
             return value.CompareTo(other.value);
         }
 
+        /// <summary>
+        /// Compares the BsonDateTime to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonDateTime is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -94,6 +118,11 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonDateTime to another BsonDateTime.
+        /// </summary>
+        /// <param name="rhs">The other BsonDateTime.</param>
+        /// <returns>True if the two BsonDateTimes are equal.</returns>
         public bool Equals(
             BsonDateTime rhs
         ) {
@@ -101,12 +130,21 @@ namespace MongoDB.Bson {
             return this.value == rhs.value;
         }
 
+        /// <summary>
+        /// Compares this BsonDateTime to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonDateTime and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonDateTime); // works even if obj is null
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -115,6 +153,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return XmlConvert.ToString(value, XmlDateTimeSerializationMode.RoundtripKind);
         }

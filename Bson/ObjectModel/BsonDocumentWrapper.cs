@@ -30,6 +30,9 @@ namespace MongoDB.Bson {
     // it is a subclass of BsonValue so that it may be used where a BsonValue is expected
     // this class is mostly used by MongoCollection and MongoCursor when supporting generic query objects
 
+    /// <summary>
+    /// Represents a BsonDocument wrapper.
+    /// </summary>
     public class BsonDocumentWrapper : BsonValue, IBsonSerializable {
         #region private fields
         private Type wrappedNominalType;
@@ -82,6 +85,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// CompareTo is an invalid operation for BsonDocumentWrapper.
+        /// </summary>
+        /// <param name="other">Not valid.</param>
+        /// <returns>None.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -103,12 +111,21 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException();
         }
 
+        /// <summary>
+        /// Equals is an invalid operation for BsonDocumentWrapper.
+        /// </summary>
+        /// <param name="obj">Invalid.</param>
+        /// <returns>Invalid.</returns>
         public override bool Equals(
             object obj
         ) {
             throw new InvalidOperationException("Equals not supported for BsonDocumentWrapper");
         }
 
+        /// <summary>
+        /// GetHashCode is an invalid operation for BsonDocumentWrapper.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             throw new InvalidOperationException("GetHashCode not supported for BsonDocumentWrapper");
         }
@@ -127,6 +144,10 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException();
         }
 
+        /// <summary>
+        /// Returns a string representation of the wrapped document.
+        /// </summary>
+        /// <returns>A string representation of the wrapped document.</returns>
         public override string ToString() {
             return this.ToJson();
         }
