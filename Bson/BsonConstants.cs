@@ -19,12 +19,18 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// A static class containing BSON constants.
+    /// </summary>
     public static class BsonConstants {
         #region private static fields
         private static readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets the Unix Epoch for BSON DateTimes (1970-01-01).
+        /// </summary>
         public static DateTime UnixEpoch { get { return unixEpoch; } }
         #endregion
     }

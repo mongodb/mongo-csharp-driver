@@ -23,8 +23,16 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// A static class containing BSON utility methods.
+    /// </summary>
     public static class BsonUtils {
         #region public static methods
+        /// <summary>
+        /// Parses a hex string to a byte array.
+        /// </summary>
+        /// <param name="s">The hex string.</param>
+        /// <returns>A byte array.</returns>
         public static byte[] ParseHexString(
             string s
         ) {
@@ -35,6 +43,11 @@ namespace MongoDB.Bson {
             return bytes;
         }
 
+        /// <summary>
+        /// Converts a byte array to a hex string.
+        /// </summary>
+        /// <param name="bytes">The byte array.</param>
+        /// <returns>A hex string.</returns>
         public static string ToHexString(
             byte[] bytes
         ) {
@@ -45,6 +58,12 @@ namespace MongoDB.Bson {
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Tries to parse a hex string to a byte array.
+        /// </summary>
+        /// <param name="s">The hex string.</param>
+        /// <param name="bytes">A byte array.</param>
+        /// <returns>True if the hex string was successfully parsed.</returns>
         public static bool TryParseHexString(
             string s,
             out byte[] bytes
