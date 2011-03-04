@@ -113,9 +113,9 @@ namespace MongoDB.Driver {
 
         #region public methods
         /// <summary>
-        /// Creates a new instance of MongoCollectionSettings with the same values.
+        /// Creates a clone of the settings.
         /// </summary>
-        /// <returns>A new instance of MongoCollectionSettings.</returns>
+        /// <returns>A clone of the settings.</returns>
         public abstract MongoCollectionSettings Clone();
 
         /// <summary>
@@ -229,9 +229,9 @@ namespace MongoDB.Driver {
 
         #region public methods
         /// <summary>
-        /// Creates a new instance of MongoCollectionSettings with the same values.
+        /// Creates a clone of the settings.
         /// </summary>
-        /// <returns>A new instance of MongoCollectionSettings.</returns>
+        /// <returns>A clone of the settings.</returns>
         public override MongoCollectionSettings Clone() {
             return new MongoCollectionSettings<TDefaultDocument>(
                 collectionName,

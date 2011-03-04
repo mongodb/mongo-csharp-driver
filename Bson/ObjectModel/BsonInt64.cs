@@ -30,6 +30,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonInt64 class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public BsonInt64(
             long value
         )
@@ -68,12 +72,22 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public statie methods
+        /// <summary>
+        /// Creates a new instance of the BsonInt64 class.
+        /// </summary>
+        /// <param name="value">A long.</param>
+        /// <returns>A BsonInt64.</returns>
         public static BsonInt64 Create(
             long value
         ) {
             return new BsonInt64(value);
         }
 
+        /// <summary>
+        /// Creates a new BsonInt64.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonInt64.</param>
+        /// <returns>A BsonInt64 or null.</returns>
         public new static BsonInt64 Create(
             object value
         ) {
@@ -126,7 +140,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonInt64 to another BsonInt64.
         /// </summary>
         /// <param name="rhs">The other BsonInt64.</param>
-        /// <returns>True if the two BsonInt64s are equal.</returns>
+        /// <returns>True if the two BsonInt64 values are equal.</returns>
         public bool Equals(
             BsonInt64 rhs
         ) {

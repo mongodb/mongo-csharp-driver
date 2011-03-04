@@ -36,6 +36,9 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets the singleton instance of BsonNull.
+        /// </summary>
         public static BsonNull Value { get { return value; } }
         #endregion
 
@@ -71,7 +74,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonNull to another BsonNull.
         /// </summary>
         /// <param name="rhs">The other BsonNull.</param>
-        /// <returns>True if the two BsonNulls are equal.</returns>
+        /// <returns>True if the two BsonNull values are equal.</returns>
         public bool Equals(
             BsonNull rhs
         ) {

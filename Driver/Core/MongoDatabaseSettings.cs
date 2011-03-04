@@ -108,9 +108,9 @@ namespace MongoDB.Driver {
 
         #region public methods
         /// <summary>
-        /// Creates a new instance of MongoDatabaseSettings with the same values.
+        /// Creates a clone of the settings.
         /// </summary>
-        /// <returns>A new instance of MongoDatabaseSettings.</returns>
+        /// <returns>A clone of the settings.</returns>
         public MongoDatabaseSettings Clone() {
             return new MongoDatabaseSettings(
                 databaseName,

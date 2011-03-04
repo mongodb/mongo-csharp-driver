@@ -30,6 +30,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonTimestamp class.
+        /// </summary>
+        /// <param name="value">The combined timestamp/increment value.</param>
         public BsonTimestamp(
             long value
         )
@@ -37,6 +41,11 @@ namespace MongoDB.Bson {
             this.value = value;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonTimestamp class.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="increment">The increment.</param>
         public BsonTimestamp(
             int timestamp,
             int increment
@@ -61,22 +70,39 @@ namespace MongoDB.Bson {
             get { return value; }
         }
 
+        /// <summary>
+        /// Gets the increment.
+        /// </summary>
         public int Increment {
             get { return (int) value; }
         }
 
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
         public int Timestamp {
             get { return (int) (value >> 32); }
         }
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the BsonTimestamp class.
+        /// </summary>
+        /// <param name="value">The combined timestamp/increment value.</param>
+        /// <returns>A BsonTimestamp.</returns>
         public static BsonTimestamp Create(
             long value
         ) {
             return new BsonTimestamp(value);
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonTimestamp class.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="increment">The increment.</param>
+        /// <returns>A BsonTimestamp.</returns>
         public static BsonTimestamp Create(
             int timestamp,
             int increment
@@ -84,6 +110,11 @@ namespace MongoDB.Bson {
             return new BsonTimestamp(timestamp, increment);
         }
 
+        /// <summary>
+        /// Creates a new BsonTimestamp.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonTimestamp.</param>
+        /// <returns>A BsonTimestamp or null.</returns>
         public new static BsonTimestamp Create(
             object value
         ) {
@@ -134,7 +165,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonTimestamp to another BsonTimestamp.
         /// </summary>
         /// <param name="rhs">The other BsonTimestamp.</param>
-        /// <returns>True if the two BsonTimestamps are equal.</returns>
+        /// <returns>True if the two BsonTimestamp values are equal.</returns>
         public bool Equals(
             BsonTimestamp rhs
         ) {

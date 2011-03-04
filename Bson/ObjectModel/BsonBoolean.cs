@@ -91,7 +91,7 @@ namespace MongoDB.Bson {
 
         #region public static methods
         /// <summary>
-        /// Returns one the two possible BsonBoolean values.
+        /// Returns one of the two possible BsonBoolean values.
         /// </summary>
         /// <param name="value">The bool value.</param>
         /// <returns>The corresponding BsonBoolean value.</returns>
@@ -102,7 +102,7 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Returns one the two possible BsonBoolean values.
+        /// Returns one of the two possible BsonBoolean values.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonBoolean.</param>
         /// <returns>A BsonBoolean or null.</returns>
@@ -150,7 +150,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonBoolean to another BsonBoolean.
         /// </summary>
         /// <param name="rhs">The other BsonBoolean.</param>
-        /// <returns>True if the two BsonBooleans are equal.</returns>
+        /// <returns>True if the two BsonBoolean values are equal.</returns>
         public bool Equals(
             BsonBoolean rhs
         ) {

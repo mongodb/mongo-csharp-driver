@@ -22,6 +22,9 @@ using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// A static class that maps between .NET objects and BsonValues.
+    /// </summary>
     public static class BsonTypeMapper {
         #region private static fields
         // table of from mappings used by MapToBsonValue
@@ -146,6 +149,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Maps an object to a BsonValue.
+        /// </summary>
+        /// <param name="value">An object.</param>
+        /// <returns>A BsonValue.</returns>
         public static BsonValue MapToBsonValue(
             object value // will be mapped to an instance of the closest BsonValue class
         ) {
@@ -158,6 +166,12 @@ namespace MongoDB.Bson {
             throw new ArgumentException(message);
         }
 
+        /// <summary>
+        /// Maps an object to a specific BsonValue type.
+        /// </summary>
+        /// <param name="value">An object.</param>
+        /// <param name="bsonType">The BsonType to map to.</param>
+        /// <returns>A BsonValue.</returns>
         public static BsonValue MapToBsonValue(
             object value, // will be mapped to an instance of the BsonValue class for bsonType
             BsonType bsonType
@@ -205,6 +219,12 @@ namespace MongoDB.Bson {
             throw new ArgumentException(message, "value");
         }
 
+        /// <summary>
+        /// Tries to map an object to a BsonValue.
+        /// </summary>
+        /// <param name="value">An object.</param>
+        /// <param name="bsonValue">The BsonValue.</param>
+        /// <returns>True if the mapping was successfull.</returns>
         public static bool TryMapToBsonValue(
             object value, // will be mapped to an instance of the closest BsonValue class
             out BsonValue bsonValue

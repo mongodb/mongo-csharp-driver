@@ -49,6 +49,10 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a clone of the context.
+        /// </summary>
+        /// <returns>A clone of the context.</returns>
         public BsonBinaryReaderContext Clone() {
             return new BsonBinaryReaderContext(
                 parentContext,

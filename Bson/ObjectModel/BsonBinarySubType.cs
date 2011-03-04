@@ -33,7 +33,7 @@ namespace MongoDB.Bson {
         /// </summary>
         Function = 0x01,
         /// <summary>
-        /// Binary data (obsolete).
+        /// Obsolete binary data subtype (use Binary instead).
         /// </summary>
         [Obsolete("Use Binary instead")] OldBinary = 0x02,
         /// <summary>

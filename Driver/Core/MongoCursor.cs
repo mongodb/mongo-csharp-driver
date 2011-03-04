@@ -158,9 +158,9 @@ namespace MongoDB.Driver {
 
         #region public methods
         /// <summary>
-        /// Creates a new instance of MongoCursor with the same values.
+        /// Creates a clone of the cursor.
         /// </summary>
-        /// <returns>A new instance of MongoCursor.</returns>
+        /// <returns>A clone of the cursor.</returns>
         public virtual MongoCursor<TNewDocument> Clone<TNewDocument>() {
             var clone = new MongoCursor<TNewDocument>(collection, query);
             clone.options = options == null ? null : (BsonDocument) options.Clone();

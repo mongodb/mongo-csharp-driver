@@ -30,6 +30,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDouble class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public BsonDouble(
             double value
         )
@@ -68,12 +72,22 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the BsonDouble class.
+        /// </summary>
+        /// <param name="value">A double.</param>
+        /// <returns>A BsonDouble.</returns>
         public static BsonDouble Create(
             double value
         ) {
             return new BsonDouble(value);
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonDouble class.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonDouble.</param>
+        /// <returns>A BsonDouble.</returns>
         public new static BsonDouble Create(
             object value
         ) {
@@ -126,7 +140,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonDouble to another BsonDouble.
         /// </summary>
         /// <param name="rhs">The other BsonDouble.</param>
-        /// <returns>True if the two BsonDoubles are equal.</returns>
+        /// <returns>True if the two BsonDouble values are equal.</returns>
         public bool Equals(
             BsonDouble rhs
         ) {

@@ -205,10 +205,10 @@ namespace MongoDB.Driver {
 
         #region public operators
         /// <summary>
-        /// Compares to SafeMode values.
+        /// Compares two SafeMode values.
         /// </summary>
         /// <param name="lhs">The first SafeMode value.</param>
-        /// <param name="rhs">The second SafeMode value.</param>
+        /// <param name="rhs">The other SafeMode value.</param>
         /// <returns>True if the values are equal (or both null).</returns>
         public static bool operator ==(
             SafeMode lhs,
@@ -218,10 +218,10 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Compares to SafeMode values.
+        /// Compares two SafeMode values.
         /// </summary>
         /// <param name="lhs">The first SafeMode value.</param>
-        /// <param name="rhs">The second SafeMode value.</param>
+        /// <param name="rhs">The other SafeMode value.</param>
         /// <returns>True if the values are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             SafeMode lhs,
@@ -327,7 +327,7 @@ namespace MongoDB.Driver {
 
         #region public methods
         /// <summary>
-        /// Compares to SafeMode values.
+        /// Compares two SafeMode values.
         /// </summary>
         /// <param name="obj">The other SafeMode value.</param>
         /// <returns>True if the values are equal.</returns>
@@ -338,7 +338,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Compares to SafeMode values.
+        /// Compares two SafeMode values.
         /// </summary>
         /// <param name="rhs">The other SafeMode value.</param>
         /// <returns>True if the values are equal.</returns>

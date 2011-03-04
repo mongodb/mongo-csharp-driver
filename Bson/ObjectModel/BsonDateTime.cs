@@ -30,6 +30,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDateTime class.
+        /// </summary>
+        /// <param name="value">A DateTime.</param>
         public BsonDateTime(
             DateTime value
         )
@@ -68,12 +72,22 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new BsonDateTime.
+        /// </summary>
+        /// <param name="value">A DateTime.</param>
+        /// <returns>A BsonDateTime.</returns>
         public static BsonDateTime Create(
             DateTime value
         ) {
             return new BsonDateTime(value);
         }
 
+        /// <summary>
+        /// Creates a new BsonDateTime.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonDateTime.</param>
+        /// <returns>A BsonDateTime or null.</returns>
         public new static BsonDateTime Create(
             object value
         ) {
@@ -122,7 +136,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonDateTime to another BsonDateTime.
         /// </summary>
         /// <param name="rhs">The other BsonDateTime.</param>
-        /// <returns>True if the two BsonDateTimes are equal.</returns>
+        /// <returns>True if the two BsonDateTime values are equal.</returns>
         public bool Equals(
             BsonDateTime rhs
         ) {

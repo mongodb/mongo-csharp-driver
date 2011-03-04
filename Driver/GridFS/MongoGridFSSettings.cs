@@ -97,6 +97,12 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Compares two MongoGridFSSettings.
+        /// </summary>
+        /// <param name="lhs">The first MongoGridFSSettings.</param>
+        /// <param name="rhs">The other MongoGridFSSettings.</param>
+        /// <returns>True if the two MongoGridFSSettings are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             MongoGridFSSettings lhs,
             MongoGridFSSettings rhs
@@ -104,6 +110,12 @@ namespace MongoDB.Driver.GridFS {
             return !(lhs == rhs);
         }
 
+        /// <summary>
+        /// Compares two MongoGridFSSettingss.
+        /// </summary>
+        /// <param name="lhs">The first MongoGridFSSettings.</param>
+        /// <param name="rhs">The other MongoGridFSSettings.</param>
+        /// <returns>True if the two MongoGridFSSettings are equal (or both null).</returns>
         public static bool operator ==(
             MongoGridFSSettings lhs,
             MongoGridFSSettings rhs
@@ -113,6 +125,10 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a clone of the settings.
+        /// </summary>
+        /// <returns>A clone of the settings.</returns>
         public MongoGridFSSettings Clone() {
             return new MongoGridFSSettings(
                 chunkSize,

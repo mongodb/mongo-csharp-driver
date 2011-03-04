@@ -45,6 +45,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Creates a new instance of the BsonInt32 class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public BsonInt32(
             int value
         )
@@ -54,22 +58,37 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of BsonInt32 that represents -1.
+        /// </summary>
         public static BsonInt32 MinusOne {
             get { return BsonInt32.Create(-1); }
         }
 
+        /// <summary>
+        /// Gets an instance of BsonInt32 that represents -0.
+        /// </summary>
         public static BsonInt32 Zero {
             get { return BsonInt32.Create(0); }
         }
 
+        /// <summary>
+        /// Gets an instance of BsonInt32 that represents 1.
+        /// </summary>
         public static BsonInt32 One {
             get { return BsonInt32.Create(1); }
         }
 
+        /// <summary>
+        /// Gets an instance of BsonInt32 that represents 2.
+        /// </summary>
         public static BsonInt32 Two {
             get { return BsonInt32.Create(2); }
         }
 
+        /// <summary>
+        /// Gets an instance of BsonInt32 that represents 3.
+        /// </summary>
         public static BsonInt32 Three {
             get { return BsonInt32.Create(3); }
         }
@@ -105,6 +124,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the BsonInt32 class.
+        /// </summary>
+        /// <param name="value">An int.</param>
+        /// <returns>A BsonInt32.</returns>
         public static BsonInt32 Create(
             int value
         ) {
@@ -115,6 +139,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new BsonInt32.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonInt32.</param>
+        /// <returns>A BsonInt32 or null.</returns>
         public new static BsonInt32 Create(
             object value
         ) {
@@ -167,7 +196,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonInt32 to another BsonInt32.
         /// </summary>
         /// <param name="rhs">The other BsonInt32.</param>
-        /// <returns>True if the two BsonInt32s are equal.</returns>
+        /// <returns>True if the two BsonInt32 values are equal.</returns>
         public bool Equals(
             BsonInt32 rhs
         ) {

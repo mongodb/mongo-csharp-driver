@@ -36,6 +36,9 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets the singleton instance of BsonMinKey.
+        /// </summary>
         public static BsonMinKey Value { get { return value; } }
         #endregion
 
@@ -69,7 +72,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonMinKey to another BsonMinKey.
         /// </summary>
         /// <param name="rhs">The other BsonMinKey.</param>
-        /// <returns>True if the two BsonMinKeys are equal.</returns>
+        /// <returns>True if the two BsonMinKey values are equal.</returns>
         public bool Equals(
             BsonMinKey rhs
         ) {

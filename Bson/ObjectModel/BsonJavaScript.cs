@@ -25,10 +25,17 @@ namespace MongoDB.Bson {
     [Serializable]
     public class BsonJavaScript : BsonValue, IComparable<BsonJavaScript>, IEquatable<BsonJavaScript> {
         #region protected fields
+        /// <summary>
+        /// The JavaScript code.
+        /// </summary>
         protected string code;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonJavaScript class.
+        /// </summary>
+        /// <param name="code">The JavaScript code.</param>
         public BsonJavaScript(
             string code
         )
@@ -36,7 +43,11 @@ namespace MongoDB.Bson {
             this.code = code;
         }
 
-        // called by BsonJavaScriptWithScope
+        /// <summary>
+        /// Initializes a new instance of the BsonJavaScript class (only called by BsonJavaScriptWithScope).
+        /// </summary>
+        /// <param name="code">The JavaScript code.</param>
+        /// <param name="bsonType">The BsonType (must be JavaScriptWithScope).</param>
         protected BsonJavaScript(
             string code,
             BsonType bsonType
@@ -47,6 +58,9 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the JavaScript code.
+        /// </summary>
         public string Code {
             get { return code; }
         }
@@ -56,7 +70,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Converts a string to a BsonJavaScript.
         /// </summary>
-        /// <param name="value">A string.</param>
+        /// <param name="code">A string.</param>
         /// <returns>A BsonJavaScript.</returns>
         public static implicit operator BsonJavaScript(
             string code
@@ -64,6 +78,11 @@ namespace MongoDB.Bson {
             return BsonJavaScript.Create(code);
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonJavaScript class.
+        /// </summary>
+        /// <param name="code">A string containing JavaScript code.</param>
+        /// <returns>A BsonJavaScript.</returns>
         public static BsonJavaScript Create(
             string code
         ) {
@@ -74,6 +93,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new BsonJavaScript.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonJavaScript.</param>
+        /// <returns>A BsonJavaScript or null.</returns>
         public new static BsonJavaScript Create(
             object value
         ) {
@@ -118,7 +142,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonJavaScript to another BsonJavaScript.
         /// </summary>
         /// <param name="rhs">The other BsonJavaScript.</param>
-        /// <returns>True if the two BsonJavaScripts are equal.</returns>
+        /// <returns>True if the two BsonJavaScript values are equal.</returns>
         public bool Equals(
             BsonJavaScript rhs
         ) {

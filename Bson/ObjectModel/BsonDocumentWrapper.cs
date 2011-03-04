@@ -40,10 +40,17 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentWrapper class.
+        /// </summary>
         private BsonDocumentWrapper()
             : base(BsonType.Document) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <param name="wrappedObject">The wrapped object.</param>
         public BsonDocumentWrapper(
             object wrappedObject
         )
@@ -52,6 +59,11 @@ namespace MongoDB.Bson {
             this.wrappedObject = wrappedObject;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <param name="wrappedNominalType">The nominal type of the wrapped object.</param>
+        /// <param name="wrappedObject">The wrapped object.</param>
         public BsonDocumentWrapper(
             Type wrappedNominalType,
             object wrappedObject
@@ -63,21 +75,33 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
-        public static BsonDocumentWrapper Create<T>(
-            T value
+        /// <summary>
+        /// Creates a new instance of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
+        /// <param name="value">The wrapped object.</param>
+        /// <returns>A BsonDocumentWrapper or null.</returns>
+        public static BsonDocumentWrapper Create<TNominalType>(
+            TNominalType value
         ) {
             if (value != null) {
-                return new BsonDocumentWrapper(typeof(T), value);
+                return new BsonDocumentWrapper(typeof(TNominalType), value);
             } else {
                 return null;
             }
         }
 
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<T>(
-            IEnumerable<T> values
+        /// <summary>
+        /// Creates a list of new instances of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <typeparam name="TNominalType">The nominal type of the wrapped objects.</typeparam>
+        /// <param name="values">A list of wrapped objects.</param>
+        /// <returns>A list of BsonDocumentWrappers or null.</returns>
+        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(
+            IEnumerable<TNominalType> values
         ) {
             if (values != null) {
-                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(T), v));
+                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(TNominalType), v));
             } else {
                 return null;
             }
@@ -96,6 +120,13 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException("CompareTo not supported for BsonDocumentWrapper");
         }
 
+        /// <summary>
+        /// Deserialize is an invalid operation for BsonDocumentWrapper.
+        /// </summary>
+        /// <param name="bsonReader">Invalid.</param>
+        /// <param name="nominalType">Invalid.</param>
+        /// <param name="options">Invalid.</param>
+        /// <returns></returns>
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -104,6 +135,12 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
         }
 
+        /// <summary>
+        /// GetDocumentId is an invalid operation for BsonDocumentWrapper.
+        /// </summary>
+        /// <param name="id">Invalid.</param>
+        /// <param name="idGenerator">Invalid.</param>
+        /// <returns>Invalid.</returns>
         public bool GetDocumentId(
             out object id,
             out IIdGenerator idGenerator
@@ -130,6 +167,12 @@ namespace MongoDB.Bson {
             throw new InvalidOperationException("GetHashCode not supported for BsonDocumentWrapper");
         }
 
+        /// <summary>
+        /// Serializes the wrapped object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type (overridded by the wrapped nominal type).</param>
+        /// <param name="options">The serialization options.</param>
         public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -138,6 +181,10 @@ namespace MongoDB.Bson {
             BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, options);
         }
 
+        /// <summary>
+        /// SetDocumentId is an invalid operation for BsonDocumentWrapper.
+        /// </summary>
+        /// <param name="Id">Invalid.</param>
         public void SetDocumentId(
             object Id
         ) {

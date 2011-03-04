@@ -53,12 +53,23 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
+        /// <param name="bytes">The value.</param>
         public ObjectId(
             byte[] bytes
         ) {
             Unpack(bytes, out timestamp, out machine, out pid, out increment);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
         public ObjectId(
             int timestamp,
             int machine,
@@ -71,6 +82,10 @@ namespace MongoDB.Bson {
             this.increment = increment;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public ObjectId(
             string value
         ) {
@@ -79,35 +94,58 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of ObjectId where the value is empty.
+        /// </summary>
         public static ObjectId Empty {
             get { return emptyInstance; }
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
         public int Timestamp {
             get { return timestamp; }
         }
 
+        /// <summary>
+        /// Gets the machine.
+        /// </summary>
         public int Machine {
             get { return machine; }
         }
 
+        /// <summary>
+        /// Gets the PID.
+        /// </summary>
         public short Pid {
             get { return pid; }
         }
 
+        /// <summary>
+        /// Gets the increment.
+        /// </summary>
         public int Increment {
             get { return increment; }
         }
 
-        // a more or less accurate creation time derived from Timestamp
+        /// <summary>
+        /// Gets the creation time (derived from the timestamp).
+        /// </summary>
         public DateTime CreationTime {
             get { return BsonConstants.UnixEpoch.AddSeconds(timestamp); }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Compares two ObjectIds.
+        /// </summary>
+        /// <param name="lhs">The first ObjectId.</param>
+        /// <param name="rhs">The other ObjectId</param>
+        /// <returns>True if the first ObjectId is less than the second ObjectId.</returns>
         public static bool operator <(
             ObjectId lhs,
             ObjectId rhs
@@ -115,6 +153,12 @@ namespace MongoDB.Bson {
             return lhs.CompareTo(rhs) < 0;
         }
 
+        /// <summary>
+        /// Compares two ObjectIds.
+        /// </summary>
+        /// <param name="lhs">The first ObjectId.</param>
+        /// <param name="rhs">The other ObjectId</param>
+        /// <returns>True if the first ObjectId is less than or equal to the second ObjectId.</returns>
         public static bool operator <=(
             ObjectId lhs,
             ObjectId rhs
@@ -122,6 +166,12 @@ namespace MongoDB.Bson {
             return lhs.CompareTo(rhs) <= 0;
         }
 
+        /// <summary>
+        /// Compares two ObjectIds.
+        /// </summary>
+        /// <param name="lhs">The first ObjectId.</param>
+        /// <param name="rhs">The other ObjectId.</param>
+        /// <returns>True if the two ObjectIds are equal.</returns>
         public static bool operator ==(
             ObjectId lhs,
             ObjectId rhs
@@ -129,6 +179,12 @@ namespace MongoDB.Bson {
             return lhs.Equals(rhs);
         }
 
+        /// <summary>
+        /// Compares two ObjectIds.
+        /// </summary>
+        /// <param name="lhs">The first ObjectId.</param>
+        /// <param name="rhs">The other ObjectId.</param>
+        /// <returns>True if the two ObjectIds are not equal.</returns>
         public static bool operator !=(
             ObjectId lhs,
             ObjectId rhs
@@ -136,6 +192,12 @@ namespace MongoDB.Bson {
             return !lhs.Equals(rhs);
         }
 
+        /// <summary>
+        /// Compares two ObjectIds.
+        /// </summary>
+        /// <param name="lhs">The first ObjectId.</param>
+        /// <param name="rhs">The other ObjectId</param>
+        /// <returns>True if the first ObjectId is greather than or equal to the second ObjectId.</returns>
         public static bool operator >=(
             ObjectId lhs,
             ObjectId rhs
@@ -143,6 +205,12 @@ namespace MongoDB.Bson {
             return lhs.CompareTo(rhs) >= 0;
         }
 
+        /// <summary>
+        /// Compares two ObjectIds.
+        /// </summary>
+        /// <param name="lhs">The first ObjectId.</param>
+        /// <param name="rhs">The other ObjectId</param>
+        /// <returns>True if the first ObjectId is greather than the second ObjectId.</returns>
         public static bool operator >(
             ObjectId lhs,
             ObjectId rhs
@@ -152,12 +220,24 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Generates a new ObjectId with a unique value.
+        /// </summary>
+        /// <returns>A ObjectId.</returns>
         public static ObjectId GenerateNewId() {
             int timestamp = GetCurrentTimestamp();
             int increment = Interlocked.Increment(ref ObjectId.staticIncrement) & 0x00ffffff; // only use low order 3 bytes
             return new ObjectId(timestamp, staticMachine, staticPid, increment);
         }
 
+        /// <summary>
+        /// Packs the components of an ObjectId into a byte array.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
+        /// <returns>A byte array.</returns>
         public static byte[] Pack(
             int timestamp,
             int machine,
@@ -180,6 +260,11 @@ namespace MongoDB.Bson {
             return bytes;
         }
 
+        /// <summary>
+        /// Parses a string and creates a new ObjectId.
+        /// </summary>
+        /// <param name="s">The string value.</param>
+        /// <returns>A ObjectId.</returns>
         public static ObjectId Parse(
             string s
         ) {
@@ -191,6 +276,12 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Tries to parse a string and create a new ObjectId.
+        /// </summary>
+        /// <param name="s">The string value.</param>
+        /// <param name="objectId">The new ObjectId.</param>
+        /// <returns>True if the string was parsed successfully.</returns>
         public static bool TryParse(
             string s,
             out ObjectId objectId
@@ -211,6 +302,14 @@ namespace MongoDB.Bson {
             return false;
         }
 
+        /// <summary>
+        /// Unpacks a byte array into the components of an ObjectId.
+        /// </summary>
+        /// <param name="bytes">A byte array.</param>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
         public static void Unpack(
             byte[] bytes,
             out int timestamp,
@@ -303,6 +402,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Converts the ObjectId to a byte array.
+        /// </summary>
+        /// <returns>A byte array.</returns>
         public byte[] ToByteArray() {
             return Pack(timestamp, machine, pid, increment);
         }

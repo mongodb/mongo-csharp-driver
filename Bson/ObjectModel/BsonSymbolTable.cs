@@ -29,6 +29,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Looks up a symbol (and creates a new one if necessary).
+        /// </summary>
+        /// <param name="name">The name of the symbol.</param>
+        /// <returns>The symbol.</returns>
         public static BsonSymbol Lookup(
             string name
         ) {

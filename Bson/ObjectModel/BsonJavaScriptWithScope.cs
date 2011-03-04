@@ -29,6 +29,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonJavaScriptWithScope class.
+        /// </summary>
+        /// <param name="code">The JavaScript code.</param>
+        /// <param name="scope">A scope (a set of variables with values).</param>
         public BsonJavaScriptWithScope(
             string code,
             BsonDocument scope
@@ -39,12 +44,20 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the scope (a set of variables with values).
+        /// </summary>
         public BsonDocument Scope {
             get { return scope; }
         }
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new BsonJavaScriptWithScope.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonJavaScriptWithScope.</param>
+        /// <returns>A BsonJavaScriptWithScope or null.</returns>
         public new static BsonJavaScriptWithScope Create(
             object value
         ) {
@@ -55,6 +68,12 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonJavaScript class.
+        /// </summary>
+        /// <param name="code">A string containing JavaScript code.</param>
+        /// <param name="scope">A scope (a set of variable with values).</param>
+        /// <returns>A BsonJavaScript.</returns>
         public static BsonJavaScriptWithScope Create(
             string code,
             BsonDocument scope
@@ -68,10 +87,18 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a shallow clone of the BsonJavaScriptWithScope (see also DeepClone).
+        /// </summary>
+        /// <returns>A shallow clone of the BsonJavaScriptWithScope.</returns>
         public override BsonValue Clone() {
             return new BsonJavaScriptWithScope(code, (BsonDocument) scope.Clone());
         }
 
+        /// <summary>
+        /// Creates a deep clone of the BsonJavaScriptWithScope (see also Clone).
+        /// </summary>
+        /// <returns>A deep clone of the BsonJavaScriptWithScope.</returns>
         public override BsonValue DeepClone() {
             BsonJavaScriptWithScope clone = new BsonJavaScriptWithScope(code, new BsonDocument());
             foreach (BsonElement element in scope) {
@@ -114,7 +141,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonJavaScriptWithScope to another BsonJavaScriptWithScope.
         /// </summary>
         /// <param name="rhs">The other BsonJavaScriptWithScope.</param>
-        /// <returns>True if the two BsonJavaScriptWithScopes are equal.</returns>
+        /// <returns>True if the two BsonJavaScriptWithScope values are equal.</returns>
         public bool Equals(
             BsonJavaScriptWithScope rhs
         ) {

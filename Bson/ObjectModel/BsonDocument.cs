@@ -133,28 +133,46 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets whether to allow duplicate names (allowing duplicate names is not recommended).
+        /// </summary>
         public bool AllowDuplicateNames {
             get { return allowDuplicateNames; }
             set { allowDuplicateNames = value; }
         }
 
         // ElementCount could be greater than the number of Names if allowDuplicateNames is true
+        /// <summary>
+        /// Gets the number of elements.
+        /// </summary>
         public int ElementCount {
             get { return elements.Count; }
         }
 
+        /// <summary>
+        /// Gets the elements.
+        /// </summary>
         public IEnumerable<BsonElement> Elements {
             get { return elements; }
         }
 
+        /// <summary>
+        /// Gets the element names.
+        /// </summary>
         public IEnumerable<string> Names {
             get { return elements.Select(e => e.Name); }
         }
 
+        /// <summary>
+        /// Gets the raw values (see BsonValue.RawValue).
+        /// </summary>
         public IEnumerable<object> RawValues {
             get { return elements.Select(e => e.Value.RawValue); }
         }
 
+        /// <summary>
+        /// Gets the values.
+        /// </summary>
         public IEnumerable<BsonValue> Values {
             get { return elements.Select(e => e.Value); }
         }
@@ -475,7 +493,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Creates a shallow clone of the document (see also DeepClone).
         /// </summary>
-        /// <returns>A new document that is a shallow clone of this document.</returns>
+        /// <returns>A shallow clone of the document.</returns>
         public override BsonValue Clone() {
             BsonDocument clone = new BsonDocument();
             foreach (BsonElement element in elements) {
@@ -578,8 +596,6 @@ namespace MongoDB.Bson {
                 return this;
             }
         }
-
-        // note: always returns true (if necessary SetDocumentId will add an _id element)
 
         /// <summary>
         /// Gets the Id of the document.

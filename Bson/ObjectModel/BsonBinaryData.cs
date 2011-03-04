@@ -217,7 +217,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonBinaryData to another BsonBinaryData.
         /// </summary>
         /// <param name="rhs">The other BsonBinaryData.</param>
-        /// <returns>True if the two BsonBinaryDatas are equal.</returns>
+        /// <returns>True if the two BsonBinaryData values are equal.</returns>
         public bool Equals(
             BsonBinaryData rhs
         ) {

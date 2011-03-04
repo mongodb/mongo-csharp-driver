@@ -36,6 +36,9 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets the singleton instance of BsonMaxKey.
+        /// </summary>
         public static BsonMaxKey Value { get { return value; } }
         #endregion
 
@@ -69,7 +72,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonMaxKey to another BsonMaxKey.
         /// </summary>
         /// <param name="rhs">The other BsonMaxKey.</param>
-        /// <returns>True if the two BsonMaxKeys are equal.</returns>
+        /// <returns>True if the two BsonMaxKey values are equal.</returns>
         public bool Equals(
             BsonMaxKey rhs
         ) {

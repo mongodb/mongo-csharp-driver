@@ -31,6 +31,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonRegularExpression class.
+        /// </summary>
+        /// <param name="pattern">A regular expression pattern.</param>
         public BsonRegularExpression(
             string pattern
         )
@@ -45,6 +49,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonRegularExpression class.
+        /// </summary>
+        /// <param name="pattern">A regular expression pattern.</param>
+        /// <param name="options">Regular expression options.</param>
         public BsonRegularExpression(
             string pattern,
             string options
@@ -54,6 +63,10 @@ namespace MongoDB.Bson {
             this.options = options ?? "";
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonRegularExpression class.
+        /// </summary>
+        /// <param name="regex">A Regex.</param>
         public BsonRegularExpression(
             Regex regex
         )
@@ -68,10 +81,16 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the regular expression pattern.
+        /// </summary>
         public string Pattern {
             get { return pattern; }
         }
 
+        /// <summary>
+        /// Gets the regular expression options.
+        /// </summary>
         public string Options {
             get { return options; }
         }
@@ -102,6 +121,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a new BsonRegularExpression.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonRegularExpression.</param>
+        /// <returns>A BsonRegularExpression or null.</returns>
         public new static BsonRegularExpression Create(
             object value
         ) {
@@ -112,6 +136,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonRegularExpression class.
+        /// </summary>
+        /// <param name="regex">A Regex.</param>
+        /// <returns>A BsonRegularExpression.</returns>
         public static BsonRegularExpression Create(
             Regex regex
         ) {
@@ -122,6 +151,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonRegularExpression class.
+        /// </summary>
+        /// <param name="pattern">A regular expression pattern.</param>
+        /// <returns>A BsonRegularExpression.</returns>
         public static BsonRegularExpression Create(
             string pattern
         ) {
@@ -132,6 +166,12 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonRegularExpression class.
+        /// </summary>
+        /// <param name="pattern">A regular expression pattern.</param>
+        /// <param name="options">Regular expression options.</param>
+        /// <returns>A BsonRegularExpression.</returns>
         public static BsonRegularExpression Create(
             string pattern,
             string options
@@ -179,7 +219,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonRegularExpression to another BsonRegularExpression.
         /// </summary>
         /// <param name="rhs">The other BsonRegularExpression.</param>
-        /// <returns>True if the two BsonRegularExpressions are equal.</returns>
+        /// <returns>True if the two BsonRegularExpression values are equal.</returns>
         public bool Equals(
             BsonRegularExpression rhs
         ) {
@@ -211,6 +251,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Converts the BsonRegularExpression to a Regex.
+        /// </summary>
+        /// <returns></returns>
         public Regex ToRegex() {
             // TODO: figure out how other JavaScript options map to .NET options
             var options = RegexOptions.None;

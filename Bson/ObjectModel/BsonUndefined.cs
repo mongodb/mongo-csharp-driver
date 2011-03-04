@@ -36,6 +36,9 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets the singleton instance of BsonUndefined.
+        /// </summary>
         public static BsonUndefined Value { get { return value; } }
         #endregion
 
@@ -70,7 +73,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonUndefined to another BsonUndefined.
         /// </summary>
         /// <param name="rhs">The other BsonUndefined.</param>
-        /// <returns>True if the two BsonUndefineds are equal.</returns>
+        /// <returns>True if the two BsonUndefined values are equal.</returns>
         public bool Equals(
             BsonUndefined rhs
         ) {

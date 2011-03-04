@@ -122,9 +122,9 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Compares two server addresses.
         /// </summary>
-        /// <param name="lhs">The first server address.</param>
-        /// <param name="rhs">The other server address.</param>
-        /// <returns>True if the two server addresses are equal (or both are null).</returns>
+        /// <param name="lhs">The first address.</param>
+        /// <param name="rhs">The other address.</param>
+        /// <returns>True if the two addresses are equal (or both are null).</returns>
         public static bool operator ==(
             MongoServerAddress lhs,
             MongoServerAddress rhs
@@ -138,9 +138,9 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Compares two server addresses.
         /// </summary>
-        /// <param name="lhs">The first server address.</param>
-        /// <param name="rhs">The other server address.</param>
-        /// <returns>True if the two server addresses are not equal (or one is null and the other is not).</returns>
+        /// <param name="lhs">The first address.</param>
+        /// <param name="rhs">The other address.</param>
+        /// <returns>True if the two addresses are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             MongoServerAddress lhs,
             MongoServerAddress rhs

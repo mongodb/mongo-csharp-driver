@@ -39,6 +39,9 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the name of the symbol.
+        /// </summary>
         public string Name {
             get { return name; }
         }
@@ -48,7 +51,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Converts a string to a BsonSymbol.
         /// </summary>
-        /// <param name="value">A string.</param>
+        /// <param name="name">A string.</param>
         /// <returns>A BsonSymbol.</returns>
         public static implicit operator BsonSymbol(
             string name
@@ -58,6 +61,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new BsonSymbol.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonSymbol.</param>
+        /// <returns>A BsonSymbol or null.</returns>
         public new static BsonSymbol Create(
             object value
         ) {
@@ -68,6 +76,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonSymbol class.
+        /// </summary>
+        /// <param name="name">A string.</param>
+        /// <returns>A BsonSymbol.</returns>
         public static BsonSymbol Create(
             string name
         ) {
@@ -119,7 +132,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonSymbol to another BsonSymbol.
         /// </summary>
         /// <param name="rhs">The other BsonSymbol.</param>
-        /// <returns>True if the two BsonSymbols are equal.</returns>
+        /// <returns>True if the two BsonSymbol values are equal.</returns>
         public bool Equals(
             BsonSymbol rhs
         ) {

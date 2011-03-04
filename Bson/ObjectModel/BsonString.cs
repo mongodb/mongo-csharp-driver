@@ -33,6 +33,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonString class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public BsonString(
             string value
         ) 
@@ -42,6 +46,9 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of BsonString that represents an empty string.
+        /// </summary>
         public static BsonString Empty {
             get { return emptyInstance; }
         }
@@ -77,6 +84,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new BsonString.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonString.</param>
+        /// <returns>A BsonString or null.</returns>
         public new static BsonString Create(
             object value
         ) {
@@ -87,6 +99,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonString class.
+        /// </summary>
+        /// <param name="value">A string.</param>
+        /// <returns>A BsonString.</returns>
         public static BsonString Create(
             string value
         ) {
@@ -136,7 +153,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonString to another BsonString.
         /// </summary>
         /// <param name="rhs">The other BsonString.</param>
-        /// <returns>True if the two BsonStrings are equal.</returns>
+        /// <returns>True if the two BsonString values are equal.</returns>
         public bool Equals(
             BsonString rhs
         ) {

@@ -710,10 +710,10 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Removes a value from the array.
+        /// Removes the first occurrence of a value from the array.
         /// </summary>
         /// <param name="value">The value to remove.</param>
-        /// <returns>True if the value was found.</returns>
+        /// <returns>True if the value was removed.</returns>
         public bool Remove(
             BsonValue value
         ) {

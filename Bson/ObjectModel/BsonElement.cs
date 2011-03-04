@@ -41,6 +41,11 @@ namespace MongoDB.Bson {
         private BsonElement() {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonElement class.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The value of the element.</param>
         public BsonElement(
             string name,
             BsonValue value
@@ -52,10 +57,16 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the name of the element.
+        /// </summary>
         public string Name {
             get { return name; }
         }
 
+        /// <summary>
+        /// Gets or sets the value of the element.
+        /// </summary>
         public BsonValue Value {
             get { return value; }
             set {
@@ -68,6 +79,12 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Compares two BsonElements.
+        /// </summary>
+        /// <param name="lhs">The first BsonElement.</param>
+        /// <param name="rhs">The other BsonElement.</param>
+        /// <returns>True if the two BsonElements are equal (or both null).</returns>
         public static bool operator ==(
             BsonElement lhs,
             BsonElement rhs
@@ -75,6 +92,12 @@ namespace MongoDB.Bson {
             return object.Equals(lhs, rhs);
         }
 
+        /// <summary>
+        /// Compares two BsonElements.
+        /// </summary>
+        /// <param name="lhs">The first BsonElement.</param>
+        /// <param name="rhs">The other BsonElement.</param>
+        /// <returns>True if the two BsonElements are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             BsonElement lhs,
             BsonElement rhs
@@ -84,6 +107,13 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the BsonElement class.
+        /// </summary>
+        /// <param name="condition">Whether to create the BsonElement or return null.</param>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The value of the element.</param>
+        /// <returns>A BsonElement or null.</returns>
         public static BsonElement Create(
             bool condition,
             string name,
@@ -96,6 +126,12 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonElement class.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The value of the element.</param>
+        /// <returns>A BsonElement or null.</returns>
         public static BsonElement Create(
             string name,
             BsonValue value
@@ -157,10 +193,18 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a shallow clone of the element (see also DeepClone).
+        /// </summary>
+        /// <returns>A shallow clone of the element.</returns>
         public BsonElement Clone() {
             return new BsonElement(name, value.Clone());
         }
 
+        /// <summary>
+        /// Creates a deep clone of the element (see also Clone).
+        /// </summary>
+        /// <returns>A deep clone of the element.</returns>
         public BsonElement DeepClone() {
             var clone = new BsonElement();
             clone.name = name;
@@ -186,7 +230,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonElement to another BsonElement.
         /// </summary>
         /// <param name="rhs">The other BsonElement.</param>
-        /// <returns>True if the two BsonElements are equal.</returns>
+        /// <returns>True if the two BsonElement values are equal.</returns>
         public bool Equals(
             BsonElement rhs
         ) {

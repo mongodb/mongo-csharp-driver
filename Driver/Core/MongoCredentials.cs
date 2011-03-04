@@ -116,7 +116,7 @@ namespace MongoDB.Driver {
         /// Compares two MongoCredentials.
         /// </summary>
         /// <param name="lhs">The first credentials.</param>
-        /// <param name="rhs">The second credentials.</param>
+        /// <param name="rhs">The other credentials.</param>
         /// <returns>True if the two credentials are equal (or both null).</returns>
         public static bool operator ==(
             MongoCredentials lhs,
@@ -132,7 +132,7 @@ namespace MongoDB.Driver {
         /// Compares two MongoCredentials.
         /// </summary>
         /// <param name="lhs">The first credentials.</param>
-        /// <param name="rhs">The second credentials.</param>
+        /// <param name="rhs">The other credentials.</param>
         /// <returns>True if the two credentials are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             MongoCredentials lhs,

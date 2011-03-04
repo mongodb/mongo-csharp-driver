@@ -23,6 +23,10 @@ namespace MongoDB.Bson {
     /// An interface implemented by objects that convert themselves to a BsonDocument.
     /// </summary>
     public interface IConvertibleToBsonDocument {
+        /// <summary>
+        /// Converts this object to a BsonDocument.
+        /// </summary>
+        /// <returns></returns>
         BsonDocument ToBsonDocument();
     }
 }

@@ -294,9 +294,9 @@ namespace MongoDB.Driver {
 
         #region public methods
         /// <summary>
-        /// Creates a new instance of MongoServerSettings with the same values.
+        /// Creates a clone of the settings.
         /// </summary>
-        /// <returns>A new instance of MongoServerSettings.</returns>
+        /// <returns>A clone of the settings.</returns>
         public MongoServerSettings Clone() {
             return new MongoServerSettings(
                 connectionMode,

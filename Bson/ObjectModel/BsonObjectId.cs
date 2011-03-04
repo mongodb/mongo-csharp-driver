@@ -36,6 +36,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonObjectId class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public BsonObjectId(
             ObjectId value
         )
@@ -43,6 +47,10 @@ namespace MongoDB.Bson {
             this.value = value;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonObjectId class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public BsonObjectId(
             byte[] value
         )
@@ -50,6 +58,13 @@ namespace MongoDB.Bson {
             this.value = new ObjectId(value);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonObjectId class.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
         public BsonObjectId(
             int timestamp,
             int machine,
@@ -60,6 +75,10 @@ namespace MongoDB.Bson {
             this.value = new ObjectId(timestamp, machine, pid, increment);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonObjectId class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public BsonObjectId(
             string value
         )
@@ -69,29 +88,46 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of BsonObjectId where the value is empty.
+        /// </summary>
         public static BsonObjectId Empty {
             get { return emptyInstance; }
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
         public int Timestamp {
             get { return value.Timestamp; }
         }
 
+        /// <summary>
+        /// Gets the machine.
+        /// </summary>
         public int Machine {
             get { return value.Machine; }
         }
 
+        /// <summary>
+        /// Gets the PID.
+        /// </summary>
         public short Pid {
             get { return value.Pid; }
         }
 
+        /// <summary>
+        /// Gets the increment.
+        /// </summary>
         public int Increment {
             get { return value.Increment; }
         }
 
-        // a more or less accurate creation time derived from Timestamp
+        /// <summary>
+        /// Gets the creation time (derived from the timestamp).
+        /// </summary>
         public DateTime CreationTime {
             get { return value.CreationTime; }
         }
@@ -125,12 +161,22 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the BsonObjectId class.
+        /// </summary>
+        /// <param name="value">An ObjectId.</param>
+        /// <returns>A BsonObjectId.</returns>
         public static BsonObjectId Create(
             ObjectId value
         ) {
             return new BsonObjectId(value);
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonObjectId class.
+        /// </summary>
+        /// <param name="value">A byte array.</param>
+        /// <returns>A BsonObjectId.</returns>
         public static BsonObjectId Create(
             byte[] value
         ) {
@@ -141,6 +187,14 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonObjectId class.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The pid.</param>
+        /// <param name="increment">The increment.</param>
+        /// <returns>A BsonObjectId.</returns>
         public static BsonObjectId Create(
             int timestamp,
             int machine,
@@ -150,6 +204,11 @@ namespace MongoDB.Bson {
             return new BsonObjectId(timestamp, machine, pid, increment);
         }
 
+        /// <summary>
+        /// Creates a new BsonObjectId.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonObjectId.</param>
+        /// <returns>A BsonObjectId or null.</returns>
         public new static BsonObjectId Create(
             object value
         ) {
@@ -160,6 +219,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonObjectId class.
+        /// </summary>
+        /// <param name="value">A string.</param>
+        /// <returns>A BsonObjectId.</returns>
         public static BsonObjectId Create(
             string value
         ) {
@@ -170,16 +234,31 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Generates a new BsonObjectId with a unique value.
+        /// </summary>
+        /// <returns>A BsonObjectId.</returns>
         public static BsonObjectId GenerateNewId() {
             return new BsonObjectId(ObjectId.GenerateNewId());
         }
 
+        /// <summary>
+        /// Parses a string and creates a new BsonObjectId.
+        /// </summary>
+        /// <param name="s">The string value.</param>
+        /// <returns>A BsonObjectId.</returns>
         public static BsonObjectId Parse(
             string s
         ) {
             return new BsonObjectId(ObjectId.Parse(s));
         }
 
+        /// <summary>
+        /// Tries to parse a string and create a new BsonObjectId.
+        /// </summary>
+        /// <param name="s">The string value.</param>
+        /// <param name="value">The new BsonObjectId.</param>
+        /// <returns>True if the string was parsed successfully.</returns>
         public static bool TryParse(
             string s,
             out BsonObjectId value
@@ -228,7 +307,7 @@ namespace MongoDB.Bson {
         /// Compares this BsonObjectId to another BsonObjectId.
         /// </summary>
         /// <param name="rhs">The other BsonObjectId.</param>
-        /// <returns>True if the two BsonObjectIds are equal.</returns>
+        /// <returns>True if the two BsonObjectId values are equal.</returns>
         public bool Equals(
             BsonObjectId rhs
         ) {
@@ -258,6 +337,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Converts the BsonObjectId to a byte array.
+        /// </summary>
+        /// <returns>A byte array.</returns>
         public byte[] ToByteArray() {
             return value.ToByteArray();
         }

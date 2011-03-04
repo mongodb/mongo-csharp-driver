@@ -218,7 +218,7 @@ namespace MongoDB.Driver {
         /// Compares two MongoUrls.
         /// </summary>
         /// <param name="lhs">The first URL.</param>
-        /// <param name="rhs">The second URL.</param>
+        /// <param name="rhs">The other URL.</param>
         /// <returns>True if the two URLs are equal (or both null).</returns>
         public static bool operator ==(
             MongoUrl lhs,
@@ -231,7 +231,7 @@ namespace MongoDB.Driver {
         /// Compares two MongoUrls.
         /// </summary>
         /// <param name="lhs">The first URL.</param>
-        /// <param name="rhs">The second URL.</param>
+        /// <param name="rhs">The other URL.</param>
         /// <returns>True if the two URLs are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             MongoUrl lhs,

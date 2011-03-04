@@ -84,6 +84,10 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a clone of the settings.
+        /// </summary>
+        /// <returns>A clone of the settings.</returns>
         public BsonBinaryReaderSettings Clone() {
             return new BsonBinaryReaderSettings(
                 closeInput,

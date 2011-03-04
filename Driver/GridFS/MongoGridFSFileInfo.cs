@@ -163,6 +163,12 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Compares two MongoGridFSFileInfos.
+        /// </summary>
+        /// <param name="lhs">The first MongoGridFSFileInfo.</param>
+        /// <param name="rhs">The other MongoGridFSFileInfo.</param>
+        /// <returns>True if the two MongoGridFSFileInfos are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             MongoGridFSFileInfo lhs,
             MongoGridFSFileInfo rhs
@@ -170,6 +176,12 @@ namespace MongoDB.Driver.GridFS {
             return !(lhs == rhs);
         }
 
+        /// <summary>
+        /// Compares two MongoGridFSFileInfos.
+        /// </summary>
+        /// <param name="lhs">The first MongoGridFSFileInfo.</param>
+        /// <param name="rhs">The other MongoGridFSFileInfo.</param>
+        /// <returns>True if the two MongoGridFSFileInfos are equal (or both null).</returns>
         public static bool operator ==(
             MongoGridFSFileInfo lhs,
             MongoGridFSFileInfo rhs
