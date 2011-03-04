@@ -130,21 +130,18 @@ namespace MongoDB.Bson {
             : base(BsonType.Document) {
             Add(name, value);
         }
-        #endregion
 
-        #region public operators
         /// <summary>
         /// Converts a <see cref="Hashtable">Hashtable</see> into a BsonDocument.
         /// </summary>
         /// <remarks>
-        /// The main advantage for this implicit cast is to ease use of the Bson library and MongoDB driver with Windows Powershell.
-        /// Powershell has native support for Hashtables.
+        /// The intended usage of this constructor is to ease the use of the Bson library and MongoDB driver with Windows Powershell.
+        /// Powershell has native support for Hashtables via its <c>@{"key1"= "value1; "key2"= "value2; . . .}</c> notation.
         /// </remarks>
         /// <param name="ht">
         /// A Hashtable. The keys in this hashtable must be such that when <c>key.ToString()</c>
         /// is called on them their values is unique.
         /// </param>
-        /// <returns>A BsonDocument</returns>
         /// <example>
         /// Using this implicit cast to create a <c>BsonDocument</c> with PowerShell's Hashtable notation:
         /// <code lang="powershell">
@@ -174,14 +171,14 @@ namespace MongoDB.Bson {
         /// <br/>
         /// </example>
         /// <seealso cref="Hashtable" />
-        public static implicit operator BsonDocument(Hashtable ht)
-        {
-            var doc = new BsonDocument();
+        public BsonDocument(
+            Hashtable ht
+        )
+            : base(BsonType.Document) {
             foreach (var key in ht.Keys)
             {
-                doc.Add(key.ToString(), BsonValue.Create(ht[key]));
+                this.Add(key.ToString(), BsonValue.Create(ht[key]));
             }
-            return doc;
         }
         #endregion
 
