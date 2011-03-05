@@ -20,6 +20,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents a BSON reader for a binary BSON byte array.
+    /// </summary>
     public class BsonBinaryReader : BsonBaseReader {
         #region private fields
         private BsonBuffer buffer; // if reading from a stream Create will have loaded the buffer
@@ -29,6 +32,11 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryReader class.
+        /// <param name="buffer">A BsonBuffer.</param>
+        /// <param name="settings">A BsonBinaryReaderSettings.</param>
+        /// </summary>
         public BsonBinaryReader(
             BsonBuffer buffer,
             BsonBinaryReaderSettings settings
@@ -46,12 +54,18 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the reader's buffer.
+        /// </summary>
         public BsonBuffer Buffer {
             get { return buffer; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Closes the reader.
+        /// </summary>
         public override void Close() {
             // Close can be called on Disposed objects
             if (state != BsonReaderState.Closed) {
@@ -59,10 +73,19 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets a bookmark to the reader's current position and state.
+        /// </summary>
+        /// <returns>A bookmark.</returns>
         public override BsonReaderBookmark GetBookmark() {
             return new BsonBinaryReaderBookmark(state, currentBsonType, currentName, context, buffer.Position);
         }
 
+        /// <summary>
+        /// Reads BSON binary data from the reader.
+        /// </summary>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
         #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         public override void ReadBinaryData(
             out byte[] bytes,
@@ -90,7 +113,11 @@ namespace MongoDB.Bson.IO {
             state = GetNextState();
         }
         #pragma warning restore 618
-        
+
+        /// <summary>
+        /// Reads a BSON boolean from the reader.
+        /// </summary>
+        /// <returns>A Boolean.</returns>
         public override bool ReadBoolean() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBoolean", BsonType.Boolean);
@@ -98,6 +125,10 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadBoolean();
         }
 
+        /// <summary>
+        /// Reads a BsonType from the reader.
+        /// </summary>
+        /// <returns>A BsonType.</returns>
         public override BsonType ReadBsonType() {
             if (disposed) { ThrowObjectDisposedException(); }
             if (state == BsonReaderState.Initial || state == BsonReaderState.Done || state == BsonReaderState.ScopeDocument) {
@@ -145,6 +176,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Reads a BSON DateTime from the reader.
+        /// </summary>
+        /// <returns>A DateTime.</returns>
         public override DateTime ReadDateTime() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
@@ -158,6 +193,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Reads a BSON Double from the reader.
+        /// </summary>
+        /// <returns>A Double.</returns>
         public override double ReadDouble() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDouble", BsonType.Double);
@@ -165,6 +204,9 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadDouble();
         }
 
+        /// <summary>
+        /// Reads the end of a BSON array from the reader.
+        /// </summary>
         public override void ReadEndArray() {
             if (disposed) { ThrowObjectDisposedException(); }
             if (context.ContextType != ContextType.Array) {
@@ -188,6 +230,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Reads the end of a BSON document from the reader.
+        /// </summary>
         public override void ReadEndDocument() {
             if (disposed) { ThrowObjectDisposedException(); }
             if (
@@ -217,6 +262,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Reads a BSON Int32 from the reader.
+        /// </summary>
+        /// <returns>An Int32.</returns>
         public override int ReadInt32() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt32", BsonType.Int32);
@@ -224,6 +273,10 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadInt32();
         }
 
+        /// <summary>
+        /// Reads a BSON Int64 from the reader.
+        /// </summary>
+        /// <returns>An Int64.</returns>
         public override long ReadInt64() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt64", BsonType.Int64);
@@ -231,6 +284,10 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadInt64();
         }
 
+        /// <summary>
+        /// Reads a BSON JavaScript from the reader.
+        /// </summary>
+        /// <returns>A string.</returns>
         public override string ReadJavaScript() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
@@ -238,6 +295,10 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadString();
         }
 
+        /// <summary>
+        /// Reads a BSON JavaScript with scope from the reader (call ReadStartDocument next to read the scope).
+        /// </summary>
+        /// <returns>A string.</returns>
         public override string ReadJavaScriptWithScope() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScriptWithScope", BsonType.JavaScriptWithScope);
@@ -251,24 +312,40 @@ namespace MongoDB.Bson.IO {
             return code;
         }
 
+        /// <summary>
+        /// Reads a BSON MaxKey from the reader.
+        /// </summary>
         public override void ReadMaxKey() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadMaxKey", BsonType.MaxKey);
             state = GetNextState();
         }
 
+        /// <summary>
+        /// Reads a BSON MinKey from the reader.
+        /// </summary>
         public override void ReadMinKey() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadMinKey", BsonType.MinKey);
             state = GetNextState();
         }
 
+        /// <summary>
+        /// Reads a BSON null from the reader.
+        /// </summary>
         public override void ReadNull() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadNull", BsonType.Null);
             state = GetNextState();
         }
 
+        /// <summary>
+        /// Reads a BSON ObjectId from the reader.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
         public override void ReadObjectId(
             out int timestamp,
             out int machine,
@@ -281,6 +358,11 @@ namespace MongoDB.Bson.IO {
             state = GetNextState();
         }
 
+        /// <summary>
+        /// Reads a BSON regular expression from the reader.
+        /// </summary>
+        /// <param name="pattern">A regular expression pattern.</param>
+        /// <param name="options">A regular expression options.</param>
         public override void ReadRegularExpression(
             out string pattern,
             out string options
@@ -292,6 +374,9 @@ namespace MongoDB.Bson.IO {
             state = GetNextState();
         }
 
+        /// <summary>
+        /// Reads the start of a BSON array.
+        /// </summary>
         public override void ReadStartArray() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadStartArray", BsonType.Array);
@@ -302,6 +387,9 @@ namespace MongoDB.Bson.IO {
             state = BsonReaderState.Type;
         }
 
+        /// <summary>
+        /// Reads the start of a BSON document.
+        /// </summary>
         public override void ReadStartDocument() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadStartDocument", BsonType.Document);
@@ -313,6 +401,10 @@ namespace MongoDB.Bson.IO {
             state = BsonReaderState.Type;
         }
 
+        /// <summary>
+        /// Reads a BSON string from the reader.
+        /// </summary>
+        /// <returns>A String.</returns>
         public override string ReadString() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadString", BsonType.String);
@@ -320,6 +412,10 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadString();
         }
 
+        /// <summary>
+        /// Reads a BSON symbol from the reader.
+        /// </summary>
+        /// <returns>A string.</returns>
         public override string ReadSymbol() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadSymbol", BsonType.Symbol);
@@ -327,6 +423,10 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadString();
         }
 
+        /// <summary>
+        /// Reads a BSON timestamp from the reader.
+        /// </summary>
+        /// <returns>The combined timestamp/increment.</returns>
         public override long ReadTimestamp() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadTimestamp", BsonType.Timestamp);
@@ -334,12 +434,19 @@ namespace MongoDB.Bson.IO {
             return buffer.ReadInt64();
         }
 
+        /// <summary>
+        /// Reads a BSON undefined from the reader.
+        /// </summary>
         public override void ReadUndefined() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadUndefined", BsonType.Undefined);
             state = GetNextState();
         }
 
+        /// <summary>
+        /// Returns the reader to previously bookmarked position and state.
+        /// </summary>
+        /// <param name="bookmark">The bookmark.</param>
         public override void ReturnToBookmark(
             BsonReaderBookmark bookmark
         ) {
@@ -351,6 +458,9 @@ namespace MongoDB.Bson.IO {
             buffer.Position = binaryReaderBookmark.Position;
         }
 
+        /// <summary>
+        /// Skips the name (reader must be positioned on a name).
+        /// </summary>
         public override void SkipName() {
             if (disposed) { ThrowObjectDisposedException(); }
             if (state != BsonReaderState.Name) {
@@ -361,6 +471,9 @@ namespace MongoDB.Bson.IO {
             state = BsonReaderState.Value;
         }
 
+        /// <summary>
+        /// Skips the value (reader must be positioned on a value).
+        /// </summary>
         public override void SkipValue() {
             if (disposed) { ThrowObjectDisposedException(); }
             if (state != BsonReaderState.Value) {
@@ -398,6 +511,10 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// Disposes of any resources used by the reader.
+        /// </summary>
+        /// <param name="disposing">True if called from Dispose.</param>
         protected override void Dispose(
             bool disposing
         ) {

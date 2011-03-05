@@ -309,6 +309,10 @@ namespace MongoDB.Bson.IO {
             return value;
         }
 
+        /// <summary>
+        /// Reads a BSON Double from the buffer.
+        /// </summary>
+        /// <returns>A Double.</returns>
         public double ReadDouble() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(8);
@@ -321,6 +325,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Reads a BSON Int32 from the reader.
+        /// </summary>
+        /// <returns>An Int32.</returns>
         public int ReadInt32() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(4);
@@ -338,6 +346,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Reads a BSON Int64 from the reader.
+        /// </summary>
+        /// <returns>An Int64.</returns>
         public long ReadInt64() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(8);
@@ -350,6 +362,13 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Reads a BSON ObjectId from the reader.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
         public void ReadObjectId(
             out int timestamp,
             out int machine,
@@ -372,6 +391,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Reads a BSON string from the reader.
+        /// </summary>
+        /// <returns>A String.</returns>
         public string ReadString() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             var length = ReadInt32();

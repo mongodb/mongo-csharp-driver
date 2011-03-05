@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents settings for a BsonBinaryReader.
+    /// </summary>
     public class BsonBinaryReaderSettings {
         #region private static fields
         private static BsonBinaryReaderSettings defaults = new BsonBinaryReaderSettings();
@@ -32,9 +35,18 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryReaderSettings class.
+        /// </summary>
         public BsonBinaryReaderSettings() {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryReaderSettings class.
+        /// </summary>
+        /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
+        /// <param name="fixOldBinarySubTypeOnInput">Whether to fix occurrences of the old binary subtype on input.</param>
+        /// <param name="maxDocumentSize">The max document size.</param>
         public BsonBinaryReaderSettings(
             bool closeInput,
             bool fixOldBinarySubTypeOnInput,
@@ -47,6 +59,9 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets the default settings for a BsonBinaryReader.
+        /// </summary>
         public static BsonBinaryReaderSettings Defaults {
             get { return defaults; }
             set { defaults = value; }
@@ -54,6 +69,9 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets whether to close the input stream when the reader is closed.
+        /// </summary>
         public bool CloseInput {
             get { return closeInput; }
             set {
@@ -62,6 +80,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether to fix occurrences of the old binary subtype on input. 
+        /// </summary>
         public bool FixOldBinarySubTypeOnInput {
             get { return fixOldBinarySubTypeOnInput; }
             set {
@@ -70,10 +91,16 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets whether the settings are frozen.
+        /// </summary>
         public bool IsFrozen {
             get { return isFrozen; }
         }
 
+        /// <summary>
+        /// Gets or sets the max document size.
+        /// </summary>
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
             set {
@@ -96,6 +123,10 @@ namespace MongoDB.Bson.IO {
             );
         }
 
+        /// <summary>
+        /// Freezes the settings.
+        /// </summary>
+        /// <returns>The settings.</returns>
         public BsonBinaryReaderSettings Freeze() {
             isFrozen = true;
             return this;

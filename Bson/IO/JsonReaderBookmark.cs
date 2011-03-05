@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents a bookmark that can be used to return a reader to the current position and state.
+    /// </summary>
     public class JsonReaderBookmark : BsonReaderBookmark {
         #region private fields
         private JsonReaderContext context;
