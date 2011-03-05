@@ -83,7 +83,7 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Creates a BsonReader for a JsonBuffer.
         /// </summary>
-        /// <param name="document">The JsonBuffer.</param>
+        /// <param name="buffer">The buffer.</param>
         /// <returns>A BsonReader.</returns>
         public static BsonReader Create(
             JsonBuffer buffer
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Creates a BsonReader for a BSON Stream.
         /// </summary>
-        /// <param name="document">The BSON Stream.</param>
+        /// <param name="stream">The BSON Stream.</param>
         /// <returns>A BsonReader.</returns>
         public static BsonReader Create(
             Stream stream

@@ -20,25 +20,46 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// A base class for the various implementations of BsonWriter.
+    /// </summary>
     public abstract class BsonBaseWriter : BsonWriter {
         #region protected fields
+        /// <summary>
+        /// Whether the object has been disposed.
+        /// </summary>
         protected bool disposed = false;
+        /// <summary>
+        /// The current state of the writer.
+        /// </summary>
         protected BsonWriterState state;
+        /// <summary>
+        /// The name of the current element.
+        /// </summary>
         protected string name;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBaseWriter class.
+        /// </summary>
         protected BsonBaseWriter() {
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the current state of the writer.
+        /// </summary>
         public override BsonWriterState State {
             get { return state; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Disposes of any resources used by the writer.
+        /// </summary>
         public override void Dispose() {
             if (!disposed) {
                 Dispose(true);
@@ -46,6 +67,12 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Writes a BSON binary data element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
         public override void WriteBinaryData(
             string name,
             byte[] bytes,
@@ -55,6 +82,11 @@ namespace MongoDB.Bson.IO {
             WriteBinaryData(bytes, subType);
         }
 
+        /// <summary>
+        /// Writes a BSON Boolean element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The Boolean value.</param>
         public override void WriteBoolean(
             string name,
             bool value
@@ -63,6 +95,11 @@ namespace MongoDB.Bson.IO {
             WriteBoolean(value);
         }
 
+        /// <summary>
+        /// Writes a BSON DateTime element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The DateTime value.</param>
         public override void WriteDateTime(
             string name,
             DateTime value
@@ -71,6 +108,11 @@ namespace MongoDB.Bson.IO {
             WriteDateTime(value);
         }
 
+        /// <summary>
+        /// Writes a BSON Double element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The Double value.</param>
         public override void WriteDouble(
             string name,
             double value
@@ -79,6 +121,11 @@ namespace MongoDB.Bson.IO {
             WriteDouble(value);
         }
 
+        /// <summary>
+        /// Writes a BSON Int32 element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The Int32 value.</param>
         public override void WriteInt32(
             string name,
             int value
@@ -87,6 +134,11 @@ namespace MongoDB.Bson.IO {
             WriteInt32(value);
         }
 
+        /// <summary>
+        /// Writes a BSON Int64 element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The Int64 value.</param>
         public override void WriteInt64(
             string name,
             long value
@@ -95,6 +147,11 @@ namespace MongoDB.Bson.IO {
             WriteInt64(value);
         }
 
+        /// <summary>
+        /// Writes a BSON JavaScript element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="code">The JavaScript code.</param>
         public override void WriteJavaScript(
             string name,
             string code
@@ -103,6 +160,11 @@ namespace MongoDB.Bson.IO {
             WriteJavaScript(code);
         }
 
+        /// <summary>
+        /// Writes a BSON JavaScript element to the writer (call WriteStartDocument to start writing the scope).
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="code">The JavaScript code.</param>
         public override void WriteJavaScriptWithScope(
             string name,
             string code
@@ -111,6 +173,10 @@ namespace MongoDB.Bson.IO {
             WriteJavaScriptWithScope(code);
         }
 
+        /// <summary>
+        /// Writes a BSON MaxKey element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
         public override void WriteMaxKey(
             string name
         ) {
@@ -118,6 +184,10 @@ namespace MongoDB.Bson.IO {
             WriteMaxKey();
         }
 
+        /// <summary>
+        /// Writes a BSON MinKey element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
         public override void WriteMinKey(
             string name
         ) {
@@ -125,6 +195,10 @@ namespace MongoDB.Bson.IO {
             WriteMinKey();
         }
 
+        /// <summary>
+        /// Writes the name of an element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
         public override void WriteName(
             string name
         ) {
@@ -138,6 +212,10 @@ namespace MongoDB.Bson.IO {
             state = BsonWriterState.Value;
         }
 
+        /// <summary>
+        /// Writes a BSON null element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
         public override void WriteNull(
             string name
         ) {
@@ -145,6 +223,14 @@ namespace MongoDB.Bson.IO {
             WriteNull();
         }
 
+        /// <summary>
+        /// Writes a BSON ObjectId element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
         public override void WriteObjectId(
             string name,
             int timestamp,
@@ -156,6 +242,12 @@ namespace MongoDB.Bson.IO {
             WriteObjectId(timestamp, machine, pid, increment);
         }
 
+        /// <summary>
+        /// Writes a BSON regular expression element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="pattern">A regular expression pattern.</param>
+        /// <param name="options">A regular expression options.</param>
         public override void WriteRegularExpression(
             string name,
             string pattern,
@@ -165,6 +257,10 @@ namespace MongoDB.Bson.IO {
             WriteRegularExpression(pattern, options);
         }
 
+        /// <summary>
+        /// Writes the start of a BSON array element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
         public override void WriteStartArray(
             string name
         ) {
@@ -172,6 +268,10 @@ namespace MongoDB.Bson.IO {
             WriteStartArray();
         }
 
+        /// <summary>
+        /// Writes the start of a BSON document element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
         public override void WriteStartDocument(
             string name
         ) {
@@ -179,6 +279,11 @@ namespace MongoDB.Bson.IO {
             WriteStartDocument();
         }
 
+        /// <summary>
+        /// Writes a BSON String element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The String value.</param>
         public override void WriteString(
             string name,
             string value
@@ -187,6 +292,11 @@ namespace MongoDB.Bson.IO {
             WriteString(value);
         }
 
+        /// <summary>
+        /// Writes a BSON Symbol element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The symbol.</param>
         public override void WriteSymbol(
             string name,
             string value
@@ -195,6 +305,11 @@ namespace MongoDB.Bson.IO {
             WriteSymbol(value);
         }
 
+        /// <summary>
+        /// Writes a BSON timestamp element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="value">The combined timestamp/increment value.</param>
         public override void WriteTimestamp(
             string name,
             long value
@@ -203,6 +318,10 @@ namespace MongoDB.Bson.IO {
             WriteTimestamp(value);
         }
 
+        /// <summary>
+        /// Writes a BSON undefined element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
         public override void WriteUndefined(
             string name
         ) {
@@ -212,6 +331,10 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// Disposes of any resources used by the writer.
+        /// </summary>
+        /// <param name="disposing">True if called from Dispose.</param>
         protected abstract void Dispose(
             bool disposing
         );

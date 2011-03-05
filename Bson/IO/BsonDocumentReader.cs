@@ -310,9 +310,8 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
-        /// Reads a BSON regular expression element from the reader.
+        /// Reads a BSON regular expression from the reader.
         /// </summary>
-        /// <param name="name">The name of the element.</param>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">A regular expression options.</param>
         public override void ReadRegularExpression(

@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents settings for a JsonWriter.
+    /// </summary>
     [Serializable]
     public class JsonWriterSettings {
         #region private static fields
@@ -36,9 +39,21 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the JsonWriterSettings class.
+        /// </summary>
         public JsonWriterSettings() {
         }
    
+        /// <summary>
+        /// Initializes a new instance of the JsonWriterSettings class.
+        /// </summary>
+        /// <param name="closeOutput">Whether to close the output when the writer is closed.</param>
+        /// <param name="encoding">The output Encoding.</param>
+        /// <param name="indent">Whether to indent the output.</param>
+        /// <param name="indentChars">The indentation characters.</param>
+        /// <param name="newLineChars">The new line characters.</param>
+        /// <param name="outputMode">The output mode.</param>
         public JsonWriterSettings(
             bool closeOutput,
             Encoding encoding,
@@ -57,6 +72,9 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets the default JsonWriterSettings.
+        /// </summary>
         public static JsonWriterSettings Defaults {
             get { return defaults; }
             set { defaults = value; }
@@ -64,6 +82,9 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets whether to close the output when the writer is closed.
+        /// </summary>
         public bool CloseOutput {
             get { return closeOutput; }
             set {
@@ -72,6 +93,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the output Encoding.
+        /// </summary>
         public Encoding Encoding {
             get { return encoding; }
             set {
@@ -80,6 +104,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether to indent the output.
+        /// </summary>
         public bool Indent {
             get { return indent; }
             set {
@@ -88,6 +115,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the indent characters.
+        /// </summary>
         public string IndentChars {
             get { return indentChars; }
             set {
@@ -96,10 +126,16 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets whether the settings are frozen.
+        /// </summary>
         public bool IsFrozen {
             get { return isFrozen; }
         }
 
+        /// <summary>
+        /// Gets or sets the new line characters.
+        /// </summary>
         public string NewLineChars {
             get { return newLineChars; }
             set {
@@ -108,6 +144,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the output mode.
+        /// </summary>
         public JsonOutputMode OutputMode {
             get { return outputMode; }
             set {
@@ -133,6 +172,10 @@ namespace MongoDB.Bson.IO {
             );
         }
 
+        /// <summary>
+        /// Freezes the settings.
+        /// </summary>
+        /// <returns>The settings.</returns>
         public JsonWriterSettings Freeze() {
             isFrozen = true;
             return this;

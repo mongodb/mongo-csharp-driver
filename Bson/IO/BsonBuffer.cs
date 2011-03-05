@@ -21,6 +21,9 @@ using System.Text;
 using System.Threading;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents a buffer for BSON encoded bytes.
+    /// </summary>
     public class BsonBuffer : IDisposable {
         #region private static fields
         private static Stack<byte[]> chunkPool = new Stack<byte[]>();
@@ -49,12 +52,18 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBuffer class.
+        /// </summary>
         public BsonBuffer() {
             // let EnsureAvailable get the first chunk
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets the max chunk pool size.
+        /// </summary>
         public static int MaxChunkPoolSize {
             get {
                 lock (chunkPool) {
@@ -70,6 +79,9 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets the length of the data in the buffer.
+        /// </summary>
         public int Length {
             get {
                 if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
@@ -85,6 +97,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the current position in the buffer.
+        /// </summary>
         public int Position {
             get {
                 if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
@@ -137,9 +152,14 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Backpatches the length of an object.
+        /// </summary>
+        /// <param name="position">The start position of the object.</param>
+        /// <param name="length">The length of the object.</param>
         public void Backpatch(
             int position,
-            int value
+            int length
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             // use local chunk variables because we're writing at a different position
@@ -147,23 +167,26 @@ namespace MongoDB.Bson.IO {
             int chunkOffset = position % chunkSize;
             var chunk = chunks[chunkIndex];
             if (chunkSize - chunkOffset >= 4) {
-                chunk[chunkOffset + 0] = (byte) (value);
-                chunk[chunkOffset + 1] = (byte) (value >> 8);
-                chunk[chunkOffset + 2] = (byte) (value >> 16);
-                chunk[chunkOffset + 3] = (byte) (value >> 24);
+                chunk[chunkOffset + 0] = (byte) (length);
+                chunk[chunkOffset + 1] = (byte) (length >> 8);
+                chunk[chunkOffset + 2] = (byte) (length >> 16);
+                chunk[chunkOffset + 3] = (byte) (length >> 24);
             } else {
                 // straddles chunk boundary
                 for (int i = 0; i < 4; i++) {
-                    chunk[chunkOffset++] = (byte) value;
+                    chunk[chunkOffset++] = (byte) length;
                     if (chunkOffset == chunkSize) {
                         chunk = chunks[++chunkIndex];
                         chunkOffset = 0;
                     }
-                    value >>= 8;
+                    length >>= 8;
                 }
             }
         }
 
+        /// <summary>
+        /// Clears the data in the buffer.
+        /// </summary>
         public void Clear() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             Position = 0;
@@ -175,6 +198,13 @@ namespace MongoDB.Bson.IO {
             capacity = 0;
         }
 
+        /// <summary>
+        /// Copies data from the buffer to a byte array.
+        /// </summary>
+        /// <param name="sourceOffset">The source offset in the buffer.</param>
+        /// <param name="destination">The destination byte array.</param>
+        /// <param name="destinationOffset">The destination offset in the byte array.</param>
+        /// <param name="count">The number of bytes to copy.</param>
         public void CopyTo(
             int sourceOffset,
             byte[] destination,
@@ -196,6 +226,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Disposes of any resources held by the buffer.
+        /// </summary>
         public void Dispose() {
             if (!disposed) {
                 Clear();
@@ -203,7 +236,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
-        // this overload assumes the stream is positioned at a 4 byte length field
+        /// <summary>
+        /// Loads the buffer from a Stream (the Stream must be positioned at a 4 byte length field).
+        /// </summary>
+        /// <param name="stream">The Stream.</param>
         public void LoadFrom(
             Stream stream
         ) {
@@ -213,7 +249,11 @@ namespace MongoDB.Bson.IO {
             Position -= 4; // move back to just before the length field
         }
 
-        // loads from stream to the current position leaving position unchanged
+        /// <summary>
+        /// Loads the buffer from a Stream (leaving the position in the buffer unchanged).
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="count">The number of bytes to load.</param>
         public void LoadFrom(
             Stream stream,
             int count
@@ -245,6 +285,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Peeks at the next byte in the buffer and returns it as a BsonType.
+        /// </summary>
+        /// <returns>A BsonType.</returns>
         public BsonType PeekBsonType() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
@@ -256,12 +300,20 @@ namespace MongoDB.Bson.IO {
             return bsonType;
         }
 
+        /// <summary>
+        /// Peeks at the next byte in the buffer.
+        /// </summary>
+        /// <returns>A Byte.</returns>
         public byte PeekByte() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
             return chunk[chunkOffset];
         }
 
+        /// <summary>
+        /// Reads a BSON Boolean from the buffer.
+        /// </summary>
+        /// <returns>A Boolean.</returns>
         public bool ReadBoolean() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
@@ -270,6 +322,10 @@ namespace MongoDB.Bson.IO {
             return value;
         }
 
+        /// <summary>
+        /// Reads a BSON type from the buffer.
+        /// </summary>
+        /// <returns>A BsonType.</returns>
         public BsonType ReadBsonType() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
@@ -282,6 +338,10 @@ namespace MongoDB.Bson.IO {
             return bsonType;
         }
 
+        /// <summary>
+        /// Reads a byte from the buffer.
+        /// </summary>
+        /// <returns>A Byte.</returns>
         public byte ReadByte() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
@@ -290,6 +350,11 @@ namespace MongoDB.Bson.IO {
             return value;
         }
 
+        /// <summary>
+        /// Reads bytes from the buffer.
+        /// </summary>
+        /// <param name="count">The number of bytes to read.</param>
+        /// <returns>A byte array.</returns>
         public byte[] ReadBytes(
             int count
         ) {
@@ -414,6 +479,10 @@ namespace MongoDB.Bson.IO {
             return value;
         }
 
+        /// <summary>
+        /// Reads a BSON CString from the reader (a null terminated string).
+        /// </summary>
+        /// <returns>A String.</returns>
         public string ReadCString() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             // optimize for the case where the null terminator is on the same chunk
@@ -456,6 +525,10 @@ namespace MongoDB.Bson.IO {
             throw new FileFormatException("String is missing null terminator");
         }
 
+        /// <summary>
+        /// Skips over bytes in the buffer (advances the position).
+        /// </summary>
+        /// <param name="count">The number of bytes to skip.</param>
         public void Skip(
             int count
         ) {
@@ -463,11 +536,18 @@ namespace MongoDB.Bson.IO {
             Position += count;
         }
 
+        /// <summary>
+        /// Skips over a CString in the buffer (advances the position).
+        /// </summary>
         public void SkipCString() {
             // TODO: optimize this method
             ReadCString();
         }
 
+        /// <summary>
+        /// Converts the buffer to a byte array.
+        /// </summary>
+        /// <returns>A byte array.</returns>
         public byte[] ToByteArray() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             var bytes = new byte[position];
@@ -475,6 +555,10 @@ namespace MongoDB.Bson.IO {
             return bytes;
         }
 
+        /// <summary>
+        /// Writes a BSON Boolean to the buffer.
+        /// </summary>
+        /// <param name="value">The Boolean value.</param>
         public void WriteBoolean(
             bool value
         ) {
@@ -484,6 +568,10 @@ namespace MongoDB.Bson.IO {
             Position++;
         }
 
+        /// <summary>
+        /// Writes a byte to the buffer.
+        /// </summary>
+        /// <param name="value">A byte.</param>
         public void WriteByte(
             byte value
         ) {
@@ -493,6 +581,10 @@ namespace MongoDB.Bson.IO {
             Position++;
         }
 
+        /// <summary>
+        /// Writes bytes to the buffer.
+        /// </summary>
+        /// <param name="value">A byte array.</param>
         public void WriteBytes(
             byte[] value
         ) {
@@ -511,6 +603,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Writes a CString to the buffer.
+        /// </summary>
+        /// <param name="value">A string.</param>
         public void WriteCString(
             string value
         ) {
@@ -528,6 +624,11 @@ namespace MongoDB.Bson.IO {
                 WriteByte(0);
             }
         }
+
+        /// <summary>
+        /// Writes a BSON Double to the buffer.
+        /// </summary>
+        /// <param name="value">The Double value.</param>
         public void WriteDouble(
             double value
         ) {
@@ -541,6 +642,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Writes a BSON Int32 to the buffer.
+        /// </summary>
+        /// <param name="value">The Int32 value.</param>
         public void WriteInt32(
             int value
         ) {
@@ -558,6 +663,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Writes a BSON Int64 to the buffer.
+        /// </summary>
+        /// <param name="value">The Int64 value.</param>
         public void WriteInt64(
             long value
         ) {
@@ -571,6 +680,13 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Writes a BSON ObjectId to the buffer.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
         public void WriteObjectId(
             int timestamp,
             int machine,
@@ -598,6 +714,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Writes a BSON String to the buffer.
+        /// </summary>
+        /// <param name="value">The String value.</param>
         public void WriteString(
             string value
         ) {
@@ -622,7 +742,10 @@ namespace MongoDB.Bson.IO {
             }
         }
 
-
+        /// <summary>
+        /// Writes all the data in the buffer to a Stream.
+        /// </summary>
+        /// <param name="stream">The Stream.</param>
         public void WriteTo(
             Stream stream
         ) {
@@ -640,6 +763,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Writes a 32-bit zero the the buffer.
+        /// </summary>
         public void WriteZero() {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(4);
