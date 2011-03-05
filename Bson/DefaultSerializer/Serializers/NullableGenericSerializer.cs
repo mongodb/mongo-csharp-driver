@@ -24,12 +24,18 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for nullable values.
+    /// </summary>
     public class NullableSerializer<T> : BsonBaseSerializer where T : struct {
         #region private fields
         private IBsonSerializer serializer;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the NullableSerializer class.
+        /// </summary>
         public NullableSerializer() {
             serializer = BsonSerializer.LookupSerializer(typeof(T));
         }

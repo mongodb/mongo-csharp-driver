@@ -24,17 +24,26 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for objects.
+    /// </summary>
     public class ObjectSerializer : BsonBaseSerializer {
         #region private static fields
         private static ObjectSerializer instance = new ObjectSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the ObjectSerializer class.
+        /// </summary>
         public ObjectSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the ObjectSerializer class.
+        /// </summary>
         public static ObjectSerializer Instance {
             get { return instance; }
         }

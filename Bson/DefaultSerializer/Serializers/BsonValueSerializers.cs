@@ -24,17 +24,26 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for BsonArrays.
+    /// </summary>
     public class BsonArraySerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonArraySerializer instance = new BsonArraySerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonArraySerializer class.
+        /// </summary>
         public BsonArraySerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonArraySerializer class.
+        /// </summary>
         public static BsonArraySerializer Instance {
             get { return instance; }
         }
@@ -85,17 +94,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonBinaryDatas.
+    /// </summary>
     public class BsonBinaryDataSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonBinaryDataSerializer instance = new BsonBinaryDataSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryDataSerializer class.
+        /// </summary>
         public BsonBinaryDataSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonBinaryDataSerializer class.
+        /// </summary>
         public static BsonBinaryDataSerializer Instance {
             get { return instance; }
         }
@@ -153,17 +171,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonBooleans.
+    /// </summary>
     public class BsonBooleanSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonBooleanSerializer instance = new BsonBooleanSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBooleanSerializer class.
+        /// </summary>
         public BsonBooleanSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonBooleanSerializer class.
+        /// </summary>
         public static BsonBooleanSerializer Instance {
             get { return instance; }
         }
@@ -214,17 +241,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonDateTimes.
+    /// </summary>
     public class BsonDateTimeSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonDateTimeSerializer instance = new BsonDateTimeSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDateTimeSerializer class.
+        /// </summary>
         public BsonDateTimeSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonDateTimeSerializer class.
+        /// </summary>
         public static BsonDateTimeSerializer Instance {
             get { return instance; }
         }
@@ -275,17 +311,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonDocuments.
+    /// </summary>
     public class BsonDocumentSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonDocumentSerializer instance = new BsonDocumentSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentSerializer class.
+        /// </summary>
         public BsonDocumentSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonDocumentSerializer class.
+        /// </summary>
         public static BsonDocumentSerializer Instance {
             get { return instance; }
         }
@@ -359,17 +404,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonDocumentWrappers.
+    /// </summary>
     public class BsonDocumentWrapperSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonDocumentWrapperSerializer instance = new BsonDocumentWrapperSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentWrapperSerializer class.
+        /// </summary>
         public BsonDocumentWrapperSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonDocumentWrapperSerializer class.
+        /// </summary>
         public static BsonDocumentWrapperSerializer Instance {
             get { return instance; }
         }
@@ -414,17 +468,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonDoubles.
+    /// </summary>
     public class BsonDoubleSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonDoubleSerializer instance = new BsonDoubleSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDoubleSerializer class.
+        /// </summary>
         public BsonDoubleSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonDoubleSerializer class.
+        /// </summary>
         public static BsonDoubleSerializer Instance {
             get { return instance; }
         }
@@ -475,17 +538,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonInt32s.
+    /// </summary>
     public class BsonInt32Serializer : BsonBaseSerializer {
         #region private static fields
         private static BsonInt32Serializer instance = new BsonInt32Serializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonInt32Serializer class.
+        /// </summary>
         public BsonInt32Serializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonInt32Serializer class.
+        /// </summary>
         public static BsonInt32Serializer Instance {
             get { return instance; }
         }
@@ -536,17 +608,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonInt64s.
+    /// </summary>
     public class BsonInt64Serializer : BsonBaseSerializer {
         #region private static fields
         private static BsonInt64Serializer instance = new BsonInt64Serializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonInt64Serializer class.
+        /// </summary>
         public BsonInt64Serializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonInt64Serializer class.
+        /// </summary>
         public static BsonInt64Serializer Instance {
             get { return instance; }
         }
@@ -597,17 +678,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonJavaScripts.
+    /// </summary>
     public class BsonJavaScriptSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonJavaScriptSerializer instance = new BsonJavaScriptSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonJavaScriptSerializer class.
+        /// </summary>
         public BsonJavaScriptSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonJavaScriptSerializer class.
+        /// </summary>
         public static BsonJavaScriptSerializer Instance {
             get { return instance; }
         }
@@ -659,17 +749,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonJavaScriptWithScopes.
+    /// </summary>
     public class BsonJavaScriptWithScopeSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonJavaScriptWithScopeSerializer instance = new BsonJavaScriptWithScopeSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonJavaScriptWithScopeSerializer class.
+        /// </summary>
         public BsonJavaScriptWithScopeSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonJavaScriptWithScopeSerializer class.
+        /// </summary>
         public static BsonJavaScriptWithScopeSerializer Instance {
             get { return instance; }
         }
@@ -723,17 +822,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonMaxKeys.
+    /// </summary>
     public class BsonMaxKeySerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonMaxKeySerializer instance = new BsonMaxKeySerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonMaxKeySerializer class.
+        /// </summary>
         public BsonMaxKeySerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonMaxKeySerializer class.
+        /// </summary>
         public static BsonMaxKeySerializer Instance {
             get { return instance; }
         }
@@ -784,17 +892,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonMinKeys.
+    /// </summary>
     public class BsonMinKeySerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonMinKeySerializer instance = new BsonMinKeySerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonMinKeySerializer class.
+        /// </summary>
         public BsonMinKeySerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonMinKeySerializer class.
+        /// </summary>
         public static BsonMinKeySerializer Instance {
             get { return instance; }
         }
@@ -845,17 +962,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonNulls.
+    /// </summary>
     public class BsonNullSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonNullSerializer instance = new BsonNullSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonNullSerializer class.
+        /// </summary>
         public BsonNullSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonNullSerializer class.
+        /// </summary>
         public static BsonNullSerializer Instance {
             get { return instance; }
         }
@@ -914,17 +1040,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonObjectIds.
+    /// </summary>
     public class BsonObjectIdSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonObjectIdSerializer instance = new BsonObjectIdSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonObjectIdSerializer class.
+        /// </summary>
         public BsonObjectIdSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonObjectIdSerializer class.
+        /// </summary>
         public static BsonObjectIdSerializer Instance {
             get { return instance; }
         }
@@ -975,17 +1110,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonRegularExpressions.
+    /// </summary>
     public class BsonRegularExpressionSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonRegularExpressionSerializer instance = new BsonRegularExpressionSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonRegularExpressionSerializer class.
+        /// </summary>
         public BsonRegularExpressionSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonRegularExpressionSerializer class.
+        /// </summary>
         public static BsonRegularExpressionSerializer Instance {
             get { return instance; }
         }
@@ -1038,17 +1182,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonStrings.
+    /// </summary>
     public class BsonStringSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonStringSerializer instance = new BsonStringSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonStringSerializer class.
+        /// </summary>
         public BsonStringSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonStringSerializer class.
+        /// </summary>
         public static BsonStringSerializer Instance {
             get { return instance; }
         }
@@ -1099,17 +1252,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonSymbols.
+    /// </summary>
     public class BsonSymbolSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonSymbolSerializer instance = new BsonSymbolSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonSymbolSerializer class.
+        /// </summary>
         public BsonSymbolSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonSymbolSerializer class.
+        /// </summary>
         public static BsonSymbolSerializer Instance {
             get { return instance; }
         }
@@ -1177,17 +1339,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonTimestamps.
+    /// </summary>
     public class BsonTimestampSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonTimestampSerializer instance = new BsonTimestampSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonTimestampSerializer class.
+        /// </summary>
         public BsonTimestampSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonTimestampSerializer class.
+        /// </summary>
         public static BsonTimestampSerializer Instance {
             get { return instance; }
         }
@@ -1238,17 +1409,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonUndefineds.
+    /// </summary>
     public class BsonUndefinedSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonUndefinedSerializer instance = new BsonUndefinedSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonUndefinedSerializer class.
+        /// </summary>
         public BsonUndefinedSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonUndefinedSerializer class.
+        /// </summary>
         public static BsonUndefinedSerializer Instance {
             get { return instance; }
         }
@@ -1299,17 +1479,26 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for BsonValues.
+    /// </summary>
     public class BsonValueSerializer : BsonBaseSerializer {
         #region private static fields
         private static BsonValueSerializer instance = new BsonValueSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonValueSerializer class.
+        /// </summary>
         public BsonValueSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonValueSerializer class.
+        /// </summary>
         public static BsonValueSerializer Instance {
             get { return instance; }
         }

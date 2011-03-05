@@ -24,8 +24,14 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for enumerable values.
+    /// </summary>
     public class EnumerableSerializer<T> : BsonBaseSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the EnumerableSerializer class.
+        /// </summary>
         public EnumerableSerializer() {
         }
         #endregion
@@ -91,8 +97,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for Queues.
+    /// </summary>
     public class QueueSerializer<T> : BsonBaseSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the QueueSerializer class.
+        /// </summary>
         public QueueSerializer() {
         }
         #endregion
@@ -158,8 +170,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for Stacks.
+    /// </summary>
     public class StackSerializer<T> : BsonBaseSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the StackSerializer class.
+        /// </summary>
         public StackSerializer() {
         }
         #endregion

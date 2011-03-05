@@ -24,8 +24,14 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a base implementation for the many implementations of IBsonSerializer.
+    /// </summary>
     public abstract class BsonBaseSerializer : IBsonSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBaseSerializer class.
+        /// </summary>
         protected BsonBaseSerializer() {
         }
         #endregion

@@ -24,17 +24,26 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for classes that implement IBsonSerializable.
+    /// </summary>
     public class BsonIBsonSerializableSerializer : IBsonSerializer {
         #region private static fields
         private static BsonIBsonSerializableSerializer instance = new BsonIBsonSerializableSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonIBsonSerializableSerializer class.
+        /// </summary>
         public BsonIBsonSerializableSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonIBsonSerializableSerializer class.
+        /// </summary>
         public static BsonIBsonSerializableSerializer Instance {
             get { return instance; }
         }

@@ -24,14 +24,16 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for one-dimensional arrays.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements.</typeparam>
     public class ArraySerializer<T> : BsonBaseSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the ArraySerializer class.
+        /// </summary>
         public ArraySerializer() {
-        }
-
-        public ArraySerializer(
-            object serializationOptions
-        ) {
         }
         #endregion
 
@@ -104,14 +106,16 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for two-dimensional arrays.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements.</typeparam>
     public class TwoDimensionalArraySerializer<T> : BsonBaseSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the TwoDimensionalArraySerializer class.
+        /// </summary>
         public TwoDimensionalArraySerializer() {
-        }
-
-        public TwoDimensionalArraySerializer(
-            object serializationOptions
-        ) {
         }
         #endregion
 
@@ -211,14 +215,16 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for three-dimensional arrays.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements.</typeparam>
     public class ThreeDimensionalArraySerializer<T> : BsonBaseSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the ThreeDimensionalArraySerializer class.
+        /// </summary>
         public ThreeDimensionalArraySerializer() {
-        }
-
-        public ThreeDimensionalArraySerializer(
-            object serializationOptions
-        ) {
         }
         #endregion
 

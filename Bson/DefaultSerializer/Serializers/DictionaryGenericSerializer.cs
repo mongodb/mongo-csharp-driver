@@ -23,8 +23,14 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for dictionaries.
+    /// </summary>
     public class DictionarySerializer<TKey, TValue> : BsonBaseSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the DictionarySerializer class.
+        /// </summary>
         public DictionarySerializer() {
         }
         #endregion

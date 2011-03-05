@@ -24,17 +24,26 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for enums.
+    /// </summary>
     public class EnumSerializer : BsonBaseSerializer {
         #region private static fields
         private static EnumSerializer instance = new EnumSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the EnumSerializer class.
+        /// </summary>
         public EnumSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the EnumSerializer class.
+        /// </summary>
         public static EnumSerializer Instance {
             get { return instance; }
         }
