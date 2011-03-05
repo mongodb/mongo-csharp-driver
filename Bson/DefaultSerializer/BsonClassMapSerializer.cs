@@ -25,17 +25,26 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for a class map.
+    /// </summary>
     public class BsonClassMapSerializer : IBsonSerializer {
         #region private static fields
         private static BsonClassMapSerializer instance = new BsonClassMapSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonClassMapSerializer class.
+        /// </summary>
         public BsonClassMapSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonClassMapSerializer class.
+        /// </summary>
         public static BsonClassMapSerializer Instance {
             get { return instance; }
         }
@@ -78,6 +87,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         /// </summary>
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
         public object Deserialize(

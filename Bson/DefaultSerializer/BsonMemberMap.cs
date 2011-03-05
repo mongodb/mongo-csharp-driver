@@ -26,6 +26,9 @@ using System.Linq.Expressions;
 using System.Reflection.Emit;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents the mapping between a field or property and a BSON element.
+    /// </summary>
     public class BsonMemberMap {
         #region private fields
         private ConventionProfile conventions;
@@ -46,6 +49,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonMemberMap class.
+        /// </summary>
+        /// <param name="memberInfo">The member info.</param>
+        /// <param name="conventions">The conventions to use with this member.</param>
         public BsonMemberMap(
             MemberInfo memberInfo,
             ConventionProfile conventions
@@ -57,14 +65,23 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the name of the member.
+        /// </summary>
         public string MemberName {
             get { return memberInfo.Name; }
         }
 
+        /// <summary>
+        /// Gets the type of the member.
+        /// </summary>
         public Type MemberType {
             get { return memberType; }
         }
 
+        /// <summary>
+        /// Gets the name of the element.
+        /// </summary>
         public string ElementName {
             get {
                 if (elementName == null) {
@@ -74,14 +91,23 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Gets the serialization order.
+        /// </summary>
         public int Order {
             get { return order; }
         }
 
+        /// <summary>
+        /// Gets the member info.
+        /// </summary>
         public MemberInfo MemberInfo {
             get { return memberInfo; }
         }
 
+        /// <summary>
+        /// Gets the getter function.
+        /// </summary>
         public Func<object, object> Getter {
             get {
                 if (getter == null) {
@@ -91,10 +117,16 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Gets the serialization options.
+        /// </summary>
         public IBsonSerializationOptions SerializationOptions {
             get { return serializationOptions; }
         }
 
+        /// <summary>
+        /// Gets the setter function.
+        /// </summary>
         public Action<object, object> Setter {
             get {
                 if (setter == null) {
@@ -108,6 +140,9 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Gets the Id generator.
+        /// </summary>
         public IIdGenerator IdGenerator {
             get {
                 if (idGenerator == null) {
@@ -124,28 +159,47 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Gets whether an element is required for this member when deserialized.
+        /// </summary>
         public bool IsRequired {
             get { return isRequired; }
         }
 
+        /// <summary>
+        /// Gets whether this member has a default value.
+        /// </summary>
         public bool HasDefaultValue {
             get { return hasDefaultValue; }
         }
 
+        /// <summary>
+        /// Gets whether the default value should be serialized.
+        /// </summary>
         public bool SerializeDefaultValue {
             get { return serializeDefaultValue; }
         }
 
+        /// <summary>
+        /// Gets whether null values should be ignored when serialized.
+        /// </summary>
         public bool IgnoreIfNull {
             get { return ignoreIfNull; }
         }
 
+        /// <summary>
+        /// Gets the default value.
+        /// </summary>
         public object DefaultValue {
             get { return defaultValue; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Applies the default value to the member.
+        /// </summary>
+        /// <param name="obj"></param>
         public void ApplyDefaultValue(
             object obj
         ) {
@@ -155,6 +209,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             this.Setter(obj, defaultValue);
         }
 
+        /// <summary>
+        /// Gets the serializer.
+        /// </summary>
+        /// <param name="actualType">The actual type of the member's value.</param>
+        /// <returns>The member map.</returns>
         public IBsonSerializer GetSerializer(
             Type actualType
         ) {
@@ -165,12 +224,23 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Sets the default value.
+        /// </summary>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetDefaultValue(
             object defaultValue
         ) {
             return SetDefaultValue(defaultValue, true); // serializeDefaultValue
         }
 
+        /// <summary>
+        /// Sets the default value.
+        /// </summary>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="serializeDefaultValue">Whether the default value shoudl be serialized.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetDefaultValue(
             object defaultValue,
             bool serializeDefaultValue
@@ -181,6 +251,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets the name of the element.
+        /// </summary>
+        /// <param name="elementName">The name of the element.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetElementName(
             string elementName
         ) {
@@ -188,6 +263,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets the Id generator.
+        /// </summary>
+        /// <param name="idGenerator">The Id generator.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetIdGenerator(
             IIdGenerator idGenerator
         ) {
@@ -195,6 +275,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets whether null values should be ignored when serialized.
+        /// </summary>
+        /// <param name="ignoreIfNull">Wether null values should be ignored when serialized.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetIgnoreIfNull(
             bool ignoreIfNull
         ) {
@@ -202,6 +287,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets whether an element is required for this member when deserialized
+        /// </summary>
+        /// <param name="isRequired">Whether an element is required for this member when deserialized</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetIsRequired(
             bool isRequired
         ) {
@@ -209,6 +299,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets the serialization order.
+        /// </summary>
+        /// <param name="order">The serialization order.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetOrder(
             int order
         ) {
@@ -216,6 +311,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets the external representation.
+        /// </summary>
+        /// <param name="representation">The external representation.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetRepresentation(
             BsonType representation
         ) {
@@ -223,6 +323,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets the serialization options.
+        /// </summary>
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetSerializationOptions(
             IBsonSerializationOptions serializationOptions
         ) {
@@ -230,6 +335,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets the serializer.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetSerializer(
             IBsonSerializer serializer
         ) {
@@ -237,6 +347,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return this;
         }
 
+        /// <summary>
+        /// Sets whether the default value should be serialized.
+        /// </summary>
+        /// <param name="serializeDefaultValue">Whether the default value should be serialized.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetSerializeDefaultValue(
             bool serializeDefaultValue
         ) {
