@@ -144,7 +144,7 @@ namespace MongoDB.Driver {
             /// <summary>
             /// Initializes a new instance of the IndexSizesResult class.
             /// </summary>
-            /// <param name="indexSizes"></param>
+            /// <param name="indexSizes">The index sizes document.</param>
             public IndexSizesResult(
                 BsonDocument indexSizes
             ) {

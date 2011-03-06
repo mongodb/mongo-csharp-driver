@@ -26,7 +26,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Converts this object to a BsonDocument.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A BsonDocument.</returns>
         BsonDocument ToBsonDocument();
     }
 }

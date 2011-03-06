@@ -197,9 +197,9 @@ namespace MongoDB.Bson.DefaultSerializer {
 
         #region public methods
         /// <summary>
-        /// Applies the default value to the member.
+        /// Applies the default value to the member of an object.
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">The object.</param>
         public void ApplyDefaultValue(
             object obj
         ) {

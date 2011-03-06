@@ -897,7 +897,7 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="index">The zero based index of the element to replace.</param>
         /// <param name="element">The new element.</param>
-        /// <returns></returns>
+        /// <returns>The document.</returns>
         public BsonDocument SetElement(
             int index,
             BsonElement element
@@ -911,7 +911,7 @@ namespace MongoDB.Bson {
         /// Sets an element of the document (replaces any existing element with the same name or adds a new element if an element with the same name is not found).
         /// </summary>
         /// <param name="element">The new element.</param>
-        /// <returns></returns>
+        /// <returns>The document.</returns>
         public BsonDocument SetElement(
             BsonElement element
         ) {

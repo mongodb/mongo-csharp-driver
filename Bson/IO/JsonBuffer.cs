@@ -71,7 +71,7 @@ namespace MongoDB.Bson.IO {
         /// Reads a substring from the buffer.
         /// </summary>
         /// <param name="start">The zero based index of the start of the substring.</param>
-        /// <returns></returns>
+        /// <returns>The substring.</returns>
         public string Substring(
             int start
         ) {
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="start">The zero based index of the start of the substring.</param>
         /// <param name="count">The number of characters in the substring.</param>
-        /// <returns></returns>
+        /// <returns>The substring.</returns>
         public string Substring(
             int start,
             int count

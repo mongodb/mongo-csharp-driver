@@ -690,7 +690,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         /// <summary>
         /// Sets whether this class is a root class.
         /// </summary>
-        /// <param name="isRootClass"></param>
+        /// <param name="isRootClass">Whether this class is a root class.</param>
         public void SetIsRootClass(
             bool isRootClass
         ) {

@@ -89,7 +89,7 @@ namespace MongoDB.Driver {
             /// <summary>
             /// Initializes a new instance of the GeoNearHits command.
             /// </summary>
-            /// <param name="hits"></param>
+            /// <param name="hits">The hits.</param>
             public GeoNearHits(
                 BsonArray hits
             ) {
@@ -125,7 +125,7 @@ namespace MongoDB.Driver {
             /// <summary>
             /// Gets an enumerator for the hits.
             /// </summary>
-            /// <returns></returns>
+            /// <returns>An enumerator.</returns>
             public IEnumerator<GeoNearHit> GetEnumerator() {
                 return hits.GetEnumerator();
             }
@@ -150,7 +150,7 @@ namespace MongoDB.Driver {
             /// <summary>
             /// Initializes a new instance of the GeoNearHit class.
             /// </summary>
-            /// <param name="hit"></param>
+            /// <param name="hit">The hit.</param>
             public GeoNearHit(
                 BsonDocument hit
             ) {
@@ -200,7 +200,7 @@ namespace MongoDB.Driver {
             /// <summary>
             /// Initializes a new instance of the GeoNearStats class.
             /// </summary>
-            /// <param name="stats"></param>
+            /// <param name="stats">The stats.</param>
             public GeoNearStats(
                 BsonDocument stats
             ) {

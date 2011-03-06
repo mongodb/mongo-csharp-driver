@@ -61,10 +61,10 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Deserialize is an invalid operation for wrapper classes.
         /// </summary>
-        /// <param name="bsonReader">The reader.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns></returns>
+        /// <param name="bsonReader">Not applicable.</param>
+        /// <param name="nominalType">Not applicable.</param>
+        /// <param name="options">Not applicable.</param>
+        /// <returns>Not applicable.</returns>
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -77,9 +77,9 @@ namespace MongoDB.Driver {
         /// <summary>
         /// GetDocumentId is an invalid operation for wrapper classes.
         /// </summary>
-        /// <param name="id">The Id value.</param>
-        /// <param name="idGenerator">The Id generator.</param>
-        /// <returns></returns>
+        /// <param name="id">Not applicable.</param>
+        /// <param name="idGenerator">Not applicable.</param>
+        /// <returns>Not applicable.</returns>
         public bool GetDocumentId(
             out object id,
             out IIdGenerator idGenerator
@@ -105,7 +105,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// SetDocumentId is an invalid operation for wrapper classes.
         /// </summary>
-        /// <param name="id">The Id value.</param>
+        /// <returns>Not applicable.</returns>
         public void SetDocumentId(
             object id
         ) {

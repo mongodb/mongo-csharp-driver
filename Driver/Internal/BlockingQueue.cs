@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Internal {
     /// <summary>
     /// Represents a thread-safe queue.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of elements.</typeparam>
     public class BlockingQueue<T> {
         #region private fields
         private object syncRoot = new object();

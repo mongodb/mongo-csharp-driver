@@ -254,7 +254,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Converts the BsonRegularExpression to a Regex.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A Regex.</returns>
         public Regex ToRegex() {
             // TODO: figure out how other JavaScript options map to .NET options
             var options = RegexOptions.None;

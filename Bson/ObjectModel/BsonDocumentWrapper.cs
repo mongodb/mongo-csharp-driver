@@ -112,8 +112,8 @@ namespace MongoDB.Bson {
         /// <summary>
         /// CompareTo is an invalid operation for BsonDocumentWrapper.
         /// </summary>
-        /// <param name="other">Not valid.</param>
-        /// <returns>None.</returns>
+        /// <param name="other">Not applicable.</param>
+        /// <returns>Not applicable.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -123,10 +123,10 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Deserialize is an invalid operation for BsonDocumentWrapper.
         /// </summary>
-        /// <param name="bsonReader">Invalid.</param>
-        /// <param name="nominalType">Invalid.</param>
-        /// <param name="options">Invalid.</param>
-        /// <returns></returns>
+        /// <param name="bsonReader">Not applicable.</param>
+        /// <param name="nominalType">Not applicable.</param>
+        /// <param name="options">Not applicable.</param>
+        /// <returns>Not applicable.</returns>
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -138,9 +138,9 @@ namespace MongoDB.Bson {
         /// <summary>
         /// GetDocumentId is an invalid operation for BsonDocumentWrapper.
         /// </summary>
-        /// <param name="id">Invalid.</param>
-        /// <param name="idGenerator">Invalid.</param>
-        /// <returns>Invalid.</returns>
+        /// <param name="id">Not applicable.</param>
+        /// <param name="idGenerator">Not applicable.</param>
+        /// <returns>Not applicable.</returns>
         public bool GetDocumentId(
             out object id,
             out IIdGenerator idGenerator
@@ -151,8 +151,8 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Equals is an invalid operation for BsonDocumentWrapper.
         /// </summary>
-        /// <param name="obj">Invalid.</param>
-        /// <returns>Invalid.</returns>
+        /// <param name="obj">Not applicable.</param>
+        /// <returns>Not applicable.</returns>
         public override bool Equals(
             object obj
         ) {
@@ -162,7 +162,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// GetHashCode is an invalid operation for BsonDocumentWrapper.
         /// </summary>
-        /// <returns>The hash code.</returns>
+        /// <returns>Not applicable.</returns>
         public override int GetHashCode() {
             throw new InvalidOperationException("GetHashCode not supported for BsonDocumentWrapper");
         }
@@ -184,7 +184,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// SetDocumentId is an invalid operation for BsonDocumentWrapper.
         /// </summary>
-        /// <param name="Id">Invalid.</param>
+        /// <param name="Id">Not applicable.</param>
         public void SetDocumentId(
             object Id
         ) {

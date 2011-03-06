@@ -37,7 +37,7 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Initializes a new instance of the JsonReader class.
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="buffer">The buffer.</param>
         public JsonReader(
             JsonBuffer buffer
         ) {
