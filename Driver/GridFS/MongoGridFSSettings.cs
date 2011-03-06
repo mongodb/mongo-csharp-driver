@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver.GridFS {
+    /// <summary>
+    /// Represents setting for GridFS.
+    /// </summary>
     [Serializable]
     public class MongoGridFSSettings : IEquatable<MongoGridFSSettings> {
         #region private static fields
@@ -35,9 +38,18 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MongoGridFSSettings class.
+        /// </summary>
         public MongoGridFSSettings() {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the MongoGridFSSettings class.
+        /// </summary>
+        /// <param name="chunkSize">The chunk size.</param>
+        /// <param name="root">The root collection name.</param>
+        /// <param name="safeMode">The safe mode.</param>
         public MongoGridFSSettings(
             int chunkSize,
             string root,
@@ -50,6 +62,9 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets the default GridFS settings.
+        /// </summary>
         public static MongoGridFSSettings Defaults {
             get { return defaults; }
             set { defaults = value; }
@@ -57,10 +72,16 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the chunks collection name.
+        /// </summary>
         public string ChunksCollectionName {
             get { return chunksCollectionName; }
         }
 
+        /// <summary>
+        /// Gets or sets the chunk size.
+        /// </summary>
         public int ChunkSize {
             get { return chunkSize; }
             set {
@@ -69,14 +90,23 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        /// <summary>
+        /// Gets the files collection name.
+        /// </summary>
         public string FilesCollectionName {
             get { return filesCollectionName; }
         }
 
+        /// <summary>
+        /// Gets whether the settings are frozen.
+        /// </summary>
         public bool IsFrozen {
             get { return isFrozen; }
         }
 
+        /// <summary>
+        /// Gets or sets the root collection name (the files and chunks collection names are derived from the root).
+        /// </summary>
         public string Root {
             get { return root; }
             set {
@@ -87,6 +117,9 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the safe mode.
+        /// </summary>
         public SafeMode SafeMode {
             get { return safeMode; }
             set {
@@ -137,6 +170,11 @@ namespace MongoDB.Driver.GridFS {
             );
         }
 
+        /// <summary>
+        /// Compares this MongoGridFSSettings to another one.
+        /// </summary>
+        /// <param name="rhs">The other MongoGridFSSettings.</param>
+        /// <returns>True if the two settings are equal.</returns>
         public bool Equals(
             MongoGridFSSettings rhs
         ) {
@@ -147,15 +185,28 @@ namespace MongoDB.Driver.GridFS {
                 this.safeMode == rhs.safeMode;
         }
 
+        /// <summary>
+        /// Compares this MongoGridFSSettings to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other objects is a MongoGridFSSettings and is equal to this one.</returns>
         public override bool Equals(object obj) {
             return Equals(obj as MongoGridFSSettings); // works even if obj is null
         }
 
+        /// <summary>
+        /// Freezes the settings.
+        /// </summary>
+        /// <returns>The settings.</returns>
         public MongoGridFSSettings Freeze() {
             isFrozen = true;
             return this;
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
