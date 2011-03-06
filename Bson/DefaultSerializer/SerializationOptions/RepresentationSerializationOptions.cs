@@ -93,12 +93,14 @@ namespace MongoDB.Bson.Serialization {
             } else if (value == double.MaxValue) {
                 return decimal.MaxValue;
             }
+
+            var decimalValue = (decimal) value;
             if (value < (double) decimal.MinValue || value > (double) decimal.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (decimal) value) {
+            } else if (value != (double) decimalValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (decimal) value;
+            return decimalValue;
         }
 
         /// <summary>
@@ -136,10 +138,12 @@ namespace MongoDB.Bson.Serialization {
             } else if (value == decimal.MaxValue) {
                 return double.MaxValue;
             }
-            if (value != (decimal) (double) value) {
+
+            var doubleValue = (double) value;
+            if (value != (decimal) doubleValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (double) value;
+            return doubleValue;
         }
 
         /// <summary>
@@ -194,10 +198,11 @@ namespace MongoDB.Bson.Serialization {
         public double ToDouble(
             long value
         ) {
-            if (value != (long) (double) value) {
+            var doubleValue = (double) value;
+            if (value != (long) doubleValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return value;
+            return doubleValue;
         }
 
         /// <summary>
@@ -230,10 +235,11 @@ namespace MongoDB.Bson.Serialization {
         public double ToDouble(
             ulong value
         ) {
-            if (value != (ulong) (double) value) {
+            var doubleValue = (double) value;
+            if (value != (ulong) doubleValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return value;
+            return doubleValue;
         }
 
         /// <summary>
@@ -255,12 +261,13 @@ namespace MongoDB.Bson.Serialization {
         public short ToInt16(
             double value
         ) {
+            var int16Value = (short) value;
             if (value < short.MinValue || value > short.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (short) value) {
+            } else if (value != (double) int16Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (short) value;
+            return int16Value;
         }
 
         /// <summary>
@@ -304,12 +311,14 @@ namespace MongoDB.Bson.Serialization {
             } else if (value == decimal.MaxValue) {
                 return int.MaxValue;
             }
+
+            var int32Value = (int) value;
             if (value < int.MinValue || value > int.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (decimal) (int) value) {
+            } else if (value != (decimal) int32Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (int) value;
+            return int32Value;
         }
 
         /// <summary>
@@ -320,12 +329,13 @@ namespace MongoDB.Bson.Serialization {
         public int ToInt32(
             double value
         ) {
+            var int32Value = (int) value;
             if (value < int.MinValue || value > int.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (int) value) {
+            } else if (value != (double) int32Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (int) value;
+            return int32Value;
         }
 
         /// <summary>
@@ -336,12 +346,13 @@ namespace MongoDB.Bson.Serialization {
         public int ToInt32(
             float value
         ) {
+            var int32Value = (int) value;
             if (value < int.MinValue || value > int.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (float) (int) value) {
+            } else if (value != (float) int32Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (int) value;
+            return int32Value;
         }
 
         /// <summary>
@@ -432,12 +443,14 @@ namespace MongoDB.Bson.Serialization {
             } else if (value == decimal.MaxValue) {
                 return long.MaxValue;
             }
+
+            var int64Value = (long) value;
             if (value < long.MinValue || value > long.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (decimal) (long) value) {
+            } else if (value != (decimal) int64Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (long) value;
+            return int64Value;
         }
 
         /// <summary>
@@ -448,12 +461,13 @@ namespace MongoDB.Bson.Serialization {
         public long ToInt64(
             double value
         ) {
+            var int64Value = (long) value;
             if (value < long.MinValue || value > long.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (long) value) {
+            } else if (value != (double) int64Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (long) value;
+            return int64Value;
         }
 
         /// <summary>
@@ -464,12 +478,13 @@ namespace MongoDB.Bson.Serialization {
         public long ToInt64(
             float value
         ) {
+            var int64Value = (long) value;
             if (value < long.MinValue || value > long.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (float) (long) value) {
+            } else if (value != (float) int64Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (long) value;
+            return int64Value;
         }
 
         /// <summary>
@@ -561,12 +576,13 @@ namespace MongoDB.Bson.Serialization {
                 return float.NaN;
             }
 
+            var floatValue = (float) value;
             if (value < float.MinValue || value > float.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (float) value) {
+            } else if (value != (double) floatValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (float) value;
+            return floatValue;
         }
 
         /// <summary>
@@ -577,10 +593,11 @@ namespace MongoDB.Bson.Serialization {
         public float ToSingle(
             int value
         ) {
-            if (value != (int) (float) value) {
+            var floatValue = (float) value;
+            if (value != (int) floatValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return value;
+            return floatValue;
         }
 
         /// <summary>
@@ -591,10 +608,11 @@ namespace MongoDB.Bson.Serialization {
         public float ToSingle(
             long value
         ) {
-            if (value != (long) (float) value) {
+            var floatValue = (float) value;
+            if (value != (long) floatValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return value;
+            return floatValue;
         }
 
         /// <summary>
@@ -605,12 +623,13 @@ namespace MongoDB.Bson.Serialization {
         public ushort ToUInt16(
             double value
         ) {
+            var uint16Value = (ushort) value;
             if (value < ushort.MinValue || value > ushort.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (ushort) value) {
+            } else if (value != (double) uint16Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (ushort) value;
+            return uint16Value;
         }
 
         /// <summary>
@@ -649,12 +668,13 @@ namespace MongoDB.Bson.Serialization {
         public uint ToUInt32(
             double value
         ) {
+            var uint32Value = (uint) value;
             if (value < uint.MinValue || value > uint.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (uint) value) {
+            } else if (value != (double) uint32Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (uint) value;
+            return uint32Value;
         }
 
         /// <summary>
@@ -693,12 +713,13 @@ namespace MongoDB.Bson.Serialization {
         public ulong ToUInt64(
             double value
         ) {
+            var uint64Value = (ulong) value;
             if (value < ulong.MinValue || value > ulong.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (ulong) value) {
+            } else if (value != (double) uint64Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (ulong) value;
+            return uint64Value;
         }
 
         /// <summary>
