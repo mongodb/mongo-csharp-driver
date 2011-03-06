@@ -19,11 +19,27 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
+    /// <summary>
+    /// Represents an ignore extra elements convention.
+    /// </summary>
     public interface IIgnoreExtraElementsConvention {
+        /// <summary>
+        /// Determines whether to ignore extra elements for a class.
+        /// </summary>
+        /// <param name="type">The class.</param>
+        /// <returns>Whether to ignore extra elements.</returns>
         bool IgnoreExtraElements(Type type);
     }
 
+    /// <summary>
+    /// Represents an ignore extra elements convention where extra elements are never ignored.
+    /// </summary>
     public class NeverIgnoreExtraElementsConvention : IIgnoreExtraElementsConvention {
+        /// <summary>
+        /// Determines whether to ignore extra elements for a class.
+        /// </summary>
+        /// <param name="type">The class.</param>
+        /// <returns>Whether to ignore extra elements.</returns>
         public bool IgnoreExtraElements(
             Type type
         ) {
@@ -31,7 +47,15 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         }
     }
 
+    /// <summary>
+    /// Represents an ignore extra elements convention where extra elements are always ignored.
+    /// </summary>
     public class AlwaysIgnoreExtraElementsConvention : IIgnoreExtraElementsConvention {
+        /// <summary>
+        /// Determines whether to ignore extra elements for a class.
+        /// </summary>
+        /// <param name="type">The class.</param>
+        /// <returns>Whether to ignore extra elements.</returns>
         public bool IgnoreExtraElements(
             Type type
         ) {

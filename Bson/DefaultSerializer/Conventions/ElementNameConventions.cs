@@ -20,11 +20,27 @@ using System.Text;
 using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
+    /// <summary>
+    /// Represents an element name convention.
+    /// </summary>
     public interface IElementNameConvention {
+        /// <summary>
+        /// Gets the element name for a member.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns>The element name.</returns>
         string GetElementName(MemberInfo member);
     }
 
+    /// <summary>
+    /// Represents an element name convention where the element name is the same as the member name.
+    /// </summary>
     public class MemberNameElementNameConvention : IElementNameConvention {
+        /// <summary>
+        /// Gets the element name for a member.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns>The element name.</returns>
         public string GetElementName(
             MemberInfo member
         ) {
@@ -32,7 +48,15 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         }
     }
 
+    /// <summary>
+    /// Represents an element name convention where the element name is the member name with the first character lower cased.
+    /// </summary>
     public class CamelCaseElementNameConvention : IElementNameConvention {
+        /// <summary>
+        /// Gets the element name for a member.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns>The element name.</returns>
         public string GetElementName(
             MemberInfo member
         ) {

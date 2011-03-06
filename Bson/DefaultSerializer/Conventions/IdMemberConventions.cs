@@ -20,19 +20,42 @@ using System.Text;
 using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
+    /// <summary>
+    /// Represents an Id member convention.
+    /// </summary>
     public interface IIdMemberConvention {
+        /// <summary>
+        /// Finds the Id member of a class.
+        /// </summary>
+        /// <param name="type">The class.</param>
+        /// <returns>The name of the Id member.</returns>
         string FindIdMember(Type type); 
     }
 
+    /// <summary>
+    /// Represents an Id member convention where the Id member name is one of a set of possible Id member names.
+    /// </summary>
     public class NamedIdMemberConvention : IIdMemberConvention {
+        /// <summary>
+        /// Gets the set of possible Id member names.
+        /// </summary>
         public string[] Names { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the NamedIdMemberConvention class.
+        /// </summary>
+        /// <param name="names">A set of possible Id member names.</param>
         public NamedIdMemberConvention(
             params string[] names
         ) {
             Names = names;
         }
 
+        /// <summary>
+        /// Finds the Id member of a class.
+        /// </summary>
+        /// <param name="type">The class.</param>
+        /// <returns>The name of the Id member.</returns>
         public string FindIdMember(
             Type type
         ) {

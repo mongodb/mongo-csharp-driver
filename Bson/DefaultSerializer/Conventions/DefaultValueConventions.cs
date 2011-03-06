@@ -20,11 +20,27 @@ using System.Text;
 using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
+    /// <summary>
+    /// Represents a default value convention.
+    /// </summary>
     public interface IDefaultValueConvention {
+        /// <summary>
+        /// Gets the default value for a member.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>The default value.</returns>
         object GetDefaultValue(MemberInfo memberInfo);
     }
 
+    /// <summary>
+    /// Represents a default value convention of null.
+    /// </summary>
     public class NullDefaultValueConvention : IDefaultValueConvention {
+        /// <summary>
+        /// Gets the default value for a member.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>null.</returns>
         public object GetDefaultValue(
             MemberInfo memberInfo
         ) {
