@@ -18,6 +18,9 @@ using System;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
+    /// <summary>
+    /// Represents serialization options for a document.
+    /// </summary>
     public class DocumentSerializationOptions : IBsonSerializationOptions {
         #region private static fields
         private static DocumentSerializationOptions defaults = new DocumentSerializationOptions(false);
@@ -29,6 +32,10 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the DocumentSerializationOptions class.
+        /// </summary>
+        /// <param name="serializeIdFirst">Whether to serialize the Id as the first element.</param>
         public DocumentSerializationOptions(
             bool serializeIdFirst
         ) {
@@ -37,16 +44,26 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets the default document serialization options.
+        /// </summary>
         public static DocumentSerializationOptions Defaults {
             get { return defaults; }
+            set { defaults = value; }
         }
 
+        /// <summary>
+        /// Gets an instance of DocumentSerializationOptions that specifies to serialize the Id as the first element.
+        /// </summary>
         public static DocumentSerializationOptions SerializeIdFirstInstance {
             get { return serializeIdFirstInstance; }
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets whether to serialize the Id as the first element.
+        /// </summary>
         public bool SerializeIdFirst {
             get { return serializeIdFirst; }
         }

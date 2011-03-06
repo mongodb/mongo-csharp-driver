@@ -71,7 +71,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         /// </summary>
         /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions() {
-            return new DateTimeSerializationOptions { DateOnly = dateOnly, Kind = kind, Representation = representation };
+            if (dateOnly) {
+                return new DateTimeSerializationOptions(dateOnly, representation);
+            } else {
+                return new DateTimeSerializationOptions(kind, representation);
+            }
         }
         #endregion
     }

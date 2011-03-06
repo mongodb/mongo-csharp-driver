@@ -18,6 +18,9 @@ using System;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
+    /// <summary>
+    /// Represents the external representation of a field or property.
+    /// </summary>
     public class RepresentationSerializationOptions : IBsonSerializationOptions {
         #region private fields
         private BsonType representation;
@@ -26,12 +29,22 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the RepresentationSerializationOptions class.
+        /// </summary>
+        /// <param name="representation">The external representation.</param>
         public RepresentationSerializationOptions(
             BsonType representation
         ) {
             this.representation = representation;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the RepresentationSerializationOptions class.
+        /// </summary>
+        /// <param name="representation">The external representation.</param>
+        /// <param name="allowOverflow">Whether to allow overflow.</param>
+        /// <param name="allowTruncation">Whether to allow truncation.</param>
         public RepresentationSerializationOptions(
             BsonType representation,
             bool allowOverflow,
@@ -44,20 +57,34 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the external representation.
+        /// </summary>
         public BsonType Representation {
             get { return representation; }
         }
 
+        /// <summary>
+        /// Gets whether to allow overflow.
+        /// </summary>
         public bool AllowOverflow {
             get { return allowOverflow; }
         }
 
+        /// <summary>
+        /// Gets whether to allow truncation.
+        /// </summary>
         public bool AllowTruncation {
             get { return allowTruncation; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Converts a Double to a Decimal.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A Decimal.</returns>
         public decimal ToDecimal(
             double value
         ) {
@@ -74,18 +101,33 @@ namespace MongoDB.Bson.Serialization {
             return (decimal) value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a Decimal.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Decimal.</returns>
         public decimal ToDecimal(
             int value
         ) {
             return (decimal) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a Decimal.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Decimal.</returns>
         public decimal ToDecimal(
             long value
         ) {
             return (decimal) value;
         }
 
+        /// <summary>
+        /// Converts a Decimal to a Double.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             decimal value
         ) {
@@ -100,12 +142,22 @@ namespace MongoDB.Bson.Serialization {
             return (double) value;
         }
 
+        /// <summary>
+        /// Converts a Double to a Double.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             double value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Single to a Double.
+        /// </summary>
+        /// <param name="value">A Single.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             float value
         ) {
@@ -123,12 +175,22 @@ namespace MongoDB.Bson.Serialization {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a Double.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             int value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a Double.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             long value
         ) {
@@ -138,18 +200,33 @@ namespace MongoDB.Bson.Serialization {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int16 to a Double.
+        /// </summary>
+        /// <param name="value">An Int16.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             short value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt32 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt32.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             uint value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt64 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             ulong value
         ) {
@@ -159,12 +236,22 @@ namespace MongoDB.Bson.Serialization {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt16 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt16.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             ushort value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Double to an Int16.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>An Int16.</returns>
         public short ToInt16(
             double value
         ) {
@@ -176,6 +263,11 @@ namespace MongoDB.Bson.Serialization {
             return (short) value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to an Int16.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>An Int16.</returns>
         public short ToInt16(
             int value
         ) {
@@ -185,6 +277,11 @@ namespace MongoDB.Bson.Serialization {
             return (short) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to an Int16.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>An Int16.</returns>
         public short ToInt16(
             long value
         ) {
@@ -194,6 +291,11 @@ namespace MongoDB.Bson.Serialization {
             return (short) value;
         }
 
+        /// <summary>
+        /// Converts a Decimal to an Int32.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             decimal value
         ) {
@@ -210,6 +312,11 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts a Double to an Int32.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             double value
         ) {
@@ -221,6 +328,11 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts a Single to an Int32.
+        /// </summary>
+        /// <param name="value">A Single.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             float value
         ) {
@@ -232,12 +344,22 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to an Int32.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             int value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to an Int32.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             long value
         ) {
@@ -247,12 +369,22 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts an Int16 to an Int32.
+        /// </summary>
+        /// <param name="value">An Int16.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             short value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt32 to an Int32.
+        /// </summary>
+        /// <param name="value">A UInt32.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             uint value
         ) {
@@ -262,6 +394,11 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts a UInt64 to an Int32.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             ulong value
         ) {
@@ -271,12 +408,22 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts a UInt16 to an Int32.
+        /// </summary>
+        /// <param name="value">A UInt16.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             ushort value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Decimal to an Int64.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             decimal value
         ) {
@@ -293,6 +440,11 @@ namespace MongoDB.Bson.Serialization {
             return (long) value;
         }
 
+        /// <summary>
+        /// Converts a Double to an Int64.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             double value
         ) {
@@ -304,6 +456,11 @@ namespace MongoDB.Bson.Serialization {
             return (long) value;
         }
 
+        /// <summary>
+        /// Converts a Single to an Int64.
+        /// </summary>
+        /// <param name="value">A Single.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             float value
         ) {
@@ -315,30 +472,55 @@ namespace MongoDB.Bson.Serialization {
             return (long) value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to an Int64.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             int value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to an Int64.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             long value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int16 to an Int64.
+        /// </summary>
+        /// <param name="value">An Int16.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             short value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt32 to an Int64.
+        /// </summary>
+        /// <param name="value">A UInt32.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             uint value
         ) {
             return (long) value;
         }
 
+        /// <summary>
+        /// Converts a UInt64 to an Int64.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             ulong value
         ) {
@@ -348,12 +530,22 @@ namespace MongoDB.Bson.Serialization {
             return (long) value;
         }
 
+        /// <summary>
+        /// Converts a UInt16 to an Int64.
+        /// </summary>
+        /// <param name="value">A UInt16.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             ushort value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Double to a Single.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A Single.</returns>
         public float ToSingle(
             double value
         ) {
@@ -377,6 +569,11 @@ namespace MongoDB.Bson.Serialization {
             return (float) value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a Single.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Single.</returns>
         public float ToSingle(
             int value
         ) {
@@ -386,6 +583,11 @@ namespace MongoDB.Bson.Serialization {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a Single.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Single.</returns>
         public float ToSingle(
             long value
         ) {
@@ -395,6 +597,11 @@ namespace MongoDB.Bson.Serialization {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Double to a UInt16.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A UInt16.</returns>
         public ushort ToUInt16(
             double value
         ) {
@@ -406,6 +613,11 @@ namespace MongoDB.Bson.Serialization {
             return (ushort) value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a UInt16.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A UInt16.</returns>
         public ushort ToUInt16(
             int value
         ) {
@@ -415,6 +627,11 @@ namespace MongoDB.Bson.Serialization {
             return (ushort) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a UInt16.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A UInt16.</returns>
         public ushort ToUInt16(
             long value
         ) {
@@ -424,6 +641,11 @@ namespace MongoDB.Bson.Serialization {
             return (ushort) value;
         }
 
+        /// <summary>
+        /// Converts a Double to a UInt32.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A UInt32.</returns>
         public uint ToUInt32(
             double value
         ) {
@@ -435,6 +657,11 @@ namespace MongoDB.Bson.Serialization {
             return (uint) value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a UInt32.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A UInt32.</returns>
         public uint ToUInt32(
             int value
         ) {
@@ -444,6 +671,11 @@ namespace MongoDB.Bson.Serialization {
             return (uint) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a UInt32.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A UInt32.</returns>
         public uint ToUInt32(
             long value
         ) {
@@ -453,6 +685,11 @@ namespace MongoDB.Bson.Serialization {
             return (uint) value;
         }
 
+        /// <summary>
+        /// Converts a Double to a UInt64.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A UInt64.</returns>
         public ulong ToUInt64(
             double value
         ) {
@@ -464,6 +701,11 @@ namespace MongoDB.Bson.Serialization {
             return (ulong) value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a UInt64.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A UInt64.</returns>
         public ulong ToUInt64(
             int value
         ) {
@@ -473,6 +715,11 @@ namespace MongoDB.Bson.Serialization {
             return (ulong) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a UInt64.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A UInt64.</returns>
         public ulong ToUInt64(
             long value
         ) {
