@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Specifies whether extra elements should be ignored when this class is deserialized.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class BsonIgnoreExtraElementsAttribute : Attribute {
         #region private fields
@@ -26,10 +29,17 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonIgnoreExtraElementsAttribute class.
+        /// </summary>
         public BsonIgnoreExtraElementsAttribute()
             : this(true) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonIgnoreExtraElementsAttribute class.
+        /// </summary>
+        /// <param name="ignoreExtraElements">Whether extra elements should be ignored when this class is deserialized.</param>
         public BsonIgnoreExtraElementsAttribute(
             bool ignoreExtraElements
         ) {
@@ -38,6 +48,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets whether extra elements should be ignored when this class is deserialized.
+        /// </summary>
         public bool IgnoreExtraElements {
             get { return ignoreExtraElements; }
         }

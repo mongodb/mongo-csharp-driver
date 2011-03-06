@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Indicates that a field or property should be ignored if its value is null when this class is serialized.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonIgnoreIfNullAttribute : Attribute {
     }

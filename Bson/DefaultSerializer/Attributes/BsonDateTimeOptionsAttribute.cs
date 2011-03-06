@@ -20,7 +20,10 @@ using System.Text;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    // [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    /// <summary>
+    /// Specifies serialization options for a DateTime field or property.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonDateTimeOptionsAttribute : BsonSerializationOptionsAttribute {
         #region private fields
         private bool dateOnly = false;
@@ -29,21 +32,33 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDateTimeOptionsAttribute class.
+        /// </summary>
         public BsonDateTimeOptionsAttribute() {
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets whether the DateTime consists of a Date only.
+        /// </summary>
         public bool DateOnly {
             get { return dateOnly; }
             set { dateOnly = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the DateTimeKind (Local, Unspecified or Utc).
+        /// </summary>
         public DateTimeKind Kind {
             get { return kind; }
             set { kind = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the external representation.
+        /// </summary>
         public BsonType Representation {
             get { return representation; }
             set { representation = value; }
@@ -51,6 +66,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets the serialization options specified by this attribute.
+        /// </summary>
+        /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions() {
             return new DateTimeSerializationOptions { DateOnly = dateOnly, Kind = kind, Representation = representation };
         }

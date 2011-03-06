@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Specifies the element name and related options for a field or property.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonElementAttribute : Attribute {
         #region private fields
@@ -27,6 +30,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonElementAttribute class.
+        /// </summary>
+        /// <param name="elementName">The name of the element.</param>
         public BsonElementAttribute(
             string elementName
         ) {
@@ -35,10 +42,16 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the element name.
+        /// </summary>
         public string ElementName {
             get { return elementName; }
         }
 
+        /// <summary>
+        /// Gets the element serialization order.
+        /// </summary>
         public int Order {
             get { return order; }
             set { order = value; }
