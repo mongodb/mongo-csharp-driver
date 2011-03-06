@@ -949,7 +949,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     if (s.Length == 1) {
                         s = "0" + s;
                     }
-                    value = sbyte.Parse(s, NumberStyles.HexNumber);
+                    value = (sbyte) byte.Parse(s, NumberStyles.HexNumber);
                     break;
                 default:
                     var message = string.Format("Cannot deserialize SByte from BsonType: {0}", bsonType);
@@ -989,7 +989,7 @@ namespace MongoDB.Bson.DefaultSerializer {
                     bsonWriter.WriteInt64(sbyteValue);
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(string.Format("{0:x2}", sbyteValue));
+                    bsonWriter.WriteString(string.Format("{0:x2}", (byte) sbyteValue));
                     break;
                 default:
                     var message = string.Format("'{0}' is not a valid representation for type 'Byte'", representation);
