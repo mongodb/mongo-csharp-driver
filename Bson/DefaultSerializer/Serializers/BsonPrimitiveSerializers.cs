@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -179,10 +180,16 @@ namespace MongoDB.Bson.DefaultSerializer {
                     value = DateTime.SpecifyKind(new DateTime(bsonReader.ReadInt64()), DateTimeKind.Utc);
                     break;
                 case BsonType.String:
+                    // note: we're not using XmlConvert because of bugs in Mono
                     if (dateTimeOptions.DateOnly) {
-                        value = DateTime.SpecifyKind(XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind), DateTimeKind.Utc);
+                        value = DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc);
                     } else {
-                        value = XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
+                        var formats = new string[] {
+                            "yyyy-MM-ddK",
+                            "yyyy-MM-ddTHH:mm:ssK",
+                            "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
+                        };
+                        value = DateTime.ParseExact(bsonReader.ReadString(), formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
                     }
                     break;
                 default:
@@ -231,11 +238,14 @@ namespace MongoDB.Bson.DefaultSerializer {
                     throw new BsonSerializationException("TimeOfDay component for DateOnly DateTime value is not zero");
                 }
             }
-            if (dateTime.Kind != DateTimeKind.Utc && dateTimeOptions.Representation != BsonType.String) {
-                if (dateTimeOptions.DateOnly) {
-                    dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToUniversalTime!
-                } else {
-                    dateTime = ToUniversalTimeHelper(dateTime);
+
+            if (dateTimeOptions.Representation != BsonType.String) {
+                if (dateTime.Kind != DateTimeKind.Utc) {
+                    if (dateTimeOptions.DateOnly) {
+                        dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToUniversalTime!
+                    } else {
+                        dateTime = ToUniversalTimeHelper(dateTime);
+                    }
                 }
             }
 
@@ -256,10 +266,15 @@ namespace MongoDB.Bson.DefaultSerializer {
                     if (dateTimeOptions.DateOnly) {
                         bsonWriter.WriteString(dateTime.ToString("yyyy-MM-dd"));
                     } else {
+                        // we're not using XmlConvert.ToString because of bugs in Mono
                         if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue) {
-                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                            // serialize MinValue and MaxValue as Unspecified so we do NOT get the time zone offset
+                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified);
+                        } else if (dateTime.Kind == DateTimeKind.Unspecified) {
+                            // serialize Unspecified as Local se we get the time zone offset
+                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Local);
                         }
-                        bsonWriter.WriteString(XmlConvert.ToString(dateTime, XmlDateTimeSerializationMode.RoundtripKind));
+                        bsonWriter.WriteString(dateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK"));
                     }
                     break;
                 default:

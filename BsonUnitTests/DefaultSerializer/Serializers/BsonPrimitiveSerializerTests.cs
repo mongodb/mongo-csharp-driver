@@ -115,7 +115,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", "{ '$date' : -62135596800000 }");
             expected = expected.Replace("#Utc", "{ '$date' : -62135596800000 }");
             expected = expected.Replace("#Ticks", "0");
-            expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
+            expected = expected.Replace("#String", "0001-01-01T00:00:00");
             expected = expected.Replace("#DateOnlyString", "0001-01-01");
             expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
             expected = expected.Replace("'", "\"");
@@ -161,7 +161,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", "{ '$date' : -62135596800000 }");
             expected = expected.Replace("#Utc", "{ '$date' : -62135596800000 }");
             expected = expected.Replace("#Ticks", "0");
-            expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
+            expected = expected.Replace("#String", "0001-01-01T00:00:00");
             expected = expected.Replace("#DateOnlyString", "0001-01-01");
             expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
             expected = expected.Replace("'", "\"");
@@ -207,7 +207,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", "{ '$date' : -62135596800000 }");
             expected = expected.Replace("#Utc", "{ '$date' : -62135596800000 }");
             expected = expected.Replace("#Ticks", "0");
-            expected = expected.Replace("#String", "0001-01-01T00:00:00Z");
+            expected = expected.Replace("#String", "0001-01-01T00:00:00");
             expected = expected.Replace("#DateOnlyString", "0001-01-01");
             expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : -62135596800000 }, 'Ticks' : 0 }");
             expected = expected.Replace("'", "\"");
@@ -253,7 +253,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
             expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
             expected = expected.Replace("#Ticks", "3155378975999999999");
-            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
+            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
             expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
@@ -299,7 +299,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
             expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
             expected = expected.Replace("#Ticks", "3155378975999999999");
-            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
+            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
             expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
@@ -345,7 +345,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
             expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
             expected = expected.Replace("#Ticks", "3155378975999999999");
-            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999Z");
+            expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
             expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
@@ -394,7 +394,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", utcJson);
             expected = expected.Replace("#Utc", utcJson);
             expected = expected.Replace("#Ticks", utc.Ticks.ToString());
-            expected = expected.Replace("#String", XmlConvert.ToString(local, XmlDateTimeSerializationMode.RoundtripKind));
+            expected = expected.Replace("#String", local.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz"));
             expected = expected.Replace("#DateOnlyString", local.Date.ToString("yyyy-MM-dd"));
             expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");
@@ -445,7 +445,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", utcJson);
             expected = expected.Replace("#Utc", utcJson);
             expected = expected.Replace("#Ticks", utc.Ticks.ToString());
-            expected = expected.Replace("#String", XmlConvert.ToString(unspecified, XmlDateTimeSerializationMode.RoundtripKind));
+            expected = expected.Replace("#String", unspecified.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFzzz"));
             expected = expected.Replace("#DateOnlyString", unspecified.Date.ToString("yyyy-MM-dd"));
             expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");
@@ -495,7 +495,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
             expected = expected.Replace("#Unspecified", utcJson);
             expected = expected.Replace("#Utc", utcJson);
             expected = expected.Replace("#Ticks", utc.Ticks.ToString());
-            expected = expected.Replace("#String", XmlConvert.ToString(utc, XmlDateTimeSerializationMode.RoundtripKind));
+            expected = expected.Replace("#String", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFZ"));
             expected = expected.Replace("#DateOnlyString", utc.Date.ToString("yyyy-MM-dd"));
             expected = expected.Replace("#Document", "{ 'DateTime' : #D, 'Ticks' : #T }".Replace("#D", utcJson).Replace("#T", utc.Ticks.ToString()));
             expected = expected.Replace("'", "\"");

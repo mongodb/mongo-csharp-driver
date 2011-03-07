@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -321,7 +322,14 @@ namespace MongoDB.Bson {
                 case Conversion.SingleToBsonBoolean: var f = (float) value; return BsonBoolean.Create(!(float.IsNaN(f) || f == 0.0f));
                 case Conversion.SingleToBsonDouble: return new BsonDouble((double) (float) value);
                 case Conversion.StringToBsonBoolean: return BsonBoolean.Create((string) value != "");
-                case Conversion.StringToBsonDateTime: return new BsonDateTime(XmlConvert.ToDateTime((string) value, XmlDateTimeSerializationMode.Utc));
+                case Conversion.StringToBsonDateTime:
+                    var formats = new string[] {
+                        "yyyy-MM-ddK",
+                        "yyyy-MM-ddTHH:mm:ssK",
+                        "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
+                    };
+                    var dt = DateTime.ParseExact((string) value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+                    return new BsonDateTime(dt);
                 case Conversion.StringToBsonDouble: return new BsonDouble(XmlConvert.ToDouble((string) value));
                 case Conversion.StringToBsonInt32: return BsonInt32.Create(XmlConvert.ToInt32((string) value));
                 case Conversion.StringToBsonInt64: return new BsonInt64(XmlConvert.ToInt64((string) value));
