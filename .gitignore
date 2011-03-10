@@ -1,9 +1,11 @@
 bin
 obj
+Help
 *.user
 *.suo
 *.vsp
 *.csproj.VisualState.xml
+*.shfbproj_*
 TestResult.xml
 # This folder gets created if you use resharper.
 _ReSharper.*
