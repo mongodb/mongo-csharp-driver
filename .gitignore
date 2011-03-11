@@ -1,14 +1,26 @@
+# Visual Studio artifacts
 bin
 obj
-Help
 *.user
 *.suo
 *.vsp
 *.csproj.VisualState.xml
-*.shfbproj_*
+
+# MonoDevelop artifacts
+*.pidb
+*.userprefs
+test-results
+
+# NUnit artifacts
 TestResult.xml
-# This folder gets created if you use resharper.
+
+# Resharper artifacts
 _ReSharper.*
-# For the vim users out there
+
+# Sandcastle artifacts
+Help
+*.shfbproj_*
+
+# Vim artifacts
 *.swp
 *~
