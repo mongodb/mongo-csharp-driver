@@ -399,7 +399,11 @@ namespace MongoDB.Driver {
             hash = 37 * hash + minConnectionPoolSize.GetHashCode();
             hash = 37 * hash + (replicaSetName == null ? 0 : replicaSetName.GetHashCode());
             hash = 37 * hash + (safeMode == null ? 0 : safeMode.GetHashCode());
-            hash = 37 * hash + (servers == null ? 0 : servers.GetHashCode());
+            if (servers != null) {
+                foreach (var server in servers) {
+                    hash = 37 * hash + server.GetHashCode();
+                }
+            }
             hash = 37 * hash + slaveOk.GetHashCode();
             hash = 37 * hash + socketTimeout.GetHashCode();
             hash = 37 * hash + waitQueueSize.GetHashCode();
