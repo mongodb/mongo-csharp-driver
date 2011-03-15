@@ -130,12 +130,14 @@ namespace MongoDB.Driver.Internal {
 
         internal void Close() {
             lock (connectionPoolLock) {
-                foreach (var connection in availableConnections) {
-                    ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, connection);
+                if (!closed) {
+                    foreach (var connection in availableConnections) {
+                        ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, connection);
+                    }
+                    availableConnections = null;
+                    closed = true;
+                    Monitor.Pulse(connectionPoolLock);
                 }
-                availableConnections = null;
-                closed = true;
-                Monitor.Pulse(connectionPoolLock);
             }
         }
 
@@ -146,13 +148,13 @@ namespace MongoDB.Driver.Internal {
                 throw new ArgumentException("The connection being released does not belong to this connection pool.", "connection");
             }
 
-            // if connection pool is closed just close connection on worker thread
-            if (closed) {
-                ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, connection);
-                return;
-            }
-
             lock (connectionPoolLock) {
+                // if connection pool is closed just close connection on worker thread
+                if (closed) {
+                    ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, connection);
+                    return;
+                }
+
                 // don't put closed or damaged connections back in the pool
                 if (connection.State != MongoConnectionState.Open) {
                     RemoveConnection(connection);
@@ -199,12 +201,13 @@ namespace MongoDB.Driver.Internal {
         private void TimerCallback(
             object state // not used
         ) {
-            if (closed) {
-                timer.Dispose();
-                return;
-            }
-
             lock (connectionPoolLock) {
+                // if connection pool is closed stop the timer
+                if (closed) {
+                    timer.Dispose();
+                    return;
+                }
+
                 // only remove one connection per timer tick to avoid reconnection storms
                 if (connectionsRemovedSinceLastTimerTick == 0) {
                     MongoConnection oldestConnection = null;
