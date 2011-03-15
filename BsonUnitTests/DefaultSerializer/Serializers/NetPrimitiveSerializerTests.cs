@@ -499,7 +499,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
                 "{ 'DateTime' : { '$date' : #D }, 'Ticks' : #T, 'Offset' : #O }"
                     .Replace("#D", milliseconds.ToString())
                     .Replace("#T", value.DateTime.Ticks.ToString())
-                    .Replace("#O", value.Offset.TotalMinutes.ToString())
+                    .Replace("#O", XmlConvert.ToString(value.Offset.TotalMinutes))
             );
             expected = expected.Replace("#S", "2010-10-08T11:29:00-04:00");
             expected = expected.Replace("'", "\"");

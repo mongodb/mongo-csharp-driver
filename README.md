@@ -19,6 +19,7 @@ see also: BreakingChanges.txt
 
 ### Maintainers:
 * Robert Stam           robert@10gen.com
+* Sridhar Nanjundeswaran    sridhar@10gen.com
 
 ### Contributors:
 * Justin Dearing        zippy1981@gmail.com
