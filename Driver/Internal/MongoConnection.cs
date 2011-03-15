@@ -198,31 +198,15 @@ namespace MongoDB.Driver.Internal {
         internal void Close() {
             lock (connectionLock) {
                 if (state != MongoConnectionState.Closed) {
-                    Exception exception = null;
                     if (tcpClient != null) {
-                        // note: TcpClient.Close doesn't close the NetworkStream!?
-                        try {
-                            var networkStream = tcpClient.GetStream();
-                            if (networkStream != null) {
-                                networkStream.Close();
-                            }
-                        } catch (Exception ex) {
-                            if (exception == null) { exception = ex; }
-                        }
-                        try {
+                        if (tcpClient.Connected) {
+                            // even though MSDN says TcpClient.Close doesn't close the underlying socket
+                            // it actually does (as proven by disassembling TcpClient and by experimentation)
                             tcpClient.Close();
-                        } catch (Exception ex) {
-                            if (exception == null) { exception = ex; }
-                        }
-                        try {
-                            ((IDisposable) tcpClient).Dispose(); // Dispose is not public!?
-                        } catch (Exception ex) {
-                            if (exception == null) { exception = ex; }
                         }
                         tcpClient = null;
                     }
                     state = MongoConnectionState.Closed;
-                    if (exception != null) { throw exception; }
                 }
             }
         }
