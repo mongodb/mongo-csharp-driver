@@ -28,6 +28,7 @@ see also: BreakingChanges.txt
 * Richard Kreuter       richard@10gen.com
 * Kevin Lewis		kevin.l.lewis@gmail.com
 * Andrew Rondeau	github@andrewrondeau.com
+* Ed Rooth          edward.rooth@wallstreetjapan.com
 * Testo                 test1@doramail.com   
 * Craig Wilson          craiggwilson@gmail.com
 
