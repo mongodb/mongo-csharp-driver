@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="value">The max size.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static CollectionOptionsBuilder SetMaxSize(
-            int value
+            long value
         ) {
             return new CollectionOptionsBuilder().SetMaxSize(value);
         }
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="value">The max size.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetMaxSize(
-            int value
+            long value
         ) {
             document["size"] = value;
             return this;
