@@ -832,7 +832,8 @@ namespace MongoDB.Driver {
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
-            return MapReduce(map, reduce, MapReduceOptions.Null);
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Inline);
+            return MapReduce(map, reduce, options);
         }
 
         /// <summary>
