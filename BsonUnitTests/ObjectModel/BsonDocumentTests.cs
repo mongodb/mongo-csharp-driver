@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -278,6 +279,25 @@ namespace MongoDB.BsonUnitTests {
         public void TestZeroLengthElementName() {
             var document = new BsonDocument("", "zero length");
             Assert.AreEqual(0, document.GetElement(0).Name.Length);
+        }
+
+        [Test]
+        public void TestAddHashtableWithOneEntry() {
+            var hashtable = new Hashtable { { "A", 1 } };
+            var document = new BsonDocument(hashtable);
+            var json = document.ToJson();
+            var expected = "{ 'A' : 1 }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestAddHashtableWithTwoEntries() {
+            var hashtable = new Hashtable { { "A", 1 }, { "B", 2 } };
+            var document = new BsonDocument(hashtable);
+            // note: can't test json against expected because the order of the keys in the hash table is not defined
+            Assert.AreEqual(2, document.ElementCount);
+            Assert.AreEqual(1, document["A"].AsInt32);
+            Assert.AreEqual(2, document["B"].AsInt32);
         }
 
         private void AssertAreEqual(

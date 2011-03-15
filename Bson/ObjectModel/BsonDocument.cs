@@ -73,6 +73,65 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Initializes a new instance of the BsonDocument class and adds new elements from a hash table of key/value pairs.
+        /// </summary>
+        /// <param name="hashtable">The hash table.</param>
+        public BsonDocument(
+            Hashtable hashtable
+        )
+            : base(BsonType.Document) {
+            Add(hashtable);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocument class and adds new elements from a hash table of key/value pairs.
+        /// </summary>
+        /// <remarks>
+        /// The intended usage of this constructor is to ease the use of the Bson library and MongoDB driver with Windows Powershell.
+        /// Powershell has native support for Hashtables via its <c>@{"key1"= "value1; "key2"= "value2; . . .}</c> notation.
+        /// </remarks>
+        /// <param name="hashtable">
+        /// A Hashtable. The keys in this hashtable must be strings. The values will be mapped to BsonValues.
+        /// </param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        /// <example>
+        /// Using this constructor to create a <c>BsonDocument</c> with PowerShell's Hashtable notation:
+        /// <code lang="powershell">
+        /// # We assume that the driver is installed via the MSI.
+        /// [string] $mongoDriverPath = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\.NETFramework\v3.5\AssemblyFoldersEx\MongoDB CSharpDriver 0.11").'(default)';
+        /// Add-Type -Path "$($mongoDriverPath)\MongoDB.Bson.dll";
+        /// [MongoDB.Bson.BsonDocument] $doc = @{
+        ///     "_id" = [MongoDB.Bson.ObjectId]::GenerateNewId();
+        ///     "FirstName" = "Justin";
+        ///     "LastName" = "Dearing";
+        ///     "PhoneNumbers" = [MongoDB.Bson.BsonDocument] @{
+        ///         'Home' = '718-641-2098';
+        ///         'Mobile' = '646-288-5621';
+        ///     };
+        /// };
+        /// $doc;
+        /// </code>
+        /// <b>Output:</b>
+        /// <pre>
+        /// Name                                                                                                        Value
+        /// ----                                                                                                        -----
+        /// _id                                                                                                         4d711f54d9a8b11fe4d4395d
+        /// FirstName                                                                                                   Justin
+        /// LastName                                                                                                    Dearing
+        /// PhoneNumbers                                                                                                {Mobile=646-288-5621, Home=718-641-2098}
+        /// </pre>
+        /// <br/>
+        /// </example>
+        /// <seealso cref="Hashtable" />
+        public BsonDocument(
+            Hashtable hashtable,
+            IEnumerable<string> keys
+        )
+            : base(BsonType.Document) {
+            Add(hashtable, keys);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
@@ -129,56 +188,6 @@ namespace MongoDB.Bson {
         )
             : base(BsonType.Document) {
             Add(name, value);
-        }
-
-        /// <summary>
-        /// Converts a <see cref="Hashtable">Hashtable</see> into a BsonDocument.
-        /// </summary>
-        /// <remarks>
-        /// The intended usage of this constructor is to ease the use of the Bson library and MongoDB driver with Windows Powershell.
-        /// Powershell has native support for Hashtables via its <c>@{"key1"= "value1; "key2"= "value2; . . .}</c> notation.
-        /// </remarks>
-        /// <param name="ht">
-        /// A Hashtable. The keys in this hashtable must be such that when <c>key.ToString()</c>
-        /// is called on them their values is unique.
-        /// </param>
-        /// <example>
-        /// Using this implicit cast to create a <c>BsonDocument</c> with PowerShell's Hashtable notation:
-        /// <code lang="powershell">
-        /// # We assume that the driver is installed via the MSI.
-        /// [string] $mongoDriverPath = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\.NETFramework\v3.5\AssemblyFoldersEx\MongoDB CSharpDriver 0.11").'(default)';
-        /// Add-Type -Path "$($mongoDriverPath)\MongoDB.Bson.dll";
-        /// [MongoDB.Bson.BsonDocument] $doc = @{
-        ///     "_id"= [MongoDB.Bson.ObjectId]::GenerateNewId();
-        ///     "FirstName"= "Justin";
-        ///     "LastName"= "Dearing";
-        ///     "PhoneNumbers"= [MongoDB.Bson.BsonDocument] @{
-        ///         'Home'= '718-641-2098';
-        ///         'Mobile'= '646-288-5621';
-        ///     };
-        /// };
-        /// $doc;
-        /// </code>
-        /// <b>Output:</b>
-        /// <pre>
-        /// Name                                                                                                        Value
-        /// ----                                                                                                        -----
-        /// _id                                                                                                         4d711f54d9a8b11fe4d4395d
-        /// FirstName                                                                                                   Justin
-        /// LastName                                                                                                    Dearing
-        /// PhoneNumbers                                                                                                {Mobile=646-288-5621, Home=718-641-2098}
-        /// </pre>
-        /// <br/>
-        /// </example>
-        /// <seealso cref="Hashtable" />
-        public BsonDocument(
-            Hashtable ht
-        )
-            : base(BsonType.Document) {
-            foreach (var key in ht.Keys)
-            {
-                this.Add(key.ToString(), BsonValue.Create(ht[key]));
-            }
         }
         #endregion
 
@@ -445,6 +454,38 @@ namespace MongoDB.Bson {
                     if (!found) {
                         indexes.Add(element.Name, elements.Count - 1); // index of the newly added element
                     }
+                }
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds elements to the document from a hash table of key/value pairs.
+        /// </summary>
+        /// <param name="hashtable">The hash table.</param>
+        /// <returns>The document (so method calls can be chained).</returns>
+        public BsonDocument Add(
+            Hashtable hashtable
+        ) {
+            if (hashtable != null) {
+                Add(hashtable, hashtable.Keys.Cast<string>());
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds elements to the document from a hash table of key/value pairs.
+        /// </summary>
+        /// <param name="hashtable">The hash table.</param>
+        /// <param name="keys">Which keys of the hash table to add.</param>
+        /// <returns>The document (so method calls can be chained).</returns>
+        public BsonDocument Add(
+            Hashtable hashtable,
+            IEnumerable<string> keys
+        ) {
+            if (hashtable != null) {
+                foreach (var key in keys) {
+                    Add(key, BsonValue.Create(hashtable[key]));
                 }
             }
             return this;
