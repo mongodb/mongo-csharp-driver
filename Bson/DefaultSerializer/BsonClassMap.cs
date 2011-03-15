@@ -411,10 +411,17 @@ namespace MongoDB.Bson.DefaultSerializer {
                         }
 
                         foreach (var memberMap in allMemberMaps) {
-                            if (!elementDictionary.ContainsKey(memberMap.ElementName)) {
+                            BsonMemberMap conflictingMemberMap;
+                            if (!elementDictionary.TryGetValue(memberMap.ElementName, out conflictingMemberMap)) {
                                 elementDictionary.Add(memberMap.ElementName, memberMap);
                             } else {
-                                var message = string.Format("Duplicate element name '{0}' in class '{1}'", memberMap.MemberName, classType.FullName);
+                                var message = string.Format(
+                                    "Member '{0}' of class '{1}' cannot use element name '{2}' because it is already being used by member '{3}'.",
+                                    memberMap.MemberName,
+                                    classType.FullName,
+                                    memberMap.ElementName,
+                                    conflictingMemberMap.MemberName
+                                );
                                 throw new BsonSerializationException(message);
                             }
                         }
