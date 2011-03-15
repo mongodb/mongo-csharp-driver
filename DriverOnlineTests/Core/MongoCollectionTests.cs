@@ -741,12 +741,33 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestSetHint()
-        {
+        public void TestSetHint() {
+            collection.DropAllIndexes();
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            collection.CreateIndex(IndexKeys.Ascending("x"));
+            var query = Query.EQ("x", 1);
+            var cursor = collection.Find(query).SetHint(new BsonDocument("x", 1));
+            var count = 0;
+            foreach (var document in cursor) {
+                Assert.AreEqual(1, ++count);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
+        }
+
+        [Test]
+        public void TestSetHintByIndexName() {
+            collection.DropAllIndexes();
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
             collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetName("xIndex"));
-            var result = collection.FindAll().SetHint("xIndex");
+            var query = Query.EQ("x", 1);
+            var cursor = collection.Find(query).SetHint("xIndex");
+            var count = 0;
+            foreach (var document in cursor) {
+                Assert.AreEqual(1, ++count);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
         }
 
         [Test]

@@ -296,19 +296,23 @@ namespace MongoDB.Driver {
         /// <param name="hint">The index hint.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor<TDocument> SetHint(
-            string indexName
-        )
-        {
-            if (isFrozen) { ThrowFrozen(); }
-            SetOption("$hint", indexName);
-            return this;
-        }
-
-        public virtual MongoCursor<TDocument> SetHint(
             BsonDocument hint
         ) {
             if (isFrozen) { ThrowFrozen(); }
             SetOption("$hint", hint);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the index hint for the query.
+        /// </summary>
+        /// <param name="indexName">The name of the index.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public virtual MongoCursor<TDocument> SetHint(
+            string indexName
+        ) {
+            if (isFrozen) { ThrowFrozen(); }
+            SetOption("$hint", indexName);
             return this;
         }
 
