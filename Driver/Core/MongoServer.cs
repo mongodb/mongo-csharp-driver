@@ -174,6 +174,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the connection pool (if connected to a replica set this is the connection pool to the primary).
+        /// </summary>
+        public virtual MongoConnectionPool ConnectionPool {
+            get { return primaryConnectionPool; }
+        }
+
+        /// <summary>
         /// Gets the IP end points for this server.
         /// </summary>
         public virtual IEnumerable<IPEndPoint> EndPoints {
@@ -223,6 +230,13 @@ namespace MongoDB.Driver {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets a read only list of the connection pools to the secondary servers (when connected to a replica set).
+        /// </summary>
+        public IList<MongoConnectionPool> SecondaryConnectionPools {
+            get { return secondaryConnectionPools.AsReadOnly(); }
         }
 
         /// <summary>

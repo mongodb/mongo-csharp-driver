@@ -21,7 +21,10 @@ using System.Text;
 using System.Threading;
 
 namespace MongoDB.Driver.Internal {
-    internal class MongoConnectionPool {
+    /// <summary>
+    /// Represents a pool of connections to a MongoDB server.
+    /// </summary>
+    public class MongoConnectionPool {
         #region private fields
         private object connectionPoolLock = new object();
         private MongoServer server;
@@ -49,13 +52,33 @@ namespace MongoDB.Driver.Internal {
         }
         #endregion
 
-        #region internal properties
-        internal MongoServer Server {
-            get { return server; }
+        #region public properties
+        /// <summary>
+        /// Gets the number of available connections (connections that are open but not currently in use).
+        /// </summary>
+        public int AvailableConnectionsCount {
+            get { return availableConnections.Count; }
         }
 
-        internal IPEndPoint EndPoint {
+        /// <summary>
+        /// Gets the number of connections in the connection pool (includes both available and in use connections).
+        /// </summary>
+        public int CurrentPoolSize {
+            get { return poolSize; }
+        }
+
+        /// <summary>
+        /// Gets the end point of the server.
+        /// </summary>
+        public IPEndPoint EndPoint {
             get { return endPoint; }
+        }
+
+        /// <summary>
+        /// Gets the server.
+        /// </summary>
+        public MongoServer Server {
+            get { return server; }
         }
         #endregion
 
