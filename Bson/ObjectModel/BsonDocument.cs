@@ -448,7 +448,8 @@ namespace MongoDB.Bson {
                 bool found;
                 int index;
                 if ((found = indexes.TryGetValue(element.Name, out index)) && !allowDuplicateNames) {
-                    throw new InvalidOperationException("Duplicate element names not allowed");
+                    var message = string.Format("Duplicate element name: '{0}'.", element.Name);
+                    throw new InvalidOperationException(message);
                 } else {
                     elements.Add(element);
                     if (!found) {

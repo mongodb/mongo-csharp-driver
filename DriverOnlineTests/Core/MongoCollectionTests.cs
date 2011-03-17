@@ -731,6 +731,23 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestReIndex() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 2));
+            collection.DropAllIndexes();
+            collection.CreateIndex("x");
+            // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
+            try {
+                var result = collection.ReIndex();
+                Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
+                Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
+            } catch (InvalidOperationException ex) {
+                Assert.AreEqual("Duplicate element name: 'ok'.", ex.Message);
+            }
+        }
+
+        [Test]
         public void TestSetFields() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });

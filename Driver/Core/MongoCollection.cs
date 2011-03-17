@@ -839,8 +839,9 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Runs the ReIndex command on this collection.
         /// </summary>
-        public virtual void ReIndex() {
-            throw new NotImplementedException();
+        public virtual CommandResult ReIndex() {
+            var command = new CommandDocument("reIndex", name);
+            return database.RunCommand(command);
         }
 
         /// <summary>
