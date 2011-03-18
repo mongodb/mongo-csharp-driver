@@ -108,6 +108,58 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Adds a bitwise and update modifier.
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be and-ed with the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder BitwiseAnd(
+            string name,
+            int value
+        ) {
+            return new UpdateBuilder().BitwiseAnd(name, value);
+        }
+
+        /// <summary>
+        /// Adds a bitwise and update modifier.
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be and-ed with the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder BitwiseAnd(
+            string name,
+            long value
+        ) {
+            return new UpdateBuilder().BitwiseAnd(name, value);
+        }
+
+        /// <summary>
+        /// Adds a bitwise or update modifier.
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be or-ed with the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder BitwiseOr(
+            string name,
+            int value
+        ) {
+            return new UpdateBuilder().BitwiseOr(name, value);
+        }
+
+        /// <summary>
+        /// Adds a bitwise or update modifier.
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be or-ed with the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder BitwiseOr(
+            string name,
+            long value
+        ) {
+            return new UpdateBuilder().BitwiseOr(name, value);
+        }
+
+        /// <summary>
         /// Adds a $inc update modifier.
         /// </summary>
         /// <param name="name">The name of the element to be incremented.</param>
@@ -526,6 +578,62 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Adds a bitwise and update modifier.
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be and-ed with the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder BitwiseAnd(
+            string name,
+            int value
+        ) {
+            BitwiseOperation(name, "and", value);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a bitwise and update modifier.
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be and-ed with the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder BitwiseAnd(
+            string name,
+            long value
+        ) {
+            BitwiseOperation(name, "and", value);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a bitwise or update modifier.
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be or-ed with the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder BitwiseOr(
+            string name,
+            int value
+        ) {
+            BitwiseOperation(name, "or", value);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a bitwise or update modifier.
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be or-ed with the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder BitwiseOr(
+            string name,
+            long value
+        ) {
+            BitwiseOperation(name, "or", value);
+            return this;
+        }
+
+        /// <summary>
         /// Adds a $inc update modifier.
         /// </summary>
         /// <param name="name">The name of the element to be incremented.</param>
@@ -535,12 +643,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             double value
         ) {
-            BsonElement element;
-            if (document.TryGetElement("$inc", out element)) {
-                element.Value.AsBsonDocument.Add(name, value);
-            } else {
-                document.Add("$inc", new BsonDocument(name, value));
-            }
+            Inc(name, BsonValue.Create(value));
             return this;
         }
 
@@ -554,12 +657,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             int value
         ) {
-            BsonElement element;
-            if (document.TryGetElement("$inc", out element)) {
-                element.Value.AsBsonDocument.Add(name, value);
-            } else {
-                document.Add("$inc", new BsonDocument(name, value));
-            }
+            Inc(name, BsonValue.Create(value));
             return this;
         }
 
@@ -573,12 +671,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             long value
         ) {
-            BsonElement element;
-            if (document.TryGetElement("$inc", out element)) {
-                element.Value.AsBsonDocument.Add(name, value);
-            } else {
-                document.Add("$inc", new BsonDocument(name, value));
-            }
+            Inc(name, BsonValue.Create(value));
             return this;
         }
 
@@ -924,6 +1017,44 @@ namespace MongoDB.Driver.Builders {
             IBsonSerializationOptions options
         ) {
             document.Serialize(bsonWriter, nominalType, options);
+        }
+        #endregion
+
+        #region private methods
+        private void BitwiseOperation(
+            string name,
+            string operation,
+            BsonValue value
+        ) {
+            BsonElement bitElement;
+            if (!document.TryGetElement("$bit", out bitElement)) {
+                bitElement = new BsonElement("$bit", new BsonDocument());
+                document.Add(bitElement);
+            }
+            var bitDocument = bitElement.Value.AsBsonDocument;
+
+            BsonElement fieldElement;
+            if (!bitDocument.TryGetElement(name, out fieldElement)) {
+                fieldElement = new BsonElement(name, new BsonDocument());
+                bitDocument.Add(fieldElement);
+            }
+            var fieldDocument = fieldElement.Value.AsBsonDocument;
+
+            fieldDocument.Add(operation, value);
+        }
+
+        private void Inc(
+            string name,
+            BsonValue value
+        ) {
+            BsonElement incElement;
+            if (!document.TryGetElement("$inc", out incElement)) {
+                incElement = new BsonElement("$inc", new BsonDocument());
+                document.Add(incElement);
+            }
+            var incDocument = incElement.Value.AsBsonDocument;
+
+            incDocument.Add(name, value);
         }
         #endregion
     }
