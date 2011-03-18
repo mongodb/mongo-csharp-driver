@@ -229,7 +229,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         }
 
         /// <summary>
-        /// Looks up a class map.
+        /// Looks up a class map (will AutoMap the class if no class map is registered).
         /// </summary>
         /// <param name="classType">The class type.</param>
         /// <returns>The class map.</returns>
@@ -319,21 +319,6 @@ namespace MongoDB.Bson.DefaultSerializer {
                 Profile = conventions
             };
             profiles.Add(filtered);
-        }
-
-        /// <summary>
-        /// Unregisters a conventions profile.
-        /// </summary>
-        /// <param name="conventions">The conventions profile.</param>
-        public static void UnregisterConventions(
-            ConventionProfile conventions
-        ) {
-            for (int i = 0; i < profiles.Count; i++) {
-                if (profiles[i].Profile == conventions) {
-                    profiles.RemoveAt(i);
-                    return;
-                }
-            }
         }
         #endregion
 

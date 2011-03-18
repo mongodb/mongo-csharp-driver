@@ -446,42 +446,6 @@ namespace MongoDB.Bson.Serialization {
             var serializer = LookupSerializer(actualType);
             serializer.Serialize(bsonWriter, nominalType, value, options);
         }
-
-        /// <summary>
-        /// Unregisters a generic serializer definition for a generic type.
-        /// </summary>
-        /// <param name="genericTypeDefinition">The generic type.</param>
-        public static void UnregisterGenericSerializerDefinition(
-            Type genericTypeDefinition
-        ) {
-            lock (staticLock) {
-                genericSerializerDefinitions.Remove(genericTypeDefinition);
-            }
-        }
-
-        /// <summary>
-        /// Unregisters an IdGenerator for an Id type.
-        /// </summary>
-        /// <param name="type">The Id type.</param>
-        public static void UnregisterIdGenerator(
-            Type type
-        ) {
-            lock (staticLock) {
-                idGenerators.Remove(type);
-            }
-        }
-
-        /// <summary>
-        /// Unregisters a serializer for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        public static void UnregisterSerializer(
-            Type type
-        ) {
-            lock (staticLock) {
-                serializers.Remove(type);
-            }
-        }
         #endregion
 
         #region private static methods
