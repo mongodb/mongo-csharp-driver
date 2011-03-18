@@ -318,7 +318,8 @@ namespace MongoDB.Bson.DefaultSerializer {
                 Filter = filter,
                 Profile = conventions
             };
-            profiles.Add(filtered);
+            // add new conventions to the front of the list
+            profiles.Insert(0, filtered);
         }
         #endregion
 
