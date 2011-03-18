@@ -55,6 +55,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestSparse() {
+            var options = IndexOptions.SetSparse(true);
+            string expected = "{ \"sparse\" : true }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestUnique() {
             var options = IndexOptions.SetUnique(true);
             string expected = "{ \"unique\" : true }";

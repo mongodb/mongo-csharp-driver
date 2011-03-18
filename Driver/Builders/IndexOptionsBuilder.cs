@@ -85,6 +85,17 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Sets whether the index is a sparse index.
+        /// </summary>
+        /// <param name="value">Whether the index is a sparse index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetSparse(
+            bool value
+        ) {
+            return new IndexOptionsBuilder().SetSparse(value);
+        }
+
+        /// <summary>
         /// Sets whether the index enforces unique values.
         /// </summary>
         /// <param name="value">Whether the index enforces unique values.</param>
@@ -175,6 +186,18 @@ namespace MongoDB.Driver.Builders {
             string value
         ) {
             document["name"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether the index is a sparse index.
+        /// </summary>
+        /// <param name="value">Whether the index is a sparse index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetSparse(
+            bool value
+        ) {
+            document["sparse"] = value;
             return this;
         }
 
