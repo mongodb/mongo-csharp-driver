@@ -400,7 +400,8 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Wraps an object so that it can be used where an IMongoUpdate is expected (the wrapped object is expected to serialize properly).
+        /// Wraps an object so that it can be used where an IMongoUpdate is expected (the wrapped object is expected to serialize properly to a valid update specifier).
+        /// Most likely you need to use Replace instead.
         /// </summary>
         /// <param name="update">The wrapped object.</param>
         /// <returns>A UpdateWrapper.</returns>
