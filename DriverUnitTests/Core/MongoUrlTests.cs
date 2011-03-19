@@ -35,6 +35,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, url.ConnectTimeout);
+            Assert.AreEqual(false, url.IPv6);
             Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, url.MaxConnectionIdleTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, url.MaxConnectionLifeTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, url.MaxConnectionPoolSize);
@@ -197,6 +198,14 @@ namespace MongoDB.DriverUnitTests {
             url = new MongoUrl(connectionString);
             Assert.AreEqual(TimeSpan.FromMilliseconds(123), url.ConnectTimeout);
             Assert.AreEqual("mongodb://localhost/?connectTimeout=123ms", url.ToString()); // changed to "ms" suffix
+        }
+
+        [Test]
+        public void TestIpV6() {
+            string connectionString = "mongodb://localhost/?ipv6=true";
+            MongoUrl url = new MongoUrl(connectionString);
+            Assert.AreEqual(true, url.IPv6);
+            Assert.AreEqual(connectionString, url.ToString());
         }
 
         [Test]

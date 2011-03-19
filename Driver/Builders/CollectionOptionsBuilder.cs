@@ -24,38 +24,69 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
+    /// <summary>
+    /// Represents an instance of IMongoCollectionOptions that was created using a builder.
+    /// </summary>
     public static class CollectionOptions {
         #region public static properties
+        /// <summary>
+        /// Gets a null value with a type of IMongoCollectionOptions.
+        /// </summary>
         public static IMongoCollectionOptions Null {
             get { return null; }
         }
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Sets whether to automatically create an index on the _id element.
+        /// </summary>
+        /// <param name="value">Whether to automatically create an index on the _id element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static CollectionOptionsBuilder SetAutoIndexId(
             bool value
         ) {
             return new CollectionOptionsBuilder().SetAutoIndexId(value);
         }
 
+        /// <summary>
+        /// Sets whether the collection is capped.
+        /// </summary>
+        /// <param name="value">Whether the collection is capped.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static CollectionOptionsBuilder SetCapped(
             bool value
         ) {
             return new CollectionOptionsBuilder().SetCapped(value);
         }
 
+        /// <summary>
+        /// Sets the max number of documents in a capped collection.
+        /// </summary>
+        /// <param name="value">The max number of documents.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static CollectionOptionsBuilder SetMaxDocuments(
             int value
         ) {
             return new CollectionOptionsBuilder().SetMaxDocuments(value);
         }
 
+        /// <summary>
+        /// Sets the max size of a capped collection.
+        /// </summary>
+        /// <param name="value">The max size.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static CollectionOptionsBuilder SetMaxSize(
-            int value
+            long value
         ) {
             return new CollectionOptionsBuilder().SetMaxSize(value);
         }
 
+        /// <summary>
+        /// Wraps an object so that it can be used where an IMongoCollectionOptions is expected (the wrapped object is expected to serialize properly).
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
+        /// <returns>A CollectionOptionsWrapper.</returns>
         public static IMongoCollectionOptions Wrap(
             object options
         ) {
@@ -64,6 +95,9 @@ namespace MongoDB.Driver.Builders {
         #endregion
     }
 
+    /// <summary>
+    /// Represents an instance of IMongoCollectionOptions that was created using a builder.
+    /// </summary>
     [Serializable]
     public class CollectionOptionsBuilder : BuilderBase, IMongoCollectionOptions {
         #region private fields
@@ -71,12 +105,20 @@ namespace MongoDB.Driver.Builders {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the CollectionOptionsBuilder class.
+        /// </summary>
         public CollectionOptionsBuilder() {
             document = new BsonDocument();
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Sets whether to automatically create an index on the _id element.
+        /// </summary>
+        /// <param name="value">Whether to automatically create an index on the _id element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetAutoIndexId(
             bool value
         ) {
@@ -88,6 +130,11 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
+        /// <summary>
+        /// Sets whether the collection is capped.
+        /// </summary>
+        /// <param name="value">Whether the collection is capped.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetCapped(
             bool value
         ) {
@@ -99,6 +146,11 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
+        /// <summary>
+        /// Sets the max number of documents in a capped collection.
+        /// </summary>
+        /// <param name="value">The max number of documents.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetMaxDocuments(
             int value
         ) {
@@ -106,19 +158,34 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
+        /// <summary>
+        /// Sets the max size of a capped collection.
+        /// </summary>
+        /// <param name="value">The max size.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetMaxSize(
-            int value
+            long value
         ) {
             document["size"] = value;
             return this;
         }
 
+        /// <summary>
+        /// Returns the result of the builder as a BsonDocument.
+        /// </summary>
+        /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument() {
             return document;
         }
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
         protected override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,

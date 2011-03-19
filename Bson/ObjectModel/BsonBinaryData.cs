@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents BSON binary data.
+    /// </summary>
     [Serializable]
     public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData> {
         #region private fields
@@ -27,6 +30,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryData class.
+        /// </summary>
+        /// <param name="bytes">The binary data.</param>
         public BsonBinaryData(
             byte[] bytes
         )
@@ -35,6 +42,11 @@ namespace MongoDB.Bson {
             this.subType = BsonBinarySubType.Binary;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryData class.
+        /// </summary>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
         public BsonBinaryData(
             byte[] bytes,
             BsonBinarySubType subType
@@ -44,6 +56,10 @@ namespace MongoDB.Bson {
             this.subType = subType;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryData class.
+        /// </summary>
+        /// <param name="guid">A Guid.</param>
         public BsonBinaryData(
             Guid guid
         )
@@ -54,10 +70,16 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the binary data.
+        /// </summary>
         public byte[] Bytes {
             get { return bytes; }
         }
 
+        /// <summary>
+        /// Gets the BsonBinaryData as a Guid if the subtype is Uuid, otherwise null.
+        /// </summary>
         public override object RawValue {
             get {
                 if (bytes.Length == 16 && subType == BsonBinarySubType.Uuid) {
@@ -68,18 +90,31 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Gets the binary data subtype.
+        /// </summary>
         public BsonBinarySubType SubType {
             get { return subType; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Converts a byte array to a BsonBinaryData.
+        /// </summary>
+        /// <param name="value">A byte array.</param>
+        /// <returns>A BsonBinaryData.</returns>
         public static implicit operator BsonBinaryData(
             byte[] value
         ) {
             return BsonBinaryData.Create(value);
         }
 
+        /// <summary>
+        /// Converts a Guid to a BsonBinaryData.
+        /// </summary>
+        /// <param name="value">A Guid.</param>
+        /// <returns>A BsonBinaryData.</returns>
         public static implicit operator BsonBinaryData(
             Guid value
         ) {
@@ -88,12 +123,23 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new BsonBinaryData.
+        /// </summary>
+        /// <param name="bytes">The binary data.</param>
+        /// <returns>A BsonBinaryData or null.</returns>
         public static BsonBinaryData Create(
             byte[] bytes
         ) {
             return Create(bytes, BsonBinarySubType.Binary);
         }
 
+        /// <summary>
+        /// Creates a new BsonBinaryData.
+        /// </summary>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
+        /// <returns>A BsonBinaryData or null.</returns>
         public static BsonBinaryData Create(
             byte[] bytes,
             BsonBinarySubType subType
@@ -105,12 +151,22 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new BsonBinaryData.
+        /// </summary>
+        /// <param name="guid">A Guid.</param>
+        /// <returns>A BsonBinaryData.</returns>
         public static BsonBinaryData Create(
             Guid guid
         ) {
             return new BsonBinaryData(guid);
         }
 
+        /// <summary>
+        /// Creates a new BsonBinaryData.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonBinaryData.</param>
+        /// <returns>A BsonBinaryData or null.</returns>
         public new static BsonBinaryData Create(
             object value
         ) {
@@ -123,6 +179,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this BsonBinaryData to another BsonBinaryData.
+        /// </summary>
+        /// <param name="other">The other BsonBinaryData.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonBinaryData is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonBinaryData other
         ) {
@@ -136,6 +197,11 @@ namespace MongoDB.Bson {
             return bytes.Length.CompareTo(other.bytes.Length);
         }
 
+        /// <summary>
+        /// Compares the BsonBinaryData to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonBinaryData is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -147,6 +213,11 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonBinaryData to another BsonBinaryData.
+        /// </summary>
+        /// <param name="rhs">The other BsonBinaryData.</param>
+        /// <returns>True if the two BsonBinaryData values are equal.</returns>
         public bool Equals(
             BsonBinaryData rhs
         ) {
@@ -154,12 +225,21 @@ namespace MongoDB.Bson {
             return object.ReferenceEquals(this, rhs) || this.subType == rhs.subType && this.bytes.SequenceEqual(rhs.bytes);
         }
 
+        /// <summary>
+        /// Compares this BsonBinaryData to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonBinaryData and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonBinaryData); // works even if obj is null
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -171,6 +251,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Converts this BsonBinaryData to a Guid.
+        /// </summary>
+        /// <returns>A Guid.</returns>
         public Guid ToGuid() {
             if (subType == BsonBinarySubType.Uuid) {
                 return new Guid(bytes);
@@ -179,6 +263,10 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Returns a string representation of the binary data.
+        /// </summary>
+        /// <returns>A string representation of the binary data.</returns>
         public override string ToString() {
             return string.Format("{0}:0x{1}", subType, BsonUtils.ToHexString(bytes));
         }

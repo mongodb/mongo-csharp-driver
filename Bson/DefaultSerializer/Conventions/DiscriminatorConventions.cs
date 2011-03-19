@@ -22,12 +22,35 @@ using System.Reflection;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
+    /// <summary>
+    /// Represents a discriminator convention.
+    /// </summary>
     public interface IDiscriminatorConvention {
+        /// <summary>
+        /// Gets the discriminator element name.
+        /// </summary>
         string ElementName { get; }
+
+        /// <summary>
+        /// Gets the actual type of an object by reading the discriminator from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The reader.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <returns>The actual type.</returns>
         Type GetActualType(BsonReader bsonReader, Type nominalType);
+
+        /// <summary>
+        /// Gets the discriminator value for an actual type.
+        /// </summary>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The discriminator value.</returns>
         BsonValue GetDiscriminator(Type nominalType, Type actualType);
     }
 
+    /// <summary>
+    /// Represents the standard discriminator conventions (see ScalarDiscriminatorConvention and HierarchicalDiscriminatorConvention).
+    /// </summary>
     public abstract class StandardDiscriminatorConvention : IDiscriminatorConvention {
         #region private static fields
         private static ScalarDiscriminatorConvention scalar = new ScalarDiscriminatorConvention("_t");
@@ -39,6 +62,10 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the StandardDiscriminatorConvention class.
+        /// </summary>
+        /// <param name="elementName">The element name.</param>
         protected StandardDiscriminatorConvention(
             string elementName
         ) {
@@ -47,27 +74,42 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the ScalarDiscriminatorConvention.
+        /// </summary>
         public static ScalarDiscriminatorConvention Scalar {
             get { return scalar; }
         }
 
+        /// <summary>
+        /// Gets an instance of the HierarchicalDiscriminatorConvention.
+        /// </summary>
         public static HierarchicalDiscriminatorConvention Hierarchical {
             get { return hierarchical; }
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the discriminator element name.
+        /// </summary>
         public string ElementName {
             get { return elementName; }
         }
         #endregion
 
         #region public methods
-        // BsonReader is sitting at the value whose actual type needs to be found
+        /// <summary>
+        /// Gets the actual type of an object by reading the discriminator from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The reader.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <returns>The actual type.</returns>
         public Type GetActualType(
             BsonReader bsonReader,
             Type nominalType
         ) {
+            // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.CurrentBsonType;
             if (bsonReader.State == BsonReaderState.Value) {
                 Type primitiveType = null;
@@ -114,6 +156,12 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
             return nominalType;
         }
 
+        /// <summary>
+        /// Gets the discriminator value for an actual type.
+        /// </summary>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The discriminator value.</returns>
         public abstract BsonValue GetDiscriminator(
             Type nominalType,
             Type actualType
@@ -121,8 +169,15 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a discriminator convention where the discriminator is provided by the class map of the actual type.
+    /// </summary>
     public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the ScalarDiscriminatorConvention class.
+        /// </summary>
+        /// <param name="elementName">The element name.</param>
         public ScalarDiscriminatorConvention(
             string elementName
         )
@@ -131,6 +186,12 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets the discriminator value for an actual type.
+        /// </summary>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The discriminator value.</returns>
         public override BsonValue GetDiscriminator(
             Type nominalType,
             Type actualType
@@ -141,8 +202,15 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a discriminator convention where the discriminator is an array of all the discriminators provided by the class maps of the root class down to the actual type.
+    /// </summary>
     public class HierarchicalDiscriminatorConvention : StandardDiscriminatorConvention {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the HierarchicalDiscriminatorConvention class.
+        /// </summary>
+        /// <param name="elementName">The element name.</param>
         public HierarchicalDiscriminatorConvention(
             string elementName
         )
@@ -151,6 +219,12 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets the discriminator value for an actual type.
+        /// </summary>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The discriminator value.</returns>
         public override BsonValue GetDiscriminator(
             Type nominalType,
             Type actualType

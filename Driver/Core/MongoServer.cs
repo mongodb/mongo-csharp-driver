@@ -63,7 +63,7 @@ namespace MongoDB.Driver {
             this.settings = settings.Freeze();
 
             foreach (var address in settings.Servers) {
-                endPoints.Add(address.ToIPEndPoint());
+                endPoints.Add(address.ToIPEndPoint(settings.AddressFamily));
             }
         }
         #endregion
@@ -174,6 +174,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the connection pool (if connected to a replica set this is the connection pool to the primary).
+        /// </summary>
+        public virtual MongoConnectionPool ConnectionPool {
+            get { return primaryConnectionPool; }
+        }
+
+        /// <summary>
         /// Gets the IP end points for this server.
         /// </summary>
         public virtual IEnumerable<IPEndPoint> EndPoints {
@@ -226,6 +233,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets a read only list of the connection pools to the secondary servers (when connected to a replica set).
+        /// </summary>
+        public IList<MongoConnectionPool> SecondaryConnectionPools {
+            get { return secondaryConnectionPools.AsReadOnly(); }
+        }
+
+        /// <summary>
         /// Gets the settings for this server.
         /// </summary>
         public virtual MongoServerSettings Settings {
@@ -233,7 +247,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets the current state of this server.
+        /// Gets the current state of this server (as of the last operation, not updated until another operation is performed).
         /// </summary>
         public virtual MongoServerState State {
             get { return state; }
@@ -311,16 +325,6 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
-        /// <summary>
-        /// Clones a database.
-        /// </summary>
-        /// <param name="fromHost"></param>
-        public virtual void CloneDatabase(
-            string fromHost
-        ) {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Connects to the server. Normally there is no need to call this method as
         /// the driver will connect to the server automatically when needed.

@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Specifies the known types for this class (the derived classes).
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
     public class BsonKnownTypesAttribute : Attribute {
         #region private fields
@@ -26,6 +29,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonKnownTypesAttribute class.
+        /// </summary>
+        /// <param name="knownTypes">One or more known types.</param>
         public BsonKnownTypesAttribute(
             params Type[] knownTypes
         ) {
@@ -34,6 +41,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets a list of the known types.
+        /// </summary>
         public Type[] KnownTypes {
             get { return knownTypes; }
         }

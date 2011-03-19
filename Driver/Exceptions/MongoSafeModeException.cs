@@ -20,9 +20,17 @@ using System.Runtime.Serialization;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents a MongoDB safe mode exception.
+    /// </summary>
     [Serializable]
     public class MongoSafeModeException : MongoCommandException {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MongoSafeModeException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="commandResult">The command result.</param>
         public MongoSafeModeException(
             string message,
             CommandResult commandResult
@@ -30,7 +38,11 @@ namespace MongoDB.Driver {
             : base(message, commandResult) {
         }
 
-        // this constructor needed to support deserialization
+        /// <summary>
+        /// Initializes a new instance of the MongoSafeModeException class (this overload supports deserialization).
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         public MongoSafeModeException(
             SerializationInfo info,
             StreamingContext context

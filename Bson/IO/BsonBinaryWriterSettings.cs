@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents settings for a BsonBinaryWriter.
+    /// </summary>
     [Serializable]
     public class BsonBinaryWriterSettings {
         #region private static fields
@@ -33,9 +36,18 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryWriterSettings class.
+        /// </summary>
         public BsonBinaryWriterSettings() {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryWriterSettings class.
+        /// </summary>
+        /// <param name="closeOutput">Whether to close the output stream when the writer is closed.</param>
+        /// <param name="fixOldBinarySubTypeOnOutput">Whether to fix old binary data subtype on output.</param>
+        /// <param name="maxDocumentSize">The max document size.</param>
         public BsonBinaryWriterSettings(
             bool closeOutput,
             bool fixOldBinarySubTypeOnOutput,
@@ -48,6 +60,9 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets the default BsonBinaryWriter settings.
+        /// </summary>
         public static BsonBinaryWriterSettings Defaults {
             get { return defaults; }
             set { defaults = value; }
@@ -55,6 +70,9 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets whether to close the output when the writer is closed.
+        /// </summary>
         public bool CloseOutput {
             get { return closeOutput; }
             set {
@@ -63,6 +81,9 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether to fix the old binary data subtype on output.
+        /// </summary>
         public bool FixOldBinarySubTypeOnOutput {
             get { return fixOldBinarySubTypeOnOutput; }
             set {
@@ -71,10 +92,16 @@ namespace MongoDB.Bson.IO {
             }
         }
 
+        /// <summary>
+        /// Gets whether the settings are frozen.
+        /// </summary>
         public bool IsFrozen {
             get { return isFrozen; }
         }
 
+        /// <summary>
+        /// Gets or sets the max document size.
+        /// </summary>
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
             set {
@@ -85,6 +112,10 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Creates a clone of the settings.
+        /// </summary>
+        /// <returns>A clone of the settings.</returns>
         public BsonBinaryWriterSettings Clone() {
             return new BsonBinaryWriterSettings(
                 closeOutput,
@@ -93,6 +124,10 @@ namespace MongoDB.Bson.IO {
             );
         }
 
+        /// <summary>
+        /// Freezes the settings.
+        /// </summary>
+        /// <returns>The settings.</returns>
         public BsonBinaryWriterSettings Freeze() {
             isFrozen = true;
             return this;

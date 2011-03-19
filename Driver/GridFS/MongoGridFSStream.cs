@@ -25,6 +25,9 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.GridFS {
+    /// <summary>
+    /// Represents a stream interface to a GridFS file (patterned after .NET's Stream class).
+    /// </summary>
     public class MongoGridFSStream : Stream {
         #region private fields
         private bool disposed = false;
@@ -41,6 +44,11 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MongoGridFSStream class.
+        /// </summary>
+        /// <param name="fileInfo">The GridFS file info.</param>
+        /// <param name="mode">The mode.</param>
         public MongoGridFSStream(
             MongoGridFSFileInfo fileInfo,
             FileMode mode
@@ -48,6 +56,12 @@ namespace MongoDB.Driver.GridFS {
             : this(fileInfo, mode, FileAccess.ReadWrite) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the MongoGridFSStream class.
+        /// </summary>
+        /// <param name="fileInfo">The GridFS file info.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="access">The acess.</param>
         public MongoGridFSStream(
             MongoGridFSFileInfo fileInfo,
             FileMode mode,
@@ -115,6 +129,9 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets whether the GridFS stream supports reading.
+        /// </summary>
         public override bool CanRead {
             get {
                 if (disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
@@ -122,6 +139,9 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        /// <summary>
+        /// Gets whether the GridFS stream supports seeking.
+        /// </summary>
         public override bool CanSeek {
             get {
                 if (disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
@@ -129,6 +149,9 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        /// <summary>
+        /// Gets whether the GridFS stream supports writing.
+        /// </summary>
         public override bool CanWrite {
             get {
                 if (disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
@@ -136,6 +159,9 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        /// <summary>
+        /// Gets the current length (use SetLength to change the length).
+        /// </summary>
         public override long Length {
             get {
                 if (disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
@@ -144,6 +170,9 @@ namespace MongoDB.Driver.GridFS {
             // there is no set accessor to override, Stream defines SetLength instead
         }
 
+        /// <summary>
+        /// Gets or sets the current position.
+        /// </summary>
         public override long Position {
             get {
                 if (disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
@@ -160,11 +189,21 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Flushes any unsaved data in the buffers to the GridFS file.
+        /// </summary>
         public override void Flush() {
             if (disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
             if (chunkIsDirty) { SaveChunk(); }
         }
 
+        /// <summary>
+        /// Reads bytes from the GridFS stream.
+        /// </summary>
+        /// <param name="buffer">The destination buffer.</param>
+        /// <param name="offset">The offset in the destination buffer at which to place the read bytes.</param>
+        /// <param name="count">The number of bytes to read.</param>
+        /// <returns>The number of bytes read.</returns>
         public override int Read(
             byte[] buffer,
             int offset,
@@ -191,6 +230,10 @@ namespace MongoDB.Driver.GridFS {
             return bytesRead;
         }
 
+        /// <summary>
+        /// Reads one byte from the GridFS stream.
+        /// </summary>
+        /// <returns>The byte (-1 if at the end of the GridFS stream).</returns>
         public override int ReadByte() {
             if (disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
             if (position < length) {
@@ -205,6 +248,12 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        /// <summary>
+        /// Seeks to a new position.
+        /// </summary>
+        /// <param name="offset">The seek offset.</param>
+        /// <param name="origin">The seek origin.</param>
+        /// <returns>The new position.</returns>
         public override long Seek(
             long offset,
             SeekOrigin origin
@@ -222,6 +271,10 @@ namespace MongoDB.Driver.GridFS {
             return position;
         }
 
+        /// <summary>
+        /// Sets the length of the GridFS file.
+        /// </summary>
+        /// <param name="value">The length.</param>
         public override void SetLength(
             long value
         ) {
@@ -244,6 +297,12 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        /// <summary>
+        /// Writes bytes to the GridFS stream.
+        /// </summary>
+        /// <param name="buffer">The source buffer.</param>
+        /// <param name="offset">The offset in the source buffer to the bytes.</param>
+        /// <param name="count">The number of bytes to write.</param>
         public override void Write(
             byte[] buffer,
             int offset,
@@ -281,6 +340,10 @@ namespace MongoDB.Driver.GridFS {
             }
         }
 
+        /// <summary>
+        /// Writes one byte to the GridFS stream.
+        /// </summary>
+        /// <param name="value">The byte.</param>
         public override void WriteByte(
             byte value
         ) {
@@ -300,6 +363,10 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// Disposes of any resources used by the stream.
+        /// </summary>
+        /// <param name="disposing">True if called from Dispose.</param>
         protected override void Dispose(
             bool disposing
         ) {

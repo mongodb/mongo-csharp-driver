@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Specifies that this is the Id field or property.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonIdAttribute : Attribute {
         #region private fields
@@ -27,16 +30,25 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonIdAttribute class.
+        /// </summary>
         public BsonIdAttribute() {
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets the Id generator for the Id.
+        /// </summary>
         public Type IdGenerator {
             get { return idGenerator; }
             set { idGenerator = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the Id element serialization order.
+        /// </summary>
         public int Order {
             get { return order; }
             set { order = value; }

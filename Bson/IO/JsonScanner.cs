@@ -24,8 +24,16 @@ using MongoDB.Bson;
 using System.Xml;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// A static class that represents a JSON scanner.
+    /// </summary>
     public static class JsonScanner {
         #region public static methods
+        /// <summary>
+        /// Gets the next JsonToken from a JsonBuffer.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <returns>The next token.</returns>
         public static JsonToken GetNextToken(
             JsonBuffer buffer
         ) {

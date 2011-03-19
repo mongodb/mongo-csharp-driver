@@ -18,6 +18,9 @@ using System;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
+    /// <summary>
+    /// Represents the external representation of a field or property.
+    /// </summary>
     public class RepresentationSerializationOptions : IBsonSerializationOptions {
         #region private fields
         private BsonType representation;
@@ -26,12 +29,22 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the RepresentationSerializationOptions class.
+        /// </summary>
+        /// <param name="representation">The external representation.</param>
         public RepresentationSerializationOptions(
             BsonType representation
         ) {
             this.representation = representation;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the RepresentationSerializationOptions class.
+        /// </summary>
+        /// <param name="representation">The external representation.</param>
+        /// <param name="allowOverflow">Whether to allow overflow.</param>
+        /// <param name="allowTruncation">Whether to allow truncation.</param>
         public RepresentationSerializationOptions(
             BsonType representation,
             bool allowOverflow,
@@ -44,20 +57,34 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the external representation.
+        /// </summary>
         public BsonType Representation {
             get { return representation; }
         }
 
+        /// <summary>
+        /// Gets whether to allow overflow.
+        /// </summary>
         public bool AllowOverflow {
             get { return allowOverflow; }
         }
 
+        /// <summary>
+        /// Gets whether to allow truncation.
+        /// </summary>
         public bool AllowTruncation {
             get { return allowTruncation; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Converts a Double to a Decimal.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A Decimal.</returns>
         public decimal ToDecimal(
             double value
         ) {
@@ -66,26 +93,43 @@ namespace MongoDB.Bson.Serialization {
             } else if (value == double.MaxValue) {
                 return decimal.MaxValue;
             }
+
+            var decimalValue = (decimal) value;
             if (value < (double) decimal.MinValue || value > (double) decimal.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (decimal) value) {
+            } else if (value != (double) decimalValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (decimal) value;
+            return decimalValue;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a Decimal.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Decimal.</returns>
         public decimal ToDecimal(
             int value
         ) {
             return (decimal) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a Decimal.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Decimal.</returns>
         public decimal ToDecimal(
             long value
         ) {
             return (decimal) value;
         }
 
+        /// <summary>
+        /// Converts a Decimal to a Double.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             decimal value
         ) {
@@ -94,18 +138,30 @@ namespace MongoDB.Bson.Serialization {
             } else if (value == decimal.MaxValue) {
                 return double.MaxValue;
             }
-            if (value != (decimal) (double) value) {
+
+            var doubleValue = (double) value;
+            if (value != (decimal) doubleValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (double) value;
+            return doubleValue;
         }
 
+        /// <summary>
+        /// Converts a Double to a Double.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             double value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Single to a Double.
+        /// </summary>
+        /// <param name="value">A Single.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             float value
         ) {
@@ -123,59 +179,102 @@ namespace MongoDB.Bson.Serialization {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a Double.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             int value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a Double.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             long value
         ) {
-            if (value != (long) (double) value) {
+            var doubleValue = (double) value;
+            if (value != (long) doubleValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return value;
+            return doubleValue;
         }
 
+        /// <summary>
+        /// Converts an Int16 to a Double.
+        /// </summary>
+        /// <param name="value">An Int16.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             short value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt32 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt32.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             uint value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt64 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             ulong value
         ) {
-            if (value != (ulong) (double) value) {
+            var doubleValue = (double) value;
+            if (value != (ulong) doubleValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return value;
+            return doubleValue;
         }
 
+        /// <summary>
+        /// Converts a UInt16 to a Double.
+        /// </summary>
+        /// <param name="value">A UInt16.</param>
+        /// <returns>A Double.</returns>
         public double ToDouble(
             ushort value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Double to an Int16.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>An Int16.</returns>
         public short ToInt16(
             double value
         ) {
+            var int16Value = (short) value;
             if (value < short.MinValue || value > short.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (short) value) {
+            } else if (value != (double) int16Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (short) value;
+            return int16Value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to an Int16.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>An Int16.</returns>
         public short ToInt16(
             int value
         ) {
@@ -185,6 +284,11 @@ namespace MongoDB.Bson.Serialization {
             return (short) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to an Int16.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>An Int16.</returns>
         public short ToInt16(
             long value
         ) {
@@ -194,6 +298,11 @@ namespace MongoDB.Bson.Serialization {
             return (short) value;
         }
 
+        /// <summary>
+        /// Converts a Decimal to an Int32.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             decimal value
         ) {
@@ -202,42 +311,66 @@ namespace MongoDB.Bson.Serialization {
             } else if (value == decimal.MaxValue) {
                 return int.MaxValue;
             }
+
+            var int32Value = (int) value;
             if (value < int.MinValue || value > int.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (decimal) (int) value) {
+            } else if (value != (decimal) int32Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (int) value;
+            return int32Value;
         }
 
+        /// <summary>
+        /// Converts a Double to an Int32.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             double value
         ) {
+            var int32Value = (int) value;
             if (value < int.MinValue || value > int.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (int) value) {
+            } else if (value != (double) int32Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (int) value;
+            return int32Value;
         }
 
+        /// <summary>
+        /// Converts a Single to an Int32.
+        /// </summary>
+        /// <param name="value">A Single.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             float value
         ) {
+            var int32Value = (int) value;
             if (value < int.MinValue || value > int.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (float) (int) value) {
+            } else if (value != (float) int32Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (int) value;
+            return int32Value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to an Int32.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             int value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to an Int32.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             long value
         ) {
@@ -247,12 +380,22 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts an Int16 to an Int32.
+        /// </summary>
+        /// <param name="value">An Int16.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             short value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt32 to an Int32.
+        /// </summary>
+        /// <param name="value">A UInt32.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             uint value
         ) {
@@ -262,6 +405,11 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts a UInt64 to an Int32.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             ulong value
         ) {
@@ -271,12 +419,22 @@ namespace MongoDB.Bson.Serialization {
             return (int) value;
         }
 
+        /// <summary>
+        /// Converts a UInt16 to an Int32.
+        /// </summary>
+        /// <param name="value">A UInt16.</param>
+        /// <returns>An Int32.</returns>
         public int ToInt32(
             ushort value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Decimal to an Int64.
+        /// </summary>
+        /// <param name="value">A Decimal.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             decimal value
         ) {
@@ -285,60 +443,99 @@ namespace MongoDB.Bson.Serialization {
             } else if (value == decimal.MaxValue) {
                 return long.MaxValue;
             }
+
+            var int64Value = (long) value;
             if (value < long.MinValue || value > long.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (decimal) (long) value) {
+            } else if (value != (decimal) int64Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (long) value;
+            return int64Value;
         }
 
+        /// <summary>
+        /// Converts a Double to an Int64.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             double value
         ) {
+            var int64Value = (long) value;
             if (value < long.MinValue || value > long.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (long) value) {
+            } else if (value != (double) int64Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (long) value;
+            return int64Value;
         }
 
+        /// <summary>
+        /// Converts a Single to an Int64.
+        /// </summary>
+        /// <param name="value">A Single.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             float value
         ) {
+            var int64Value = (long) value;
             if (value < long.MinValue || value > long.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (float) (long) value) {
+            } else if (value != (float) int64Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (long) value;
+            return int64Value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to an Int64.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             int value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to an Int64.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             long value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts an Int16 to an Int64.
+        /// </summary>
+        /// <param name="value">An Int16.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             short value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a UInt32 to an Int64.
+        /// </summary>
+        /// <param name="value">A UInt32.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             uint value
         ) {
             return (long) value;
         }
 
+        /// <summary>
+        /// Converts a UInt64 to an Int64.
+        /// </summary>
+        /// <param name="value">A UInt64.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             ulong value
         ) {
@@ -348,12 +545,22 @@ namespace MongoDB.Bson.Serialization {
             return (long) value;
         }
 
+        /// <summary>
+        /// Converts a UInt16 to an Int64.
+        /// </summary>
+        /// <param name="value">A UInt16.</param>
+        /// <returns>An Int64.</returns>
         public long ToInt64(
             ushort value
         ) {
             return value;
         }
 
+        /// <summary>
+        /// Converts a Double to a Single.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A Single.</returns>
         public float ToSingle(
             double value
         ) {
@@ -369,43 +576,67 @@ namespace MongoDB.Bson.Serialization {
                 return float.NaN;
             }
 
+            var floatValue = (float) value;
             if (value < float.MinValue || value > float.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (float) value) {
+            } else if (value != (double) floatValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (float) value;
+            return floatValue;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a Single.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Single.</returns>
         public float ToSingle(
             int value
         ) {
-            if (value != (int) (float) value) {
+            var floatValue = (float) value;
+            if (value != (int) floatValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return value;
+            return floatValue;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a Single.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Single.</returns>
         public float ToSingle(
             long value
         ) {
-            if (value != (long) (float) value) {
+            var floatValue = (float) value;
+            if (value != (long) floatValue) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return value;
+            return floatValue;
         }
 
+        /// <summary>
+        /// Converts a Double to a UInt16.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A UInt16.</returns>
         public ushort ToUInt16(
             double value
         ) {
+            var uint16Value = (ushort) value;
             if (value < ushort.MinValue || value > ushort.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (ushort) value) {
+            } else if (value != (double) uint16Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (ushort) value;
+            return uint16Value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a UInt16.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A UInt16.</returns>
         public ushort ToUInt16(
             int value
         ) {
@@ -415,6 +646,11 @@ namespace MongoDB.Bson.Serialization {
             return (ushort) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a UInt16.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A UInt16.</returns>
         public ushort ToUInt16(
             long value
         ) {
@@ -424,17 +660,28 @@ namespace MongoDB.Bson.Serialization {
             return (ushort) value;
         }
 
+        /// <summary>
+        /// Converts a Double to a UInt32.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A UInt32.</returns>
         public uint ToUInt32(
             double value
         ) {
+            var uint32Value = (uint) value;
             if (value < uint.MinValue || value > uint.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (uint) value) {
+            } else if (value != (double) uint32Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (uint) value;
+            return uint32Value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a UInt32.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A UInt32.</returns>
         public uint ToUInt32(
             int value
         ) {
@@ -444,6 +691,11 @@ namespace MongoDB.Bson.Serialization {
             return (uint) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a UInt32.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A UInt32.</returns>
         public uint ToUInt32(
             long value
         ) {
@@ -453,17 +705,28 @@ namespace MongoDB.Bson.Serialization {
             return (uint) value;
         }
 
+        /// <summary>
+        /// Converts a Double to a UInt64.
+        /// </summary>
+        /// <param name="value">A Double.</param>
+        /// <returns>A UInt64.</returns>
         public ulong ToUInt64(
             double value
         ) {
+            var uint64Value = (ulong) value;
             if (value < ulong.MinValue || value > ulong.MaxValue) {
                 if (!allowOverflow) { throw new OverflowException(); }
-            } else if (value != (double) (ulong) value) {
+            } else if (value != (double) uint64Value) {
                 if (!allowTruncation) { throw new TruncationException(); }
             }
-            return (ulong) value;
+            return uint64Value;
         }
 
+        /// <summary>
+        /// Converts an Int32 to a UInt64.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A UInt64.</returns>
         public ulong ToUInt64(
             int value
         ) {
@@ -473,6 +736,11 @@ namespace MongoDB.Bson.Serialization {
             return (ulong) value;
         }
 
+        /// <summary>
+        /// Converts an Int64 to a UInt64.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A UInt64.</returns>
         public ulong ToUInt64(
             long value
         ) {

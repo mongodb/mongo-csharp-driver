@@ -19,13 +19,34 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents the binary data subtype of a BsonBinaryData.
+    /// </summary>
     [Serializable]
     public enum BsonBinarySubType {
+        /// <summary>
+        /// Binary data.
+        /// </summary>
         Binary = 0x00,
+        /// <summary>
+        /// A function.
+        /// </summary>
         Function = 0x01,
+        /// <summary>
+        /// Obsolete binary data subtype (use Binary instead).
+        /// </summary>
         [Obsolete("Use Binary instead")] OldBinary = 0x02,
+        /// <summary>
+        /// A UUID.
+        /// </summary>
         Uuid = 0x03,
+        /// <summary>
+        /// An MD5 hash.
+        /// </summary>
         MD5 = 0x05,
+        /// <summary>
+        /// User defined binary data.
+        /// </summary>
         UserDefined = 0x80
     }
 }

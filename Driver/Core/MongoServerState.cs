@@ -19,10 +19,25 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// The state of a MongoServer instance.
+    /// </summary>
     public enum MongoServerState {
+        /// <summary>
+        /// The state has not yet been determined.
+        /// </summary>
         None = 0,
+        /// <summary>
+        /// Disconnected from the server.
+        /// </summary>
         Disconnected,
+        /// <summary>
+        /// Connecting to the server (in progress).
+        /// </summary>
         Connecting,
+        /// <summary>
+        /// Connected to the server.
+        /// </summary>
         Connected
     }
 }

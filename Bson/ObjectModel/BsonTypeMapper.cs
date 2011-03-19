@@ -16,12 +16,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// A static class that maps between .NET objects and BsonValues.
+    /// </summary>
     public static class BsonTypeMapper {
         #region private static fields
         // table of from mappings used by MapToBsonValue
@@ -146,6 +150,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Maps an object to a BsonValue.
+        /// </summary>
+        /// <param name="value">An object.</param>
+        /// <returns>A BsonValue.</returns>
         public static BsonValue MapToBsonValue(
             object value // will be mapped to an instance of the closest BsonValue class
         ) {
@@ -158,6 +167,12 @@ namespace MongoDB.Bson {
             throw new ArgumentException(message);
         }
 
+        /// <summary>
+        /// Maps an object to a specific BsonValue type.
+        /// </summary>
+        /// <param name="value">An object.</param>
+        /// <param name="bsonType">The BsonType to map to.</param>
+        /// <returns>A BsonValue.</returns>
         public static BsonValue MapToBsonValue(
             object value, // will be mapped to an instance of the BsonValue class for bsonType
             BsonType bsonType
@@ -205,6 +220,12 @@ namespace MongoDB.Bson {
             throw new ArgumentException(message, "value");
         }
 
+        /// <summary>
+        /// Tries to map an object to a BsonValue.
+        /// </summary>
+        /// <param name="value">An object.</param>
+        /// <param name="bsonValue">The BsonValue.</param>
+        /// <returns>True if the mapping was successfull.</returns>
         public static bool TryMapToBsonValue(
             object value, // will be mapped to an instance of the closest BsonValue class
             out BsonValue bsonValue
@@ -301,7 +322,14 @@ namespace MongoDB.Bson {
                 case Conversion.SingleToBsonBoolean: var f = (float) value; return BsonBoolean.Create(!(float.IsNaN(f) || f == 0.0f));
                 case Conversion.SingleToBsonDouble: return new BsonDouble((double) (float) value);
                 case Conversion.StringToBsonBoolean: return BsonBoolean.Create((string) value != "");
-                case Conversion.StringToBsonDateTime: return new BsonDateTime(XmlConvert.ToDateTime((string) value, XmlDateTimeSerializationMode.Utc));
+                case Conversion.StringToBsonDateTime:
+                    var formats = new string[] {
+                        "yyyy-MM-ddK",
+                        "yyyy-MM-ddTHH:mm:ssK",
+                        "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
+                    };
+                    var dt = DateTime.ParseExact((string) value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+                    return new BsonDateTime(dt);
                 case Conversion.StringToBsonDouble: return new BsonDouble(XmlConvert.ToDouble((string) value));
                 case Conversion.StringToBsonInt32: return BsonInt32.Create(XmlConvert.ToInt32((string) value));
                 case Conversion.StringToBsonInt64: return new BsonInt64(XmlConvert.ToInt64((string) value));
@@ -421,7 +449,11 @@ namespace MongoDB.Bson {
             public Type NetType { get { return netType; } }
             public BsonType BsonType { get { return bsonType; } }
 
-            // implement just enough equality functionality to work as a Dictionary key
+            /// <summary>
+            /// Compares this Mapping to another object.
+            /// </summary>
+            /// <param name="obj">The other object.</param>
+            /// <returns>True if the other object is a Mapping and equal to this one.</returns>
             public override bool Equals(
                 object obj
             ) {
@@ -429,6 +461,10 @@ namespace MongoDB.Bson {
                 return netType == rhs.netType && bsonType == rhs.bsonType;
             }
 
+            /// <summary>
+            /// Gets the hash code.
+            /// </summary>
+            /// <returns>The hash code.</returns>
             public override int GetHashCode() {
                 return netType.GetHashCode() + (int) bsonType;
             }

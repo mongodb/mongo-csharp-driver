@@ -20,19 +20,34 @@ using System.Runtime.Serialization;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a truncation exception.
+    /// </summary>
     [Serializable]
     public class TruncationException : BsonException {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the TruncationException class.
+        /// </summary>
         public TruncationException()
             : base() {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the TruncationException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         public TruncationException(
             string message
         )
             : base(message) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the TruncationException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public TruncationException(
             string message,
             Exception innerException
@@ -40,7 +55,11 @@ namespace MongoDB.Bson {
             : base(message, innerException) {
         }
 
-        // this constructor needed to support deserialization
+        /// <summary>
+        /// Initializes a new instance of the TruncationException class (this overload used by deserialization).
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
         public TruncationException(
             SerializationInfo info,
             StreamingContext context

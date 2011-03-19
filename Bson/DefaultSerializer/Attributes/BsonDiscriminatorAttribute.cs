@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Specifies the discriminator and related options for a class.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class BsonDiscriminatorAttribute : Attribute {
         #region private fields
@@ -28,9 +31,16 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDiscriminatorAttribute class.
+        /// </summary>
         public BsonDiscriminatorAttribute() {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonDiscriminatorAttribute class.
+        /// </summary>
+        /// <param name="discriminator">The discriminator.</param>
         public BsonDiscriminatorAttribute(
             string discriminator
         ) {
@@ -39,15 +49,24 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the discriminator.
+        /// </summary>
         public string Discriminator {
             get { return discriminator; }
         }
 
+        /// <summary>
+        /// Gets or sets whether the discriminator is required.
+        /// </summary>
         public bool Required {
             get { return required; }
             set { required = value; }
         }
 
+        /// <summary>
+        /// Gets or sets whether this is a root class.
+        /// </summary>
         public bool RootClass {
             get { return rootClass; }
             set { rootClass = value; }

@@ -22,47 +22,80 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents the result of a map/reduce command.
+    /// </summary>
     public class MapReduceResult : CommandResult {
         #region private fields
         private MongoDatabase database;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MapReduceResult class.
+        /// </summary>
         public MapReduceResult() {
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the output collection name (null if none).
+        /// </summary>
         public string CollectionName {
             get { return (string) response["result", null]; }
         }
 
+        /// <summary>
+        /// Gets the duration.
+        /// </summary>
         public TimeSpan Duration {
             get { return TimeSpan.FromMilliseconds(response["timeMillis"].ToInt32()); }
         }
 
+        /// <summary>
+        /// Gets the emit count.
+        /// </summary>
         public int EmitCount {
             get { return response["counts"].AsBsonDocument["emit"].ToInt32(); }
         }
 
+        /// <summary>
+        /// Gets the output count.
+        /// </summary>
         public int OutputCount {
             get { return response["counts"].AsBsonDocument["output"].ToInt32(); }
         }
 
+        /// <summary>
+        /// Gets the inline results.
+        /// </summary>
         public IEnumerable<BsonDocument> InlineResults {
             get { return response["results"].AsBsonArray.Cast<BsonDocument>(); }
         }
 
+        /// <summary>
+        /// Gets the input count.
+        /// </summary>
         public int InputCount {
             get { return response["counts"].AsBsonDocument["input"].ToInt32(); }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets the inline results as TDocuments.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
+        /// <returns>The documents.</returns>
         public IEnumerable<TDocument> GetInlineResultsAs<TDocument>() {
             return InlineResults.Select(document => BsonSerializer.Deserialize<TDocument>(document));
         }
 
+        /// <summary>
+        /// Gets the results (either inline or fetched from the output collection).
+        /// </summary>
+        /// <returns>The documents.</returns>
         public IEnumerable<BsonDocument> GetResults() {
             if (response.Contains("results")) {
                 return InlineResults;
@@ -71,6 +104,11 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets the results as TDocuments (either inline or fetched from the output collection).
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
+        /// <returns>The documents.</returns>
         public IEnumerable<TDocument> GetResultsAs<TDocument>() {
             if (response.Contains("results")) {
                 return GetInlineResultsAs<TDocument>();

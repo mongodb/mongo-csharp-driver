@@ -19,12 +19,33 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents the state of a BsonWriter.
+    /// </summary>
     public enum BsonWriterState {
+        /// <summary>
+        /// The initial state.
+        /// </summary>
         Initial,
+        /// <summary>
+        /// The writer is positioned to write a name.
+        /// </summary>
         Name,
+        /// <summary>
+        /// The writer is positioned to write a value.
+        /// </summary>
         Value,
+        /// <summary>
+        /// The writer is positioned to write a scope document (call WriteStartDocument to start writing the scope document).
+        /// </summary>
         ScopeDocument,
+        /// <summary>
+        /// The writer is done.
+        /// </summary>
         Done,
+        /// <summary>
+        /// The writer is closed.
+        /// </summary>
         Closed
     }
 }

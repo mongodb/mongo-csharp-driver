@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// A static class containing BSON defaults.
+    /// </summary>
     public static class BsonDefaults {
         #region private static fields
         private static int initialBsonBufferSize = 4 * 1024; // 4KiB
@@ -26,11 +29,17 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets the default initial BSON buffer size.
+        /// </summary>
         public static int InitialBsonBufferSize {
             get { return initialBsonBufferSize; }
             set { initialBsonBufferSize = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the default max document size.
+        /// </summary>
         public static int MaxDocumentSize {
             get { return maxDocumentSize; }
             set { maxDocumentSize = value; }

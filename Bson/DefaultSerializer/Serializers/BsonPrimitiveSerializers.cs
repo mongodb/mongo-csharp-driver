@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -25,23 +26,39 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for Booleans.
+    /// </summary>
     public class BooleanSerializer : BsonBaseSerializer {
         #region private static fields
         private static BooleanSerializer instance = new BooleanSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BooleanSerializer class.
+        /// </summary>
         public BooleanSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BooleanSerializer class.
+        /// </summary>
         public static BooleanSerializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -68,6 +85,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -100,23 +124,39 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for DateTimes.
+    /// </summary>
     public class DateTimeSerializer : BsonBaseSerializer {
         #region private static fields
         private static DateTimeSerializer instance = new DateTimeSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the DateTimeSerializer class.
+        /// </summary>
         public DateTimeSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the DateTimeSerializer class.
+        /// </summary>
         public static DateTimeSerializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -140,10 +180,16 @@ namespace MongoDB.Bson.DefaultSerializer {
                     value = DateTime.SpecifyKind(new DateTime(bsonReader.ReadInt64()), DateTimeKind.Utc);
                     break;
                 case BsonType.String:
+                    // note: we're not using XmlConvert because of bugs in Mono
                     if (dateTimeOptions.DateOnly) {
-                        value = DateTime.SpecifyKind(XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind), DateTimeKind.Utc);
+                        value = DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc);
                     } else {
-                        value = XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
+                        var formats = new string[] {
+                            "yyyy-MM-ddK",
+                            "yyyy-MM-ddTHH:mm:ssK",
+                            "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
+                        };
+                        value = DateTime.ParseExact(bsonReader.ReadString(), formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
                     }
                     break;
                 default:
@@ -171,6 +217,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return value;
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -185,11 +238,14 @@ namespace MongoDB.Bson.DefaultSerializer {
                     throw new BsonSerializationException("TimeOfDay component for DateOnly DateTime value is not zero");
                 }
             }
-            if (dateTime.Kind != DateTimeKind.Utc && dateTimeOptions.Representation != BsonType.String) {
-                if (dateTimeOptions.DateOnly) {
-                    dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToUniversalTime!
-                } else {
-                    dateTime = ToUniversalTimeHelper(dateTime);
+
+            if (dateTimeOptions.Representation != BsonType.String) {
+                if (dateTime.Kind != DateTimeKind.Utc) {
+                    if (dateTimeOptions.DateOnly) {
+                        dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToUniversalTime!
+                    } else {
+                        dateTime = ToUniversalTimeHelper(dateTime);
+                    }
                 }
             }
 
@@ -210,10 +266,15 @@ namespace MongoDB.Bson.DefaultSerializer {
                     if (dateTimeOptions.DateOnly) {
                         bsonWriter.WriteString(dateTime.ToString("yyyy-MM-dd"));
                     } else {
+                        // we're not using XmlConvert.ToString because of bugs in Mono
                         if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue) {
-                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                            // serialize MinValue and MaxValue as Unspecified so we do NOT get the time zone offset
+                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified);
+                        } else if (dateTime.Kind == DateTimeKind.Unspecified) {
+                            // serialize Unspecified as Local se we get the time zone offset
+                            dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Local);
                         }
-                        bsonWriter.WriteString(XmlConvert.ToString(dateTime, XmlDateTimeSerializationMode.RoundtripKind));
+                        bsonWriter.WriteString(dateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK"));
                     }
                     break;
                 default:
@@ -245,6 +306,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for Doubles.
+    /// </summary>
     public class DoubleSerializer : BsonBaseSerializer {
         #region private static fields
         private static DoubleSerializer instance = new DoubleSerializer();
@@ -252,17 +316,30 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the DoubleSerializer class.
+        /// </summary>
         public DoubleSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the DoubleSerializer class.
+        /// </summary>
         public static DoubleSerializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -285,6 +362,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -314,23 +398,39 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for Guids.
+    /// </summary>
     public class GuidSerializer : BsonBaseSerializer {
         #region private static fields
         private static GuidSerializer instance = new GuidSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the GuidSerializer class.
+        /// </summary>
         public GuidSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the GuidSerializer class.
+        /// </summary>
         public static GuidSerializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -357,6 +457,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -380,6 +487,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for Int32.
+    /// </summary>
     public class Int32Serializer : BsonBaseSerializer {
         #region private static fields
         private static Int32Serializer instance = new Int32Serializer();
@@ -387,17 +497,30 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the Int32Serializer class.
+        /// </summary>
         public Int32Serializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the Int32Serializer class.
+        /// </summary>
         public static Int32Serializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -420,6 +543,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -449,6 +579,9 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for Int64s.
+    /// </summary>
     public class Int64Serializer : BsonBaseSerializer {
         #region private static fields
         private static Int64Serializer instance = new Int64Serializer();
@@ -456,17 +589,30 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the Int64Serializer class.
+        /// </summary>
         public Int64Serializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the Int64Serializer class.
+        /// </summary>
         public static Int64Serializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -489,6 +635,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -518,23 +671,39 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for ObjectIds.
+    /// </summary>
     public class ObjectIdSerializer : BsonBaseSerializer {
         #region private static fields
         private static ObjectIdSerializer instance = new ObjectIdSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the ObjectIdSerializer class.
+        /// </summary>
         public ObjectIdSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the ObjectIdSerializer class.
+        /// </summary>
         public static ObjectIdSerializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -557,6 +726,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -579,23 +755,39 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a serializer for Strings.
+    /// </summary>
     public class StringSerializer : BsonBaseSerializer {
         #region private static fields
         private static StringSerializer instance = new StringSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the StringSerializer class.
+        /// </summary>
         public StringSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the StringSerializer class.
+        /// </summary>
         public static StringSerializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -625,6 +817,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,

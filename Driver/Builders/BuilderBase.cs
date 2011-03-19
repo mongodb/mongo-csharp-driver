@@ -24,22 +24,42 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Builders {
+    /// <summary>
+    /// Abstract base class for the builders.
+    /// </summary>
     [Serializable]
     public abstract class BuilderBase : IBsonSerializable, IConvertibleToBsonDocument {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BuilderBase class.
+        /// </summary>
         protected BuilderBase() {
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Returns the result of the builder as a BsonDocument.
+        /// </summary>
+        /// <returns>A BsonDocument.</returns>
         public abstract BsonDocument ToBsonDocument();
 
+        /// <summary>
+        /// Returns a string representation of the settings.
+        /// </summary>
+        /// <returns>A string representation of the settings.</returns>
         public override string ToString() {
             return this.ToJson(); // "this." required to access extension method
         }
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
         protected abstract void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,

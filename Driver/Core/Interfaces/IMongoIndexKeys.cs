@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// A marker interface that represents the keys of an index (see IndexKeysDocument and the IndexKeys builder).
+    /// </summary>
     public interface IMongoIndexKeys {
     }
 }

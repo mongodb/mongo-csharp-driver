@@ -20,11 +20,27 @@ using System.Text;
 using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
+    /// <summary>
+    /// Represents an ignore if null convention.
+    /// </summary>
     public interface IIgnoreIfNullConvention {
+        /// <summary>
+        /// Determines whether to ignore nulls for a member.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>Whether to ignore nulls.</returns>
         bool IgnoreIfNull(MemberInfo memberInfo);
     }
 
+    /// <summary>
+    /// Represents an ignore if null convention where nulls are never ignored.
+    /// </summary>
     public class NeverIgnoreIfNullConvention : IIgnoreIfNullConvention {
+        /// <summary>
+        /// Determines whether to ignore nulls for a member.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>Whether to ignore nulls.</returns>
         public bool IgnoreIfNull(
             MemberInfo memberInfo
         ) {
@@ -32,7 +48,15 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         }
     }
 
+    /// <summary>
+    /// Represents an ignore if null convention where nulls are always ignored.
+    /// </summary>
     public class AlwaysIgnoreIfNullConvention : IIgnoreIfNullConvention {
+        /// <summary>
+        /// Determines whether to ignore nulls for a member.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>Whether to ignore nulls.</returns>
         public bool IgnoreIfNull(
             MemberInfo memberInfo
         ) {

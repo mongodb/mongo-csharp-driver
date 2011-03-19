@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents the different safe modes that can be used.
+    /// </summary>
     [Serializable]
     public class SafeMode {
         #region private static fields
@@ -38,12 +41,21 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Creates a new instance of SafeMode.
+        /// </summary>
+        /// <param name="enabled">Whether safe mode is enabled.</param>
         public SafeMode(
             bool enabled
         )
             : this(enabled, false) {
         }
 
+        /// <summary>
+        /// Creates a new instance of SafeMode.
+        /// </summary>
+        /// <param name="enabled">Whether safe mode is enabled.</param>
+        /// <param name="fsync">Whether the server should call fsync after each operation.</param>
         public SafeMode(
             bool enabled,
             bool fsync
@@ -51,6 +63,12 @@ namespace MongoDB.Driver {
             : this(enabled, fsync, 0) {
         }
 
+        /// <summary>
+        /// Creates a new instance of SafeMode.
+        /// </summary>
+        /// <param name="enabled">Whether safe mode is enabled.</param>
+        /// <param name="fsync">Whether the server should call fsync after each operation.</param>
+        /// <param name="w">The number of write replications that should be completed before server returns.</param>
         public SafeMode(
             bool enabled,
             bool fsync,
@@ -59,6 +77,13 @@ namespace MongoDB.Driver {
             : this(enabled, fsync, w, TimeSpan.Zero) {
         }
 
+        /// <summary>
+        /// Creates a new instance of SafeMode.
+        /// </summary>
+        /// <param name="enabled">Whether safe mode is enabled.</param>
+        /// <param name="fsync">Whether the server should call fsync after each operation.</param>
+        /// <param name="w">The number of write replications that should be completed before server returns.</param>
+        /// <param name="wtimeout">The timeout for each operation.</param>
         public SafeMode(
             bool enabled,
             bool fsync,
@@ -81,12 +106,21 @@ namespace MongoDB.Driver {
             this.wtimeout = wtimeout;
         }
 
+        /// <summary>
+        /// Creates a new instance of SafeMode.
+        /// </summary>
+        /// <param name="w">The number of write replications that should be completed before server returns.</param>
         public SafeMode(
             int w
         )
             : this(true, false, w) {
         }
 
+        /// <summary>
+        /// Creates a new instance of SafeMode.
+        /// </summary>
+        /// <param name="w">The number of write replications that should be completed before server returns.</param>
+        /// <param name="wtimeout">The timeout for each operation.</param>
         public SafeMode(
             int w,
             TimeSpan wtimeout
@@ -96,50 +130,86 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of SafeMode with safe mode off.
+        /// </summary>
         public static SafeMode False {
             get { return @false; }
         }
 
+        /// <summary>
+        /// Gets an instance of SafeMode with fsync=true.
+        /// </summary>
         public static SafeMode FSyncTrue {
             get { return fsyncTrue; }
         }
 
+        /// <summary>
+        /// Gets an instance of SafeMode with safe mode on.
+        /// </summary>
         public static SafeMode True {
             get { return @true; }
         }
 
+        /// <summary>
+        /// Gets an instance of SafeMode with safe mode on and w=2.
+        /// </summary>
         public static SafeMode W2 {
             get { return w2; }
         }
 
+        /// <summary>
+        /// Gets an instance of SafeMode with safe mode on and w=3.
+        /// </summary>
         public static SafeMode W3 {
             get { return w3; }
         }
 
+        /// <summary>
+        /// Gets an instance of SafeMode with safe mode on and w=4.
+        /// </summary>
         public static SafeMode W4 {
             get { return w4; }
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets whether safe mode is enabled.
+        /// </summary>
         public bool Enabled {
             get { return enabled; }
         }
 
+        /// <summary>
+        /// Gets whether fsync is true.
+        /// </summary>
         public bool FSync {
             get { return fsync; }
         }
 
+        /// <summary>
+        /// Gets the w value (the number of write replications that must complete before the server returns).
+        /// </summary>
         public int W {
             get { return w; }
         }
 
+        /// <summary>
+        /// Gets the wtimeout value (the timeout before which the server must return).
+        /// </summary>
         public TimeSpan WTimeout {
             get { return wtimeout; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Compares two SafeMode values.
+        /// </summary>
+        /// <param name="lhs">The first SafeMode value.</param>
+        /// <param name="rhs">The other SafeMode value.</param>
+        /// <returns>True if the values are equal (or both null).</returns>
         public static bool operator ==(
             SafeMode lhs,
             SafeMode rhs
@@ -147,6 +217,12 @@ namespace MongoDB.Driver {
             return object.Equals(lhs, rhs);
         }
 
+        /// <summary>
+        /// Compares two SafeMode values.
+        /// </summary>
+        /// <param name="lhs">The first SafeMode value.</param>
+        /// <param name="rhs">The other SafeMode value.</param>
+        /// <returns>True if the values are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             SafeMode lhs,
             SafeMode rhs
@@ -156,12 +232,23 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a SafeMode instance (or returns an existing instance).
+        /// </summary>
+        /// <param name="enabled">Whether safe mode is enabled.</param>
+        /// <returns>A SafeMode instance.</returns>
         public static SafeMode Create(
             bool enabled
         ) {
             return Create(enabled, false);
         }
 
+        /// <summary>
+        /// Creates a SafeMode instance (or returns an existing instance).
+        /// </summary>
+        /// <param name="enabled">Whether safe mode is enabled.</param>
+        /// <param name="fsync">Whether fysnc is true.</param>
+        /// <returns>A SafeMode instance.</returns>
         public static SafeMode Create(
             bool enabled,
             bool fsync
@@ -169,6 +256,13 @@ namespace MongoDB.Driver {
             return Create(enabled, fsync, 0);
         }
 
+        /// <summary>
+        /// Creates a SafeMode instance (or returns an existing instance).
+        /// </summary>
+        /// <param name="enabled">Whether safe mode is enabled.</param>
+        /// <param name="fsync">Whether fysnc is true.</param>
+        /// <param name="w">The number of write replications that should be completed before server returns.</param>
+        /// <returns>A SafeMode instance.</returns>
         public static SafeMode Create(
             bool enabled,
             bool fsync,
@@ -177,6 +271,14 @@ namespace MongoDB.Driver {
             return Create(enabled, fsync, w, TimeSpan.Zero);
         }
 
+        /// <summary>
+        /// Creates a SafeMode instance (or returns an existing instance).
+        /// </summary>
+        /// <param name="enabled">Whether safe mode is enabled.</param>
+        /// <param name="fsync">Whether fysnc is true.</param>
+        /// <param name="w">The number of write replications that should be completed before server returns.</param>
+        /// <param name="wtimeout">The timeout for each operation.</param>
+        /// <returns>A SafeMode instance.</returns>
         public static SafeMode Create(
             bool enabled,
             bool fsync,
@@ -198,12 +300,23 @@ namespace MongoDB.Driver {
             return new SafeMode(enabled, fsync, w, wtimeout);
         }
 
+        /// <summary>
+        /// Creates a SafeMode instance (or returns an existing instance).
+        /// </summary>
+        /// <param name="w">The number of write replications that should be completed before server returns.</param>
+        /// <returns>A SafeMode instance.</returns>
         public static SafeMode Create(
             int w
         ) {
             return Create(w, TimeSpan.Zero);
         }
 
+        /// <summary>
+        /// Creates a SafeMode instance (or returns an existing instance).
+        /// </summary>
+        /// <param name="w">The number of write replications that should be completed before server returns.</param>
+        /// <param name="wtimeout">The timeout for each operation.</param>
+        /// <returns>A SafeMode instance.</returns>
         public static SafeMode Create(
             int w,
             TimeSpan wtimeout
@@ -213,12 +326,22 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares two SafeMode values.
+        /// </summary>
+        /// <param name="obj">The other SafeMode value.</param>
+        /// <returns>True if the values are equal.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as SafeMode); // works even if obj is null
         }
 
+        /// <summary>
+        /// Compares two SafeMode values.
+        /// </summary>
+        /// <param name="rhs">The other SafeMode value.</param>
+        /// <returns>True if the values are equal.</returns>
         public bool Equals(
             SafeMode rhs
         ) {
@@ -226,6 +349,10 @@ namespace MongoDB.Driver {
             return this.enabled == rhs.enabled && this.fsync == rhs.fsync && this.w == rhs.w && this.wtimeout == rhs.wtimeout;
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -236,6 +363,10 @@ namespace MongoDB.Driver {
             return hash;
         }
 
+        /// <summary>
+        /// Returns a string representation of the SafeMode.
+        /// </summary>
+        /// <returns>A string representation of the SafeMode.</returns>
         public override string ToString() {
             if (enabled) {
                 var sb = new StringBuilder("safe=true");

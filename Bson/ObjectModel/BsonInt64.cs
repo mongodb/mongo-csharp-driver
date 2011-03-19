@@ -20,6 +20,9 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON long value.
+    /// </summary>
     [Serializable]
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64> {
         #region private fields
@@ -27,6 +30,10 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonInt64 class.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public BsonInt64(
             long value
         )
@@ -36,16 +43,27 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the BsonInt64 as a long.
+        /// </summary>
         public override object RawValue {
             get { return value; }
         }
 
+        /// <summary>
+        /// Gets the value of this BsonInt64.
+        /// </summary>
         public long Value {
             get { return value; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Converts a long to a BsonInt64.
+        /// </summary>
+        /// <param name="value">A long.</param>
+        /// <returns>A BsonInt64.</returns>
         public static implicit operator BsonInt64(
             long value
         ) {
@@ -54,12 +72,22 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public statie methods
+        /// <summary>
+        /// Creates a new instance of the BsonInt64 class.
+        /// </summary>
+        /// <param name="value">A long.</param>
+        /// <returns>A BsonInt64.</returns>
         public static BsonInt64 Create(
             long value
         ) {
             return new BsonInt64(value);
         }
 
+        /// <summary>
+        /// Creates a new BsonInt64.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonInt64.</param>
+        /// <returns>A BsonInt64 or null.</returns>
         public new static BsonInt64 Create(
             object value
         ) {
@@ -72,6 +100,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this BsonInt64 to another BsonInt64.
+        /// </summary>
+        /// <param name="other">The other BsonInt64.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonInt64 is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonInt64 other
         ) {
@@ -79,6 +112,11 @@ namespace MongoDB.Bson {
             return value.CompareTo(other.value);
         }
 
+        /// <summary>
+        /// Compares the BsonInt64 to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonInt64 is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -98,6 +136,11 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonInt64 to another BsonInt64.
+        /// </summary>
+        /// <param name="rhs">The other BsonInt64.</param>
+        /// <returns>True if the two BsonInt64 values are equal.</returns>
         public bool Equals(
             BsonInt64 rhs
         ) {
@@ -105,6 +148,11 @@ namespace MongoDB.Bson {
             return this.value == rhs.value;
         }
 
+        /// <summary>
+        /// Compares this BsonInt64 to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonInt64 and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
@@ -124,6 +172,10 @@ namespace MongoDB.Bson {
             return false;
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -132,6 +184,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return XmlConvert.ToString(value);
         }

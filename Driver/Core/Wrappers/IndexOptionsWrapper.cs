@@ -22,8 +22,15 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents a wrapped object that can be used where an IMongoIndexOptions is expected (the wrapped object is expected to serialize properly).
+    /// </summary>
     public class IndexOptionsWrapper : BaseWrapper, IMongoIndexOptions {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the IndexOptionsWrapper class.
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
         public IndexOptionsWrapper(
             object options
         )
@@ -32,6 +39,11 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the IndexOptionsWrapper class.
+        /// </summary>
+        /// <param name="options">The wrapped object.</param>
+        /// <returns>A new instance of IndexOptionsWrapper or null.</returns>
         public static IndexOptionsWrapper Create(
             object options
         ) {

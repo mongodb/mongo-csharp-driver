@@ -18,7 +18,15 @@ using System;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
+    /// <summary>
+    /// An interface implemented by serialization providers.
+    /// </summary>
     public interface IBsonSerializationProvider {
+        /// <summary>
+        /// Gets a serializer for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>A serializer.</returns>
         IBsonSerializer GetSerializer(Type type);
     }
 }

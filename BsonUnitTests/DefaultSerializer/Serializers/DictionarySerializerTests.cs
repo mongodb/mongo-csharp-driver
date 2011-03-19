@@ -548,7 +548,50 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.DictionarySerializers {
             Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
             Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
             Assert.IsNull(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsTrue(CompareDictionaries(obj.HT, rehydrated.HT));
+            Assert.IsTrue(CompareDictionaries(obj.ID, rehydrated.ID));
+            Assert.IsTrue(CompareDictionaries(obj.LD, rehydrated.LD));
+            Assert.IsTrue(CompareOrderedDictionaries(obj.OD, rehydrated.OD));
+            // can't do usual BSON byte by byte comparison because order of Dictionary entries is not guaranteed to stay the same
+        }
+
+        public bool CompareDictionaries(
+            IDictionary dictionary1,
+            IDictionary dictionary2
+        ) {
+            if (object.ReferenceEquals(dictionary1, dictionary2)) { return true; }
+            if (dictionary1 == null) { return false; }
+            if (dictionary2 == null) { return false; }
+            if (dictionary1.Count != dictionary2.Count) { return false; }
+            foreach (var key in dictionary1.Keys) {
+                var item1 = dictionary1[key];
+                var item2 = dictionary2[key];
+                if (object.ReferenceEquals(item1, item2)) { continue; }
+                if (item1 == null) { return false; }
+                if (item2 == null) { return false; }
+                if (!item1.Equals(item2)) { return false; }
+            }
+            return true;
+        }
+
+        public bool CompareOrderedDictionaries(
+            IOrderedDictionary dictionary1,
+            IOrderedDictionary dictionary2
+        ) {
+            if (object.ReferenceEquals(dictionary1, dictionary2)) { return true; }
+            if (dictionary1 == null) { return false; }
+            if (dictionary2 == null) { return false; }
+            if (dictionary1.Count != dictionary2.Count) { return false; }
+            if (!dictionary1.Keys.Cast<object>().SequenceEqual(dictionary2.Keys.Cast<Object>())) { return false; }
+            for (int i = 0; i < dictionary1.Count; i++) {
+                var item1 = dictionary1[i];
+                var item2 = dictionary2[i];
+                if (object.ReferenceEquals(item1, item2)) { continue; }
+                if (item1 == null) { return false; }
+                if (item2 == null) { return false; }
+                if (!item1.Equals(item2)) { return false; }
+            }
+            return true;
         }
 
         private ListDictionary CreateListDictionary(

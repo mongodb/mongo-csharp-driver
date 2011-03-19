@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Internal {
                     if (!queries.Contains(address)) {
                         var args = new QueryNodeParameters {
                             Address = address,
-                            EndPoint = address.ToIPEndPoint(),
+                            EndPoint = address.ToIPEndPoint(server.Settings.AddressFamily),
                             ResponseQueue = responsesQueue
                         };
                         ThreadPool.QueueUserWorkItem(QueryNodeWorkItem, args);
@@ -151,8 +151,8 @@ namespace MongoDB.Driver.Internal {
 
         private BlockingQueue<QueryNodeResponse> QueueSeedListQueries() {
             var responseQueue = new BlockingQueue<QueryNodeResponse>();
-            var addresses = (List<MongoServerAddress>) server.Settings.Servers;
-            var endPoints = (List<IPEndPoint>) server.EndPoints;
+            var addresses = server.Settings.Servers.ToList();
+            var endPoints = server.EndPoints.ToList();
             for (int i = 0; i < addresses.Count; i++) {
                 var args = new QueryNodeParameters {
                     Address = addresses[i],

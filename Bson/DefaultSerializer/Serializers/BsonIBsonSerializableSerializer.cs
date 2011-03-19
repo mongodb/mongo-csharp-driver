@@ -24,23 +24,39 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a serializer for classes that implement IBsonSerializable.
+    /// </summary>
     public class BsonIBsonSerializableSerializer : IBsonSerializer {
         #region private static fields
         private static BsonIBsonSerializableSerializer instance = new BsonIBsonSerializableSerializer();
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonIBsonSerializableSerializer class.
+        /// </summary>
         public BsonIBsonSerializableSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonIBsonSerializableSerializer class.
+        /// </summary>
         public static BsonIBsonSerializableSerializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -50,6 +66,14 @@ namespace MongoDB.Bson.DefaultSerializer {
             return value.Deserialize(bsonReader, nominalType, options);
         }
 
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -60,6 +84,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return value.Deserialize(bsonReader, nominalType, options);
         }
 
+        /// <summary>
+        /// Gets the document Id.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="id">The Id.</param>
+        /// <param name="idGenerator">The IdGenerator for the Id type.</param>
+        /// <returns>True if the document has an Id.</returns>
         public bool GetDocumentId(
             object document,
             out object id,
@@ -69,6 +100,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return bsonSerializable.GetDocumentId(out id, out idGenerator);
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -83,6 +121,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Sets the document Id.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="id">The Id.</param>
         public void SetDocumentId(
             object document,
             object id

@@ -19,15 +19,45 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents the state of a reader.
+    /// </summary>
     public enum BsonReaderState {
+        /// <summary>
+        /// The initial state.
+        /// </summary>
         Initial,
+        /// <summary>
+        /// The reader is positioned at the type of an element or value.
+        /// </summary>
         Type,
+        /// <summary>
+        /// The reader is positioned at the name of an element.
+        /// </summary>
         Name,
+        /// <summary>
+        /// The reader is positioned at a value.
+        /// </summary>
         Value,
+        /// <summary>
+        /// The reader is positioned at a scope document.
+        /// </summary>
         ScopeDocument,
+        /// <summary>
+        /// The reader is positioned at the end of a document.
+        /// </summary>
         EndOfDocument,
+        /// <summary>
+        /// The reader is positioned at the end of an array.
+        /// </summary>
         EndOfArray,
+        /// <summary>
+        /// The reader has finished reading a document.
+        /// </summary>
         Done,
+        /// <summary>
+        /// The reader is closed.
+        /// </summary>
         Closed
     }
 }

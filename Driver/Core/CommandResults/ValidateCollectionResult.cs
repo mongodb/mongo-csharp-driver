@@ -22,18 +22,30 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents the results of a validate collection command.
+    /// </summary>
     [Serializable]
     public class ValidateCollectionResult : CommandResult {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the ValidateCollectionResult class.
+        /// </summary>
         public ValidateCollectionResult() {
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the namespace.
+        /// </summary>
         public string Namespace {
             get { return response["ns"].AsString; }
         }
 
+        /// <summary>
+        /// Gets the result string.
+        /// </summary>
         public string ResultString {
             get { return response["result"].AsString; }
         }

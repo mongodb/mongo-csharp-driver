@@ -20,6 +20,9 @@ using System.Text;
 using System.Xml;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON boolean value.
+    /// </summary>
     [Serializable]
     public class BsonBoolean : BsonValue, IComparable<BsonBoolean>, IEquatable<BsonBoolean> {
         #region private static fields
@@ -42,26 +45,43 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets the instance of BsonBoolean that represents false.
+        /// </summary>
         public static BsonBoolean False {
             get { return falseInstance; }
         }
 
+        /// <summary>
+        /// Gets the instance of BsonBoolean that represents true.
+        /// </summary>
         public static BsonBoolean True {
             get { return trueInstance; }
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the BsonBoolean as a bool.
+        /// </summary>
         public override object RawValue {
             get { return value; }
         }
 
+        /// <summary>
+        /// Gets the value of this BsonBoolean.
+        /// </summary>
         public bool Value {
             get { return value; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Converts a bool to a BsonBoolean.
+        /// </summary>
+        /// <param name="value">A bool.</param>
+        /// <returns>A BsonBoolean.</returns>
         public static implicit operator BsonBoolean(
             bool value
         ) {
@@ -70,12 +90,22 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Returns one of the two possible BsonBoolean values.
+        /// </summary>
+        /// <param name="value">The bool value.</param>
+        /// <returns>The corresponding BsonBoolean value.</returns>
         public static BsonBoolean Create(
             bool value
         ) {
             return value ? trueInstance : falseInstance;
         }
 
+        /// <summary>
+        /// Returns one of the two possible BsonBoolean values.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonBoolean.</param>
+        /// <returns>A BsonBoolean or null.</returns>
         public new static BsonBoolean Create(
             object value
         ) {
@@ -88,6 +118,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this BsonBoolean to another BsonBoolean.
+        /// </summary>
+        /// <param name="other">The other BsonBoolean.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonBoolean is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonBoolean other
         ) {
@@ -95,6 +130,11 @@ namespace MongoDB.Bson {
             return (value ? 1 : 0).CompareTo(other.value ? 1 : 0);
         }
 
+        /// <summary>
+        /// Compares the BsonBoolean to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonBoolean is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -106,6 +146,11 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonBoolean to another BsonBoolean.
+        /// </summary>
+        /// <param name="rhs">The other BsonBoolean.</param>
+        /// <returns>True if the two BsonBoolean values are equal.</returns>
         public bool Equals(
             BsonBoolean rhs
         ) {
@@ -113,12 +158,21 @@ namespace MongoDB.Bson {
             return this.value == rhs.value;
         }
 
+        /// <summary>
+        /// Compares this BsonBoolean to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonBoolean and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonBoolean); // works even if obj is null
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -127,6 +181,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return XmlConvert.ToString(value);
         }

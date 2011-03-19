@@ -20,6 +20,9 @@ using System.Text;
 
 namespace MongoDB.Bson {
     // TODO: [Serializable] // must have custom deserialization to do SymbolTable lookup
+    /// <summary>
+    /// Represents a BSON symbol value.
+    /// </summary>
     public class BsonSymbol : BsonValue, IComparable<BsonSymbol>, IEquatable<BsonSymbol> {
         #region private fields
         private string name;
@@ -36,12 +39,20 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the name of the symbol.
+        /// </summary>
         public string Name {
             get { return name; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Converts a string to a BsonSymbol.
+        /// </summary>
+        /// <param name="name">A string.</param>
+        /// <returns>A BsonSymbol.</returns>
         public static implicit operator BsonSymbol(
             string name
         ) {
@@ -50,6 +61,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new BsonSymbol.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonSymbol.</param>
+        /// <returns>A BsonSymbol or null.</returns>
         public new static BsonSymbol Create(
             object value
         ) {
@@ -60,6 +76,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonSymbol class.
+        /// </summary>
+        /// <param name="name">A string.</param>
+        /// <returns>A BsonSymbol.</returns>
         public static BsonSymbol Create(
             string name
         ) {
@@ -75,6 +96,11 @@ namespace MongoDB.Bson {
         // note: a BsonSymbol is guaranteed to be unique because it must be looked up in BsonSymbolTable
         // therefore the implementations of Equals and GetHashCode are considerably more efficient
 
+        /// <summary>
+        /// Compares this BsonSymbol to another BsonSymbol.
+        /// </summary>
+        /// <param name="other">The other BsonSymbol.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonSymbol is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonSymbol other
         ) {
@@ -82,6 +108,11 @@ namespace MongoDB.Bson {
             return name.CompareTo(other.name);
         }
 
+        /// <summary>
+        /// Compares the BsonSymbol to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonSymbol is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -97,22 +128,40 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonSymbol to another BsonSymbol.
+        /// </summary>
+        /// <param name="rhs">The other BsonSymbol.</param>
+        /// <returns>True if the two BsonSymbol values are equal.</returns>
         public bool Equals(
             BsonSymbol rhs
         ) {
             return object.ReferenceEquals(this, rhs); // symbols are guaranteed to be unique
         }
 
+        /// <summary>
+        /// Compares this BsonSymbol to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonSymbol and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonSymbol); // works even if obj is null
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             return name.GetHashCode();
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return name;
         }

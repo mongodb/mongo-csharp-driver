@@ -29,6 +29,9 @@ using MongoDB.Bson.DefaultSerializer.Conventions;
 using System.Runtime.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a mapping between a class and a BSON document.
+    /// </summary>
     public abstract class BsonClassMap {
         #region private static fields
         private static object staticLock = new object();
@@ -40,6 +43,7 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region protected fields
+#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)
         protected bool frozen; // once a class map has been frozen no further changes are allowed
         protected BsonClassMap baseClassMap; // null for class object and interfaces
         protected Type classType;
@@ -57,9 +61,14 @@ namespace MongoDB.Bson.DefaultSerializer {
         protected bool ignoreExtraElements = true;
         protected BsonMemberMap extraElementsMemberMap;
         protected List<Type> knownTypes = new List<Type>();
+#pragma warning restore
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonClassMap class.
+        /// </summary>
+        /// <param name="classType">The class type.</param>
         protected BsonClassMap(
             Type classType
         ) {
@@ -71,56 +80,97 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the base class map.
+        /// </summary>
         public BsonClassMap BaseClassMap {
             get { return baseClassMap; }
         }
 
+        /// <summary>
+        /// Gets the class type.
+        /// </summary>
         public Type ClassType {
             get { return classType; }
         }
 
+        /// <summary>
+        /// Gets the discriminator.
+        /// </summary>
         public string Discriminator {
             get { return discriminator; }
         }
 
+        /// <summary>
+        /// Gets whether a discriminator is required when serializing this class.
+        /// </summary>
         public bool DiscriminatorIsRequired {
             get { return discriminatorIsRequired; }
         }
 
+        /// <summary>
+        /// Gets the member map of the member used to hold extra elements.
+        /// </summary>
         public BsonMemberMap ExtraElementsMemberMap {
             get { return extraElementsMemberMap; }
         }
 
+        /// <summary>
+        /// Gets whether this class has a root class ancestor.
+        /// </summary>
         public bool HasRootClass {
             get { return hasRootClass; }
         }
 
-        public bool IsAnonymous {
-            get { return isAnonymous; }
-        }
-
-        public bool IsRootClass {
-            get { return isRootClass; }
-        }
-
+        /// <summary>
+        /// Gets the Id member map.
+        /// </summary>
         public BsonMemberMap IdMemberMap {
             get { return idMemberMap; }
         }
 
+        /// <summary>
+        /// Gets whether extra elements should be ignored when deserializing.
+        /// </summary>
+        public bool IgnoreExtraElements {
+            get { return ignoreExtraElements; }
+        }
+
+        /// <summary>
+        /// Gets whether this class is anonymous.
+        /// </summary>
+        public bool IsAnonymous {
+            get { return isAnonymous; }
+        }
+
+        /// <summary>
+        /// Gets whether this class is a root class.
+        /// </summary>
+        public bool IsRootClass {
+            get { return isRootClass; }
+        }
+
+        /// <summary>
+        /// Gets the known types of this class.
+        /// </summary>
         public IEnumerable<Type> KnownTypes {
             get { return knownTypes; }
         }
 
+        /// <summary>
+        /// Gets the member maps.
+        /// </summary>
         public IEnumerable<BsonMemberMap> MemberMaps {
             get { return allMemberMaps; }
-        }
-
-        public bool IgnoreExtraElements {
-            get { return ignoreExtraElements; }
         }
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Gets the type of a member.
+        /// </summary>
+        /// <param name="memberInfo">The member info.</param>
+        /// <returns>The type of the member.</returns>
         public static Type GetMemberInfoType(
             MemberInfo memberInfo
         ) {
@@ -133,7 +183,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             throw new NotSupportedException("Only field and properties are supported at this time.");
         }
 
-        // this is like the AssemblyQualifiedName but shortened where possible
+        /// <summary>
+        /// Gets a loadable type name (like AssemblyQualifiedName but shortened when possible)
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>The type name.</returns>
         public static string GetTypeNameDiscriminator(
             Type type
         ) {
@@ -174,6 +228,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Looks up a class map (will AutoMap the class if no class map is registered).
+        /// </summary>
+        /// <param name="classType">The class type.</param>
+        /// <returns>The class map.</returns>
         public static BsonClassMap LookupClassMap(
             Type classType
         ) {
@@ -191,6 +250,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Looks up the conventions profile for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>The conventions profile for that type.</returns>
         public static ConventionProfile LookupConventions(
             Type type
         ) {
@@ -203,10 +267,21 @@ namespace MongoDB.Bson.DefaultSerializer {
             return defaultProfile;
         }
 
+        /// <summary>
+        /// Creates and registers a class map.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <returns>The class map.</returns>
         public static BsonClassMap<TClass> RegisterClassMap<TClass>() {
             return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
         }
 
+        /// <summary>
+        /// Creates and registers a class map.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <param name="classMapInitializer">The class map initializer.</param>
+        /// <returns>The class map.</returns>
         public static BsonClassMap<TClass> RegisterClassMap<TClass>(
             Action<BsonClassMap<TClass>> classMapInitializer
         ) {
@@ -215,6 +290,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             return classMap;
         }
 
+        /// <summary>
+        /// Registers a class map.
+        /// </summary>
+        /// <param name="classMap">The class map.</param>
         public static void RegisterClassMap(
             BsonClassMap classMap
         ) {
@@ -225,6 +304,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Registers a conventions profile.
+        /// </summary>
+        /// <param name="conventions">The conventions profile.</param>
+        /// <param name="filter">The filter function that determines which types this profile applies to.</param>
         public static void RegisterConventions(
             ConventionProfile conventions,
             Func<Type, bool> filter
@@ -234,33 +318,34 @@ namespace MongoDB.Bson.DefaultSerializer {
                 Filter = filter,
                 Profile = conventions
             };
-            profiles.Add(filtered);
-        }
-
-        public static void UnregisterConventions(
-            ConventionProfile conventions
-        ) {
-            for (int i = 0; i < profiles.Count; i++) {
-                if (profiles[i].Profile == conventions) {
-                    profiles.RemoveAt(i);
-                    return;
-                }
-            }
+            // add new conventions to the front of the list
+            profiles.Insert(0, filtered);
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Automaps the class.
+        /// </summary>
         public void AutoMap() {
             if (frozen) { ThrowFrozenException(); }
             AutoMapClass();
         }
 
+        /// <summary>
+        /// Creates an instance of the class.
+        /// </summary>
+        /// <returns>An object.</returns>
         public object CreateInstance() {
             if (!frozen) { ThrowNotFrozenException(); }
             var creator = GetCreator();
             return creator.Invoke();
         }
 
+        /// <summary>
+        /// Freezes the class map.
+        /// </summary>
+        /// <returns>The class map.</returns>
         public BsonClassMap Freeze() {
             lock (staticLock) {
                 if (!frozen) {
@@ -312,10 +397,17 @@ namespace MongoDB.Bson.DefaultSerializer {
                         }
 
                         foreach (var memberMap in allMemberMaps) {
-                            if (!elementDictionary.ContainsKey(memberMap.ElementName)) {
+                            BsonMemberMap conflictingMemberMap;
+                            if (!elementDictionary.TryGetValue(memberMap.ElementName, out conflictingMemberMap)) {
                                 elementDictionary.Add(memberMap.ElementName, memberMap);
                             } else {
-                                var message = string.Format("Duplicate element name '{0}' in class '{1}'", memberMap.MemberName, classType.FullName);
+                                var message = string.Format(
+                                    "Member '{0}' of class '{1}' cannot use element name '{2}' because it is already being used by member '{3}'.",
+                                    memberMap.MemberName,
+                                    classType.FullName,
+                                    memberMap.ElementName,
+                                    conflictingMemberMap.MemberName
+                                );
                                 throw new BsonSerializationException(message);
                             }
                         }
@@ -341,10 +433,15 @@ namespace MongoDB.Bson.DefaultSerializer {
                         freezeNestingLevel--;
                     }
                 }
-                return this;
             }
+            return this;
         }
 
+        /// <summary>
+        /// Gets a member map.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap GetMemberMap(
             string memberName
         ) {
@@ -352,6 +449,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return declaredMemberMaps.Find(m => m.MemberName == memberName);
         }
 
+        /// <summary>
+        /// Gets the member map for a BSON element.
+        /// </summary>
+        /// <param name="elementName">The name of the element.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap GetMemberMapForElement(
             string elementName
         ) {
@@ -361,6 +463,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the extra elements field and adds it to the class map.
+        /// </summary>
+        /// <param name="fieldName">The name of the extra elements field.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapExtraElementsField(
             string fieldName
         ) {
@@ -370,6 +477,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return fieldMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the extra elements member and adds it to the class map.
+        /// </summary>
+        /// <param name="memberInfo">The member info for the extra elements member.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapExtraElementsMember(
             MemberInfo memberInfo
         ) {
@@ -379,6 +491,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the extra elements property and adds it to the class map.
+        /// </summary>
+        /// <param name="propertyName">The name of the property.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapExtraElementsProperty(
             string propertyName
         ) {
@@ -388,6 +505,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return propertyMap;
         }
 
+        /// <summary>
+        /// Creates a member map for a field and adds it to the class map.
+        /// </summary>
+        /// <param name="fieldName">The name of the field.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapField(
             string fieldName
         ) {
@@ -400,6 +522,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return MapMember(fieldInfo);
         }
 
+        /// <summary>
+        /// Creates a member map for the Id field and adds it to the class map.
+        /// </summary>
+        /// <param name="fieldName">The name of the Id field.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapIdField(
             string fieldName
         ) {
@@ -409,6 +536,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return fieldMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the Id member and adds it to the class map.
+        /// </summary>
+        /// <param name="memberInfo">The member info for the Id member.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapIdMember(
             MemberInfo memberInfo
         ) {
@@ -418,6 +550,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the Id property and adds it to the class map.
+        /// </summary>
+        /// <param name="propertyName">The name of the Id property.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapIdProperty(
             string propertyName
         ) {
@@ -427,6 +564,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return propertyMap;
         }
 
+        /// <summary>
+        /// Creates a member map for a member and adds it to the class map.
+        /// </summary>
+        /// <param name="memberInfo">The member info.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapMember(
             MemberInfo memberInfo
         ) {
@@ -445,6 +587,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMap;
         }
 
+        /// <summary>
+        /// Creates a member map for a property and adds it to the class map.
+        /// </summary>
+        /// <param name="propertyName">The name of the property.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapProperty(
             string propertyName
         ) {
@@ -457,22 +604,32 @@ namespace MongoDB.Bson.DefaultSerializer {
             return MapMember(propertyInfo);
         }
 
-        public BsonClassMap SetDiscriminator(
+        /// <summary>
+        /// Sets the discriminator.
+        /// </summary>
+        /// <param name="discriminator">The discriminator.</param>
+        public void SetDiscriminator(
             string discriminator
         ) {
             if (frozen) { ThrowFrozenException(); }
             this.discriminator = discriminator;
-            return this;
         }
 
-        public BsonClassMap SetDiscriminatorIsRequired(
+        /// <summary>
+        /// Sets whether a discriminator is required when serializing this class.
+        /// </summary>
+        /// <param name="discriminatorIsRequired">Whether a discriminator is required.</param>
+        public void SetDiscriminatorIsRequired(
             bool discriminatorIsRequired
         ) {
             if (frozen) { ThrowFrozenException(); }
             this.discriminatorIsRequired = discriminatorIsRequired;
-            return this;
         }
 
+        /// <summary>
+        /// Sets the member map of the member used to hold extra elements.
+        /// </summary>
+        /// <param name="memberMap">The extra elements member map.</param>
         public void SetExtraElementsMember(
             BsonMemberMap memberMap
         ) {
@@ -492,6 +649,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             extraElementsMemberMap = memberMap;
         }
 
+        /// <summary>
+        /// Sets the Id member.
+        /// </summary>
+        /// <param name="memberMap">The Id member.</param>
         public void SetIdMember(
             BsonMemberMap memberMap
         ) {
@@ -508,22 +669,32 @@ namespace MongoDB.Bson.DefaultSerializer {
             idMemberMap = memberMap;
         }
 
-        public BsonClassMap SetIgnoreExtraElements(
+        /// <summary>
+        /// Sets whether extra elements should be ignored when deserializing.
+        /// </summary>
+        /// <param name="ignoreExtraElements">Whether extra elements should be ignored when deserializing.</param>
+        public void SetIgnoreExtraElements(
             bool ignoreExtraElements
         ) {
             if (frozen) { ThrowFrozenException(); }
             this.ignoreExtraElements = ignoreExtraElements;
-            return this;
         }
 
-        public BsonClassMap SetIsRootClass(
+        /// <summary>
+        /// Sets whether this class is a root class.
+        /// </summary>
+        /// <param name="isRootClass">Whether this class is a root class.</param>
+        public void SetIsRootClass(
             bool isRootClass
         ) {
             if (frozen) { ThrowFrozenException(); }
             this.isRootClass = isRootClass;
-            return this;
         }
 
+        /// <summary>
+        /// Removes the member map for a field from the class map.
+        /// </summary>
+        /// <param name="fieldName">The name of the field.</param>
         public void UnmapField(
             string fieldName
         ) {
@@ -536,6 +707,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             UnmapMember(fieldInfo);
         }
 
+        /// <summary>
+        /// Removes a member map from the class map.
+        /// </summary>
+        /// <param name="memberInfo">The member info.</param>
         public void UnmapMember(
             MemberInfo memberInfo
         ) {
@@ -558,6 +733,10 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Removes the member map for a property from the class map.
+        /// </summary>
+        /// <param name="propertyName">The name of the property.</param>
         public void UnmapProperty(
             string propertyName
         ) {
@@ -769,12 +948,23 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
     }
 
+    /// <summary>
+    /// Represents a mapping between a class and a BSON document.
+    /// </summary>
+    /// <typeparam name="TClass">The class.</typeparam>
     public class BsonClassMap<TClass> : BsonClassMap {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonClassMap class.
+        /// </summary>
         public BsonClassMap()
             : base(typeof(TClass)) {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonClassMap class.
+        /// </summary>
+        /// <param name="classMapInitializer">The class map initializer.</param>
         public BsonClassMap(
             Action<BsonClassMap<TClass>> classMapInitializer
         ) : base(typeof(TClass)) {
@@ -783,6 +973,12 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets a member map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberLambda">A lambda expression specifying the member.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap GetMemberMap<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
@@ -790,12 +986,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             return GetMemberMap(memberName);
         }
 
-        public BsonMemberMap MapField<TMember>(
-            Expression<Func<TClass, TMember>> fieldLambda
-        ) {
-            return MapMember(fieldLambda);
-        }
-
+        /// <summary>
+        /// Creates a member map for the extra elements field and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="fieldLambda">A lambda expression specifying the extra elements field.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap MapExtraElementsField<TMember>(
             Expression<Func<TClass, TMember>> fieldLambda
         ) {
@@ -804,6 +1000,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             return fieldMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the extra elements member and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberLambda">A lambda expression specifying the extra elements member.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap MapExtraElementsMember<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
@@ -812,6 +1014,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the extra elements property and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="propertyLambda">A lambda expression specifying the extra elements property.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap MapExtraElementsProperty<TMember>(
             Expression<Func<TClass, TMember>> propertyLambda
         ) {
@@ -820,6 +1028,24 @@ namespace MongoDB.Bson.DefaultSerializer {
             return propertyMap;
         }
 
+        /// <summary>
+        /// Creates a member map for a field and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="fieldLambda">A lambda expression specifying the field.</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap MapField<TMember>(
+            Expression<Func<TClass, TMember>> fieldLambda
+        ) {
+            return MapMember(fieldLambda);
+        }
+
+        /// <summary>
+        /// Creates a member map for the Id field and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="fieldLambda">A lambda expression specifying the Id field.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap MapIdField<TMember>(
             Expression<Func<TClass, TMember>> fieldLambda
         ) {
@@ -828,6 +1054,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             return fieldMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the Id member and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberLambda">A lambda expression specifying the Id member.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap MapIdMember<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
@@ -836,6 +1068,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             return memberMap;
         }
 
+        /// <summary>
+        /// Creates a member map for the Id property and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="propertyLambda">A lambda expression specifying the Id property.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap MapIdProperty<TMember>(
             Expression<Func<TClass, TMember>> propertyLambda
         ) {
@@ -844,6 +1082,12 @@ namespace MongoDB.Bson.DefaultSerializer {
             return propertyMap;
         }
 
+        /// <summary>
+        /// Creates a member map and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberLambda">A lambda expression specifying the member.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap MapMember<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
@@ -851,18 +1095,34 @@ namespace MongoDB.Bson.DefaultSerializer {
             return MapMember(memberInfo);
         }
 
+        /// <summary>
+        /// Creates a member map for the Id property and adds it to the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="propertyLambda">A lambda expression specifying the Id property.</param>
+        /// <returns>The member map.</returns>
         public BsonMemberMap MapProperty<TMember>(
             Expression<Func<TClass, TMember>> propertyLambda
         ) {
             return MapMember(propertyLambda);
         }
 
+        /// <summary>
+        /// Removes the member map for a field from the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="fieldLambda">A lambda expression specifying the field.</param>
         public void UnmapField<TMember>(
             Expression<Func<TClass, TMember>> fieldLambda
         ) {
             UnmapMember(fieldLambda);
         }
 
+        /// <summary>
+        /// Removes a member map from the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberLambda">A lambda expression specifying the member.</param>
         public void UnmapMember<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
@@ -870,6 +1130,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             UnmapMember(memberInfo);
         }
 
+        /// <summary>
+        /// Removes a member map for a property from the class map.
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="propertyLambda">A lambda expression specifying the property.</param>
         public void UnmapProperty<TMember>(
             Expression<Func<TClass, TMember>> propertyLambda
         ) {

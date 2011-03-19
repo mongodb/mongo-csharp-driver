@@ -22,8 +22,15 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents a wrapped object that can be used where an IMongoQuery is expected (the wrapped object is expected to serialize properly).
+    /// </summary>
     public class QueryWrapper : BaseWrapper, IMongoQuery {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the QueryWrapper class.
+        /// </summary>
+        /// <param name="query">The wrapped object.</param>
         public QueryWrapper(
             object query
         )
@@ -32,6 +39,11 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the QueryWrapper class.
+        /// </summary>
+        /// <param name="query">The wrapped object.</param>
+        /// <returns>A new instance of QueryWrapper or null.</returns>
         public static QueryWrapper Create(
             object query
         ) {

@@ -19,13 +19,23 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents a BSON JavaScript value.
+    /// </summary>
     [Serializable]
     public class BsonJavaScript : BsonValue, IComparable<BsonJavaScript>, IEquatable<BsonJavaScript> {
         #region protected fields
+        /// <summary>
+        /// The JavaScript code.
+        /// </summary>
         protected string code;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonJavaScript class.
+        /// </summary>
+        /// <param name="code">The JavaScript code.</param>
         public BsonJavaScript(
             string code
         )
@@ -33,7 +43,11 @@ namespace MongoDB.Bson {
             this.code = code;
         }
 
-        // called by BsonJavaScriptWithScope
+        /// <summary>
+        /// Initializes a new instance of the BsonJavaScript class (only called by BsonJavaScriptWithScope).
+        /// </summary>
+        /// <param name="code">The JavaScript code.</param>
+        /// <param name="bsonType">The BsonType (must be JavaScriptWithScope).</param>
         protected BsonJavaScript(
             string code,
             BsonType bsonType
@@ -44,18 +58,31 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the JavaScript code.
+        /// </summary>
         public string Code {
             get { return code; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Converts a string to a BsonJavaScript.
+        /// </summary>
+        /// <param name="code">A string.</param>
+        /// <returns>A BsonJavaScript.</returns>
         public static implicit operator BsonJavaScript(
             string code
         ) {
             return BsonJavaScript.Create(code);
         }
 
+        /// <summary>
+        /// Creates a new instance of the BsonJavaScript class.
+        /// </summary>
+        /// <param name="code">A string containing JavaScript code.</param>
+        /// <returns>A BsonJavaScript.</returns>
         public static BsonJavaScript Create(
             string code
         ) {
@@ -66,6 +93,11 @@ namespace MongoDB.Bson {
             }
         }
 
+        /// <summary>
+        /// Creates a new BsonJavaScript.
+        /// </summary>
+        /// <param name="value">An object to be mapped to a BsonJavaScript.</param>
+        /// <returns>A BsonJavaScript or null.</returns>
         public new static BsonJavaScript Create(
             object value
         ) {
@@ -78,6 +110,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this BsonJavaScript to another BsonJavaScript.
+        /// </summary>
+        /// <param name="other">The other BsonJavaScript.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonJavaScript is less than, equal to, or greather than the other.</returns>
         public int CompareTo(
             BsonJavaScript other
         ) {
@@ -85,6 +122,11 @@ namespace MongoDB.Bson {
             return code.CompareTo(other.code);
         }
 
+        /// <summary>
+        /// Compares the BsonJavaScript to another BsonValue.
+        /// </summary>
+        /// <param name="other">The other BsonValue.</param>
+        /// <returns>A 32-bit signed integer that indicates whether this BsonJavaScript is less than, equal to, or greather than the other BsonValue.</returns>
         public override int CompareTo(
             BsonValue other
         ) {
@@ -96,6 +138,11 @@ namespace MongoDB.Bson {
             return CompareTypeTo(other);
         }
 
+        /// <summary>
+        /// Compares this BsonJavaScript to another BsonJavaScript.
+        /// </summary>
+        /// <param name="rhs">The other BsonJavaScript.</param>
+        /// <returns>True if the two BsonJavaScript values are equal.</returns>
         public bool Equals(
             BsonJavaScript rhs
         ) {
@@ -103,12 +150,21 @@ namespace MongoDB.Bson {
             return this.code == rhs.code;
         }
 
+        /// <summary>
+        /// Compares this BsonJavaScript to another object.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object is a BsonJavaScript and equal to this one.</returns>
         public override bool Equals(
             object obj
         ) {
             return Equals(obj as BsonJavaScript); // works even if obj is null
         }
 
+        /// <summary>
+        /// Gets the hash code.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -117,6 +173,10 @@ namespace MongoDB.Bson {
             return hash;
         }
 
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return code;
         }

@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Credentials to access a MongoDB database.
+    /// </summary>
     [Serializable]
     public class MongoCredentials {
         #region private fields
@@ -28,6 +31,11 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Creates a new instance of MongoCredentials.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
         public MongoCredentials(
             string username,
             string password
@@ -44,6 +52,12 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of MongoCredentials.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="admin">Whether the credentials should be validated against the admin database.</param>
         public MongoCredentials(
             string username,
             string password,
@@ -55,6 +69,12 @@ namespace MongoDB.Driver {
         }
         #endregion
 
+        /// <summary>
+        /// Creates an instance of MongoCredentials.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A new instance of MongoCredentials (or null if either parameter is null).</returns>
         #region factory methods
         public static MongoCredentials Create(
             string username,
@@ -69,20 +89,35 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the username.
+        /// </summary>
         public string Username {
             get { return username; }
         }
 
+        /// <summary>
+        /// Gets the password.
+        /// </summary>
         public string Password {
             get { return password; }
         }
 
+        /// <summary>
+        /// Gets whether the credentials should be validated against the admin database.
+        /// </summary>
         public bool Admin {
             get { return admin; }
         }
         #endregion
 
         #region public operators
+        /// <summary>
+        /// Compares two MongoCredentials.
+        /// </summary>
+        /// <param name="lhs">The first credentials.</param>
+        /// <param name="rhs">The other credentials.</param>
+        /// <returns>True if the two credentials are equal (or both null).</returns>
         public static bool operator ==(
             MongoCredentials lhs,
             MongoCredentials rhs
@@ -93,6 +128,12 @@ namespace MongoDB.Driver {
             return lhs.username == rhs.username && lhs.password == rhs.password && lhs.admin == rhs.admin;
         }
 
+        /// <summary>
+        /// Compares two MongoCredentials.
+        /// </summary>
+        /// <param name="lhs">The first credentials.</param>
+        /// <param name="rhs">The other credentials.</param>
+        /// <returns>True if the two credentials are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             MongoCredentials lhs,
             MongoCredentials rhs
@@ -102,6 +143,12 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Compares two MongoCredentials.
+        /// </summary>
+        /// <param name="lhs">The first credentials.</param>
+        /// <param name="rhs">The second credentials.</param>
+        /// <returns>True if the two credentials are equal (or both null).</returns>
         public static bool Equals(
             MongoCredentials lhs,
             MongoCredentials rhs
@@ -111,16 +158,30 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Compares this MongoCredentials to another MongoCredentials.
+        /// </summary>
+        /// <param name="rhs">The other credentials.</param>
+        /// <returns>True if the two credentials are equal.</returns>
         public bool Equals(
             MongoCredentials rhs
         ) {
             return this == rhs;
         }
 
+        /// <summary>
+        /// Compares this MongoCredentials to another MongoCredentials.
+        /// </summary>
+        /// <param name="obj">The other credentials.</param>
+        /// <returns>True if the two credentials are equal.</returns>
         public override bool Equals(object obj) {
             return this == obj as MongoCredentials; // works even if obj is null or of a different type
         }
 
+        /// <summary>
+        /// Gets the hashcode for the credentials.
+        /// </summary>
+        /// <returns>The hashcode.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
@@ -130,6 +191,10 @@ namespace MongoDB.Driver {
             return hash;
         }
 
+        /// <summary>
+        /// Returns a string representation of the credentials.
+        /// </summary>
+        /// <returns>A string representation of the credentials.</returns>
         public override string ToString() {
             return string.Format("{0}{1}:{2}", username, admin ? "(admin)" : "", password);
         }

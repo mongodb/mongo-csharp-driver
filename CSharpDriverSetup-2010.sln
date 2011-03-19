@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bson", "Bson\Bson.csproj", "{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csproj", "{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DriverSetup", "DriverSetup\DriverSetup.vdproj", "{EC84803F-4020-4295-AB81-F0378D8563E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC84803F-4020-4295-AB81-F0378D8563E1}.Debug|Any CPU.ActiveCfg = Debug
+		{EC84803F-4020-4295-AB81-F0378D8563E1}.Debug|Any CPU.Build.0 = Debug
+		{EC84803F-4020-4295-AB81-F0378D8563E1}.Release|Any CPU.ActiveCfg = Release
+		{EC84803F-4020-4295-AB81-F0378D8563E1}.Release|Any CPU.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

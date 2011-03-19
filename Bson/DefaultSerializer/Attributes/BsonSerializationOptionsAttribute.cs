@@ -21,14 +21,24 @@ using System.Text;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Specifies the serialization options for this class (see derived attributes).
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public abstract class BsonSerializationOptionsAttribute : Attribute {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonSerializationOptionsAttribute class.
+        /// </summary>
         protected  BsonSerializationOptionsAttribute() {
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets the serialization options specified by this attribute.
+        /// </summary>
+        /// <returns>The serialization options.</returns>
         public abstract IBsonSerializationOptions GetOptions();
         #endregion
     }

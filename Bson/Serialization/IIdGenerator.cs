@@ -18,8 +18,20 @@ using System;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization {
+    /// <summary>
+    /// An interface implemented by Id generators.
+    /// </summary>
     public interface IIdGenerator {
+        /// <summary>
+        /// Generates an Id.
+        /// </summary>
+        /// <returns>An Id.</returns>
         object GenerateId();
+        /// <summary>
+        /// Tests whether an Id is empty.
+        /// </summary>
+        /// <param name="id">The Id.</param>
+        /// <returns>True if the Id is empty.</returns>
         bool IsEmpty(object id);
     }
 }

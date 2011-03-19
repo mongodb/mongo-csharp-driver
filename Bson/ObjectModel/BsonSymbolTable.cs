@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson {
+    /// <summary>
+    /// Represents the symbol table of BsonSymbols.
+    /// </summary>
     public static class BsonSymbolTable {
         #region private static fields
         private static object staticLock = new object();
@@ -26,6 +29,11 @@ namespace MongoDB.Bson {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Looks up a symbol (and creates a new one if necessary).
+        /// </summary>
+        /// <param name="name">The name of the symbol.</param>
+        /// <returns>The symbol.</returns>
         public static BsonSymbol Lookup(
             string name
         ) {

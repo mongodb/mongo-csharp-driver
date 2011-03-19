@@ -30,6 +30,9 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.DefaultSerializer.Conventions;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents the default serialization provider.
+    /// </summary>
     public class BsonDefaultSerializer : IBsonSerializationProvider {
         #region private static fields
         private static object staticLock = new object();
@@ -124,17 +127,29 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonDefaultSerializer class.
+        /// </summary>
         public BsonDefaultSerializer() {
         }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets an instance of the BsonDefaultSerializer class.
+        /// </summary>
         public static BsonDefaultSerializer Instance {
             get { return instance; }
         }
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Looks up the actual type of an object to be deserialized.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="discriminator">The discriminator.</param>
+        /// <returns>The actual type of the object.</returns>
         public static Type LookupActualType(
             Type nominalType,
             BsonValue discriminator
@@ -182,6 +197,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Looks up the discriminator convention for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>A discriminator convention.</returns>
         public static IDiscriminatorConvention LookupDiscriminatorConvention(
             Type type
         ) {
@@ -227,6 +247,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Registers the discriminator for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="discriminator">The discriminator.</param>
         public static void RegisterDiscriminator(
             Type type,
             BsonValue discriminator
@@ -242,6 +267,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             }
         }
 
+        /// <summary>
+        /// Registers the discriminator convention for a type.
+        /// </summary>
+        /// <param name="type">Type type.</param>
+        /// <param name="convention">The discriminator convention.</param>
         public static void RegisterDiscriminatorConvention(
             Type type,
             IDiscriminatorConvention convention
@@ -258,6 +288,11 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets the serializer for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>The serializer.</returns>
         public IBsonSerializer GetSerializer(
             Type type
         ) {

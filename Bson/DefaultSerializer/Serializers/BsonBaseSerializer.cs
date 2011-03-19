@@ -24,13 +24,26 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
+    /// <summary>
+    /// Represents a base implementation for the many implementations of IBsonSerializer.
+    /// </summary>
     public abstract class BsonBaseSerializer : IBsonSerializer {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonBaseSerializer class.
+        /// </summary>
         protected BsonBaseSerializer() {
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public virtual object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -39,6 +52,14 @@ namespace MongoDB.Bson.DefaultSerializer {
             throw new InvalidOperationException("Subclass must implement Deserialize");
         }
 
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
         public virtual object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
@@ -48,6 +69,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             return Deserialize(bsonReader, nominalType, options);
         }
 
+        /// <summary>
+        /// Gets the document Id.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="id">The Id.</param>
+        /// <param name="idGenerator">The IdGenerator for the Id type.</param>
+        /// <returns>True if the document has an Id.</returns>
         public virtual bool GetDocumentId(
             object document,
             out object id,
@@ -56,6 +84,13 @@ namespace MongoDB.Bson.DefaultSerializer {
             throw new InvalidOperationException("Subclass must implement GetDocumentId");
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public virtual void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
@@ -65,6 +100,11 @@ namespace MongoDB.Bson.DefaultSerializer {
             throw new InvalidOperationException("Subclass must implement Serialize");
         }
 
+        /// <summary>
+        /// Sets the document Id.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="id">The Id.</param>
         public virtual void SetDocumentId(
             object document,
             object id

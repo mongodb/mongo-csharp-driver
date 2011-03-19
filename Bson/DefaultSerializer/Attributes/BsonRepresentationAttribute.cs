@@ -21,7 +21,10 @@ using System.Text;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
-    // [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    /// <summary>
+    /// Specifies the external representation and related options for this field or property.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonRepresentationAttribute : BsonSerializationOptionsAttribute {
         #region private fields
         private BsonType representation;
@@ -30,6 +33,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonRepresentationAttribute class.
+        /// </summary>
+        /// <param name="representation">The external representation.</param>
         public BsonRepresentationAttribute(
             BsonType representation
         ) {
@@ -38,15 +45,24 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the external representation.
+        /// </summary>
         public BsonType Representation {
             get { return representation; }
         }
 
+        /// <summary>
+        /// Gets or sets whether to allow overflow.
+        /// </summary>
         public bool AllowOverflow {
             get { return allowOverflow; }
             set { allowOverflow = value; }
         }
 
+        /// <summary>
+        /// Gets or sets whether to allow truncation.
+        /// </summary>
         public bool AllowTruncation {
             get { return allowTruncation; }
             set { allowTruncation = value; }
@@ -54,6 +70,10 @@ namespace MongoDB.Bson.DefaultSerializer {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets the serialization options specified by this attribute.
+        /// </summary>
+        /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions() {
             return new RepresentationSerializationOptions(representation, allowOverflow, allowTruncation);
         }

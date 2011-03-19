@@ -19,14 +19,38 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Flags used with queries (see the SetQueryFlags method of MongoCursor).
+    /// </summary>
     [Flags]
     public enum QueryFlags {
+        /// <summary>
+        /// No flags.
+        /// </summary>
         None = 0,
+        /// <summary>
+        /// This cursor should be tailable.
+        /// </summary>
         TailableCursor = 2,
+        /// <summary>
+        /// It's OK for the query to be handled by a secondary server.
+        /// </summary>
         SlaveOk = 4,
+        /// <summary>
+        /// Tell the server not to let the cursor timeout.
+        /// </summary>
         NoCursorTimeout = 16,
+        /// <summary>
+        /// Tell the server to wait for data to become available before returning (only used with TailableCursor).
+        /// </summary>
         AwaitData = 32,
+        /// <summary>
+        /// Tell the server to send all the data at once (in multiple messages if necessary) without waiting for GetMore messages.
+        /// </summary>
         Exhaust = 64,
+        /// <summary>
+        /// Allow partial results in a sharded system if some of the shards are down.
+        /// </summary>
         Partial = 128
     }
 }

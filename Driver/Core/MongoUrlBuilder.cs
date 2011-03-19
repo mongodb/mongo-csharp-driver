@@ -23,6 +23,10 @@ using System.Xml;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents URL style connection strings. This is the recommended connection string style, but see also
+    /// MongoConnectionStringBuilder if you wish to use .NET style connection strings.
+    /// </summary>
     [Serializable]
     public class MongoUrlBuilder {
         #region private fields
@@ -31,6 +35,7 @@ namespace MongoDB.Driver {
         private TimeSpan connectTimeout;
         private string databaseName;
         private MongoCredentials defaultCredentials;
+        private bool ipv6;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
         private int maxConnectionPoolSize;
@@ -46,10 +51,17 @@ namespace MongoDB.Driver {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Creates a new instance of MongoUrlBuilder.
+        /// </summary>
         public MongoUrlBuilder() {
             ResetValues();
         }
 
+        /// <summary>
+        /// Creates a new instance of MongoUrlBuilder.
+        /// </summary>
+        /// <param name="url">The initial settings.</param>
         public MongoUrlBuilder(
             string url
         ) {
@@ -58,6 +70,9 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
+        /// </summary>
         public int ComputedWaitQueueSize {
             get {
                 if (waitQueueMultiple == 0.0) {
@@ -68,76 +83,129 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the connection mode.
+        /// </summary>
         public ConnectionMode ConnectionMode {
             get { return connectionMode; }
             set { connectionMode = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the connect timeout.
+        /// </summary>
         public TimeSpan ConnectTimeout {
             get { return connectTimeout; }
             set { connectTimeout = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the optional database name.
+        /// </summary>
         public string DatabaseName {
             get { return databaseName; }
             set { databaseName = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the default credentials.
+        /// </summary>
         public MongoCredentials DefaultCredentials {
             get { return defaultCredentials; }
             set { defaultCredentials = value; }
         }
 
+        /// <summary>
+        /// Gets or sets whether to use IPv6.
+        /// </summary>
+        public bool IPv6 {
+            get { return ipv6; }
+            set { ipv6 = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the max connection idle time.
+        /// </summary>
         public TimeSpan MaxConnectionIdleTime {
             get { return maxConnectionIdleTime; }
             set { maxConnectionIdleTime = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the max connection life time.
+        /// </summary>
         public TimeSpan MaxConnectionLifeTime {
             get { return maxConnectionLifeTime; }
             set { maxConnectionLifeTime = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the max connection pool size.
+        /// </summary>
         public int MaxConnectionPoolSize {
             get { return maxConnectionPoolSize; }
             set { maxConnectionPoolSize = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the min connection pool size.
+        /// </summary>
         public int MinConnectionPoolSize {
             get { return minConnectionPoolSize; }
             set { minConnectionPoolSize = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the replica set.
+        /// </summary>
         public string ReplicaSetName {
             get { return replicaSetName; }
             set { replicaSetName = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the SafeMode to use.
+        /// </summary>
         public SafeMode SafeMode {
             get { return safeMode; }
             set { safeMode = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the address of the server (see also Servers if using more than one address).
+        /// </summary>
         public MongoServerAddress Server {
             get { return (servers == null) ? null : servers.Single(); }
             set { servers = new MongoServerAddress[] { value }; }
         }
 
+        /// <summary>
+        /// Gets or sets the list of server addresses (see also Server if using only one address).
+        /// </summary>
         public IEnumerable<MongoServerAddress> Servers {
             get { return servers; }
             set { servers = value; }
         }
 
+        /// <summary>
+        /// Gets or sets whether queries should be sent to secondary servers.
+        /// </summary>
         public bool SlaveOk {
             get { return slaveOk; }
             set { slaveOk = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the socket timeout.
+        /// </summary>
         public TimeSpan SocketTimeout {
             get { return socketTimeout; }
             set { socketTimeout = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize).
+        /// </summary>
         public double WaitQueueMultiple {
             get { return waitQueueMultiple; }
             set {
@@ -146,6 +214,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue size.
+        /// </summary>
         public int WaitQueueSize {
             get { return waitQueueSize; }
             set {
@@ -154,6 +225,9 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Gets or sets the wait queue timeout.
+        /// </summary>
         public TimeSpan WaitQueueTimeout {
             get { return waitQueueTimeout; }
             set { waitQueueTimeout = value; }
@@ -284,6 +358,10 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Parses a URL and sets all settings to match the URL.
+        /// </summary>
+        /// <param name="url">The URL.</param>
         public void Parse(
             string url
         ) {
@@ -353,6 +431,9 @@ namespace MongoDB.Driver {
                                 safe = true;
                                 fsync = ParseBoolean(name, value);
                                 break;
+                            case "ipv6":
+                                ipv6 = ParseBoolean(name, value);
+                                break;
                             case "maxidletime":
                             case "maxidletimems":
                                 maxConnectionIdleTime = ParseTimeSpan(name, value);
@@ -417,15 +498,24 @@ namespace MongoDB.Driver {
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of MongoUrl based on the settings in this MongoUrlBuilder.
+        /// </summary>
+        /// <returns>A new instance of MongoUrl.</returns>
         public MongoUrl ToMongoUrl() {
             return MongoUrl.Create(ToString());
         }
 
+        /// <summary>
+        /// Creates a new instance of MongoServerSettings based on the settings in this MongoUrlBuilder.
+        /// </summary>
+        /// <returns>A new instance of MongoServerSettings.</returns>
         public MongoServerSettings ToServerSettings() {
             return new MongoServerSettings(
                 connectionMode,
                 connectTimeout,
                 defaultCredentials,
+                ipv6,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
                 maxConnectionPoolSize,
@@ -440,7 +530,10 @@ namespace MongoDB.Driver {
             );
         }
 
-        // returns URL in canonical form
+        /// <summary>
+        /// Returns the canonical URL based on the settings in this MongoUrlBuilder.
+        /// </summary>
+        /// <returns>The canonical URL.</returns>
         public override string ToString() {
             StringBuilder url = new StringBuilder();
             url.Append("mongodb://");
@@ -462,6 +555,9 @@ namespace MongoDB.Driver {
                 url.Append(databaseName);
             }
             var query = new StringBuilder();
+            if (ipv6) {
+                query.AppendFormat("ipv6=true;");
+            }
             if (
                 connectionMode == ConnectionMode.Direct && servers.Count() != 1 ||
                 connectionMode == Driver.ConnectionMode.ReplicaSet && servers.Count() == 1
@@ -472,7 +568,7 @@ namespace MongoDB.Driver {
                 query.AppendFormat("replicaSet={0};", replicaSetName);
             }
             if (slaveOk) {
-                query.AppendFormat("slaveOk={0};", (slaveOk) ? "true" : "false");
+                query.AppendFormat("slaveOk=true;");
             }
             if (safeMode != null && safeMode.Enabled) {
                 query.AppendFormat("safe=true;");
@@ -531,6 +627,7 @@ namespace MongoDB.Driver {
             connectTimeout = MongoDefaults.ConnectTimeout;
             databaseName = null;
             defaultCredentials = null;
+            ipv6 = false;
             maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;

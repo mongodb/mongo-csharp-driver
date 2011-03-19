@@ -212,54 +212,61 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestAllowOverflowTrue() {
             var options = new RepresentationSerializationOptions(BsonType.Int32, true, false);
-            // need variables to get some conversions to happen at runtime instead of compile time (not sure why)
+
+            // need variables to get some conversions to happen at runtime instead of compile time
             var doubleMaxValue = double.MaxValue;
             var doubleMinValue = double.MinValue;
             var floatMaxValue = float.MaxValue;
             var floatMinValue = float.MinValue;
+            var intMaxValue = int.MaxValue;
+            var intMinValue = int.MinValue;
+            var longMaxValue = long.MaxValue;
+            var longMinValue = long.MinValue;
+            var uintMaxValue = uint.MaxValue;
+            var ulongMaxValue = ulong.MaxValue;
 
-            Assert.AreEqual(unchecked((short) double.MaxValue), options.ToInt16(double.MaxValue));
-            Assert.AreEqual(unchecked((short) double.MinValue), options.ToInt16(double.MinValue));
-            Assert.AreEqual(unchecked((short) int.MaxValue), options.ToInt16(int.MaxValue));
-            Assert.AreEqual(unchecked((short) int.MinValue), options.ToInt16(int.MinValue));
-            Assert.AreEqual(unchecked((short) long.MaxValue), options.ToInt16(long.MaxValue));
-            Assert.AreEqual(unchecked((short) long.MinValue), options.ToInt16(long.MinValue));
+            Assert.AreEqual(unchecked((short) doubleMaxValue), options.ToInt16(double.MaxValue));
+            Assert.AreEqual(unchecked((short) doubleMinValue), options.ToInt16(double.MinValue));
+            Assert.AreEqual(unchecked((short) intMaxValue), options.ToInt16(int.MaxValue));
+            Assert.AreEqual(unchecked((short) intMinValue), options.ToInt16(int.MinValue));
+            Assert.AreEqual(unchecked((short) longMaxValue), options.ToInt16(long.MaxValue));
+            Assert.AreEqual(unchecked((short) longMinValue), options.ToInt16(long.MinValue));
 
-            Assert.AreEqual(unchecked((int) doubleMaxValue), options.ToInt32(double.MaxValue)); // use variable to force runtime conversion
-            Assert.AreEqual(unchecked((int) doubleMinValue), options.ToInt32(double.MinValue)); // use variable to force runtime conversion
-            Assert.AreEqual(unchecked((int) floatMaxValue), options.ToInt32(float.MaxValue)); // use variable to force runtime conversion
-            Assert.AreEqual(unchecked((int) floatMinValue), options.ToInt32(float.MinValue)); // use variable to force runtime conversion
-            Assert.AreEqual(unchecked((int) long.MaxValue), options.ToInt32(long.MaxValue));
-            Assert.AreEqual(unchecked((int) long.MinValue), options.ToInt32(long.MinValue));
-            Assert.AreEqual(unchecked((int) uint.MaxValue), options.ToInt32(uint.MaxValue));
-            Assert.AreEqual(unchecked((int) ulong.MaxValue), options.ToInt32(ulong.MaxValue));
+            Assert.AreEqual(unchecked((int) doubleMaxValue), options.ToInt32(double.MaxValue));
+            Assert.AreEqual(unchecked((int) doubleMinValue), options.ToInt32(double.MinValue));
+            Assert.AreEqual(unchecked((int) floatMaxValue), options.ToInt32(float.MaxValue));
+            Assert.AreEqual(unchecked((int) floatMinValue), options.ToInt32(float.MinValue));
+            Assert.AreEqual(unchecked((int) longMaxValue), options.ToInt32(long.MaxValue));
+            Assert.AreEqual(unchecked((int) longMinValue), options.ToInt32(long.MinValue));
+            Assert.AreEqual(unchecked((int) uintMaxValue), options.ToInt32(uint.MaxValue));
+            Assert.AreEqual(unchecked((int) ulongMaxValue), options.ToInt32(ulong.MaxValue));
 
-            Assert.AreEqual(unchecked((long) double.MaxValue), options.ToInt64(double.MaxValue));
-            Assert.AreEqual(unchecked((long) double.MinValue), options.ToInt64(double.MinValue));
-            Assert.AreEqual(unchecked((long) float.MaxValue), options.ToInt64(float.MaxValue));
-            Assert.AreEqual(unchecked((long) float.MinValue), options.ToInt64(float.MinValue));
-            Assert.AreEqual(unchecked((long) ulong.MaxValue), options.ToInt64(ulong.MaxValue));
+            Assert.AreEqual(unchecked((long) doubleMaxValue), options.ToInt64(double.MaxValue));
+            Assert.AreEqual(unchecked((long) doubleMinValue), options.ToInt64(double.MinValue));
+            Assert.AreEqual(unchecked((long) floatMaxValue), options.ToInt64(float.MaxValue));
+            Assert.AreEqual(unchecked((long) floatMinValue), options.ToInt64(float.MinValue));
+            Assert.AreEqual(unchecked((long) ulongMaxValue), options.ToInt64(ulong.MaxValue));
 
-            Assert.AreEqual(unchecked((float) (double.MaxValue / 10.0)), options.ToSingle(double.MaxValue / 10.0));
-            Assert.AreEqual(unchecked((float) (double.MinValue / 10.0)), options.ToSingle(double.MinValue / 10.0));
+            Assert.AreEqual(unchecked((float) (doubleMaxValue / 10.0)), options.ToSingle(double.MaxValue / 10.0));
+            Assert.AreEqual(unchecked((float) (doubleMinValue / 10.0)), options.ToSingle(double.MinValue / 10.0));
 
-            Assert.AreEqual(unchecked((ushort) double.MaxValue), options.ToUInt16(double.MaxValue));
-            Assert.AreEqual(unchecked((ushort) double.MinValue), options.ToUInt16(double.MinValue));
-            Assert.AreEqual(unchecked((ushort) int.MaxValue), options.ToUInt16(int.MaxValue));
-            Assert.AreEqual(unchecked((ushort) int.MinValue), options.ToUInt16(int.MinValue));
-            Assert.AreEqual(unchecked((ushort) long.MaxValue), options.ToUInt16(long.MaxValue));
-            Assert.AreEqual(unchecked((ushort) long.MinValue), options.ToUInt16(long.MinValue));
+            Assert.AreEqual(unchecked((ushort) doubleMaxValue), options.ToUInt16(double.MaxValue));
+            Assert.AreEqual(unchecked((ushort) doubleMinValue), options.ToUInt16(double.MinValue));
+            Assert.AreEqual(unchecked((ushort) intMaxValue), options.ToUInt16(int.MaxValue));
+            Assert.AreEqual(unchecked((ushort) intMinValue), options.ToUInt16(int.MinValue));
+            Assert.AreEqual(unchecked((ushort) longMaxValue), options.ToUInt16(long.MaxValue));
+            Assert.AreEqual(unchecked((ushort) longMinValue), options.ToUInt16(long.MinValue));
 
-            Assert.AreEqual(unchecked((uint) double.MaxValue), options.ToUInt32(double.MaxValue));
-            Assert.AreEqual(unchecked((uint) double.MinValue), options.ToUInt32(double.MinValue));
-            Assert.AreEqual(unchecked((uint) int.MinValue), options.ToUInt32(int.MinValue));
-            Assert.AreEqual(unchecked((uint) long.MaxValue), options.ToUInt32(long.MaxValue));
-            Assert.AreEqual(unchecked((uint) long.MinValue), options.ToUInt32(long.MinValue));
+            Assert.AreEqual(unchecked((uint) doubleMaxValue), options.ToUInt32(double.MaxValue));
+            Assert.AreEqual(unchecked((uint) doubleMinValue), options.ToUInt32(double.MinValue));
+            Assert.AreEqual(unchecked((uint) intMinValue), options.ToUInt32(int.MinValue));
+            Assert.AreEqual(unchecked((uint) longMaxValue), options.ToUInt32(long.MaxValue));
+            Assert.AreEqual(unchecked((uint) longMinValue), options.ToUInt32(long.MinValue));
 
-            Assert.AreEqual(unchecked((ulong) double.MaxValue), options.ToUInt64(double.MaxValue));
-            Assert.AreEqual(unchecked((ulong) double.MinValue), options.ToUInt64(double.MinValue));
-            Assert.AreEqual(unchecked((ulong) int.MinValue), options.ToUInt64(int.MinValue));
-            Assert.AreEqual(unchecked((ulong) long.MinValue), options.ToUInt64(long.MinValue));
+            Assert.AreEqual(unchecked((ulong) doubleMaxValue), options.ToUInt64(double.MaxValue));
+            Assert.AreEqual(unchecked((ulong) doubleMinValue), options.ToUInt64(double.MinValue));
+            Assert.AreEqual(unchecked((ulong) intMinValue), options.ToUInt64(int.MinValue));
+            Assert.AreEqual(unchecked((ulong) longMinValue), options.ToUInt64(long.MinValue));
         }
 
         [Test]

@@ -20,11 +20,27 @@ using System.Text;
 using System.Reflection;
 
 namespace MongoDB.Bson.DefaultSerializer.Conventions {
+    /// <summary>
+    /// Represents a serialize default value convention.
+    /// </summary>
     public interface ISerializeDefaultValueConvention {
+        /// <summary>
+        /// Determines whether to serialize the default value for a member.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>Whether to serialize the default value.</returns>
         bool SerializeDefaultValue(MemberInfo memberInfo);
     }
 
+    /// <summary>
+    /// Represents a serialize default value convention where default values are never serialized.
+    /// </summary>
     public class NeverSerializeDefaultValueConvention : ISerializeDefaultValueConvention {
+        /// <summary>
+        /// Determines whether to serialize the default value for a member.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>Whether to serialize the default value.</returns>
         public bool SerializeDefaultValue(
             MemberInfo memberInfo
         ) {
@@ -32,7 +48,15 @@ namespace MongoDB.Bson.DefaultSerializer.Conventions {
         }
     }
 
+    /// <summary>
+    /// Represents a serialize default value convention where default values are always serialized.
+    /// </summary>
     public class AlwaysSerializeDefaultValueConvention : ISerializeDefaultValueConvention {
+        /// <summary>
+        /// Determines whether to serialize the default value for a member.
+        /// </summary>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>Whether to serialize the default value.</returns>
         public bool SerializeDefaultValue(
             MemberInfo memberInfo
         ) {

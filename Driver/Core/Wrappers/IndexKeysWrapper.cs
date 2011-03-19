@@ -22,8 +22,15 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Represents a wrapped object that can be used where an IMongoIndexKeys is expected (the wrapped object is expected to serialize properly).
+    /// </summary>
     public class IndexKeysWrapper : BaseWrapper, IMongoIndexKeys {
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the IndexKeysWrapper class.
+        /// </summary>
+        /// <param name="keys">The wrapped object.</param>
         public IndexKeysWrapper(
             object keys
         )
@@ -32,6 +39,11 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Creates a new instance of the IndexKeysWrapper class.
+        /// </summary>
+        /// <param name="keys">The wrapped object.</param>
+        /// <returns>A new instance of IndexKeysWrapper or null.</returns>
         public static IndexKeysWrapper Create(
             object keys
         ) {

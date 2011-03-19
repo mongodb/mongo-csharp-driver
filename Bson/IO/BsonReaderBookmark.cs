@@ -19,14 +19,32 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
+    /// <summary>
+    /// Represents a bookmark that can be used to return a reader to the current position and state.
+    /// </summary>
     public abstract class BsonReaderBookmark {
         #region protected fields
+        /// <summary>
+        /// The state of the reader.
+        /// </summary>
         protected BsonReaderState state;
+        /// <summary>
+        /// The current BSON type.
+        /// </summary>
         protected BsonType currentBsonType;
+        /// <summary>
+        /// The name of the current element.
+        /// </summary>
         protected string currentName;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonReaderBookmark class.
+        /// </summary>
+        /// <param name="state">The state of the reader.</param>
+        /// <param name="currentBsonType">The current BSON type.</param>
+        /// <param name="currentName">The name of the current element.</param>
         protected BsonReaderBookmark(
             BsonReaderState state,
             BsonType currentBsonType,
@@ -39,14 +57,23 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the current state of the reader.
+        /// </summary>
         public BsonReaderState State {
             get { return state; }
         }
 
+        /// <summary>
+        /// Gets the current BsonType;
+        /// </summary>
         public BsonType CurrentBsonType {
             get { return currentBsonType; }
         }
 
+        /// <summary>
+        /// Gets the name of the current element.
+        /// </summary>
         public string CurrentName {
             get { return currentName; }
         }

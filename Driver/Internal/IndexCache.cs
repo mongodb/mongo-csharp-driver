@@ -20,6 +20,9 @@ using System.Text;
 using System.Threading;
 
 namespace MongoDB.Driver.Internal {
+    /// <summary>
+    /// Represents a cache of the names of indexes that are known to exist on a given server.
+    /// </summary>
     public class IndexCache {
         #region private fields
         private object syncRoot = new object();
@@ -27,11 +30,19 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the IndexCache class.
+        /// </summary>
         public IndexCache() {
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Adds the name of an index to the cache.
+        /// </summary>
+        /// <param name="collection">The collection that contains the index.</param>
+        /// <param name="indexName">The name of the index.</param>
         public void Add(
             MongoCollection collection,
             string indexName
@@ -43,6 +54,12 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
+        /// <summary>
+        /// Tests whether the cache contains the name of an index.
+        /// </summary>
+        /// <param name="collection">The collection that contains the index.</param>
+        /// <param name="indexName">The name of the index.</param>
+        /// <returns>True if the cache contains the named index.</returns>
         public bool Contains(
             MongoCollection collection,
             string indexName
@@ -54,6 +71,11 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
+        /// <summary>
+        /// Removes the name of an index from the cache.
+        /// </summary>
+        /// <param name="collection">The collection that contains the index.</param>
+        /// <param name="indexName">The name of the index.</param>
         public void Remove(
             MongoCollection collection,
             string indexName
@@ -65,12 +87,19 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
+        /// <summary>
+        /// Resets the cache.
+        /// </summary>
         public void Reset() {
             lock (syncRoot) {
                 cache.Clear();
             }
         }
 
+        /// <summary>
+        /// Resets part of the cache by removing all indexes for a collection.
+        /// </summary>
+        /// <param name="collection">The collection.</param>
         public void Reset(
             MongoCollection collection
         ) {
@@ -80,6 +109,10 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
+        /// <summary>
+        /// Resets part of the cache by removing all indexes for a database.
+        /// </summary>
+        /// <param name="database">The database.</param>
         public void Reset(
             MongoDatabase database
         ) {

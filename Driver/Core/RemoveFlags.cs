@@ -19,9 +19,18 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Driver {
+    /// <summary>
+    /// Flags used with the Remove method of MongoCollection.
+    /// </summary>
     [Flags]
     public enum RemoveFlags {
+        /// <summary>
+        /// No flags.
+        /// </summary>
         None = 0,
+        /// <summary>
+        /// Remove only a single document.
+        /// </summary>
         Single = 1
     }
 }

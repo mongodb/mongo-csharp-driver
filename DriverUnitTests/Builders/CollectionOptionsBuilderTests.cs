@@ -74,8 +74,8 @@ namespace MongoDB.DriverUnitTests.Builders {
 
         [Test]
         public void TestSetMaxSize() {
-            var options = CollectionOptions.SetMaxSize(2000);
-            var expected = "{ 'size' : 2000 }".Replace("'", "\"");
+            var options = CollectionOptions.SetMaxSize(2147483649);
+            var expected = "{ 'size' : 2147483649 }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 

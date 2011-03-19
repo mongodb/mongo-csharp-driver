@@ -731,6 +731,23 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestReIndex() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Insert(new BsonDocument("x", 2));
+            collection.DropAllIndexes();
+            collection.CreateIndex("x");
+            // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
+            try {
+                var result = collection.ReIndex();
+                Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
+                Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
+            } catch (InvalidOperationException ex) {
+                Assert.AreEqual("Duplicate element name: 'ok'.", ex.Message);
+            }
+        }
+
+        [Test]
         public void TestSetFields() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
@@ -738,6 +755,36 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(2, result.ElementCount);
             Assert.AreEqual("_id", result.GetElement(0).Name);
             Assert.AreEqual("x", result.GetElement(1).Name);
+        }
+
+        [Test]
+        public void TestSetHint() {
+            collection.DropAllIndexes();
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            collection.CreateIndex(IndexKeys.Ascending("x"));
+            var query = Query.EQ("x", 1);
+            var cursor = collection.Find(query).SetHint(new BsonDocument("x", 1));
+            var count = 0;
+            foreach (var document in cursor) {
+                Assert.AreEqual(1, ++count);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
+        }
+
+        [Test]
+        public void TestSetHintByIndexName() {
+            collection.DropAllIndexes();
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetName("xIndex"));
+            var query = Query.EQ("x", 1);
+            var cursor = collection.Find(query).SetHint("xIndex");
+            var count = 0;
+            foreach (var document in cursor) {
+                Assert.AreEqual(1, ++count);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
         }
 
         [Test]

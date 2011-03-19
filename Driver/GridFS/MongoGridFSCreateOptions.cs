@@ -23,6 +23,9 @@ using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.GridFS {
+    /// <summary>
+    /// Represents options used when creating a GridFS file.
+    /// </summary>
     public class MongoGridFSCreateOptions {
         #region private fields
         private string[] aliases;
@@ -34,36 +37,57 @@ namespace MongoDB.Driver.GridFS {
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MongoGridFSCreateOptions class.
+        /// </summary>
         public MongoGridFSCreateOptions() {
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets or sets the aliases.
+        /// </summary>
         public string[] Aliases {
             get { return aliases; }
             set { aliases = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the chunk size.
+        /// </summary>
         public int ChunkSize {
             get { return chunkSize; }
             set { chunkSize = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the content type.
+        /// </summary>
         public string ContentType {
             get { return contentType; }
             set { contentType = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the file Id.
+        /// </summary>
         public BsonValue Id {
             get { return id; }
             set { id = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the metadata.
+        /// </summary>
         public BsonDocument Metadata {
             get { return metadata; }
             set { metadata = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the upload date.
+        /// </summary>
         public DateTime UploadDate {
             get { return uploadDate; }
             set { uploadDate = value; }
