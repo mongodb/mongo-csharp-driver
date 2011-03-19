@@ -115,6 +115,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets whether to use IPv6.
+        /// </summary>
+        public bool IPv6 {
+            get { return serverSettings.IPv6; }
+        }
+
+        /// <summary>
         /// Gets the max connection idle time.
         /// </summary>
         public TimeSpan MaxConnectionIdleTime {

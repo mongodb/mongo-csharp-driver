@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 
 using MongoDB.Bson;
@@ -30,6 +31,7 @@ namespace MongoDB.Driver {
         private ConnectionMode connectionMode;
         private TimeSpan connectTimeout;
         private MongoCredentials defaultCredentials;
+        private bool ipv6;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
         private int maxConnectionPoolSize;
@@ -55,6 +57,7 @@ namespace MongoDB.Driver {
             connectionMode = ConnectionMode.Direct;
             connectTimeout = MongoDefaults.ConnectTimeout;
             defaultCredentials = null;
+            ipv6 = false;
             maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
@@ -74,6 +77,7 @@ namespace MongoDB.Driver {
         /// <param name="connectionMode">The connection mode (Direct or ReplicaSet).</param>
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="defaultCredentials">The default credentials.</param>
+        /// <param name="ipv6">Whether to use IPv6.</param>
         /// <param name="maxConnectionIdleTime">The max connection idle time.</param>
         /// <param name="maxConnectionLifeTime">The max connection life time.</param>
         /// <param name="maxConnectionPoolSize">The max connection pool size.</param>
@@ -89,6 +93,7 @@ namespace MongoDB.Driver {
             ConnectionMode connectionMode,
             TimeSpan connectTimeout,
             MongoCredentials defaultCredentials,
+            bool ipv6,
             TimeSpan maxConnectionIdleTime,
             TimeSpan maxConnectionLifeTime,
             int maxConnectionPoolSize,
@@ -104,6 +109,7 @@ namespace MongoDB.Driver {
             this.connectionMode = connectionMode;
             this.connectTimeout = connectTimeout;
             this.defaultCredentials = defaultCredentials;
+            this.ipv6 = ipv6;
             this.maxConnectionIdleTime = maxConnectionIdleTime;
             this.maxConnectionLifeTime = maxConnectionLifeTime;
             this.maxConnectionPoolSize = maxConnectionPoolSize;
@@ -119,6 +125,13 @@ namespace MongoDB.Driver {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the AddressFamily for the IPEndPoint (derived from the IPv6 setting).
+        /// </summary>
+        public AddressFamily AddressFamily {
+            get { return ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork; }
+        }
+
         /// <summary>
         /// Gets or sets the connection mode.
         /// </summary>
@@ -157,6 +170,17 @@ namespace MongoDB.Driver {
         /// </summary>
         public bool IsFrozen {
             get { return isFrozen; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use IPv6.
+        /// </summary>
+        public bool IPv6 {
+            get { return ipv6; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                ipv6 = value;
+            }
         }
 
         /// <summary>
@@ -302,6 +326,7 @@ namespace MongoDB.Driver {
                 connectionMode,
                 connectTimeout,
                 defaultCredentials,
+                ipv6,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
                 maxConnectionPoolSize,
@@ -333,6 +358,7 @@ namespace MongoDB.Driver {
                         this.connectionMode == rhs.connectionMode &&
                         this.connectTimeout == rhs.connectTimeout &&
                         this.defaultCredentials == rhs.defaultCredentials &&
+                        this.ipv6 == rhs.ipv6 &&
                         this.maxConnectionIdleTime == rhs.maxConnectionIdleTime &&
                         this.maxConnectionLifeTime == rhs.maxConnectionLifeTime &&
                         this.maxConnectionPoolSize == rhs.maxConnectionPoolSize &&
@@ -393,6 +419,7 @@ namespace MongoDB.Driver {
             hash = 37 * hash + connectionMode.GetHashCode();
             hash = 37 * hash + connectTimeout.GetHashCode();
             hash = 37 * hash + (defaultCredentials == null ? 0 : defaultCredentials.GetHashCode());
+            hash = 37 * hash + ipv6.GetHashCode();
             hash = 37 * hash + maxConnectionIdleTime.GetHashCode();
             hash = 37 * hash + maxConnectionLifeTime.GetHashCode();
             hash = 37 * hash + maxConnectionPoolSize.GetHashCode();
@@ -420,6 +447,7 @@ namespace MongoDB.Driver {
             sb.AppendFormat("ConnectionMode={0};", connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", connectTimeout);
             sb.AppendFormat("DefaultCredentials={0};", defaultCredentials);
+            sb.AppendFormat("IPv6={0};", ipv6);
             sb.AppendFormat("MaxConnectionIdleTime={0};", maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", maxConnectionPoolSize);

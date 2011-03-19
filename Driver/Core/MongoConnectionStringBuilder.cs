@@ -64,6 +64,7 @@ namespace MongoDB.Driver {
         private ConnectionMode connectionMode;
         private TimeSpan connectTimeout;
         private string databaseName;
+        private bool ipv6;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
         private int maxConnectionPoolSize;
@@ -143,6 +144,17 @@ namespace MongoDB.Driver {
             get { return databaseName; }
             set {
                 base["database"] = databaseName = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use IPv6.
+        /// </summary>
+        public bool IPv6 {
+            get { return ipv6; }
+            set {
+                ipv6 = value;
+                base["ipv6"] = XmlConvert.ToString(value);
             }
         }
 
@@ -366,6 +378,9 @@ namespace MongoDB.Driver {
                         wtimeout = (safeMode != null) ? safeMode.WTimeout : TimeSpan.Zero;
                         SafeMode = SafeMode.Create(true, fsync, w, wtimeout);
                         break;
+                    case "ipv6":
+                        IPv6 = Convert.ToBoolean(value);
+                        break;
                     case "maxidletime":
                     case "maxidletimems":
                         MaxConnectionIdleTime = ToTimeSpan(keyword, value);
@@ -472,6 +487,7 @@ namespace MongoDB.Driver {
                 connectionMode,
                 connectTimeout,
                 MongoCredentials.Create(username, password), // defaultCredentials
+                ipv6,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
                 maxConnectionPoolSize,
@@ -516,6 +532,7 @@ namespace MongoDB.Driver {
         	connectionMode = ConnectionMode.Direct;
         	connectTimeout = MongoDefaults.ConnectTimeout;
         	databaseName = null;
+            ipv6 = false;
         	maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
         	maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
         	maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;

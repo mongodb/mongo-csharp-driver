@@ -209,11 +209,13 @@ namespace MongoDB.Driver {
         /// Returns the server address as an IPEndPoint (does a DNS lookup).
         /// </summary>
         /// <returns>The IPEndPoint of the server.</returns>
-        public IPEndPoint ToIPEndPoint() {
+        public IPEndPoint ToIPEndPoint(
+            AddressFamily addressFamily
+        ) {
             var ipAddresses = Dns.GetHostAddresses(host);
             if (ipAddresses != null && ipAddresses.Length != 0) {
                 foreach (var ipAddress in ipAddresses) {
-                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork) {
+                    if (ipAddress.AddressFamily == addressFamily) {
                         return new IPEndPoint(ipAddress, port);
                     }
                 }

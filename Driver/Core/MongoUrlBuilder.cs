@@ -35,6 +35,7 @@ namespace MongoDB.Driver {
         private TimeSpan connectTimeout;
         private string databaseName;
         private MongoCredentials defaultCredentials;
+        private bool ipv6;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
         private int maxConnectionPoolSize;
@@ -112,6 +113,14 @@ namespace MongoDB.Driver {
         public MongoCredentials DefaultCredentials {
             get { return defaultCredentials; }
             set { defaultCredentials = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use IPv6.
+        /// </summary>
+        public bool IPv6 {
+            get { return ipv6; }
+            set { ipv6 = value; }
         }
 
         /// <summary>
@@ -422,6 +431,9 @@ namespace MongoDB.Driver {
                                 safe = true;
                                 fsync = ParseBoolean(name, value);
                                 break;
+                            case "ipv6":
+                                ipv6 = ParseBoolean(name, value);
+                                break;
                             case "maxidletime":
                             case "maxidletimems":
                                 maxConnectionIdleTime = ParseTimeSpan(name, value);
@@ -503,6 +515,7 @@ namespace MongoDB.Driver {
                 connectionMode,
                 connectTimeout,
                 defaultCredentials,
+                ipv6,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
                 maxConnectionPoolSize,
@@ -542,6 +555,9 @@ namespace MongoDB.Driver {
                 url.Append(databaseName);
             }
             var query = new StringBuilder();
+            if (ipv6) {
+                query.AppendFormat("ipv6=true;");
+            }
             if (
                 connectionMode == ConnectionMode.Direct && servers.Count() != 1 ||
                 connectionMode == Driver.ConnectionMode.ReplicaSet && servers.Count() == 1
@@ -552,7 +568,7 @@ namespace MongoDB.Driver {
                 query.AppendFormat("replicaSet={0};", replicaSetName);
             }
             if (slaveOk) {
-                query.AppendFormat("slaveOk={0};", (slaveOk) ? "true" : "false");
+                query.AppendFormat("slaveOk=true;");
             }
             if (safeMode != null && safeMode.Enabled) {
                 query.AppendFormat("safe=true;");
@@ -611,6 +627,7 @@ namespace MongoDB.Driver {
             connectTimeout = MongoDefaults.ConnectTimeout;
             databaseName = null;
             defaultCredentials = null;
+            ipv6 = false;
             maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;

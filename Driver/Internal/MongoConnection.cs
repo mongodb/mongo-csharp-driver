@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Internal {
                 throw new InvalidOperationException("Open called more than once");
             }
 
-            var tcpClient = new TcpClient();
+            var tcpClient = new TcpClient(endPoint.AddressFamily);
             tcpClient.NoDelay = true; // turn off Nagle
             tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
             tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;

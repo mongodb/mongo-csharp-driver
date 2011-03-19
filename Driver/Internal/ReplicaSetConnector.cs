@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Internal {
                     if (!queries.Contains(address)) {
                         var args = new QueryNodeParameters {
                             Address = address,
-                            EndPoint = address.ToIPEndPoint(),
+                            EndPoint = address.ToIPEndPoint(server.Settings.AddressFamily),
                             ResponseQueue = responsesQueue
                         };
                         ThreadPool.QueueUserWorkItem(QueryNodeWorkItem, args);

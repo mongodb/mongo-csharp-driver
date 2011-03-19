@@ -63,7 +63,7 @@ namespace MongoDB.Driver {
             this.settings = settings.Freeze();
 
             foreach (var address in settings.Servers) {
-                endPoints.Add(address.ToIPEndPoint());
+                endPoints.Add(address.ToIPEndPoint(settings.AddressFamily));
             }
         }
         #endregion
