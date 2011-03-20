@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
@@ -59,17 +58,6 @@ namespace MongoDB.Driver.Builders {
             params string[] keys
         ) {
             return new SortByBuilder().Descending(keys);
-        }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoSortBy is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="sortBy">The wrapped object.</param>
-        /// <returns>A SortByWrapper.</returns>
-        public static IMongoSortBy Wrap(
-            object sortBy
-        ) {
-            return SortByWrapper.Create(sortBy);
         }
         #endregion
     }

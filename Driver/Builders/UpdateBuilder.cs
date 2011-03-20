@@ -451,18 +451,6 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new UpdateBuilder().Unset(name);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoUpdate is expected (the wrapped object is expected to serialize properly to a valid update specifier).
-        /// Most likely you need to use Replace instead.
-        /// </summary>
-        /// <param name="update">The wrapped object.</param>
-        /// <returns>A UpdateWrapper.</returns>
-        public static IMongoUpdate Wrap(
-            object update
-        ) {
-            return UpdateWrapper.Create(update);
-        }
         #endregion
     }
 
@@ -547,7 +535,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             IEnumerable<T> values
         ) {
-            var wrappedValues = BsonDocument.WrapMultiple<T>(values).Cast<BsonValue>(); // the cast to BsonValue is required
+            var wrappedValues = BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>(); // the cast to BsonValue is required
             return AddToSetEach(name, wrappedValues);
         }
 
@@ -574,7 +562,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             T value
         ) {
-            var wrappedValue = (BsonValue) BsonDocument.Wrap<T>(value); // the cast to BsonValue is required
+            var wrappedValue = (BsonValue) BsonDocumentWrapper.Create(value); // the cast to BsonValue is required
             return AddToSet(name, wrappedValue);
         }
 
@@ -739,7 +727,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             IMongoQuery query
         ) {
-            BsonValue wrappedQuery = BsonDocument.Wrap(query);
+            BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
             BsonElement element;
             if (document.TryGetElement("$pull", out element)) {
                 element.Value.AsBsonDocument.Add(name, wrappedQuery);
@@ -792,7 +780,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             IEnumerable<T> values
         ) {
-            var wrappedValues = new BsonArray(BsonDocument.WrapMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
+            var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
             BsonElement element;
             if (document.TryGetElement("$pullAll", out element)) {
                 element.Value.AsBsonDocument.Add(name, wrappedValues);
@@ -825,7 +813,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             T value
         ) {
-            var wrappedValue = BsonDocument.Wrap(value);
+            var wrappedValue = BsonDocumentWrapper.Create(value);
             BsonElement element;
             if (document.TryGetElement("$pull", out element)) {
                 element.Value.AsBsonDocument.Add(name, wrappedValue);
@@ -897,7 +885,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             IEnumerable<T> values
         ) {
-            var wrappedValues = new BsonArray(BsonDocument.WrapMultiple<T>(values).Cast<BsonValue>()); // the cast to BsonValue is required
+            var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
             BsonElement element;
             if (document.TryGetElement("$pushAll", out element)) {
                 element.Value.AsBsonDocument.Add(name, wrappedValues);
@@ -930,7 +918,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             T value
         ) {
-            var wrappedValue = BsonDocument.Wrap<T>(value);
+            var wrappedValue = BsonDocumentWrapper.Create<T>(value);
             BsonElement element;
             if (document.TryGetElement("$push", out element)) {
                 element.Value.AsBsonDocument.Add(name, wrappedValue);
@@ -969,7 +957,7 @@ namespace MongoDB.Driver.Builders {
             string name,
             T value
         ) {
-            var wrappedValue = BsonDocument.Wrap<T>(value);
+            var wrappedValue = BsonDocumentWrapper.Create<T>(value);
             BsonElement element;
             if (document.TryGetElement("$set", out element)) {
                 element.Value.AsBsonDocument.Add(name, wrappedValue);

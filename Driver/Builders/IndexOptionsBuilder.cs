@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
@@ -105,17 +104,6 @@ namespace MongoDB.Driver.Builders {
             bool value
         ) {
             return new IndexOptionsBuilder().SetUnique(value);
-        }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoIndexOptions is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="options">The wrapped object.</param>
-        /// <returns>A IndexOptionsWrapper.</returns>
-        public static IMongoIndexOptions Wrap(
-            object options
-        ) {
-            return IndexOptionsWrapper.Create(options);
         }
         #endregion
     }

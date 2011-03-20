@@ -82,17 +82,6 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new CollectionOptionsBuilder().SetMaxSize(value);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoCollectionOptions is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="options">The wrapped object.</param>
-        /// <returns>A CollectionOptionsWrapper.</returns>
-        public static IMongoCollectionOptions Wrap(
-            object options
-        ) {
-            return CollectionOptionsWrapper.Create(options);
-        }
         #endregion
     }
 

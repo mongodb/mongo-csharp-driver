@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
@@ -50,17 +49,6 @@ namespace MongoDB.Driver.Builders {
             params string[] names
         ) {
             return new GroupByBuilder(names);
-        }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoGroupBy is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="groupBy">The wrapped object.</param>
-        /// <returns>A GroupByWrapper.</returns>
-        public static IMongoGroupBy Wrap(
-            object groupBy
-        ) {
-            return GroupByWrapper.Create(groupBy);
         }
         #endregion
     }

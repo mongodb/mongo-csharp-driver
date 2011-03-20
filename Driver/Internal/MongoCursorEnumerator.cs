@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Internal {
             if (cursor.Options == null) {
                 return cursor.Query;
             } else {
-                var query = (cursor.Query == null) ? (BsonValue) new BsonDocument() : BsonDocument.Wrap(cursor.Query);
+                var query = (cursor.Query == null) ? (BsonValue) new BsonDocument() : BsonDocumentWrapper.Create(cursor.Query);
                 var wrappedQuery = new QueryDocument("$query", query);
                 wrappedQuery.Merge(cursor.Options);
                 return wrappedQuery;

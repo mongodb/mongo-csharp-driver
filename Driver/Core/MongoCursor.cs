@@ -180,7 +180,7 @@ namespace MongoDB.Driver {
             isFrozen = true;
             var command = new CommandDocument {
                 { "count", collection.Name },
-                { "query", BsonDocument.Wrap(query) } // query is optional
+                { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
             return result.Response["n"].ToInt32();
@@ -458,7 +458,7 @@ namespace MongoDB.Driver {
             IMongoSortBy sortBy
         ) {
             if (isFrozen) { ThrowFrozen(); }
-            SetOption("$orderby", BsonDocument.Wrap(sortBy));
+            SetOption("$orderby", BsonDocumentWrapper.Create(sortBy));
             return this;
         }
 
@@ -482,7 +482,7 @@ namespace MongoDB.Driver {
             isFrozen = true;
             var command = new CommandDocument {
                 { "count", collection.Name },
-                { "query", BsonDocument.Wrap(query) }, // query is optional
+                { "query", BsonDocumentWrapper.Create(query) }, // query is optional
                 { "limit", limit, limit != 0 },
                 { "skip", skip, skip != 0 }
             };

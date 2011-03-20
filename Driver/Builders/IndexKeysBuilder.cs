@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
@@ -61,17 +60,6 @@ namespace MongoDB.Driver.Builders {
             string name
         ) {
             return new IndexKeysBuilder().GeoSpatial(name);
-        }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoIndexKeys is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="keys">The wrapped object.</param>
-        /// <returns>A IndexKeysWrapper.</returns>
-        public static IMongoIndexKeys Wrap(
-            object keys
-        ) {
-            return IndexKeysWrapper.Create(keys);
         }
         #endregion
     }

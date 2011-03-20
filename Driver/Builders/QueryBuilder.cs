@@ -21,7 +21,6 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
@@ -456,17 +455,6 @@ namespace MongoDB.Driver.Builders {
             double upperRightY
         ) {
             return new QueryConditionList(name).WithinRectangle(lowerLeftX, lowerLeftY, upperRightX, upperRightY);
-        }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoQuery is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="query">The wrapped object.</param>
-        /// <returns>A QueryWrapper.</returns>
-        public static IMongoQuery Wrap(
-            object query
-        ) {
-            return QueryWrapper.Create(query);
         }
         #endregion
     }

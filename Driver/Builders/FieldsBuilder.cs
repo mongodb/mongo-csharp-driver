@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
@@ -87,17 +86,6 @@ namespace MongoDB.Driver.Builders {
             int limit
         ) {
             return new FieldsBuilder().Slice(name, skip, limit);
-        }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoFields is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="fields">The wrapped object.</param>
-        /// <returns>A FieldsWrapper.</returns>
-        public static IMongoFields Wrap(
-            object fields
-        ) {
-            return FieldsWrapper.Create(fields);
         }
         #endregion
     }

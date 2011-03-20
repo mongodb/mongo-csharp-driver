@@ -420,7 +420,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
 
         [Test]
         public void TestEmpty() {
-            var obj = new TestClass(new BsonDocumentWrapper(new BsonDocument()));
+            var obj = new TestClass(BsonDocumentWrapper.Create(new BsonDocument()));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -432,7 +432,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestNotEmpty() {
             var obj = new TestClass(
-                new BsonDocumentWrapper(
+                BsonDocumentWrapper.Create(
                     new BsonDocument {
                         { "A", 1 },
                         { "B", 2 }

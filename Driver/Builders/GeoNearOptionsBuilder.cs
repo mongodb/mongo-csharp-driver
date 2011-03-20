@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
@@ -70,17 +69,6 @@ namespace MongoDB.Driver.Builders {
             bool value
         ) {
             return new GeoNearOptionsBuilder().SetSpherical(value);
-        }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoGeoNearOptions is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="options">The wrapped object.</param>
-        /// <returns>A GeoNearOptionsWrapper.</returns>
-        public static IMongoGeoNearOptions Wrap(
-            object options
-        ) {
-            return GeoNearOptionsWrapper.Create(options);
         }
         #endregion
     }
