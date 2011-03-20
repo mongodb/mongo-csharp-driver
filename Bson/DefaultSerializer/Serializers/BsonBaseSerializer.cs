@@ -23,7 +23,7 @@ using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.DefaultSerializer {
+namespace MongoDB.Bson.DefaultSerializer.Serializers {
     /// <summary>
     /// Represents a base implementation for the many implementations of IBsonSerializer.
     /// </summary>

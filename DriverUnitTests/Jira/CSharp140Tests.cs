@@ -25,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
     [TestFixture]

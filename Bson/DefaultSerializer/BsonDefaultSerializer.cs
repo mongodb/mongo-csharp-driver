@@ -26,8 +26,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.DefaultSerializer.Conventions;
+using MongoDB.Bson.DefaultSerializer.Serializers;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.DefaultSerializer {
     /// <summary>

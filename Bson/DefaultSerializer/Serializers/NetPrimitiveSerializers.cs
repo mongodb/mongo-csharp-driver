@@ -26,7 +26,7 @@ using System.Xml;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.DefaultSerializer {
+namespace MongoDB.Bson.DefaultSerializer.Serializers {
     /// <summary>
     /// Represents a serializer for BitArrays.
     /// </summary>

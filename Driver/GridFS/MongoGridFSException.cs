@@ -19,7 +19,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver.GridFS {
     /// <summary>
     /// Represents a MongoDB GridFS exception.
     /// </summary>

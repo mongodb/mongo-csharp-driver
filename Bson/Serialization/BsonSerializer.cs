@@ -293,7 +293,7 @@ namespace MongoDB.Bson.Serialization {
                 if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
                     if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type)) {
-                        serializer = DefaultSerializer.BsonIBsonSerializableSerializer.Instance;
+                        serializer = DefaultSerializer.Serializers.BsonIBsonSerializableSerializer.Instance;
                     }
 
                     if (serializer == null && type.IsGenericType) {

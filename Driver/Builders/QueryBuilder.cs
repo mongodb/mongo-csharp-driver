@@ -21,6 +21,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
