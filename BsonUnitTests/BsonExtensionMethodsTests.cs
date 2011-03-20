@@ -21,6 +21,7 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.BsonUnitTests {
     [TestFixture]

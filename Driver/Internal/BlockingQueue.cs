@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Internal {
     /// Represents a thread-safe queue.
     /// </summary>
     /// <typeparam name="T">The type of elements.</typeparam>
-    public class BlockingQueue<T> {
+    internal class BlockingQueue<T> {
         #region private fields
         private object syncRoot = new object();
         private Queue<T> queue = new Queue<T>();
@@ -34,17 +34,17 @@ namespace MongoDB.Driver.Internal {
         /// <summary>
         /// Initializes a new instance of the BlockingQueue class.
         /// </summary>
-        public BlockingQueue() {
+        internal BlockingQueue() {
         }
         #endregion
 
-        #region public methods
+        #region internal methods
         /// <summary>
         /// Dequeues one item from the queue. Will block waiting for an item if the queue is empty.
         /// </summary>
         /// <param name="timeout">The timeout for waiting for an item to appear in the queue.</param>
         /// <returns>The first item in the queue (null if it timed out).</returns>
-        public T Dequeue(
+        internal T Dequeue(
             TimeSpan timeout
         ) {
             lock (syncRoot) {
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Internal {
         /// Enqueues an item on to the queue.
         /// </summary>
         /// <param name="item">The item to be queued.</param>
-        public void Enqueue(
+        internal void Enqueue(
             T item
         ) {
             lock (syncRoot) {

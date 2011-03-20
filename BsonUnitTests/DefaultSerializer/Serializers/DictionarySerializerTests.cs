@@ -21,10 +21,10 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer.DictionarySerializers {
+namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
     [BsonDiscriminator("DictionarySerializers.C")] // "C" is an ambiguous discriminator when nominalType is System.Object
     public class C {
         public string P { get; set; }

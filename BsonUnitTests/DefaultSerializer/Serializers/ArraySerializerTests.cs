@@ -21,11 +21,10 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer {
+namespace MongoDB.BsonUnitTests.Serialization {
     [TestFixture]
     public class ClassArrayTests {
         private class B {

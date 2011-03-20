@@ -21,9 +21,9 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Driver;
-using MongoDB.Bson.DefaultSerializer.Conventions;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.DriverOnlineTests.Jira.CSharp77 {
     [TestFixture]

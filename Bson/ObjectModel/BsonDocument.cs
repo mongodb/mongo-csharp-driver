@@ -22,10 +22,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.DefaultSerializer;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson {
     /// <summary>

@@ -21,10 +21,9 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer.ArraySerializer {
+namespace MongoDB.BsonUnitTests.Serialization.ArraySerializer {
     [TestFixture]
     public class TwoDimensionalArraySerializerTests {
         private class C {

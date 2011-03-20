@@ -19,8 +19,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-// don't add using statement for MongoDB.Bson.DefaultSerializer to minimize dependencies on DefaultSerializer
+// don't add using statement for MongoDB.Bson.Serialization.Serializers to minimize dependencies on DefaultSerializer
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace MongoDB.Bson.Serialization {
     /// <summary>
@@ -293,7 +294,7 @@ namespace MongoDB.Bson.Serialization {
                 if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
                     if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type)) {
-                        serializer = DefaultSerializer.Serializers.BsonIBsonSerializableSerializer.Instance;
+                        serializer = Serializers.BsonIBsonSerializableSerializer.Instance;
                     }
 
                     if (serializer == null && type.IsGenericType) {
@@ -450,7 +451,7 @@ namespace MongoDB.Bson.Serialization {
 
         #region private static methods
         private static void RegisterDefaultSerializationProvider() {
-            RegisterSerializationProvider(DefaultSerializer.BsonDefaultSerializer.Instance);
+            RegisterSerializationProvider(BsonDefaultSerializer.Instance);
         }
 
         private static void RegisterIdGenerators() {

@@ -24,6 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver {
     /// <summary>
