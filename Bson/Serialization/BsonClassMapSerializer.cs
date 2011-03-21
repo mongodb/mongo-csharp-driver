@@ -137,7 +137,7 @@ namespace MongoDB.Bson.Serialization {
                 foreach (var memberMap in missingElementMemberMaps) {
                     if (memberMap.IsRequired) {
                         var message = string.Format("Required element is missing: {0}", memberMap.ElementName);
-                        throw new BsonSerializationException(message);
+                        throw new FileFormatException(message);
                     }
 
                     if (memberMap.HasDefaultValue) {

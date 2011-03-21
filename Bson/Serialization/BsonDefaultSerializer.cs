@@ -190,7 +190,7 @@ namespace MongoDB.Bson.Serialization {
 
                 if (!nominalType.IsAssignableFrom(actualType)) {
                     string message = string.Format("Actual type {0} is not assignable to expected type {1}", actualType.FullName, nominalType.FullName);
-                    throw new FileFormatException(message);
+                    throw new BsonSerializationException(message);
                 }
 
                 return actualType;

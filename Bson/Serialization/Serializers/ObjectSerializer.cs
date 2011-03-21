@@ -74,24 +74,22 @@ namespace MongoDB.Bson.Serialization.Serializers {
             } else if (bsonType == BsonType.Document) {
                 var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
-                switch (bsonReader.ReadBsonType()) {
-                    case BsonType.EndOfDocument:
-                        bsonReader.ReadEndDocument();
-                        return new object();
-                    default:
-                        bsonReader.ReturnToBookmark(bookmark);
-                        var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
-                        var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
-                        if (actualType == typeof(object)) {
-                            throw new BsonSerializationException("Unable to determine actual type of document to deserialize");
-                        }
-                        var serializer = BsonSerializer.LookupSerializer(actualType);
-                        return serializer.Deserialize(bsonReader, nominalType, actualType, null);
+                if (bsonReader.ReadBsonType() == BsonType.EndOfDocument) {
+                    bsonReader.ReadEndDocument();
+                    return new object();
+                } else {
+                    bsonReader.ReturnToBookmark(bookmark);
                 }
-            } else {
-                var message = string.Format("Cannot deserialize an object from BsonType: {0}", bsonType);
+            }
+
+            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+            var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
+            if (actualType == typeof(object)) {
+                var message = string.Format("Unable to determine actual type of object to deserialize (nominalType: 'object', BsonType: '{0}')", bsonType);
                 throw new FileFormatException(message);
             }
+            var serializer = BsonSerializer.LookupSerializer(actualType);
+            return serializer.Deserialize(bsonReader, nominalType, actualType, null);
         }
 
         /// <summary>
