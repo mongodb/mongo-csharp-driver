@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoFields that was created using a builder.
+    /// A builder for specifying which fields of a document the server should return.
     /// </summary>
     public static class Fields {
         #region public static properties
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoFields that was created using a builder.
+    /// A builder for specifying which fields of a document the server should return.
     /// </summary>
     [Serializable]
     public class FieldsBuilder : BuilderBase, IMongoFields {

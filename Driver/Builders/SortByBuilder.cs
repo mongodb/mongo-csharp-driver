@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoSortBy that was created using a builder.
+    /// A builder for specifying a sort order.
     /// </summary>
     public static class SortBy {
         #region public static properties
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoSortBy that was created using a builder.
+    /// A builder for specifying a sort order.
     /// </summary>
     [Serializable]
     public class SortByBuilder : BuilderBase, IMongoSortBy {

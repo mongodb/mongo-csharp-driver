@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoIndexKeys that was created using a builder.
+    /// A builder for specifying the keys for an index.
     /// </summary>
     public static class IndexKeys {
         #region public static methods
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoIndexKeys that was created using a builder.
+    /// A builder for specifying the keys for an index.
     /// </summary>
     [Serializable]
     public class IndexKeysBuilder : BuilderBase, IMongoIndexKeys {

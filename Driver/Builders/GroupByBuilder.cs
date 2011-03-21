@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoGroupBy that was created using a builder.
+    /// A builder for specifying what the GroupBy command should group by.
     /// </summary>
     public static class GroupBy {
         #region public static methods
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoGroupBy that was created using a builder.
+    /// A builder for specifying what the GroupBy command should group by.
     /// </summary>
     [Serializable]
     public class GroupByBuilder : BuilderBase, IMongoGroupBy {

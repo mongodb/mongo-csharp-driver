@@ -26,7 +26,7 @@ using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoUpdate that was created using a builder.
+    /// A builder for creating update modifiers.
     /// </summary>
     public static class Update {
         #region public static methods
@@ -455,7 +455,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoUpdate that was created using a builder.
+    /// A builder for creating update modifiers.
     /// </summary>
     [Serializable]
     public class UpdateBuilder : BuilderBase, IMongoUpdate {

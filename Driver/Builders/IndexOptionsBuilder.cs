@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoIndexOptions that was created using a builder.
+    /// A builder for the options used when creating an index.
     /// </summary>
     public static class IndexOptions {
         #region public static properties
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoIndexOptions that was created using a builder.
+    /// A builder for the options used when creating an index.
     /// </summary>
     [Serializable]
     public class IndexOptionsBuilder : BuilderBase, IMongoIndexOptions {

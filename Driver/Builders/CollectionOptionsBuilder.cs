@@ -26,7 +26,7 @@ using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoCollectionOptions that was created using a builder.
+    /// A builder for the options used when creating a collection.
     /// </summary>
     public static class CollectionOptions {
         #region public static properties
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoCollectionOptions that was created using a builder.
+    /// A builder for the options used when creating a collection.
     /// </summary>
     [Serializable]
     public class CollectionOptionsBuilder : BuilderBase, IMongoCollectionOptions {

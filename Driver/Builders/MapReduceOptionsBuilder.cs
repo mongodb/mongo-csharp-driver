@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoMapReduceOptions that was created using a builder.
+    /// A builder for the options of a Map/Reduce operation.
     /// </summary>
     public static class MapReduceOptions {
         #region public static properties
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoMapReduceOptions that was created using a builder.
+    /// A builder for the options of a Map/Reduce operation.
     /// </summary>
     [Serializable]
     public class MapReduceOptionsBuilder : BuilderBase, IMongoMapReduceOptions {
