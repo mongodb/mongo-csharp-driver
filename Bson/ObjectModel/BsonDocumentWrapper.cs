@@ -43,13 +43,6 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWrapper class.
         /// </summary>
-        private BsonDocumentWrapper()
-            : base(BsonType.Document) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonDocumentWrapper class.
-        /// </summary>
         /// <param name="wrappedObject">The wrapped object.</param>
         public BsonDocumentWrapper(
             object wrappedObject
