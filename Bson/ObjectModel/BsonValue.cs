@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson {

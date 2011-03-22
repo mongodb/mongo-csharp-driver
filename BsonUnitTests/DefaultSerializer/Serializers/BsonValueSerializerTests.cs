@@ -22,11 +22,11 @@ using System.Xml;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer {
+namespace MongoDB.BsonUnitTests.Serialization {
     [TestFixture]
     public class BsonArraySerializerTests {
         public class TestClass {
@@ -420,7 +420,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
 
         [Test]
         public void TestEmpty() {
-            var obj = new TestClass(new BsonDocumentWrapper(new BsonDocument()));
+            var obj = new TestClass(BsonDocumentWrapper.Create(new BsonDocument()));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -432,7 +432,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer {
         [Test]
         public void TestNotEmpty() {
             var obj = new TestClass(
-                new BsonDocumentWrapper(
+                BsonDocumentWrapper.Create(
                     new BsonDocument {
                         { "A", 1 },
                         { "B", 2 }

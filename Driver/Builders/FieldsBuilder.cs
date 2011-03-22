@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoFields that was created using a builder.
+    /// A builder for specifying which fields of a document the server should return.
     /// </summary>
     public static class Fields {
         #region public static properties
@@ -87,22 +87,11 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new FieldsBuilder().Slice(name, skip, limit);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoFields is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="fields">The wrapped object.</param>
-        /// <returns>A FieldsWrapper.</returns>
-        public static IMongoFields Wrap(
-            object fields
-        ) {
-            return FieldsWrapper.Create(fields);
-        }
         #endregion
     }
 
     /// <summary>
-    /// Represents an instance of IMongoFields that was created using a builder.
+    /// A builder for specifying which fields of a document the server should return.
     /// </summary>
     [Serializable]
     public class FieldsBuilder : BuilderBase, IMongoFields {

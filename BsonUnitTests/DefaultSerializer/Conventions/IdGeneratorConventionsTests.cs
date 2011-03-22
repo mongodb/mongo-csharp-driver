@@ -20,12 +20,12 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
-using MongoDB.Bson.DefaultSerializer.Conventions;
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.IdGenerators;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions {
+namespace MongoDB.BsonUnitTests.Serialization.Conventions {
     [TestFixture]
     public class IdGeneratorConventionsTests {
         private class TestClass {

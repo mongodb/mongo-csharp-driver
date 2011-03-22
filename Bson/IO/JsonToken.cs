@@ -18,9 +18,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 using MongoDB.Bson;
-using System.Xml;
 
 namespace MongoDB.Bson.IO {
     /// <summary>

@@ -21,7 +21,7 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver.Wrappers {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoCollectionOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>

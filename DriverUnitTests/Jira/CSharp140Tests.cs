@@ -22,9 +22,9 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
     [TestFixture]
@@ -53,7 +53,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeFieldsWrapped() {
             object c = new C { X = 1 };
-            object w = Fields.Wrap(c);
+            object w = FieldsWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -62,7 +62,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeGeoNearOptionsWrapped() {
             object c = new C { X = 1 };
-            object w = GeoNearOptions.Wrap(c);
+            object w = GeoNearOptionsWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -71,7 +71,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeGroupByWrapped() {
             object c = new C { X = 1 };
-            object w = GroupBy.Wrap(c);
+            object w = GroupByWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -80,7 +80,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeIndexKeysWrapped() {
             object c = new C { X = 1 };
-            object w = IndexKeys.Wrap(c);
+            object w = IndexKeysWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -89,7 +89,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeIndexOptionsWrapped() {
             object c = new C { X = 1 };
-            object w = IndexOptions.Wrap(c);
+            object w = IndexOptionsWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -98,7 +98,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeMapReduceOptionsWrapped() {
             object c = new C { X = 1 };
-            object w = MapReduceOptions.Wrap(c);
+            object w = MapReduceOptionsWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -107,7 +107,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeQueryWrapped() {
             object c = new C { X = 1 };
-            object w = Query.Wrap(c);
+            object w = QueryWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -125,7 +125,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeSortByWrapped() {
             object c = new C { X = 1 };
-            object w = SortBy.Wrap(c);
+            object w = SortByWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -134,7 +134,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         [Test]
         public void TestSerializeUpdateWrapped() {
             object c = new C { X = 1 };
-            object w = Update.Wrap(c);
+            object w = UpdateWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);

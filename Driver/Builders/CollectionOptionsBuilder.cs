@@ -22,10 +22,11 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoCollectionOptions that was created using a builder.
+    /// A builder for the options used when creating a collection.
     /// </summary>
     public static class CollectionOptions {
         #region public static properties
@@ -81,22 +82,11 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new CollectionOptionsBuilder().SetMaxSize(value);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoCollectionOptions is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="options">The wrapped object.</param>
-        /// <returns>A CollectionOptionsWrapper.</returns>
-        public static IMongoCollectionOptions Wrap(
-            object options
-        ) {
-            return CollectionOptionsWrapper.Create(options);
-        }
         #endregion
     }
 
     /// <summary>
-    /// Represents an instance of IMongoCollectionOptions that was created using a builder.
+    /// A builder for the options used when creating a collection.
     /// </summary>
     [Serializable]
     public class CollectionOptionsBuilder : BuilderBase, IMongoCollectionOptions {

@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoIndexKeys that was created using a builder.
+    /// A builder for specifying the keys for an index.
     /// </summary>
     public static class IndexKeys {
         #region public static methods
@@ -61,22 +61,11 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new IndexKeysBuilder().GeoSpatial(name);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoIndexKeys is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="keys">The wrapped object.</param>
-        /// <returns>A IndexKeysWrapper.</returns>
-        public static IMongoIndexKeys Wrap(
-            object keys
-        ) {
-            return IndexKeysWrapper.Create(keys);
-        }
         #endregion
     }
 
     /// <summary>
-    /// Represents an instance of IMongoIndexKeys that was created using a builder.
+    /// A builder for specifying the keys for an index.
     /// </summary>
     [Serializable]
     public class IndexKeysBuilder : BuilderBase, IMongoIndexKeys {

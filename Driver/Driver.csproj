@@ -143,7 +143,7 @@
     <Compile Include="Exceptions\MongoAuthenticationException.cs" />
     <Compile Include="Exceptions\MongoCommandException.cs" />
     <Compile Include="Exceptions\MongoConnectionException.cs" />
-    <Compile Include="Exceptions\MongoGridFSException.cs" />
+    <Compile Include="GridFS\MongoGridFSException.cs" />
     <Compile Include="Exceptions\MongoInternalException.cs" />
     <Compile Include="Exceptions\MongoQueryException.cs" />
     <Compile Include="Exceptions\MongoSafeModeException.cs" />

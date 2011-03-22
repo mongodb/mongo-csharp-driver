@@ -21,11 +21,11 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer {
+namespace MongoDB.BsonUnitTests.Serialization {
     [TestFixture]
     public class DiscriminatorTests {
         [BsonDiscriminator("A~")] // make discriminators unique with respect to object

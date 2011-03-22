@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoSortBy that was created using a builder.
+    /// A builder for specifying a sort order.
     /// </summary>
     public static class SortBy {
         #region public static properties
@@ -59,22 +59,11 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new SortByBuilder().Descending(keys);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoSortBy is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="sortBy">The wrapped object.</param>
-        /// <returns>A SortByWrapper.</returns>
-        public static IMongoSortBy Wrap(
-            object sortBy
-        ) {
-            return SortByWrapper.Create(sortBy);
-        }
         #endregion
     }
 
     /// <summary>
-    /// Represents an instance of IMongoSortBy that was created using a builder.
+    /// A builder for specifying a sort order.
     /// </summary>
     [Serializable]
     public class SortByBuilder : BuilderBase, IMongoSortBy {

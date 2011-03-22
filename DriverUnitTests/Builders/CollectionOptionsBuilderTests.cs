@@ -78,12 +78,5 @@ namespace MongoDB.DriverUnitTests.Builders {
             var expected = "{ 'size' : 2147483649 }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
-
-        [Test]
-        public void TestWrap() {
-            var options = CollectionOptions.Wrap(new { capped = true, size = 2000 });
-            var expected = "{ 'capped' : true, 'size' : 2000 }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
-        }
     }
 }

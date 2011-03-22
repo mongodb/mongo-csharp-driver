@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoIndexOptions that was created using a builder.
+    /// A builder for the options used when creating an index.
     /// </summary>
     public static class IndexOptions {
         #region public static properties
@@ -105,22 +105,11 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new IndexOptionsBuilder().SetUnique(value);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoIndexOptions is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="options">The wrapped object.</param>
-        /// <returns>A IndexOptionsWrapper.</returns>
-        public static IMongoIndexOptions Wrap(
-            object options
-        ) {
-            return IndexOptionsWrapper.Create(options);
-        }
         #endregion
     }
 
     /// <summary>
-    /// Represents an instance of IMongoIndexOptions that was created using a builder.
+    /// A builder for the options used when creating an index.
     /// </summary>
     [Serializable]
     public class IndexOptionsBuilder : BuilderBase, IMongoIndexOptions {

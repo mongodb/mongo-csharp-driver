@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoMapReduceOptions that was created using a builder.
+    /// A builder for the options of a Map/Reduce operation.
     /// </summary>
     public static class MapReduceOptions {
         #region public static properties
@@ -223,22 +223,11 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new MapReduceOptionsBuilder().SetVerbose(value);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoMapReduceOptions is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="options">The wrapped object.</param>
-        /// <returns>A MapReduceOptionsWrapper.</returns>
-        public static IMongoMapReduceOptions Wrap(
-            object options
-        ) {
-            return MapReduceOptionsWrapper.Create(options);
-        }
         #endregion
     }
 
     /// <summary>
-    /// Represents an instance of IMongoMapReduceOptions that was created using a builder.
+    /// A builder for the options of a Map/Reduce operation.
     /// </summary>
     [Serializable]
     public class MapReduceOptionsBuilder : BuilderBase, IMongoMapReduceOptions {
@@ -312,7 +301,7 @@ namespace MongoDB.Driver.Builders {
         public MapReduceOptionsBuilder SetQuery(
             IMongoQuery query
         ) {
-            document["query"] = BsonDocument.Wrap(query);
+            document["query"] = BsonDocumentWrapper.Create(query);
             return this;
         }
 
@@ -324,7 +313,7 @@ namespace MongoDB.Driver.Builders {
         public MapReduceOptionsBuilder SetScope(
             IMongoScope scope
         ) {
-            document["scope"] = BsonDocument.Wrap(scope);
+            document["scope"] = BsonDocumentWrapper.Create(scope);
             return this;
         }
 
@@ -336,7 +325,7 @@ namespace MongoDB.Driver.Builders {
         public MapReduceOptionsBuilder SetSortOrder(
             IMongoSortBy sortBy
         ) {
-            document["sort"] = BsonDocument.Wrap(sortBy);
+            document["sort"] = BsonDocumentWrapper.Create(sortBy);
             return this;
         }
 

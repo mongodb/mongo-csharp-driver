@@ -22,10 +22,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.DefaultSerializer;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson {
     /// <summary>
@@ -399,38 +399,6 @@ namespace MongoDB.Bson {
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
             using (BsonReader bsonReader = BsonReader.Create(stream)) {
                 return ReadFrom(bsonReader);
-            }
-        }
-
-        /// <summary>
-        /// Wraps an object with a BsonDocumentWrapper.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
-        /// <param name="value">The wrapped object.</param>
-        /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Wrap<TNominalType>(
-            TNominalType value
-        ) {
-            if (value != null) {
-                return new BsonDocumentWrapper(typeof(TNominalType), value);
-            } else {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Wraps multiple objects with a list of BsonDocumentWrappers.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the wrapped objects.</typeparam>
-        /// <param name="values">The wrapped objects.</param>
-        /// <returns>A list of BsonDocumentWrappers.</returns>
-        public static IEnumerable<BsonDocumentWrapper> WrapMultiple<TNominalType>(
-            IEnumerable<TNominalType> values
-        ) {
-            if (values != null) {
-                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(TNominalType), v));
-            } else {
-                return null;
             }
         }
         #endregion

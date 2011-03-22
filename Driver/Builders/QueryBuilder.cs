@@ -24,7 +24,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoQuery that was created using a builder.
+    /// A builder for creating queries.
     /// </summary>
     public static class Query {
         #region public static properties
@@ -456,22 +456,11 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new QueryConditionList(name).WithinRectangle(lowerLeftX, lowerLeftY, upperRightX, upperRightY);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoQuery is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="query">The wrapped object.</param>
-        /// <returns>A QueryWrapper.</returns>
-        public static IMongoQuery Wrap(
-            object query
-        ) {
-            return QueryWrapper.Create(query);
-        }
         #endregion
     }
 
     /// <summary>
-    /// Represents an instance of IMongoQuery that was created using a builder.
+    /// A builder for creating queries.
     /// </summary>
     [Serializable]
     public abstract class QueryBuilder : BuilderBase {
@@ -521,7 +510,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoQuery that was created using a builder.
+    /// A builder for creating queries.
     /// </summary>
     [Serializable]
     public class QueryComplete : QueryBuilder, IMongoQuery {
@@ -539,7 +528,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoQuery that was created using a builder.
+    /// A builder for creating queries.
     /// </summary>
     [Serializable]
     public class QueryConditionList : QueryComplete {
@@ -860,7 +849,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoQuery that was created using a builder.
+    /// A builder for creating queries.
     /// </summary>
     public class QueryNot {
         #region private fields
@@ -1072,7 +1061,7 @@ namespace MongoDB.Driver.Builders {
     }
 
     /// <summary>
-    /// Represents an instance of IMongoQuery that was created using a builder.
+    /// A builder for creating queries.
     /// </summary>
     [Serializable]
     public class QueryNotConditionList : QueryComplete {

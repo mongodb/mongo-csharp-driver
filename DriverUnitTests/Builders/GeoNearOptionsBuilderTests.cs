@@ -74,12 +74,5 @@ namespace MongoDB.DriverUnitTests.Builders {
             expected = "{ }";
             Assert.AreEqual(expected, options.ToJson());
         }
-
-        [Test]
-        public void TestWrap() {
-            var options = GeoNearOptions.Wrap(new { maxDistance = 1.5, spherical = true });
-            var expected = "{ 'maxDistance' : 1.5, 'spherical' : true }".Replace("'", "\"");
-            Assert.AreEqual(expected, options.ToJson());
-        }
     }
 }

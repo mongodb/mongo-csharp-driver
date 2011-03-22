@@ -20,10 +20,11 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer {
+namespace MongoDB.BsonUnitTests.Serialization.Attributes {
     [TestFixture]
     public class BsonAttributeTests {
         [BsonDiscriminator("discriminator", Required=true)]

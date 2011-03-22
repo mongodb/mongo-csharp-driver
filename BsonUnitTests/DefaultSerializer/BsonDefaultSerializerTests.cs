@@ -24,9 +24,10 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.DefaultSerializer;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer {
+namespace MongoDB.BsonUnitTests.Serialization {
     [TestFixture]
     public class BsonDefaultSerializerTests {
         [Test]

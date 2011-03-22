@@ -40,9 +40,8 @@ namespace MongoDB.Bson {
         #endregion
 
         #region constructors
-        /// <summary>
-        /// Initializes a new instance of the BsonDocumentWrapper class.
-        /// </summary>
+        // needed for Deserialize
+        // (even though we're going to end up throwing an InvalidOperationException)
         private BsonDocumentWrapper()
             : base(BsonType.Document) {
         }

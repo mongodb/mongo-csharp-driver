@@ -21,7 +21,6 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.DefaultSerializer;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 

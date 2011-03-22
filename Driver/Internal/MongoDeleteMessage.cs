@@ -22,6 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Driver.Internal {
     internal class MongoDeleteMessage : MongoRequestMessage {

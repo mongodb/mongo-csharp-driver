@@ -20,9 +20,9 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
-using MongoDB.Bson.DefaultSerializer.Conventions;
+using MongoDB.Bson.Serialization.Conventions;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer.Conventions {
+namespace MongoDB.BsonUnitTests.Serialization.Conventions {
     [TestFixture]
     public class ElementNameConventionsTests {
         private class TestClass {

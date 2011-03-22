@@ -22,7 +22,7 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable {
+namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
     public class Address {
         public string Street { get; set; }
         public string City { get; set; }
@@ -34,7 +34,7 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.GenericEnumerable {
     public class HashSetSerializerTests {
         public class TestClass {
             static TestClass() {
-                MongoDB.Bson.DefaultSerializer.BsonClassMap.RegisterClassMap<TestClass>(
+                BsonClassMap.RegisterClassMap<TestClass>(
                     cm => { cm.AutoMap(); }
                 );
             }

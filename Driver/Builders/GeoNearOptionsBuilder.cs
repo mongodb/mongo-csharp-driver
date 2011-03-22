@@ -25,7 +25,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
-    /// Represents an instance of IMongoGeoNearOptions that was created using a builder.
+    /// A builder for the options of the GeoNear command.
     /// </summary>
     public static class GeoNearOptions {
         #region public static properties
@@ -70,22 +70,11 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new GeoNearOptionsBuilder().SetSpherical(value);
         }
-
-        /// <summary>
-        /// Wraps an object so that it can be used where an IMongoGeoNearOptions is expected (the wrapped object is expected to serialize properly).
-        /// </summary>
-        /// <param name="options">The wrapped object.</param>
-        /// <returns>A GeoNearOptionsWrapper.</returns>
-        public static IMongoGeoNearOptions Wrap(
-            object options
-        ) {
-            return GeoNearOptionsWrapper.Create(options);
-        }
         #endregion
     }
 
     /// <summary>
-    /// Represents an instance of IMongoGeoNearOptions that was created using a builder.
+    /// A builder for the options of the GeoNear command.
     /// </summary>
     [Serializable]
     public class GeoNearOptionsBuilder : BuilderBase, IMongoGeoNearOptions {
