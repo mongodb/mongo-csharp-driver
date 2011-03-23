@@ -98,7 +98,7 @@ namespace MongoDB.Bson {
         /// Using this constructor to create a <c>BsonDocument</c> with PowerShell's Hashtable notation:
         /// <code lang="powershell">
         /// # We assume that the driver is installed via the MSI.
-        /// [string] $mongoDriverPath = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\.NETFramework\v3.5\AssemblyFoldersEx\MongoDB CSharpDriver 0.11").'(default)';
+        /// [string] $mongoDriverPath = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\.NETFramework\v3.5\AssemblyFoldersEx\MongoDB CSharpDriver 1.0").'(default)';
         /// Add-Type -Path "$($mongoDriverPath)\MongoDB.Bson.dll";
         /// [MongoDB.Bson.BsonDocument] $doc = @{
         ///     "_id" = [MongoDB.Bson.ObjectId]::GenerateNewId();
