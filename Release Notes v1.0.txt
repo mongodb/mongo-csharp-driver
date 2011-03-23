@@ -1,0 +1,144 @@
+C# Driver Version 1.0 Release Notes
+
+Summary:
+    Added doc comments
+    Added help file generated from doc comments
+    Added IPv6 support (use ipv6=true in connection string)
+    Added support for the BSON undefined value
+    Setup (.msi file) now installs assemblies into the GAC
+    Strongly named assemblies
+    Support for new MongoDB 1.8 features
+    Unit tests all pass on Mono
+    UnregisterXyz methods removed
+
+
+
+Breaking changes:
+
+The namespaces have been changed for some of the serialization classes. You will need to
+adjust your using statements accordingly.
+
+The MongoDB.Bson.DefaultSerializer namespace has been removed and the classes in it have
+been put in one of the following namespaces:
+
+MongoDB.Bson.Serialization
+MongoDB.Bson.Serialization.Attributes
+MongoDB.Bson.Serialization.Conventions
+MongoDB.Bson.Serialization.IdGenerators
+MongoDB.Bson.Serialization.Options
+MongoDB.Bson.Serialization.Serializers
+
+Some methods have also been removed (e.g. Wrap and UnregisterXyz)
+
+
+
+BSON Library changes:
+
+BsonBuffer
+    MaxChunkPoolSize is now configurable
+
+BsonDefaultSerializer
+    Much faster initialization (no longer uses reflection)
+
+BsonDocument
+    New constructor with Hashtable parameter
+    New Add method with Hashtable parameter
+    New overload of Merge method with overwriteExistingElements parameter
+
+BsonSerializer
+    RegisterSerializationProvider now adds new provider to a list
+        (so you can supplement the default provider without having to completely replace it)
+
+BsonUndefined
+    New singleton class representing the BSON undefined value
+
+DateTimeSerializer
+    String representation reimplemented to work around bugs in Mono
+
+DateTimeSerializationOptions
+    Class is now immutable
+    DateOnlyInstance, LocalInstance and UtcInstance predefined instances added
+
+JsonReader
+    Can now read multiple JSON documents from the same stream
+
+JsonScanner
+    Added support for NumberLong
+
+NamedIdMemberConvention
+    Now supports a list of possible Id member names instead of just one
+    The default instance now recognizes "Id", "id" and "_id" as the Id member
+
+StringSerializer
+    New external representations: ObjectId, Symbol
+    Can use string in data model and ObjectId in data base
+        so data model does not have a dependency on the driver
+
+Miscellaneous
+    Removed all UnregisterXyz methods
+    Removed Xyz.Wrap methods (can use XyzWrapper.Create instead, but you probably
+        shouldn't be using Wrappers anyway)
+
+
+
+Driver changes:
+
+CollectionOptions builder
+    Creates options used when creating a collection
+
+FindAndModifyResult
+    Renamed GetModifiedDocument<T> to GetModifiedDocumentAs<T>
+
+IndexCache
+    Used by EnsureIndex to track which indexes have already been created
+    Now maintained at server level
+
+IndexOptions builder
+    Added support for sparse option
+
+MapReduceOutput
+    New class to represent the different output options for MapReduce
+        (Inline, Merge, Reduce, Replace)
+
+MapReduceResult
+    Added GetInlineResultsAs
+    Added GetResults (works with either inline or collection output)
+    Added GetResultsAs (works with either inline or collection output)
+
+MongoCollection
+    EnsureIndex now uses the IndexCache in MongoServer
+    Save method now requires that document have an identifiable Id member
+
+MongoConnectionPool
+    A few properties have been made public so your code can monitor the status of the pool
+    Added AvailableConnectionsCount property
+    Added CurrentPoolSize property
+    Made EndPoint property public
+    Made Server property public
+
+MongoCursor
+    New overload of SetHint with indexName parameter
+
+MongoDatabase
+    New CreateCollectionSettings method
+    New ResetIndexCache method (resets just the part of the cache related to this database)
+
+MongoDBRef
+    Id property is now of type BsonValue (was object)
+
+MongoServer
+    Added ConnectionPool property
+    Added CreateDatabaseSettings method
+    Added DatabaseExists method
+    Added GetAdminDatabase methods
+    Added IndexCache property
+    Added ResetIndexCache method
+    Added SecondaryConnectionPools property
+
+Update builder
+    Added BitwiseAnd and BitwiseOr
+
+Wrapper classes
+    Have been moved to the MongoDB.Driver.Wrappers namespace
+        (they are rarely needed by end users)
+    Have also removed Xyz.Wrap methods (to avoid encouraging their use when not appropriate)
