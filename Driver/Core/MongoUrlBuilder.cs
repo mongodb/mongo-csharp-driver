@@ -160,7 +160,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public string ReplicaSetName {
             get { return replicaSetName; }
-            set { replicaSetName = value; }
+            set {
+                replicaSetName = value;
+                connectionMode = ConnectionMode.ReplicaSet;
+            }
         }
 
         /// <summary>
@@ -184,7 +187,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers {
             get { return servers; }
-            set { servers = value; }
+            set {
+                servers = value;
+                connectionMode = (servers.Count() <= 1) ? ConnectionMode.Direct : ConnectionMode.ReplicaSet;
+            }
         }
 
         /// <summary>
@@ -373,8 +379,8 @@ namespace MongoDB.Driver {
                 @"(/(?<database>[^?]+)?(\?(?<query>.*))?)?$";
             Match match = Regex.Match(url, pattern);
             if (match.Success) {
-                string username = match.Groups["username"].Value;
-                string password = match.Groups["password"].Value;
+                string username = Uri.UnescapeDataString(match.Groups["username"].Value);
+                string password = Uri.UnescapeDataString(match.Groups["password"].Value);
                 string servers = match.Groups["servers"].Value;
                 string databaseName = match.Groups["database"].Value;
                 string query = match.Groups["query"].Value;
@@ -538,17 +544,19 @@ namespace MongoDB.Driver {
             StringBuilder url = new StringBuilder();
             url.Append("mongodb://");
             if (defaultCredentials != null) {
-                url.AppendFormat("{0}:{1}@", defaultCredentials.Username, defaultCredentials.Password);
+                url.AppendFormat("{0}:{1}@", Uri.EscapeDataString(defaultCredentials.Username), Uri.EscapeDataString(defaultCredentials.Password));
             }
-            bool firstServer = true;
-            foreach (MongoServerAddress server in servers) {
-                if (!firstServer) { url.Append(","); }
-                if (server.Port == 27017) {
-                    url.Append(server.Host);
-                } else {
-                    url.AppendFormat("{0}:{1}", server.Host, server.Port);
+            if (servers != null) {
+                bool firstServer = true;
+                foreach (MongoServerAddress server in servers) {
+                    if (!firstServer) { url.Append(","); }
+                    if (server.Port == 27017) {
+                        url.Append(server.Host);
+                    } else {
+                        url.AppendFormat("{0}:{1}", server.Host, server.Port);
+                    }
+                    firstServer = false;
                 }
-                firstServer = false;
             }
             if (databaseName != null) {
                 url.Append("/");
@@ -559,8 +567,8 @@ namespace MongoDB.Driver {
                 query.AppendFormat("ipv6=true;");
             }
             if (
-                connectionMode == ConnectionMode.Direct && servers.Count() != 1 ||
-                connectionMode == Driver.ConnectionMode.ReplicaSet && servers.Count() == 1
+                connectionMode == ConnectionMode.Direct && servers != null && servers.Count() != 1 ||
+                connectionMode == ConnectionMode.ReplicaSet && (servers == null || servers.Count() == 1)
             ) {
                 query.AppendFormat("connect={0};", MongoUtils.ToCamelCase(connectionMode.ToString()));
             }
