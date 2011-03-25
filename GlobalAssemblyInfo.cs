@@ -29,8 +29,8 @@ using System.Security;
 
 // Setting AllowPartiallyTrustedCallers makes the assemblies callable
 // from other assemblies which are partially trusted.
-// If you would like to disable this, remove this line.
-[assembly: AllowPartiallyTrustedCallers]
+// If you would like to enable this, uncomment this line.
+//[assembly: AllowPartiallyTrustedCallers]
 
 // Version information for an assembly consists of the following four values:
 //
