@@ -14,8 +14,8 @@
 */
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security;
 
 [assembly: AssemblyCompany("10gen Inc.")]
 [assembly: AssemblyCopyright("Copyright © 2010-2011 10gen Inc.")]
@@ -26,6 +26,11 @@ using System.Runtime.InteropServices;
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
+
+// Setting AllowPartiallyTrustedCallers makes the assemblies callable
+// from other assemblies which are partially trusted.
+// If you would like to disable this, remove this line.
+[assembly: AllowPartiallyTrustedCallers]
 
 // Version information for an assembly consists of the following four values:
 //
