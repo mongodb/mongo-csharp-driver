@@ -223,15 +223,15 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Reads a BSON DateTime from the reader.
         /// </summary>
-        /// <returns>A DateTime.</returns>
-        public abstract DateTime ReadDateTime();
+        /// <returns>The number of milliseconds since the Unix epoch.</returns>
+        public abstract long ReadDateTime();
 
         /// <summary>
         /// Reads a BSON DateTime element from the reader.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        /// <returns>A DateTime.</returns>
-        public abstract DateTime ReadDateTime(
+        /// <returns>The number of milliseconds since the Unix epoch.</returns>
+        public abstract long ReadDateTime(
             string name
         );
 
@@ -351,6 +351,14 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <returns>The name of the element.</returns>
         public abstract string ReadName();
+
+        /// <summary>
+        /// Reads the name of an element from the reader.
+        /// </summary>
+        /// <returns>The name of the element.</returns>
+        public abstract void ReadName(
+            string name
+        );
 
         /// <summary>
         /// Reads a BSON null from the reader.

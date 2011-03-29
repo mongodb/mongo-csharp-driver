@@ -248,14 +248,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
-            expected = expected.Replace("#Default", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Local", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Default", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Local", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Utc", "{ '$date' : 253402300799999 }");
             expected = expected.Replace("#Ticks", "3155378975999999999");
             expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
-            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300799999 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -294,14 +294,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
-            expected = expected.Replace("#Default", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Local", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Default", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Local", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Utc", "{ '$date' : 253402300799999 }");
             expected = expected.Replace("#Ticks", "3155378975999999999");
             expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
-            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300799999 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -340,14 +340,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
             var json = obj.ToJson();
             var expected = expectedTemplate;
-            expected = expected.Replace("#Default", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Local", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300800000 }");
-            expected = expected.Replace("#Utc", "{ '$date' : 253402300800000 }");
+            expected = expected.Replace("#Default", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Local", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Unspecified", "{ '$date' : 253402300799999 }");
+            expected = expected.Replace("#Utc", "{ '$date' : 253402300799999 }");
             expected = expected.Replace("#Ticks", "3155378975999999999");
             expected = expected.Replace("#String", "9999-12-31T23:59:59.9999999");
             expected = expected.Replace("#DateOnlyString", "9999-12-31");
-            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300800000 }, 'Ticks' : 3155378975999999999 }");
+            expected = expected.Replace("#Document", "{ 'DateTime' : { '$date' : 253402300799999 }, 'Ticks' : 3155378975999999999 }");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 

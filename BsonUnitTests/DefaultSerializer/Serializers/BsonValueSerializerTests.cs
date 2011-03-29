@@ -218,9 +218,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestMinLocal() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local));
-            long milliseconds = (long) (obj.V.Value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -62135596800000 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -231,9 +230,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestMinUnspecified() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified));
-            long milliseconds = (long) (obj.V.Value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -62135596800000 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -244,9 +242,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestMinUtc() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc));
-            long milliseconds = (long) (obj.V.Value - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -62135596800000 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -257,9 +254,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestMaxLocal() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local));
-            long milliseconds = (long) (obj.V.Value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : 253402300799999 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -270,9 +266,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestMaxUnspecified() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified));
-            long milliseconds = (long) (obj.V.Value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : 253402300799999 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -283,9 +278,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestMaxUtc() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc));
-            long milliseconds = (long) (obj.V.Value - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : 253402300799999 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

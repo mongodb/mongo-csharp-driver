@@ -67,7 +67,7 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestDateTime() {
-            DateTime jan_1_2010 = new DateTime(2010, 1, 1);
+            DateTime jan_1_2010 = DateTime.SpecifyKind(new DateTime(2010, 1, 1), DateTimeKind.Utc);
             BsonDocument document = new BsonDocument() {
                 { "date", jan_1_2010 }
             };

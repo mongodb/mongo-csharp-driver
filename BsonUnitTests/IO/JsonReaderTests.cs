@@ -163,7 +163,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var json = "{ \"$date\" : 0 }";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
-                Assert.AreEqual(BsonConstants.UnixEpoch, bsonReader.ReadDateTime());
+                Assert.AreEqual(0, bsonReader.ReadDateTime());
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<DateTime>(new StringReader(json)).ToJson());
@@ -174,7 +174,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var json = "Date(0)";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
-                Assert.AreEqual(BsonConstants.UnixEpoch, bsonReader.ReadDateTime());
+                Assert.AreEqual(0, bsonReader.ReadDateTime());
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };

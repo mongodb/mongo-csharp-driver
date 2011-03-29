@@ -94,6 +94,13 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Casts the BsonValue to a BsonDateTime (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public BsonDateTime AsBsonDateTime {
+            get { return (BsonDateTime) this; }
+        }
+
+        /// <summary>
         /// Casts the BsonValue to a BsonDocument (throws an InvalidCastException if the cast is not valid).
         /// </summary>
         public BsonDocument AsBsonDocument {
@@ -1162,7 +1169,7 @@ namespace MongoDB.Bson {
                     bsonWriter.WriteBoolean(((BsonBoolean) this).Value);
                     break;
                 case BsonType.DateTime:
-                    bsonWriter.WriteDateTime(((BsonDateTime) this).Value);
+                    bsonWriter.WriteDateTime(((BsonDateTime) this).MillisecondsSinceEpoch);
                     break;
                 case BsonType.Document:
                     var document = this as BsonDocument;

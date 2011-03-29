@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -285,7 +286,81 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonReader.ReadNull();
                 return null;
             } else {
-                return BsonDateTime.Create(DateTimeSerializer.Instance.Deserialize(bsonReader, nominalType, options));
+                var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions) options;
+                long? millisecondsSinceEpoch = null;
+                long? ticks = null;
+ 
+                switch (bsonType) {
+                    case BsonType.DateTime:
+                        millisecondsSinceEpoch = bsonReader.ReadDateTime();
+                        break;
+                    case BsonType.Document:
+                        bsonReader.ReadStartDocument();
+                        millisecondsSinceEpoch = bsonReader.ReadDateTime("DateTime");
+                        bsonReader.ReadName("Ticks");
+                        var ticksValue = BsonValue.ReadFrom(bsonReader);
+                        if (!ticksValue.IsBsonUndefined) {
+                            ticks = ticksValue.ToInt64();
+                        }
+                        bsonReader.ReadEndDocument();
+                        break;
+                    case BsonType.Int64:
+                        ticks = bsonReader.ReadInt64();
+                        break;
+                    case BsonType.String:
+                        // note: we're not using XmlConvert because of bugs in Mono
+                        DateTime dateTime;
+                        if (dateTimeOptions.DateOnly) {
+                            dateTime = DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc);
+                        } else {
+                            var formats = new string[] {
+                            "yyyy-MM-ddK",
+                            "yyyy-MM-ddTHH:mm:ssK",
+                            "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
+                        };
+                            dateTime = DateTime.ParseExact(bsonReader.ReadString(), formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+                        }
+                        ticks = dateTime.Ticks;
+                        break;
+                    default:
+                        var message = string.Format("Cannot deserialize DateTime from BsonType: {0}", bsonType);
+                        throw new FileFormatException(message);
+                }
+
+                BsonDateTime bsonDateTime;
+                if (ticks.HasValue) {
+                    bsonDateTime = BsonDateTime.Create(new DateTime(ticks.Value, DateTimeKind.Utc));
+                } else {
+                    bsonDateTime = BsonDateTime.Create(millisecondsSinceEpoch.Value);
+                }
+
+                if (dateTimeOptions.DateOnly) {
+                    var dateTime = bsonDateTime.Value;
+                    if (dateTime.TimeOfDay != TimeSpan.Zero) {
+                        throw new FileFormatException("TimeOfDay component for DateOnly DateTime value is not zero");
+                    }
+                    bsonDateTime = BsonDateTime.Create(DateTime.SpecifyKind(dateTime, dateTimeOptions.Kind)); // not ToLocalTime or ToUniversalTime!
+                } else {
+                    if (bsonDateTime.IsValidDateTime) {
+                        var dateTime = bsonDateTime.Value;
+                        switch (dateTimeOptions.Kind) {
+                            case DateTimeKind.Local:
+                            case DateTimeKind.Unspecified:
+                                dateTime = BsonUtils.ToLocalTime(dateTime, dateTimeOptions.Kind);
+                                break;
+                            case DateTimeKind.Utc:
+                                dateTime = BsonUtils.ToUniversalTime(dateTime);
+                                break;
+                        }
+                        bsonDateTime = BsonDateTime.Create(dateTime);
+                    } else {
+                        if (dateTimeOptions.Kind != DateTimeKind.Utc) {
+                            throw new FileFormatException("BsonDateTime is outside the range of .NET DateTime");
+                        }
+                    }
+                }
+
+                return bsonDateTime;
             }
         }
 
@@ -306,7 +381,64 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonWriter.WriteNull();
             } else {
                 var bsonDateTime = (BsonDateTime) value;
-                DateTimeSerializer.Instance.Serialize(bsonWriter, nominalType, bsonDateTime.Value, options);
+                var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions) options;
+
+                DateTime utcDateTime = DateTime.MinValue;
+                long millisecondsSinceEpoch;
+                if (dateTimeOptions.DateOnly) {
+                    if (bsonDateTime.Value.TimeOfDay != TimeSpan.Zero) {
+                        throw new BsonSerializationException("TimeOfDay component is not zero");
+                    }
+                    utcDateTime = DateTime.SpecifyKind(bsonDateTime.Value, DateTimeKind.Utc); // not ToLocalTime
+                    millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(utcDateTime);
+                } else {
+                    if (bsonDateTime.IsValidDateTime) {
+                        utcDateTime = BsonUtils.ToUniversalTime(bsonDateTime.Value);
+                    }
+                    millisecondsSinceEpoch = bsonDateTime.MillisecondsSinceEpoch;
+                }
+
+                switch (dateTimeOptions.Representation) {
+                    case BsonType.DateTime:
+                        bsonWriter.WriteDateTime(millisecondsSinceEpoch);
+                        break;
+                    case BsonType.Document:
+                        bsonWriter.WriteStartDocument();
+                        bsonWriter.WriteDateTime("DateTime", millisecondsSinceEpoch);
+                        if (bsonDateTime.IsValidDateTime) {
+                            bsonWriter.WriteInt64("Ticks", utcDateTime.Ticks);
+                        } else {
+                            bsonWriter.WriteUndefined("Ticks");
+                        }
+                        bsonWriter.WriteEndDocument();
+                        break;
+                    case BsonType.Int64:
+                        if (bsonDateTime.IsValidDateTime) {
+                            bsonWriter.WriteInt64(utcDateTime.Ticks);
+                        } else {
+                            throw new BsonSerializationException("BsonDateTime is not a valid DateTime");
+                        }
+                        break;
+                    case BsonType.String:
+                        if (dateTimeOptions.DateOnly) {
+                            bsonWriter.WriteString(bsonDateTime.Value.ToString("yyyy-MM-dd"));
+                        } else {
+                            // we're not using XmlConvert.ToString because of bugs in Mono
+                            var dateTime = bsonDateTime.Value;
+                            if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue) {
+                                // serialize MinValue and MaxValue as Unspecified so we do NOT get the time zone offset
+                                dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified);
+                            } else if (dateTime.Kind == DateTimeKind.Unspecified) {
+                                // serialize Unspecified as Local se we get the time zone offset
+                                dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Local);
+                            }
+                            bsonWriter.WriteString(dateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK"));
+                        }
+                        break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type 'DateTime'", dateTimeOptions.Representation);
+                        throw new BsonSerializationException(message);
+                }
             }
         }
         #endregion

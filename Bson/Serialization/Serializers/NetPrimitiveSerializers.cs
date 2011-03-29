@@ -666,7 +666,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     break;
                 case BsonType.Document:
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteDateTime("DateTime", dateTimeOffset.UtcDateTime);
+                    bsonWriter.WriteDateTime("DateTime", BsonUtils.ToMillisecondsSinceEpoch(dateTimeOffset.UtcDateTime));
                     bsonWriter.WriteInt64("Ticks", dateTimeOffset.Ticks);
                     bsonWriter.WriteInt32("Offset", (int) dateTimeOffset.Offset.TotalMinutes);
                     bsonWriter.WriteEndDocument();

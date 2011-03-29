@@ -118,9 +118,9 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Writes a BSON DateTime to the writer.
         /// </summary>
-        /// <param name="value">The DateTime value.</param>
+        /// <param name="value">The number of milliseconds since the Unix epoch.</param>
         public override void WriteDateTime(
-            DateTime value
+            long value
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
@@ -128,21 +128,16 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            if (value.Kind != DateTimeKind.Utc) {
-                throw new ArgumentException("DateTime value must be in UTC");
-            }
-
-            long milliseconds = (long) Math.Floor((value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds);
             switch (settings.OutputMode) {
                 case JsonOutputMode.Strict:
                     WriteStartDocument();
-                    WriteInt64("$date", milliseconds);
+                    WriteInt64("$date", value);
                     WriteEndDocument();
                     break;
                 case JsonOutputMode.JavaScript:
                 case JsonOutputMode.TenGen:
                     WriteNameHelper(name);
-                    textWriter.Write("Date({0})", milliseconds);
+                    textWriter.Write("Date({0})", value);
                     break;
                 default:
                     throw new BsonInternalException("Unexpected JsonOutputMode");

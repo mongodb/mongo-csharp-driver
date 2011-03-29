@@ -196,19 +196,19 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Writes a BSON DateTime to the writer.
         /// </summary>
-        /// <param name="value">The DateTime value.</param>
+        /// <param name="value">The number of milliseconds since the Unix epoch.</param>
         public abstract void WriteDateTime(
-            DateTime value
+            long value
         );
 
         /// <summary>
         /// Writes a BSON DateTime element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        /// <param name="value">The DateTime value.</param>
+        /// <param name="value">The number of milliseconds since the Unix epoch.</param>
         public abstract void WriteDateTime(
             string name,
-            DateTime value
+            long value
         );
 
         /// <summary>

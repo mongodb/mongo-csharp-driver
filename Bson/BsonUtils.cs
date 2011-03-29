@@ -27,6 +27,10 @@ namespace MongoDB.Bson {
     /// A static class containing BSON utility methods.
     /// </summary>
     public static class BsonUtils {
+        #region private static fields
+        private static readonly long dateTimeMaxValueMillisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MaxValue);
+        #endregion
+
         #region public static methods
         /// <summary>
         /// Parses a hex string to a byte array.
@@ -44,6 +48,22 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Converts from number of milliseconds since Unix epoch to DateTime.
+        /// </summary>
+        /// <param name="millisecondsSinceEpoch">The number of milliseconds since Unix epoch.</param>
+        /// <returns>A DateTime.</returns>
+        public static DateTime ToDateTimeFromMillisecondsSinceEpoch(
+            long millisecondsSinceEpoch
+        ) {
+            // MaxValue has to be handled specially to avoid rounding errors
+            if (millisecondsSinceEpoch == dateTimeMaxValueMillisecondsSinceEpoch) {
+                return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+            } else {
+                return BsonConstants.UnixEpoch.AddTicks(millisecondsSinceEpoch * 10000);
+            }
+        }
+
+        /// <summary>
         /// Converts a byte array to a hex string.
         /// </summary>
         /// <param name="bytes">The byte array.</param>
@@ -56,6 +76,62 @@ namespace MongoDB.Bson {
                 sb.AppendFormat("{0:x2}", b);
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Converts a DateTime to local time (with special handling for MinValue and MaxValue).
+        /// </summary>
+        /// <param name="dateTime">A DateTime.</param>
+        /// <param name="kind">A DateTimeKind.</param>
+        /// <returns>The DateTime in local time.</returns>
+        public static DateTime ToLocalTime(
+            DateTime dateTime,
+            DateTimeKind kind
+        ) {
+            if (dateTime.Kind == kind) {
+                return dateTime;
+            } else {
+                if (dateTime == DateTime.MinValue) {
+                    return DateTime.SpecifyKind(DateTime.MinValue, kind);
+                } else if (dateTime == DateTime.MaxValue) {
+                    return DateTime.SpecifyKind(DateTime.MaxValue, kind);
+                } else {
+                    return DateTime.SpecifyKind(dateTime.ToLocalTime(), kind);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Converts a DateTime to number of milliseconds since Unix epoch.
+        /// </summary>
+        /// <param name="dateTime">A DateTime.</param>
+        /// <returns>Number of seconds since Unix epoch.</returns>
+        public static long ToMillisecondsSinceEpoch(
+            DateTime dateTime
+        ) {
+            var utcDateTime = ToUniversalTime(dateTime);
+            return (utcDateTime - BsonConstants.UnixEpoch).Ticks / 10000;
+        }
+
+        /// <summary>
+        /// Converts a DateTime to UTC (with special handling for MinValue and MaxValue).
+        /// </summary>
+        /// <param name="dateTime">A DateTime.</param>
+        /// <returns>The DateTime in UTC.</returns>
+        public static DateTime ToUniversalTime(
+            DateTime dateTime
+        ) {
+            if (dateTime.Kind == DateTimeKind.Utc) {
+                return dateTime;
+            } else {
+                if (dateTime == DateTime.MinValue) {
+                    return DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+                } else if (dateTime == DateTime.MaxValue) {
+                    return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+                } else {
+                    return dateTime.ToUniversalTime();
+                }
+            }
         }
 
         /// <summary>

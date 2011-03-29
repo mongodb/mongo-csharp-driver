@@ -382,7 +382,7 @@ namespace MongoDB.Bson.IO {
                     var lexeme = buffer.Substring(start, buffer.Position - start);
                     var digits = buffer.Substring(firstDigit, buffer.Position - firstDigit - 1);
                     var ms = XmlConvert.ToInt64(digits);
-                    var value = BsonConstants.UnixEpoch.AddMilliseconds(ms);
+                    var value = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(ms);
                     return new DateTimeJsonToken(lexeme, value);
                 }
                 if (c == -1 || !char.IsDigit((char) c)) {
