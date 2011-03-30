@@ -33,20 +33,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_435B810256DA4932BB8490C37CF59CDA"
+        "MsmKey" = "8:_223F85C0B1D0179321167AC2BBB8EF24"
+        "OwnerKey" = "8:_BD76DB2CA357431595A0F671A8188FDD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2F95E22E45C941749A34516D83D786D8"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
-        "OwnerKey" = "8:_435B810256DA4932BB8490C37CF59CDA"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
-        "OwnerKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -57,14 +51,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A6FD91900EA999857CA03826507EB48E"
+        "OwnerKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B80D9A001D7444C18198B456B82DACA6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_435B810256DA4932BB8490C37CF59CDA"
+        "MsmKey" = "8:_BD76DB2CA357431595A0F671A8188FDD"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -82,7 +82,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
+        "OwnerKey" = "8:_A6FD91900EA999857CA03826507EB48E"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -250,14 +250,34 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_68791BFCA02EDE379F08E6AC19E7F96F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_223F85C0B1D0179321167AC2BBB8EF24"
+            {
+            "SourcePath" = "8:MongoDB.Bson.xml"
+            "TargetName" = "8:MongoDB.Bson.xml"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A6FD91900EA999857CA03826507EB48E"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.0.0.4098, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.0.1.25790, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_68791BFCA02EDE379F08E6AC19E7F96F"
+                    "_A6FD91900EA999857CA03826507EB48E"
                     {
                     "Name" = "8:MongoDB.Bson.dll"
                     "Attributes" = "3:512"
@@ -277,7 +297,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -371,7 +391,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:MongoDB CSharpDriver 1.0"
         "ProductCode" = "8:{724AC356-F1C7-484A-BBC7-C8050758699D}"
-        "PackageCode" = "8:{7410E3E8-39DD-4E66-B91C-958B21763577}"
+        "PackageCode" = "8:{157C4636-EC17-4EB3-9E3F-8E1EC56415C2}"
         "UpgradeCode" = "8:{B144CF09-09EC-4B64-9981-236E85AC93F7}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1001,9 +1021,9 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_435B810256DA4932BB8490C37CF59CDA"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_2F95E22E45C941749A34516D83D786D8"
             {
-            "SourcePath" = "8:..\\Driver\\obj\\Debug\\MongoDB.Driver.dll"
+            "SourcePath" = "8:..\\Bson\\bin\\Debug\\MongoDB.Bson.XML"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
@@ -1022,8 +1042,8 @@
             "IsolateTo" = "8:"
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
+            "OutputGroupCanonicalName" = "8:Documentation"
+            "OutputProjectGuid" = "8:{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
@@ -1080,6 +1100,34 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BD76DB2CA357431595A0F671A8188FDD"
+            {
+            "SourcePath" = "8:..\\Driver\\bin\\Debug\\MongoDB.Driver.XML"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Documentation"
+            "OutputProjectGuid" = "8:{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
