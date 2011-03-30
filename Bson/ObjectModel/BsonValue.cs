@@ -311,6 +311,13 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Tests whether this BsonValue is a BsonDateTime.
+        /// </summary>
+        public bool IsBsonDateTime {
+            get { return bsonType == BsonType.DateTime; }
+        }
+
+        /// <summary>
         /// Tests whether this BsonValue is a BsonDocument.
         /// </summary>
         public bool IsBsonDocument {
@@ -384,7 +391,7 @@ namespace MongoDB.Bson {
         /// Tests whether this BsonValue is a DateTime.
         /// </summary>
         public bool IsDateTime {
-            get { return bsonType == BsonType.DateTime; }
+            get { return bsonType == BsonType.DateTime && ((BsonDateTime) this).IsValidDateTime; }
         }
 
         /// <summary>
