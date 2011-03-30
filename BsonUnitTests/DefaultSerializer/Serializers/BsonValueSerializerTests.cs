@@ -216,6 +216,18 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
+        public void TestMinBson() {
+            var obj = new TestClass(BsonDateTime.Create(long.MinValue));
+            var json = obj.ToJson();
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -9223372036854775808 }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
         public void TestMinLocal() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local));
             var json = obj.ToJson();
@@ -244,6 +256,18 @@ namespace MongoDB.BsonUnitTests.Serialization {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -62135596800000 }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestMaxBson() {
+            var obj = new TestClass(BsonDateTime.Create(long.MaxValue));
+            var json = obj.ToJson();
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : 9223372036854775807 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

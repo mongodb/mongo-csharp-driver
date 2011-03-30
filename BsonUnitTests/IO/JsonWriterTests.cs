@@ -134,6 +134,38 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestDateTimeMaxBson() {
+            var bsonDateTime = BsonDateTime.Create(long.MaxValue);
+            BsonDocument document = new BsonDocument() {
+                { "date", bsonDateTime }
+            };
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            string json = document.ToJson(settings);
+            string expected = "{ \"date\" : { \"$date\" : 9223372036854775807 } }";
+            Assert.AreEqual(expected, json);
+            settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            json = document.ToJson(settings);
+            expected = "{ \"date\" : Date(9223372036854775807) }";
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestDateTimeMinBson() {
+            var bsonDateTime = BsonDateTime.Create(long.MinValue);
+            BsonDocument document = new BsonDocument() {
+                { "date", bsonDateTime }
+            };
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            string json = document.ToJson(settings);
+            string expected = "{ \"date\" : { \"$date\" : -9223372036854775808 } }";
+            Assert.AreEqual(expected, json);
+            settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            json = document.ToJson(settings);
+            expected = "{ \"date\" : Date(-9223372036854775808) }";
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
         public void TestBinary() {
             var document = new BsonDocument {
                 { "bin", new BsonBinaryData(new byte[] { 1, 2, 3 }) }

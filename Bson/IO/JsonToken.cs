@@ -135,7 +135,7 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets the value of a DateTime token.
         /// </summary>
-        public virtual DateTime DateTimeValue {
+        public virtual BsonDateTime DateTimeValue {
             get { throw new InvalidOperationException(); }
         }
 
@@ -188,7 +188,7 @@ namespace MongoDB.Bson.IO {
     /// </summary>
     public class DateTimeJsonToken : JsonToken {
         #region private fields
-        private DateTime value;
+        private BsonDateTime value;
         #endregion
 
         #region constructors
@@ -199,7 +199,7 @@ namespace MongoDB.Bson.IO {
         /// <param name="value">The DateTime value.</param>
         public DateTimeJsonToken(
             string lexeme,
-            DateTime value
+            BsonDateTime value
         )
             : base(JsonTokenType.DateTime, lexeme) {
             this.value = value;
@@ -210,7 +210,7 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets the value of a DateTime token.
         /// </summary>
-        public override DateTime DateTimeValue {
+        public override BsonDateTime DateTimeValue {
             get { return value; }
         }
         #endregion
