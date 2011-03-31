@@ -158,12 +158,35 @@ namespace MongoDB.BsonUnitTests.IO {
             Assert.AreEqual(json, BsonSerializer.Deserialize<bool>(new StringReader(json)).ToJson());
         }
 
+
+        [Test]
+        public void TestDateTimeMinBson() {
+            var json = "{ \"$date\" : -9223372036854775808 }";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
+                Assert.AreEqual(-9223372036854775808, bsonReader.ReadDateTime());
+                Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
+            }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonDateTime>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
+        public void TestDateTimeMaxBson() {
+            var json = "{ \"$date\" : 9223372036854775807 }";
+            using (bsonReader = BsonReader.Create(json)) {
+                Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
+                Assert.AreEqual(9223372036854775807, bsonReader.ReadDateTime());
+                Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
+            }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonDateTime>(new StringReader(json)).ToJson());
+        }
+
         [Test]
         public void TestDateTimeStrict() {
             var json = "{ \"$date\" : 0 }";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
-                Assert.AreEqual(BsonConstants.UnixEpoch, bsonReader.ReadDateTime());
+                Assert.AreEqual(0, bsonReader.ReadDateTime());
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<DateTime>(new StringReader(json)).ToJson());
@@ -174,7 +197,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var json = "Date(0)";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
-                Assert.AreEqual(BsonConstants.UnixEpoch, bsonReader.ReadDateTime());
+                Assert.AreEqual(0, bsonReader.ReadDateTime());
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };

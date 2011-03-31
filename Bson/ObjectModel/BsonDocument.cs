@@ -73,25 +73,25 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from a hash table of key/value pairs.
+        /// Initializes a new instance of the BsonDocument class and adds new elements from an <see cref="IDictionary">IDictionary</see>.
         /// </summary>
-        /// <param name="hashtable">The hash table.</param>
+        /// <param name="dictionary">The dictionary.</param>
         public BsonDocument(
-            Hashtable hashtable
+            IDictionary dictionary
         )
             : base(BsonType.Document) {
-            Add(hashtable);
+            Add(dictionary);
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from a hash table of key/value pairs.
+        /// Initializes a new instance of the BsonDocument class and adds new elements from an <see cref="IDictionary">IDictionary</see>.
         /// </summary>
         /// <remarks>
         /// The intended usage of this constructor is to ease the use of the Bson library and MongoDB driver with Windows Powershell.
         /// Powershell has native support for Hashtables via its <c>@{"key1"= "value1; "key2"= "value2; . . .}</c> notation.
         /// </remarks>
-        /// <param name="hashtable">
-        /// A Hashtable. The keys in this hashtable must be strings. The values will be mapped to BsonValues.
+        /// <param name="dictionary">
+        /// A Dictionary. The keys in this dictionary must be strings. The values will be mapped to BsonValues.
         /// </param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
         /// <example>
@@ -123,12 +123,13 @@ namespace MongoDB.Bson {
         /// <br/>
         /// </example>
         /// <seealso cref="Hashtable" />
+        /// <seealso cref="IDictionary" />
         public BsonDocument(
-            Hashtable hashtable,
+            IDictionary dictionary,
             IEnumerable<string> keys
         )
             : base(BsonType.Document) {
-            Add(hashtable, keys);
+            Add(dictionary, keys);
         }
 
         /// <summary>
@@ -429,32 +430,32 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Adds elements to the document from a hash table of key/value pairs.
+        /// Adds elements to the document from a dictionary of key/value pairs.
         /// </summary>
-        /// <param name="hashtable">The hash table.</param>
+        /// <param name="dictionary">The dictionary.</param>
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Add(
-            Hashtable hashtable
+            IDictionary dictionary
         ) {
-            if (hashtable != null) {
-                Add(hashtable, hashtable.Keys.Cast<string>());
+            if (dictionary != null) {
+                Add(dictionary, dictionary.Keys.Cast<string>());
             }
             return this;
         }
 
         /// <summary>
-        /// Adds elements to the document from a hash table of key/value pairs.
+        /// Adds elements to the document from a dictionary of key/value pairs.
         /// </summary>
-        /// <param name="hashtable">The hash table.</param>
+        /// <param name="dictionary">The dictionary.</param>
         /// <param name="keys">Which keys of the hash table to add.</param>
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Add(
-            Hashtable hashtable,
+            IDictionary dictionary,
             IEnumerable<string> keys
         ) {
-            if (hashtable != null) {
+            if (dictionary != null) {
                 foreach (var key in keys) {
-                    Add(key, BsonValue.Create(hashtable[key]));
+                    Add(key, BsonValue.Create(dictionary[key]));
                 }
             }
             return this;

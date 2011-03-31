@@ -163,23 +163,19 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Writes a BSON DateTime to the writer.
         /// </summary>
-        /// <param name="value">The DateTime value.</param>
+        /// <param name="value">The number of milliseconds since the Unix epoch.</param>
         public override void WriteDateTime(
-            DateTime value
+            long value
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
             if (state != BsonWriterState.Value) {
                 var message = string.Format("WriteDateTime cannot be called when State is: {0}", state);
                 throw new InvalidOperationException(message);
             }
-            if (value.Kind != DateTimeKind.Utc) {
-                throw new ArgumentException("DateTime value must be in UTC");
-            }
 
             buffer.WriteByte((byte) BsonType.DateTime);
             WriteNameHelper();
-            long milliseconds = (long) Math.Floor((value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds);
-            buffer.WriteInt64(milliseconds);
+            buffer.WriteInt64(value);
 
             state = GetNextState();
         }

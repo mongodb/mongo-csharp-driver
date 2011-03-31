@@ -179,18 +179,12 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Reads a BSON DateTime from the reader.
         /// </summary>
-        /// <returns>A DateTime.</returns>
-        public override DateTime ReadDateTime() {
+        /// <returns>The number of milliseconds since the Unix epoch.</returns>
+        public override long ReadDateTime() {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
             state = GetNextState();
-            long milliseconds = buffer.ReadInt64();
-            if (milliseconds == 253402300800000) {
-                // special case to avoid ArgumentOutOfRangeException in AddMilliseconds
-                return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
-            } else {
-                return BsonConstants.UnixEpoch.AddMilliseconds(milliseconds); // Kind = DateTimeKind.Utc
-            }
+            return buffer.ReadInt64();
         }
 
         /// <summary>

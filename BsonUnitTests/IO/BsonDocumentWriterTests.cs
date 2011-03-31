@@ -398,7 +398,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var document = new BsonDocument();
             using (var writer = BsonWriter.Create(document)) {
                 writer.WriteStartDocument();
-                writer.WriteDateTime("a", BsonConstants.UnixEpoch);
+                writer.WriteDateTime("a", 0);
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
@@ -412,7 +412,7 @@ namespace MongoDB.BsonUnitTests.IO {
             using (var writer = BsonWriter.Create(document)) {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                writer.WriteDateTime("a", BsonConstants.UnixEpoch);
+                writer.WriteDateTime("a", 0);
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }
@@ -426,8 +426,8 @@ namespace MongoDB.BsonUnitTests.IO {
             var document = new BsonDocument();
             using (var writer = BsonWriter.Create(document)) {
                 writer.WriteStartDocument();
-                writer.WriteDateTime("a", BsonConstants.UnixEpoch);
-                writer.WriteDateTime("b", BsonConstants.UnixEpoch);
+                writer.WriteDateTime("a", 0);
+                writer.WriteDateTime("b", 0);
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
@@ -441,8 +441,8 @@ namespace MongoDB.BsonUnitTests.IO {
             using (var writer = BsonWriter.Create(document)) {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                writer.WriteDateTime("a", BsonConstants.UnixEpoch);
-                writer.WriteDateTime("b", BsonConstants.UnixEpoch);
+                writer.WriteDateTime("a", 0);
+                writer.WriteDateTime("b", 0);
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }

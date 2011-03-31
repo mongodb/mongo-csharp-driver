@@ -163,18 +163,19 @@ namespace MongoDB.Bson.Serialization.Serializers {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
+            var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions) options;
             DateTime value;
 
             var bsonType = bsonReader.CurrentBsonType;
-            var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions) options;
             switch (bsonType) {
                 case BsonType.DateTime:
-                    value = bsonReader.ReadDateTime();
+                    // use an intermediate BsonDateTime so MinValue and MaxValue are handled correctly
+                    value = BsonDateTime.Create(bsonReader.ReadDateTime()).Value;
                     break;
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();
                     bsonReader.ReadDateTime("DateTime"); // ignore value (use Ticks instead)
-                    value = DateTime.SpecifyKind(new DateTime(bsonReader.ReadInt64("Ticks")), DateTimeKind.Utc);
+                    value = new DateTime(bsonReader.ReadInt64("Ticks"), DateTimeKind.Utc);
                     bsonReader.ReadEndDocument();
                     break;
                 case BsonType.Int64:
@@ -207,10 +208,10 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 switch (dateTimeOptions.Kind) {
                     case DateTimeKind.Local:
                     case DateTimeKind.Unspecified:
-                        value = ToLocalTimeHelper(value, dateTimeOptions.Kind);
+                        value = BsonUtils.ToLocalTime(value, dateTimeOptions.Kind);
                         break;
                     case DateTimeKind.Utc:
-                        value = ToUniversalTimeHelper(value);
+                        value = BsonUtils.ToUniversalTime(value);
                         break;
                 }
             }
@@ -234,34 +235,29 @@ namespace MongoDB.Bson.Serialization.Serializers {
             var dateTime = (DateTime) value;
             var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions) options;
 
+            DateTime utcDateTime;
             if (dateTimeOptions.DateOnly) {
                 if (dateTime.TimeOfDay != TimeSpan.Zero) {
-                    throw new BsonSerializationException("TimeOfDay component for DateOnly DateTime value is not zero");
+                    throw new BsonSerializationException("TimeOfDay component is not zero");
                 }
+                utcDateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToLocalTime
+            } else {
+                utcDateTime = BsonUtils.ToUniversalTime(dateTime);
             }
-
-            if (dateTimeOptions.Representation != BsonType.String) {
-                if (dateTime.Kind != DateTimeKind.Utc) {
-                    if (dateTimeOptions.DateOnly) {
-                        dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToUniversalTime!
-                    } else {
-                        dateTime = ToUniversalTimeHelper(dateTime);
-                    }
-                }
-            }
+            var millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(utcDateTime);
 
             switch (dateTimeOptions.Representation) {
                 case BsonType.DateTime:
-                    bsonWriter.WriteDateTime(dateTime);
+                    bsonWriter.WriteDateTime(millisecondsSinceEpoch);
                     break;
                 case BsonType.Document:
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteDateTime("DateTime", dateTime);
-                    bsonWriter.WriteInt64("Ticks", dateTime.Ticks);
+                    bsonWriter.WriteDateTime("DateTime", millisecondsSinceEpoch);
+                    bsonWriter.WriteInt64("Ticks", utcDateTime.Ticks);
                     bsonWriter.WriteEndDocument();
                     break;
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(dateTime.Ticks);
+                    bsonWriter.WriteInt64(utcDateTime.Ticks);
                     break;
                 case BsonType.String:
                     if (dateTimeOptions.DateOnly) {
@@ -282,27 +278,6 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     var message = string.Format("'{0}' is not a valid representation for type 'DateTime'", dateTimeOptions.Representation);
                     throw new BsonSerializationException(message);
             }
-        }
-        #endregion
-
-        #region private methods
-        private DateTime ToLocalTimeHelper(
-            DateTime value,
-            DateTimeKind kind
-        ) {
-            if (value != DateTime.MinValue && value != DateTime.MaxValue) {
-                value = value.ToLocalTime();
-            }
-            return value = DateTime.SpecifyKind(value, kind);
-        }
-
-        private DateTime ToUniversalTimeHelper(
-            DateTime value
-        ) {
-            if (value != DateTime.MinValue && value != DateTime.MaxValue) {
-                value = value.ToUniversalTime();
-            }
-            return value = DateTime.SpecifyKind(value, DateTimeKind.Utc);
         }
         #endregion
     }

@@ -154,7 +154,7 @@ namespace MongoDB.Bson {
             }
             var otherDateTime = other as BsonDateTime;
             if (otherDateTime != null) {
-                var seconds = (int) (otherDateTime.Value - BsonConstants.UnixEpoch).TotalSeconds;
+                var seconds = (int) (otherDateTime.MillisecondsSinceEpoch / 1000);
                 var otherTimestampValue = ((long) seconds) << 32;
                 return value.CompareTo(otherTimestampValue);
             }

@@ -172,8 +172,8 @@ namespace MongoDB.Bson.IO {
         /// Reads a BSON DateTime element from the reader.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        /// <returns>A DateTime.</returns>
-        public override DateTime ReadDateTime(
+        /// <returns>The number of milliseconds since the Unix epoch.</returns>
+        public override long ReadDateTime(
             string name
         ) {
             VerifyName(name);
@@ -278,6 +278,16 @@ namespace MongoDB.Bson.IO {
 
             state = BsonReaderState.Value;
             return currentName;
+        }
+
+        /// <summary>
+        /// Reads the name of an element from the reader.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        public override void ReadName(
+            string name
+        ) {
+            VerifyName(name);
         }
 
         /// <summary>

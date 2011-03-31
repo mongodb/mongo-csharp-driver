@@ -1,4 +1,4 @@
-set VER=1.0.0.4098
+set VER=1.0.1.1234
 set PACKAGES=packages-%VER%
 
 echo Creating %PACKAGES%
@@ -15,8 +15,10 @@ set ZIPFILE=%PACKAGES%\CSharpDriver-%VER%.zip
 %ZIPEXE% a %ZIPFILE% "..\Release Notes v1.0.txt"
 %ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.dll
 %ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.pdb
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.xml
 %ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.dll
 %ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.pdb
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.xml
 %ZIPEXE% a %ZIPFILE% ..\Help\CSharpDriverDocs.chm
 
 echo Created %PACKAGES%
