@@ -26,6 +26,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -41,6 +42,7 @@ namespace MongoDB.Bson.Serialization {
         private static Dictionary<Type, Type> genericSerializerDefinitions;
         private static Dictionary<Type, IDiscriminatorConvention> discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
         private static Dictionary<BsonValue, HashSet<Type>> discriminators = new Dictionary<BsonValue, HashSet<Type>>();
+        private static HashSet<Type> typesWithRegisteredKnownTypes = new HashSet<Type>();
         #endregion
 
         #region static constructor
@@ -158,12 +160,12 @@ namespace MongoDB.Bson.Serialization {
                 return nominalType;
             }
 
+            // make sure any "known types" of nominal type have been registered
+            RegisterKnownTypes(nominalType); // outside of lock on staticLock to avoid deadlocks
+
             // TODO: will there be too much contention on staticLock?
             lock (staticLock) {
                 Type actualType = null;
-
-                // TODO: I'm not sure this is quite right, what if nominalType doesn't use class maps?
-                BsonClassMap.LookupClassMap(nominalType); // make sure any "known types" of nominal type have been registered
 
                 HashSet<Type> hashSet;
                 if (discriminators.TryGetValue(discriminator, out hashSet)) {
@@ -283,6 +285,32 @@ namespace MongoDB.Bson.Serialization {
                     var message = string.Format("There is already a discriminator convention registered for type: {0}", type.FullName);
                     throw new BsonSerializationException(message);
                 }
+            }
+        }
+        #endregion
+
+        #region private static methods
+        private static void RegisterKnownTypes(
+            Type nominalType
+        ) {
+            lock (staticLock) {
+                if (typesWithRegisteredKnownTypes.Contains(nominalType)) {
+                    return;
+                }
+            }
+
+            // we only need to call LookupClassMap for classes with a BsonKnownTypesAttribute
+            // LookupClassMap must be called outside of lock on staticLock to avoid deadlocks
+            // in rare cases more than one thread might call LookupClassMap simultaneously, but no harm will come of it
+
+            var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
+            if (knownTypesAttribute != null && knownTypesAttribute.Length > 0) {
+                // known types will be registered as a side effect of calling LookupClassMap
+                BsonClassMap.LookupClassMap(nominalType);
+            }
+
+            lock (staticLock) {
+                typesWithRegisteredKnownTypes.Add(nominalType);
             }
         }
         #endregion
