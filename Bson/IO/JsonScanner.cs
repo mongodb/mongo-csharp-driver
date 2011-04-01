@@ -107,6 +107,9 @@ namespace MongoDB.Bson.IO {
                             case '0':
                                 state = NumberState.SawLeadingZero; 
                                 break;
+                            case 'I':
+                                state = NumberState.SawMinusI;
+                                break;
                             default:
                                 if (char.IsDigit((char) c)) {
                                     state = NumberState.SawIntegerDigits;
@@ -237,6 +240,37 @@ namespace MongoDB.Bson.IO {
                                     state = NumberState.Invalid;
                                 }
                                 break;
+                        }
+                        break;
+                    case NumberState.SawMinusI:
+                        var sawMinusInfinity = true;
+                        var nfinity = new char[] { 'n', 'f', 'i', 'n', 'i', 't', 'y' };
+                        for (var i = 0; i < nfinity.Length; i++) {
+                            if (c != nfinity[i]) {
+                                sawMinusInfinity = false;
+                                break;
+                            }
+                            c = buffer.Read();
+                        }
+                        if (sawMinusInfinity) {
+                            type = JsonTokenType.Double;
+                            switch (c) {
+                                case ',':
+                                case '}':
+                                case ']':
+                                case -1:
+                                    state = NumberState.Done;
+                                    break;
+                                default:
+                                    if (char.IsWhiteSpace((char) c)) {
+                                        state = NumberState.Done;
+                                    } else {
+                                        state = NumberState.Invalid;
+                                    }
+                                    break;
+                            }
+                        } else {
+                            state = NumberState.Invalid;
                         }
                         break;
                 }
@@ -495,6 +529,7 @@ namespace MongoDB.Bson.IO {
             SawExponentLetter,
             SawExponentSign,
             SawExponentDigits,
+            SawMinusI,
             Done,
             Invalid
         }

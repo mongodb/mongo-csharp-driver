@@ -364,7 +364,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteInt64(representationOptions.ToInt64(doubleValue));
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(XmlConvert.ToString(doubleValue));
+                    bsonWriter.WriteString(doubleValue.ToString("R", NumberFormatInfo.InvariantInfo));
                     break;
                 default:
                     var message = string.Format("'{0}' is not a valid representation for type 'Double'", representationOptions.Representation);
