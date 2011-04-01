@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization {
     /// </summary>
     public static class BsonSerializer {
         #region private static fields
-        private static object staticLock = new object();
+        private static object configLock = new object();
         private static Dictionary<Type, IIdGenerator> idGenerators = new Dictionary<Type, IIdGenerator>();
         private static Dictionary<Type, IBsonSerializer> serializers = new Dictionary<Type, IBsonSerializer>();
         private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
@@ -40,6 +40,12 @@ namespace MongoDB.Bson.Serialization {
         static BsonSerializer() {
             RegisterDefaultSerializationProvider();
             RegisterIdGenerators();
+        }
+        #endregion
+
+        #region internal static properties
+        internal static object ConfigLock {
+            get { return configLock; }
         }
         #endregion
 
@@ -244,7 +250,7 @@ namespace MongoDB.Bson.Serialization {
         public static Type LookupGenericSerializerDefinition(
             Type genericTypeDefinition
         ) {
-            lock (staticLock) {
+            lock (configLock) {
                 Type genericSerializerDefinition;
                 genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition);
                 return genericSerializerDefinition;
@@ -259,7 +265,7 @@ namespace MongoDB.Bson.Serialization {
         public static IIdGenerator LookupIdGenerator(
             Type type
         ) {
-            lock (staticLock) {
+            lock (configLock) {
                 IIdGenerator idGenerator;
                 if (!idGenerators.TryGetValue(type, out idGenerator)) {
                     if (type.IsValueType) {
@@ -289,7 +295,7 @@ namespace MongoDB.Bson.Serialization {
         public static IBsonSerializer LookupSerializer(
             Type type
         ) {
-            lock (staticLock) {
+            lock (configLock) {
                 IBsonSerializer serializer;
                 if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
@@ -336,7 +342,7 @@ namespace MongoDB.Bson.Serialization {
             Type genericTypeDefinition,
             Type genericSerializerDefinition
         ) {
-            lock (staticLock) {
+            lock (configLock) {
                 genericSerializerDefinitions[genericTypeDefinition] = genericSerializerDefinition;
             }
         }
@@ -350,7 +356,7 @@ namespace MongoDB.Bson.Serialization {
             Type type,
             IIdGenerator idGenerator
         ) {
-            lock (staticLock) {
+            lock (configLock) {
                 idGenerators[type] = idGenerator;
             }
         }
@@ -362,7 +368,7 @@ namespace MongoDB.Bson.Serialization {
         public static void RegisterSerializationProvider(
             IBsonSerializationProvider provider
         ) {
-            lock (staticLock) {
+            lock (configLock) {
                 // add new provider to the front of the list
                 serializationProviders.Insert(0, provider);
             }
@@ -377,7 +383,7 @@ namespace MongoDB.Bson.Serialization {
             Type type,
             IBsonSerializer serializer
         ) {
-            lock (staticLock) {
+            lock (configLock) {
                 serializers[type] = serializer;
             }
         }
