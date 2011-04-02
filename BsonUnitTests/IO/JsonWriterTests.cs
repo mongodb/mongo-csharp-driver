@@ -21,10 +21,20 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.IO {
     [TestFixture]
     public class JsonWriterTests {
+        private class TestData<T> {
+            public T Value;
+            public string Expected;
+            public TestData(T value, string expected) {
+                this.Value = value;
+                this.Expected = expected;
+            }
+        }
+
         [Test]
         public void TestEmptyDocument() {
             BsonDocument document = new BsonDocument();
@@ -70,13 +80,36 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestDouble() {
-            var values = new double[] { 0.0, 0.5, 0.0005, double.NaN, double.PositiveInfinity, double.NegativeInfinity };
-            var expecteds = new string[] { "0", "0.5", "0.0005", "NaN", "Infinity", "-Infinity" };
-            for (int i = 0; i < values.Length; i++) {
-                var value = values[i];
-                var expected = expecteds[i];
-                var json = value.ToJson();
-                Assert.AreEqual(expected, json);
+            var tests = new TestData<double>[] {
+                new TestData<double>(0.0, "0"),
+                new TestData<double>(0.0005, "0.0005"),
+                new TestData<double>(0.5, "0.5"),
+                new TestData<double>(1.0, "1"),
+                new TestData<double>(1.5, "1.5"),
+                new TestData<double>(1.5E+40, "1.5E+40"),
+                new TestData<double>(1.5E-40, "1.5E-40"),
+                new TestData<double>(1234567890.1234568E+123, "1.2345678901234568E+132"),
+                new TestData<double>(double.Epsilon, "4.94065645841247E-324"),
+                new TestData<double>(double.MaxValue, "1.7976931348623157E+308"),
+                new TestData<double>(double.MinValue, "-1.7976931348623157E+308"),
+
+                new TestData<double>(-0.0005, "-0.0005"),
+                new TestData<double>(-0.5, "-0.5"),
+                new TestData<double>(-1.0, "-1"),
+                new TestData<double>(-1.5, "-1.5"),
+                new TestData<double>(-1.5E+40, "-1.5E+40"),
+                new TestData<double>(-1.5E-40, "-1.5E-40"),
+                new TestData<double>(-1234567890.1234568E+123, "-1.2345678901234568E+132"),
+                new TestData<double>(-double.Epsilon, "-4.94065645841247E-324"),
+
+                new TestData<double>(double.NaN, "NaN"),
+                new TestData<double>(double.NegativeInfinity, "-Infinity"),
+                new TestData<double>(double.PositiveInfinity, "Infinity")
+            };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson();
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<double>(json));
             }
         }
 
@@ -245,6 +278,37 @@ namespace MongoDB.BsonUnitTests.IO {
             string expected = "{ \"null\" : null }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestString() {
+            var tests = new TestData<string>[] {
+                new TestData<string>(null, "null"),
+                new TestData<string>("", "\"\""),
+                new TestData<string>(" ", "\" \""),
+                new TestData<string>("a", "\"a\""),
+                new TestData<string>("ab", "\"ab\""),
+                new TestData<string>("abc", "\"abc\""),
+                new TestData<string>("abc\0def", "\"abc\\u0000def\""),
+                new TestData<string>("\'", "\"'\""),
+                new TestData<string>("\"", "\"\\\"\""),
+                new TestData<string>("\0", "\"\\u0000\""),
+                new TestData<string>("\a", "\"\\u0007\""),
+                new TestData<string>("\b", "\"\\b\""),
+                new TestData<string>("\f", "\"\\f\""),
+                new TestData<string>("\n", "\"\\n\""),
+                new TestData<string>("\r", "\"\\r\""),
+                new TestData<string>("\t", "\"\\t\""),
+                new TestData<string>("\v", "\"\\u000b\""),
+                new TestData<string>("\u0080", "\"\\u0080\""),
+                new TestData<string>("\u0080\u0081", "\"\\u0080\\u0081\""),
+                new TestData<string>("\u0080\u0081\u0082", "\"\\u0080\\u0081\\u0082\"")
+            };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson();
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<string>(json));
+            }
         }
 
         [Test]
