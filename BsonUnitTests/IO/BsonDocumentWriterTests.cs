@@ -954,7 +954,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : { '$oid' : '000000000000000000000000' } }".Replace("'", "\""); ;
+            var expected = "{ 'a' : ObjectId('000000000000000000000000') }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -970,7 +970,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : { '$oid' : '000000000000000000000000' } } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : ObjectId('000000000000000000000000') } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -985,7 +985,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : { '$oid' : '000000000000000000000000' }, 'b' : { '$oid' : '000000000000000000000000' } }".Replace("'", "\""); ;
+            var expected = "{ 'a' : ObjectId('000000000000000000000000'), 'b' : ObjectId('000000000000000000000000') }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -1002,7 +1002,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : { '$oid' : '000000000000000000000000' }, 'b' : { '$oid' : '000000000000000000000000' } } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : ObjectId('000000000000000000000000'), 'b' : ObjectId('000000000000000000000000') } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 

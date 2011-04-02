@@ -173,7 +173,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestObjectId() {
             C c = new C { ObjectId = ObjectId.Empty };
             var json = c.ToJson();
-            var expected = template.Replace("'ObjectId' : null", "'ObjectId' : { '$oid' : '000000000000000000000000' }").Replace("'", "\"");
+            var expected = template.Replace("'ObjectId' : null", "'ObjectId' : ObjectId('000000000000000000000000')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

@@ -971,7 +971,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
             var json = obj.ToJson();
             var expected = ("{ 'ObjectId' : #O, 'String' : #S }");
-            expected = expected.Replace("#O", "{ '$oid' : '000000010000020003000004' }");
+            expected = expected.Replace("#O", "ObjectId('000000010000020003000004')");
             expected = expected.Replace("#S", "'000000010000020003000004'");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);

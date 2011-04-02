@@ -211,7 +211,7 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
             var rep = "[true, #Date, 1.5, 1, 2, #Guid, #ObjectId, 'x']";
             rep = rep.Replace("#Date", "{ '$date' : #ms }".Replace("#ms", millis.ToString()));
             rep = rep.Replace("#Guid", "BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')");
-            rep = rep.Replace("#ObjectId", "{ '$oid' : '000000000000000000000000' }");
+            rep = rep.Replace("#ObjectId", "ObjectId('000000000000000000000000')");
             var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 

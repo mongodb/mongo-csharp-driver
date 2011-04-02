@@ -306,6 +306,25 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestObjectIdShell() {
+            var objectId = new ObjectId("4d0ce088e447ad08b4721a37");
+            var json = objectId.ToJson();
+            var expected = "ObjectId(\"4d0ce088e447ad08b4721a37\")";
+            Assert.AreEqual(expected, json);
+            Assert.AreEqual(objectId, BsonSerializer.Deserialize<ObjectId>(json));
+        }
+
+        [Test]
+        public void TestObjectIdStrict() {
+            var objectId = new ObjectId("4d0ce088e447ad08b4721a37");
+            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            var json = objectId.ToJson(jsonSettings);
+            var expected = "{ \"$oid\" : \"4d0ce088e447ad08b4721a37\" }";
+            Assert.AreEqual(expected, json);
+            Assert.AreEqual(objectId, BsonSerializer.Deserialize<ObjectId>(json));
+        }
+
+        [Test]
         public void TestString() {
             var tests = new TestData<string>[] {
                 new TestData<string>(null, "null"),

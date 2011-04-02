@@ -382,7 +382,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { "D", "1" }, 
                 { "E", "2" },
                 { "F", "BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')" }, 
-                { "G", "{ '$oid' : '000000000000000000000000' }" }, 
+                { "G", "ObjectId('000000000000000000000000')" }, 
                 { "H", "'x'" }
             };
             var htRep = GetDocumentRepresentationInKeyOrder(d, reps);
@@ -431,7 +431,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { 4, "[4, 1]" }, 
                 { 5, "[5, 2]" },
                 { 6, "[6, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
-                { 7, "[7, { '$oid' : '000000000000000000000000' }]" }, 
+                { 7, "[7, ObjectId('000000000000000000000000')]" }, 
                 { 8, "[8, 'x']" }
             };
             var htRep = GetArrayRepresentationInKeyOrder(d, reps);
@@ -479,7 +479,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { "D", "['D', 1]" }, 
                 { 4, "[4, 2]" },
                 { 5.0, "[5, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
-                { true, "[true, { '$oid' : '000000000000000000000000' }]" }, 
+                { true, "[true, ObjectId('000000000000000000000000')]" }, 
                 { false, "[false, 'x']" }
             };
             var htRep = GetArrayRepresentationInKeyOrder(d, reps);

@@ -380,12 +380,12 @@ namespace MongoDB.Bson.IO {
             switch (settings.OutputMode) {
                 case JsonOutputMode.Strict:
                 case JsonOutputMode.JavaScript:
-                case JsonOutputMode.Shell:
                     WriteStartDocument();
                     WriteString("$oid", BsonUtils.ToHexString(bytes));
                     WriteEndDocument();
                     break;
                 case JsonOutputMode.TenGen:
+                case JsonOutputMode.Shell:
                     WriteNameHelper(name);
                     textWriter.Write(string.Format("ObjectId(\"{0}\")", BsonUtils.ToHexString(bytes)));
                     break;

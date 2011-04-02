@@ -100,7 +100,7 @@ namespace MongoDB.BsonUnitTests {
         public void TestToJson() {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var json = c.ToJson();
-            var expected = "{ 'N' : 1, '_id' : { '$oid' : '000000000000000000000000' } }".Replace("'", "\"");
+            var expected = "{ 'N' : 1, '_id' : ObjectId('000000000000000000000000') }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -108,7 +108,7 @@ namespace MongoDB.BsonUnitTests {
         public void TestToJsonIdFirst() {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var json = c.ToJson(DocumentSerializationOptions.SerializeIdFirstInstance);
-            var expected = "{ '_id' : { '$oid' : '000000000000000000000000' }, 'N' : 1 }".Replace("'", "\"");
+            var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'N' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
     }
