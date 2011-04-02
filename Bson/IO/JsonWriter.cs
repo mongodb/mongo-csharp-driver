@@ -160,7 +160,7 @@ namespace MongoDB.Bson.IO {
             }
 
             WriteNameHelper(name);
-            textWriter.Write(XmlConvert.ToString(value));
+            textWriter.Write(value.ToString("R", NumberFormatInfo.InvariantInfo));
 
             state = GetNextState();
         }

@@ -1082,7 +1082,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteInt64(representationOptions.ToInt64(floatValue));
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(XmlConvert.ToString(floatValue));
+                    bsonWriter.WriteString(floatValue.ToString("R", NumberFormatInfo.InvariantInfo));
                     break;
                 default:
                     var message = string.Format("'{0}' is not a valid representation for type 'Single'", representationOptions.Representation);

@@ -69,6 +69,18 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestDouble() {
+            var values = new double[] { 0.0, 0.5, 0.0005, double.NaN, double.PositiveInfinity, double.NegativeInfinity };
+            var expecteds = new string[] { "0", "0.5", "0.0005", "NaN", "Infinity", "-Infinity" };
+            for (int i = 0; i < values.Length; i++) {
+                var value = values[i];
+                var expected = expecteds[i];
+                var json = value.ToJson();
+                Assert.AreEqual(expected, json);
+            }
+        }
+
+        [Test]
         public void TestInt64() {
             var document = new BsonDocument { { "a", 1L } };
             var json = document.ToJson();

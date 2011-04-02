@@ -540,7 +540,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             var json = obj.ToJson();
             var expected = "{ 'X' : '#S', 'A' : [-1, -1, -1, -2147483648], 'D' : #D, 'I' : #I, 'L' : #L, 'S' : '#S' }";
             expected = expected.Replace("#S", XmlConvert.ToString(decimal.MinValue));
-            expected = expected.Replace("#D", XmlConvert.ToString(double.MinValue));
+            expected = expected.Replace("#D", "-1.7976931348623157E+308");
             expected = expected.Replace("#I", XmlConvert.ToString(int.MinValue));
             expected = expected.Replace("#L", XmlConvert.ToString(long.MinValue));
             expected = expected.Replace("'", "\"");
@@ -564,7 +564,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             var json = obj.ToJson();
             var expected = "{ 'X' : '#S', 'A' : [-1, -1, -1, 0], 'D' : #D, 'I' : #I, 'L' : #L, 'S' : '#S' }";
             expected = expected.Replace("#S", XmlConvert.ToString(decimal.MaxValue));
-            expected = expected.Replace("#D", XmlConvert.ToString(double.MaxValue));
+            expected = expected.Replace("#D", "1.7976931348623157E+308");
             expected = expected.Replace("#I", XmlConvert.ToString(int.MaxValue));
             expected = expected.Replace("#L", XmlConvert.ToString(long.MaxValue));
             expected = expected.Replace("'", "\"");
@@ -892,8 +892,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
             var json = obj.ToJson();
             var expected = "{ 'D' : #D, 'I' : 0, 'L' : 0, 'S' : '#S' }";
-            expected = expected.Replace("#D", XmlConvert.ToString(double.MinValue));
-            expected = expected.Replace("#S", XmlConvert.ToString(float.MinValue));
+            expected = expected.Replace("#D", "-1.7976931348623157E+308");
+            expected = expected.Replace("#S", "-3.40282347E+38");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -980,8 +980,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
             var json = obj.ToJson();
             var expected = "{ 'D' : #D, 'I' : 0, 'L' : 0, 'S' : '#S' }";
-            expected = expected.Replace("#D", XmlConvert.ToString(double.MaxValue));
-            expected = expected.Replace("#S", XmlConvert.ToString(float.MaxValue));
+            expected = expected.Replace("#D", "1.7976931348623157E+308");
+            expected = expected.Replace("#S", "3.40282347E+38");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -1016,7 +1016,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = float.NegativeInfinity
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : -INF, 'I' : 0, 'L' : 0, 'S' : '-INF' }".Replace("'", "\"");
+            var expected = "{ 'D' : -Infinity, 'I' : 0, 'L' : 0, 'S' : '-Infinity' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1033,7 +1033,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = float.PositiveInfinity
             };
             var json = obj.ToJson();
-            var expected = "{ 'D' : INF, 'I' : 0, 'L' : 0, 'S' : 'INF' }".Replace("'", "\"");
+            var expected = "{ 'D' : Infinity, 'I' : 0, 'L' : 0, 'S' : 'Infinity' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

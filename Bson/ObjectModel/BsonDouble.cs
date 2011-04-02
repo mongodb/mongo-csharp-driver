@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -189,7 +190,7 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <returns>A string representation of the value.</returns>
         public override string ToString() {
-            return XmlConvert.ToString(value);
+            return value.ToString("R", NumberFormatInfo.InvariantInfo);
         }
         #endregion
     }

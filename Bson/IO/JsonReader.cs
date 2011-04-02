@@ -177,10 +177,18 @@ namespace MongoDB.Bson.IO {
                 case JsonTokenType.UnquotedString:
                     var validConstant = true;
                     switch (valueToken.Lexeme) {
-                        case "true":
                         case "false":
+                        case "true":
                             currentBsonType = BsonType.Boolean;
                             currentValue = XmlConvert.ToBoolean(valueToken.Lexeme);
+                            break;
+                        case "Infinity":
+                            currentBsonType = BsonType.Double;
+                            currentValue = double.PositiveInfinity;
+                            break;
+                        case "NaN":
+                            currentBsonType = BsonType.Double;
+                            currentValue = double.NaN;
                             break;
                         case "null":
                             currentBsonType = BsonType.Null;

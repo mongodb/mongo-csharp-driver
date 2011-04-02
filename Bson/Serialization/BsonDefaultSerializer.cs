@@ -36,7 +36,6 @@ namespace MongoDB.Bson.Serialization {
     /// </summary>
     public class BsonDefaultSerializer : IBsonSerializationProvider {
         #region private static fields
-        private static object staticLock = new object();
         private static BsonDefaultSerializer instance = new BsonDefaultSerializer();
         private static Dictionary<Type, IBsonSerializer> serializers;
         private static Dictionary<Type, Type> genericSerializerDefinitions;
@@ -160,12 +159,12 @@ namespace MongoDB.Bson.Serialization {
                 return nominalType;
             }
 
-            // make sure any "known types" of nominal type have been registered
-            RegisterKnownTypes(nominalType); // outside of lock on staticLock to avoid deadlocks
-
             // TODO: will there be too much contention on staticLock?
-            lock (staticLock) {
+            lock (BsonSerializer.ConfigLock) {
                 Type actualType = null;
+
+                // make sure any "known types" of nominal type have been registered
+                RegisterKnownTypes(nominalType);
 
                 HashSet<Type> hashSet;
                 if (discriminators.TryGetValue(discriminator, out hashSet)) {
@@ -207,7 +206,7 @@ namespace MongoDB.Bson.Serialization {
         public static IDiscriminatorConvention LookupDiscriminatorConvention(
             Type type
         ) {
-            lock (staticLock) {
+            lock (BsonSerializer.ConfigLock) {
                 IDiscriminatorConvention convention;
                 if (!discriminatorConventions.TryGetValue(type, out convention)) {
                     // if there is no convention registered for object register the default one
@@ -258,7 +257,7 @@ namespace MongoDB.Bson.Serialization {
             Type type,
             BsonValue discriminator
         ) {
-            lock (staticLock) {
+            lock (BsonSerializer.ConfigLock) {
                 HashSet<Type> hashSet;
                 if (!discriminators.TryGetValue(discriminator, out hashSet)) {
                     hashSet = new HashSet<Type>();
@@ -278,7 +277,7 @@ namespace MongoDB.Bson.Serialization {
             Type type,
             IDiscriminatorConvention convention
         ) {
-            lock (staticLock) {
+            lock (BsonSerializer.ConfigLock) {
                 if (!discriminatorConventions.ContainsKey(type)) {
                     discriminatorConventions.Add(type, convention);
                 } else {
@@ -293,23 +292,14 @@ namespace MongoDB.Bson.Serialization {
         private static void RegisterKnownTypes(
             Type nominalType
         ) {
-            lock (staticLock) {
-                if (typesWithRegisteredKnownTypes.Contains(nominalType)) {
-                    return;
+            if (!typesWithRegisteredKnownTypes.Contains(nominalType)) {
+                // only call LookupClassMap for classes with a BsonKnownTypesAttribute
+                var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
+                if (knownTypesAttribute != null && knownTypesAttribute.Length > 0) {
+                    // known types will be registered as a side effect of calling LookupClassMap
+                    BsonClassMap.LookupClassMap(nominalType);
                 }
-            }
 
-            // we only need to call LookupClassMap for classes with a BsonKnownTypesAttribute
-            // LookupClassMap must be called outside of lock on staticLock to avoid deadlocks
-            // in rare cases more than one thread might call LookupClassMap simultaneously, but no harm will come of it
-
-            var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
-            if (knownTypesAttribute != null && knownTypesAttribute.Length > 0) {
-                // known types will be registered as a side effect of calling LookupClassMap
-                BsonClassMap.LookupClassMap(nominalType);
-            }
-
-            lock (staticLock) {
                 typesWithRegisteredKnownTypes.Add(nominalType);
             }
         }
