@@ -290,7 +290,7 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestGuid() {
             var guid = new Guid("B5F21E0C2A0D42d6AD03D827008D8AB6");
-            string json = "{ \"$binary\" : \"DB7ytQ0q1kKtA9gnAI2Ktg==\", \"$type\" : \"03\" }";
+            string json = "BinData(3, \"DB7ytQ0q1kKtA9gnAI2Ktg==\")";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.Binary, bsonReader.ReadBsonType());
                 byte[] bytes;

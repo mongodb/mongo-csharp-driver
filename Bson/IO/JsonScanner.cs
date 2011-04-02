@@ -52,6 +52,8 @@ namespace MongoDB.Bson.IO {
                 case '}': return new JsonToken(JsonTokenType.EndObject, "}");
                 case '[': return new JsonToken(JsonTokenType.BeginArray, "[");
                 case ']': return new JsonToken(JsonTokenType.EndArray, "]");
+                case '(': return new JsonToken(JsonTokenType.LeftParen, "(");
+                case ')': return new JsonToken(JsonTokenType.RightParen, ")");
                 case ':': return new JsonToken(JsonTokenType.Colon, ":");
                 case ',': return new JsonToken(JsonTokenType.Comma, ",");
                 case '"': return GetStringToken(buffer);
@@ -131,6 +133,7 @@ namespace MongoDB.Bson.IO {
                             case ',':
                             case '}':
                             case ']':
+                            case ')':
                             case -1:
                                 state = NumberState.Done;
                                 break;
@@ -155,6 +158,7 @@ namespace MongoDB.Bson.IO {
                             case ',':
                             case '}':
                             case ']':
+                            case ')':
                             case -1:
                                 state = NumberState.Done;
                                 break;
@@ -186,6 +190,7 @@ namespace MongoDB.Bson.IO {
                             case ',':
                             case '}':
                             case ']':
+                            case ')':
                             case -1:
                                 state = NumberState.Done;
                                 break;
@@ -228,6 +233,7 @@ namespace MongoDB.Bson.IO {
                             case ',':
                             case '}':
                             case ']':
+                            case ')':
                             case -1:
                                 state = NumberState.Done;
                                 break;
@@ -258,6 +264,7 @@ namespace MongoDB.Bson.IO {
                                 case ',':
                                 case '}':
                                 case ']':
+                                case ')':
                                 case -1:
                                     state = NumberState.Done;
                                     break;
@@ -325,6 +332,7 @@ namespace MongoDB.Bson.IO {
                             case ',':
                             case '}':
                             case ']':
+                            case ')':
                             case -1:
                                 state = RegularExpressionState.Done;
                                 break;
@@ -405,117 +413,18 @@ namespace MongoDB.Bson.IO {
             }
         }
 
-        private static JsonToken GetTenGenDate(
-            JsonBuffer buffer,
-            int start
-        ) {
-            var firstDigit = buffer.Position;
-            while (true) {
-                var c = buffer.Read();
-                if (c == ')') {
-                    var lexeme = buffer.Substring(start, buffer.Position - start);
-                    var digits = buffer.Substring(firstDigit, buffer.Position - firstDigit - 1);
-                    var ms = XmlConvert.ToInt64(digits);
-                    var value = BsonDateTime.Create(ms);
-                    return new DateTimeJsonToken(lexeme, value);
-                }
-                if (c == -1 || !char.IsDigit((char) c)) {
-                    throw new FileFormatException(FormatMessage("Invalid JSON Date value", buffer, start));
-                }
-            }
-        }
-
-        private static JsonToken GetTenGenInt64(
-            JsonBuffer buffer,
-            int start
-        ) {
-            var firstDigit = buffer.Position;
-            while (true) {
-                var c = buffer.Read();
-                if (c == ')') {
-                    var lexeme = buffer.Substring(start, buffer.Position - start);
-                    var digits = buffer.Substring(firstDigit, buffer.Position - firstDigit - 1);
-                    var value = XmlConvert.ToInt64(digits);
-                    return new Int64JsonToken(lexeme, value);
-                }
-                if (c == -1 || !char.IsDigit((char) c)) {
-                    throw new FileFormatException(FormatMessage("Invalid JSON NumberLong value", buffer, start));
-                }
-            }
-        }
-
-        private static JsonToken GetTenGenObjectId(
-            JsonBuffer buffer,
-            int start
-        ) {
-            var c = buffer.Read();
-            if (c != '"') {
-                throw new FileFormatException(FormatMessage("Invalid JSON ObjectId value", buffer, start));
-            }
-            var firstHexDigit = buffer.Position;
-            c = buffer.Read();
-            while (c != '"') {
-                if (
-                    !char.IsDigit((char) c) &&
-                    !(c >= 'a' && c <= 'f') &&
-                    !(c >= 'A' && c <= 'F')
-                ) {
-                    throw new FileFormatException(FormatMessage("Invalid JSON ObjectId value", buffer, start));
-                }
-                c = buffer.Read();
-            }
-            var count = buffer.Position - 1 - firstHexDigit;
-            if (count != 24) {
-                throw new FileFormatException(FormatMessage("Invalid JSON ObjectId value", buffer, start));
-            }
-            var hexDigits = buffer.Substring(firstHexDigit, count);
-            var objectId = ObjectId.Parse(hexDigits);
-            c = buffer.Read();
-            if (c != ')') {
-                throw new FileFormatException(FormatMessage("Invalid JSON ObjectId value", buffer, start));
-            }
-            var lexeme = buffer.Substring(start, buffer.Position - start);
-            return new ObjectIdJsonToken(lexeme, objectId);
-        }
-
         private static JsonToken GetUnquotedStringToken(
             JsonBuffer buffer
         ) {
             // opening letter or $ has already been read
             var start = buffer.Position - 1;
-            string lexeme;
-            while (true) {
-                var c = buffer.Read();
-                switch (c) {
-                    case ':':
-                    case ',':
-                    case '}':
-                    case ']':
-                    case -1:
-                        buffer.UnRead(c);
-                        lexeme = buffer.Substring(start, buffer.Position - start);
-                        return new StringJsonToken(JsonTokenType.UnquotedString, lexeme, lexeme);
-                    default:
-                        if (c == '$' || char.IsLetterOrDigit((char) c)) {
-                            // continue
-                        } else if (char.IsWhiteSpace((char) c)) {
-                            buffer.UnRead(c);
-                            lexeme = buffer.Substring(start, buffer.Position - start);
-                            return new StringJsonToken(JsonTokenType.UnquotedString, lexeme, lexeme);
-                        } else {
-                            if (c == '(') {
-                                var value = buffer.Substring(start, buffer.Position - 1 - start);
-                                switch (value) {
-                                    case "Date": return GetTenGenDate(buffer, start);
-                                    case "NumberLong": return GetTenGenInt64(buffer, start);
-                                    case "ObjectId": return GetTenGenObjectId(buffer, start);
-                                }
-                            }
-                            throw new FileFormatException(FormatMessage("Invalid JSON unquoted string", buffer, start));
-                        }
-                        break;
-                }
+            var c = buffer.Read();
+            while (c == '$' || char.IsLetterOrDigit((char) c)) {
+                c = buffer.Read();
             }
+            buffer.UnRead(c);
+            var lexeme = buffer.Substring(start, buffer.Position - start);
+            return new StringJsonToken(JsonTokenType.UnquotedString, lexeme, lexeme);
         }
         #endregion
 

@@ -162,6 +162,41 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestBinaryShell() {
+            var tests = new TestData<BsonBinaryData>[] {
+                new TestData<BsonBinaryData>(null, "null"),
+                new TestData<BsonBinaryData>(new byte[] { }, "BinData(0, \"\")"),
+                new TestData<BsonBinaryData>(new byte[] { 1 }, "BinData(0, \"AQ==\")"),
+                new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "BinData(0, \"AQI=\")"),
+                new TestData<BsonBinaryData>(new byte[] { 1, 2, 3 }, "BinData(0, \"AQID\")"),
+                new TestData<BsonBinaryData>(Guid.Empty, "BinData(3, \"AAAAAAAAAAAAAAAAAAAAAA==\")")
+            };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson();
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonBinaryData>(json));
+            }
+        }
+
+        [Test]
+        public void TestBinaryStrict() {
+            var tests = new TestData<BsonBinaryData>[] {
+                new TestData<BsonBinaryData>(null, "null"),
+                new TestData<BsonBinaryData>(new byte[] { }, "{ \"$binary\" : \"\", \"$type\" : \"00\" }"),
+                new TestData<BsonBinaryData>(new byte[] { 1 }, "{ \"$binary\" : \"AQ==\", \"$type\" : \"00\" }"),
+                new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "{ \"$binary\" : \"AQI=\", \"$type\" : \"00\" }"),
+                new TestData<BsonBinaryData>(new byte[] { 1, 2, 3 }, "{ \"$binary\" : \"AQID\", \"$type\" : \"00\" }"),
+                new TestData<BsonBinaryData>(Guid.Empty, "{ \"$binary\" : \"AAAAAAAAAAAAAAAAAAAAAA==\", \"$type\" : \"03\" }")
+            };
+            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson(jsonSettings);
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonBinaryData>(json));
+            }
+        }
+
+        [Test]
         public void TestDateTime() {
             DateTime jan_1_2010 = new DateTime(2010, 1, 1);
         	double expectedValue = (jan_1_2010.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
@@ -211,16 +246,6 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestBinary() {
-            var document = new BsonDocument {
-                { "bin", new BsonBinaryData(new byte[] { 1, 2, 3 }) }
-            };
-            string expected = "{ \"bin\" : { \"$binary\" : \"AQID\", \"$type\" : \"00\" } }";
-            string actual = document.ToJson();
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
         public void TestJavaScript() {
             var document = new BsonDocument {
                 { "f", new BsonJavaScript("function f() { return 1; }") }
@@ -245,7 +270,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var document = new BsonDocument {
                 { "guid", new Guid("B5F21E0C2A0D42d6AD03D827008D8AB6") }
             };
-            string expected = "{ \"guid\" : { \"$binary\" : \"DB7ytQ0q1kKtA9gnAI2Ktg==\", \"$type\" : \"03\" } }";
+            string expected = "{ \"guid\" : BinData(3, \"DB7ytQ0q1kKtA9gnAI2Ktg==\") }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
         }

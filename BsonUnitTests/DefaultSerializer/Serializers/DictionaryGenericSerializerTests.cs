@@ -381,7 +381,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { "C", "1.5" }, 
                 { "D", "1" }, 
                 { "E", "2" },
-                { "F", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }" }, 
+                { "F", "BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')" }, 
                 { "G", "{ '$oid' : '000000000000000000000000' }" }, 
                 { "H", "'x'" }
             };
@@ -430,7 +430,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { 3, "[3, 1.5]" }, 
                 { 4, "[4, 1]" }, 
                 { 5, "[5, 2]" },
-                { 6, "[6, { '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }]" }, 
+                { 6, "[6, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
                 { 7, "[7, { '$oid' : '000000000000000000000000' }]" }, 
                 { 8, "[8, 'x']" }
             };
@@ -478,7 +478,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { "C", "['C', 1.5]" }, 
                 { "D", "['D', 1]" }, 
                 { 4, "[4, 2]" },
-                { 5.0, "[5, { '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }]" }, 
+                { 5.0, "[5, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
                 { true, "[true, { '$oid' : '000000000000000000000000' }]" }, 
                 { false, "[false, 'x']" }
             };

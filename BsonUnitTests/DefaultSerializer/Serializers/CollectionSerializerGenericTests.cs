@@ -212,7 +212,7 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializersGeneric {
             var json = obj.ToJson();
             var rep = "[true, #Date, 1.5, 1, 2, #Guid, #ObjectId, 'x']";
             rep = rep.Replace("#Date", "{ '$date' : #ms }".Replace("#ms", millis.ToString()));
-            rep = rep.Replace("#Guid", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }");
+            rep = rep.Replace("#Guid", "BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')");
             rep = rep.Replace("#ObjectId", "{ '$oid' : '000000000000000000000000' }");
             var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);

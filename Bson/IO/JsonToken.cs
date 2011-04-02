@@ -44,6 +44,14 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         EndArray,
         /// <summary>
+        /// A left parenthesis (a '(').
+        /// </summary>
+        LeftParen,
+        /// <summary>
+        /// A right parenthesis (a ')').
+        /// </summary>
+        RightParen,
+        /// <summary>
         /// An end object token (a '}').
         /// </summary>
         EndObject,

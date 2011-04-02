@@ -87,7 +87,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", guid);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : { '$binary' : '#guid', '$type' : '03' } } }";
+            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : BinData(3, '#guid') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("#guid", Convert.ToBase64String(guid.ToByteArray()));
             expected = expected.Replace("'", "\"");

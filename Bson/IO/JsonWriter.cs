@@ -88,10 +88,15 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            WriteStartDocument();
-            WriteString("$binary", Convert.ToBase64String(bytes));
-            WriteString("$type", ((int) subType).ToString("x2"));
-            WriteEndDocument();
+            if (settings.OutputMode == JsonOutputMode.Shell) {
+                WriteNameHelper(name);
+                textWriter.Write("BinData({0}, \"{1}\")", (int) subType, Convert.ToBase64String(bytes));
+            } else {
+                WriteStartDocument();
+                WriteString("$binary", Convert.ToBase64String(bytes));
+                WriteString("$type", ((int) subType).ToString("x2"));
+                WriteEndDocument();
+            }
 
             state = GetNextState();
         }
@@ -130,6 +135,7 @@ namespace MongoDB.Bson.IO {
 
             switch (settings.OutputMode) {
                 case JsonOutputMode.Strict:
+                case JsonOutputMode.Shell:
                     WriteStartDocument();
                     WriteInt64("$date", value);
                     WriteEndDocument();
@@ -374,6 +380,7 @@ namespace MongoDB.Bson.IO {
             switch (settings.OutputMode) {
                 case JsonOutputMode.Strict:
                 case JsonOutputMode.JavaScript:
+                case JsonOutputMode.Shell:
                     WriteStartDocument();
                     WriteString("$oid", BsonUtils.ToHexString(bytes));
                     WriteEndDocument();
@@ -404,6 +411,7 @@ namespace MongoDB.Bson.IO {
 
             switch (settings.OutputMode) {
                 case JsonOutputMode.Strict:
+                case JsonOutputMode.Shell:
                     WriteStartDocument();
                     WriteString("$regex", pattern);
                     WriteString("$options", options);
