@@ -60,7 +60,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 "ISODate('1970-01-01T00:00:00Z')",
                 "null",
                 "123",
-                "123"
+                "NumberLong(123)"
             }));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -122,7 +122,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestInt64() {
             var c = new C { Obj = 123L };
             var json = c.ToJson();
-            var expected = "{ 'Obj' : 123 }".Replace("'", "\"");
+            var expected = "{ 'Obj' : NumberLong(123) }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

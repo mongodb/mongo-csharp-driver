@@ -120,7 +120,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", 123456789012345L);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : 123456789012345 } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : NumberLong('123456789012345') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);

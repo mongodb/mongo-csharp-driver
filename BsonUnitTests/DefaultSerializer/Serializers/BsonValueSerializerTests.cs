@@ -713,7 +713,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMin() {
             var obj = new TestClass(long.MinValue);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", long.MinValue.ToString()).Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong('-9223372036854775808')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -725,7 +725,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMinusOne() {
             var obj = new TestClass(-1);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-1").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong(-1)").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -737,7 +737,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestZero() {
             var obj = new TestClass(0);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "0").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong(0)").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -749,7 +749,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestOne() {
             var obj = new TestClass(1);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "1").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong(1)").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -761,7 +761,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMax() {
             var obj = new TestClass(long.MaxValue);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", long.MaxValue.ToString()).Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong('9223372036854775807')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1252,7 +1252,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMin() {
             var obj = new TestClass(new BsonTimestamp(long.MinValue));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : " + long.MinValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong('-9223372036854775808') }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1264,7 +1264,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMinusOne() {
             var obj = new TestClass(new BsonTimestamp(-1));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : -1 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong(-1) }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1276,7 +1276,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestZero() {
             var obj = new TestClass(new BsonTimestamp(0));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : 0 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong(0) }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1288,7 +1288,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestOne() {
             var obj = new TestClass(new BsonTimestamp(1));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : 1 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong(1) }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1300,7 +1300,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestOneTwo() {
             var obj = new TestClass(new BsonTimestamp(1, 2));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : " + ((1L << 32) + 2).ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong('4294967298') }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1312,7 +1312,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMax() {
             var obj = new TestClass(new BsonTimestamp(long.MaxValue));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : " + long.MaxValue.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong('9223372036854775807') }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

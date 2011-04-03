@@ -265,9 +265,19 @@ namespace MongoDB.Bson.IO {
             }
 
             switch (settings.OutputMode) {
-                case JsonOutputMode.TenGen:
+                case JsonOutputMode.Strict:
+                case JsonOutputMode.JavaScript:
                     WriteNameHelper(name);
-                    textWriter.Write("NumberLong({0})", value);
+                    textWriter.Write(value);
+                    break;
+                case JsonOutputMode.TenGen:
+                case JsonOutputMode.Shell:
+                    WriteNameHelper(name);
+                    if (value >= int.MinValue && value <= int.MaxValue) {
+                        textWriter.Write("NumberLong({0})", value);
+                    } else {
+                        textWriter.Write("NumberLong(\"{0}\")", value);
+                    }
                     break;
                 default:
                     WriteNameHelper(name);

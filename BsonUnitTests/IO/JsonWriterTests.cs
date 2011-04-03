@@ -114,20 +114,40 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestInt64() {
-            var document = new BsonDocument { { "a", 1L } };
-            var json = document.ToJson();
-            var expected = "{ 'a' : 1 }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+        public void TestInt64Shell() {
+            var tests = new TestData<long>[] {
+                new TestData<long>(long.MinValue, "NumberLong(\"-9223372036854775808\")"),
+                new TestData<long>(int.MinValue - 1L, "NumberLong(\"-2147483649\")"),
+                new TestData<long>(int.MinValue, "NumberLong(-2147483648)"),
+                new TestData<long>(0, "NumberLong(0)"),
+                new TestData<long>(int.MaxValue, "NumberLong(2147483647)"),
+                new TestData<long>(int.MaxValue + 1L, "NumberLong(\"2147483648\")"),
+                new TestData<long>(long.MaxValue, "NumberLong(\"9223372036854775807\")")
+            };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson();
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<long>(json));
+            }
         }
 
         [Test]
-        public void TestInt64TenGen() {
-            var document = new BsonDocument { { "a", 1L } };
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
-            var json = document.ToJson(settings);
-            var expected = "{ 'a' : NumberLong(1) }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+        public void TestInt64Strict() {
+            var tests = new TestData<long>[] {
+                new TestData<long>(long.MinValue, "-9223372036854775808"),
+                new TestData<long>(int.MinValue - 1L, "-2147483649"),
+                new TestData<long>(int.MinValue, "-2147483648"),
+                new TestData<long>(0, "0"),
+                new TestData<long>(int.MaxValue, "2147483647"),
+                new TestData<long>(int.MaxValue + 1L, "2147483648"),
+                new TestData<long>(long.MaxValue, "9223372036854775807")
+            };
+            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson(jsonSettings);
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<long>(json));
+            }
         }
 
         [Test]
@@ -429,7 +449,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var document = new BsonDocument {
                 { "timestamp", new BsonTimestamp(1234567890) }
             };
-            string expected = "{ \"timestamp\" : { \"$timestamp\" : 1234567890 } }";
+            string expected = "{ \"timestamp\" : { \"$timestamp\" : NumberLong(1234567890) } }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
         }

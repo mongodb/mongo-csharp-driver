@@ -208,7 +208,7 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
             var list = new ArrayList(new object[] { true, dateTime, 1.5, 1, 2L, guid, objectId, "x" });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
-            var rep = "[true, #Date, 1.5, 1, 2, #Guid, #ObjectId, 'x']";
+            var rep = "[true, #Date, 1.5, 1, NumberLong(2), #Guid, #ObjectId, 'x']";
             rep = rep.Replace("#Date", isoDate);
             rep = rep.Replace("#Guid", "BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')");
             rep = rep.Replace("#ObjectId", "ObjectId('000000000000000000000000')");

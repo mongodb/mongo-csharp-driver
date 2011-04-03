@@ -380,7 +380,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { "B", string.Format("ISODate('{0}')", isoDate) },
                 { "C", "1.5" }, 
                 { "D", "1" }, 
-                { "E", "2" },
+                { "E", "NumberLong(2)" },
                 { "F", "BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')" }, 
                 { "G", "ObjectId('000000000000000000000000')" }, 
                 { "H", "'x'" }
@@ -429,7 +429,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { 2, "[2, ISODate('#')]".Replace("#", isoDate) },
                 { 3, "[3, 1.5]" }, 
                 { 4, "[4, 1]" }, 
-                { 5, "[5, 2]" },
+                { 5, "[5, NumberLong(2)]" },
                 { 6, "[6, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
                 { 7, "[7, ObjectId('000000000000000000000000')]" }, 
                 { 8, "[8, 'x']" }
@@ -477,7 +477,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
                 { "B", "['B', ISODate('#')]".Replace("#", isoDate) },
                 { "C", "['C', 1.5]" }, 
                 { "D", "['D', 1]" }, 
-                { 4, "[4, 2]" },
+                { 4, "[4, NumberLong(2)]" },
                 { 5.0, "[5, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
                 { true, "[true, ObjectId('000000000000000000000000')]" }, 
                 { false, "[false, 'x']" }

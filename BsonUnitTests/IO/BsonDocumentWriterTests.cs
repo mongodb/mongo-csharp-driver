@@ -579,7 +579,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : 1 }".Replace("'", "\""); ;
+            var expected = "{ 'a' : NumberLong(1) }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -594,7 +594,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : 1 } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : NumberLong(1) } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -608,7 +608,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : 1, 'b' : 2 }".Replace("'", "\""); ;
+            var expected = "{ 'a' : NumberLong(1), 'b' : NumberLong(2) }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -624,7 +624,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : 1, 'b' : 2 } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : NumberLong(1), 'b' : NumberLong(2) } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -1193,7 +1193,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : { '$timestamp' : 1 } }".Replace("'", "\""); ;
+            var expected = "{ 'a' : { '$timestamp' : NumberLong(1) } }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -1208,7 +1208,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : { '$timestamp' : 1 } } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : { '$timestamp' : NumberLong(1) } } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -1222,7 +1222,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : { '$timestamp' : 1 }, 'b' : { '$timestamp' : 2 } }".Replace("'", "\""); ;
+            var expected = "{ 'a' : { '$timestamp' : NumberLong(1) }, 'b' : { '$timestamp' : NumberLong(2) } }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -1238,7 +1238,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : { '$timestamp' : 1 }, 'b' : { '$timestamp' : 2 } } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : { '$timestamp' : NumberLong(1) }, 'b' : { '$timestamp' : NumberLong(2) } } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 

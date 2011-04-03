@@ -329,7 +329,7 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestInt64() {
-            var json = "123456789012";
+            var json = "NumberLong(\"123456789012\")";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.Int64, bsonReader.ReadBsonType());
                 Assert.AreEqual(123456789012, bsonReader.ReadInt64());
@@ -346,8 +346,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(123, bsonReader.ReadInt64());
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
-            Assert.AreEqual(json, BsonSerializer.Deserialize<long>(new StringReader(json)).ToJson(settings));
+            Assert.AreEqual(json, BsonSerializer.Deserialize<long>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -559,7 +558,7 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestTimestamp() {
-            var json = "{ \"$timestamp\" : 1234 }";
+            var json = "{ \"$timestamp\" : NumberLong(1234) }";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.Timestamp, bsonReader.ReadBsonType());
                 Assert.AreEqual(1234L, bsonReader.ReadTimestamp());

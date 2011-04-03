@@ -161,7 +161,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestInt64() {
             C c = new C { Int64 = 2 };
             var json = c.ToJson();
-            var expected = template.Replace("'Int64' : null", "'Int64' : 2").Replace("'", "\"");
+            var expected = template.Replace("'Int64' : null", "'Int64' : NumberLong(2)").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

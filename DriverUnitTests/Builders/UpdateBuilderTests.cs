@@ -78,21 +78,21 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestBitwiseAndLong() {
             var update = Update.BitwiseAnd("name", 1L);
-            var expected = "{ '$bit' : { 'name' : { 'and' : 1 } } }".Replace("'", "\"");
+            var expected = "{ '$bit' : { 'name' : { 'and' : NumberLong(1) } } }".Replace("'", "\"");
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestBitwiseAndLongTwice() {
             var update = Update.BitwiseAnd("x", 1L).BitwiseAnd("y", 2L);
-            var expected = "{ '$bit' : { 'x' : { 'and' : 1 }, 'y' : { 'and' : 2 } } }".Replace("'", "\"");
+            var expected = "{ '$bit' : { 'x' : { 'and' : NumberLong(1) }, 'y' : { 'and' : NumberLong(2) } } }".Replace("'", "\"");
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestBitwiseAndOrInt() {
             var update = Update.BitwiseAnd("x", 1L).BitwiseOr("x", 2L);
-            var expected = "{ '$bit' : { 'x' : { 'and' : 1, 'or' : 2 } } }".Replace("'", "\"");
+            var expected = "{ '$bit' : { 'x' : { 'and' : NumberLong(1), 'or' : NumberLong(2) } } }".Replace("'", "\"");
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -113,14 +113,14 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestBitwiseOrLong() {
             var update = Update.BitwiseOr("name", 1L);
-            var expected = "{ '$bit' : { 'name' : { 'or' : 1 } } }".Replace("'", "\"");
+            var expected = "{ '$bit' : { 'name' : { 'or' : NumberLong(1) } } }".Replace("'", "\"");
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestBitwiseOrLongTwice() {
             var update = Update.BitwiseOr("x", 1L).BitwiseOr("y", 2L);
-            var expected = "{ '$bit' : { 'x' : { 'or' : 1 }, 'y' : { 'or' : 2 } } }".Replace("'", "\"");
+            var expected = "{ '$bit' : { 'x' : { 'or' : NumberLong(1) }, 'y' : { 'or' : NumberLong(2) } } }".Replace("'", "\"");
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -141,7 +141,7 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestIncLong() {
             var update = Update.Inc("name", 1L);
-            var expected = "{ \"$inc\" : { \"name\" : 1 } }";
+            var expected = "{ \"$inc\" : { \"name\" : NumberLong(1) } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -281,7 +281,7 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestIncLongTwice() {
             var update = Update.Inc("x", 1L).Inc("y", 2L);
-            var expected = "{ \"$inc\" : { \"x\" : 1, \"y\" : 2 } }";
+            var expected = "{ \"$inc\" : { \"x\" : NumberLong(1), \"y\" : NumberLong(2) } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -372,7 +372,7 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestSetThenIncLong() {
             var update = Update.Set("x", 1).Inc("name", 1L);
-            var expected = "{ \"$set\" : { \"x\" : 1 }, \"$inc\" : { \"name\" : 1 } }";
+            var expected = "{ \"$set\" : { \"x\" : 1 }, \"$inc\" : { \"name\" : NumberLong(1) } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 

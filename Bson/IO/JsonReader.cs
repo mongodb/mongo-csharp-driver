@@ -817,12 +817,17 @@ namespace MongoDB.Bson.IO {
         private BsonValue ParseNumberLong() {
             VerifyToken("(");
             var valueToken = PopToken();
-            if (valueToken.Type != JsonTokenType.Int32 && valueToken.Type != JsonTokenType.Int64) {
-                var message = string.Format("JSON reader expected an integer but found: '{0}'", valueToken.Lexeme);
+            long value;
+            if (valueToken.Type == JsonTokenType.Int32 || valueToken.Type == JsonTokenType.Int64) {
+                value = valueToken.Int64Value;
+            } else if (valueToken.Type == JsonTokenType.String) {
+                value = long.Parse(valueToken.StringValue);
+            } else {
+                var message = string.Format("JSON reader expected an integer or a string but found: '{0}'", valueToken.Lexeme);
                 throw new FileFormatException(message);
             }
             VerifyToken(")");
-            return BsonInt64.Create(valueToken.Int64Value);
+            return BsonInt64.Create(value);
         }
 
         private BsonValue ParseObjectIdShell() {
@@ -880,12 +885,17 @@ namespace MongoDB.Bson.IO {
         private BsonValue ParseTimestamp() {
             VerifyToken(":");
             var valueToken = PopToken();
-            if (valueToken.Type != JsonTokenType.Int32 && valueToken.Type != JsonTokenType.Int64) {
+            long value;
+            if (valueToken.Type == JsonTokenType.Int32 && valueToken.Type == JsonTokenType.Int64) {
+                value = valueToken.Int64Value;
+            } else if (valueToken.Type == JsonTokenType.UnquotedString && valueToken.Lexeme == "NumberLong") {
+                value = ParseNumberLong().AsInt64;
+            } else {
                 var message = string.Format("JSON reader expected an integer but found: '{0}'", valueToken.Lexeme);
                 throw new FileFormatException(message);
             }
             VerifyToken("}");
-            return BsonTimestamp.Create(valueToken.Int64Value);
+            return BsonTimestamp.Create(value);
         }
 
         private JsonToken PopToken() {
