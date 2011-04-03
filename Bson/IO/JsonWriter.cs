@@ -422,7 +422,6 @@ namespace MongoDB.Bson.IO {
 
             switch (settings.OutputMode) {
                 case JsonOutputMode.Strict:
-                case JsonOutputMode.Shell:
                     WriteStartDocument();
                     WriteString("$regex", pattern);
                     WriteString("$options", options);
@@ -430,9 +429,11 @@ namespace MongoDB.Bson.IO {
                     break;
                 case JsonOutputMode.JavaScript:
                 case JsonOutputMode.TenGen:
+                case JsonOutputMode.Shell:
                     WriteNameHelper(name);
                     textWriter.Write("/");
-                    textWriter.Write(pattern.Replace(@"\", @"\\"));
+                    var escaped = (pattern == "") ? "(?:)" : pattern.Replace(@"\", @"\\").Replace("/", @"\/");
+                    textWriter.Write(escaped);
                     textWriter.Write("/");
                     foreach (char c in options.ToLower()) {
                         switch (c) {

@@ -1052,7 +1052,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestWithoutOptions() {
             var obj = new TestClass(new BsonRegularExpression("abc"));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$regex' : 'abc', '$options' : '' }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "/abc/").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1064,7 +1064,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestWithOptions() {
             var obj = new TestClass(new BsonRegularExpression("abc", "gim"));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$regex' : 'abc', '$options' : 'gim' }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "/abc/gim").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

@@ -496,8 +496,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestRegularExpressionStrict() {
-            var json = "{ \"$regex\" : \"pattern\", \"$options\" : \"gim\" }";
+        public void TestRegularExpressionShell() {
+            var json = "/pattern/gim";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.RegularExpression, bsonReader.ReadBsonType());
                 string pattern, options;
@@ -510,8 +510,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestRegularExpressionTenGen() {
-            var json = "/pattern/gim";
+        public void TestRegularExpressionStrict() {
+            var json = "{ \"$regex\" : \"pattern\", \"$options\" : \"gim\" }";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.RegularExpression, bsonReader.ReadBsonType());
                 string pattern, options;
@@ -520,7 +520,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual("gim", options);
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
+            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonRegularExpression>(new StringReader(json)).ToJson(settings));
         }
 

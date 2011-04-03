@@ -343,6 +343,47 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestRegularExpressionShell() {
+            var tests = new TestData<BsonRegularExpression>[] {
+                new TestData<BsonRegularExpression>(null, "null"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create(""), "/(?:)/"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a"), "/a/"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a/b"), "/a\\/b/"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a\\b"), "/a\\\\b/"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "g"), "/a/g"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "i"), "/a/i"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "m"), "/a/m"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "gim"), "/a/gim"),
+            };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson();
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
+            }
+        }
+
+        [Test]
+        public void TestRegularExpressionStrict() {
+            var tests = new TestData<BsonRegularExpression>[] {
+                new TestData<BsonRegularExpression>(null, "null"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create(""), "{ \"$regex\" : \"\", \"$options\" : \"\" }"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a"), "{ \"$regex\" : \"a\", \"$options\" : \"\" }"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a/b"), "{ \"$regex\" : \"a/b\", \"$options\" : \"\" }"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a\\b"), "{ \"$regex\" : \"a\\\\b\", \"$options\" : \"\" }"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "g"), "{ \"$regex\" : \"a\", \"$options\" : \"g\" }"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "i"), "{ \"$regex\" : \"a\", \"$options\" : \"i\" }"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "m"), "{ \"$regex\" : \"a\", \"$options\" : \"m\" }"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "gim"), "{ \"$regex\" : \"a\", \"$options\" : \"gim\" }"),
+            };
+            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson(jsonSettings);
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
+            }
+        }
+
+        [Test]
         public void TestString() {
             var tests = new TestData<string>[] {
                 new TestData<string>(null, "null"),
