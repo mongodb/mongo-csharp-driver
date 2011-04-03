@@ -197,52 +197,70 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestDateTime() {
-            DateTime jan_1_2010 = new DateTime(2010, 1, 1);
-        	double expectedValue = (jan_1_2010.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
-            BsonDocument document = new BsonDocument() {
-                { "date", jan_1_2010 }
+        public void TestDateTimeShell() {
+            var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
+            var isoDate = string.Format("ISODate(\"{0}\")", utcNowTruncated.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+            var tests = new TestData<BsonDateTime>[] {
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MinValue), "Date(-9223372036854775808)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(0), "ISODate(\"1970-01-01T00:00:00Z\")"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MaxValue), "Date(9223372036854775807)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MinValue), "ISODate(\"0001-01-01T00:00:00Z\")"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(BsonConstants.UnixEpoch), "ISODate(\"1970-01-01T00:00:00Z\")"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(utcNowTruncated), isoDate),
+                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MaxValue), "ISODate(\"9999-12-31T23:59:59.999Z\")"),
             };
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-            string json = document.ToJson(settings);
-        	string expected = "{ \"date\" : { \"$date\" : # } }".Replace("#", expectedValue.ToString());
-            Assert.AreEqual(expected, json);
-            settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            json = document.ToJson(settings);
-			expected = "{ \"date\" : Date(#) }".Replace("#", expectedValue.ToString());
-            Assert.AreEqual(expected, json);
+            foreach (var test in tests) {
+                var json = test.Value.ToJson();
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
+            }
         }
 
         [Test]
-        public void TestDateTimeMaxBson() {
-            var bsonDateTime = BsonDateTime.Create(long.MaxValue);
-            BsonDocument document = new BsonDocument() {
-                { "date", bsonDateTime }
+        public void TestDateTimeStrict() {
+            var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
+            var ms = BsonUtils.ToMillisecondsSinceEpoch(utcNowTruncated);
+            var strictDate = string.Format("{{ \"$date\" : {0} }}", ms);
+            var tests = new TestData<BsonDateTime>[] {
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MinValue), "{ \"$date\" : -9223372036854775808 }"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(0), "{ \"$date\" : 0 }"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MaxValue), "{ \"$date\" : 9223372036854775807 }"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MinValue), "{ \"$date\" : -62135596800000 }"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(BsonConstants.UnixEpoch), "{ \"$date\" : 0 }"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(utcNowTruncated), strictDate),
+                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MaxValue), "{ \"$date\" : 253402300799999 }"),
             };
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-            string json = document.ToJson(settings);
-            string expected = "{ \"date\" : { \"$date\" : 9223372036854775807 } }";
-            Assert.AreEqual(expected, json);
-            settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            json = document.ToJson(settings);
-            expected = "{ \"date\" : Date(9223372036854775807) }";
-            Assert.AreEqual(expected, json);
+            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson(jsonSettings);
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
+            }
         }
 
         [Test]
-        public void TestDateTimeMinBson() {
-            var bsonDateTime = BsonDateTime.Create(long.MinValue);
-            BsonDocument document = new BsonDocument() {
-                { "date", bsonDateTime }
+        public void TestDateTimeTenGen() {
+            var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
+            var ms = BsonUtils.ToMillisecondsSinceEpoch(utcNowTruncated);
+            var tenGenDate = string.Format("Date({0})", ms);
+            var tests = new TestData<BsonDateTime>[] {
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MinValue), "Date(-9223372036854775808)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(0), "Date(0)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MaxValue), "Date(9223372036854775807)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MinValue), "Date(-62135596800000)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(BsonConstants.UnixEpoch), "Date(0)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(utcNowTruncated), tenGenDate),
+                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MaxValue), "Date(253402300799999)"),
             };
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-            string json = document.ToJson(settings);
-            string expected = "{ \"date\" : { \"$date\" : -9223372036854775808 } }";
-            Assert.AreEqual(expected, json);
-            settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            json = document.ToJson(settings);
-            expected = "{ \"date\" : Date(-9223372036854775808) }";
-            Assert.AreEqual(expected, json);
+            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
+            foreach (var test in tests) {
+                var json = test.Value.ToJson(jsonSettings);
+                Assert.AreEqual(test.Expected, json);
+                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
+            }
         }
 
         [Test]

@@ -135,7 +135,6 @@ namespace MongoDB.Bson.IO {
 
             switch (settings.OutputMode) {
                 case JsonOutputMode.Strict:
-                case JsonOutputMode.Shell:
                     WriteStartDocument();
                     WriteInt64("$date", value);
                     WriteEndDocument();
@@ -144,6 +143,18 @@ namespace MongoDB.Bson.IO {
                 case JsonOutputMode.TenGen:
                     WriteNameHelper(name);
                     textWriter.Write("Date({0})", value);
+                    break;
+                case JsonOutputMode.Shell:
+                    // fall back to TenGen mode for BSON DateTimes that are outside the range of .NET DateTimes
+                    if (
+                        value < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch ||
+                        value > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch
+                    ) {
+                        goto case JsonOutputMode.TenGen;
+                    }
+                    WriteNameHelper(name);
+                    var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(value);
+                    textWriter.Write("ISODate(\"{0}\")", utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
                     break;
                 default:
                     throw new BsonInternalException("Unexpected JsonOutputMode");

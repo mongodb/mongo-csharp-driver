@@ -53,7 +53,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", dateTime);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : { '$date' : 0 } } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : ISODate('1970-01-01T00:00:00Z') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);

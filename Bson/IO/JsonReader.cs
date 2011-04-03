@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -201,6 +202,10 @@ namespace MongoDB.Bson.IO {
                             currentValue = ParseBinaryShell();
                             break;
                         case "Date":
+                            currentBsonType = BsonType.DateTime;
+                            currentValue = ParseDateTimeTenGen();
+                            break;
+                        case "ISODate":
                             currentBsonType = BsonType.DateTime;
                             currentValue = ParseDateTimeShell();
                             break;
@@ -740,12 +745,18 @@ namespace MongoDB.Bson.IO {
         private BsonValue ParseDateTimeShell() {
             VerifyToken("(");
             var valueToken = PopToken();
-            if (valueToken.Type != JsonTokenType.Int32 && valueToken.Type != JsonTokenType.Int64) {
-                var message = string.Format("JSON reader expected an integer but found: '{0}'", valueToken.Lexeme);
+            if (valueToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found: '{0}'", valueToken.Lexeme);
                 throw new FileFormatException(message);
             }
             VerifyToken(")");
-            return BsonDateTime.Create(valueToken.Int64Value);
+            var formats = new string[] {
+                            "yyyy-MM-ddK",
+                            "yyyy-MM-ddTHH:mm:ssK",
+                            "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
+                        };
+            var utcDateTime = DateTime.ParseExact(valueToken.StringValue, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+            return BsonDateTime.Create(utcDateTime);
         }
 
         private BsonValue ParseDateTimeStrict() {
@@ -756,6 +767,17 @@ namespace MongoDB.Bson.IO {
                 throw new FileFormatException(message);
             }
             VerifyToken("}");
+            return BsonDateTime.Create(valueToken.Int64Value);
+        }
+
+        private BsonValue ParseDateTimeTenGen() {
+            VerifyToken("(");
+            var valueToken = PopToken();
+            if (valueToken.Type != JsonTokenType.Int32 && valueToken.Type != JsonTokenType.Int64) {
+                var message = string.Format("JSON reader expected an integer but found: '{0}'", valueToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(")");
             return BsonDateTime.Create(valueToken.Int64Value);
         }
 

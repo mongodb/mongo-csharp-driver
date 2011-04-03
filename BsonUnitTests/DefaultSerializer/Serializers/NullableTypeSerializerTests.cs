@@ -89,7 +89,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestDateTime() {
             C c = new C { DateTime = BsonConstants.UnixEpoch };
             var json = c.ToJson();
-            var expected = template.Replace("'DateTime' : null", "'DateTime' : { '$date' : 0 }").Replace("'", "\"");
+            var expected = template.Replace("'DateTime' : null", "'DateTime' : ISODate('1970-01-01T00:00:00Z')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -101,7 +101,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestDateOnly() {
             C c = new C { DateOnly = BsonConstants.UnixEpoch };
             var json = c.ToJson();
-            var expected = template.Replace("'DateOnly' : null", "'DateOnly' : { '$date' : 0 }").Replace("'", "\"");
+            var expected = template.Replace("'DateOnly' : null", "'DateOnly' : ISODate('1970-01-01T00:00:00Z')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

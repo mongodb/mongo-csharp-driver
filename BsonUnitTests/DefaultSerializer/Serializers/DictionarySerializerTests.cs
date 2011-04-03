@@ -397,7 +397,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
         [Test]
         public void TestMixedPrimitiveTypes() {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var ht = new Hashtable {
@@ -417,7 +417,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
             var json = obj.ToJson();
             var reps = new Hashtable {
                 { "A", "true" }, 
-                { "B", "{ '$date' : #ms }".Replace("#ms", millis.ToString()) },
+                { "B", "ISODate('#')".Replace("#", isoDate) },
                 { "C", "1.5" }, 
                 { "D", "1" }, 
                 { "E", "2" },
@@ -450,7 +450,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
         [Test]
         public void TestMixedPrimitiveTypesWithIntKeys() {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var ht = new Hashtable {
@@ -470,7 +470,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
             var json = obj.ToJson();
             var reps = new Hashtable {
                 { 1, "[1, true]" }, 
-                { 2, "[2, { '$date' : #ms }]".Replace("#ms", millis.ToString()) },
+                { 2, "[2, ISODate('#')]".Replace("#", isoDate) },
                 { 3, "[3, 1.5]" }, 
                 { 4, "[4, 1]" }, 
                 { 5, "[5, 2]" },
@@ -504,7 +504,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
         public void TestMixedPrimitiveTypesWithMixedKeys() {
             // note: no SortedList in this test because you can't sort a set of keys that have mixed types
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var ht = new Hashtable {
@@ -523,7 +523,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
             var json = obj.ToJson();
             var reps = new Hashtable {
                 { "A", "['A', true]" }, 
-                { "B", "['B', { '$date' : #ms }]".Replace("#ms", millis.ToString()) },
+                { "B", "['B', ISODate('#')]".Replace("#", isoDate) },
                 { "C", "['C', 1.5]" }, 
                 { "D", "['D', 1]" }, 
                 { 4, "[4, 2]" },

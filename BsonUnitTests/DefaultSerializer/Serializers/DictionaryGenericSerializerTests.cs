@@ -358,7 +358,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         [Test]
         public void TestMixedPrimitiveTypes() {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var d = new Dictionary<object, object> {
@@ -377,7 +377,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
             var json = obj.ToJson();
             var reps = new Dictionary<object, object> {
                 { "A", "true" }, 
-                { "B", "{ '$date' : #ms }".Replace("#ms", millis.ToString()) },
+                { "B", string.Format("ISODate('{0}')", isoDate) },
                 { "C", "1.5" }, 
                 { "D", "1" }, 
                 { "E", "2" },
@@ -407,7 +407,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         [Test]
         public void TestMixedPrimitiveTypesWithIntKeys() {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var d = new Dictionary<object, object> {
@@ -426,7 +426,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
             var json = obj.ToJson();
             var reps = new Dictionary<object, object> {
                 { 1, "[1, true]" }, 
-                { 2, "[2, { '$date' : #ms }]".Replace("#ms", millis.ToString()) },
+                { 2, "[2, ISODate('#')]".Replace("#", isoDate) },
                 { 3, "[3, 1.5]" }, 
                 { 4, "[4, 1]" }, 
                 { 5, "[5, 2]" },
@@ -457,7 +457,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         public void TestMixedPrimitiveTypesWithMixedKeys() {
             // note: no SortedDictionary or SortedList in this test because you can't sort a set of keys that have mixed types
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var d = new Dictionary<object, object> {
@@ -474,7 +474,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
             var json = obj.ToJson();
             var reps = new Dictionary<object, object> {
                 { "A", "['A', true]" }, 
-                { "B", "['B', { '$date' : #ms }]".Replace("#ms", millis.ToString()) },
+                { "B", "['B', ISODate('#')]".Replace("#", isoDate) },
                 { "C", "['C', 1.5]" }, 
                 { "D", "['D', 1]" }, 
                 { 4, "[4, 2]" },

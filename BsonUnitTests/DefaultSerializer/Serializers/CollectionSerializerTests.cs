@@ -202,14 +202,14 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         [Test]
         public void TestMixedPrimitiveTypes() {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = string.Format("ISODate(\"{0}\")", dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var list = new ArrayList(new object[] { true, dateTime, 1.5, 1, 2L, guid, objectId, "x" });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
             var rep = "[true, #Date, 1.5, 1, 2, #Guid, #ObjectId, 'x']";
-            rep = rep.Replace("#Date", "{ '$date' : #ms }".Replace("#ms", millis.ToString()));
+            rep = rep.Replace("#Date", isoDate);
             rep = rep.Replace("#Guid", "BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')");
             rep = rep.Replace("#ObjectId", "ObjectId('000000000000000000000000')");
             var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R }".Replace("#R", rep).Replace("'", "\"");

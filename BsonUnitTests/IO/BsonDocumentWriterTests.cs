@@ -402,7 +402,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : { '$date' : 0 } }".Replace("'", "\""); ;
+            var expected = "{ 'a' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -417,7 +417,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : { '$date' : 0 } } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : ISODate('1970-01-01T00:00:00Z') } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -431,7 +431,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : { '$date' : 0 }, 'b' : { '$date' : 0 } }".Replace("'", "\""); ;
+            var expected = "{ 'a' : ISODate('1970-01-01T00:00:00Z'), 'b' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -447,7 +447,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : { '$date' : 0 }, 'b' : { '$date' : 0 } } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : ISODate('1970-01-01T00:00:00Z'), 'b' : ISODate('1970-01-01T00:00:00Z') } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 

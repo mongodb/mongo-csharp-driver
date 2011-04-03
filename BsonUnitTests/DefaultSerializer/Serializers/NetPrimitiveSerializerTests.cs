@@ -486,7 +486,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestSerializeDateTimeOffset() {
             var value = new DateTimeOffset(new DateTime(2010, 10, 8, 11, 29, 0), TimeSpan.FromHours(-4));
-            var milliseconds = (long) (value - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var isoDate = value.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var obj = new TestClass {
                 A = value,
                 D = value,
@@ -496,8 +496,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
             var expected = "{ 'A' : #A, 'D' : #D, 'S' : '#S' }";
             expected = expected.Replace("#A", string.Format("[{0}, {1}]", value.DateTime.Ticks, value.Offset.TotalMinutes));
             expected = expected.Replace("#D",
-                "{ 'DateTime' : { '$date' : #D }, 'Ticks' : #T, 'Offset' : #O }"
-                    .Replace("#D", milliseconds.ToString())
+                "{ 'DateTime' : ISODate('#D'), 'Ticks' : #T, 'Offset' : #O }"
+                    .Replace("#D", isoDate)
                     .Replace("#T", value.DateTime.Ticks.ToString())
                     .Replace("#O", XmlConvert.ToString(value.Offset.TotalMinutes))
             );

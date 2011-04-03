@@ -24,10 +24,35 @@ namespace MongoDB.Bson {
     /// </summary>
     public static class BsonConstants {
         #region private static fields
-        private static readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly long dateTimeMaxValueMillisecondsSinceEpoch;
+        private static readonly long dateTimeMinValueMillisecondsSinceEpoch;
+        private static readonly DateTime unixEpoch;
+        #endregion
+
+        #region static constructor
+        static BsonConstants() {
+            // unixEpoch has to be initialized first
+            unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            dateTimeMaxValueMillisecondsSinceEpoch = (DateTime.MaxValue - unixEpoch).Ticks / 10000;
+            dateTimeMinValueMillisecondsSinceEpoch = (DateTime.MinValue - unixEpoch).Ticks / 10000;
+        }
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets the number of milliseconds since the Unix epoch for DateTime.MaxValue.
+        /// </summary>
+        public static long DateTimeMaxValueMillisecondsSinceEpoch {
+            get { return dateTimeMaxValueMillisecondsSinceEpoch; }
+        }
+
+        /// <summary>
+        /// Gets the number of milliseconds since the Unix epoch for DateTime.MinValue.
+        /// </summary>
+        public static long DateTimeMinValueMillisecondsSinceEpoch {
+            get { return dateTimeMinValueMillisecondsSinceEpoch; }
+        }
+
         /// <summary>
         /// Gets the Unix Epoch for BSON DateTimes (1970-01-01).
         /// </summary>

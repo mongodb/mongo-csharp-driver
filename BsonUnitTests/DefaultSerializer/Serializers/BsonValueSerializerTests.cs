@@ -219,7 +219,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMinBson() {
             var obj = new TestClass(BsonDateTime.Create(long.MinValue));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -9223372036854775808 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Date(-9223372036854775808)").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -231,7 +231,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMinLocal() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -62135596800000 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('0001-01-01T00:00:00Z')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -243,7 +243,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMinUnspecified() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -62135596800000 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('0001-01-01T00:00:00Z')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -255,7 +255,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMinUtc() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : -62135596800000 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('0001-01-01T00:00:00Z')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -267,7 +267,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMaxBson() {
             var obj = new TestClass(BsonDateTime.Create(long.MaxValue));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : 9223372036854775807 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Date(9223372036854775807)").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -279,7 +279,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMaxLocal() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : 253402300799999 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('9999-12-31T23:59:59.999Z')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -291,7 +291,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMaxUnspecified() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : 253402300799999 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('9999-12-31T23:59:59.999Z')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -303,7 +303,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMaxUtc() {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : 253402300799999 }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('9999-12-31T23:59:59.999Z')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -314,9 +314,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestLocal() {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Local));
+            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             long milliseconds = (long) (obj.V.Value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", isoDate).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -327,9 +328,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestUnspecified() {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Unspecified));
-            long milliseconds = (long) (obj.V.Value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", isoDate).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -340,9 +341,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         [Test]
         public void TestUtc() {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Utc));
-            long milliseconds = (long) (obj.V.Value - BsonConstants.UnixEpoch).TotalMilliseconds;
+            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$date' : " + milliseconds.ToString() + " }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", isoDate).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
