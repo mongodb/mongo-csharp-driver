@@ -63,6 +63,11 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestPing() {
+            server.Ping();
+        }
+
+        [Test]
         public void TestGetDatabaseNames() {
             var databaseNames = server.GetDatabaseNames();
         }
