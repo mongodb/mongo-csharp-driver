@@ -222,9 +222,9 @@ namespace MongoDB.BsonUnitTests.IO {
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             var isoDate = string.Format("ISODate(\"{0}\")", utcNowTruncated.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var tests = new TestData<BsonDateTime>[] {
-                new TestData<BsonDateTime>(BsonDateTime.Create(long.MinValue), "Date(-9223372036854775808)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MinValue), "new Date(-9223372036854775808)"),
                 new TestData<BsonDateTime>(BsonDateTime.Create(0), "ISODate(\"1970-01-01T00:00:00Z\")"),
-                new TestData<BsonDateTime>(BsonDateTime.Create(long.MaxValue), "Date(9223372036854775807)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MaxValue), "new Date(9223372036854775807)"),
                 new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MinValue), "ISODate(\"0001-01-01T00:00:00Z\")"),
                 new TestData<BsonDateTime>(BsonDateTime.Create(BsonConstants.UnixEpoch), "ISODate(\"1970-01-01T00:00:00Z\")"),
                 new TestData<BsonDateTime>(BsonDateTime.Create(utcNowTruncated), isoDate),

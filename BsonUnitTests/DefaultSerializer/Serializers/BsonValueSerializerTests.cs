@@ -219,7 +219,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMinBson() {
             var obj = new TestClass(BsonDateTime.Create(long.MinValue));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Date(-9223372036854775808)").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "new Date(-9223372036854775808)").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -267,7 +267,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMaxBson() {
             var obj = new TestClass(BsonDateTime.Create(long.MaxValue));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Date(9223372036854775807)").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "new Date(9223372036854775807)").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

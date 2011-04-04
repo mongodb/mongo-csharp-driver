@@ -161,7 +161,7 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestDateTimeMinBson() {
-            var json = "Date(-9223372036854775808)";
+            var json = "new Date(-9223372036854775808)";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
                 Assert.AreEqual(-9223372036854775808, bsonReader.ReadDateTime());
@@ -172,7 +172,7 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestDateTimeMaxBson() {
-            var json = "Date(9223372036854775807)";
+            var json = "new Date(9223372036854775807)";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
                 Assert.AreEqual(9223372036854775807, bsonReader.ReadDateTime());

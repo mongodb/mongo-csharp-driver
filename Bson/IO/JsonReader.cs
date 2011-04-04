@@ -217,6 +217,9 @@ namespace MongoDB.Bson.IO {
                             currentBsonType = BsonType.ObjectId;
                             currentValue = ParseObjectIdShell();
                             break;
+                        case "new":
+                            currentBsonType = ParseNew(out currentValue);
+                            break;
                         default:
                             isConstant = false;
                             break;
@@ -812,6 +815,36 @@ namespace MongoDB.Bson.IO {
             VerifyToken("1");
             VerifyToken("}");
             return BsonMinKey.Value;
+        }
+
+        private BsonType ParseNew(
+            out BsonValue value
+        ) {
+            var typeToken = PopToken();
+            if (typeToken.Type != JsonTokenType.UnquotedString) {
+                var message = string.Format("JSON reader expected a type name but found: '{0}'", typeToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            switch (typeToken.Lexeme) {
+                case "BinData":
+                    value = ParseBinaryShell();
+                    return BsonType.Binary;
+                case "Date":
+                    value = ParseDateTimeTenGen();
+                    return BsonType.DateTime;
+                case "ISODate":
+                    value = ParseDateTimeShell();
+                    return BsonType.DateTime;
+                case "NumberLong":
+                    value = ParseNumberLong();
+                    return BsonType.Int64;
+                case "ObjectId":
+                    value = ParseObjectIdShell();
+                    return BsonType.ObjectId;
+                default:
+                    var message = string.Format("JSON reader expected a type name but found: '{0}'", typeToken.Lexeme);
+                    throw new FileFormatException(message);
+            }
         }
 
         private BsonValue ParseNumberLong() {
