@@ -786,7 +786,7 @@ namespace MongoDB.Driver {
             };
             command.Merge(options.ToBsonDocument());
             var result = database.RunCommandAs<MapReduceResult>(command);
-            result.SetDatabase(database);
+            result.SetInputDatabase(database);
             return result;
         }
 

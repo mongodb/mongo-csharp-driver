@@ -68,6 +68,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutReplaceWithDatabase() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("database", "name"));
+            var expected = "{ \"out\" : { \"replace\" : \"name\", \"db\" : \"database\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestOutMerge() {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("name"));
             var expected = "{ \"out\" : { \"merge\" : \"name\" } }";
@@ -75,9 +82,23 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutMergeWithDatabase() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("database", "name"));
+            var expected = "{ \"out\" : { \"merge\" : \"name\", \"db\" : \"database\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestOutReduce() {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("name"));
             var expected = "{ \"out\" : { \"reduce\" : \"name\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutReduceWithDatabase() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("database", "name"));
+            var expected = "{ \"out\" : { \"reduce\" : \"name\", \"db\" : \"database\" } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
