@@ -81,10 +81,10 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestDouble() {
             var tests = new TestData<double>[] {
-                new TestData<double>(0.0, "0"),
+                new TestData<double>(0.0, "0.0"),
                 new TestData<double>(0.0005, "0.0005"),
                 new TestData<double>(0.5, "0.5"),
-                new TestData<double>(1.0, "1"),
+                new TestData<double>(1.0, "1.0"),
                 new TestData<double>(1.5, "1.5"),
                 new TestData<double>(1.5E+40, "1.5E+40"),
                 new TestData<double>(1.5E-40, "1.5E-40"),
@@ -95,7 +95,7 @@ namespace MongoDB.BsonUnitTests.IO {
 
                 new TestData<double>(-0.0005, "-0.0005"),
                 new TestData<double>(-0.5, "-0.5"),
-                new TestData<double>(-1.0, "-1"),
+                new TestData<double>(-1.0, "-1.0"),
                 new TestData<double>(-1.5, "-1.5"),
                 new TestData<double>(-1.5E+40, "-1.5E+40"),
                 new TestData<double>(-1.5E-40, "-1.5E-40"),

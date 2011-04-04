@@ -527,7 +527,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
                 { "C", "['C', 1.5]" }, 
                 { "D", "['D', 1]" }, 
                 { 4, "[4, NumberLong(2)]" },
-                { 5.0, "[5, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
+                { 5.0, "[5.0, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
                 { true, "[true, ObjectId('000000000000000000000000')]" }, 
                 { false, "[false, 'x']" }
             };

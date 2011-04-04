@@ -19,6 +19,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace MongoDB.Bson.IO {
@@ -177,7 +178,12 @@ namespace MongoDB.Bson.IO {
             }
 
             WriteNameHelper(name);
-            textWriter.Write(value.ToString("R", NumberFormatInfo.InvariantInfo));
+            // if string representation looks like an integer add ".0" so that it looks like a double
+            var stringRepresentation = value.ToString("R", NumberFormatInfo.InvariantInfo);
+            if (Regex.IsMatch(stringRepresentation, @"^[+-]?\d+$")) {
+                stringRepresentation += ".0";
+            }
+            textWriter.Write(stringRepresentation);
 
             state = GetNextState();
         }

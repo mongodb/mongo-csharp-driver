@@ -511,7 +511,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestMinusOne() {
             var obj = new TestClass(-1.0);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-1").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-1.0").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -523,7 +523,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestZero() {
             var obj = new TestClass(0.0);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "0").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "0.0").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -535,7 +535,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestOne() {
             var obj = new TestClass(1.0);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "1").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "1.0").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
