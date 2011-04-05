@@ -784,7 +784,7 @@ namespace MongoDB.Driver {
                 { "map", map },
                 { "reduce", reduce }
             };
-            command.Merge(options.ToBsonDocument());
+            command.Add(options.ToBsonDocument());
             var result = database.RunCommandAs<MapReduceResult>(command);
             result.SetInputDatabase(database);
             return result;
@@ -805,7 +805,8 @@ namespace MongoDB.Driver {
             IMongoMapReduceOptions options
         ) {
             // create a new set of options because we don't want to modify caller's data
-            return MapReduce(map, reduce, MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument()));
+            options = MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument());
+            return MapReduce(map, reduce, options);
         }
 
         /// <summary>
@@ -820,7 +821,8 @@ namespace MongoDB.Driver {
             BsonJavaScript map,
             BsonJavaScript reduce
         ) {
-            return MapReduce(map, reduce, MapReduceOptions.SetQuery(query));
+            var options = MapReduceOptions.SetQuery(query).SetOutput(MapReduceOutput.Inline);
+            return MapReduce(map, reduce, options);
         }
 
         /// <summary>
