@@ -34,6 +34,10 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Use JavaScript and 10gen data types for some values.
         /// </summary>
-        TenGen
+        TenGen,
+        /// <summary>
+        /// Use a format that can be pasted in to the MongoDB shell.
+        /// </summary>
+        Shell
     }
 }

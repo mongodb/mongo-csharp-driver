@@ -27,10 +27,6 @@ namespace MongoDB.Bson {
     /// A static class containing BSON utility methods.
     /// </summary>
     public static class BsonUtils {
-        #region private static fields
-        private static readonly long dateTimeMaxValueMillisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MaxValue);
-        #endregion
-
         #region public static methods
         /// <summary>
         /// Parses a hex string to a byte array.
@@ -56,7 +52,7 @@ namespace MongoDB.Bson {
             long millisecondsSinceEpoch
         ) {
             // MaxValue has to be handled specially to avoid rounding errors
-            if (millisecondsSinceEpoch == dateTimeMaxValueMillisecondsSinceEpoch) {
+            if (millisecondsSinceEpoch == BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch) {
                 return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
             } else {
                 return BsonConstants.UnixEpoch.AddTicks(millisecondsSinceEpoch * 10000);

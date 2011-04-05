@@ -299,7 +299,7 @@ namespace MongoDB.BsonUnitTests {
 
             regex = BsonRegularExpression.Create(@"/pattern\/withslash/i");
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
-            Assert.AreEqual(@"pattern\/withslash", regex.Pattern);
+            Assert.AreEqual("pattern/withslash", regex.Pattern);
             Assert.AreEqual("i", regex.Options);
 
             regex = BsonRegularExpression.Create("pattern", "i");

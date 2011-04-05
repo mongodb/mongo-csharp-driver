@@ -636,6 +636,14 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Checks whether the server is alive (throws an exception if not).
+        /// </summary>
+        public virtual void Ping() {
+            var command = new CommandDocument("ping", 1);
+            RunAdminCommand(command);
+        }
+
+        /// <summary>
         /// Reconnects to the server. Normally there is no need to call this method. All connections
         /// are closed and new connections will be opened as needed. Calling
         /// this method frequently will result in connection thrashing.

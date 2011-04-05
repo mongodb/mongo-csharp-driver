@@ -397,7 +397,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
         [Test]
         public void TestMixedPrimitiveTypes() {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var ht = new Hashtable {
@@ -417,12 +417,12 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
             var json = obj.ToJson();
             var reps = new Hashtable {
                 { "A", "true" }, 
-                { "B", "{ '$date' : #ms }".Replace("#ms", millis.ToString()) },
+                { "B", "ISODate('#')".Replace("#", isoDate) },
                 { "C", "1.5" }, 
                 { "D", "1" }, 
-                { "E", "2" },
-                { "F", "{ '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }" }, 
-                { "G", "{ '$oid' : '000000000000000000000000' }" }, 
+                { "E", "NumberLong(2)" },
+                { "F", "BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')" }, 
+                { "G", "ObjectId('000000000000000000000000')" }, 
                 { "H", "'x'" }
             };
             var htRep = GetDocumentRepresentationInKeyOrder(ht, reps);
@@ -450,7 +450,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
         [Test]
         public void TestMixedPrimitiveTypesWithIntKeys() {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var ht = new Hashtable {
@@ -470,12 +470,12 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
             var json = obj.ToJson();
             var reps = new Hashtable {
                 { 1, "[1, true]" }, 
-                { 2, "[2, { '$date' : #ms }]".Replace("#ms", millis.ToString()) },
+                { 2, "[2, ISODate('#')]".Replace("#", isoDate) },
                 { 3, "[3, 1.5]" }, 
                 { 4, "[4, 1]" }, 
-                { 5, "[5, 2]" },
-                { 6, "[6, { '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }]" }, 
-                { 7, "[7, { '$oid' : '000000000000000000000000' }]" }, 
+                { 5, "[5, NumberLong(2)]" },
+                { 6, "[6, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
+                { 7, "[7, ObjectId('000000000000000000000000')]" }, 
                 { 8, "[8, 'x']" }
             };
             var htRep = GetArrayRepresentationInKeyOrder(ht, reps);
@@ -504,7 +504,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
         public void TestMixedPrimitiveTypesWithMixedKeys() {
             // note: no SortedList in this test because you can't sort a set of keys that have mixed types
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var millis = (long) ((dateTime - BsonConstants.UnixEpoch).TotalMilliseconds);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var ht = new Hashtable {
@@ -523,12 +523,12 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers {
             var json = obj.ToJson();
             var reps = new Hashtable {
                 { "A", "['A', true]" }, 
-                { "B", "['B', { '$date' : #ms }]".Replace("#ms", millis.ToString()) },
+                { "B", "['B', ISODate('#')]".Replace("#", isoDate) },
                 { "C", "['C', 1.5]" }, 
                 { "D", "['D', 1]" }, 
-                { 4, "[4, 2]" },
-                { 5.0, "[5, { '$binary' : 'AAAAAAAAAAAAAAAAAAAAAA==', '$type' : '03' }]" }, 
-                { true, "[true, { '$oid' : '000000000000000000000000' }]" }, 
+                { 4, "[4, NumberLong(2)]" },
+                { 5.0, "[5.0, BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')]" }, 
+                { true, "[true, ObjectId('000000000000000000000000')]" }, 
                 { false, "[false, 'x']" }
             };
             var htRep = GetArrayRepresentationInKeyOrder(ht, reps);

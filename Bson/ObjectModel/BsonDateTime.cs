@@ -25,11 +25,6 @@ namespace MongoDB.Bson {
     /// </summary>
     [Serializable]
     public class BsonDateTime : BsonValue, IComparable<BsonDateTime>, IEquatable<BsonDateTime> {
-        #region private static fields
-        private static readonly long dateTimeMaxValueMillisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MaxValue);
-        private static readonly long dateTimeMinValueMillisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MinValue);
-        #endregion
-
         #region private fields
         private long millisecondsSinceEpoch;
         private DateTime value; // only valid if millisecondsSinceEpoch is between MinValue and MaxValue for DateTime
@@ -57,7 +52,10 @@ namespace MongoDB.Bson {
         )
             : base(BsonType.DateTime) {
             this.millisecondsSinceEpoch = millisecondsSinceEpoch;
-            if (millisecondsSinceEpoch >= dateTimeMinValueMillisecondsSinceEpoch && millisecondsSinceEpoch <= dateTimeMaxValueMillisecondsSinceEpoch) {
+            if (
+                millisecondsSinceEpoch >= BsonConstants.DateTimeMinValueMillisecondsSinceEpoch &&
+                millisecondsSinceEpoch <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch
+            ) {
                 this.value = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(millisecondsSinceEpoch);
             }
         }
@@ -69,7 +67,9 @@ namespace MongoDB.Bson {
         /// </summary>
         public bool IsValidDateTime {
             get {
-                return millisecondsSinceEpoch >= dateTimeMinValueMillisecondsSinceEpoch && millisecondsSinceEpoch <= dateTimeMaxValueMillisecondsSinceEpoch;
+                return
+                    millisecondsSinceEpoch >= BsonConstants.DateTimeMinValueMillisecondsSinceEpoch &&
+                    millisecondsSinceEpoch <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch;
             }
         }
 
@@ -92,10 +92,10 @@ namespace MongoDB.Bson {
         /// </summary>
         public DateTime Value {
             get {
-                if (millisecondsSinceEpoch < dateTimeMinValueMillisecondsSinceEpoch) {
+                if (millisecondsSinceEpoch < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch) {
                     throw new OverflowException("MillisecondsSinceEpoch value is before DateTime.MinValue");
                 }
-                if (millisecondsSinceEpoch > dateTimeMaxValueMillisecondsSinceEpoch) {
+                if (millisecondsSinceEpoch > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch) {
                     throw new OverflowException("MillisecondsSinceEpoch value is after DateTime.MaxValue");
                 }
                 return value;

@@ -619,17 +619,16 @@ namespace MongoDB.DriverOnlineTests {
                 "    return {count : total};\n" +
                 "}\n";
 
-            using (database.RequestStart()) {
-                var options = MapReduceOptions.SetOutput("mrout");
-                var result = collection.MapReduce(map, reduce, options);
-                Assert.IsTrue(result.Ok);
-                Assert.IsTrue(result.Duration >= TimeSpan.Zero);
-                Assert.AreEqual(9, result.EmitCount);
-                Assert.AreEqual(5, result.OutputCount);
-                Assert.AreEqual(3, result.InputCount);
-                Assert.IsNotNullOrEmpty(result.CollectionName);
+            var options = MapReduceOptions.SetOutput("mrout");
+            var result = collection.MapReduce(map, reduce, options);
+            Assert.IsTrue(result.Ok);
+            Assert.IsTrue(result.Duration >= TimeSpan.Zero);
+            Assert.AreEqual(9, result.EmitCount);
+            Assert.AreEqual(5, result.OutputCount);
+            Assert.AreEqual(3, result.InputCount);
+            Assert.IsNotNullOrEmpty(result.CollectionName);
 
-                var expectedCounts = new Dictionary<string, int> {
+            var expectedCounts = new Dictionary<string, int> {
                     { "A", 1 },
                     { "B", 3 },
                     { "C", 1 },
@@ -637,24 +636,23 @@ namespace MongoDB.DriverOnlineTests {
                     { "_id", 3 }
                 };
 
-                // read output collection ourselves
-                foreach (var document in database[result.CollectionName].FindAll()) {
-                    var key = document["_id"].AsString;
-                    var count = document["value"].AsBsonDocument["count"].ToInt32();
-                    Assert.AreEqual(expectedCounts[key], count);
-                }
+            // read output collection ourselves
+            foreach (var document in database[result.CollectionName].FindAll()) {
+                var key = document["_id"].AsString;
+                var count = document["value"].AsBsonDocument["count"].ToInt32();
+                Assert.AreEqual(expectedCounts[key], count);
+            }
 
-                // test GetResults
-                foreach (var document in result.GetResults()) {
-                    var key = document["_id"].AsString;
-                    var count = document["value"].AsBsonDocument["count"].ToInt32();
-                    Assert.AreEqual(expectedCounts[key], count);
-                }
+            // test GetResults
+            foreach (var document in result.GetResults()) {
+                var key = document["_id"].AsString;
+                var count = document["value"].AsBsonDocument["count"].ToInt32();
+                Assert.AreEqual(expectedCounts[key], count);
+            }
 
-                // test GetResultsAs<>
-                foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
-                    Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
-                }
+            // test GetResultsAs<>
+            foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
             }
         }
 
@@ -684,17 +682,15 @@ namespace MongoDB.DriverOnlineTests {
                 "    return {count : total};\n" +
                 "}\n";
 
-            using (database.RequestStart()) {
-                var options = MapReduceOptions.SetOutput(MapReduceOutput.Inline);
-                var result = collection.MapReduce(map, reduce, options);
-                Assert.IsTrue(result.Ok);
-                Assert.IsTrue(result.Duration >= TimeSpan.Zero);
-                Assert.AreEqual(9, result.EmitCount);
-                Assert.AreEqual(5, result.OutputCount);
-                Assert.AreEqual(3, result.InputCount);
-                Assert.IsNullOrEmpty(result.CollectionName);
+            var result = collection.MapReduce(map, reduce);
+            Assert.IsTrue(result.Ok);
+            Assert.IsTrue(result.Duration >= TimeSpan.Zero);
+            Assert.AreEqual(9, result.EmitCount);
+            Assert.AreEqual(5, result.OutputCount);
+            Assert.AreEqual(3, result.InputCount);
+            Assert.IsNullOrEmpty(result.CollectionName);
 
-                var expectedCounts = new Dictionary<string, int> {
+            var expectedCounts = new Dictionary<string, int> {
                     { "A", 1 },
                     { "B", 3 },
                     { "C", 1 },
@@ -702,31 +698,101 @@ namespace MongoDB.DriverOnlineTests {
                     { "_id", 3 }
                 };
 
-                // test InlineResults as BsonDocuments
-                foreach (var document in result.InlineResults) {
-                    var key = document["_id"].AsString;
-                    var count = document["value"].AsBsonDocument["count"].ToInt32();
-                    Assert.AreEqual(expectedCounts[key], count);
-                }
+            // test InlineResults as BsonDocuments
+            foreach (var document in result.InlineResults) {
+                var key = document["_id"].AsString;
+                var count = document["value"].AsBsonDocument["count"].ToInt32();
+                Assert.AreEqual(expectedCounts[key], count);
+            }
 
-                // test InlineResults as TestInlineResultDocument
-                foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
-                    var key = document.Id;
-                    var count = document.Value.Count;
-                    Assert.AreEqual(expectedCounts[key], count);
-                }
+            // test InlineResults as TestInlineResultDocument
+            foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
+                var key = document.Id;
+                var count = document.Value.Count;
+                Assert.AreEqual(expectedCounts[key], count);
+            }
 
-                // test GetResults
-                foreach (var document in result.GetResults()) {
-                    var key = document["_id"].AsString;
-                    var count = document["value"].AsBsonDocument["count"].ToInt32();
-                    Assert.AreEqual(expectedCounts[key], count);
-                }
+            // test GetResults
+            foreach (var document in result.GetResults()) {
+                var key = document["_id"].AsString;
+                var count = document["value"].AsBsonDocument["count"].ToInt32();
+                Assert.AreEqual(expectedCounts[key], count);
+            }
 
-                // test GetResultsAs<>
-                foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
-                    Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
-                }
+            // test GetResultsAs<>
+            foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
+            }
+        }
+
+        [Test]
+        public void TestMapReduceInlineWithQuery() {
+            // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
+            // by Kristina Chodorow and Michael Dirolf
+
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+            collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+            collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+
+            var query = Query.Exists("B", true);
+
+            var map =
+                "function() {\n" +
+                "    for (var key in this) {\n" +
+                "        emit(key, {count : 1});\n" +
+                "    }\n" +
+                "}\n";
+
+            var reduce =
+                "function(key, emits) {\n" +
+                "    total = 0;\n" +
+                "    for (var i in emits) {\n" +
+                "        total += emits[i].count;\n" +
+                "    }\n" +
+                "    return {count : total};\n" +
+                "}\n";
+
+            var result = collection.MapReduce(query, map, reduce);
+            Assert.IsTrue(result.Ok);
+            Assert.IsTrue(result.Duration >= TimeSpan.Zero);
+            Assert.AreEqual(9, result.EmitCount);
+            Assert.AreEqual(5, result.OutputCount);
+            Assert.AreEqual(3, result.InputCount);
+            Assert.IsNullOrEmpty(result.CollectionName);
+
+            var expectedCounts = new Dictionary<string, int> {
+                    { "A", 1 },
+                    { "B", 3 },
+                    { "C", 1 },
+                    { "X", 1 },
+                    { "_id", 3 }
+                };
+
+            // test InlineResults as BsonDocuments
+            foreach (var document in result.InlineResults) {
+                var key = document["_id"].AsString;
+                var count = document["value"].AsBsonDocument["count"].ToInt32();
+                Assert.AreEqual(expectedCounts[key], count);
+            }
+
+            // test InlineResults as TestInlineResultDocument
+            foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
+                var key = document.Id;
+                var count = document.Value.Count;
+                Assert.AreEqual(expectedCounts[key], count);
+            }
+
+            // test GetResults
+            foreach (var document in result.GetResults()) {
+                var key = document["_id"].AsString;
+                var count = document["value"].AsBsonDocument["count"].ToInt32();
+                Assert.AreEqual(expectedCounts[key], count);
+            }
+
+            // test GetResultsAs<>
+            foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
             }
         }
 

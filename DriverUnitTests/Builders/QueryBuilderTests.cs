@@ -172,7 +172,7 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestMatches() {
             var query = Query.Matches("a", "/abc/");
-            var expected = "{ 'a' : { '$regex' : 'abc', '$options' : '' } }".Replace("'", "\"");
+            var expected = "{ 'a' : /abc/ }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
         }
 

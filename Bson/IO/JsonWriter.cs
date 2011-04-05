@@ -19,6 +19,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace MongoDB.Bson.IO {
@@ -88,10 +89,15 @@ namespace MongoDB.Bson.IO {
                 throw new InvalidOperationException(message);
             }
 
-            WriteStartDocument();
-            WriteString("$binary", Convert.ToBase64String(bytes));
-            WriteString("$type", ((int) subType).ToString("x2"));
-            WriteEndDocument();
+            if (settings.OutputMode == JsonOutputMode.Shell) {
+                WriteNameHelper(name);
+                textWriter.Write("BinData({0}, \"{1}\")", (int) subType, Convert.ToBase64String(bytes));
+            } else {
+                WriteStartDocument();
+                WriteString("$binary", Convert.ToBase64String(bytes));
+                WriteString("$type", ((int) subType).ToString("x2"));
+                WriteEndDocument();
+            }
 
             state = GetNextState();
         }
@@ -139,6 +145,19 @@ namespace MongoDB.Bson.IO {
                     WriteNameHelper(name);
                     textWriter.Write("Date({0})", value);
                     break;
+                case JsonOutputMode.Shell:
+                    WriteNameHelper(name);
+                    // use ISODate for values that fall within .NET's DateTime range, and "new Date" for all others
+                    if (
+                        value >= BsonConstants.DateTimeMinValueMillisecondsSinceEpoch &&
+                        value <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch
+                    ) {
+                        var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(value);
+                        textWriter.Write("ISODate(\"{0}\")", utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+                    } else {
+                        textWriter.Write("new Date({0})", value);
+                    }
+                    break;
                 default:
                     throw new BsonInternalException("Unexpected JsonOutputMode");
             }
@@ -160,7 +179,12 @@ namespace MongoDB.Bson.IO {
             }
 
             WriteNameHelper(name);
-            textWriter.Write(value.ToString("R", NumberFormatInfo.InvariantInfo));
+            // if string representation looks like an integer add ".0" so that it looks like a double
+            var stringRepresentation = value.ToString("R", NumberFormatInfo.InvariantInfo);
+            if (Regex.IsMatch(stringRepresentation, @"^[+-]?\d+$")) {
+                stringRepresentation += ".0";
+            }
+            textWriter.Write(stringRepresentation);
 
             state = GetNextState();
         }
@@ -248,9 +272,19 @@ namespace MongoDB.Bson.IO {
             }
 
             switch (settings.OutputMode) {
-                case JsonOutputMode.TenGen:
+                case JsonOutputMode.Strict:
+                case JsonOutputMode.JavaScript:
                     WriteNameHelper(name);
-                    textWriter.Write("NumberLong({0})", value);
+                    textWriter.Write(value);
+                    break;
+                case JsonOutputMode.TenGen:
+                case JsonOutputMode.Shell:
+                    WriteNameHelper(name);
+                    if (value >= int.MinValue && value <= int.MaxValue) {
+                        textWriter.Write("NumberLong({0})", value);
+                    } else {
+                        textWriter.Write("NumberLong(\"{0}\")", value);
+                    }
                     break;
                 default:
                     WriteNameHelper(name);
@@ -379,6 +413,7 @@ namespace MongoDB.Bson.IO {
                     WriteEndDocument();
                     break;
                 case JsonOutputMode.TenGen:
+                case JsonOutputMode.Shell:
                     WriteNameHelper(name);
                     textWriter.Write(string.Format("ObjectId(\"{0}\")", BsonUtils.ToHexString(bytes)));
                     break;
@@ -411,9 +446,11 @@ namespace MongoDB.Bson.IO {
                     break;
                 case JsonOutputMode.JavaScript:
                 case JsonOutputMode.TenGen:
+                case JsonOutputMode.Shell:
                     WriteNameHelper(name);
                     textWriter.Write("/");
-                    textWriter.Write(pattern.Replace(@"\", @"\\"));
+                    var escaped = (pattern == "") ? "(?:)" : pattern.Replace(@"\", @"\\").Replace("/", @"\/");
+                    textWriter.Write(escaped);
                     textWriter.Write("/");
                     foreach (char c in options.ToLower()) {
                         switch (c) {

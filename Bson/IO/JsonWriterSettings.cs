@@ -34,7 +34,7 @@ namespace MongoDB.Bson.IO {
         private bool indent = false;
         private string indentChars = "  ";
         private string newLineChars = "\r\n";
-        private JsonOutputMode outputMode = JsonOutputMode.Strict;
+        private JsonOutputMode outputMode = JsonOutputMode.Shell;
         private bool isFrozen;
         #endregion
 

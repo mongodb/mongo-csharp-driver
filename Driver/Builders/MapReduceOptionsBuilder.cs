@@ -29,17 +29,14 @@ namespace MongoDB.Driver.Builders {
     /// </summary>
     public class MapReduceOutput {
         #region private fields
-        private string option;
-        private BsonValue value;
+        private BsonValue output;
         #endregion
 
         #region constructors
         private MapReduceOutput(
-            string option,
-            BsonValue value
+            BsonValue output
         ) {
-            this.option = option;
-            this.value = value;
+            this.output = output;
         }
         #endregion
 
@@ -47,7 +44,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Allows strings to be implicitly used as the name of the output collection.
         /// </summary>
-        /// <param name="collectionName">The name of the output collection.</param>
+        /// <param name="collectionName">The output collection name.</param>
         /// <returns>A MapReduceOutput.</returns>
         public static implicit operator MapReduceOutput(
             string collectionName
@@ -61,7 +58,10 @@ namespace MongoDB.Driver.Builders {
         /// Gets a MapReduceOutput value that specifies that the output should returned inline.
         /// </summary>
         public static MapReduceOutput Inline {
-            get { return new MapReduceOutput("inline", 1); }
+            get {
+                var output = new BsonDocument("inline", 1);
+                return new MapReduceOutput(output);
+            }
         }
         #endregion
 
@@ -69,44 +69,94 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (replaces the entire collection).
         /// </summary>
-        /// <param name="collectionName">The collection name.</param>
+        /// <param name="collectionName">The output collection name.</param>
         /// <returns>A MapReduceOutput.</returns>
         public static MapReduceOutput Replace(
             string collectionName
         ) {
-            return new MapReduceOutput(null, collectionName);
+            var output = collectionName;
+            return new MapReduceOutput(output);
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (replaces the entire collection).
+        /// </summary>
+        /// <param name="databaseName">The output database name.</param>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Replace(
+            string databaseName,
+            string collectionName
+        ) {
+            var output = new BsonDocument {
+                { "replace", collectionName },
+                { "db", databaseName }
+            };
+            return new MapReduceOutput(output);
         }
 
         /// <summary>
         /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (adding new values and overwriting existing ones).
         /// </summary>
-        /// <param name="collectionName">The collection name.</param>
+        /// <param name="collectionName">The output collection name.</param>
         /// <returns>A MapReduceOutput.</returns>
         public static MapReduceOutput Merge(
             string collectionName
         ) {
-            return new MapReduceOutput("merge", collectionName);
+            var output = new BsonDocument("merge", collectionName);
+            return new MapReduceOutput(output);
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (adding new values and overwriting existing ones).
+        /// </summary>
+        /// <param name="databaseName">The output database name.</param>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Merge(
+            string databaseName,
+            string collectionName
+        ) {
+            var output = new BsonDocument {
+                { "merge", collectionName },
+                { "db", databaseName }
+            };
+            return new MapReduceOutput(output);
         }
 
         /// <summary>
         /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (using the reduce function to combine new values with existing values).
         /// </summary>
-        /// <param name="collectionName">The collection name.</param>
+        /// <param name="collectionName">The output collection name.</param>
         /// <returns>A MapReduceOutput.</returns>
         public static MapReduceOutput Reduce(
             string collectionName
         ) {
-            return new MapReduceOutput("reduce", collectionName);
+            var output = new BsonDocument("reduce", collectionName);
+            return new MapReduceOutput(output);
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (using the reduce function to combine new values with existing values).
+        /// </summary>
+        /// <param name="databaseName">The output database name.</param>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Reduce(
+            string databaseName,
+            string collectionName
+        ) {
+            var output = new BsonDocument {
+                { "reduce", collectionName },
+                { "db", databaseName }
+            };
+            return new MapReduceOutput(output);
         }
         #endregion
 
         #region internal methods
         internal BsonValue ToBsonValue() {
-            if (option == null) {
-                return value;
-            } else {
-                return new BsonDocument(option, value);
-            }
+            return output;
         }
         #endregion
     }

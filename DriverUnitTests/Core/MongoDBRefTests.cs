@@ -36,7 +36,7 @@ namespace MongoDB.DriverUnitTests {
             var id = ObjectId.GenerateNewId();
             var obj = new C { Id = id, DBRef = null };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : null }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : null }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -53,7 +53,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", dateTime);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : { '$date' : 0 } } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : ISODate('1970-01-01T00:00:00Z') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -70,7 +70,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", refId);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : { 'x' : 1, 'y' : 2 } } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : { 'x' : 1, 'y' : 2 } } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -87,7 +87,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", guid);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : { '$binary' : '#guid', '$type' : '03' } } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : BinData(3, '#guid') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("#guid", Convert.ToBase64String(guid.ToByteArray()));
             expected = expected.Replace("'", "\"");
@@ -104,7 +104,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", 1);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : 1 } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : 1 } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -120,7 +120,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", 123456789012345L);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : 123456789012345 } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : NumberLong('123456789012345') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -137,7 +137,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", refId);
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : { '$oid' : '#ref' } } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : ObjectId('#ref') } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("#ref", refId.ToString());
             expected = expected.Replace("'", "\"");
@@ -154,7 +154,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("collection", "abc");
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : 'abc' } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : 'abc' } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -170,7 +170,7 @@ namespace MongoDB.DriverUnitTests {
             var dbRef = new MongoDBRef("database", "collection", ObjectId.GenerateNewId());
             var obj = new C { Id = id, DBRef = dbRef };
             var json = obj.ToJson();
-            var expected = "{ '_id' : { '$oid' : '#id' }, 'DBRef' : { '$ref' : 'collection', '$id' : { '$oid' : '#ref' }, '$db' : 'database' } }";
+            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : ObjectId('#ref'), '$db' : 'database' } }";
             expected = expected.Replace("#id", id.ToString());
             expected = expected.Replace("#ref", dbRef.Id.ToString());
             expected = expected.Replace("'", "\"");

@@ -39,9 +39,11 @@ namespace MongoDB.Bson {
             string pattern
         )
             : base(BsonType.RegularExpression) {
-            if (pattern[0] == '/') {
+            if (pattern.Length > 0 && pattern[0] == '/') {
                 var index = pattern.LastIndexOf('/');
-                this.pattern = pattern.Substring(1, index - 1);
+                var escaped = pattern.Substring(1, index - 1);
+                var unescaped = (escaped == "(?:)") ? "" : Regex.Replace(escaped, @"\\(.)", "$1");
+                this.pattern = unescaped;
                 this.options = pattern.Substring(index + 1);
             } else {
                 this.pattern = pattern;
@@ -269,7 +271,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <returns>A string representation of the value.</returns>
         public override string ToString() {
-            return string.Format("/{0}/{1}", pattern, options);
+            var escaped = pattern.Replace(@"\", @"\\").Replace("/", @"\/");
+            return string.Format("/{0}/{1}", escaped, options);
         }
         #endregion
     }

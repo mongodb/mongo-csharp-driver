@@ -65,7 +65,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp111 {
 
             var document = collection.FindOneAs<BsonDocument>();
             var json = document.ToJson();
-            var expected = "{ 'InnerObjects' : [1, { 'X' : 1 }, { 'X' : 2 }, { 'X' : 3 }], '_id' : { '$oid' : '#ID' } }"; // server put _id at end?
+            var expected = "{ 'InnerObjects' : [1, { 'X' : 1 }, { 'X' : 2 }, { 'X' : 3 }], '_id' : ObjectId('#ID') }"; // server put _id at end?
             expected = expected.Replace("#ID", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);

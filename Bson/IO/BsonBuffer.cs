@@ -260,9 +260,6 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
 
-            var timeout = TimeSpan.FromMilliseconds(stream.CanTimeout ? stream.ReadTimeout : 30000);
-            var timeoutAt = DateTime.UtcNow + timeout;
-
             EnsureSpaceAvailable(count);
             var localChunkIndex = chunkIndex;
             var localChunkOffset = chunkOffset;
@@ -275,14 +272,10 @@ namespace MongoDB.Bson.IO {
                 while (bytesPending > 0) {
                     var bytesRead = stream.Read(localChunk, localChunkOffset, bytesPending);
                     if (bytesRead == 0) {
-                        if (DateTime.UtcNow > timeoutAt) {
-                            throw new TimeoutException();
-                        }
-                        Thread.Sleep(5); // just enough to not be busy waiting
+                        throw new EndOfStreamException();
                     } else {
                         localChunkOffset += bytesRead;
                         bytesPending -= bytesRead;
-                        timeoutAt = DateTime.UtcNow + timeout; // reset timeout if making progress
                     }
                 }
                 localChunkIndex++;

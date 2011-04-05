@@ -57,10 +57,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 "'abc'",
                 "{ }",
                 "true",
-                "{ '$date' : 0 }",
+                "ISODate('1970-01-01T00:00:00Z')",
                 "null",
                 "123",
-                "123"
+                "NumberLong(123)"
             }));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -86,7 +86,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestDateTime() {
             var c = new C { Obj = BsonConstants.UnixEpoch };
             var json = c.ToJson();
-            var expected = "{ 'Obj' : { '$date' : 0 } }".Replace("'", "\"");
+            var expected = "{ 'Obj' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -122,7 +122,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestInt64() {
             var c = new C { Obj = 123L };
             var json = c.ToJson();
-            var expected = "{ 'Obj' : 123 }".Replace("'", "\"");
+            var expected = "{ 'Obj' : NumberLong(123) }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

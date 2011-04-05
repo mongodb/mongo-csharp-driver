@@ -27,7 +27,7 @@ namespace MongoDB.Driver {
     /// </summary>
     public class MapReduceResult : CommandResult {
         #region private fields
-        private MongoDatabase database;
+        private MongoDatabase inputDatabase;
         #endregion
 
         #region constructors
@@ -43,7 +43,30 @@ namespace MongoDB.Driver {
         /// Gets the output collection name (null if none).
         /// </summary>
         public string CollectionName {
-            get { return (string) response["result", null]; }
+            get {
+                var result = response["result", null];
+                if (result != null) {
+                    if (result.IsString) {
+                        return result.AsString;
+                    } else {
+                        return (string) result.AsBsonDocument["collection", null];
+                    }
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the output database name (null if none).
+        /// </summary>
+        public string DatabaseName {
+            get {
+                var result = response["result", null];
+                if (result != null && result.IsBsonDocument) {
+                    return (string) result.AsBsonDocument["db", null];
+                }
+                return null;
+            }
         }
 
         /// <summary>
@@ -100,7 +123,14 @@ namespace MongoDB.Driver {
             if (response.Contains("results")) {
                 return InlineResults;
             } else {
-                return database[CollectionName].FindAll();
+                var outputDatabaseName = DatabaseName;
+                MongoDatabase outputDatabase;
+                if (outputDatabaseName == null) {
+                    outputDatabase = inputDatabase;
+                } else {
+                    outputDatabase = inputDatabase.Server[outputDatabaseName];
+                }
+                return outputDatabase[CollectionName].FindAll();
             }
         }
 
@@ -113,16 +143,23 @@ namespace MongoDB.Driver {
             if (response.Contains("results")) {
                 return GetInlineResultsAs<TDocument>();
             } else {
-                return database[CollectionName].FindAllAs<TDocument>();
+                var outputDatabaseName = DatabaseName;
+                MongoDatabase outputDatabase;
+                if (outputDatabaseName == null) {
+                    outputDatabase = inputDatabase;
+                } else {
+                    outputDatabase = inputDatabase.Server[outputDatabaseName];
+                }
+                return outputDatabase[CollectionName].FindAllAs<TDocument>();
             }
         }
         #endregion
 
         #region internal methods
-        internal void SetDatabase(
-            MongoDatabase database
+        internal void SetInputDatabase(
+            MongoDatabase inputDatabase
         ) {
-            this.database = database;
+            this.inputDatabase = inputDatabase;
         }
         #endregion
     }

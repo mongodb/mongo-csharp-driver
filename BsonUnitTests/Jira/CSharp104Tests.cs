@@ -75,7 +75,7 @@ namespace MongoDB.BsonUnitTests.Jira {
 
             var test = new Test("x") { SetOnly = "y" };
             var json = test.ToJson();
-            var expected = "{ '_id' : { '$oid' : '000000000000000000000000' } }".Replace("'", "\"");
+            var expected = "{ '_id' : ObjectId('000000000000000000000000') }".Replace("'", "\"");
             // Assert.AreEqual(expected, json);
 
             var bson = test.ToBson();
