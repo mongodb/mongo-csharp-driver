@@ -43,6 +43,16 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestAnd() {
+            var query = Query.And(
+                Query.EQ("a", 1),
+                Query.EQ("b", 2)
+            );
+            var expected = "{ \"a\" : 1, \"b\" : 2 }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestElementMatch() {
             var query = Query.ElemMatch("x", 
                 Query.And(
@@ -205,6 +215,19 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestNestedNor() {
+            var query = Query.And(
+                Query.EQ("name", "bob"),
+                Query.Nor(
+                    Query.EQ("a", 1),
+                    Query.EQ("b", 2)
+                )
+            );
+            var expected = "{ \"name\" : \"bob\", \"$nor\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestNestedOr() {
             var query = Query.And(
                 Query.EQ("name", "bob"),
@@ -214,6 +237,16 @@ namespace MongoDB.DriverUnitTests.Builders {
                 )
             );
             var expected = "{ \"name\" : \"bob\", \"$or\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNor() {
+            var query = Query.Nor(
+                Query.EQ("a", 1),
+                Query.EQ("b", 2)
+            );
+            var expected = "{ \"$nor\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
             Assert.AreEqual(expected, query.ToJson());
         }
 

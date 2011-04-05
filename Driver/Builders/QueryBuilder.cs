@@ -67,9 +67,9 @@ namespace MongoDB.Driver.Builders {
         /// Combines subqueries with an and operator.
         /// </summary>
         /// <param name="queries">The subqueries.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
+        /// <returns>A query.</returns>
         public static QueryComplete And(
-            params QueryComplete[] queries
+            params IMongoQuery[] queries
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Builders {
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList ElemMatch(
             string name,
-            QueryComplete query
+            IMongoQuery query
         ) {
             return new QueryConditionList(name).ElemMatch(query);
         }
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
+        /// <returns>A query.</returns>
         public static QueryComplete EQ(
             string name,
             BsonValue value
@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="regex">The regular expression to match against.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
+        /// <returns>A query.</returns>
         public static QueryComplete Matches(
             string name,
             BsonRegularExpression regex
@@ -313,6 +313,22 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Combines subqueries with a nor operator.
+        /// </summary>
+        /// <param name="queries">The subqueries.</param>
+        /// <returns>A query.</returns>
+        public static QueryComplete Nor(
+            params IMongoQuery[] queries
+        ) {
+            var clauses = new BsonArray();
+            foreach (var query in queries) {
+                clauses.Add(query.ToBsonDocument());
+            }
+            var document = new BsonDocument("$nor", clauses);
+            return new QueryComplete(document);
+        }
+
+        /// <summary>
         /// Adds a $nin test to the query.
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
@@ -353,9 +369,9 @@ namespace MongoDB.Driver.Builders {
         /// Combines subqueries with an or operator.
         /// </summary>
         /// <param name="queries">The subqueries.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
+        /// <returns>A query.</returns>
         public static QueryComplete Or(
-            params QueryComplete[] queries
+            params IMongoQuery[] queries
         ) {
             var clauses = new BsonArray();
             foreach (var query in queries) {
@@ -395,7 +411,7 @@ namespace MongoDB.Driver.Builders {
         /// Adds a $where test to the query.
         /// </summary>
         /// <param name="javaScript">The where clause.</param>
-        /// <returns>A complete query.</returns>
+        /// <returns>A query.</returns>
         public static QueryComplete Where(
             BsonJavaScript javaScript
         ) {
@@ -580,7 +596,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="query">The query to match elements with.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList ElemMatch(
-            QueryComplete query
+            IMongoQuery query
         ) {
             conditions.Add("$elemMatch", query.ToBsonDocument());
             return this;
@@ -897,7 +913,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="query">The query to match elements with.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList ElemMatch(
-            QueryComplete query
+            IMongoQuery query
         ) {
             return new QueryNotConditionList(name, "$elemMatch", query.ToBsonDocument());
         }
@@ -1029,7 +1045,7 @@ namespace MongoDB.Driver.Builders {
         /// Adds a regular expression test to the query.
         /// </summary>
         /// <param name="regex">The regular expression to match against.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
+        /// <returns>A query.</returns>
         public QueryComplete Matches(
             BsonRegularExpression regex
         ) {
@@ -1117,7 +1133,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="query">The query to match elements with.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList ElemMatch(
-            QueryComplete query
+            IMongoQuery query
         ) {
             conditions.Add("$elemMatch", query.ToBsonDocument());
             return this;
