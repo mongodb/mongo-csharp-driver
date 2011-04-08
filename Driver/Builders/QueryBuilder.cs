@@ -893,7 +893,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList All(
             BsonArray values
         ) {
-            return new QueryNotConditionList(name, "$all", values);
+            return new QueryNotConditionList(name).All(values);
         }
 
         /// <summary>
@@ -904,7 +904,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList All(
             params BsonValue[] values
         ) {
-            return new QueryNotConditionList(name, "$all", new BsonArray((IEnumerable<BsonValue>) values));
+            return new QueryNotConditionList(name).All(values);
         }
 
         /// <summary>
@@ -915,7 +915,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList ElemMatch(
             IMongoQuery query
         ) {
-            return new QueryNotConditionList(name, "$elemMatch", query.ToBsonDocument());
+            return new QueryNotConditionList(name).ElemMatch(query);
         }
 
         /// <summary>
@@ -926,7 +926,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList Exists(
             bool exists
         ) {
-            return new QueryNotConditionList(name, "$exists", BsonBoolean.Create(exists));
+            return new QueryNotConditionList(name).Exists(exists);
         }
 
         /// <summary>
@@ -937,7 +937,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList GT(
             BsonValue value
         ) {
-            return new QueryNotConditionList(name, "$gt", value);
+            return new QueryNotConditionList(name).GT(value);
         }
 
         /// <summary>
@@ -948,7 +948,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList GTE(
             BsonValue value
         ) {
-            return new QueryNotConditionList(name, "$gte", value);
+            return new QueryNotConditionList(name).GTE(value);
         }
 
         /// <summary>
@@ -959,7 +959,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList In(
             BsonArray values
         ) {
-            return new QueryNotConditionList(name, "$in", values);
+            return new QueryNotConditionList(name).In(values);
         }
 
         /// <summary>
@@ -970,7 +970,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList In(
             params BsonValue[] values
         ) {
-            return new QueryNotConditionList(name, "$in", new BsonArray((IEnumerable<BsonValue>) values));
+            return new QueryNotConditionList(name).In(values);
         }
 
         /// <summary>
@@ -981,7 +981,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList LT(
             BsonValue value
         ) {
-            return new QueryNotConditionList(name, "$lt", value);
+            return new QueryNotConditionList(name).LT(value);
         }
 
         /// <summary>
@@ -992,7 +992,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList LTE(
             BsonValue value
         ) {
-            return new QueryNotConditionList(name, "$lte", value);
+            return new QueryNotConditionList(name).LTE(value);
         }
 
         /// <summary>
@@ -1005,7 +1005,7 @@ namespace MongoDB.Driver.Builders {
             int modulus,
             int equals
         ) {
-            return new QueryNotConditionList(name, "$mod", new BsonArray { modulus, equals });
+            return new QueryNotConditionList(name).Mod(modulus, equals);
         }
 
         /// <summary>
@@ -1016,7 +1016,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList NE(
             BsonValue value
         ) {
-            return new QueryNotConditionList(name, "$ne", value);
+            return new QueryNotConditionList(name).NE(value);
         }
 
         /// <summary>
@@ -1027,7 +1027,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList NotIn(
             BsonArray values
         ) {
-            return new QueryNotConditionList(name, "nin", values);
+            return new QueryNotConditionList(name).NotIn(values);
         }
 
         /// <summary>
@@ -1038,7 +1038,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList NotIn(
             params BsonValue[] values
         ) {
-            return new QueryNotConditionList(name, "nin", new BsonArray((IEnumerable<BsonValue>) values));
+            return new QueryNotConditionList(name).NotIn(values);
         }
 
         /// <summary>
@@ -1058,9 +1058,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="size">The size of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList Size(
-            BsonValue size
+            int size
         ) {
-            return new QueryNotConditionList(name, "$size", size);
+            return new QueryNotConditionList(name).Size(size);
         }
 
         /// <summary>
@@ -1071,7 +1071,7 @@ namespace MongoDB.Driver.Builders {
         public QueryNotConditionList Type(
             BsonType type
         ) {
-            return new QueryNotConditionList(name, "$type", (int) type);
+            return new QueryNotConditionList(name).Type(type);
         }
         #endregion
     }
@@ -1093,11 +1093,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="op">The first test.</param>
         /// <param name="value">The value of the first test.</param>
         public QueryNotConditionList(
-            string name,
-            string op,
-            BsonValue value
+            string name
         )
-            : base(new BsonDocument(name, new BsonDocument("$not", new BsonDocument(op, value)))) {
+            : base(new BsonDocument(name, new BsonDocument("$not", new BsonDocument()))) {
             conditions = document[0].AsBsonDocument[0].AsBsonDocument;
         }
         #endregion
