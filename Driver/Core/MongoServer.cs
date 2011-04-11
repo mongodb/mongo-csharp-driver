@@ -42,9 +42,10 @@ namespace MongoDB.Driver {
         private MongoServerState state = MongoServerState.Disconnected;
         private IEnumerable<MongoServerAddress> replicaSet;
         private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
-        private MongoConnectionPool primaryConnectionPool;
-        private List<MongoConnectionPool> secondaryConnectionPools;
-        private int secondaryConnectionPoolIndex; // used to distribute reads across secondaries in round robin fashion
+        private IPEndPoint primaryEndPoint;
+        private List<IPEndPoint> secondaryEndPoints;
+        private int secondaryRoundRobinIndex; // used to distribute reads across secondaries in round robin fashion
+        private Dictionary<IPEndPoint, MongoConnectionPool> connectionPools = new Dictionary<IPEndPoint, MongoConnectionPool>();
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize; // will get overridden if server advertises different maxDocumentSize
         private int maxMessageLength = MongoDefaults.MaxMessageLength; // will get overridden if server advertises different maxMessageLength
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
@@ -174,10 +175,10 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets the connection pool (if connected to a replica set this is the connection pool to the primary).
+        /// Gets the connection pool (a synonym for PrimaryConnectionPool).
         /// </summary>
         public virtual MongoConnectionPool ConnectionPool {
-            get { return primaryConnectionPool; }
+            get { return PrimaryConnectionPool; }
         }
 
         /// <summary>
@@ -209,6 +210,20 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the connection pool for the primary server.
+        /// </summary>
+        public MongoConnectionPool PrimaryConnectionPool {
+            get { return connectionPools[primaryEndPoint]; }
+        }
+
+        /// <summary>
+        /// Gets the end point for the primary server.
+        /// </summary>
+        public IPEndPoint PrimaryEndPoint {
+            get { return primaryEndPoint; }
+        }
+
+        /// <summary>
         /// Gets a list of the members of the replica set (not valid until connected).
         /// </summary>
         public virtual IEnumerable<MongoServerAddress> ReplicaSet {
@@ -236,7 +251,14 @@ namespace MongoDB.Driver {
         /// Gets a read only list of the connection pools to the secondary servers (when connected to a replica set).
         /// </summary>
         public IList<MongoConnectionPool> SecondaryConnectionPools {
-            get { return secondaryConnectionPools.AsReadOnly(); }
+            get { return secondaryEndPoints.Select(endPoint => connectionPools[endPoint]).ToList(); }
+        }
+
+        /// <summary>
+        /// Gets the end points of the secondary servers.
+        /// </summary>
+        public IList<IPEndPoint> SecondaryEndPoints {
+            get { return secondaryEndPoints.AsReadOnly(); }
         }
 
         /// <summary>
@@ -349,26 +371,20 @@ namespace MongoDB.Driver {
                             case ConnectionMode.Direct:
                                 var directConnector = new DirectConnector(this);
                                 directConnector.Connect(timeout);
-                                primaryConnectionPool = new MongoConnectionPool(this, directConnector.Connection);
-                                secondaryConnectionPools = null;
                                 replicaSet = null;
+                                primaryEndPoint = directConnector.Connection.EndPoint;
+                                secondaryEndPoints = null;
+                                CreateConnectionPool(directConnector.Connection);
                                 maxDocumentSize = directConnector.MaxDocumentSize;
                                 maxMessageLength = directConnector.MaxMessageLength;
                                 break;
                             case ConnectionMode.ReplicaSet:
                                 var replicaSetConnector = new ReplicaSetConnector(this);
                                 replicaSetConnector.Connect(timeout);
-                                primaryConnectionPool = new MongoConnectionPool(this, replicaSetConnector.PrimaryConnection);
-                                if (settings.SlaveOk && replicaSetConnector.SecondaryConnections.Count > 0) {
-                                    secondaryConnectionPools = new List<MongoConnectionPool>();
-                                    foreach (var connection in replicaSetConnector.SecondaryConnections) {
-                                        var secondaryConnectionPool = new MongoConnectionPool(this, connection);
-                                        secondaryConnectionPools.Add(secondaryConnectionPool);
-                                    }
-                                } else {
-                                    secondaryConnectionPools = null;
-                                }
                                 replicaSet = replicaSetConnector.ReplicaSet;
+                                primaryEndPoint = replicaSetConnector.PrimaryEndPoint;
+                                secondaryEndPoints = replicaSetConnector.SecondaryEndPoints;
+                                CreateConnectionPools(replicaSetConnector.Connections);
                                 maxDocumentSize = replicaSetConnector.MaxDocumentSize;
                                 maxMessageLength = replicaSetConnector.MaxMessageLength;
                                 break;
@@ -434,14 +450,13 @@ namespace MongoDB.Driver {
             // but anyone can call it if they want to close all sockets to the server
             lock (serverLock) {
                 if (state == MongoServerState.Connected) {
-                    primaryConnectionPool.Close();
-                    primaryConnectionPool = null;
-                    if (secondaryConnectionPools != null) {
-                        foreach (var secondaryConnectionPool in secondaryConnectionPools) {
-                            secondaryConnectionPool.Close();
-                        }
-                        secondaryConnectionPools = null;
+                    foreach (var connectionPool in connectionPools.Values) {
+                        connectionPool.Close();
                     }
+                    primaryEndPoint = null;
+                    secondaryEndPoints = null;
+                    replicaSet = null;
+                    connectionPools.Clear();
                     state = MongoServerState.Disconnected;
                 }
             }
@@ -780,7 +795,15 @@ namespace MongoDB.Driver {
                 }
             }
 
-            var connectionPool = GetConnectionPool(slaveOk);
+            var endPoint = GetConnectionPoolEndPoint(slaveOk);
+            return AcquireConnection(database, endPoint);
+        }
+
+        internal MongoConnection AcquireConnection(
+            MongoDatabase database,
+            IPEndPoint endPoint
+        ) {
+            var connectionPool = connectionPools[endPoint];
             var connection = connectionPool.AcquireConnection(database);
 
             try {
@@ -794,18 +817,19 @@ namespace MongoDB.Driver {
             return connection;
         }
 
-        internal MongoConnectionPool GetConnectionPool(
+        internal IPEndPoint GetConnectionPoolEndPoint(
             bool slaveOk
         ) {
             lock (serverLock) {
-                if (primaryConnectionPool == null) {
+                if (primaryEndPoint == null) {
                     Connect();
                 }
-                if (slaveOk && secondaryConnectionPools != null) {
-                    secondaryConnectionPoolIndex = (secondaryConnectionPoolIndex + 1) % secondaryConnectionPools.Count; // round robin
-                    return secondaryConnectionPools[secondaryConnectionPoolIndex];
+                if (slaveOk && secondaryEndPoints != null) {
+                    secondaryRoundRobinIndex = (secondaryRoundRobinIndex + 1) % secondaryEndPoints.Count; // round robin
+                    return secondaryEndPoints[secondaryRoundRobinIndex];
+                } else {
+                    return primaryEndPoint;
                 }
-                return primaryConnectionPool;
             }
         }
 
@@ -827,6 +851,26 @@ namespace MongoDB.Driver {
             // the connection might belong to a connection pool that has already been discarded
             // so always release it to the connection pool it came from and not the current pool
             connection.ConnectionPool.ReleaseConnection(connection);
+        }
+        #endregion
+
+        #region private methods
+        private void CreateConnectionPool(
+            MongoConnection initialConnection
+        ) {
+            var connectionPool = new MongoConnectionPool(this, initialConnection);
+            connectionPools.Clear();
+            connectionPools.Add(initialConnection.EndPoint, connectionPool);
+        }
+
+        private void CreateConnectionPools(
+            IEnumerable<MongoConnection> initialConnections
+        ) {
+            connectionPools.Clear();
+            foreach (var initialConnection in initialConnections) {
+                var connectionPool = new MongoConnectionPool(this, initialConnection);
+                connectionPools.Add(initialConnection.EndPoint, connectionPool);
+            }
         }
         #endregion
 

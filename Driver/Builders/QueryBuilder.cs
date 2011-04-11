@@ -1090,8 +1090,6 @@ namespace MongoDB.Driver.Builders {
         /// Initializes a new instance of the QueryNotConditionList.
         /// </summary>
         /// <param name="name">The name of the first element to be tested.</param>
-        /// <param name="op">The first test.</param>
-        /// <param name="value">The value of the first test.</param>
         public QueryNotConditionList(
             string name
         )
