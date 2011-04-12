@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 using MongoDB.Bson;
@@ -29,7 +30,7 @@ namespace MongoDB.Driver.Internal {
         private bool started = false;
         private bool done = false;
         private MongoCursor<TDocument> cursor;
-        private MongoConnection connection;
+        private IPEndPoint connectionEndPoint; // set when first request is sent to server
         private int count;
         private int positiveLimit;
         private MongoReplyMessage<TDocument> reply;
@@ -65,7 +66,7 @@ namespace MongoDB.Driver.Internal {
         public void Dispose() {
             if (!disposed) {
                 try {
-                    ReleaseConnection();
+                    KillCursor();
                 } finally {
                     disposed = true;
                 }
@@ -79,7 +80,7 @@ namespace MongoDB.Driver.Internal {
             }
 
             if (!started) {
-                reply = GetFirst(); // sets connection if successfull
+                reply = GetFirst();
                 if (reply.Documents.Count == 0) {
                     reply = null;
                     done = true;
@@ -90,7 +91,7 @@ namespace MongoDB.Driver.Internal {
             }
 
             if (positiveLimit != 0 && count == positiveLimit) {
-                ReleaseConnection(); // early exit
+                KillCursor(); // early exit
                 reply = null;
                 done = true;
                 return false;
@@ -100,7 +101,7 @@ namespace MongoDB.Driver.Internal {
                 replyIndex++; // move to next document in the current reply
             } else {
                 if (openCursorId != 0) {
-                    reply = GetMore(); // uses connection set by GetFirst
+                    reply = GetMore();
                     if (reply.Documents.Count == 0) {
                         reply = null;
                         done = true;
@@ -130,94 +131,106 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region private methods
-        private MongoReplyMessage<TDocument> GetFirst() {
-            connection = cursor.Server.AcquireConnection(cursor.Database, cursor.SlaveOk);
-            try {
-                // some of these weird conditions are necessary to get commands to run correctly
-                // specifically numberToReturn has to be 1 or -1 for commands
-                int numberToReturn;
-                if (cursor.Limit < 0) {
-                    numberToReturn = cursor.Limit;
-                } else if (cursor.Limit == 0) {
-                    numberToReturn = cursor.BatchSize;
-                } else if (cursor.BatchSize == 0) {
-                    numberToReturn = cursor.Limit;
-                } else if (cursor.Limit < cursor.BatchSize) {
-                    numberToReturn = cursor.Limit;
-                } else {
-                    numberToReturn = cursor.BatchSize;
-                }
+        private MongoConnection AcquireConnection() {
+            if (connectionEndPoint == null) {
+                // first time we get a connection let Server.AcquireConnection pick the end point
+                var connection = cursor.Server.AcquireConnection(cursor.Database, cursor.SlaveOk);
+                connectionEndPoint = connection.EndPoint;
+                return connection;
+            } else {
+                // all subsequent requests for the same cursor must go to the same server
+                return cursor.Server.AcquireConnection(cursor.Database, connectionEndPoint);
+            }
+        }
 
-                using (
-                    var message = new MongoQueryMessage(
-                        cursor.Server,
-                        cursor.Collection.FullName,
-                        cursor.Flags,
-                        cursor.Skip,
-                        numberToReturn,
-                        WrapQuery(),
-                        cursor.Fields
-                    )
-                ) {
-                    return GetReply(message);
-                }
-            } catch {
-                try { ReleaseConnection(); } catch { } // ignore exceptions
-                throw;
+        private MongoReplyMessage<TDocument> GetFirst() {
+            // some of these weird conditions are necessary to get commands to run correctly
+            // specifically numberToReturn has to be 1 or -1 for commands
+            int numberToReturn;
+            if (cursor.Limit < 0) {
+                numberToReturn = cursor.Limit;
+            } else if (cursor.Limit == 0) {
+                numberToReturn = cursor.BatchSize;
+            } else if (cursor.BatchSize == 0) {
+                numberToReturn = cursor.Limit;
+            } else if (cursor.Limit < cursor.BatchSize) {
+                numberToReturn = cursor.Limit;
+            } else {
+                numberToReturn = cursor.BatchSize;
+            }
+
+            using (
+                var message = new MongoQueryMessage(
+                    cursor.Server,
+                    cursor.Collection.FullName,
+                    cursor.Flags,
+                    cursor.Skip,
+                    numberToReturn,
+                    WrapQuery(),
+                    cursor.Fields
+                )
+            ) {
+                return GetReply(message);
             }
         }
 
         private MongoReplyMessage<TDocument> GetMore() {
-            try {
-                int numberToReturn;
-                if (positiveLimit != 0) {
-                    numberToReturn = positiveLimit - count;
-                    if (cursor.BatchSize != 0 && numberToReturn > cursor.BatchSize) {
-                        numberToReturn = cursor.BatchSize;
-                    }
-                } else {
+            int numberToReturn;
+            if (positiveLimit != 0) {
+                numberToReturn = positiveLimit - count;
+                if (cursor.BatchSize != 0 && numberToReturn > cursor.BatchSize) {
                     numberToReturn = cursor.BatchSize;
                 }
+            } else {
+                numberToReturn = cursor.BatchSize;
+            }
 
-                using (
-                    var message = new MongoGetMoreMessage(
-                        cursor.Server,
-                        cursor.Collection.FullName,
-                        numberToReturn,
-                        openCursorId
-                    )
-                ) {
-                    return GetReply(message);
-                }
-            } catch {
-                try { ReleaseConnection(); } catch { } // ignore exceptions
-                throw;
+            using (
+                var message = new MongoGetMoreMessage(
+                    cursor.Server,
+                    cursor.Collection.FullName,
+                    numberToReturn,
+                    openCursorId
+                )
+            ) {
+                return GetReply(message);
             }
         }
 
         private MongoReplyMessage<TDocument> GetReply(
             MongoRequestMessage message
         ) {
-            connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-            var reply = connection.ReceiveMessage<TDocument>(cursor.Server);
-            openCursorId = reply.CursorId;
-            if (openCursorId == 0) {
-                ReleaseConnection();
+            var connection = AcquireConnection();
+            try {
+                connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
+                var reply = connection.ReceiveMessage<TDocument>(cursor.Server);
+                openCursorId = reply.CursorId;
+                return reply;
+            } finally {
+                cursor.Server.ReleaseConnection(connection);
             }
-            return reply;
         }
 
-        private void ReleaseConnection() {
-            if (connection != null) {
+        private void KillCursor() {
+            if (openCursorId != 0) {
+                var connection = AcquireConnection();
                 try {
-                    if (openCursorId != 0) {
-                        using (var message = new MongoKillCursorsMessage(cursor.Server, openCursorId)) {
-                            connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
-                        }
-                    }
-                    cursor.Server.ReleaseConnection(connection);
+                    KillCursor(connection);
                 } finally {
-                    connection = null;
+                    cursor.Server.ReleaseConnection(connection);
+                }
+            }
+        }
+
+        private void KillCursor(
+            MongoConnection connection
+        ) {
+            if (openCursorId != 0) {
+                try {
+                    using (var message = new MongoKillCursorsMessage(cursor.Server, openCursorId)) {
+                        connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                    }
+                } finally {
                     openCursorId = 0;
                 }
             }

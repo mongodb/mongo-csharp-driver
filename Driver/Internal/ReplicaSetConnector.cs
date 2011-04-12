@@ -28,8 +28,9 @@ namespace MongoDB.Driver.Internal {
         private MongoServer server;
         private HashSet<MongoServerAddress> queries = new HashSet<MongoServerAddress>();
         private Dictionary<MongoServerAddress, QueryNodeResponse> responses = new Dictionary<MongoServerAddress, QueryNodeResponse>();
-        private MongoConnection primaryConnection;
-        private List<MongoConnection> secondaryConnections = new List<MongoConnection>();
+        private IPEndPoint primaryEndPoint;
+        private List<IPEndPoint> secondaryEndPoints = new List<IPEndPoint>();
+        private List<MongoConnection> connections = new List<MongoConnection>();
         private List<MongoServerAddress> replicaSet;
         private int maxDocumentSize;
         private int maxMessageLength;
@@ -44,6 +45,10 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region public properties
+        public List<MongoConnection> Connections {
+            get { return connections; }
+        }
+
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
         }
@@ -52,12 +57,12 @@ namespace MongoDB.Driver.Internal {
             get { return maxMessageLength; }
         }
 
-        public MongoConnection PrimaryConnection {
-            get { return primaryConnection; }
+        public IPEndPoint PrimaryEndPoint {
+            get { return primaryEndPoint; }
         }
 
-        public List<MongoConnection> SecondaryConnections {
-            get { return secondaryConnections; }
+        public List<IPEndPoint> SecondaryEndPoints {
+            get { return secondaryEndPoints; }
         }
 
         public IEnumerable<MongoServerAddress> ReplicaSet {
@@ -92,7 +97,8 @@ namespace MongoDB.Driver.Internal {
                 }
 
                 if (response.IsPrimary) {
-                    primaryConnection = response.Connection;
+                    connections.Add(response.Connection);
+                    primaryEndPoint = response.Connection.EndPoint;
                     replicaSet = GetHostAddresses(response);
                     maxDocumentSize = response.MaxDocumentSize;
                     maxMessageLength = response.MaxMessageLength;
@@ -101,7 +107,8 @@ namespace MongoDB.Driver.Internal {
                     }
                 } else {
                     if (server.Settings.SlaveOk) {
-                        secondaryConnections.Add(response.Connection);
+                        connections.Add(response.Connection);
+                        secondaryEndPoints.Add(response.Connection.EndPoint);
                     } else {
                         response.Connection.Close();
                     }
@@ -121,7 +128,7 @@ namespace MongoDB.Driver.Internal {
                 }
             }
 
-            if (primaryConnection == null) {
+            if (primaryEndPoint == null) {
                 var innerException = exceptions.FirstOrDefault();
                 var exception = new MongoConnectionException("Unable to connect to server", innerException);
                 if (exceptions.Count > 1) {

@@ -43,6 +43,16 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestAnd() {
+            var query = Query.And(
+                Query.EQ("a", 1),
+                Query.EQ("b", 2)
+            );
+            var expected = "{ \"a\" : 1, \"b\" : 2 }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestElementMatch() {
             var query = Query.ElemMatch("x", 
                 Query.And(
@@ -205,6 +215,19 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestNestedNor() {
+            var query = Query.And(
+                Query.EQ("name", "bob"),
+                Query.Nor(
+                    Query.EQ("a", 1),
+                    Query.EQ("b", 2)
+                )
+            );
+            var expected = "{ \"name\" : \"bob\", \"$nor\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestNestedOr() {
             var query = Query.And(
                 Query.EQ("name", "bob"),
@@ -218,6 +241,16 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestNor() {
+            var query = Query.Nor(
+                Query.EQ("a", 1),
+                Query.EQ("b", 2)
+            );
+            var expected = "{ \"$nor\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestNotEquals() {
             var query = Query.NE("j", 3);
             var expected = "{ \"j\" : { \"$ne\" : 3 } }";
@@ -225,7 +258,7 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
-        public void TestNotIn() {
+        public void TestNin() {
             var query = Query.NotIn("j", 2, 4, 6);
             var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
@@ -251,9 +284,72 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestNotAll() {
+            var query = Query.Not("name").All(1, 2, 3);
+            var expected = "{ \"name\" : { \"$not\" : { \"$all\" : [1, 2, 3] } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotElemMatch() {
+            var query = Query.Not("name").ElemMatch(Query.GT("x", 1));
+            var expected = "{ \"name\" : { \"$not\" : { \"$elemMatch\" : { \"x\" : { \"$gt\" : 1 } } } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotExists() {
+            var query = Query.Not("name").Exists(false);
+            var expected = "{ \"name\" : { \"$not\" : { \"$exists\" : false } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotGT() {
+            var query = Query.Not("name").GT(1);
+            var expected = "{ \"name\" : { \"$not\" : { \"$gt\" : 1 } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotIn() {
+            var query = Query.Not("name").In(1, 2, 3);
+            var expected = "{ \"name\" : { \"$not\" : { \"$in\" : [1, 2, 3] } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotNin() {
+            var query = Query.Not("name").NotIn(1, 2, 3);
+            var expected = "{ \"name\" : { \"$not\" : { \"$nin\" : [1, 2, 3] } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
         public void TestNotRegex() {
             var query = Query.Not("name").Matches(new BsonRegularExpression("acme.*corp", "i"));
             var expected = "{ \"name\" : { \"$not\" : /acme.*corp/i } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotSize() {
+            var query = Query.Not("name").Size(1);
+            var expected = "{ \"name\" : { \"$not\" : { \"$size\" : 1 } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
             Assert.AreEqual(expected, actual);
