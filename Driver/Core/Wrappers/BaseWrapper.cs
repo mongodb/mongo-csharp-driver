@@ -78,10 +78,12 @@ namespace MongoDB.Driver.Wrappers {
         /// GetDocumentId is an invalid operation for wrapper classes.
         /// </summary>
         /// <param name="id">Not applicable.</param>
+        /// <param name="idNominalType">Not applicable.</param>
         /// <param name="idGenerator">Not applicable.</param>
         /// <returns>Not applicable.</returns>
         public bool GetDocumentId(
             out object id,
+            out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
             var message = string.Format("GetDocumentId method cannot be called on a {0}", this.GetType().Name);

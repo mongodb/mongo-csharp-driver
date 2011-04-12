@@ -731,8 +731,9 @@ namespace MongoDB.Driver {
                         if (settings.AssignIdOnInsert) {
                             var serializer = BsonSerializer.LookupSerializer(document.GetType());
                             object id;
+                            Type idNominalType;
                             IIdGenerator idGenerator;
-                            if (serializer.GetDocumentId(document, out id, out idGenerator)) {
+                            if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
                                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
                                     id = idGenerator.GenerateId();
                                     serializer.SetDocumentId(document, id);
@@ -961,8 +962,9 @@ namespace MongoDB.Driver {
         ) {
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
             object id;
+            Type idNominalType;
             IIdGenerator idGenerator;
-            if (serializer.GetDocumentId(document, out id, out idGenerator)) {
+            if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
                 if (id == null && idGenerator == null) {
                     throw new InvalidOperationException("No IdGenerator found");
                 }
@@ -972,7 +974,11 @@ namespace MongoDB.Driver {
                     serializer.SetDocumentId(document, id);
                     return Insert(document, safeMode);
                 } else {
-                    var query = Query.EQ("_id", BsonValue.Create(id));
+                    BsonValue idBsonValue;
+                    if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue)) {
+                        idBsonValue = new BsonDocumentWrapper(idNominalType, id);
+                    }
+                    var query = Query.EQ("_id", idBsonValue);
                     var update = Builders.Update.Replace(document);
                     return Update(query, update, UpdateFlags.Upsert, safeMode);
                 }

@@ -138,10 +138,12 @@ namespace MongoDB.Bson {
         /// GetDocumentId is an invalid operation for BsonDocumentWrapper.
         /// </summary>
         /// <param name="id">Not applicable.</param>
+        /// <param name="idNominalType">Not applicable.</param>
         /// <param name="idGenerator">Not applicable.</param>
         /// <returns>Not applicable.</returns>
         public bool GetDocumentId(
             out object id,
+            out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException();

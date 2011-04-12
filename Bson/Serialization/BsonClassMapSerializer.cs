@@ -154,21 +154,25 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="id">The Id.</param>
+        /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
         public bool GetDocumentId(
             object document,
             out object id,
+            out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null) {
                 id = idMemberMap.Getter(document);
+                idNominalType = idMemberMap.MemberType;
                 idGenerator = idMemberMap.IdGenerator;
                 return true;
             } else {
                 id = null;
+                idNominalType = null;
                 idGenerator = null;
                 return false;
             }

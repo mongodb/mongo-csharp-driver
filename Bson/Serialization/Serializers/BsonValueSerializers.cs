@@ -490,15 +490,17 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="id">The Id.</param>
+        /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
         public override bool GetDocumentId(
             object document,
             out object id,
+            out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
             var bsonDocument = (BsonDocument) document;
-            return bsonDocument.GetDocumentId(out id, out idGenerator);
+            return bsonDocument.GetDocumentId(out id, out idNominalType, out idGenerator);
         }
 
         /// <summary>

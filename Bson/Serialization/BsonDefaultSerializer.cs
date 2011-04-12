@@ -146,6 +146,11 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Returns whether the given type has any discriminators registered for any of its subclasses.
+        /// </summary>
+        /// <param name="type">A Type.</param>
+        /// <returns>True if the type is discriminated.</returns>
         public static bool IsTypeDiscriminated(
             Type type
         ) {
