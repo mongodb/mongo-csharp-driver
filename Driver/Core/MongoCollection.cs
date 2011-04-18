@@ -1154,6 +1154,20 @@ namespace MongoDB.Driver {
         )
             : base(database, settings) {
         }
+
+        /// <summary>
+        /// Creates a new instance of a generic typed <c>MongoCollection</c> from a non-generic <c>MongoCollection</c>. This is meant to be used by powershell.
+        /// </summary>
+        /// <param name="collection">The non-generic <c>MongoCollection</c> to convert to a <c>MongoCollection</c>.</param>
+        /// <remarks>
+        /// Powershell cannon call generic methods of non-generic classes. It can however use one parameter constructurs to cast types.
+        /// </remarks>
+        public MongoCollection(
+            MongoCollection collection
+        )
+            : base(collection.Database, collection.Settings)
+        {
+        }
         #endregion
 
         #region public methods
@@ -1240,6 +1254,36 @@ namespace MongoDB.Driver {
             IMongoGeoNearOptions options
         ) {
             return GeoNearAs<TDefaultDocument>(query, x, y, limit, options);
+        }
+
+        // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
+        // it's very easy for the compiler to end up inferring the wrong type for TDocument!
+        // that's also why Insert and InsertBatch have to have different names
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="document">The document to insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public new SafeModeResult Insert(
+            TDefaultDocument document
+        )
+        {
+            return base.Insert(document);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="document">The document to insert.</param>
+        /// <param name="safeMode">The SafeMode to use for this Insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public new SafeModeResult Insert(
+            TDefaultDocument document,
+            SafeMode safeMode
+        )
+        {
+            return base.Insert(document, safeMode);
         }
         #endregion
     }
