@@ -26,211 +26,180 @@ namespace MongoDB.Driver.Internal {
     internal class ReplicaSetConnector {
         #region private fields
         private MongoServer server;
-        private HashSet<MongoServerAddress> queries = new HashSet<MongoServerAddress>();
-        private Dictionary<MongoServerAddress, QueryNodeResponse> responses = new Dictionary<MongoServerAddress, QueryNodeResponse>();
-        private IPEndPoint primaryEndPoint;
-        private List<IPEndPoint> secondaryEndPoints = new List<IPEndPoint>();
-        private List<MongoConnection> connections = new List<MongoConnection>();
-        private List<MongoServerAddress> replicaSet;
-        private int maxDocumentSize;
-        private int maxMessageLength;
+        private DateTime timeoutAt;
+        private BlockingQueue<ConnectResponse> responseQueue;
+        private List<ConnectArgs> connects;
+        private List<ConnectResponse> responses;
         #endregion
 
         #region constructors
-        public ReplicaSetConnector(
+        internal ReplicaSetConnector(
             MongoServer server
         ) {
             this.server = server;
         }
         #endregion
 
-        #region public properties
-        public List<MongoConnection> Connections {
-            get { return connections; }
-        }
-
-        public int MaxDocumentSize {
-            get { return maxDocumentSize; }
-        }
-
-        public int MaxMessageLength {
-            get { return maxMessageLength; }
-        }
-
-        public IPEndPoint PrimaryEndPoint {
-            get { return primaryEndPoint; }
-        }
-
-        public List<IPEndPoint> SecondaryEndPoints {
-            get { return secondaryEndPoints; }
-        }
-
-        public IEnumerable<MongoServerAddress> ReplicaSet {
-            get { return replicaSet; }
-        }
-        #endregion
-
-        #region public methods
-        public void Connect(
+        #region internal methods
+        internal void Connect(
             TimeSpan timeout
         ) {
-            // query all servers in seed list in parallel (they will report responses back through the responsesQueue)
-            var responsesQueue = QueueSeedListQueries();
+            timeoutAt = DateTime.UtcNow + timeout;
+            responseQueue = new BlockingQueue<ConnectResponse>();
+            connects = new List<ConnectArgs>();
+            responses = new List<ConnectResponse>();
+
+            // connect to all servers in the seed list in parallel (they will report responses back through the responseQueue)
+            server.ClearInstances();
+            foreach (var address in server.Settings.Servers) {
+                QueueConnect(address);
+            }
 
             // process the responses as they come back and stop as soon as we find the primary (unless SlaveOk is true)
-            // stragglers will continue to report responses to the responsesQueue but no one will read them
+            // stragglers will continue to report responses to the responseQueue but no one will read them
             // and eventually it will all get garbage collected
 
             var exceptions = new List<Exception>();
-            var timeoutAt = DateTime.UtcNow + timeout;
-            while (responses.Count < queries.Count) {
+            while (responses.Count < connects.Count) {
                 var timeRemaining = timeoutAt - DateTime.UtcNow;
-                var response = responsesQueue.Dequeue(timeRemaining);
+                var response = responseQueue.Dequeue(timeRemaining);
                 if (response == null) {
                     break; // we timed out
                 }
-                responses.Add(response.Address, response);
 
+                responses.Add(response);
                 if (response.Exception != null) {
                     exceptions.Add(response.Exception);
                     continue;
                 }
 
-                if (response.IsPrimary) {
-                    connections.Add(response.Connection);
-                    primaryEndPoint = response.Connection.EndPoint;
-                    replicaSet = GetHostAddresses(response);
-                    maxDocumentSize = response.MaxDocumentSize;
-                    maxMessageLength = response.MaxMessageLength;
-                    if (!server.Settings.SlaveOk) {
-                        break; // if we're not going to use the secondaries no need to wait for their replies
-                    }
+                if (responses.Count == 1) {
+                    ProcessFirstResponse(response);
                 } else {
-                    if (server.Settings.SlaveOk) {
-                        connections.Add(response.Connection);
-                        secondaryEndPoints.Add(response.Connection.EndPoint);
-                    } else {
-                        response.Connection.Close();
-                    }
+                    ProcessAdditionalResponse(response);
                 }
 
-                // look for additional members of the replica set that might not have been in the seed list and query them also
-                foreach (var address in GetHostAddresses(response)) {
-                    if (!queries.Contains(address)) {
-                        var args = new QueryNodeParameters {
-                            Address = address,
-                            EndPoint = address.ToIPEndPoint(server.Settings.AddressFamily),
-                            ResponseQueue = responsesQueue
-                        };
-                        ThreadPool.QueueUserWorkItem(QueryNodeWorkItem, args);
-                        queries.Add(address);
-                    }
+                // return as soon as we've found the primary
+                var serverInstance = response.ServerInstance;
+                if (serverInstance.IsPrimary) {
+                    // process any additional responses in the background
+                    ThreadPool.QueueUserWorkItem(ProcessAdditionalResponsesWorkItem);
+                    return;
                 }
             }
 
-            if (primaryEndPoint == null) {
-                var innerException = exceptions.FirstOrDefault();
-                var exception = new MongoConnectionException("Unable to connect to server", innerException);
-                if (exceptions.Count > 1) {
-                    exception.Data.Add("InnerExceptions", exceptions);
-                }
-                throw exception;
+            var innerException = exceptions.FirstOrDefault();
+            var exception = new MongoConnectionException("Unable to connect to server", innerException);
+            if (exceptions.Count > 1) {
+                exception.Data.Add("InnerExceptions", exceptions);
             }
+            throw exception;
         }
         #endregion
 
         #region private methods
-        private List<MongoServerAddress> GetHostAddresses(
-            QueryNodeResponse response
-        ) {
-            if (!response.IsMasterResult.Response.Contains("hosts")) {
-                var message = string.Format("Server is not a member of a replica set: {0}", response.Address);
-                throw new MongoConnectionException(message);
-            }
-
-            var nodes = new List<MongoServerAddress>();
-            foreach (BsonString host in response.IsMasterResult.Response["hosts"].AsBsonArray.Values) {
-                var address = MongoServerAddress.Parse(host.Value);
-                nodes.Add(address);
-            }
-            return nodes;
-        }
-
-        private BlockingQueue<QueryNodeResponse> QueueSeedListQueries() {
-            var responseQueue = new BlockingQueue<QueryNodeResponse>();
-            var addresses = server.Settings.Servers.ToList();
-            var endPoints = server.EndPoints.ToList();
-            for (int i = 0; i < addresses.Count; i++) {
-                var args = new QueryNodeParameters {
-                    Address = addresses[i],
-                    EndPoint = endPoints[i],
-                    ResponseQueue = responseQueue
-                };
-                ThreadPool.QueueUserWorkItem(QueryNodeWorkItem, args);
-                queries.Add(addresses[i]);
-            }
-            return responseQueue;
-        }
-
         // note: this method will run on a thread from the ThreadPool
-        private void QueryNodeWorkItem(
-            object parameters
+        private void ConnectWorkItem(
+            object argsObject
         ) {
-            // this method has to work at a very low level because the connection pool isn't set up yet
-            var args = (QueryNodeParameters) parameters;
-            var response = new QueryNodeResponse { Address = args.Address, EndPoint = args.EndPoint };
+            var args = (ConnectArgs) argsObject;
+            var serverInstance = args.ServerInstance;
 
+            var response = new ConnectResponse { ServerInstance = serverInstance };
             try {
-                var connection = new MongoConnection(null, args.EndPoint); // no connection pool
-                try {
-                    var isMasterCommand = new CommandDocument("ismaster", 1);
-                    var isMasterResult = connection.RunCommand(server, "admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
-
-                    response.IsMasterResult = isMasterResult;
-                    response.Connection = connection; // might become the first connection in the connection pool
-                    response.IsPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
-                    response.MaxDocumentSize = isMasterResult.Response["maxBsonObjectSize", server.MaxDocumentSize].ToInt32();
-                    response.MaxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, response.MaxDocumentSize + 1024); // derived from maxDocumentSize
-
-                    if (server.Settings.ReplicaSetName != null) {
-                        var getStatusCommand = new CommandDocument("replSetGetStatus", 1);
-                        var getStatusResult = connection.RunCommand(server, "admin.$cmd", QueryFlags.SlaveOk, getStatusCommand);
-
-                        var replicaSetName = getStatusResult.Response["set"].AsString;
-                        if (replicaSetName != server.Settings.ReplicaSetName) {
-                            var message = string.Format("Host {0} belongs to a different replica set: {1}", args.EndPoint, replicaSetName);
-                            throw new MongoConnectionException(message);
-                        }
-                    }
-                } catch {
-                    try { connection.Close(); } catch { } // ignore exceptions
-                    throw;
-                }
+                serverInstance.Connect(true); // slaveOk
+                response.IsMasterResult = serverInstance.IsMasterResult;
             } catch (Exception ex) {
                 response.Exception = ex;
             }
 
             args.ResponseQueue.Enqueue(response);
         }
+
+        private void ProcessAdditionalResponse(
+            ConnectResponse response
+        ) {
+            // is there anything to do here?
+        }
+
+        private void ProcessAdditionalResponsesWorkItem(
+            object args
+        ) {
+            while (responses.Count < connects.Count) {
+                var timeRemaining = timeoutAt - DateTime.UtcNow;
+                var response = responseQueue.Dequeue(timeRemaining);
+                if (response == null) {
+                    break; // we timed out
+                }
+                responses.Add(response);
+
+                ProcessAdditionalResponse(response);
+            }
+        }
+
+        private void ProcessFirstResponse(
+            ConnectResponse response
+        ) {
+            var isMasterResponse = response.IsMasterResult.Response;
+
+            // find all valid addresses
+            var validAddresses = new HashSet<MongoServerAddress>();
+            if (isMasterResponse.Contains("hosts")) {
+                foreach (string address in isMasterResponse["hosts"].AsBsonArray) {
+                    validAddresses.Add(MongoServerAddress.Parse(address));
+                }
+            }
+            if (isMasterResponse.Contains("passives")) {
+                foreach (string address in isMasterResponse["passives"].AsBsonArray) {
+                    validAddresses.Add(MongoServerAddress.Parse(address));
+                }
+            }
+            if (isMasterResponse.Contains("arbiters")) {
+                foreach (string address in isMasterResponse["arbiters"].AsBsonArray) {
+                    validAddresses.Add(MongoServerAddress.Parse(address));
+                }
+            }
+
+            // remove server instances created from the seed list that turn out to be invalid
+            var invalidInstances = server.Instances.Where(i => !validAddresses.Contains(i.Address)).ToArray(); // force evaluation
+            foreach (var instance in invalidInstances) {
+                server.RemoveInstance(instance);
+            }
+
+            // add any server instances that were missing from the seed list
+            foreach (var address in validAddresses) {
+                if (!server.Instances.Any(i => i.Address == address)) {
+                    QueueConnect(address);
+                }
+            }
+        }
+
+        private void QueueConnect(
+            MongoServerAddress address
+        ) {
+            var serverInstance = new MongoServerInstance(server, address);
+            server.AddInstance(serverInstance);
+
+            var args = new ConnectArgs {
+                ServerInstance = serverInstance,
+                ResponseQueue = responseQueue
+            };
+            ThreadPool.QueueUserWorkItem(ConnectWorkItem, args);
+            connects.Add(args);
+        }
         #endregion
 
         #region private nested classes
         // note: OK to use automatic properties on private helper class
-        private class QueryNodeParameters {
-            public MongoServerAddress Address { get; set; }
-            public IPEndPoint EndPoint { get; set; }
-            public BlockingQueue<QueryNodeResponse> ResponseQueue { get; set; }
+        private class ConnectArgs {
+            public MongoServerInstance ServerInstance { get; set; }
+            public BlockingQueue<ConnectResponse> ResponseQueue { get; set; }
         }
 
         // note: OK to use automatic properties on private helper class
-        private class QueryNodeResponse {
-            public MongoServerAddress Address { get; set; }
-            public IPEndPoint EndPoint { get; set; }
+        private class ConnectResponse {
+            public MongoServerInstance ServerInstance { get; set; }
             public CommandResult IsMasterResult { get; set; }
-            public bool IsPrimary { get; set; }
-            public int MaxDocumentSize { get; set; }
-            public int MaxMessageLength { get; set; }
-            public MongoConnection Connection { get; set; }
             public Exception Exception { get; set; }
         }
         #endregion

@@ -132,7 +132,7 @@ namespace MongoDB.Driver {
             if (object.ReferenceEquals(lhs, rhs)) { return true; } // both null or same object
             if (object.ReferenceEquals(lhs, null) || object.ReferenceEquals(rhs, null)) { return false; }
             if (lhs.GetType() != rhs.GetType()) { return false; }
-            return lhs.host == rhs.host && lhs.port == rhs.port;
+            return lhs.host.Equals(rhs.host, StringComparison.OrdinalIgnoreCase) && lhs.port == rhs.port;
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace MongoDB.Driver {
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + host.GetHashCode();
+            hash = 37 * hash + host.ToLower().GetHashCode();
             hash = 37 * hash + port.GetHashCode();
             return hash;
         }

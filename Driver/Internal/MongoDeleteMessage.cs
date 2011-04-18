@@ -34,12 +34,12 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoDeleteMessage(
-            MongoServer server,
+            MongoConnection connection,
             string collectionFullName,
             RemoveFlags flags,
             IMongoQuery query
         ) :
-            base(server, MessageOpcode.Delete) {
+            base(connection, MessageOpcode.Delete) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;

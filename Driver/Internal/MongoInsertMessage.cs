@@ -34,10 +34,10 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoInsertMessage(
-            MongoServer server,
+            MongoConnection connection,
             string collectionFullName
         )
-            : base(server, MessageOpcode.Insert) {
+            : base(connection, MessageOpcode.Insert) {
             this.collectionFullName = collectionFullName;
         }
         #endregion

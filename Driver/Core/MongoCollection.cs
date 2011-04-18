@@ -724,7 +724,7 @@ namespace MongoDB.Driver {
             try {
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
-                using (var message = new MongoInsertMessage(server, FullName)) {
+                using (var message = new MongoInsertMessage(connection, FullName)) {
                     message.WriteToBuffer(); // must be called before AddDocument
 
                     foreach (var document in documents) {
@@ -742,7 +742,7 @@ namespace MongoDB.Driver {
                         }
                         message.AddDocument(document);
 
-                        if (message.MessageLength > server.MaxMessageLength) {
+                        if (message.MessageLength > connection.ServerInstance.MaxMessageLength) {
                             byte[] lastDocument = message.RemoveLastDocument();
                             var intermediateResult = connection.SendMessage(message, safeMode);
                             if (safeMode.Enabled) { results.Add(intermediateResult); }
@@ -897,13 +897,13 @@ namespace MongoDB.Driver {
            RemoveFlags flags,
            SafeMode safeMode
         ) {
-            using (var message = new MongoDeleteMessage(server, FullName, flags, query)) {
-                var connection = server.AcquireConnection(database, false); // not slaveOk
-                try {
+            var connection = server.AcquireConnection(database, false); // not slaveOk
+            try {
+                using (var message = new MongoDeleteMessage(connection, FullName, flags, query)) {
                     return connection.SendMessage(message, safeMode);
-                } finally {
-                    server.ReleaseConnection(connection);
                 }
+            } finally {
+                server.ReleaseConnection(connection);
             }
         }
 
@@ -1052,13 +1052,13 @@ namespace MongoDB.Driver {
             UpdateFlags flags,
             SafeMode safeMode
         ) {
-            using (var message = new MongoUpdateMessage(server, FullName, flags, query, update)) {
-                var connection = server.AcquireConnection(database, false); // not slaveOk
-                try {
+            var connection = server.AcquireConnection(database, false); // not slaveOk
+            try {
+                using (var message = new MongoUpdateMessage(connection, FullName, flags, query, update)) {
                     return connection.SendMessage(message, safeMode);
-                } finally {
-                    server.ReleaseConnection(connection);
                 }
+            } finally {
+                server.ReleaseConnection(connection);
             }
         }
 

@@ -113,6 +113,7 @@
     <Compile Include="Core\MongoCollectionSettings.cs" />
     <Compile Include="Core\MongoDatabaseSettings.cs" />
     <Compile Include="Core\MongoDBRef.cs" />
+    <Compile Include="Core\MongoServerInstance.cs" />
     <Compile Include="Core\MongoServerSettings.cs" />
     <Compile Include="Core\MongoUrlBuilder.cs" />
     <Compile Include="Core\Wrappers\BaseWrapper.cs" />

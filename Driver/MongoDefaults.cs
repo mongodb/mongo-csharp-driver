@@ -19,6 +19,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver {
     /// <summary>
     /// Default values for various Mongo settings.
@@ -30,6 +32,7 @@ namespace MongoDB.Driver {
         private static TimeSpan maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan maxConnectionLifeTime = TimeSpan.FromMinutes(30);
         private static int maxConnectionPoolSize = 100;
+        private static int maxDocumentSize = BsonDefaults.MaxDocumentSize;
         private static int maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int minConnectionPoolSize = 0;
         private static SafeMode safeMode = SafeMode.False;
@@ -93,6 +96,14 @@ namespace MongoDB.Driver {
         public static int MaxConnectionPoolSize {
             get { return maxConnectionPoolSize; }
             set { maxConnectionPoolSize = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the max document size.
+        /// </summary>
+        public static int MaxDocumentSize {
+            get { return maxDocumentSize; }
+            set { maxDocumentSize = value; }
         }
 
         /// <summary>

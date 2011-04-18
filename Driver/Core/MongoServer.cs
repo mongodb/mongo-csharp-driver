@@ -38,16 +38,11 @@ namespace MongoDB.Driver {
         private object serverLock = new object();
         private object requestsLock = new object();
         private MongoServerSettings settings;
-        private List<IPEndPoint> endPoints = new List<IPEndPoint>();
         private MongoServerState state = MongoServerState.Disconnected;
-        private IEnumerable<MongoServerAddress> replicaSet;
+        private List<MongoServerInstance> instances = new List<MongoServerInstance>();
+        private string replicaSetName;
+        private int loadBalancingOffset; // used to distribute reads across secondaries in round robin fashion
         private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
-        private IPEndPoint primaryEndPoint;
-        private List<IPEndPoint> secondaryEndPoints;
-        private int secondaryRoundRobinIndex; // used to distribute reads across secondaries in round robin fashion
-        private Dictionary<IPEndPoint, MongoConnectionPool> connectionPools = new Dictionary<IPEndPoint, MongoConnectionPool>();
-        private int maxDocumentSize = BsonDefaults.MaxDocumentSize; // will get overridden if server advertises different maxDocumentSize
-        private int maxMessageLength = MongoDefaults.MaxMessageLength; // will get overridden if server advertises different maxMessageLength
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private IndexCache indexCache = new IndexCache();
         #endregion
@@ -62,10 +57,6 @@ namespace MongoDB.Driver {
             MongoServerSettings settings
         ) {
             this.settings = settings.Freeze();
-
-            foreach (var address in settings.Servers) {
-                endPoints.Add(address.ToIPEndPoint(settings.AddressFamily));
-            }
         }
         #endregion
 
@@ -175,17 +166,14 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets the connection pool (a synonym for PrimaryConnectionPool).
+        /// Gets the arbiter instances.
         /// </summary>
-        public virtual MongoConnectionPool ConnectionPool {
-            get { return PrimaryConnectionPool; }
-        }
-
-        /// <summary>
-        /// Gets the IP end points for this server.
-        /// </summary>
-        public virtual IEnumerable<IPEndPoint> EndPoints {
-            get { return endPoints; }
+        public MongoServerInstance[] Arbiters {
+            get {
+                lock (serverLock) {
+                    return instances.Where(i => i.IsArbiter).ToArray();
+                }
+            }
         }
 
         /// <summary>
@@ -196,38 +184,55 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets the max document size for this server (not valid until connected).
+        /// Gets the one and only instance for this server.
         /// </summary>
-        public virtual int MaxDocumentSize {
-            get { return maxDocumentSize; }
+        public virtual MongoServerInstance Instance {
+            get {
+                lock (serverLock) {
+                    return instances.SingleOrDefault();
+                }
+            }
         }
 
         /// <summary>
-        /// Gets the max message length for this server (not valid until connected).
+        /// Gets the instances for this server.
         /// </summary>
-        public virtual int MaxMessageLength {
-            get { return maxMessageLength; }
+        public virtual MongoServerInstance[] Instances {
+            get {
+                lock (serverLock) {
+                    return instances.ToArray();
+                }
+            }
         }
 
         /// <summary>
-        /// Gets the connection pool for the primary server.
+        /// Gets the passive instances.
         /// </summary>
-        public MongoConnectionPool PrimaryConnectionPool {
-            get { return connectionPools[primaryEndPoint]; }
+        public MongoServerInstance[] Passives {
+            get {
+                lock (serverLock) {
+                    return instances.Where(i => i.IsPassive).ToArray();
+                }
+            }
         }
 
         /// <summary>
-        /// Gets the end point for the primary server.
+        /// Gets the primary instance (null if there is no primary).
         /// </summary>
-        public IPEndPoint PrimaryEndPoint {
-            get { return primaryEndPoint; }
+        public MongoServerInstance Primary {
+            get {
+                lock (serverLock) {
+                    return instances.Where(i => i.IsPrimary).SingleOrDefault();
+                }
+            }
         }
 
         /// <summary>
-        /// Gets a list of the members of the replica set (not valid until connected).
+        /// Gets the name of the replica set (null if not connected to a replica set).
         /// </summary>
-        public virtual IEnumerable<MongoServerAddress> ReplicaSet {
-            get { return replicaSet; }
+        public virtual string ReplicaSetName {
+            get { return replicaSetName; }
+            internal set { replicaSetName = value; }
         }
 
         /// <summary>
@@ -248,17 +253,14 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets a read only list of the connection pools to the secondary servers (when connected to a replica set).
+        /// Gets the secondary instances.
         /// </summary>
-        public IList<MongoConnectionPool> SecondaryConnectionPools {
-            get { return secondaryEndPoints.Select(endPoint => connectionPools[endPoint]).ToList(); }
-        }
-
-        /// <summary>
-        /// Gets the end points of the secondary servers.
-        /// </summary>
-        public IList<IPEndPoint> SecondaryEndPoints {
-            get { return secondaryEndPoints.AsReadOnly(); }
+        public MongoServerInstance[] Secondaries {
+            get {
+                lock (serverLock) {
+                    return instances.Where(i => i.IsSecondary).ToArray();
+                }
+            }
         }
 
         /// <summary>
@@ -371,22 +373,10 @@ namespace MongoDB.Driver {
                             case ConnectionMode.Direct:
                                 var directConnector = new DirectConnector(this);
                                 directConnector.Connect(timeout);
-                                replicaSet = null;
-                                primaryEndPoint = directConnector.Connection.EndPoint;
-                                secondaryEndPoints = null;
-                                CreateConnectionPool(directConnector.Connection);
-                                maxDocumentSize = directConnector.MaxDocumentSize;
-                                maxMessageLength = directConnector.MaxMessageLength;
                                 break;
                             case ConnectionMode.ReplicaSet:
                                 var replicaSetConnector = new ReplicaSetConnector(this);
                                 replicaSetConnector.Connect(timeout);
-                                replicaSet = replicaSetConnector.ReplicaSet;
-                                primaryEndPoint = replicaSetConnector.PrimaryEndPoint;
-                                secondaryEndPoints = replicaSetConnector.SecondaryEndPoints;
-                                CreateConnectionPools(replicaSetConnector.Connections);
-                                maxDocumentSize = replicaSetConnector.MaxDocumentSize;
-                                maxMessageLength = replicaSetConnector.MaxMessageLength;
                                 break;
                             default:
                                 throw new MongoInternalException("Invalid ConnectionMode");
@@ -450,13 +440,9 @@ namespace MongoDB.Driver {
             // but anyone can call it if they want to close all sockets to the server
             lock (serverLock) {
                 if (state == MongoServerState.Connected) {
-                    foreach (var connectionPool in connectionPools.Values) {
-                        connectionPool.Close();
+                    foreach (var instance in instances) {
+                        instance.Disconnect();
                     }
-                    primaryEndPoint = null;
-                    secondaryEndPoints = null;
-                    replicaSet = null;
-                    connectionPools.Clear();
                     state = MongoServerState.Disconnected;
                 }
             }
@@ -790,24 +776,24 @@ namespace MongoDB.Driver {
             lock (requestsLock) {
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
-                    request.Connection.CheckAuthentication(this, database); // will throw exception if authentication fails
+                    request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
                     return request.Connection;
                 }
             }
 
-            var endPoint = GetConnectionPoolEndPoint(slaveOk);
-            return AcquireConnection(database, endPoint);
+            var serverInstance = GetServerInstance(slaveOk);
+            return AcquireConnection(database, serverInstance);
         }
 
         internal MongoConnection AcquireConnection(
             MongoDatabase database,
-            IPEndPoint endPoint
+            MongoServerInstance serverInstance
         ) {
-            var connectionPool = connectionPools[endPoint];
+            var connectionPool = serverInstance.ConnectionPool;
             var connection = connectionPool.AcquireConnection(database);
 
             try {
-                connection.CheckAuthentication(this, database); // will authenticate if necessary
+                connection.CheckAuthentication(database); // will authenticate if necessary
             } catch (MongoAuthenticationException) {
                 // don't let the connection go to waste just because authentication failed
                 connectionPool.ReleaseConnection(connection);
@@ -817,19 +803,43 @@ namespace MongoDB.Driver {
             return connection;
         }
 
-        internal IPEndPoint GetConnectionPoolEndPoint(
+        internal void AddInstance(
+            MongoServerInstance instance
+        ) {
+            lock (serverLock) {
+                if (instances.Any(i => i.Address == instance.Address)) {
+                    var message = string.Format("A server instance already exists for address: {0}", instance.Address);
+                    throw new ArgumentException(message);
+                }
+                instances.Add(instance);
+            }
+        }
+
+        internal void ClearInstances() {
+            lock (serverLock) {
+                instances.Clear();
+            }
+        }
+
+        internal MongoServerInstance GetServerInstance(
             bool slaveOk
         ) {
             lock (serverLock) {
-                if (primaryEndPoint == null) {
+                if (state == MongoServerState.Disconnected) {
                     Connect();
                 }
-                if (slaveOk && secondaryEndPoints != null) {
-                    secondaryRoundRobinIndex = (secondaryRoundRobinIndex + 1) % secondaryEndPoints.Count; // round robin
-                    return secondaryEndPoints[secondaryRoundRobinIndex];
-                } else {
-                    return primaryEndPoint;
+                if (slaveOk) {
+                    // round robin the connected secondaries, fall back to primary if no secondary found
+                    for (int i = 0; i < instances.Count; i++) {
+                        var j = (i + loadBalancingOffset) % instances.Count;
+                        var instance = instances[j];
+                        if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
+                            loadBalancingOffset = i + 1;
+                            return instance;
+                        }
+                    }
                 }
+                return Primary;
             }
         }
 
@@ -852,24 +862,12 @@ namespace MongoDB.Driver {
             // so always release it to the connection pool it came from and not the current pool
             connection.ConnectionPool.ReleaseConnection(connection);
         }
-        #endregion
 
-        #region private methods
-        private void CreateConnectionPool(
-            MongoConnection initialConnection
+        internal void RemoveInstance(
+            MongoServerInstance instance
         ) {
-            var connectionPool = new MongoConnectionPool(this, initialConnection);
-            connectionPools.Clear();
-            connectionPools.Add(initialConnection.EndPoint, connectionPool);
-        }
-
-        private void CreateConnectionPools(
-            IEnumerable<MongoConnection> initialConnections
-        ) {
-            connectionPools.Clear();
-            foreach (var initialConnection in initialConnections) {
-                var connectionPool = new MongoConnectionPool(this, initialConnection);
-                connectionPools.Add(initialConnection.EndPoint, connectionPool);
+            lock (serverLock) {
+                instances.Remove(instance);
             }
         }
         #endregion

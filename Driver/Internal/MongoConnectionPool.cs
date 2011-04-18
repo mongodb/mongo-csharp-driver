@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Internal {
         #region private fields
         private object connectionPoolLock = new object();
         private MongoServer server;
-        private IPEndPoint endPoint;
+        private MongoServerInstance serverInstance;
         private bool closed = false;
         private int poolSize;
         private List<MongoConnection> availableConnections = new List<MongoConnection>();
@@ -39,15 +39,12 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoConnectionPool(
-            MongoServer server,
-            MongoConnection firstConnection
+            MongoServerInstance serverInstance
         ) {
-            this.server = server;
-            this.endPoint = firstConnection.EndPoint;
+            this.server = serverInstance.Server;
+            this.serverInstance = serverInstance;
 
-            firstConnection.JoinConnectionPool(this);
-            availableConnections.Add(firstConnection);
-            poolSize = 1;
+            poolSize = 0;
             timer = new Timer(TimerCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10));
         }
         #endregion
@@ -68,17 +65,10 @@ namespace MongoDB.Driver.Internal {
         }
 
         /// <summary>
-        /// Gets the end point of the server.
+        /// Gets the server instance.
         /// </summary>
-        public IPEndPoint EndPoint {
-            get { return endPoint; }
-        }
-
-        /// <summary>
-        /// Gets the server.
-        /// </summary>
-        public MongoServer Server {
-            get { return server; }
+        public MongoServerInstance ServerInstance {
+            get { return serverInstance; }
         }
         #endregion
 
@@ -86,7 +76,7 @@ namespace MongoDB.Driver.Internal {
         internal MongoConnection AcquireConnection(
             MongoDatabase database
         ) {
-            if (database.Server != server) {
+            if (database != null && database.Server != server) {
                 throw new ArgumentException("This connection pool is for a different server", "database");
             }
 
@@ -126,13 +116,13 @@ namespace MongoDB.Driver.Internal {
                             // if this happens a lot the connection pool size should be increased
                             ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, availableConnections[0]);
                             availableConnections.RemoveAt(0);
-                            return new MongoConnection(this, endPoint);
+                            return new MongoConnection(this);
                         }
 
                         // create a new connection if maximum pool size has not been reached
                         if (poolSize < server.Settings.MaxConnectionPoolSize) {
                             // make sure connection is created successfully before incrementing poolSize
-                            var connection = new MongoConnection(this, endPoint);
+                            var connection = new MongoConnection(this);
                             poolSize += 1;
                             return connection;
                         }
