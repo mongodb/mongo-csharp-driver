@@ -366,25 +366,18 @@ namespace MongoDB.Driver {
             TimeSpan timeout
         ) {
             lock (serverLock) {
-                if (state != MongoServerState.Connected) {
-                    state = MongoServerState.Connecting;
-                    try {
-                        switch (settings.ConnectionMode) {
-                            case ConnectionMode.Direct:
-                                var directConnector = new DirectConnector(this);
-                                directConnector.Connect(timeout);
-                                break;
-                            case ConnectionMode.ReplicaSet:
-                                var replicaSetConnector = new ReplicaSetConnector(this);
-                                replicaSetConnector.Connect(timeout);
-                                break;
-                            default:
-                                throw new MongoInternalException("Invalid ConnectionMode");
-                        }
-                        state = MongoServerState.Connected;
-                    } catch {
-                        state = MongoServerState.Disconnected;
-                        throw;
+                if (state == MongoServerState.Disconnected) {
+                    switch (settings.ConnectionMode) {
+                        case ConnectionMode.Direct:
+                            var directConnector = new DirectConnector(this);
+                            directConnector.Connect(timeout);
+                            break;
+                        case ConnectionMode.ReplicaSet:
+                            var replicaSetConnector = new ReplicaSetConnector(this);
+                            replicaSetConnector.Connect(timeout);
+                            break;
+                        default:
+                            throw new MongoInternalException("Invalid ConnectionMode");
                     }
                 }
             }
@@ -443,7 +436,6 @@ namespace MongoDB.Driver {
                     foreach (var instance in instances) {
                         instance.Disconnect();
                     }
-                    state = MongoServerState.Disconnected;
                 }
             }
         }
@@ -812,12 +804,16 @@ namespace MongoDB.Driver {
                     throw new ArgumentException(message);
                 }
                 instances.Add(instance);
+                instance.StateChanged += InstanceStateChanged;
+                InstanceStateChanged(null, null); // adding an instance can change server state
             }
         }
 
         internal void ClearInstances() {
             lock (serverLock) {
+                instances.ForEach(i => { i.StateChanged -= InstanceStateChanged; });
                 instances.Clear();
+                state = MongoServerState.Disconnected;
             }
         }
 
@@ -867,7 +863,37 @@ namespace MongoDB.Driver {
             MongoServerInstance instance
         ) {
             lock (serverLock) {
+                instance.StateChanged -= InstanceStateChanged;
                 instances.Remove(instance);
+                InstanceStateChanged(null, null); // removing an instance can change server state
+            }
+        }
+        #endregion
+
+        #region private methods
+        private void InstanceStateChanged(
+            object sender,
+            object args
+        ) {
+            lock (serverLock) {
+                if (instances.Any(i => i.State == MongoServerState.Connected && i.IsPrimary)) {
+                    state = MongoServerState.Connected;
+                    return;
+                }
+
+                if (settings.SlaveOk) {
+                    if (instances.Any(i => i.State == MongoServerState.Connected && (i.IsSecondary || i.IsPassive))) {
+                        state = MongoServerState.Connected;
+                        return;
+                    }
+                }
+
+                if (instances.Any(i => i.State == MongoServerState.Connecting)) {
+                    state = MongoServerState.Connecting;
+                    return;
+                }
+
+                state = MongoServerState.Disconnected;
             }
         }
         #endregion

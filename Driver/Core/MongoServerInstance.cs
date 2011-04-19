@@ -29,6 +29,10 @@ namespace MongoDB.Driver {
     /// Represents an instance of a MongoDB server host (in the case of a replica set a MongoServer uses multiple MongoServerInstances).
     /// </summary>
     public class MongoServerInstance {
+        #region public events
+        public event EventHandler StateChanged;
+        #endregion
+
         #region private fields
         private MongoServerAddress address;
         private MongoConnectionPool connectionPool;
@@ -41,7 +45,7 @@ namespace MongoDB.Driver {
         private int maxDocumentSize;
         private int maxMessageLength;
         private MongoServer server;
-        private MongoServerState state;
+        private MongoServerState state; // always use property to set value so event gets raised
         #endregion
 
         #region constructors
@@ -140,6 +144,14 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerState State {
             get { return state; }
+            set {
+                if (state != value) {
+                    state = value;
+                    if (StateChanged != null) {
+                        try { StateChanged(this, null); } catch { } // ignore exceptions
+                    }
+                }
+            }
         }
         #endregion
 
@@ -152,49 +164,56 @@ namespace MongoDB.Driver {
                 throw new InvalidOperationException(message);
             }
 
-            state = MongoServerState.Connecting;
+            State = MongoServerState.Connecting;
             try {
                 endPoint = address.ToIPEndPoint(server.Settings.AddressFamily);
 
-                var connectionPool = new MongoConnectionPool(this);
-
-                var connection = connectionPool.AcquireConnection(null);
+                connectionPool = new MongoConnectionPool(this);
                 try {
+                    var connection = connectionPool.AcquireConnection(null);
                     try {
-                        var isMasterCommand = new CommandDocument("ismaster", 1);
-                        isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
-                    } catch (MongoCommandException ex) {
-                        isMasterResult = ex.CommandResult;
-                        throw;
-                    }
+                        try {
+                            var isMasterCommand = new CommandDocument("ismaster", 1);
+                            isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
+                        } catch (MongoCommandException ex) {
+                            isMasterResult = ex.CommandResult;
+                            throw;
+                        }
 
-                    isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
-                    isSecondary = isMasterResult.Response["secondary", false].ToBoolean();
-                    isPassive = isMasterResult.Response["passive", false].ToBoolean();
-                    isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
-                    if (!isPrimary && !slaveOk) {
-                        throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
-                    }
+                        isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
+                        isSecondary = isMasterResult.Response["secondary", false].ToBoolean();
+                        isPassive = isMasterResult.Response["passive", false].ToBoolean();
+                        isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
+                        if (!isPrimary && !slaveOk) {
+                            throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
+                        }
 
-                    maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
-                    maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
-                } finally {
-                    connectionPool.ReleaseConnection(connection);
+                        maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
+                        maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
+                    } finally {
+                        connectionPool.ReleaseConnection(connection);
+                    }
+                } catch {
+                    connectionPool.Close();
+                    connectionPool = null;
+                    throw;
                 }
 
-                this.connectionPool = connectionPool;
+                State = MongoServerState.Connected;
             } catch {
-                state = MongoServerState.Disconnected;
+                State = MongoServerState.Disconnected;
                 throw;
             }
-            state = MongoServerState.Connected;
         }
 
         internal void Disconnect() {
-            if (state != MongoServerState.Connected) {
-                connectionPool.Close();
-                connectionPool = null;
-                state = MongoServerState.Disconnected;
+            if (state == MongoServerState.Connected) {
+                try {
+                    connectionPool.Close();
+                    connectionPool = null;
+                } finally {
+                    State = MongoServerState.Disconnected;
+                }
             }
         }
         #endregion
