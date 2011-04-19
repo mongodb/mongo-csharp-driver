@@ -146,6 +146,7 @@ namespace MongoDB.Driver {
             get { return state; }
             set {
                 if (state != value) {
+                    // Console.WriteLine("{0} state: {1}{2}", address, value, isPrimary ? " (Primary)" : "");
                     state = value;
                     if (StateChanged != null) {
                         try { StateChanged(this, null); } catch { } // ignore exceptions

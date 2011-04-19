@@ -39,7 +39,7 @@ namespace MongoDB.Driver {
         private object requestsLock = new object();
         private MongoServerSettings settings;
         private MongoServerState state = MongoServerState.Disconnected;
-        private List<MongoServerInstance> instances = new List<MongoServerInstance>();
+        private List<MongoServerInstance> instances = new List<MongoServerInstance>(); // serves as its own lock
         private string replicaSetName;
         private int loadBalancingOffset; // used to distribute reads across secondaries in round robin fashion
         private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
@@ -170,7 +170,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerInstance[] Arbiters {
             get {
-                lock (serverLock) {
+                lock (instances) {
                     return instances.Where(i => i.IsArbiter).ToArray();
                 }
             }
@@ -188,7 +188,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual MongoServerInstance Instance {
             get {
-                lock (serverLock) {
+                lock (instances) {
                     return instances.SingleOrDefault();
                 }
             }
@@ -199,7 +199,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual MongoServerInstance[] Instances {
             get {
-                lock (serverLock) {
+                lock (instances) {
                     return instances.ToArray();
                 }
             }
@@ -210,7 +210,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerInstance[] Passives {
             get {
-                lock (serverLock) {
+                lock (instances) {
                     return instances.Where(i => i.IsPassive).ToArray();
                 }
             }
@@ -221,7 +221,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerInstance Primary {
             get {
-                lock (serverLock) {
+                lock (instances) {
                     return instances.Where(i => i.IsPrimary).SingleOrDefault();
                 }
             }
@@ -257,7 +257,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerInstance[] Secondaries {
             get {
-                lock (serverLock) {
+                lock (instances) {
                     return instances.Where(i => i.IsSecondary).ToArray();
                 }
             }
@@ -433,8 +433,10 @@ namespace MongoDB.Driver {
             // but anyone can call it if they want to close all sockets to the server
             lock (serverLock) {
                 if (state == MongoServerState.Connected) {
-                    foreach (var instance in instances) {
-                        instance.Disconnect();
+                    lock (instances) {
+                        foreach (var instance in instances) {
+                            instance.Disconnect();
+                        }
                     }
                 }
             }
@@ -798,7 +800,7 @@ namespace MongoDB.Driver {
         internal void AddInstance(
             MongoServerInstance instance
         ) {
-            lock (serverLock) {
+            lock (instances) {
                 if (instances.Any(i => i.Address == instance.Address)) {
                     var message = string.Format("A server instance already exists for address: {0}", instance.Address);
                     throw new ArgumentException(message);
@@ -810,7 +812,7 @@ namespace MongoDB.Driver {
         }
 
         internal void ClearInstances() {
-            lock (serverLock) {
+            lock (instances) {
                 instances.ForEach(i => { i.StateChanged -= InstanceStateChanged; });
                 instances.Clear();
                 state = MongoServerState.Disconnected;
@@ -826,12 +828,14 @@ namespace MongoDB.Driver {
                 }
                 if (slaveOk) {
                     // round robin the connected secondaries, fall back to primary if no secondary found
-                    for (int i = 0; i < instances.Count; i++) {
-                        var j = (i + loadBalancingOffset) % instances.Count;
-                        var instance = instances[j];
-                        if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
-                            loadBalancingOffset = i + 1;
-                            return instance;
+                    lock (instances) {
+                        for (int i = 0; i < instances.Count; i++) {
+                            var j = (i + loadBalancingOffset) % instances.Count;
+                            var instance = instances[j];
+                            if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
+                                loadBalancingOffset = i + 1;
+                                return instance;
+                            }
                         }
                     }
                 }
@@ -862,7 +866,7 @@ namespace MongoDB.Driver {
         internal void RemoveInstance(
             MongoServerInstance instance
         ) {
-            lock (serverLock) {
+            lock (instances) {
                 instance.StateChanged -= InstanceStateChanged;
                 instances.Remove(instance);
                 InstanceStateChanged(null, null); // removing an instance can change server state
@@ -875,24 +879,28 @@ namespace MongoDB.Driver {
             object sender,
             object args
         ) {
-            lock (serverLock) {
+            lock (instances) {
                 if (instances.Any(i => i.State == MongoServerState.Connected && i.IsPrimary)) {
+                    // Console.WriteLine("Server state: Connected");
                     state = MongoServerState.Connected;
                     return;
                 }
 
                 if (settings.SlaveOk) {
                     if (instances.Any(i => i.State == MongoServerState.Connected && (i.IsSecondary || i.IsPassive))) {
+                        // Console.WriteLine("Server state: Connected");
                         state = MongoServerState.Connected;
                         return;
                     }
                 }
 
                 if (instances.Any(i => i.State == MongoServerState.Connecting)) {
+                    // Console.WriteLine("Server state: Connecting");
                     state = MongoServerState.Connecting;
                     return;
                 }
 
+                // Console.WriteLine("Server state: Disconnected");
                 state = MongoServerState.Disconnected;
             }
         }
