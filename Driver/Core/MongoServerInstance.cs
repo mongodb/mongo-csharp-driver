@@ -30,11 +30,15 @@ namespace MongoDB.Driver {
     /// </summary>
     public class MongoServerInstance {
         #region public events
+        /// <summary>
+        /// Occurs when the value of the State property changes.
+        /// </summary>
         public event EventHandler StateChanged;
         #endregion
 
         #region private fields
         private MongoServerAddress address;
+        private Exception connectException;
         private MongoConnectionPool connectionPool;
         private IPEndPoint endPoint;
         private bool isArbiter;
@@ -67,6 +71,14 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerAddress Address {
             get { return address; }
+        }
+
+        /// <summary>
+        /// Gets the exception thrown the last time Connect was called (null if Connect did not throw an exception).
+        /// </summary>
+        public Exception ConnectException {
+            get { return connectException; }
+            internal set { connectException = value; }
         }
 
         /// <summary>
@@ -166,6 +178,7 @@ namespace MongoDB.Driver {
             }
 
             State = MongoServerState.Connecting;
+            connectException = null;
             try {
                 endPoint = address.ToIPEndPoint(server.Settings.AddressFamily);
 
@@ -201,14 +214,15 @@ namespace MongoDB.Driver {
                 }
 
                 State = MongoServerState.Connected;
-            } catch {
+            } catch (Exception ex) {
                 State = MongoServerState.Disconnected;
+                connectException = ex;
                 throw;
             }
         }
 
         internal void Disconnect() {
-            if (state == MongoServerState.Connected) {
+            if (state != MongoServerState.Disconnected) {
                 try {
                     connectionPool.Close();
                     connectionPool = null;

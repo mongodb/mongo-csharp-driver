@@ -27,9 +27,10 @@ namespace MongoDB.Driver.Internal {
         #region private fields
         private MongoServer server;
         private DateTime timeoutAt;
-        private BlockingQueue<ConnectResponse> responseQueue;
-        private List<ConnectArgs> connects;
-        private List<ConnectResponse> responses;
+        private BlockingQueue<ConnectResponse> responseQueue = new BlockingQueue<ConnectResponse>();
+        private List<ConnectArgs> connects = new List<ConnectArgs>();
+        private List<ConnectResponse> responses = new List<ConnectResponse>();
+        private bool firstResponseHasBeenProcessed;
         #endregion
 
         #region constructors
@@ -45,9 +46,6 @@ namespace MongoDB.Driver.Internal {
             TimeSpan timeout
         ) {
             timeoutAt = DateTime.UtcNow + timeout;
-            responseQueue = new BlockingQueue<ConnectResponse>();
-            connects = new List<ConnectArgs>();
-            responses = new List<ConnectResponse>();
 
             // connect to all servers in the seed list in parallel (they will report responses back through the responseQueue)
             server.ClearInstances();
@@ -55,11 +53,9 @@ namespace MongoDB.Driver.Internal {
                 QueueConnect(address);
             }
 
-            // process the responses as they come back and stop as soon as we find the primary (unless SlaveOk is true)
-            // stragglers will continue to report responses to the responseQueue but no one will read them
-            // and eventually it will all get garbage collected
+            // process the responses as they come back and return as soon as we have connected to the primary
+            // any remaining responses after the primary will be processed in the background
 
-            var exceptions = new List<Exception>();
             while (responses.Count < connects.Count) {
                 var timeRemaining = timeoutAt - DateTime.UtcNow;
                 var response = responseQueue.Dequeue(timeRemaining);
@@ -67,32 +63,21 @@ namespace MongoDB.Driver.Internal {
                     break; // we timed out
                 }
 
-                responses.Add(response);
-                if (response.Exception != null) {
-                    exceptions.Add(response.Exception);
-                    continue;
-                }
+                ProcessResponse(response);
 
-                if (responses.Count == 1) {
-                    ProcessFirstResponse(response);
-                } else {
-                    ProcessAdditionalResponse(response);
-                }
-
-                // return as soon as we've found the primary
+                // return as soon as we've connected to the primary
                 var serverInstance = response.ServerInstance;
-                if (serverInstance.IsPrimary) {
+                if (serverInstance.State == MongoServerState.Connected && serverInstance.IsPrimary) {
                     // process any additional responses in the background
                     ThreadPool.QueueUserWorkItem(ProcessAdditionalResponsesWorkItem);
                     return;
                 }
             }
 
+            var exceptions = responses.Select(r => r.ServerInstance.ConnectException).Where(e => e != null).ToArray();
             var innerException = exceptions.FirstOrDefault();
             var exception = new MongoConnectionException("Unable to connect to server", innerException);
-            if (exceptions.Count > 1) {
-                exception.Data.Add("InnerExceptions", exceptions);
-            }
+            exception.Data.Add("InnerExceptions", exceptions);
             throw exception;
         }
         #endregion
@@ -109,8 +94,8 @@ namespace MongoDB.Driver.Internal {
             try {
                 serverInstance.Connect(true); // slaveOk
                 response.IsMasterResult = serverInstance.IsMasterResult;
-            } catch (Exception ex) {
-                response.Exception = ex;
+            } catch {
+                // exception is already stored in serverInstance.ConnectException and will be handled later
             }
 
             args.ResponseQueue.Enqueue(response);
@@ -119,7 +104,16 @@ namespace MongoDB.Driver.Internal {
         private void ProcessAdditionalResponse(
             ConnectResponse response
         ) {
-            // is there anything to do here?
+            var replicaSetName = response.IsMasterResult.Response["setName"].AsString;
+            if (replicaSetName != server.ReplicaSetName) {
+                var message = string.Format(
+                    "Server at address '{0}' is a member of replica set '{1}' and not '{2}'.",
+                    response.ServerInstance.Address,
+                    replicaSetName, 
+                    server.ReplicaSetName // additional responses have to be for the same replica set name as the first response
+                );
+                throw new MongoConnectionException(message);
+            }
         }
 
         private void ProcessAdditionalResponsesWorkItem(
@@ -131,9 +125,8 @@ namespace MongoDB.Driver.Internal {
                 if (response == null) {
                     break; // we timed out
                 }
-                responses.Add(response);
 
-                ProcessAdditionalResponse(response);
+                ProcessResponse(response);
             }
         }
 
@@ -141,6 +134,18 @@ namespace MongoDB.Driver.Internal {
             ConnectResponse response
         ) {
             var isMasterResponse = response.IsMasterResult.Response;
+
+            var replicaSetName = isMasterResponse["setName"].AsString;
+            if (server.Settings.ReplicaSetName != null && replicaSetName != server.Settings.ReplicaSetName) {
+                var message = string.Format(
+                    "Server at address '{0}' is a member of replica set '{1}' and not '{2}'.",
+                    response.ServerInstance.Address,
+                    replicaSetName,
+                    server.Settings.ReplicaSetName // first response has to match replica set name in settings (if any)
+                );
+                throw new MongoConnectionException(message);
+            }
+            server.ReplicaSetName = replicaSetName;
 
             // find all valid addresses
             var validAddresses = new HashSet<MongoServerAddress>();
@@ -174,6 +179,36 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
+        private void ProcessResponse(
+            ConnectResponse response
+        ) {
+            responses.Add(response);
+            if (response.ServerInstance.ConnectException != null) {
+                return;
+            }
+
+            try {
+                if (!response.IsMasterResult.Response.Contains("setName")) {
+                    var message = string.Format("Server at address '{0}' does not have a replica set name.", response.ServerInstance.Address);
+                    throw new MongoConnectionException(message);
+                }
+                if (!response.IsMasterResult.Response.Contains("hosts")) {
+                    var message = string.Format("Server at address '{0}' does not have a hosts list.", response.ServerInstance.Address);
+                    throw new MongoConnectionException(message);
+                }
+
+                if (firstResponseHasBeenProcessed) {
+                    ProcessAdditionalResponse(response);
+                } else {
+                    ProcessFirstResponse(response);
+                    firstResponseHasBeenProcessed = true; // remains false if ProcessFirstResponse throws an exception
+                }
+            } catch (Exception ex) {
+                response.ServerInstance.ConnectException = ex;
+                try { response.ServerInstance.Disconnect(); } catch { } // ignore exceptions
+            }
+        }
+
         private void QueueConnect(
             MongoServerAddress address
         ) {
@@ -200,7 +235,6 @@ namespace MongoDB.Driver.Internal {
         private class ConnectResponse {
             public MongoServerInstance ServerInstance { get; set; }
             public CommandResult IsMasterResult { get; set; }
-            public Exception Exception { get; set; }
         }
         #endregion
     }
