@@ -49,7 +49,7 @@ namespace MongoDB.BsonUnitTests.Jira {
 
             var serializer = BsonSerializer.LookupSerializer(typeof(User));
             var idGenerator = BsonSerializer.LookupIdGenerator(typeof(ObjectId));
-            serializer.SetDocumentId(u, idGenerator.GenerateId());
+            serializer.SetDocumentId(u, idGenerator.GenerateId(u));
             Assert.IsFalse(idGenerator.IsEmpty(u.Id));
             Assert.IsTrue(idGenerator.IsEmpty(u.FriendId));
 

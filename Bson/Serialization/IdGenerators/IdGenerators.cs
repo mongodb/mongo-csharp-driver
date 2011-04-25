@@ -50,11 +50,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         #endregion
 
         #region public methods
+
         /// <summary>
         /// Generates an Id.
         /// </summary>
+        /// <param name="document"></param>
         /// <returns>An Id.</returns>
-        public object GenerateId() {
+        public object GenerateId(object document) {
             var guidArray = Guid.NewGuid().ToByteArray();
 
             var baseDate = new DateTime(1900, 1, 1);
@@ -114,11 +116,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         #endregion
 
         #region public methods
+
         /// <summary>
         /// Generates an Id.
         /// </summary>
+        /// <param name="document"></param>
         /// <returns>An Id.</returns>
-        public object GenerateId() {
+        public object GenerateId(object document) {
             return Guid.NewGuid();
         }
 
@@ -161,11 +165,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         #endregion
 
         #region public methods
+
         /// <summary>
         /// Throws an exception because we can't generate an Id.
         /// </summary>
+        /// <param name="document"></param>
         /// <returns>Nothing.</returns>
-        public object GenerateId() {
+        public object GenerateId(object document) {
             throw new InvalidOperationException("Id cannot be null");
         }
 
@@ -208,11 +214,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         #endregion
 
         #region public methods
+
         /// <summary>
         /// Generates an Id.
         /// </summary>
+        /// <param name="document"></param>
         /// <returns>An Id.</returns>
-        public object GenerateId() {
+        public object GenerateId(object document) {
             return ObjectId.GenerateNewId();
         }
 
@@ -255,11 +263,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         #endregion
 
         #region public methods
+
         /// <summary>
         /// Generates an Id.
         /// </summary>
+        /// <param name="document"></param>
         /// <returns>An Id.</returns>
-        public object GenerateId() {
+        public object GenerateId(object document) {
             return ObjectId.GenerateNewId().ToString();
         }
 
@@ -290,11 +300,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         #endregion
 
         #region public methods
+
         /// <summary>
         /// Throws an exception because we can't generate an Id.
         /// </summary>
+        /// <param name="document"></param>
         /// <returns>An Id.</returns>
-        public object GenerateId() {
+        public object GenerateId(object document) {
             throw new InvalidOperationException("Id cannot be default value (all zeros)");
         }
 
