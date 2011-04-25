@@ -673,51 +673,107 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document to insert.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the document to insert.</typeparam>
         /// <param name="document">The document to insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult Insert<TDocument>(
-            TDocument document
+        public virtual SafeModeResult Insert<TNominalType>(
+            TNominalType document
         ) {
-            return Insert(document, settings.SafeMode);
+            return Insert(typeof(TNominalType), document);
         }
 
         /// <summary>
         /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document to insert.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the document to insert.</typeparam>
         /// <param name="document">The document to insert.</param>
         /// <param name="safeMode">The SafeMode to use for this Insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult Insert<TDocument>(
-            TDocument document,
+        public virtual SafeModeResult Insert<TNominalType>(
+            TNominalType document,
             SafeMode safeMode
         ) {
-            var results = InsertBatch<TDocument>(new TDocument[] { document }, safeMode);
+            return Insert(typeof(TNominalType), document, safeMode);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the document to insert.</param>
+        /// <param name="document">The document to insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert(
+            Type nominalType,
+            object document
+        ) {
+            return Insert(nominalType, document, settings.SafeMode);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the document to insert.</param>
+        /// <param name="document">The document to insert.</param>
+        /// <param name="safeMode">The SafeMode to use for this Insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert(
+            Type nominalType,
+            object document,
+            SafeMode safeMode
+        ) {
+            var results = InsertBatch(nominalType, new object[] { document }, safeMode);
             return (results == null) ? null : results.Single();
         }
 
         /// <summary>
         /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
         /// </summary>
-        /// <typeparam name="TDocument">The type of the documents to insert.</typeparam>
+        /// <typeparam name="TNominalType">The type of the documents to insert.</typeparam>
         /// <param name="documents">The documents to insert.</param>
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
-        public virtual IEnumerable<SafeModeResult> InsertBatch<TDocument>(
-            IEnumerable<TDocument> documents
+        public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
+            IEnumerable<TNominalType> documents
         ) {
-            return InsertBatch<TDocument>(documents, settings.SafeMode);
+            return InsertBatch(typeof(TNominalType), documents.Cast<object>());
         }
 
         /// <summary>
         /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
         /// </summary>
-        /// <typeparam name="TDocument">The type of the documents to insert.</typeparam>
+        /// <typeparam name="TNominalType">The type of the documents to insert.</typeparam>
         /// <param name="documents">The documents to insert.</param>
         /// <param name="safeMode">The SafeMode to use for this Insert.</param>
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
-        public virtual IEnumerable<SafeModeResult> InsertBatch<TDocument>(
-            IEnumerable<TDocument> documents,
+        public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
+            IEnumerable<TNominalType> documents,
+            SafeMode safeMode
+        ) {
+            return InsertBatch(typeof(TNominalType), documents.Cast<object>(), safeMode);
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the documents to insert.</param>
+        /// <param name="documents">The documents to insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch(
+            Type nominalType,
+            IEnumerable<object> documents
+        ) {
+            return InsertBatch(nominalType, documents, settings.SafeMode);
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the documents to insert.</param>
+        /// <param name="documents">The documents to insert.</param>
+        /// <param name="safeMode">The SafeMode to use for this Insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch(
+            Type nominalType,
+            IEnumerable<object> documents,
             SafeMode safeMode
         ) {
             var connection = server.AcquireConnection(database, false); // not slaveOk
@@ -740,7 +796,7 @@ namespace MongoDB.Driver {
                                 }
                             }
                         }
-                        message.AddDocument(document);
+                        message.AddDocument(nominalType, document);
 
                         if (message.MessageLength > connection.ServerInstance.MaxMessageLength) {
                             byte[] lastDocument = message.RemoveLastDocument();
@@ -1240,6 +1296,30 @@ namespace MongoDB.Driver {
             IMongoGeoNearOptions options
         ) {
             return GeoNearAs<TDefaultDocument>(query, x, y, limit, options);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="document">The document to insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert(
+            TDefaultDocument document
+        ) {
+            return Insert<TDefaultDocument>(document);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="document">The document to insert.</param>
+        /// <param name="safeMode">The SafeMode to use for this Insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert(
+            TDefaultDocument document,
+            SafeMode safeMode
+        ) {
+            return Insert<TDefaultDocument>(document, safeMode);
         }
         #endregion
     }

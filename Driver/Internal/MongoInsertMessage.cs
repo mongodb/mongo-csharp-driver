@@ -43,12 +43,13 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region internal methods
-        internal void AddDocument<TDocument>(
-            TDocument document
+        internal void AddDocument(
+            Type nominalType,
+            object document
         ) {
             lastDocumentStartPosition = buffer.Position;
             using (var bsonWriter = CreateBsonWriter()) {
-                BsonSerializer.Serialize(bsonWriter, document, DocumentSerializationOptions.SerializeIdFirstInstance);
+                BsonSerializer.Serialize(bsonWriter, nominalType, document, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
             BackpatchMessageLength();
         }

@@ -989,6 +989,14 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Returns a string representation of the document.
+        /// </summary>
+        /// <returns>A string representation of the document.</returns>
+        public override string ToString() {
+            return this.ToJson();
+        }
+
+        /// <summary>
         /// Tries to get an element of this document.
         /// </summary>
         /// <param name="name">The name of the element.</param>
