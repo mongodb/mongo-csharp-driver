@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization {
         /// <summary>
         /// Generates an Id.
         /// </summary>
-        /// <param name="document">The document for which an id is being generated.</param>
+        /// <param name="document">The document for which an Id is being generated.</param>
         /// <returns>An Id.</returns>
         object GenerateId(object document);
         /// <summary>
