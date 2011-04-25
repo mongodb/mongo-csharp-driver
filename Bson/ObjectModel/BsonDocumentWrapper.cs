@@ -83,8 +83,21 @@ namespace MongoDB.Bson {
         public static BsonDocumentWrapper Create<TNominalType>(
             TNominalType value
         ) {
+            return Create(typeof(TNominalType), value);
+        }
+
+        /// <summary>
+        /// Creates a new instance of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the wrapped object.</param>
+        /// <param name="value">The wrapped object.</param>
+        /// <returns>A BsonDocumentWrapper or null.</returns>
+        public static BsonDocumentWrapper Create(
+            Type nominalType,
+            object value
+        ) {
             if (value != null) {
-                return new BsonDocumentWrapper(typeof(TNominalType), value);
+                return new BsonDocumentWrapper(nominalType, value);
             } else {
                 return null;
             }
@@ -99,8 +112,21 @@ namespace MongoDB.Bson {
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(
             IEnumerable<TNominalType> values
         ) {
+            return CreateMultiple(typeof(TNominalType), values.Cast<object>());
+        }
+
+        /// <summary>
+        /// Creates a list of new instances of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the wrapped object.</param>
+        /// <param name="values">A list of wrapped objects.</param>
+        /// <returns>A list of BsonDocumentWrappers or null.</returns>
+        public static IEnumerable<BsonDocumentWrapper> CreateMultiple(
+            Type nominalType,
+            IEnumerable<object> values
+        ) {
             if (values != null) {
-                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(TNominalType), v));
+                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(nominalType, v));
             } else {
                 return null;
             }
