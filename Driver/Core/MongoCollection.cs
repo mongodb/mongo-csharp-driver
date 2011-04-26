@@ -439,10 +439,7 @@ namespace MongoDB.Driver {
             Type documentType,
             IMongoQuery query
         ) {
-            var cursorDefinition = typeof(MongoCursor<>);
-            var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery) });
-            return (MongoCursor) constructorInfo.Invoke(new object[] { this, query });
+            return MongoCursor.Create(this, documentType, query);
         }
 
         /// <summary>

@@ -28,8 +28,8 @@ namespace MongoDB.DriverOnlineTests {
     [TestFixture]
     public class MongoCollectionTests {
         private class TestClass {
-            public ObjectId Id;
-            public int X;
+            public ObjectId Id { get; set; }
+            public int X { get; set; }
         }
 
         private MongoServer server;
@@ -142,6 +142,16 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(2, collection.GetIndexes().Count());
             collection.DropIndex("x");
             Assert.AreEqual(1, collection.GetIndexes().Count());
+        }
+
+        [Test]
+        public void TestExplain() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
+            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = collection.Find(Query.GT("x", 3)).Explain();
         }
 
         [Test]

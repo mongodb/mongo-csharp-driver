@@ -156,13 +156,45 @@ namespace MongoDB.Driver {
         }
         #endregion
 
+        #region public static methods
+        /// <summary>
+        /// Creates a cursor.
+        /// </summary>
+        /// <param name="collection">The collection to query.</param>
+        /// <param name="documentType">The type of the returned documents.</param>
+        /// <param name="query">A query.</param>
+        /// <returns>A cursor.</returns>
+        public static MongoCursor Create(
+            MongoCollection collection,
+            Type documentType,
+            IMongoQuery query
+        ) {
+            var cursorDefinition = typeof(MongoCursor<>);
+            var cursorType = cursorDefinition.MakeGenericType(documentType);
+            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery) });
+            return (MongoCursor) constructorInfo.Invoke(new object[] { collection, query });
+        }
+        #endregion
+
         #region public methods
         /// <summary>
         /// Creates a clone of the cursor.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
         /// <returns>A clone of the cursor.</returns>
-        public virtual MongoCursor<TNewDocument> Clone<TNewDocument>() {
-            var clone = new MongoCursor<TNewDocument>(collection, query);
+        public virtual MongoCursor<TDocument> Clone<TDocument>() {
+            return (MongoCursor<TDocument>) Clone(typeof(TDocument));
+        }
+
+        /// <summary>
+        /// Creates a clone of the cursor.
+        /// </summary>
+        /// <param name="documentType">The type of the documents returned.</param>
+        /// <returns>A clone of the cursor.</returns>
+        public virtual MongoCursor Clone(
+            Type documentType
+        ) {
+            var clone = Create(collection, documentType, query);
             clone.options = options == null ? null : (BsonDocument) options.Clone();
             clone.flags = flags;
             clone.slaveOk = slaveOk;
@@ -203,7 +235,7 @@ namespace MongoDB.Driver {
             bool verbose
         ) {
             isFrozen = true;
-            var clone = this.Clone<BsonDocument>();
+            var clone = Clone<BsonDocument>();
             clone.SetOption("$explain", true);
             clone.limit = -clone.limit; // TODO: should this be -1?
             var explanation = clone.FirstOrDefault();
