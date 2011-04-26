@@ -300,10 +300,21 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Returns a cursor that can be used to find all documents in this collection as TDocuments.
         /// </summary>
-        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <typeparam name="TDocument">The nominal type of the documents.</typeparam>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDocument> FindAllAs<TDocument>() {
             return FindAs<TDocument>(Query.Null);
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find all documents in this collection as TDocuments.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
+        public virtual MongoCursor FindAllAs(
+            Type documentType
+        ) {
+            return FindAs(documentType, Query.Null);
         }
 
         /// <summary>
@@ -419,6 +430,22 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Returns a cursor that can be used to find all documents in this collection that match the query as TDocuments.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
+        public virtual MongoCursor FindAs(
+            Type documentType,
+            IMongoQuery query
+        ) {
+            var cursorDefinition = typeof(MongoCursor<>);
+            var cursorType = cursorDefinition.MakeGenericType(documentType);
+            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery) });
+            return (MongoCursor) constructorInfo.Invoke(new object[] { this, query });
+        }
+
+        /// <summary>
         /// Returns a cursor that can be used to find one document in this collection as a TDocument.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
@@ -440,15 +467,52 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <returns>A document (or null if not found).</returns>
+        public virtual object FindOneAs(
+            Type documentType
+        ) {
+            return FindAllAs(documentType).SetLimit(1).OfType<object>().FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection that matches a query as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual object FindOneAs(
+            Type documentType,
+            IMongoQuery query
+        ) {
+            return FindAs(documentType, query).SetLimit(1).OfType<object>().FirstOrDefault();
+        }
+
+        /// <summary>
         /// Returns a cursor that can be used to find one document in this collection by its _id value as a TDocument.
         /// </summary>
-        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <typeparam name="TDocument">The nominal type of the document.</typeparam>
         /// <param name="id">The id of the document.</param>
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneByIdAs<TDocument>(
             BsonValue id
         ) {
             return FindOneAs<TDocument>(Query.EQ("_id", id));
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection by its _id value as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the document.</param>
+        /// <param name="id">The id of the document.</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual object FindOneByIdAs(
+            Type documentType,
+            BsonValue id
+        ) {
+            return FindOneAs(documentType, Query.EQ("_id", id));
         }
 
         /// <summary>
@@ -494,6 +558,55 @@ namespace MongoDB.Driver {
             };
             command.Merge(options.ToBsonDocument());
             return database.RunCommandAs<GeoNearResult<TDocument>>(command);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult GeoNearAs(
+            Type documentType,
+            IMongoQuery query,
+            double x,
+            double y,
+            int limit
+        ) {
+            return GeoNearAs(documentType, query, x, y, limit, GeoNearOptions.Null);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <param name="options">The GeoNear command options (usually a GeoNearOptionsDocument or constructed using the GeoNearOptions builder).</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult GeoNearAs(
+            Type documentType,
+            IMongoQuery query,
+            double x,
+            double y,
+            int limit,
+            IMongoGeoNearOptions options
+        ) {
+            var command = new CommandDocument {
+                { "geoNear", name },
+                { "near", new BsonArray { x, y } },
+                { "num", limit },
+                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+            };
+            command.Merge(options.ToBsonDocument());
+            var geoNearResultDefinition = typeof(GeoNearResult<>);
+            var geoNearResultType = geoNearResultDefinition.MakeGenericType(documentType);
+            return (GeoNearResult) database.RunCommandAs(geoNearResultType, command);
         }
 
         /// <summary>
@@ -995,25 +1108,55 @@ namespace MongoDB.Driver {
         /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
         /// of the Id field Save will perform either an Insert or an Update.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document to save.</typeparam>
+        /// <typeparam name="TNominalType">The type of the document to save.</typeparam>
         /// <param name="document">The document to save.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult Save<TDocument>(
-            TDocument document
+        public virtual SafeModeResult Save<TNominalType>(
+            TNominalType document
         ) {
-            return Save(document, settings.SafeMode);
+            return Save(typeof(TNominalType), document);
         }
 
         /// <summary>
         /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
         /// of the Id field Save will perform either an Insert or an Update.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document to save.</typeparam>
+        /// <typeparam name="TNominalType">The type of the document to save.</typeparam>
         /// <param name="document">The document to save.</param>
         /// <param name="safeMode">The SafeMode to use for this operation.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult Save<TDocument>(
-            TDocument document,
+        public virtual SafeModeResult Save<TNominalType>(
+            TNominalType document,
+            SafeMode safeMode
+        ) {
+            return Save(typeof(TNominalType), document, safeMode);
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <param name="nominalType">The type of the document to save.</param>
+        /// <param name="document">The document to save.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save(
+            Type nominalType,
+            object document
+        ) {
+            return Save(nominalType, document, settings.SafeMode);
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <param name="nominalType">The type of the document to save.</param>
+        /// <param name="document">The document to save.</param>
+        /// <param name="safeMode">The SafeMode to use for this operation.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save(
+            Type nominalType,
+            object document,
             SafeMode safeMode
         ) {
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
@@ -1028,14 +1171,14 @@ namespace MongoDB.Driver {
                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
                     id = idGenerator.GenerateId(document);
                     serializer.SetDocumentId(document, id);
-                    return Insert(document, safeMode);
+                    return Insert(nominalType, document, safeMode);
                 } else {
                     BsonValue idBsonValue;
                     if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue)) {
                         idBsonValue = new BsonDocumentWrapper(idNominalType, id);
                     }
                     var query = Query.EQ("_id", idBsonValue);
-                    var update = Builders.Update.Replace(document);
+                    var update = Builders.Update.Replace(nominalType, document);
                     return Update(query, update, UpdateFlags.Upsert, safeMode);
                 }
             } else {

@@ -469,9 +469,23 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Fetches the document referred to by the DBRef, deserialized as a <typeparamref name="TDocument"/>.
         /// </summary>
+        /// <typeparam name="TDocument">The nominal type of the document to fetch.</typeparam>
         /// <param name="dbRef">The <see cref="MongoDBRef"/> to fetch.</param>
         /// <returns>A <typeparamref name="TDocument"/> (or null if the document was not found).</returns>
         public virtual TDocument FetchDBRefAs<TDocument>(
+            MongoDBRef dbRef
+        ) {
+            return (TDocument) FetchDBRefAs(typeof(TDocument), dbRef);
+        }
+
+        /// <summary>
+        /// Fetches the document referred to by the DBRef.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the document to fetch.</param>
+        /// <param name="dbRef">The <see cref="MongoDBRef"/> to fetch.</param>
+        /// <returns>The document (or null if the document was not found).</returns>
+        public virtual object FetchDBRefAs(
+            Type documentType,
             MongoDBRef dbRef
         ) {
             if (dbRef.DatabaseName == null) {
@@ -479,7 +493,7 @@ namespace MongoDB.Driver {
             }
 
             var database = GetDatabase(dbRef.DatabaseName);
-            return database.FetchDBRefAs<TDocument>(dbRef);
+            return database.FetchDBRefAs(documentType, dbRef);
         }
 
         /// <summary>
@@ -744,7 +758,7 @@ namespace MongoDB.Driver {
         public virtual TCommandResult RunAdminCommandAs<TCommandResult>(
             IMongoCommand command
         ) where TCommandResult : CommandResult, new() {
-            return AdminDatabase.RunCommandAs<TCommandResult>(command);
+            return (TCommandResult) RunAdminCommandAs(typeof(TCommandResult), command);
         }
 
         /// <summary>
@@ -756,7 +770,33 @@ namespace MongoDB.Driver {
         public virtual TCommandResult RunAdminCommandAs<TCommandResult>(
             string commandName
         ) where TCommandResult : CommandResult, new() {
-            return AdminDatabase.RunCommandAs<TCommandResult>(commandName);
+            return (TCommandResult) RunAdminCommandAs(typeof(TCommandResult), commandName);
+        }
+
+        /// <summary>
+        /// Runs a command on the admin database.
+        /// </summary>
+        /// <param name="commandResultType">The type to use for the command result.</param>
+        /// <param name="command">The command to run.</param>
+        /// <returns>The result of the command.</returns>
+        public virtual object RunAdminCommandAs(
+            Type commandResultType,
+            IMongoCommand command
+        ) {
+            return AdminDatabase.RunCommandAs(commandResultType, command);
+        }
+
+        /// <summary>
+        /// Runs a command on the admin database.
+        /// </summary>
+        /// <param name="commandResultType">The type to use for the command result.</param>
+        /// <param name="commandName">The name of the command to run.</param>
+        /// <returns>The result of the command.</returns>
+        public virtual object RunAdminCommandAs(
+            Type commandResultType,
+            string commandName
+        ) {
+            return AdminDatabase.RunCommandAs(commandResultType, commandName);
         }
         #endregion
 

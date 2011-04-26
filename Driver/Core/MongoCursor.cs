@@ -28,8 +28,7 @@ namespace MongoDB.Driver {
     /// An object that can be enumerated to fetch the results of a query. The query is not sent
     /// to the server until you begin enumerating the results.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
-    public class MongoCursor<TDocument> : IEnumerable<TDocument> {
+    public abstract class MongoCursor : IEnumerable {
         #region private fields
         private MongoServer server;
         private MongoDatabase database;
@@ -51,7 +50,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="collection">The collection.</param>
         /// <param name="query">The query.</param>
-        public MongoCursor(
+        protected MongoCursor(
             MongoCollection collection,
             IMongoQuery query
         ) {
@@ -153,6 +152,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual bool IsFrozen {
             get { return isFrozen; }
+            protected set { isFrozen = value; }
         }
         #endregion
 
@@ -228,21 +228,11 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Returns an enumerator that can be used to enumerate the cursor. Normally you will use the foreach statement
-        /// to enumerate the cursor (foreach will call GetEnumerator for you).
-        /// </summary>
-        /// <returns>An enumerator that can be used to iterate over the cursor.</returns>
-        public virtual IEnumerator<TDocument> GetEnumerator() {
-            isFrozen = true;
-            return new MongoCursorEnumerator<TDocument>(this);
-        }
-
-        /// <summary>
         /// Sets the batch size (the number of documents returned per batch).
         /// </summary>
         /// <param name="batchSize">The number of documents in each batch.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetBatchSize(
+        public virtual MongoCursor SetBatchSize(
             int batchSize
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -256,7 +246,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="fields">The fields that will be returned from the server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetFields(
+        public virtual MongoCursor SetFields(
             IMongoFields fields
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -269,7 +259,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="fields">The fields that will be returned from the server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetFields(
+        public virtual MongoCursor SetFields(
             params string[] fields
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -282,7 +272,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="flags">The query flags.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetFlags(
+        public virtual MongoCursor SetFlags(
             QueryFlags flags
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -295,7 +285,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="hint">The index hint.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetHint(
+        public virtual MongoCursor SetHint(
             BsonDocument hint
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -308,7 +298,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="indexName">The name of the index.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetHint(
+        public virtual MongoCursor SetHint(
             string indexName
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -321,7 +311,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="limit">The limit on the number of documents to be returned.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetLimit(
+        public virtual MongoCursor SetLimit(
             int limit
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -335,7 +325,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="max">The max value.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetMax(
+        public virtual MongoCursor SetMax(
            BsonDocument max
        ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -348,7 +338,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="maxScan">The maximum number of documents to scan.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetMaxScan(
+        public virtual MongoCursor SetMaxScan(
             int maxScan
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -362,7 +352,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="min">The min value.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetMin(
+        public virtual MongoCursor SetMin(
            BsonDocument min
        ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -376,7 +366,7 @@ namespace MongoDB.Driver {
         /// <param name="name">The name of the option.</param>
         /// <param name="value">The value of the option.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetOption(
+        public virtual MongoCursor SetOption(
             string name,
             BsonValue value
         ) {
@@ -391,7 +381,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetOptions(
+        public virtual MongoCursor SetOptions(
             BsonDocument options
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -406,7 +396,7 @@ namespace MongoDB.Driver {
         /// Sets the $showDiskLoc option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetShowDiskLoc() {
+        public virtual MongoCursor SetShowDiskLoc() {
             if (isFrozen) { ThrowFrozen(); }
             SetOption("$showDiskLoc", true);
             return this;
@@ -417,7 +407,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="skip">The number of documents to skip.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetSkip(
+        public virtual MongoCursor SetSkip(
             int skip
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -431,7 +421,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetSlaveOk(
+        public virtual MongoCursor SetSlaveOk(
             bool slaveOk
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -443,7 +433,7 @@ namespace MongoDB.Driver {
         /// Sets the $snapshot option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetSnapshot() {
+        public virtual MongoCursor SetSnapshot() {
             if (isFrozen) { ThrowFrozen(); }
             SetOption("$snapshot", true);
             return this;
@@ -454,7 +444,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="sortBy">The sort order.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetSortOrder(
+        public virtual MongoCursor SetSortOrder(
             IMongoSortBy sortBy
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -467,7 +457,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="keys">The names of the fields to sort by.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor<TDocument> SetSortOrder(
+        public virtual MongoCursor SetSortOrder(
             params string[] keys
         ) {
             if (isFrozen) { ThrowFrozen(); }
@@ -491,16 +481,263 @@ namespace MongoDB.Driver {
         }
         #endregion
 
-        #region explicit interface implementations
-        IEnumerator IEnumerable.GetEnumerator() {
-            return GetEnumerator();
-        }
+        #region protected methods
+        /// <summary>
+        /// Gets the non-generic enumerator.
+        /// </summary>
+        /// <returns>The enumerator.</returns>
+        protected abstract IEnumerator IEnumerableGetEnumerator();
         #endregion
 
         #region private methods
         // funnel exceptions through this method so we can have a single error message
         private void ThrowFrozen() {
             throw new InvalidOperationException("A MongoCursor object cannot be modified once it has been frozen");
+        }
+        #endregion
+
+        #region explicit interface implementations
+        IEnumerator IEnumerable.GetEnumerator() {
+            return IEnumerableGetEnumerator();
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// An object that can be enumerated to fetch the results of a query. The query is not sent
+    /// to the server until you begin enumerating the results.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
+    public class MongoCursor<TDocument> : MongoCursor, IEnumerable<TDocument> {
+        #region constructors
+        /// <summary>
+        /// Creates a new MongoCursor. It is very unlikely that you will call this constructor. Instead, see all the Find methods in MongoCollection.
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        /// <param name="query">The query.</param>
+        public MongoCursor(
+            MongoCollection collection,
+            IMongoQuery query
+        ) 
+            : base(collection, query) {
+        }
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Returns an enumerator that can be used to enumerate the cursor. Normally you will use the foreach statement
+        /// to enumerate the cursor (foreach will call GetEnumerator for you).
+        /// </summary>
+        /// <returns>An enumerator that can be used to iterate over the cursor.</returns>
+        public virtual IEnumerator<TDocument> GetEnumerator() {
+            IsFrozen = true;
+            return new MongoCursorEnumerator<TDocument>(this);
+        }
+
+        /// <summary>
+        /// Sets the batch size (the number of documents returned per batch).
+        /// </summary>
+        /// <param name="batchSize">The number of documents in each batch.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetBatchSize(
+            int batchSize
+        ) {
+            return (MongoCursor<TDocument>) base.SetBatchSize(batchSize);
+        }
+
+        /// <summary>
+        /// Sets the fields that will be returned from the server.
+        /// </summary>
+        /// <param name="fields">The fields that will be returned from the server.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetFields(
+            IMongoFields fields
+        ) {
+            return (MongoCursor<TDocument>) base.SetFields(fields);
+        }
+
+        /// <summary>
+        /// Sets the fields that will be returned from the server.
+        /// </summary>
+        /// <param name="fields">The fields that will be returned from the server.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetFields(
+            params string[] fields
+        ) {
+            return (MongoCursor<TDocument>) base.SetFields(fields);
+        }
+
+        /// <summary>
+        /// Sets the query flags.
+        /// </summary>
+        /// <param name="flags">The query flags.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetFlags(
+            QueryFlags flags
+        ) {
+            return (MongoCursor<TDocument>) base.SetFlags(flags);
+        }
+
+        /// <summary>
+        /// Sets the index hint for the query.
+        /// </summary>
+        /// <param name="hint">The index hint.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetHint(
+            BsonDocument hint
+        ) {
+            return (MongoCursor<TDocument>) base.SetHint(hint);
+        }
+
+        /// <summary>
+        /// Sets the index hint for the query.
+        /// </summary>
+        /// <param name="indexName">The name of the index.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetHint(
+            string indexName
+        ) {
+            return (MongoCursor<TDocument>) base.SetHint(indexName);
+        }
+
+        /// <summary>
+        /// Sets the limit on the number of documents to be returned.
+        /// </summary>
+        /// <param name="limit">The limit on the number of documents to be returned.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetLimit(
+            int limit
+        ) {
+            return (MongoCursor<TDocument>) base.SetLimit(limit);
+        }
+
+        /// <summary>
+        /// Sets the max value for the index key range of documents to return (note: the max value itself is excluded from the range).
+        /// Often combined with SetHint (if SetHint is not used the server will attempt to determine the matching index automatically).
+        /// </summary>
+        /// <param name="max">The max value.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetMax(
+           BsonDocument max
+       ) {
+            return (MongoCursor<TDocument>) base.SetMax(max);
+        }
+
+        /// <summary>
+        /// Sets the maximum number of documents to scan.
+        /// </summary>
+        /// <param name="maxScan">The maximum number of documents to scan.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetMaxScan(
+            int maxScan
+        ) {
+            return (MongoCursor<TDocument>) base.SetMaxScan(maxScan);
+        }
+
+        /// <summary>
+        /// Sets the min value for the index key range of documents to return (note: the min value itself is included in the range).
+        /// Often combined with SetHint (if SetHint is not used the server will attempt to determine the matching index automatically).
+        /// </summary>
+        /// <param name="min">The min value.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetMin(
+            BsonDocument min
+        ) {
+            return (MongoCursor<TDocument>) base.SetMin(min);
+        }
+
+        /// <summary>
+        /// Sets a cursor option.
+        /// </summary>
+        /// <param name="name">The name of the option.</param>
+        /// <param name="value">The value of the option.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetOption(
+            string name,
+            BsonValue value
+        ) {
+            return (MongoCursor<TDocument>) base.SetOption(name, value);
+        }
+
+        /// <summary>
+        /// Sets multiple cursor options. See also the individual Set{Option} methods, which are easier to use.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetOptions(
+            BsonDocument options
+        ) {
+            return (MongoCursor<TDocument>) base.SetOptions(options);
+        }
+
+        /// <summary>
+        /// Sets the $showDiskLoc option.
+        /// </summary>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetShowDiskLoc() {
+            return (MongoCursor<TDocument>) base.SetShowDiskLoc();
+        }
+
+        /// <summary>
+        /// Sets the number of documents the server should skip before returning the rest of the documents.
+        /// </summary>
+        /// <param name="skip">The number of documents to skip.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetSkip(
+            int skip
+        ) {
+            return (MongoCursor<TDocument>) base.SetSkip(skip);
+        }
+
+        /// <summary>
+        /// Sets whether the query should be sent to a secondary server.
+        /// </summary>
+        /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetSlaveOk(
+            bool slaveOk
+        ) {
+            return (MongoCursor<TDocument>) base.SetSlaveOk(slaveOk);
+        }
+
+        /// <summary>
+        /// Sets the $snapshot option.
+        /// </summary>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetSnapshot() {
+            return (MongoCursor<TDocument>) base.SetSnapshot();
+        }
+
+        /// <summary>
+        /// Sets the sort order for the server to sort the documents by before returning them.
+        /// </summary>
+        /// <param name="sortBy">The sort order.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetSortOrder(
+            IMongoSortBy sortBy
+        ) {
+            return (MongoCursor<TDocument>) base.SetSortOrder(sortBy);
+        }
+
+        /// <summary>
+        /// Sets the sort order for the server to sort the documents by before returning them.
+        /// </summary>
+        /// <param name="keys">The names of the fields to sort by.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetSortOrder(
+            params string[] keys
+        ) {
+            return (MongoCursor<TDocument>) base.SetSortOrder(keys);
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Gets the non-generic enumerator.
+        /// </summary>
+        /// <returns>The enumerator.</returns>
+        protected override IEnumerator IEnumerableGetEnumerator() {
+            return GetEnumerator();
         }
         #endregion
     }

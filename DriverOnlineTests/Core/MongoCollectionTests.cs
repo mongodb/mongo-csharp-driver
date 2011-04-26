@@ -27,6 +27,11 @@ using MongoDB.Driver.Builders;
 namespace MongoDB.DriverOnlineTests {
     [TestFixture]
     public class MongoCollectionTests {
+        private class TestClass {
+            public ObjectId Id;
+            public int X;
+        }
+
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
@@ -317,6 +322,22 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestFindOneAs() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "X", 1 } });
+            var result = (TestClass) collection.FindOneAs(typeof(TestClass));
+            Assert.AreEqual(1, result.X);
+        }
+
+        [Test]
+        public void TestFindOneAsGeneric() {
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "X", 1 } });
+            var result = collection.FindOneAs<TestClass>();
+            Assert.AreEqual(1, result.X);
+        }
+
+        [Test]
         public void TestFindOneById() {
             collection.RemoveAll();
             var id = ObjectId.GenerateNewId();
@@ -324,6 +345,26 @@ namespace MongoDB.DriverOnlineTests {
             var result = collection.FindOneById(id);
             Assert.AreEqual(1, result["x"].AsInt32);
             Assert.AreEqual(2, result["y"].AsInt32);
+        }
+
+        [Test]
+        public void TestFindOneByIdAs() {
+            collection.RemoveAll();
+            var id = ObjectId.GenerateNewId();
+            collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
+            var result = (TestClass) collection.FindOneByIdAs(typeof(TestClass), id);
+            Assert.AreEqual(id, result.Id);
+            Assert.AreEqual(1, result.X);
+        }
+
+        [Test]
+        public void TestFindOneByIdAsGeneric() {
+            collection.RemoveAll();
+            var id = ObjectId.GenerateNewId();
+            collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
+            var result = collection.FindOneByIdAs<TestClass>(id);
+            Assert.AreEqual(id, result.Id);
+            Assert.AreEqual(1, result.X);
         }
 
         [Test]
@@ -395,6 +436,42 @@ namespace MongoDB.DriverOnlineTests {
 
         [Test]
         public void TestGeoNear() {
+            if (collection.Exists()) { collection.Drop(); }
+            collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
+            collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
+            collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
+            collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
+            collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
+            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+
+            var options = GeoNearOptions
+                .SetDistanceMultiplier(1)
+                .SetMaxDistance(100);
+            var result = collection.GeoNearAs(typeof(Place), Query.Null, 0.0, 0.0, 100, options);
+            Assert.IsTrue(result.Ok);
+            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+            Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
+            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+            Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
+            Assert.IsTrue(result.Stats.NumberScanned >= 0);
+            Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
+            Assert.AreEqual(5, result.Hits.Count);
+            Assert.IsTrue(result.Hits[0].Distance > 1.0);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[0].AsDouble);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual("One", result.Hits[0].RawDocument["Name"].AsString);
+            Assert.AreEqual("Museum", result.Hits[0].RawDocument["Type"].AsString);
+
+            var place = (Place) result.Hits[1].Document;
+            Assert.AreEqual(1.0, place.Location[0]);
+            Assert.AreEqual(2.0, place.Location[1]);
+            Assert.AreEqual("Two", place.Name);
+            Assert.AreEqual("Coffee", place.Type);
+        }
+
+        [Test]
+        public void TestGeoNearGeneric() {
             if (collection.Exists()) { collection.Drop(); }
             collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
             collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });

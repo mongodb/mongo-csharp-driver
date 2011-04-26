@@ -49,21 +49,21 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the modified document as a TDocument.
         /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the modified document.</typeparam>
+        /// <typeparam name="TDocument">The nominal type of the modified document.</typeparam>
         /// <returns>The modified document.</returns>
-        public TNominalType GetModifiedDocumentAs<TNominalType>() {
-            return (TNominalType) GetModifiedDocumentAs(typeof(TNominalType));
+        public TDocument GetModifiedDocumentAs<TDocument>() {
+            return (TDocument) GetModifiedDocumentAs(typeof(TDocument));
         }
 
         /// <summary>
         /// Gets the modified document as a TDocument.
         /// </summary>
-        /// <param name="nominalType">The nominal type of the modified document.</param>
+        /// <param name="documentType">The nominal type of the modified document.</param>
         /// <returns>The modified document.</returns>
         public object GetModifiedDocumentAs(
-            Type nominalType
+            Type documentType
         ) {
-            return BsonSerializer.Deserialize(ModifiedDocument, nominalType);
+            return BsonSerializer.Deserialize(ModifiedDocument, documentType);
         }
         #endregion
     }
