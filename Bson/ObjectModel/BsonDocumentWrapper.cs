@@ -112,7 +112,11 @@ namespace MongoDB.Bson {
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(
             IEnumerable<TNominalType> values
         ) {
-            return CreateMultiple(typeof(TNominalType), values.Cast<object>());
+            if (values != null) {
+                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(TNominalType), v));
+            } else {
+                return null;
+            }
         }
 
         /// <summary>

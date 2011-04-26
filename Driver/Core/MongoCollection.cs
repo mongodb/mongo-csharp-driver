@@ -439,7 +439,7 @@ namespace MongoDB.Driver {
             Type documentType,
             IMongoQuery query
         ) {
-            return MongoCursor.Create(this, documentType, query);
+            return MongoCursor.Create(documentType, this, query);
         }
 
         /// <summary>

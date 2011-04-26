@@ -710,7 +710,6 @@ namespace MongoDB.Driver {
         public virtual TCommandResult RunCommandAs<TCommandResult>(
             string commandName
         ) where TCommandResult : CommandResult, new() {
-            var command = new CommandDocument(commandName, true);
             return (TCommandResult) RunCommandAs(typeof(TCommandResult), commandName);
         }
 

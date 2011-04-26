@@ -160,13 +160,13 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Creates a cursor.
         /// </summary>
-        /// <param name="collection">The collection to query.</param>
         /// <param name="documentType">The type of the returned documents.</param>
+        /// <param name="collection">The collection to query.</param>
         /// <param name="query">A query.</param>
         /// <returns>A cursor.</returns>
         public static MongoCursor Create(
-            MongoCollection collection,
             Type documentType,
+            MongoCollection collection,
             IMongoQuery query
         ) {
             var cursorDefinition = typeof(MongoCursor<>);
@@ -194,7 +194,7 @@ namespace MongoDB.Driver {
         public virtual MongoCursor Clone(
             Type documentType
         ) {
-            var clone = Create(collection, documentType, query);
+            var clone = Create(documentType, collection, query);
             clone.options = options == null ? null : (BsonDocument) options.Clone();
             clone.flags = flags;
             clone.slaveOk = slaveOk;
