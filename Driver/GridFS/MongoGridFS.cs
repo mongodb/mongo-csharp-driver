@@ -806,9 +806,19 @@ namespace MongoDB.Driver.GridFS {
                 string md5Client;
                 using (var md5Algorithm = MD5.Create()) {
                     for (int n = 0; true; n++) {
-                        int bytesRead = stream.Read(buffer, 0, chunkSize);
+                        // might have to call Stream.Read several times to get a whole chunk
+                        var bytesNeeded = chunkSize;
+                        var bytesRead = 0;
+                        while (bytesNeeded > 0) {
+                            var partialRead = stream.Read(buffer, bytesRead, bytesNeeded);
+                            if (partialRead == 0) {
+                                break; // EOF may or may not have a partial chunk
+                            }
+                            bytesNeeded -= partialRead;
+                            bytesRead += partialRead;
+                        }
                         if (bytesRead == 0) {
-                            break;
+                            break; // EOF no partial chunk
                         }
                         length += bytesRead;
 
@@ -829,7 +839,7 @@ namespace MongoDB.Driver.GridFS {
                         md5Algorithm.TransformBlock(data, 0, data.Length, null, 0);
 
                         if (bytesRead < chunkSize) {
-                            break;
+                            break; // EOF after partial chunk
                         }
                     }
 
