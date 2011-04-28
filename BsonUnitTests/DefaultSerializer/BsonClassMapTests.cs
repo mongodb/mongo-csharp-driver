@@ -215,4 +215,27 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.AreEqual("X", memberMap.MemberName);
         }
     }
+
+    [TestFixture]
+    public class BsonClassMapIsClassMapRegisteredTests {
+        private static bool testAlreadyRan;
+
+        public class C {
+            public ObjectId Id;
+            public int X;
+        }
+
+        [Test]
+        public void TestIsClassMapRegistered() {
+            // test can only be run once
+            if (testAlreadyRan) {
+                return;
+            } else {
+                testAlreadyRan = true;
+            }
+            Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(C)));
+            BsonClassMap.RegisterClassMap<C>(cm => { cm.AutoMap(); });
+            Assert.IsTrue(BsonClassMap.IsClassMapRegistered(typeof(C)));
+        }
+    }
 }

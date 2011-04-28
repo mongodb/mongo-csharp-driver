@@ -228,6 +228,19 @@ namespace MongoDB.Bson.Serialization {
         }
 
         /// <summary>
+        /// Checks whether a class map is registered for a type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if there is a class map registered for the type.</returns>
+        public static bool IsClassMapRegistered(
+            Type type
+        ) {
+            lock (BsonSerializer.ConfigLock) {
+                return classMaps.ContainsKey(type);
+            }
+        }
+
+        /// <summary>
         /// Looks up a class map (will AutoMap the class if no class map is registered).
         /// </summary>
         /// <param name="classType">The class type.</param>
