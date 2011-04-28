@@ -22,6 +22,7 @@ using System.Text;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
 using MongoDB.Driver.Wrappers;
@@ -1201,6 +1202,13 @@ namespace MongoDB.Driver {
                     BsonValue idBsonValue;
                     if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue)) {
                         idBsonValue = new BsonDocumentWrapper(idNominalType, id);
+                    }
+                    if (idBsonValue.IsString && BsonClassMap.IsClassMapRegistered(document.GetType())) {
+                        var classMap = BsonClassMap.LookupClassMap(document.GetType());
+                        var options = (RepresentationSerializationOptions) classMap.IdMemberMap.SerializationOptions;
+                        if (options != null && options.Representation == BsonType.ObjectId) {
+                            idBsonValue = ObjectId.Parse(idBsonValue.AsString);
+                        }
                     }
                     var query = Query.EQ("_id", idBsonValue);
                     var update = Builders.Update.Replace(nominalType, document);
