@@ -388,15 +388,18 @@ namespace MongoDB.Bson.Serialization {
 				shouldSerializeMethod.IsPublic && 
 				shouldSerializeMethod.ReturnType == typeof(bool))
             {
+                // we need to construct a lambda wich does the following
+                // memberName = Test
+                // (obj) => obj.ShouldSerializeTest()
 	            var instance = Expression.Parameter(typeof(object), "obj");
 	            var mce = Expression.Call(
 	                Expression.Convert(instance, declaringType),
 	                shouldSerializeMethod);
 	            var lambda = Expression.Lambda<Func<object, bool>>(mce, instance);
-	
+                // complie the lambda expression for future uses
 	            shouldSerializeValueMethod = lambda.Compile();
             }
-
+            
             return this;
         }
 		
