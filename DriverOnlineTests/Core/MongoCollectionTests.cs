@@ -197,6 +197,21 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(started, result.ModifiedDocument["started"].AsDateTime);
         }
 
+        [Test]
+        public void TestFindAndModifyNoMatchingDocument() {
+            collection.RemoveAll();
+
+            var query = Query.EQ("inprogress", false);
+            var sortBy = SortBy.Descending("priority");
+            var started = DateTime.UtcNow;
+            started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
+            var update = Update.Set("inprogress", true).Set("started", started);
+            var result = collection.FindAndModify(query, sortBy, update, false); // return old
+            Assert.IsTrue(result.Ok);
+            Assert.IsNull(result.ErrorMessage);
+            Assert.IsNull(result.ModifiedDocument);
+            Assert.IsNull(result.GetModifiedDocumentAs<FindAndModifyClass>());
+        }
 
         [Test]
         public void TestFindAndModifyUpsert() {
@@ -228,6 +243,19 @@ namespace MongoDB.DriverOnlineTests {
             var rehydrated = result.GetModifiedDocumentAs<FindAndModifyClass>();
             Assert.AreEqual(obj.Id, rehydrated.Id);
             Assert.AreEqual(2, rehydrated.Value);
+        }
+
+        [Test]
+        public void TestFindAndRemoveNoMatchingDocument() {
+            collection.RemoveAll();
+
+            var query = Query.EQ("inprogress", false);
+            var sortBy = SortBy.Descending("priority");
+            var result = collection.FindAndRemove(query, sortBy);
+            Assert.IsTrue(result.Ok);
+            Assert.IsNull(result.ErrorMessage);
+            Assert.IsNull(result.ModifiedDocument);
+            Assert.IsNull(result.GetModifiedDocumentAs<FindAndModifyClass>());
         }
 
         [Test]

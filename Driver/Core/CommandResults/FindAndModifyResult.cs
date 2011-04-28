@@ -41,7 +41,10 @@ namespace MongoDB.Driver {
         /// Gets the modified document.
         /// </summary>
         public BsonDocument ModifiedDocument {
-            get { return response["value"].AsBsonDocument; }
+            get {
+                var value = response["value"];
+                return (value.IsBsonNull) ? null : value.AsBsonDocument;
+            }
         }
         #endregion
 
@@ -63,7 +66,8 @@ namespace MongoDB.Driver {
         public object GetModifiedDocumentAs(
             Type documentType
         ) {
-            return BsonSerializer.Deserialize(ModifiedDocument, documentType);
+            var document = ModifiedDocument;
+            return (document == null) ? null : BsonSerializer.Deserialize(document, documentType);
         }
         #endregion
     }

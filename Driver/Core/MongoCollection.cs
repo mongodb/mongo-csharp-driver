@@ -395,7 +395,21 @@ namespace MongoDB.Driver {
                 { "new", true, returnNew },
                 { "upsert", true, upsert}
             };
-            return database.RunCommandAs<FindAndModifyResult>(command);
+            try {
+                return database.RunCommandAs<FindAndModifyResult>(command);
+            } catch (MongoCommandException ex) {
+                if (ex.CommandResult.ErrorMessage == "No matching object found") {
+                    // create a new command result with what the server should have responded
+                    var response = new BsonDocument {
+                        { "value", BsonNull.Value },
+                        { "ok", true }
+                    };
+                    var result = new FindAndModifyResult();
+                    result.Initialize(command, response);
+                    return result;
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -414,7 +428,21 @@ namespace MongoDB.Driver {
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "remove", true }
             };
-            return database.RunCommandAs<FindAndModifyResult>(command);
+            try {
+                return database.RunCommandAs<FindAndModifyResult>(command);
+            } catch (MongoCommandException ex) {
+                if (ex.CommandResult.ErrorMessage == "No matching object found") {
+                    // create a new command result with what the server should have responded
+                    var response = new BsonDocument {
+                        { "value", BsonNull.Value },
+                        { "ok", true }
+                    };
+                    var result = new FindAndModifyResult();
+                    result.Initialize(command, response);
+                    return result;
+                }
+                throw;
+            }
         }
 
         /// <summary>
