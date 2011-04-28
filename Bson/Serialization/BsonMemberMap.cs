@@ -46,6 +46,7 @@ namespace MongoDB.Bson.Serialization {
         private bool isRequired;
         private bool hasDefaultValue;
         private bool serializeDefaultValue = true;
+        private Func<object, bool> shouldSerializeValueMethod = (instance) => true;
         private bool ignoreIfNull;
         private object defaultValue;
         #endregion
@@ -180,6 +181,11 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         public bool SerializeDefaultValue {
             get { return serializeDefaultValue; }
+        }
+
+        public Func<object, bool> ShouldSerializeValue
+        {
+            get { return shouldSerializeValueMethod; }
         }
 
         /// <summary>
@@ -360,9 +366,44 @@ namespace MongoDB.Bson.Serialization {
             this.serializeDefaultValue = serializeDefaultValue;
             return this;
         }
+
+        /// <summary>
+        /// Sets the ShouldSerializeValue handler which will determine if the value should be 
+        /// serialized
+        /// </summary>
+        /// <param name="methodInfo">The MemberInfo that needs to be checked for ShouldSerializeXXX method </param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap SetShouldSerializeValueMethod(MemberInfo memberInfo)
+        {
+            // see if there is a function called ShouldSerializeXXX in the type definition with the signature
+            // public bool ShouldSerializeXXX();
+            // if it exists then it will be checked before the member is serialized.
+            MethodInfo shouldSerializeMethod = null;
+            var memberName = memberInfo.Name;
+			var declaringType = memberInfo.DeclaringType;
+						
+			// Search for a method which has the name ShouldSerializeXXX and takes no arguments
+            shouldSerializeMethod = declaringType.GetMethod("ShouldSerialize" + memberName, new Type[] { });
+            if (shouldSerializeMethod != null && 
+				shouldSerializeMethod.IsPublic && 
+				shouldSerializeMethod.ReturnType == typeof(bool))
+            {
+	            var instance = Expression.Parameter(typeof(object), "obj");
+	            var mce = Expression.Call(
+	                Expression.Convert(instance, declaringType),
+	                shouldSerializeMethod);
+	            var lambda = Expression.Lambda<Func<object, bool>>(mce, instance);
+	
+	            shouldSerializeValueMethod = lambda.Compile();
+            }
+
+            return this;
+        }
+		
         #endregion
 
         #region private methods
+
         private Action<object, object> GetFieldSetter() {
             var fieldInfo = (FieldInfo) memberInfo;
 

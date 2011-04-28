@@ -34,6 +34,7 @@ namespace MongoDB.Bson.Serialization {
     /// </summary>
     public abstract class BsonClassMap {
         #region private static fields
+        private static object staticLock = new object();
         private static List<FilteredConventionProfile> profiles = new List<FilteredConventionProfile>();
         private static ConventionProfile defaultProfile = ConventionProfile.GetDefault();
         private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
@@ -235,7 +236,7 @@ namespace MongoDB.Bson.Serialization {
         public static BsonClassMap LookupClassMap(
             Type classType
         ) {
-            lock (BsonSerializer.ConfigLock) {
+            lock (staticLock) {
                 BsonClassMap classMap;
                 if (!classMaps.TryGetValue(classType, out classMap)) {
                     // automatically create a classMap for classType and register it
@@ -296,7 +297,7 @@ namespace MongoDB.Bson.Serialization {
         public static void RegisterClassMap(
             BsonClassMap classMap
         ) {
-            lock (BsonSerializer.ConfigLock) {
+            lock (staticLock) {
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
                 classMaps.Add(classMap.ClassType, classMap);
                 BsonDefaultSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
@@ -346,7 +347,7 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <returns>The class map.</returns>
         public BsonClassMap Freeze() {
-            lock (BsonSerializer.ConfigLock) {
+            lock (staticLock) {
                 if (!frozen) {
                     freezeNestingLevel++;
                     try {
@@ -807,6 +808,11 @@ namespace MongoDB.Bson.Serialization {
             if (defaultValue != null) {
                 memberMap.SetDefaultValue(defaultValue);
             }
+
+            // see if there is a function called ShouldSerializeXXX in the type definition with the signature
+            // public bool ShouldSerializeXXX();
+            // if it exists then it will be checked before the member is serialized.
+			memberMap.SetShouldSerializeValueMethod(memberInfo);
 
             foreach (var attribute in memberInfo.GetCustomAttributes(false)) {
                 var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
