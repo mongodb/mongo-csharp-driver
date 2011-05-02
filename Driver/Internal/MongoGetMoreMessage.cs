@@ -31,12 +31,12 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoGetMoreMessage(
-            MongoServer server,
+            MongoConnection connection,
             string collectionFullName,
             int numberToReturn,
             long cursorId
         )
-            : base(server, MessageOpcode.GetMore) {
+            : base(connection, MessageOpcode.GetMore) {
             this.collectionFullName = collectionFullName;
             this.numberToReturn = numberToReturn;
             this.cursorId = cursorId;

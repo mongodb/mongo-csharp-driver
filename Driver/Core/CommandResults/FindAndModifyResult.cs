@@ -41,7 +41,10 @@ namespace MongoDB.Driver {
         /// Gets the modified document.
         /// </summary>
         public BsonDocument ModifiedDocument {
-            get { return response["value"].AsBsonDocument; }
+            get {
+                var value = response["value"];
+                return (value.IsBsonNull) ? null : value.AsBsonDocument;
+            }
         }
         #endregion
 
@@ -49,10 +52,22 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the modified document as a TDocument.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the modified document.</typeparam>
+        /// <typeparam name="TDocument">The nominal type of the modified document.</typeparam>
         /// <returns>The modified document.</returns>
         public TDocument GetModifiedDocumentAs<TDocument>() {
-            return BsonSerializer.Deserialize<TDocument>(ModifiedDocument);
+            return (TDocument) GetModifiedDocumentAs(typeof(TDocument));
+        }
+
+        /// <summary>
+        /// Gets the modified document as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the modified document.</param>
+        /// <returns>The modified document.</returns>
+        public object GetModifiedDocumentAs(
+            Type documentType
+        ) {
+            var document = ModifiedDocument;
+            return (document == null) ? null : BsonSerializer.Deserialize(document, documentType);
         }
         #endregion
     }

@@ -29,10 +29,10 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoKillCursorsMessage(
-            MongoServer server,
+            MongoConnection connection,
             params long[] cursorIds
         )
-            : base(server, MessageOpcode.KillCursors) {
+            : base(connection, MessageOpcode.KillCursors) {
             this.cursorIds = cursorIds;
         }
         #endregion

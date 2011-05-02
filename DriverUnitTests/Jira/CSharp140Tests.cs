@@ -133,8 +133,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
 
         [Test]
         public void TestSerializeUpdateWrapped() {
-            object c = new C { X = 1 };
-            object w = UpdateWrapper.Create(c);
+            var c = new C { X = 1 };
+            var w = UpdateWrapper.Create(c);
             var json = w.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);

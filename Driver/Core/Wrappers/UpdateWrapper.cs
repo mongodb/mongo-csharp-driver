@@ -30,16 +30,6 @@ namespace MongoDB.Driver.Wrappers {
         /// <summary>
         /// Initializes a new instance of the UpdateWrapper class.
         /// </summary>
-        /// <param name="update">The wrapped object.</param>
-        public UpdateWrapper(
-            object update
-        )
-            : base(update) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the UpdateWrapper class.
-        /// </summary>
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="update">The wrapped object.</param>
         public UpdateWrapper(
@@ -71,15 +61,17 @@ namespace MongoDB.Driver.Wrappers {
         /// <summary>
         /// Creates a new instance of the UpdateWrapper class.
         /// </summary>
+        /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="update">The wrapped object.</param>
         /// <returns>A new instance of UpdateWrapper or null.</returns>
         public static UpdateWrapper Create(
+            Type nominalType,
             object update
         ) {
             if (update == null) {
                 return null;
             } else {
-                return new UpdateWrapper(update);
+                return new UpdateWrapper(nominalType, update);
             }
         }
         #endregion

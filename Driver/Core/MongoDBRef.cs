@@ -130,6 +130,7 @@ namespace MongoDB.Driver {
 
         bool IBsonSerializable.GetDocumentId(
             out object id,
+            out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException();

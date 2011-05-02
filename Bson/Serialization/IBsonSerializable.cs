@@ -37,9 +37,10 @@ namespace MongoDB.Bson.Serialization {
         /// Gets the document Id.
         /// </summary>
         /// <param name="id">The Id.</param>
+        /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
-        bool GetDocumentId(out object id, out IIdGenerator idGenerator);
+        bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator);
         /// <summary>
         /// Serializes this object to a BsonWriter.
         /// </summary>

@@ -112,7 +112,18 @@ namespace MongoDB.Driver {
         /// <typeparam name="TDocument">The type of the documents.</typeparam>
         /// <returns>The documents.</returns>
         public IEnumerable<TDocument> GetInlineResultsAs<TDocument>() {
-            return InlineResults.Select(document => BsonSerializer.Deserialize<TDocument>(document));
+            return GetInlineResultsAs(typeof(TDocument)).Cast<TDocument>();
+        }
+
+        /// <summary>
+        /// Gets the inline results as TDocuments.
+        /// </summary>
+        /// <param name="documentType">The type of the documents.</param>
+        /// <returns>The documents.</returns>
+        public IEnumerable<object> GetInlineResultsAs(
+            Type documentType
+        ) {
+            return InlineResults.Select(document => BsonSerializer.Deserialize(document, documentType));
         }
 
         /// <summary>
@@ -140,8 +151,19 @@ namespace MongoDB.Driver {
         /// <typeparam name="TDocument">The type of the documents.</typeparam>
         /// <returns>The documents.</returns>
         public IEnumerable<TDocument> GetResultsAs<TDocument>() {
+            return GetResultsAs(typeof(TDocument)).Cast<TDocument>();
+        }
+
+        /// <summary>
+        /// Gets the results as TDocuments (either inline or fetched from the output collection).
+        /// </summary>
+        /// <param name="documentType">The type of the documents.</param>
+        /// <returns>The documents.</returns>
+        public IEnumerable<object> GetResultsAs(
+            Type documentType
+        ) {
             if (response.Contains("results")) {
-                return GetInlineResultsAs<TDocument>();
+                return GetInlineResultsAs(documentType);
             } else {
                 var outputDatabaseName = DatabaseName;
                 MongoDatabase outputDatabase;
@@ -150,7 +172,7 @@ namespace MongoDB.Driver {
                 } else {
                     outputDatabase = inputDatabase.Server[outputDatabaseName];
                 }
-                return outputDatabase[CollectionName].FindAllAs<TDocument>();
+                return outputDatabase[CollectionName].FindAllAs(documentType).Cast<object>();
             }
         }
         #endregion

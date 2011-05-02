@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -96,6 +96,9 @@
     <Compile Include="Jira\CSharp134Tests.cs" />
     <Compile Include="Jira\CSharp163Tests.cs" />
     <Compile Include="Jira\CSharp172Tests.cs" />
+    <Compile Include="Jira\CSharp198Tests.cs" />
+    <Compile Include="Jira\CSharp215Tests.cs" />
+    <Compile Include="Jira\CSharp218Tests.cs" />
     <Compile Include="Jira\CSharp77Tests.cs" />
     <Compile Include="Jira\CSharp92Tests.cs" />
     <Compile Include="Jira\CSharp93Tests.cs" />

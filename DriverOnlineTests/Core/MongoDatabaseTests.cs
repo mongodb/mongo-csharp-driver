@@ -91,6 +91,16 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestGetCollection() {
             var collectionName = "testgetcollection";
+            var collection = database.GetCollection(typeof(BsonDocument), collectionName);
+            Assert.AreSame(database, collection.Database);
+            Assert.AreEqual(database.Name + "." + collectionName, collection.FullName);
+            Assert.AreEqual(collectionName, collection.Name);
+            Assert.AreEqual(database.Settings.SafeMode, collection.Settings.SafeMode);
+        }
+
+        [Test]
+        public void TestGetCollectionGeneric() {
+            var collectionName = "testgetcollection";
             var collection = database.GetCollection(collectionName);
             Assert.AreSame(database, collection.Database);
             Assert.AreEqual(database.Name + "." + collectionName, collection.FullName);

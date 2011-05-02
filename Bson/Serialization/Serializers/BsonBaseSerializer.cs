@@ -74,11 +74,13 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="id">The Id.</param>
+        /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
         public virtual bool GetDocumentId(
             object document,
             out object id,
+            out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
             throw new InvalidOperationException("Subclass must implement GetDocumentId");

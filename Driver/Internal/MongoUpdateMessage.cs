@@ -35,13 +35,13 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoUpdateMessage(
-            MongoServer server,
+            MongoConnection connection,
             string collectionFullName,
             UpdateFlags flags,
             IMongoQuery query,
             IMongoUpdate update
         ) :
-            base(server, MessageOpcode.Update) {
+            base(connection, MessageOpcode.Update) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;

@@ -146,6 +146,11 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region public static methods
+        /// <summary>
+        /// Returns whether the given type has any discriminators registered for any of its subclasses.
+        /// </summary>
+        /// <param name="type">A Type.</param>
+        /// <returns>True if the type is discriminated.</returns>
         public static bool IsTypeDiscriminated(
             Type type
         ) {
@@ -311,15 +316,17 @@ namespace MongoDB.Bson.Serialization {
         internal static void EnsureKnownTypesAreRegistered(
             Type nominalType
         ) {
-            if (!typesWithRegisteredKnownTypes.Contains(nominalType)) {
-                // only call LookupClassMap for classes with a BsonKnownTypesAttribute
-                var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
-                if (knownTypesAttribute != null && knownTypesAttribute.Length > 0) {
-                    // known types will be registered as a side effect of calling LookupClassMap
-                    BsonClassMap.LookupClassMap(nominalType);
-                }
+            lock (BsonSerializer.ConfigLock) {
+                if (!typesWithRegisteredKnownTypes.Contains(nominalType)) {
+                    // only call LookupClassMap for classes with a BsonKnownTypesAttribute
+                    var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
+                    if (knownTypesAttribute != null && knownTypesAttribute.Length > 0) {
+                        // known types will be registered as a side effect of calling LookupClassMap
+                        BsonClassMap.LookupClassMap(nominalType);
+                    }
 
-                typesWithRegisteredKnownTypes.Add(nominalType);
+                    typesWithRegisteredKnownTypes.Add(nominalType);
+                }
             }
         }
         #endregion

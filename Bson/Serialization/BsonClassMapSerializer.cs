@@ -101,9 +101,14 @@ namespace MongoDB.Bson.Serialization {
                 bsonReader.ReadNull();
                 return null;
             } else {
+                if (actualType.IsValueType) {
+                    var message = string.Format("Value class cannot be deserialized: '{0}'", actualType.FullName);
+                    throw new BsonSerializationException(message);
+                }
+
                 var classMap = BsonClassMap.LookupClassMap(actualType);
                 if (classMap.IsAnonymous) {
-                    throw new InvalidOperationException("Anonymous classes cannot be deserialized");
+                    throw new InvalidOperationException("Anonymous class cannot be deserialized");
                 }
                 var obj = classMap.CreateInstance();
 
@@ -154,21 +159,25 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="id">The Id.</param>
+        /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
         public bool GetDocumentId(
             object document,
             out object id,
+            out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null) {
                 id = idMemberMap.Getter(document);
+                idNominalType = idMemberMap.MemberType;
                 idGenerator = idMemberMap.IdGenerator;
                 return true;
             } else {
                 id = null;
+                idNominalType = null;
                 idGenerator = null;
                 return false;
             }
@@ -246,7 +255,13 @@ namespace MongoDB.Bson.Serialization {
             object document,
             object id
         ) {
-            var classMap = BsonClassMap.LookupClassMap(document.GetType());
+            var documentType = document.GetType();
+            if (documentType.IsValueType) {
+                var message = string.Format("SetDocumentId cannot be used with value type: '{0}'", documentType.FullName);
+                throw new BsonSerializationException(message);
+            }
+
+            var classMap = BsonClassMap.LookupClassMap(documentType);
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null) {
                 idMemberMap.Setter(document, id);

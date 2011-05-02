@@ -662,10 +662,12 @@ namespace MongoDB.Bson {
         /// Gets the Id of the document.
         /// </summary>
         /// <param name="id">The Id of the document.</param>
+        /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
         /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
         public bool GetDocumentId(
             out object id,
+            out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
             BsonElement idElement;
@@ -680,6 +682,7 @@ namespace MongoDB.Bson {
                 id = null;
                 idGenerator = ObjectIdGenerator.Instance;
             }
+            idNominalType = typeof(BsonValue);
             return true;
         }
 
@@ -983,6 +986,14 @@ namespace MongoDB.Bson {
                 Add(element);
             }
             return this;
+        }
+
+        /// <summary>
+        /// Returns a string representation of the document.
+        /// </summary>
+        /// <returns>A string representation of the document.</returns>
+        public override string ToString() {
+            return this.ToJson();
         }
 
         /// <summary>

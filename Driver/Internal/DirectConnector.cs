@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 
 using MongoDB.Bson;
 
@@ -26,46 +25,34 @@ namespace MongoDB.Driver.Internal {
     internal class DirectConnector {
         #region private fields
         private MongoServer server;
-        private MongoConnection connection;
-        private bool isPrimary;
-        private int maxDocumentSize;
-        private int maxMessageLength;
         #endregion
 
         #region constructors
-        public DirectConnector(
+        internal DirectConnector(
             MongoServer server
         ) {
             this.server = server;
         }
         #endregion
 
-        #region public properties
-        public MongoConnection Connection {
-            get { return connection; }
-        }
-
-        public int MaxDocumentSize {
-            get { return maxDocumentSize; }
-        }
-
-        public int MaxMessageLength {
-            get { return maxMessageLength; }
-        }
-
-        public bool IsPrimary {
-            get { return isPrimary; }
-        }
-        #endregion
-
-        #region public methods
-        public void Connect(
+        #region internal methods
+        internal void Connect(
             TimeSpan timeout
         ) {
+            server.ClearInstances();
+
             var exceptions = new List<Exception>();
-            foreach (var endPoint in server.EndPoints) {
+            foreach (var address in server.Settings.Servers) {
                 try {
-                    Connect(endPoint, timeout);
+                    var serverInstance = new MongoServerInstance(server, address);
+                    server.AddInstance(serverInstance);
+                    try {
+                        serverInstance.Connect(server.Settings.SlaveOk); // TODO: what about timeout?
+                    } catch {
+                        server.RemoveInstance(serverInstance);
+                        throw;
+                    }
+
                     return;
                 } catch (Exception ex) {
                     exceptions.Add(ex);
@@ -78,35 +65,6 @@ namespace MongoDB.Driver.Internal {
                 connectionException.Data.Add("exceptions", exceptions);
             }
             throw connectionException;
-        }
-        #endregion
-
-        #region private methods
-        private void Connect(
-            IPEndPoint endPoint,
-            TimeSpan timeout
-        ) {
-            var connection = new MongoConnection(null, endPoint); // no connection pool
-            bool isPrimary;
-
-            try {
-                var isMasterCommand = new CommandDocument("ismaster", 1);
-                var isMasterResult = connection.RunCommand(server, "admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
-
-                isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
-                if (!isPrimary && !server.Settings.SlaveOk) {
-                    throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
-                }
-
-                maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", server.MaxDocumentSize].ToInt32();
-                maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
-            } catch {
-                try { connection.Close(); } catch { } // ignore exceptions
-                throw;
-            }
-
-            this.connection = connection;
-            this.isPrimary = isPrimary;
         }
         #endregion
     }
