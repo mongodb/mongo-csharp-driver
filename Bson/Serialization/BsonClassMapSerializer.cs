@@ -101,9 +101,14 @@ namespace MongoDB.Bson.Serialization {
                 bsonReader.ReadNull();
                 return null;
             } else {
+                if (actualType.IsValueType) {
+                    var message = string.Format("Value class cannot be deserialized: '{0}'", actualType.FullName);
+                    throw new BsonSerializationException(message);
+                }
+
                 var classMap = BsonClassMap.LookupClassMap(actualType);
                 if (classMap.IsAnonymous) {
-                    throw new InvalidOperationException("Anonymous classes cannot be deserialized");
+                    throw new InvalidOperationException("Anonymous class cannot be deserialized");
                 }
                 var obj = classMap.CreateInstance();
 
@@ -250,7 +255,13 @@ namespace MongoDB.Bson.Serialization {
             object document,
             object id
         ) {
-            var classMap = BsonClassMap.LookupClassMap(document.GetType());
+            var documentType = document.GetType();
+            if (documentType.IsValueType) {
+                var message = string.Format("SetDocumentId cannot be used with value type: '{0}'", documentType.FullName);
+                throw new BsonSerializationException(message);
+            }
+
+            var classMap = BsonClassMap.LookupClassMap(documentType);
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null) {
                 idMemberMap.Setter(document, id);

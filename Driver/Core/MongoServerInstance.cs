@@ -182,7 +182,7 @@ namespace MongoDB.Driver {
             try {
                 endPoint = address.ToIPEndPoint(server.Settings.AddressFamily);
 
-                connectionPool = new MongoConnectionPool(this);
+                var connectionPool = new MongoConnectionPool(this);
                 try {
                     var connection = connectionPool.AcquireConnection(null);
                     try {
@@ -209,11 +209,11 @@ namespace MongoDB.Driver {
                     }
                 } catch {
                     connectionPool.Close();
-                    connectionPool = null;
                     throw;
                 }
 
                 State = MongoServerState.Connected;
+                this.connectionPool = connectionPool;
             } catch (Exception ex) {
                 State = MongoServerState.Disconnected;
                 connectException = ex;
