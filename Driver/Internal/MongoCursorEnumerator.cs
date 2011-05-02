@@ -219,22 +219,16 @@ namespace MongoDB.Driver.Internal {
 
         private void KillCursor() {
             if (openCursorId != 0) {
-                var connection = AcquireConnection();
                 try {
-                    KillCursor(connection);
-                } finally {
-                    cursor.Server.ReleaseConnection(connection);
-                }
-            }
-        }
-
-        private void KillCursor(
-            MongoConnection connection
-        ) {
-            if (openCursorId != 0) {
-                try {
-                    using (var message = new MongoKillCursorsMessage(connection, openCursorId)) {
-                        connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                    if (serverInstance != null && serverInstance.State == MongoServerState.Connected) {
+                        var connection = cursor.Server.AcquireConnection(cursor.Database, serverInstance);
+                        try {
+                            using (var message = new MongoKillCursorsMessage(connection, openCursorId)) {
+                                connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                            }
+                        } finally {
+                            cursor.Server.ReleaseConnection(connection);
+                        }
                     }
                 } finally {
                     openCursorId = 0;
