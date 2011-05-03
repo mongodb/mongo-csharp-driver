@@ -331,6 +331,9 @@ namespace MongoDB.Bson.Serialization {
             if (memberMap.HasDefaultValue && !memberMap.SerializeDefaultValue && object.Equals(value, memberMap.DefaultValue)) {
                 return; // don't serialize default value
             }
+            if (!memberMap.ShouldSerializeMethod(obj)) {
+                return; // the ShouldSerializeMethod determined that the member shouldn't be serialized
+            }
 
             bsonWriter.WriteName(memberMap.ElementName);
             var nominalType = memberMap.MemberType;
