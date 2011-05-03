@@ -816,25 +816,7 @@ namespace MongoDB.Driver {
             }
 
             var serverInstance = GetServerInstance(slaveOk);
-            return AcquireConnection(database, serverInstance);
-        }
-
-        internal MongoConnection AcquireConnection(
-            MongoDatabase database,
-            MongoServerInstance serverInstance
-        ) {
-            var connectionPool = serverInstance.ConnectionPool;
-            var connection = connectionPool.AcquireConnection(database);
-
-            try {
-                connection.CheckAuthentication(database); // will authenticate if necessary
-            } catch (MongoAuthenticationException) {
-                // don't let the connection go to waste just because authentication failed
-                connectionPool.ReleaseConnection(connection);
-                throw;
-            }
-
-            return connection;
+            return serverInstance.AcquireConnection(database);
         }
 
         internal void AddInstance(
