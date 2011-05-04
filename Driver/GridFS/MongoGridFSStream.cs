@@ -41,6 +41,7 @@ namespace MongoDB.Driver.GridFS {
         private int chunkIndex = -1; // -1 means no chunk is loaded
         private BsonValue chunkId;
         private bool chunkIsDirty;
+        private bool updateMD5 = true;
         #endregion
 
         #region constructors
@@ -185,6 +186,14 @@ namespace MongoDB.Driver.GridFS {
                     SetLength(position);
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to compute and update the MD5 hash for the file when the stream is closed.
+        /// </summary>
+        public bool UpdateMD5 {
+            get { return updateMD5; }
+            set { updateMD5 = value; }
         }
         #endregion
 
@@ -551,12 +560,15 @@ namespace MongoDB.Driver.GridFS {
         }
 
         private void UpdateMetadata() {
-            var md5Command = new CommandDocument {
+            BsonValue md5 = BsonNull.Value;
+            if (updateMD5) {
+                var md5Command = new CommandDocument {
                     { "filemd5", fileInfo.Id },
                     { "root", gridFS.Settings.Root }
                 };
-            var md5Result = gridFS.Database.RunCommand(md5Command);
-            var md5 = md5Result.Response["md5"].AsString;
+                var md5Result = gridFS.Database.RunCommand(md5Command);
+                md5 = md5Result.Response["md5"].AsString;
+            }
 
             var query = Query.EQ("_id", fileInfo.Id);
             var update = Update
