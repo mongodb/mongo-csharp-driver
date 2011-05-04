@@ -855,7 +855,7 @@ namespace MongoDB.Driver {
                             var j = (i + loadBalancingOffset) % instances.Count;
                             var instance = instances[j];
                             if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
-                                loadBalancingOffset = i + 1;
+                                loadBalancingOffset = j + 1;
                                 return instance;
                             }
                         }
