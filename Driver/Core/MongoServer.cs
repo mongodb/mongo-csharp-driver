@@ -41,7 +41,7 @@ namespace MongoDB.Driver {
         private MongoServerState state = MongoServerState.Disconnected;
         private List<MongoServerInstance> instances = new List<MongoServerInstance>(); // serves as its own lock
         private string replicaSetName;
-        private int loadBalancingOffset; // used to distribute reads across secondaries in round robin fashion
+        private int loadBalancingInstanceIndex; // used to distribute reads across secondaries in round robin fashion
         private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private IndexCache indexCache = new IndexCache();
@@ -852,10 +852,9 @@ namespace MongoDB.Driver {
                     // round robin the connected secondaries, fall back to primary if no secondary found
                     lock (instances) {
                         for (int i = 0; i < instances.Count; i++) {
-                            var j = (i + loadBalancingOffset) % instances.Count;
-                            var instance = instances[j];
+                            loadBalancingInstanceIndex = (loadBalancingInstanceIndex + 1) % instances.Count; // round robin
+                            var instance = instances[loadBalancingInstanceIndex];
                             if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
-                                loadBalancingOffset = j + 1;
                                 return instance;
                             }
                         }
