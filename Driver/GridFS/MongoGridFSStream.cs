@@ -41,6 +41,7 @@ namespace MongoDB.Driver.GridFS {
         private int chunkIndex = -1; // -1 means no chunk is loaded
         private BsonValue chunkId;
         private bool chunkIsDirty;
+        private bool updateMD5;
         #endregion
 
         #region constructors
@@ -66,12 +67,27 @@ namespace MongoDB.Driver.GridFS {
             MongoGridFSFileInfo fileInfo,
             FileMode mode,
             FileAccess access
+        ) : this(fileInfo, mode, access, true) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MongoGridFSStream class.
+        /// </summary>
+        /// <param name="fileInfo">The GridFS file info.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="access">The acess.</param>
+        /// <param name="updateMD5">if set to <c>true</c> update MD5 on close otherwise wait for Complete() to be called.</param>
+        public MongoGridFSStream(
+            MongoGridFSFileInfo fileInfo,
+            FileMode mode,
+            FileAccess access,
+            bool updateMD5
         ) {
             this.gridFS = fileInfo.GridFS;
             this.fileInfo = fileInfo;
             this.mode = mode;
             this.access = access;
-
+            this.updateMD5 = updateMD5;
             var exists = fileInfo.Exists;
             string message;
             switch (mode) {
@@ -360,6 +376,21 @@ namespace MongoDB.Driver.GridFS {
                 length = position; // direct assignment is OK here instead of calling SetLength
             }
         }
+
+        /// <summary>
+        /// Indicates that the stream is complete and the MD5 hash should be updated.
+        /// </summary>
+        /// <remarks>
+        /// This is to allow a stream to be re-opened and appended to multiple times (e.g. if uploading
+        /// a file in multiple stages where the same stream instance cannot be re-used between requests)
+        /// and not have the MD5 hash re-calculated on the write of every stage. The last write would
+        /// call this method to indicate that the full stream has been written and the MD5 hash can now
+        /// be updated.
+        /// </remarks>
+        public void Complete()
+        {
+            updateMD5 = true;
+        }
         #endregion
 
         #region protected methods
@@ -550,13 +581,17 @@ namespace MongoDB.Driver.GridFS {
             chunkIsDirty = false;
         }
 
-        private void UpdateMetadata() {
-            var md5Command = new CommandDocument {
+        private void UpdateMetadata()
+        {
+            string md5 = string.Empty;
+            if (updateMD5) {
+                var md5Command = new CommandDocument {
                     { "filemd5", fileInfo.Id },
                     { "root", gridFS.Settings.Root }
                 };
-            var md5Result = gridFS.Database.RunCommand(md5Command);
-            var md5 = md5Result.Response["md5"].AsString;
+                var md5Result = gridFS.Database.RunCommand(md5Command);
+                md5 = md5Result.Response["md5"].AsString;
+            }
 
             var query = Query.EQ("_id", fileInfo.Id);
             var update = Update
