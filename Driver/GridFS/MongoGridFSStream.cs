@@ -509,7 +509,8 @@ namespace MongoDB.Driver.GridFS {
                 { "chunkSize", fileInfo.ChunkSize },
                 { "uploadDate", fileInfo.UploadDate },
                 { "contentType", fileInfo.ContentType, !string.IsNullOrEmpty(fileInfo.ContentType) }, // optional
-                { "aliases", BsonArray.Create((IEnumerable<string>) fileInfo.Aliases), fileInfo.Aliases != null && fileInfo.Aliases.Length > 0 } // optional
+                { "aliases", BsonArray.Create((IEnumerable<string>) fileInfo.Aliases), fileInfo.Aliases != null && fileInfo.Aliases.Length > 0 }, // optional
+                { "metadata", fileInfo.Metadata } //optional
             };
             gridFS.Files.Insert(file);
             length = 0;
