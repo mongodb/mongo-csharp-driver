@@ -833,6 +833,31 @@ namespace MongoDB.Driver {
             return serverInstance.AcquireConnection(database);
         }
 
+        internal MongoConnection AcquireConnection(
+            MongoDatabase database,
+            MongoServerInstance serverInstance
+        ) {
+            // if a thread has called RequestStart it wants all operations to take place on the same connection
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            lock (requestsLock) {
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    if (request.Connection.ServerInstance != serverInstance) {
+                        var message = string.Format(
+                            "AcquireConnection called for server instance '{0}' but thread is in a RequestStart for server instance '{1}'.",
+                            serverInstance.Address,
+                            request.Connection.ServerInstance.Address
+                        );
+                        throw new MongoConnectionException(message);
+                    }
+                    request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
+                    return request.Connection;
+                }
+            }
+
+            return serverInstance.AcquireConnection(database);
+        }
+
         internal void AddInstance(
             MongoServerInstance instance
         ) {

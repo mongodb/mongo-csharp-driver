@@ -138,8 +138,8 @@ namespace MongoDB.Driver.Internal {
                 serverInstance = connection.ServerInstance;
                 return connection;
             } else {
-                // all subsequent requests for the same cursor must go to the same connection pool
-                return serverInstance.AcquireConnection(cursor.Database);
+                // all subsequent requests for the same cursor must go to the same server instance
+                return cursor.Server.AcquireConnection(cursor.Database, serverInstance);
             }
         }
 
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Internal {
             if (openCursorId != 0) {
                 try {
                     if (serverInstance != null && serverInstance.State == MongoServerState.Connected) {
-                        var connection = serverInstance.AcquireConnection(cursor.Database);
+                        var connection = cursor.Server.AcquireConnection(cursor.Database, serverInstance);
                         try {
                             using (var message = new MongoKillCursorsMessage(connection, openCursorId)) {
                                 connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
