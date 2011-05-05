@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -797,6 +798,19 @@ namespace MongoDB.Driver {
             string commandName
         ) {
             return AdminDatabase.RunCommandAs(commandResultType, commandName);
+        }
+
+        /// <summary>
+        /// Shuts down the server.
+        /// </summary>
+        public virtual void Shutdown() {
+            lock (serverLock) {
+                try {
+                    RunAdminCommand("shutdown");
+                } catch (EndOfStreamException) {
+                    // we expect an EndOfStreamException when the server shuts down so we ignore it
+                }
+            }
         }
         #endregion
 
