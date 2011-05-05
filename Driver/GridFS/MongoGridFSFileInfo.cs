@@ -95,7 +95,7 @@ namespace MongoDB.Driver.GridFS {
         ) {
             this.gridFS = gridFS;
             this.aliases = createOptions.Aliases;
-            this.chunkSize = createOptions.ChunkSize;
+            this.chunkSize = createOptions.ChunkSize == 0 ? gridFS.Settings.ChunkSize : createOptions.ChunkSize;
             this.contentType = createOptions.ContentType;
             this.id = createOptions.Id;
             this.metadata = createOptions.Metadata;

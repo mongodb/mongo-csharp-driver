@@ -204,6 +204,25 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
+        public void TestOpenCreateWithMetadata() {
+            gridFS.Files.RemoveAll();
+            gridFS.Chunks.RemoveAll();
+            gridFS.Chunks.ResetIndexCache();
+
+            var metadata = new BsonDocument("author", "John Doe");
+            var createOptions = new MongoGridFSCreateOptions {
+                Metadata = metadata
+            };
+            using (var stream = gridFS.Create("test", createOptions)) {
+                var bytes = new byte[] { 1, 2, 3, 4 };
+                stream.Write(bytes, 0, 4);
+            }
+
+            var fileInfo = gridFS.FindOne("test");
+            Assert.AreEqual(metadata, fileInfo.Metadata);
+        }
+
+        [Test]
         public void TestUpdateMD5() {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
