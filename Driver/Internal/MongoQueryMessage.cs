@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoQueryMessage(
-            MongoServer server,
+            MongoConnection connection,
             string collectionFullName,
             QueryFlags flags,
             int numberToSkip,
@@ -45,11 +45,11 @@ namespace MongoDB.Driver.Internal {
             IMongoQuery query,
             IMongoFields fields
         ) :
-            this(server, collectionFullName, flags, numberToSkip, numberToReturn, query, fields, null) {
+            this(connection, collectionFullName, flags, numberToSkip, numberToReturn, query, fields, null) {
         }
 
         internal MongoQueryMessage(
-            MongoServer server,
+            MongoConnection connection,
             string collectionFullName,
             QueryFlags flags,
             int numberToSkip,
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Internal {
             IMongoFields fields,
             BsonBuffer buffer
         ) :
-            base(server, MessageOpcode.Query, buffer) {
+            base(connection, MessageOpcode.Query, buffer) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.numberToSkip = numberToSkip;

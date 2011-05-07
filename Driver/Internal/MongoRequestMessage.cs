@@ -38,18 +38,18 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         protected MongoRequestMessage(
-            MongoServer server,
+            MongoConnection connection,
             MessageOpcode opcode
         )
-            : this(server, opcode, null) {
+            : this(connection, opcode, null) {
         }
 
         protected MongoRequestMessage(
-            MongoServer server,
+            MongoConnection connection,
             MessageOpcode opcode,
             BsonBuffer buffer // not null if piggybacking this message onto an existing buffer
         )
-            : base(server, opcode) {
+            : base(connection, opcode) {
             if (buffer == null) {
                 this.buffer = new BsonBuffer();
                 this.disposeBuffer = true; // only call Dispose if we allocated the buffer
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Internal {
 
         #region protected methods
         protected BsonWriter CreateBsonWriter() {
-            var settings = new BsonBinaryWriterSettings { MaxDocumentSize = server.MaxDocumentSize };
+            var settings = new BsonBinaryWriterSettings { MaxDocumentSize = connection.ServerInstance.MaxDocumentSize };
             return BsonWriter.Create(buffer, settings);
         }
 

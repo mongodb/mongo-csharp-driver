@@ -22,6 +22,7 @@ using System.Text;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
 using MongoDB.Driver.Wrappers;
@@ -300,10 +301,21 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Returns a cursor that can be used to find all documents in this collection as TDocuments.
         /// </summary>
-        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <typeparam name="TDocument">The nominal type of the documents.</typeparam>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDocument> FindAllAs<TDocument>() {
             return FindAs<TDocument>(Query.Null);
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find all documents in this collection as TDocuments.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
+        public virtual MongoCursor FindAllAs(
+            Type documentType
+        ) {
+            return FindAs(documentType, Query.Null);
         }
 
         /// <summary>
@@ -384,7 +396,21 @@ namespace MongoDB.Driver {
                 { "new", true, returnNew },
                 { "upsert", true, upsert}
             };
-            return database.RunCommandAs<FindAndModifyResult>(command);
+            try {
+                return database.RunCommandAs<FindAndModifyResult>(command);
+            } catch (MongoCommandException ex) {
+                if (ex.CommandResult.ErrorMessage == "No matching object found") {
+                    // create a new command result with what the server should have responded
+                    var response = new BsonDocument {
+                        { "value", BsonNull.Value },
+                        { "ok", true }
+                    };
+                    var result = new FindAndModifyResult();
+                    result.Initialize(command, response);
+                    return result;
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -403,7 +429,21 @@ namespace MongoDB.Driver {
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "remove", true }
             };
-            return database.RunCommandAs<FindAndModifyResult>(command);
+            try {
+                return database.RunCommandAs<FindAndModifyResult>(command);
+            } catch (MongoCommandException ex) {
+                if (ex.CommandResult.ErrorMessage == "No matching object found") {
+                    // create a new command result with what the server should have responded
+                    var response = new BsonDocument {
+                        { "value", BsonNull.Value },
+                        { "ok", true }
+                    };
+                    var result = new FindAndModifyResult();
+                    result.Initialize(command, response);
+                    return result;
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -416,6 +456,19 @@ namespace MongoDB.Driver {
             IMongoQuery query
         ) {
             return new MongoCursor<TDocument>(this, query);
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find all documents in this collection that match the query as TDocuments.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
+        public virtual MongoCursor FindAs(
+            Type documentType,
+            IMongoQuery query
+        ) {
+            return MongoCursor.Create(documentType, this, query);
         }
 
         /// <summary>
@@ -440,15 +493,52 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <returns>A document (or null if not found).</returns>
+        public virtual object FindOneAs(
+            Type documentType
+        ) {
+            return FindAllAs(documentType).SetLimit(1).OfType<object>().FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection that matches a query as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual object FindOneAs(
+            Type documentType,
+            IMongoQuery query
+        ) {
+            return FindAs(documentType, query).SetLimit(1).OfType<object>().FirstOrDefault();
+        }
+
+        /// <summary>
         /// Returns a cursor that can be used to find one document in this collection by its _id value as a TDocument.
         /// </summary>
-        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <typeparam name="TDocument">The nominal type of the document.</typeparam>
         /// <param name="id">The id of the document.</param>
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneByIdAs<TDocument>(
             BsonValue id
         ) {
             return FindOneAs<TDocument>(Query.EQ("_id", id));
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection by its _id value as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the document.</param>
+        /// <param name="id">The id of the document.</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual object FindOneByIdAs(
+            Type documentType,
+            BsonValue id
+        ) {
+            return FindOneAs(documentType, Query.EQ("_id", id));
         }
 
         /// <summary>
@@ -494,6 +584,55 @@ namespace MongoDB.Driver {
             };
             command.Merge(options.ToBsonDocument());
             return database.RunCommandAs<GeoNearResult<TDocument>>(command);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult GeoNearAs(
+            Type documentType,
+            IMongoQuery query,
+            double x,
+            double y,
+            int limit
+        ) {
+            return GeoNearAs(documentType, query, x, y, limit, GeoNearOptions.Null);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <param name="options">The GeoNear command options (usually a GeoNearOptionsDocument or constructed using the GeoNearOptions builder).</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult GeoNearAs(
+            Type documentType,
+            IMongoQuery query,
+            double x,
+            double y,
+            int limit,
+            IMongoGeoNearOptions options
+        ) {
+            var command = new CommandDocument {
+                { "geoNear", name },
+                { "near", new BsonArray { x, y } },
+                { "num", limit },
+                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+            };
+            command.Merge(options.ToBsonDocument());
+            var geoNearResultDefinition = typeof(GeoNearResult<>);
+            var geoNearResultType = geoNearResultDefinition.MakeGenericType(documentType);
+            return (GeoNearResult) database.RunCommandAs(geoNearResultType, command);
         }
 
         /// <summary>
@@ -673,58 +812,114 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document to insert.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the document to insert.</typeparam>
         /// <param name="document">The document to insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult Insert<TDocument>(
-            TDocument document
+        public virtual SafeModeResult Insert<TNominalType>(
+            TNominalType document
         ) {
-            return Insert(document, settings.SafeMode);
+            return Insert(typeof(TNominalType), document);
         }
 
         /// <summary>
         /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document to insert.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the document to insert.</typeparam>
         /// <param name="document">The document to insert.</param>
         /// <param name="safeMode">The SafeMode to use for this Insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult Insert<TDocument>(
-            TDocument document,
+        public virtual SafeModeResult Insert<TNominalType>(
+            TNominalType document,
             SafeMode safeMode
         ) {
-            var results = InsertBatch<TDocument>(new TDocument[] { document }, safeMode);
+            return Insert(typeof(TNominalType), document, safeMode);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the document to insert.</param>
+        /// <param name="document">The document to insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert(
+            Type nominalType,
+            object document
+        ) {
+            return Insert(nominalType, document, settings.SafeMode);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the document to insert.</param>
+        /// <param name="document">The document to insert.</param>
+        /// <param name="safeMode">The SafeMode to use for this Insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert(
+            Type nominalType,
+            object document,
+            SafeMode safeMode
+        ) {
+            var results = InsertBatch(nominalType, new object[] { document }, safeMode);
             return (results == null) ? null : results.Single();
         }
 
         /// <summary>
         /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
         /// </summary>
-        /// <typeparam name="TDocument">The type of the documents to insert.</typeparam>
+        /// <typeparam name="TNominalType">The type of the documents to insert.</typeparam>
         /// <param name="documents">The documents to insert.</param>
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
-        public virtual IEnumerable<SafeModeResult> InsertBatch<TDocument>(
-            IEnumerable<TDocument> documents
+        public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
+            IEnumerable<TNominalType> documents
         ) {
-            return InsertBatch<TDocument>(documents, settings.SafeMode);
+            return InsertBatch(typeof(TNominalType), documents.Cast<object>());
         }
 
         /// <summary>
         /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
         /// </summary>
-        /// <typeparam name="TDocument">The type of the documents to insert.</typeparam>
+        /// <typeparam name="TNominalType">The type of the documents to insert.</typeparam>
         /// <param name="documents">The documents to insert.</param>
         /// <param name="safeMode">The SafeMode to use for this Insert.</param>
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
-        public virtual IEnumerable<SafeModeResult> InsertBatch<TDocument>(
-            IEnumerable<TDocument> documents,
+        public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
+            IEnumerable<TNominalType> documents,
+            SafeMode safeMode
+        ) {
+            return InsertBatch(typeof(TNominalType), documents.Cast<object>(), safeMode);
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the documents to insert.</param>
+        /// <param name="documents">The documents to insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch(
+            Type nominalType,
+            IEnumerable<object> documents
+        ) {
+            return InsertBatch(nominalType, documents, settings.SafeMode);
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the documents to insert.</param>
+        /// <param name="documents">The documents to insert.</param>
+        /// <param name="safeMode">The SafeMode to use for this Insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch(
+            Type nominalType,
+            IEnumerable<object> documents,
             SafeMode safeMode
         ) {
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try {
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
-                using (var message = new MongoInsertMessage(server, FullName)) {
+                using (var message = new MongoInsertMessage(connection, FullName)) {
                     message.WriteToBuffer(); // must be called before AddDocument
 
                     foreach (var document in documents) {
@@ -735,14 +930,14 @@ namespace MongoDB.Driver {
                             IIdGenerator idGenerator;
                             if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
                                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
-                                    id = idGenerator.GenerateId();
+                                    id = idGenerator.GenerateId(document);
                                     serializer.SetDocumentId(document, id);
                                 }
                             }
                         }
-                        message.AddDocument(document);
+                        message.AddDocument(nominalType, document);
 
-                        if (message.MessageLength > server.MaxMessageLength) {
+                        if (message.MessageLength > connection.ServerInstance.MaxMessageLength) {
                             byte[] lastDocument = message.RemoveLastDocument();
                             var intermediateResult = connection.SendMessage(message, safeMode);
                             if (safeMode.Enabled) { results.Add(intermediateResult); }
@@ -897,13 +1092,13 @@ namespace MongoDB.Driver {
            RemoveFlags flags,
            SafeMode safeMode
         ) {
-            using (var message = new MongoDeleteMessage(server, FullName, flags, query)) {
-                var connection = server.AcquireConnection(database, false); // not slaveOk
-                try {
+            var connection = server.AcquireConnection(database, false); // not slaveOk
+            try {
+                using (var message = new MongoDeleteMessage(connection, FullName, flags, query)) {
                     return connection.SendMessage(message, safeMode);
-                } finally {
-                    server.ReleaseConnection(connection);
                 }
+            } finally {
+                server.ReleaseConnection(connection);
             }
         }
 
@@ -939,25 +1134,55 @@ namespace MongoDB.Driver {
         /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
         /// of the Id field Save will perform either an Insert or an Update.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document to save.</typeparam>
+        /// <typeparam name="TNominalType">The type of the document to save.</typeparam>
         /// <param name="document">The document to save.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult Save<TDocument>(
-            TDocument document
+        public virtual SafeModeResult Save<TNominalType>(
+            TNominalType document
         ) {
-            return Save(document, settings.SafeMode);
+            return Save(typeof(TNominalType), document);
         }
 
         /// <summary>
         /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
         /// of the Id field Save will perform either an Insert or an Update.
         /// </summary>
-        /// <typeparam name="TDocument">The type of the document to save.</typeparam>
+        /// <typeparam name="TNominalType">The type of the document to save.</typeparam>
         /// <param name="document">The document to save.</param>
         /// <param name="safeMode">The SafeMode to use for this operation.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult Save<TDocument>(
-            TDocument document,
+        public virtual SafeModeResult Save<TNominalType>(
+            TNominalType document,
+            SafeMode safeMode
+        ) {
+            return Save(typeof(TNominalType), document, safeMode);
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <param name="nominalType">The type of the document to save.</param>
+        /// <param name="document">The document to save.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save(
+            Type nominalType,
+            object document
+        ) {
+            return Save(nominalType, document, settings.SafeMode);
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <param name="nominalType">The type of the document to save.</param>
+        /// <param name="document">The document to save.</param>
+        /// <param name="safeMode">The SafeMode to use for this operation.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save(
+            Type nominalType,
+            object document,
             SafeMode safeMode
         ) {
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
@@ -970,16 +1195,23 @@ namespace MongoDB.Driver {
                 }
 
                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
-                    id = idGenerator.GenerateId();
+                    id = idGenerator.GenerateId(document);
                     serializer.SetDocumentId(document, id);
-                    return Insert(document, safeMode);
+                    return Insert(nominalType, document, safeMode);
                 } else {
                     BsonValue idBsonValue;
                     if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue)) {
                         idBsonValue = new BsonDocumentWrapper(idNominalType, id);
                     }
+                    if (idBsonValue.IsString && BsonClassMap.IsClassMapRegistered(document.GetType())) {
+                        var classMap = BsonClassMap.LookupClassMap(document.GetType());
+                        var options = (RepresentationSerializationOptions) classMap.IdMemberMap.SerializationOptions;
+                        if (options != null && options.Representation == BsonType.ObjectId) {
+                            idBsonValue = ObjectId.Parse(idBsonValue.AsString);
+                        }
+                    }
                     var query = Query.EQ("_id", idBsonValue);
-                    var update = Builders.Update.Replace(document);
+                    var update = Builders.Update.Replace(nominalType, document);
                     return Update(query, update, UpdateFlags.Upsert, safeMode);
                 }
             } else {
@@ -1052,13 +1284,13 @@ namespace MongoDB.Driver {
             UpdateFlags flags,
             SafeMode safeMode
         ) {
-            using (var message = new MongoUpdateMessage(server, FullName, flags, query, update)) {
-                var connection = server.AcquireConnection(database, false); // not slaveOk
-                try {
+            var connection = server.AcquireConnection(database, false); // not slaveOk
+            try {
+                using (var message = new MongoUpdateMessage(connection, FullName, flags, query, update)) {
                     return connection.SendMessage(message, safeMode);
-                } finally {
-                    server.ReleaseConnection(connection);
                 }
+            } finally {
+                server.ReleaseConnection(connection);
             }
         }
 
@@ -1256,20 +1488,15 @@ namespace MongoDB.Driver {
             return GeoNearAs<TDefaultDocument>(query, x, y, limit, options);
         }
 
-        // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
-        // it's very easy for the compiler to end up inferring the wrong type for TDocument!
-        // that's also why Insert and InsertBatch have to have different names
-
         /// <summary>
         /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
         /// </summary>
         /// <param name="document">The document to insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public new SafeModeResult Insert(
+        public virtual SafeModeResult Insert(
             TDefaultDocument document
-        )
-        {
-            return base.Insert(document);
+        ) {
+            return Insert<TDefaultDocument>(document);
         }
 
         /// <summary>
@@ -1278,12 +1505,11 @@ namespace MongoDB.Driver {
         /// <param name="document">The document to insert.</param>
         /// <param name="safeMode">The SafeMode to use for this Insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public new SafeModeResult Insert(
+        public virtual SafeModeResult Insert(
             TDefaultDocument document,
             SafeMode safeMode
-        )
-        {
-            return base.Insert(document, safeMode);
+        ) {
+            return Insert<TDefaultDocument>(document, safeMode);
         }
         #endregion
     }

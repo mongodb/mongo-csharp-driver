@@ -416,6 +416,19 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Adds a replacement document as the update modifier.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the replacement document</param>
+        /// <param name="document">The document.</param>
+        /// <returns>An UpdateWrapper.</returns>
+        public static IMongoUpdate Replace(
+            Type nominalType,
+            object document
+        ) {
+            return UpdateWrapper.Create(nominalType, document);
+        }
+
+        /// <summary>
         /// Adds a $set update modifier.
         /// </summary>
         /// <param name="name">The name of the element to be set.</param>

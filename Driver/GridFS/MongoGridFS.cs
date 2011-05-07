@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 using MongoDB.Bson;
@@ -271,26 +272,37 @@ namespace MongoDB.Driver.GridFS {
             using (database.RequestStart()) {
                 EnsureIndexes();
 
-                var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
-                for (int n = 0; n < numberOfChunks; n++) {
-                    var query = Query.And(
-                        Query.EQ("files_id", fileInfo.Id),
-                        Query.EQ("n", n)
-                    );
-                    var chunk = chunks.FindOne(query);
-                    if (chunk == null) {
-                        string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
-                        throw new MongoGridFSException(errorMessage);
-                    }
-                    var data = chunk["data"].AsBsonBinaryData;
-                    if (data.Bytes.Length != fileInfo.ChunkSize) {
-                        // the last chunk only has as many bytes as needed to complete the file
-                        if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize) {
-                            string errorMessage = string.Format("Chunk {0} for {1} is the wrong size", n, fileInfo.Name);
+                string md5Client;
+                using (var md5Algorithm = MD5.Create()) {
+                    var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
+                    for (int n = 0; n < numberOfChunks; n++) {
+                        var query = Query.And(
+                            Query.EQ("files_id", fileInfo.Id),
+                            Query.EQ("n", n)
+                        );
+                        var chunk = chunks.FindOne(query);
+                        if (chunk == null) {
+                            string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
                             throw new MongoGridFSException(errorMessage);
                         }
+                        var data = chunk["data"].AsBsonBinaryData;
+                        if (data.Bytes.Length != fileInfo.ChunkSize) {
+                            // the last chunk only has as many bytes as needed to complete the file
+                            if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize) {
+                                string errorMessage = string.Format("Chunk {0} for {1} is the wrong size", n, fileInfo.Name);
+                                throw new MongoGridFSException(errorMessage);
+                            }
+                        }
+                        stream.Write(data.Bytes, 0, data.Bytes.Length);
+                        md5Algorithm.TransformBlock(data.Bytes, 0, data.Bytes.Length, null, 0);
                     }
-                    stream.Write(data.Bytes, 0, data.Bytes.Length);
+
+                    md5Algorithm.TransformFinalBlock(new byte[0], 0, 0);
+                    md5Client = BsonUtils.ToHexString(md5Algorithm.Hash);
+                }
+
+                if (!md5Client.Equals(fileInfo.MD5, StringComparison.OrdinalIgnoreCase)) {
+                    throw new MongoGridFSException("Download client and server MD5 hashes are not equal");
                 }
             }
         }
@@ -791,30 +803,48 @@ namespace MongoDB.Driver.GridFS {
                 var buffer = new byte[chunkSize];
 
                 var length = 0;
-                for (int n = 0; true; n++) {
-                    int bytesRead = stream.Read(buffer, 0, chunkSize);
-                    if (bytesRead == 0) {
-                        break;
-                    }
-                    length += bytesRead;
+                string md5Client;
+                using (var md5Algorithm = MD5.Create()) {
+                    for (int n = 0; true; n++) {
+                        // might have to call Stream.Read several times to get a whole chunk
+                        var bytesNeeded = chunkSize;
+                        var bytesRead = 0;
+                        while (bytesNeeded > 0) {
+                            var partialRead = stream.Read(buffer, bytesRead, bytesNeeded);
+                            if (partialRead == 0) {
+                                break; // EOF may or may not have a partial chunk
+                            }
+                            bytesNeeded -= partialRead;
+                            bytesRead += partialRead;
+                        }
+                        if (bytesRead == 0) {
+                            break; // EOF no partial chunk
+                        }
+                        length += bytesRead;
 
-                    byte[] data = buffer;
-                    if (bytesRead < chunkSize) {
-                        data = new byte[bytesRead];
-                        Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
+                        byte[] data = buffer;
+                        if (bytesRead < chunkSize) {
+                            data = new byte[bytesRead];
+                            Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
+                        }
+
+                        var chunk = new BsonDocument {
+                            { "_id", BsonObjectId.GenerateNewId() },
+                            { "files_id", files_id },
+                            { "n", n },
+                            { "data", new BsonBinaryData(data) }
+                        };
+                        chunks.Insert(chunk, settings.SafeMode);
+
+                        md5Algorithm.TransformBlock(data, 0, data.Length, null, 0);
+
+                        if (bytesRead < chunkSize) {
+                            break; // EOF after partial chunk
+                        }
                     }
 
-                    var chunk = new BsonDocument {
-                        { "_id", BsonObjectId.GenerateNewId() },
-                        { "files_id", files_id },
-                        { "n", n },
-                        { "data", new BsonBinaryData(data) }
-                    };
-                    chunks.Insert(chunk, settings.SafeMode);
-
-                    if (bytesRead < chunkSize) {
-                        break;
-                    }
+                    md5Algorithm.TransformFinalBlock(new byte[0], 0, 0);
+                    md5Client = BsonUtils.ToHexString(md5Algorithm.Hash);
                 }
 
                 var md5Command = new CommandDocument {
@@ -822,7 +852,11 @@ namespace MongoDB.Driver.GridFS {
                     { "root", settings.Root }
                 };
                 var md5Result = database.RunCommand(md5Command);
-                var md5 = md5Result.Response["md5"].AsString;
+                var md5Server = md5Result.Response["md5"].AsString;
+
+                if (!md5Client.Equals(md5Server, StringComparison.OrdinalIgnoreCase)) {
+                    throw new MongoGridFSException("Upload client and server MD5 hashes are not equal");
+                }
 
                 var uploadDate = createOptions.UploadDate == DateTime.MinValue ? DateTime.UtcNow : createOptions.UploadDate;
                 BsonDocument fileInfo = new BsonDocument {
@@ -831,7 +865,7 @@ namespace MongoDB.Driver.GridFS {
                     { "length", length },
                     { "chunkSize", chunkSize },
                     { "uploadDate", uploadDate },
-                    { "md5", md5 },
+                    { "md5", md5Server },
                     { "contentType", createOptions.ContentType }, // optional
                     { "aliases", BsonArray.Create((IEnumerable<string>) createOptions.Aliases) }, // optional
                     { "metadata", createOptions.Metadata } // optional

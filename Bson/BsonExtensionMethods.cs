@@ -30,45 +30,104 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Converts an object to a BSON document byte array.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ToBson<T>(
-            this T obj
+        public static byte[] ToBson<TNominalType>(
+            this TNominalType obj
         ) {
-            return ToBson(obj, BsonBinaryWriterSettings.Defaults);
+            return ToBson(obj, typeof(TNominalType));
         }
 
         /// <summary>
         /// Converts an object to a BSON document byte array.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ToBson<T>(
-            this T obj,
+        public static byte[] ToBson<TNominalType>(
+            this TNominalType obj,
             IBsonSerializationOptions options
         ) {
-            return ToBson(obj, options, BsonBinaryWriterSettings.Defaults);
+            return ToBson(obj, typeof(TNominalType), options);
         }
 
         /// <summary>
         /// Converts an object to a BSON document byte array.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <param name="options">The serialization options.</param>
         /// <param name="settings">The BsonBinaryWriter settings.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ToBson<T>(
-            this T obj,
+        public static byte[] ToBson<TNominalType>(
+            this TNominalType obj,
+            IBsonSerializationOptions options,
+            BsonBinaryWriterSettings settings
+        ) {
+            return ToBson(obj, typeof(TNominalType), options, settings);
+        }
+
+        /// <summary>
+        /// Converts an object to a BSON document byte array.
+        /// </summary>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
+        /// <param name="obj">The object.</param>
+        /// <param name="settings">The BsonBinaryWriter settings.</param>
+        /// <returns>A byte array.</returns>
+        public static byte[] ToBson<TNominalType>(
+            this TNominalType obj,
+            BsonBinaryWriterSettings settings
+        ) {
+            return ToBson(obj, typeof(TNominalType), settings);
+        }
+
+        /// <summary>
+        /// Converts an object to a BSON document byte array.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <returns>A byte array.</returns>
+        public static byte[] ToBson(
+            this object obj,
+            Type nominalType
+        ) {
+            return ToBson(obj, nominalType, BsonBinaryWriterSettings.Defaults);
+        }
+
+        /// <summary>
+        /// Converts an object to a BSON document byte array.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>A byte array.</returns>
+        public static byte[] ToBson(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationOptions options
+        ) {
+            return ToBson(obj, nominalType, options, BsonBinaryWriterSettings.Defaults);
+        }
+
+        /// <summary>
+        /// Converts an object to a BSON document byte array.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <param name="settings">The BsonBinaryWriter settings.</param>
+        /// <returns>A byte array.</returns>
+        public static byte[] ToBson(
+            this object obj,
+            Type nominalType,
             IBsonSerializationOptions options,
             BsonBinaryWriterSettings settings
         ) {
             using (var buffer = new BsonBuffer()) {
                 using (var bsonWriter = BsonWriter.Create(buffer, settings)) {
-                    BsonSerializer.Serialize<T>(bsonWriter, obj, options);
+                    BsonSerializer.Serialize(bsonWriter, nominalType, obj, options);
                 }
                 return buffer.ToByteArray();
             }
@@ -77,38 +136,67 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Converts an object to a BSON document byte array.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="settings">The BsonBinaryWriter settings.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ToBson<T>(
-            this T obj,
+        public static byte[] ToBson(
+            this object obj,
+            Type nominalType,
             BsonBinaryWriterSettings settings
         ) {
-            return ToBson(obj, null, settings);
+            return ToBson(obj, nominalType, null, settings);
         }
 
         /// <summary>
         /// Converts an object to a BsonDocument.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ToBsonDocument<T>(
-            this T obj
+        public static BsonDocument ToBsonDocument<TNominalType>(
+            this TNominalType obj
         ) {
-            return obj.ToBsonDocument(null);
+            return ToBsonDocument(obj, typeof(TNominalType));
         }
 
         /// <summary>
         /// Converts an object to a BsonDocument.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ToBsonDocument<T>(
-            this T obj,
+        public static BsonDocument ToBsonDocument<TNominalType>(
+            this TNominalType obj,
+            IBsonSerializationOptions options
+        ) {
+            return ToBsonDocument(obj, typeof(TNominalType), options);
+        }
+
+        /// <summary>
+        /// Converts an object to a BsonDocument.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <returns>A BsonDocument.</returns>
+        public static BsonDocument ToBsonDocument(
+            this object obj,
+            Type nominalType
+        ) {
+            return ToBsonDocument(obj, nominalType, null);
+        }
+
+        /// <summary>
+        /// Converts an object to a BsonDocument.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>A BsonDocument.</returns>
+        public static BsonDocument ToBsonDocument(
+            this object obj,
+            Type nominalType,
             IBsonSerializationOptions options
         ) {
             if (obj == null) {
@@ -128,7 +216,7 @@ namespace MongoDB.Bson {
             // otherwise serialize into a new BsonDocument
             var document = new BsonDocument();
             using (var writer = BsonWriter.Create(document)) {
-                BsonSerializer.Serialize<T>(writer, obj, options);
+                BsonSerializer.Serialize(writer, nominalType, obj, options);
             }
             return document;
         }
@@ -136,45 +224,104 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Converts an object to a JSON string.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <returns>A JSON string.</returns>
-        public static string ToJson<T>(
-            this T obj
+        public static string ToJson<TNominalType>(
+            this TNominalType obj
         ) {
-            return ToJson(obj, JsonWriterSettings.Defaults);
+            return ToJson(obj, typeof(TNominalType));
         }
 
         /// <summary>
         /// Converts an object to a JSON string.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A JSON string.</returns>
-        public static string ToJson<T>(
-            this T obj,
+        public static string ToJson<TNominalType>(
+            this TNominalType obj,
             IBsonSerializationOptions options
         ) {
-            return ToJson(obj, options, JsonWriterSettings.Defaults);
+            return ToJson(obj, typeof(TNominalType), options);
         }
 
         /// <summary>
         /// Converts an object to a JSON string.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <param name="options">The serialization options.</param>
         /// <param name="settings">The JsonWriter settings.</param>
         /// <returns>A JSON string.</returns>
-        public static string ToJson<T>(
-            this T obj,
+        public static string ToJson<TNominalType>(
+            this TNominalType obj,
+            IBsonSerializationOptions options,
+            JsonWriterSettings settings
+        ) {
+            return ToJson(obj, typeof(TNominalType), options, settings);
+        }
+
+        /// <summary>
+        /// Converts an object to a JSON string.
+        /// </summary>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
+        /// <param name="obj">The object.</param>
+        /// <param name="settings">The JsonWriter settings.</param>
+        /// <returns>A JSON string.</returns>
+        public static string ToJson<TNominalType>(
+            this TNominalType obj,
+            JsonWriterSettings settings
+        ) {
+            return ToJson(obj, typeof(TNominalType), settings);
+        }
+
+        /// <summary>
+        /// Converts an object to a JSON string.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <returns>A JSON string.</returns>
+        public static string ToJson(
+            this object obj,
+            Type nominalType
+        ) {
+            return ToJson(obj, nominalType, JsonWriterSettings.Defaults);
+        }
+
+        /// <summary>
+        /// Converts an object to a JSON string.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>A JSON string.</returns>
+        public static string ToJson(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationOptions options
+        ) {
+            return ToJson(obj, nominalType, options, JsonWriterSettings.Defaults);
+        }
+
+        /// <summary>
+        /// Converts an object to a JSON string.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <param name="settings">The JsonWriter settings.</param>
+        /// <returns>A JSON string.</returns>
+        public static string ToJson(
+            this object obj,
+            Type nominalType,
             IBsonSerializationOptions options,
             JsonWriterSettings settings
         ) {
             using (var stringWriter = new StringWriter()) {
                 using (var bsonWriter = BsonWriter.Create(stringWriter, settings)) {
-                    BsonSerializer.Serialize<T>(bsonWriter, obj, options);
+                    BsonSerializer.Serialize(bsonWriter, nominalType, obj, options);
                 }
                 return stringWriter.ToString();
             }
@@ -183,15 +330,16 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Converts an object to a JSON string.
         /// </summary>
-        /// <typeparam name="T">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="settings">The JsonWriter settings.</param>
         /// <returns>A JSON string.</returns>
-        public static string ToJson<T>(
-            this T obj,
+        public static string ToJson(
+            this object obj,
+            Type nominalType,
             JsonWriterSettings settings
         ) {
-            return ToJson(obj, null, settings);
+            return ToJson(obj, nominalType, null, settings);
         }
     }
 }

@@ -300,6 +300,20 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual(2, document["B"].AsInt32);
         }
 
+        [Test]
+        public void TestAddHashtableWithNestedHashtable() {
+            var hashtable = new Hashtable {
+                { "A", 1 },
+                { "B", new Hashtable { { "C", 2 }, { "D", 3 } } }
+            };
+            var document = new BsonDocument(hashtable);
+            // note: can't test json against expected because the order of the keys in the hash table is not defined
+            Assert.AreEqual(2, document.ElementCount);
+            Assert.AreEqual(1, document["A"].AsInt32);
+            Assert.AreEqual(2, document["B"].AsBsonDocument["C"].AsInt32);
+            Assert.AreEqual(3, document["B"].AsBsonDocument["D"].AsInt32);
+        }
+
         private void AssertAreEqual(
             string expected,
             byte[] actual

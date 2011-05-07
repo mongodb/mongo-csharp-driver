@@ -35,9 +35,9 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoReplyMessage(
-            MongoServer server
+            MongoConnection connection
         )
-            : base(server, MessageOpcode.Reply) {
+            : base(connection, MessageOpcode.Reply) {
         }
         #endregion
 
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Internal {
             startingFrom = buffer.ReadInt32();
             numberReturned = buffer.ReadInt32();
 
-            var settings = new BsonBinaryReaderSettings { MaxDocumentSize = server.MaxDocumentSize };
+            var settings = new BsonBinaryReaderSettings { MaxDocumentSize = connection.ServerInstance.MaxDocumentSize };
             using (BsonReader bsonReader = BsonReader.Create(buffer, settings)) {
                 if ((responseFlags & ResponseFlags.CursorNotFound) != 0) {
                     throw new MongoQueryException("Cursor not found.");

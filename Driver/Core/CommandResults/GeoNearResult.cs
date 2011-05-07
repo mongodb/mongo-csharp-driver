@@ -27,11 +27,9 @@ namespace MongoDB.Driver {
     /// <summary>
     /// Represents the result of a GeoNear command.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
     [Serializable]
-    public class GeoNearResult<TDocument> : CommandResult {
+    public abstract class GeoNearResult: CommandResult {
         #region private fields
-        private GeoNearHits hits;
         private GeoNearStats stats;
         #endregion
 
@@ -39,7 +37,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the GeoNearResult class.
         /// </summary>
-        public GeoNearResult() {
+        protected GeoNearResult() {
         }
         #endregion
 
@@ -48,12 +46,7 @@ namespace MongoDB.Driver {
         /// Gets the hits.
         /// </summary>
         public GeoNearHits Hits {
-            get {
-                if (hits == null) {
-                    hits = new GeoNearHits(response["results"].AsBsonArray);
-                }
-                return hits;
-            }
+            get { return HitsImplementation; }
         }
 
         /// <summary>
@@ -76,24 +69,23 @@ namespace MongoDB.Driver {
         }
         #endregion
 
+        #region protected properties
+        /// <summary>
+        /// Gets the hits.
+        /// </summary>
+        protected abstract GeoNearHits HitsImplementation { get; }
+        #endregion
+
         #region nested classes
         /// <summary>
         /// Represents a collection of GeoNear hits.
         /// </summary>
-        public class GeoNearHits : IEnumerable<GeoNearHit> {
-            #region private fields
-            private List<GeoNearHit> hits;
-            #endregion  
-
+        public abstract class GeoNearHits : IEnumerable {
             #region constructors
             /// <summary>
-            /// Initializes a new instance of the GeoNearHits command.
+            /// Initializes a new instance of the GeoNearHits class.
             /// </summary>
-            /// <param name="hits">The hits.</param>
-            public GeoNearHits(
-                BsonArray hits
-            ) {
-                this.hits = hits.Select(h => new GeoNearHit(h.AsBsonDocument)).ToList();
+            protected GeoNearHits() {
             }
             #endregion
 
@@ -101,9 +93,7 @@ namespace MongoDB.Driver {
             /// <summary>
             /// Gets the count of the number of hits.
             /// </summary>
-            public int Count {
-                get { return hits.Count; }
-            }
+            public abstract int Count { get; }
             #endregion
 
             #region indexers
@@ -116,7 +106,7 @@ namespace MongoDB.Driver {
                 int index
             ] {
                 get {
-                    return hits[index];
+                    return GetHitImplementation(index);
                 }
             }
             #endregion
@@ -127,13 +117,30 @@ namespace MongoDB.Driver {
             /// </summary>
             /// <returns>An enumerator.</returns>
             public IEnumerator<GeoNearHit> GetEnumerator() {
-                return hits.GetEnumerator();
+                return GetEnumeratorImplementation();
             }
+            #endregion
+
+            #region protected methods
+            /// <summary>
+            /// Gets the enumerator.
+            /// </summary>
+            /// <returns></returns>
+            protected abstract IEnumerator<GeoNearHit> GetEnumeratorImplementation();
+
+            /// <summary>
+            /// Gets an individual hit.
+            /// </summary>
+            /// <param name="index">The zero based index of the hit.</param>
+            /// <returns>The hit.</returns>
+            protected abstract GeoNearHit GetHitImplementation(
+                int index
+            );
             #endregion
 
             #region explicit interface implementations
             IEnumerator IEnumerable.GetEnumerator() {
-                return GetEnumerator();
+                return GetEnumeratorImplementation();
             }
             #endregion
         }
@@ -141,7 +148,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Represents a GeoNear hit.
         /// </summary>
-        public class GeoNearHit {
+        public abstract class GeoNearHit {
             #region private fields
             private BsonDocument hit;
             #endregion
@@ -169,14 +176,8 @@ namespace MongoDB.Driver {
             /// <summary>
             /// Gets the document.
             /// </summary>
-            public TDocument Document {
-                get {
-                    if (typeof(TDocument) == typeof(BsonDocument)) {
-                        return (TDocument) (object) RawDocument;
-                    } else {
-                        return BsonSerializer.Deserialize<TDocument>(RawDocument);
-                    }
-                }
+            public object Document {
+                get { return DocumentImplementation; }
             }
 
             /// <summary>
@@ -185,6 +186,13 @@ namespace MongoDB.Driver {
             public BsonDocument RawDocument {
                 get { return hit["obj"].AsBsonDocument; }
             }
+            #endregion
+
+            #region protected properties
+            /// <summary>
+            /// Gets the document.
+            /// </summary>
+            protected abstract object DocumentImplementation { get; }
             #endregion
         }
 
@@ -249,6 +257,163 @@ namespace MongoDB.Driver {
             /// </summary>
             public int ObjectsLoaded {
                 get { return stats["objectsLoaded"].ToInt32(); }
+            }
+            #endregion
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Represents the result of a GeoNear command.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
+    [Serializable]
+    public class GeoNearResult<TDocument> : GeoNearResult {
+        #region private fields
+        private GeoNearHits hits;
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the GeoNearResult class.
+        /// </summary>
+        public GeoNearResult() {
+        }
+        #endregion
+
+        #region public properties
+        /// <summary>
+        /// Gets the hits.
+        /// </summary>
+        public new GeoNearHits Hits {
+            get {
+                if (hits == null) {
+                    hits = new GeoNearHits(response["results"].AsBsonArray);
+                }
+                return hits;
+            }
+        }
+        #endregion
+
+        #region protected properties
+        /// <summary>
+        /// Gets the hits.
+        /// </summary>
+        protected override GeoNearResult.GeoNearHits HitsImplementation {
+            get { return Hits; }
+        }
+        #endregion
+
+        #region nested classes
+        /// <summary>
+        /// Represents a collection of GeoNear hits.
+        /// </summary>
+        public new class GeoNearHits : GeoNearResult.GeoNearHits, IEnumerable<GeoNearHit> {
+            #region private fields
+            private List<GeoNearHit> hits;
+            #endregion
+
+            #region constructors
+            /// <summary>
+            /// Initializes a new instance of the GeoNearHits class.
+            /// </summary>
+            /// <param name="hits">The hits.</param>
+            public GeoNearHits(
+                BsonArray hits
+            ) {
+                this.hits = hits.Select(h => new GeoNearHit(h.AsBsonDocument)).ToList();
+            }
+            #endregion
+
+            #region public properties
+            /// <summary>
+            /// Gets the count of the number of hits.
+            /// </summary>
+            public override int Count {
+                get { return hits.Count; }
+            }
+            #endregion
+
+            #region indexers
+            /// <summary>
+            /// Gets an individual hit.
+            /// </summary>
+            /// <param name="index">The zero based index of the hit.</param>
+            /// <returns>The hit.</returns>
+            public new GeoNearHit this[
+                int index
+            ] {
+                get { return hits[index]; }
+            }
+            #endregion
+
+            #region public methods
+            /// <summary>
+            /// Gets an enumerator for the hits.
+            /// </summary>
+            /// <returns>An enumerator.</returns>
+            public new IEnumerator<GeoNearHit> GetEnumerator() {
+                return hits.GetEnumerator();
+            }
+            #endregion
+
+            #region protected methods
+            /// <summary>
+            /// Gets a hit.
+            /// </summary>
+            /// <param name="index">The zero based index of the hit.</param>
+            /// <returns>The hit.</returns>
+            protected override GeoNearResult.GeoNearHit GetHitImplementation(int index) {
+                return hits[index];
+            }
+
+            /// <summary>
+            /// Gets an enumerator for the hits.
+            /// </summary>
+            /// <returns>An enumerator.</returns>
+            protected override IEnumerator<GeoNearResult.GeoNearHit> GetEnumeratorImplementation() {
+                return hits.Cast<GeoNearResult.GeoNearHit>().GetEnumerator();
+            }
+            #endregion
+        }
+
+        /// <summary>
+        /// Represents a GeoNear hit.
+        /// </summary>
+        public new class GeoNearHit : GeoNearResult.GeoNearHit {
+            #region constructors
+            /// <summary>
+            /// Initializes a new instance of the GeoNearHit class.
+            /// </summary>
+            /// <param name="hit">The hit.</param>
+            public GeoNearHit(
+                BsonDocument hit
+            )
+                : base(hit) {
+            }
+            #endregion
+
+            #region public properties
+            /// <summary>
+            /// Gets the document.
+            /// </summary>
+            public new TDocument Document {
+                get {
+                    if (typeof(TDocument) == typeof(BsonDocument)) {
+                        return (TDocument) (object) RawDocument;
+                    } else {
+                        return BsonSerializer.Deserialize<TDocument>(RawDocument);
+                    }
+                }
+            }
+            #endregion
+
+            #region protected properties
+            /// <summary>
+            /// Gets the document.
+            /// </summary>
+            protected override object DocumentImplementation {
+                get { return Document;  }
             }
             #endregion
         }

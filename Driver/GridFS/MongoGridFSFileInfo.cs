@@ -95,7 +95,7 @@ namespace MongoDB.Driver.GridFS {
         ) {
             this.gridFS = gridFS;
             this.aliases = createOptions.Aliases;
-            this.chunkSize = createOptions.ChunkSize;
+            this.chunkSize = createOptions.ChunkSize == 0 ? gridFS.Settings.ChunkSize : createOptions.ChunkSize;
             this.contentType = createOptions.ContentType;
             this.id = createOptions.Id;
             this.metadata = createOptions.Metadata;
@@ -486,7 +486,12 @@ namespace MongoDB.Driver.GridFS {
                 exists = true;
                 id = fileInfo["_id"];
                 length = fileInfo["length"].ToInt32();
-                md5 = (string) fileInfo["md5", null];
+                var md5Value = fileInfo["md5", null];
+                if (md5Value != null && !md5Value.IsBsonNull) {
+                    md5 = md5Value.AsString;
+                } else {
+                    md5 = null;
+                }
                 var metadataValue = fileInfo["metadata", null];
                 if (metadataValue != null && !metadataValue.IsBsonNull) {
                     metadata = metadataValue.AsBsonDocument;

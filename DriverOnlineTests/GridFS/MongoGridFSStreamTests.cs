@@ -202,5 +202,55 @@ namespace MongoDB.DriverOnlineTests.GridFS {
                 Assert.AreEqual(0, eof);
             }
         }
+
+        [Test]
+        public void TestOpenCreateWithMetadata() {
+            gridFS.Files.RemoveAll();
+            gridFS.Chunks.RemoveAll();
+            gridFS.Chunks.ResetIndexCache();
+
+            var metadata = new BsonDocument("author", "John Doe");
+            var createOptions = new MongoGridFSCreateOptions {
+                Metadata = metadata
+            };
+            using (var stream = gridFS.Create("test", createOptions)) {
+                var bytes = new byte[] { 1, 2, 3, 4 };
+                stream.Write(bytes, 0, 4);
+            }
+
+            var fileInfo = gridFS.FindOne("test");
+            Assert.AreEqual(metadata, fileInfo.Metadata);
+        }
+
+        [Test]
+        public void TestUpdateMD5() {
+            gridFS.Files.RemoveAll();
+            gridFS.Chunks.RemoveAll();
+            gridFS.Chunks.ResetIndexCache();
+
+            var fileInfo = gridFS.FindOne("test");
+            Assert.IsNull(fileInfo);
+
+            using (var stream = gridFS.Create("test")) {
+                var bytes = new byte[] { 1, 2, 3, 4 };
+                stream.Write(bytes, 0, 4);
+                stream.UpdateMD5 = false;
+            }
+
+            fileInfo = gridFS.FindOne("test");
+            Assert.IsTrue(fileInfo.Exists);
+            Assert.AreEqual(4, fileInfo.Length);
+            Assert.IsNull(fileInfo.MD5);
+
+            using (var stream = gridFS.Open("test", FileMode.Append, FileAccess.Write)) {
+                var bytes = new byte[] { 1, 2, 3, 4 };
+                stream.Write(bytes, 0, 4);
+            }
+
+            fileInfo = gridFS.FindOne("test");
+            Assert.IsTrue(fileInfo.Exists);
+            Assert.AreEqual(8, fileInfo.Length);
+            Assert.IsNotNull(fileInfo.MD5);
+        }
     }
 }

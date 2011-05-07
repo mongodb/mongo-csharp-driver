@@ -34,21 +34,22 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoInsertMessage(
-            MongoServer server,
+            MongoConnection connection,
             string collectionFullName
         )
-            : base(server, MessageOpcode.Insert) {
+            : base(connection, MessageOpcode.Insert) {
             this.collectionFullName = collectionFullName;
         }
         #endregion
 
         #region internal methods
-        internal void AddDocument<TDocument>(
-            TDocument document
+        internal void AddDocument(
+            Type nominalType,
+            object document
         ) {
             lastDocumentStartPosition = buffer.Position;
             using (var bsonWriter = CreateBsonWriter()) {
-                BsonSerializer.Serialize(bsonWriter, document, DocumentSerializationOptions.SerializeIdFirstInstance);
+                BsonSerializer.Serialize(bsonWriter, nominalType, document, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
             BackpatchMessageLength();
         }

@@ -78,5 +78,17 @@ namespace MongoDB.DriverOnlineTests {
             server.Reconnect();
             Assert.AreEqual(MongoServerState.Connected, server.State);
         }
+
+        [Test]
+        public void TestRunAdminCommandAs() {
+            var result = (CommandResult) server.RunAdminCommandAs(typeof(CommandResult), "ping");
+            Assert.AreEqual(true, result.Ok);
+        }
+
+        [Test]
+        public void TestRunAdminCommandAsGeneric() {
+            var result = server.RunAdminCommandAs<CommandResult>("ping");
+            Assert.AreEqual(true, result.Ok);
+        }
     }
 }

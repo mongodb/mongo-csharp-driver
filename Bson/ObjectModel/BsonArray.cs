@@ -739,6 +739,14 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Converts the BsonArray to a list of BsonValues.
+        /// </summary>
+        /// <returns>A list of BsonValues.</returns>
+        public List<BsonValue> ToList() {
+            return values.ToList();
+        }
+
+        /// <summary>
         /// Returns a string representation of the array.
         /// </summary>
         /// <returns>A string representation of the array.</returns>

@@ -53,6 +53,38 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestAndNoArgs() {
+            var query = Query.And();
+            Assert.AreEqual(null, query);
+        }
+
+        [Test]
+        public void TestAndNull() {
+            var query = Query.And(Query.Null);
+            Assert.AreEqual(null, query);
+        }
+
+        [Test]
+        public void TestAndNullFirst() {
+            var query = Query.And(
+                Query.Null,
+                Query.EQ("x", 1)
+            );
+            var expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestAndNullSecond() {
+            var query = Query.And(
+                Query.EQ("x", 1),
+                Query.Null
+            );
+            var expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestElementMatch() {
             var query = Query.ElemMatch("x", 
                 Query.And(
@@ -271,6 +303,38 @@ namespace MongoDB.DriverUnitTests.Builders {
                 Query.EQ("b", 2)
             );
             var expected = "{ \"$or\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestOrNoArgs() {
+            var query = Query.Or();
+            Assert.AreEqual(null, query);
+        }
+
+        [Test]
+        public void TestOrNull() {
+            var query = Query.Or(Query.Null);
+            Assert.AreEqual(null, query);
+        }
+
+        [Test]
+        public void TestOrNullFirst() {
+            var query = Query.Or(
+                Query.Null,
+                Query.EQ("x", 1)
+            );
+            var expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestOrNullSecond() {
+            var query = Query.Or(
+                Query.EQ("x", 1),
+                Query.Null
+            );
+            var expected = "{ \"x\" : 1 }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
