@@ -46,6 +46,7 @@ namespace MongoDB.Bson.Serialization {
         private bool isRequired;
         private bool hasDefaultValue;
         private bool serializeDefaultValue = true;
+        private Func<object, bool> shouldSerializeMethod = (obj) => true;
         private bool ignoreIfNull;
         private object defaultValue;
         #endregion
@@ -180,6 +181,13 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         public bool SerializeDefaultValue {
             get { return serializeDefaultValue; }
+        }
+
+        /// <summary>
+        /// Gets the method that will be called to determine whether the member should be serialized.
+        /// </summary>
+        public Func<object, bool> ShouldSerializeMethod {
+            get { return shouldSerializeMethod; }
         }
 
         /// <summary>
@@ -358,6 +366,22 @@ namespace MongoDB.Bson.Serialization {
             bool serializeDefaultValue
         ) {
             this.serializeDefaultValue = serializeDefaultValue;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the method that will be called to determine whether the member should be serialized.
+        /// </summary>
+        /// <param name="shouldSerializeMethod">The method.</param>
+        /// <returns></returns>
+        public BsonMemberMap SetShouldSerializeMethod(
+            Func<object, bool> shouldSerializeMethod
+        ) {
+            if (shouldSerializeMethod != null) {
+                this.shouldSerializeMethod = shouldSerializeMethod;
+            } else {
+                this.shouldSerializeMethod = (obj) => true;
+            }
             return this;
         }
         #endregion

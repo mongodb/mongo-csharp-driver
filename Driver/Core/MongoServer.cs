@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -41,7 +42,7 @@ namespace MongoDB.Driver {
         private MongoServerState state = MongoServerState.Disconnected;
         private List<MongoServerInstance> instances = new List<MongoServerInstance>(); // serves as its own lock
         private string replicaSetName;
-        private int loadBalancingOffset; // used to distribute reads across secondaries in round robin fashion
+        private int loadBalancingInstanceIndex; // used to distribute reads across secondaries in round robin fashion
         private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private IndexCache indexCache = new IndexCache();
@@ -798,6 +799,19 @@ namespace MongoDB.Driver {
         ) {
             return AdminDatabase.RunCommandAs(commandResultType, commandName);
         }
+
+        /// <summary>
+        /// Shuts down the server.
+        /// </summary>
+        public virtual void Shutdown() {
+            lock (serverLock) {
+                try {
+                    RunAdminCommand("shutdown");
+                } catch (EndOfStreamException) {
+                    // we expect an EndOfStreamException when the server shuts down so we ignore it
+                }
+            }
+        }
         #endregion
 
         #region internal methods
@@ -816,25 +830,32 @@ namespace MongoDB.Driver {
             }
 
             var serverInstance = GetServerInstance(slaveOk);
-            return AcquireConnection(database, serverInstance);
+            return serverInstance.AcquireConnection(database);
         }
 
         internal MongoConnection AcquireConnection(
             MongoDatabase database,
             MongoServerInstance serverInstance
         ) {
-            var connectionPool = serverInstance.ConnectionPool;
-            var connection = connectionPool.AcquireConnection(database);
-
-            try {
-                connection.CheckAuthentication(database); // will authenticate if necessary
-            } catch (MongoAuthenticationException) {
-                // don't let the connection go to waste just because authentication failed
-                connectionPool.ReleaseConnection(connection);
-                throw;
+            // if a thread has called RequestStart it wants all operations to take place on the same connection
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            lock (requestsLock) {
+                Request request;
+                if (requests.TryGetValue(threadId, out request)) {
+                    if (request.Connection.ServerInstance != serverInstance) {
+                        var message = string.Format(
+                            "AcquireConnection called for server instance '{0}' but thread is in a RequestStart for server instance '{1}'.",
+                            serverInstance.Address,
+                            request.Connection.ServerInstance.Address
+                        );
+                        throw new MongoConnectionException(message);
+                    }
+                    request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
+                    return request.Connection;
+                }
             }
 
-            return connection;
+            return serverInstance.AcquireConnection(database);
         }
 
         internal void AddInstance(
@@ -870,10 +891,9 @@ namespace MongoDB.Driver {
                     // round robin the connected secondaries, fall back to primary if no secondary found
                     lock (instances) {
                         for (int i = 0; i < instances.Count; i++) {
-                            var j = (i + loadBalancingOffset) % instances.Count;
-                            var instance = instances[j];
+                            loadBalancingInstanceIndex = (loadBalancingInstanceIndex + 1) % instances.Count; // round robin
+                            var instance = instances[loadBalancingInstanceIndex];
                             if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
-                                loadBalancingOffset = i + 1;
                                 return instance;
                             }
                         }

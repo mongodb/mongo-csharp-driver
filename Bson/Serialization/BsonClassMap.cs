@@ -821,6 +821,12 @@ namespace MongoDB.Bson.Serialization {
                 memberMap.SetDefaultValue(defaultValue);
             }
 
+            // see if the class has a method called ShouldSerializeXyz where Xyz is the name of this member
+            var shouldSerializeMethod = GetShouldSerializeMethod(memberInfo);
+            if (shouldSerializeMethod != null) {
+                memberMap.SetShouldSerializeMethod(shouldSerializeMethod);
+            }
+
             foreach (var attribute in memberInfo.GetCustomAttributes(false)) {
                 var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
                 if (defaultValueAttribute != null) {
@@ -929,6 +935,30 @@ namespace MongoDB.Bson.Serialization {
                 creator = lambda.Compile();
             }
             return creator;
+        }
+
+        private Func<object, bool> GetShouldSerializeMethod(
+            MemberInfo memberInfo
+        ) {
+            var shouldSerializeMethodName = "ShouldSerialize" + memberInfo.Name;
+            var shouldSerializeMethodInfo = classType.GetMethod(shouldSerializeMethodName, new Type[] { });
+            if (
+                shouldSerializeMethodInfo != null &&
+                shouldSerializeMethodInfo.IsPublic &&
+                shouldSerializeMethodInfo.ReturnType == typeof(bool)
+            ) {
+                // we need to construct a lambda wich does the following
+                // (obj) => obj.ShouldSerializeXyz()
+                var parameter = Expression.Parameter(typeof(object), "obj");
+                var body = Expression.Call(
+                    Expression.Convert(parameter, classType),
+                    shouldSerializeMethodInfo
+                );
+                var lambdaExpression = Expression.Lambda<Func<object, bool>>(body, parameter);
+                return lambdaExpression.Compile();
+            } else {
+                return null;
+            }
         }
 
         private bool IsAnonymousType(

@@ -238,4 +238,35 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.IsTrue(BsonClassMap.IsClassMapRegistered(typeof(C)));
         }
     }
+    
+    [TestFixture]
+    public class BsonShouldSerializeTests {
+        public class ClassA {
+            public string LocalName { get; set; }
+            public DateTime AsOfUtc { get; set; }
+    
+            public bool ShouldSerializeAsOfUtc() {
+                return this.AsOfUtc != DateTime.MinValue;
+            }
+        }
+        
+        [Test]
+        public void TestShouldSerializeSuccess() {
+            // test that the value is not serialized
+            var c = new ClassA();
+            c.AsOfUtc = DateTime.MinValue;
+            c.LocalName = "Saleem";
+            var json = c.ToJson();
+            var expected = "{ 'LocalName' : 'Saleem' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+                        
+            // test that the value is serialized
+            var date = new DateTime(2011, 4, 24, 0, 0, 0, DateTimeKind.Utc);
+            c.AsOfUtc = date;			
+            expected = "{ 'LocalName' : 'Saleem', 'AsOfUtc' : ISODate('2011-04-24T00:00:00Z') }".Replace("'", "\"");
+            json = c.ToJson();
+            Assert.AreEqual(expected, json);			
+        }
+        
+    }
 }

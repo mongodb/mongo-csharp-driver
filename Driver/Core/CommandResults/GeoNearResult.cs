@@ -80,7 +80,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Represents a collection of GeoNear hits.
         /// </summary>
-        public abstract class GeoNearHits : IEnumerable<GeoNearHit> {
+        public abstract class GeoNearHits : IEnumerable {
             #region constructors
             /// <summary>
             /// Initializes a new instance of the GeoNearHits class.

@@ -641,6 +641,19 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestGetMore() {
+            using (server.RequestStart(database)) {
+                collection.RemoveAll();
+                var count = server.Primary.MaxMessageLength / 1000000;
+                for (int i = 0; i < count; i++) {
+                    var document = new BsonDocument("data", new BsonBinaryData(new byte[1000000]));
+                    collection.Insert(document);
+                }
+                var list = collection.FindAll().ToList();
+            }
+        }
+
+        [Test]
         public void TestGroup() {
             collection.RemoveAll();
             collection.Insert(new BsonDocument("x", 1));

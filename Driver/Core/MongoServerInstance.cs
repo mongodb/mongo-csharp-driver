@@ -169,6 +169,21 @@ namespace MongoDB.Driver {
         #endregion
 
         #region internal methods
+        internal MongoConnection AcquireConnection(
+            MongoDatabase database
+        ) {
+            var connection = connectionPool.AcquireConnection(database);
+            try {
+                connection.CheckAuthentication(database); // will authenticate if necessary
+            } catch (MongoAuthenticationException) {
+                // don't let the connection go to waste just because authentication failed
+                connectionPool.ReleaseConnection(connection);
+                throw;
+            }
+
+            return connection;
+        }
+
         internal void Connect(
             bool slaveOk
         ) {

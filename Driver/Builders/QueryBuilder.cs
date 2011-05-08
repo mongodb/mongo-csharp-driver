@@ -73,34 +73,37 @@ namespace MongoDB.Driver.Builders {
         ) {
             var document = new BsonDocument();
             foreach (var query in queries) {
-                foreach (var queryElement in query.ToBsonDocument()) {
-                    // if result document has existing operations for same field append the new ones
-                    if (document.Contains(queryElement.Name)) {
-                        var existingOperations = document[queryElement.Name] as BsonDocument;
-                        var newOperations = queryElement.Value as BsonDocument;
+                if (query != null) {
+                    foreach (var queryElement in query.ToBsonDocument()) {
+                        // if result document has existing operations for same field append the new ones
+                        if (document.Contains(queryElement.Name)) {
+                            var existingOperations = document[queryElement.Name] as BsonDocument;
+                            var newOperations = queryElement.Value as BsonDocument;
 
-                        // make sure that no conditions are Query.EQ, because duplicates aren't allowed
-                        if (existingOperations == null || newOperations == null) {
-                            var message = string.Format("Query.And does not support combining equality comparisons with other operators (field: '{0}')", queryElement.Name);
-                            throw new InvalidOperationException(message);
-                        }
-
-                        // add each new operation to the existing operations
-                        foreach (var operation in newOperations) {
-                            // make sure that there are no duplicate $operators
-                            if (existingOperations.Contains(operation.Name)) {
-                                var message = string.Format("Query.And does not support using the same operator more than once (field: '{0}', operator: '{1}')", queryElement.Name, operation.Name);
+                            // make sure that no conditions are Query.EQ, because duplicates aren't allowed
+                            if (existingOperations == null || newOperations == null) {
+                                var message = string.Format("Query.And does not support combining equality comparisons with other operators (field: '{0}')", queryElement.Name);
                                 throw new InvalidOperationException(message);
-                            } else {
-                                existingOperations.Add(operation);
                             }
+
+                            // add each new operation to the existing operations
+                            foreach (var operation in newOperations) {
+                                // make sure that there are no duplicate $operators
+                                if (existingOperations.Contains(operation.Name)) {
+                                    var message = string.Format("Query.And does not support using the same operator more than once (field: '{0}', operator: '{1}')", queryElement.Name, operation.Name);
+                                    throw new InvalidOperationException(message);
+                                } else {
+                                    existingOperations.Add(operation);
+                                }
+                            }
+                        } else {
+                            document.Add(queryElement);
                         }
-                    } else {
-                        document.Add(queryElement);
                     }
                 }
             }
-            return new QueryComplete(document);
+
+            return document.ElementCount > 0 ? new QueryComplete(document) : null;
         }
 
         /// <summary>
@@ -375,10 +378,19 @@ namespace MongoDB.Driver.Builders {
         ) {
             var clauses = new BsonArray();
             foreach (var query in queries) {
-                clauses.Add(query.ToBsonDocument());
+                if (query != null) {
+                    clauses.Add(query.ToBsonDocument());
+                }
             }
-            var document = new BsonDocument("$or", clauses);
-            return new QueryComplete(document);
+
+            switch (clauses.Count) {
+                case 0:
+                    return null;
+                case 1:
+                    return new QueryComplete(clauses[0].AsBsonDocument);
+                default:
+                    return new QueryComplete(new BsonDocument("$or", clauses));
+            }
         }
 
         /// <summary>

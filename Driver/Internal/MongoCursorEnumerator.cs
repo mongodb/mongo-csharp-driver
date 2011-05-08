@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Internal {
                 serverInstance = connection.ServerInstance;
                 return connection;
             } else {
-                // all subsequent requests for the same cursor must go to the same connection pool
+                // all subsequent requests for the same cursor must go to the same server instance
                 return cursor.Server.AcquireConnection(cursor.Database, serverInstance);
             }
         }
