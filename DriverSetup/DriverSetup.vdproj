@@ -33,20 +33,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_223F85C0B1D0179321167AC2BBB8EF24"
-        "OwnerKey" = "8:_BD76DB2CA357431595A0F671A8188FDD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_537E4DDB9292DA822A7E00E1173402EE"
-        "OwnerKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_537E4DDB9292DA822A7E00E1173402EE"
+        "MsmKey" = "8:_532F7F68EA84931424EDD50407AAA323"
         "OwnerKey" = "8:_5ED81B2A1EFD4E9DA129583F00560B33"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_532F7F68EA84931424EDD50407AAA323"
+        "OwnerKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -82,19 +76,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5ED81B2A1EFD4E9DA129583F00560B33"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_537E4DDB9292DA822A7E00E1173402EE"
+        "OwnerKey" = "8:_5ED81B2A1EFD4E9DA129583F00560B33"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_532F7F68EA84931424EDD50407AAA323"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -262,33 +256,18 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_223F85C0B1D0179321167AC2BBB8EF24"
-            {
-            "SourcePath" = "8:MongoDB.Bson.xml"
-            "TargetName" = "8:MongoDB.Bson.xml"
-            "Tag" = "8:"
-            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_537E4DDB9292DA822A7E00E1173402EE"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_532F7F68EA84931424EDD50407AAA323"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.0.1.20266, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.1.0.34305, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_532F7F68EA84931424EDD50407AAA323"
+                    {
+                    "Name" = "8:MongoDB.Bson.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:MongoDB.Bson.dll"
             "TargetName" = "8:"
@@ -398,7 +377,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:MongoDB CSharpDriver 1.0"
         "ProductCode" = "8:{724AC356-F1C7-484A-BBC7-C8050758699D}"
-        "PackageCode" = "8:{F802C54E-88EB-4BDF-927E-923DC8B18D35}"
+        "PackageCode" = "8:{8B2CEA3E-CA68-4533-BA0F-B034745536AA}"
         "UpgradeCode" = "8:{B144CF09-09EC-4B64-9981-236E85AC93F7}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1030,7 +1009,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5ED81B2A1EFD4E9DA129583F00560B33"
             {
-            "SourcePath" = "8:..\\Driver\\obj\\Debug\\MongoDB.Driver.dll"
+            "SourcePath" = "8:..\\Driver\\obj\\Release\\MongoDB.Driver.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
@@ -1058,7 +1037,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7E238670C4D047C8A103FBE7754619DD"
             {
-            "SourcePath" = "8:..\\Driver\\obj\\Debug\\MongoDB.Driver.dll"
+            "SourcePath" = "8:..\\Driver\\obj\\Release\\MongoDB.Driver.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_33198C6CA99C47128D98F6D5784D2EF8"
@@ -1086,7 +1065,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B80D9A001D7444C18198B456B82DACA6"
             {
-            "SourcePath" = "8:..\\Bson\\obj\\Debug\\MongoDB.Bson.dll"
+            "SourcePath" = "8:..\\Bson\\obj\\Release\\MongoDB.Bson.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_33198C6CA99C47128D98F6D5784D2EF8"
@@ -1114,7 +1093,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BD76DB2CA357431595A0F671A8188FDD"
             {
-            "SourcePath" = "8:..\\Driver\\bin\\Debug\\MongoDB.Driver.XML"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
