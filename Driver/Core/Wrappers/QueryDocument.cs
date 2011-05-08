@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,6 +54,17 @@ namespace MongoDB.Driver {
             BsonElement element
         )
             : base(element) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the QueryDocument class and adds new elements from an <see cref="IDictionary">IDictionary</see>.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        public QueryDocument(
+            IDictionary dictionary
+        )
+            : base(dictionary)
+        {
         }
 
         /// <summary>
