@@ -65,7 +65,8 @@ namespace MongoDB.Driver.Internal {
 
         #region internal methods
         internal void ReadFrom(
-            BsonBuffer buffer
+            BsonBuffer buffer,
+            IBsonSerializationOptions serializationOptions
         ) {
             var messageStartPosition = buffer.Position;
 
@@ -89,7 +90,7 @@ namespace MongoDB.Driver.Internal {
 
                 documents = new List<TDocument>(numberReturned);
                 while (buffer.Position - messageStartPosition < messageLength) {
-                    var document = BsonSerializer.Deserialize<TDocument>(bsonReader);
+                    var document = (TDocument) BsonSerializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
                     documents.Add(document);
                 }
             }

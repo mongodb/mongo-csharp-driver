@@ -21,6 +21,7 @@ using System.Net;
 using System.Text;
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.Internal {
@@ -212,7 +213,7 @@ namespace MongoDB.Driver.Internal {
             MongoRequestMessage message
         ) {
             connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-            var reply = connection.ReceiveMessage<TDocument>();
+            var reply = connection.ReceiveMessage<TDocument>(cursor.SerializationOptions);
             openCursorId = reply.CursorId;
             return reply;
         }
