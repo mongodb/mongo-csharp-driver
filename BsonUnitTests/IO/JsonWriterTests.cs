@@ -185,11 +185,11 @@ namespace MongoDB.BsonUnitTests.IO {
         public void TestBinaryShell() {
             var tests = new TestData<BsonBinaryData>[] {
                 new TestData<BsonBinaryData>(null, "null"),
-                new TestData<BsonBinaryData>(new byte[] { }, "BinData(0, \"\")"),
-                new TestData<BsonBinaryData>(new byte[] { 1 }, "BinData(0, \"AQ==\")"),
-                new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "BinData(0, \"AQI=\")"),
-                new TestData<BsonBinaryData>(new byte[] { 1, 2, 3 }, "BinData(0, \"AQID\")"),
-                new TestData<BsonBinaryData>(Guid.Empty, "BinData(3, \"AAAAAAAAAAAAAAAAAAAAAA==\")")
+                new TestData<BsonBinaryData>(new byte[] { }, "new BinData(0, \"\")"),
+                new TestData<BsonBinaryData>(new byte[] { 1 }, "new BinData(0, \"AQ==\")"),
+                new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "new BinData(0, \"AQI=\")"),
+                new TestData<BsonBinaryData>(new byte[] { 1, 2, 3 }, "new BinData(0, \"AQID\")"),
+                new TestData<BsonBinaryData>(Guid.Empty, "new BinData(3, \"AAAAAAAAAAAAAAAAAAAAAA==\")")
             };
             foreach (var test in tests) {
                 var json = test.Value.ToJson();
@@ -308,7 +308,7 @@ namespace MongoDB.BsonUnitTests.IO {
             var document = new BsonDocument {
                 { "guid", new Guid("B5F21E0C2A0D42d6AD03D827008D8AB6") }
             };
-            string expected = "{ \"guid\" : BinData(3, \"DB7ytQ0q1kKtA9gnAI2Ktg==\") }";
+            string expected = "{ \"guid\" : new BinData(3, \"DB7ytQ0q1kKtA9gnAI2Ktg==\") }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
         }
