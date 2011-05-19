@@ -286,11 +286,7 @@ namespace MongoDB.Bson {
             string s,
             out ObjectId objectId
         ) {
-            if (s == null) {
-                throw new ArgumentNullException("s");
-            }
-
-            if (s.Length == 24) {
+            if (s != null && s.Length == 24) {
                 byte[] bytes;
                 if (BsonUtils.TryParseHexString(s, out bytes)) {
                     objectId = new ObjectId(bytes);

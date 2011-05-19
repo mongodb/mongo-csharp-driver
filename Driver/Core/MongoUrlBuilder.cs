@@ -322,35 +322,40 @@ namespace MongoDB.Driver {
             string s,
             out TimeSpan result
         ) {
-            name = name.ToLower();
-            s = s.ToLower();
+            if (name != null && s != null) {
+                name = name.ToLower();
+                s = s.ToLower();
 
-            var multiplier = 1000;
-            if (name.EndsWith("ms")) {
-                multiplier = 1;
-            } else if (s.EndsWith("ms")) {
-                s = s.Substring(0, s.Length - 2);
-                multiplier = 1;
-            } else if (s.EndsWith("s")) {
-                s = s.Substring(0, s.Length - 1);
-                multiplier = 1000;
-            } else if (s.EndsWith("m")) {
-                s = s.Substring(0, s.Length - 1);
-                multiplier = 60 * 1000;
-            } else if (s.EndsWith("h")) {
-                s = s.Substring(0, s.Length - 1);
-                multiplier = 60 * 60 * 1000;
-            } else if (s.Contains(":")) {
-                return TimeSpan.TryParse(s, out result);
+                var multiplier = 1000;
+                if (name.EndsWith("ms")) {
+                    multiplier = 1;
+                } else if (s.EndsWith("ms")) {
+                    s = s.Substring(0, s.Length - 2);
+                    multiplier = 1;
+                } else if (s.EndsWith("s")) {
+                    s = s.Substring(0, s.Length - 1);
+                    multiplier = 1000;
+                } else if (s.EndsWith("m")) {
+                    s = s.Substring(0, s.Length - 1);
+                    multiplier = 60 * 1000;
+                } else if (s.EndsWith("h")) {
+                    s = s.Substring(0, s.Length - 1);
+                    multiplier = 60 * 60 * 1000;
+                } else if (s.Contains(":")) {
+                    return TimeSpan.TryParse(s, out result);
+                }
+
+                try {
+                    result = TimeSpan.FromMilliseconds(multiplier * XmlConvert.ToDouble(s));
+                    return true;
+                } catch (FormatException) {
+                    result = default(TimeSpan);
+                    return false;
+                }
             }
 
-            try {
-                result = TimeSpan.FromMilliseconds(multiplier * XmlConvert.ToDouble(s));
-                return true;
-            } catch (FormatException) {
-                result = TimeSpan.Zero;
-                return false;
-            }
+            result = default(TimeSpan);
+            return false;
         }
         #endregion
 
