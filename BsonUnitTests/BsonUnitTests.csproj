@@ -129,6 +129,7 @@
     <Compile Include="Jira\CSharp81Tests.cs" />
     <Compile Include="Jira\CSharp83Tests.cs" />
     <Compile Include="ObjectModel\BsonArrayTests.cs" />
+    <Compile Include="ObjectModel\BsonBinaryDataTests.cs" />
     <Compile Include="ObjectModel\BsonDocumentTests.cs" />
     <Compile Include="ObjectModel\BsonElementTests.cs" />
     <Compile Include="ObjectModel\BsonEqualsTests.cs" />
