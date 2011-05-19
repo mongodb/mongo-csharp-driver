@@ -25,25 +25,25 @@ namespace MongoDB.BsonUnitTests {
     [TestFixture]
     public class BsonBinaryDataTests {
         [Test]
-        public void TestGuidMicrosoftByteOrder() {
+        public void TestGuidLittleEndian() {
             var guid = new Guid("01020304-0506-0708-090a-0b0c0d0e0f10");
-            var binaryData = new BsonBinaryData(guid, GuidByteOrder.Microsoft);
+            var binaryData = new BsonBinaryData(guid, GuidByteOrder.LittleEndian);
             var expected = new byte[] { 4, 3, 2, 1, 6, 5, 8, 7, 9, 10, 11, 12, 13, 14, 15, 16 };
             Assert.IsTrue(expected.SequenceEqual(binaryData.Bytes));
             Assert.AreEqual(BsonBinarySubType.Uuid, binaryData.SubType);
-            Assert.AreEqual(GuidByteOrder.Microsoft, binaryData.GuidByteOrder);
+            Assert.AreEqual(GuidByteOrder.LittleEndian, binaryData.GuidByteOrder);
             Assert.AreEqual(guid, binaryData.AsGuid);
             Assert.AreEqual(guid, binaryData.RawValue);
         }
 
         [Test]
-        public void TestGuidStandardByteOrder() {
+        public void TestGuidBigEndian() {
             var guid = new Guid("01020304-0506-0708-090a-0b0c0d0e0f10");
-            var binaryData = new BsonBinaryData(guid, GuidByteOrder.Standard);
+            var binaryData = new BsonBinaryData(guid, GuidByteOrder.BigEndian);
             var expected = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
             Assert.IsTrue(expected.SequenceEqual(binaryData.Bytes));
             Assert.AreEqual(BsonBinarySubType.Uuid, binaryData.SubType);
-            Assert.AreEqual(GuidByteOrder.Standard, binaryData.GuidByteOrder);
+            Assert.AreEqual(GuidByteOrder.BigEndian, binaryData.GuidByteOrder);
             Assert.AreEqual(guid, binaryData.AsGuid);
             Assert.AreEqual(guid, binaryData.RawValue);
         }

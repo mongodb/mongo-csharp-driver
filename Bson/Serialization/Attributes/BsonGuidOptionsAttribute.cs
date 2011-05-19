@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Attributes {
     public class BsonGuidOptionsAttribute : BsonSerializationOptionsAttribute {
         #region private fields
         private BsonType representation = BsonType.Binary;
-        private GuidByteOrder byteOrder = GuidByteOrder.Microsoft;
+        private GuidByteOrder byteOrder = GuidByteOrder.LittleEndian;
         #endregion
 
         #region constructors
@@ -85,7 +85,11 @@ namespace MongoDB.Bson.Serialization.Attributes {
         /// </summary>
         /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions() {
-            return new GuidSerializationOptions(representation, byteOrder);
+            if (representation == BsonType.Binary) {
+                return new GuidSerializationOptions(byteOrder);
+            } else {
+                return new GuidSerializationOptions(representation);
+            }
         }
         #endregion
     }

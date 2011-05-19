@@ -24,13 +24,13 @@ namespace MongoDB.Bson {
     /// </summary>
     public enum GuidByteOrder {
         /// <summary>
-        /// Use Microsoft's internal little endian format (this is the default for historical reasons, but is different how the Java and other drivers store UUIDs).
+        /// Use Microsoft's internal little endian format (this is the default for historical reasons, but is different from how the Java and other drivers store UUIDs).
         /// </summary>
-        Microsoft,
+        LittleEndian,
         /// <summary>
         /// Use the standard external high endian format (this is compatible with how the Java and other drivers store UUIDs).
         /// </summary>
-        Standard
+        BigEndian
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ namespace MongoDB.Bson {
     [Serializable]
     public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData> {
         #region private static fields
-        private static GuidByteOrder defaultGuidByteOrder = GuidByteOrder.Microsoft;
+        private static GuidByteOrder defaultGuidByteOrder = GuidByteOrder.LittleEndian;
         #endregion
 
         #region private fields
@@ -96,7 +96,7 @@ namespace MongoDB.Bson {
         )
             : base(BsonType.Binary) {
             var bytes = guid.ToByteArray();
-            if (byteOrder == GuidByteOrder.Standard) {
+            if (byteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
                 bytes = (byte[]) bytes.Clone(); // Clone is defensive in case Guid.ToByteArray returns an internal copy
                 Array.Reverse(bytes, 0, 4);
                 Array.Reverse(bytes, 4, 2);
@@ -327,7 +327,7 @@ namespace MongoDB.Bson {
         public Guid ToGuid() {
             if (subType == BsonBinarySubType.Uuid) {
                 var bytes = this.bytes;
-                if (guidByteOrder == GuidByteOrder.Standard) {
+                if (guidByteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
                     bytes = (byte[]) bytes.Clone(); // Clone is required in order to not alter our own byte array
                     Array.Reverse(bytes, 0, 4);
                     Array.Reverse(bytes, 4, 2);

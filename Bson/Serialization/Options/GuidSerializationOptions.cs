@@ -23,15 +23,15 @@ namespace MongoDB.Bson.Serialization.Options {
     /// </summary>
     public class GuidSerializationOptions : IBsonSerializationOptions {
         #region private static fields
-        private static GuidSerializationOptions defaults = new GuidSerializationOptions(BsonType.Binary, GuidByteOrder.Microsoft);
-        private static GuidSerializationOptions microsoft = new GuidSerializationOptions(BsonType.Binary, GuidByteOrder.Microsoft);
-        private static GuidSerializationOptions standard = new GuidSerializationOptions(BsonType.Binary, GuidByteOrder.Standard);
+        private static GuidSerializationOptions defaults = new GuidSerializationOptions(GuidByteOrder.LittleEndian);
+        private static GuidSerializationOptions littleEndian = new GuidSerializationOptions(GuidByteOrder.LittleEndian);
+        private static GuidSerializationOptions bigEndian = new GuidSerializationOptions(GuidByteOrder.BigEndian);
         private static GuidSerializationOptions stringInstance = new GuidSerializationOptions(BsonType.String);
         #endregion
 
         #region private fields
         private BsonType representation = BsonType.Binary;
-        private GuidByteOrder byteOrder = GuidByteOrder.Microsoft;
+        private GuidByteOrder byteOrder = GuidByteOrder.LittleEndian;
         #endregion
 
         #region constructors
@@ -54,13 +54,11 @@ namespace MongoDB.Bson.Serialization.Options {
         /// <summary>
         /// Initializes a new instance of the GuidSerializationOptions class.
         /// </summary>
-        /// <param name="representation">The external representation.</param>
         /// <param name="byteOrder">The byte order to use when representing the Guid as a byte array.</param>
         public GuidSerializationOptions(
-            BsonType representation,
             GuidByteOrder byteOrder
         ) {
-            this.representation = representation;
+            this.representation = BsonType.Binary;
             this.byteOrder = byteOrder;
         }
         #endregion
@@ -75,17 +73,17 @@ namespace MongoDB.Bson.Serialization.Options {
         }
 
         /// <summary>
-        /// Gets an instance of GuidSerializationOptions with Binary representation and Microsoft byte order.
+        /// Gets an instance of GuidSerializationOptions with Binary representation and Microsoft's internal little endian byte order.
         /// </summary>
-        public static GuidSerializationOptions Microsoft {
-            get { return microsoft; }
+        public static GuidSerializationOptions LittleEndian {
+            get { return littleEndian; }
         }
 
         /// <summary>
-        /// Gets an instance of GuidSerializationOptions with Binary representation and Standard byte order.
+        /// Gets an instance of GuidSerializationOptions with Binary representation and big endian byte order.
         /// </summary>
-        public static GuidSerializationOptions Standard {
-            get { return standard; }
+        public static GuidSerializationOptions BigEndian {
+            get { return bigEndian; }
         }
 
         /// <summary>

@@ -429,7 +429,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     if (subType != BsonBinarySubType.Uuid) {
                         throw new FileFormatException("BinaryData sub type is not Uuid");
                     }
-                    if (guidSerializationOptions.ByteOrder == GuidByteOrder.Standard) {
+                    if (guidSerializationOptions.ByteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
                         // we don't need to Clone bytes this time because we know we own this byte array
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
@@ -472,7 +472,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             switch (guidSerializationOptions.Representation) {
                 case BsonType.Binary:
                     var bytes = guid.ToByteArray();
-                    if (guidSerializationOptions.ByteOrder == GuidByteOrder.Standard) {
+                    if (guidSerializationOptions.ByteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
                         bytes = (byte[]) bytes.Clone(); // Clone is defensive in case Guid.ToByteArray returns an internal copy
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
