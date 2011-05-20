@@ -126,7 +126,7 @@ namespace MongoDB.Bson {
         /// <seealso cref="IDictionary" />
         public BsonDocument(
             IDictionary dictionary,
-            IEnumerable<string> keys
+            IEnumerable keys
         )
             : base(BsonType.Document) {
             Add(dictionary, keys);
@@ -438,7 +438,7 @@ namespace MongoDB.Bson {
             IDictionary dictionary
         ) {
             if (dictionary != null) {
-                Add(dictionary, dictionary.Keys.Cast<string>());
+                Add(dictionary, dictionary.Keys);
             }
             return this;
         }
@@ -451,10 +451,10 @@ namespace MongoDB.Bson {
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Add(
             IDictionary dictionary,
-            IEnumerable<string> keys
+            IEnumerable keys
         ) {
             if (dictionary != null) {
-                foreach (var key in keys) {
+                foreach (string key in keys) {
                     Add(key, BsonValue.Create(dictionary[key]));
                 }
             }

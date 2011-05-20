@@ -60,7 +60,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = new BitArray(new bool[0])
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : BinData(0, ''), 'S' : '' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, ''), 'S' : '' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -75,7 +75,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = new BitArray(new[] { true })
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : { 'Length' : 1, 'Bytes' : BinData(0, 'AQ==') }, 'S' : '1' }".Replace("'", "\"");
+            var expected = "{ 'B' : { 'Length' : 1, 'Bytes' : new BinData(0, 'AQ==') }, 'S' : '1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -91,7 +91,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = new BitArray(new[] { true, true })
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : { 'Length' : 2, 'Bytes' : BinData(0, 'Aw==') }, 'S' : '11' }".Replace("'", "\"");
+            var expected = "{ 'B' : { 'Length' : 2, 'Bytes' : new BinData(0, 'Aw==') }, 'S' : '11' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -108,7 +108,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = new BitArray(new[] { true, false, true, false, true, false, true })
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : { 'Length' : 7, 'Bytes' : BinData(0, 'VQ==') }, 'S' : '1010101' }".Replace("'", "\"");
+            var expected = "{ 'B' : { 'Length' : 7, 'Bytes' : new BinData(0, 'VQ==') }, 'S' : '1010101' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -130,7 +130,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = new BitArray(new[] { true, false, true, false, true, false, true, false })
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : BinData(0, 'VQ=='), 'S' : '10101010' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, 'VQ=='), 'S' : '10101010' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -153,7 +153,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = new BitArray(new[] { true, false, true, false, true, false, true, false, true })
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : { 'Length' : 9, 'Bytes' : BinData(0, 'VQE=') }, 'S' : '101010101' }".Replace("'", "\"");
+            var expected = "{ 'B' : { 'Length' : 9, 'Bytes' : new BinData(0, 'VQE=') }, 'S' : '101010101' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -198,7 +198,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestEmpty() {
             var c = new C { B = new byte[0], S = new byte[0] };
             var json = c.ToJson();
-            var expected = "{ 'B' : BinData(0, ''), 'S' : '' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, ''), 'S' : '' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -212,7 +212,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestLengthOne() {
             var c = new C { B = new byte[] { 1 }, S = new byte[] { 1 } };
             var json = c.ToJson();
-            var expected = "{ 'B' : BinData(0, 'AQ=='), 'S' : '01' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, 'AQ=='), 'S' : '01' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -226,7 +226,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestLengthTwo() {
             var c = new C { B = new byte[] { 1, 2 }, S = new byte[] { 1, 2 } };
             var json = c.ToJson();
-            var expected = "{ 'B' : BinData(0, 'AQI='), 'S' : '0102' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, 'AQI='), 'S' : '0102' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -243,7 +243,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
             };
             var json = c.ToJson();
-            var expected = "{ 'B' : BinData(0, 'AQIDBAUGBwgJ'), 'S' : '010203040506070809' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, 'AQIDBAUGBwgJ'), 'S' : '010203040506070809' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -276,7 +276,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = byte.MinValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : BinData(0, 'AA=='), 'I' : 0, 'L' : NumberLong(0), 'S' : '00' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, 'AA=='), 'I' : 0, 'L' : NumberLong(0), 'S' : '00' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -293,7 +293,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = 0
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : BinData(0, 'AA=='), 'I' : 0, 'L' : NumberLong(0), 'S' : '00' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, 'AA=='), 'I' : 0, 'L' : NumberLong(0), 'S' : '00' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -310,7 +310,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = 1
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : BinData(0, 'AQ=='), 'I' : 1, 'L' : NumberLong(1), 'S' : '01' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, 'AQ=='), 'I' : 1, 'L' : NumberLong(1), 'S' : '01' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -327,7 +327,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = byte.MaxValue
             };
             var json = obj.ToJson();
-            var expected = "{ 'B' : BinData(0, '/w=='), 'I' : 255, 'L' : NumberLong(255), 'S' : 'ff' }".Replace("'", "\"");
+            var expected = "{ 'B' : new BinData(0, '/w=='), 'I' : 255, 'L' : NumberLong(255), 'S' : 'ff' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -792,7 +792,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = sbyte.MinValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'B' : BinData(0, 'gA=='), 'I' : -128, 'L' : NumberLong(-128), 'S' : '80' }").Replace("'", "\"");
+            var expected = ("{ 'B' : new BinData(0, 'gA=='), 'I' : -128, 'L' : NumberLong(-128), 'S' : '80' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -809,7 +809,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = -1
             };
             var json = obj.ToJson();
-            var expected = ("{ 'B' : BinData(0, '/w=='), 'I' : -1, 'L' : NumberLong(-1), 'S' : 'ff' }").Replace("'", "\"");
+            var expected = ("{ 'B' : new BinData(0, '/w=='), 'I' : -1, 'L' : NumberLong(-1), 'S' : 'ff' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -826,7 +826,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = 0
             };
             var json = obj.ToJson();
-            var expected = ("{ 'B' : BinData(0, 'AA=='), 'I' : 0, 'L' : NumberLong(0), 'S' : '00' }").Replace("'", "\"");
+            var expected = ("{ 'B' : new BinData(0, 'AA=='), 'I' : 0, 'L' : NumberLong(0), 'S' : '00' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -843,7 +843,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = 1
             };
             var json = obj.ToJson();
-            var expected = ("{ 'B' : BinData(0, 'AQ=='), 'I' : 1, 'L' : NumberLong(1), 'S' : '01' }").Replace("'", "\"");
+            var expected = ("{ 'B' : new BinData(0, 'AQ=='), 'I' : 1, 'L' : NumberLong(1), 'S' : '01' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -860,7 +860,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 S = sbyte.MaxValue
             };
             var json = obj.ToJson();
-            var expected = ("{ 'B' : BinData(0, 'fw=='), 'I' : 127, 'L' : NumberLong(127), 'S' : '7f' }").Replace("'", "\"");
+            var expected = ("{ 'B' : new BinData(0, 'fw=='), 'I' : 127, 'L' : NumberLong(127), 'S' : '7f' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

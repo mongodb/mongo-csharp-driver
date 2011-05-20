@@ -174,12 +174,27 @@ namespace MongoDB.Bson.Serialization {
             BsonReader bsonReader,
             Type nominalType
         ) {
+            return Deserialize(bsonReader, nominalType, null);
+        }
+
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
+        public static object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            IBsonSerializationOptions options
+        ) {
             if (nominalType == typeof(BsonDocument)) {
                 return BsonDocument.ReadFrom(bsonReader);
             }
 
             var serializer = LookupSerializer(nominalType);
-            return serializer.Deserialize(bsonReader, nominalType, null);
+            return serializer.Deserialize(bsonReader, nominalType, options);
         }
 
         /// <summary>

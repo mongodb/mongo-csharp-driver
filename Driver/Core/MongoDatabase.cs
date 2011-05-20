@@ -353,7 +353,9 @@ namespace MongoDB.Driver {
             string collectionName
         ) {
             var command = new CommandDocument("drop", collectionName);
-            return RunCommand(command);
+            var result = RunCommand(command);
+            server.IndexCache.Reset(name, collectionName);
+            return result;
         }
 
         /// <summary>

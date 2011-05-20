@@ -91,7 +91,7 @@ namespace MongoDB.Bson.IO {
 
             if (settings.OutputMode == JsonOutputMode.Shell) {
                 WriteNameHelper(name);
-                textWriter.Write("BinData({0}, \"{1}\")", (int) subType, Convert.ToBase64String(bytes));
+                textWriter.Write("new BinData({0}, \"{1}\")", (int) subType, Convert.ToBase64String(bytes));
             } else {
                 WriteStartDocument();
                 WriteString("$binary", Convert.ToBase64String(bytes));

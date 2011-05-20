@@ -103,10 +103,7 @@ namespace MongoDB.Driver.Internal {
         public void Reset(
             MongoCollection collection
         ) {
-            lock (syncRoot) {
-                var database = collection.Database;
-                cache.RemoveWhere(key => key.DatabaseName == database.Name && key.CollectionName == collection.Name);
-            }
+            Reset(collection.Database.Name, collection.Name);
         }
 
         /// <summary>
@@ -116,8 +113,32 @@ namespace MongoDB.Driver.Internal {
         public void Reset(
             MongoDatabase database
         ) {
+            Reset(database.Name);
+        }
+
+        /// <summary>
+        /// Resets part of the cache by removing all indexes for a database.
+        /// </summary>
+        /// <param name="databaseName">The name of the database.</param>
+        public void Reset(
+            string databaseName
+        ) {
             lock (syncRoot) {
-                cache.RemoveWhere(key => key.DatabaseName == database.Name);
+                cache.RemoveWhere(key => key.DatabaseName == databaseName);
+            }
+        }
+
+        /// <summary>
+        /// Resets part of the cache by removing all indexes for a collection.
+        /// </summary>
+        /// <param name="databaseName">The name of the database containing the collection.</param>
+        /// <param name="collectionName">The name of the collection.</param>
+        public void Reset(
+            string databaseName,
+            string collectionName
+        ) {
+            lock (syncRoot) {
+                cache.RemoveWhere(key => key.DatabaseName == databaseName && key.CollectionName == collectionName);
             }
         }
         #endregion

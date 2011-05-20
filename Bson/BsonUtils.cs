@@ -140,19 +140,24 @@ namespace MongoDB.Bson {
             string s,
             out byte[] bytes
         ) {
-            if ((s.Length & 1) != 0) { s = "0" + s; } // make length of s even
-            bytes = new byte[s.Length / 2];
-            for (int i = 0; i < bytes.Length; i++) {
-                string hex = s.Substring(2 * i, 2);
-                try {
-                    byte b = Convert.ToByte(hex, 16);
-                    bytes[i] = b;
-                } catch (FormatException) {
-                    bytes = null;
-                    return false;
+            if (s != null) {
+                if ((s.Length & 1) != 0) { s = "0" + s; } // make length of s even
+                bytes = new byte[s.Length / 2];
+                for (int i = 0; i < bytes.Length; i++) {
+                    string hex = s.Substring(2 * i, 2);
+                    try {
+                        byte b = Convert.ToByte(hex, 16);
+                        bytes[i] = b;
+                    } catch (FormatException) {
+                        bytes = null;
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
+
+            bytes = null;
+            return false;
         }
         #endregion
     }

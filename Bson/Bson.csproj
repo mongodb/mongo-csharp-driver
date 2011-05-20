@@ -85,11 +85,13 @@
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="Serialization\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonExtraElementsAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonGuidOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonSerializationOptionsAttribute.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />
+    <Compile Include="Serialization\Options\GuidSerializationOptions.cs" />
     <Compile Include="Serialization\Options\RepresentationSerializationOptions.cs" />
     <Compile Include="Exceptions\TruncationException.cs" />
     <Compile Include="IO\BsonBaseReader.cs" />
