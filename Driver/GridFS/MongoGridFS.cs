@@ -509,10 +509,11 @@ namespace MongoDB.Driver.GridFS {
         /// </summary>
         /// <param name="query">A query.</param>
         /// <returns>The matching GridFS files.</returns>
-        public IEnumerable<MongoGridFSFileInfo> Find(
+        public MongoCursor<MongoGridFSFileInfo> Find(
             IMongoQuery query
         ) {
-            return files.Find(query).Select(fileInfo => new MongoGridFSFileInfo(this, fileInfo));
+            var serializationOptions = new MongoGridFSFileInfo.SerializationOptions { GridFS = this };
+            return files.FindAs<MongoGridFSFileInfo>(query).SetSerializationOptions(serializationOptions);
         }
 
         /// <summary>
@@ -520,7 +521,7 @@ namespace MongoDB.Driver.GridFS {
         /// </summary>
         /// <param name="remoteFileName">The remote file name.</param>
         /// <returns>The matching GridFS files.</returns>
-        public IEnumerable<MongoGridFSFileInfo> Find(
+        public MongoCursor<MongoGridFSFileInfo> Find(
             string remoteFileName
         ) {
             EnsureIndexes();
@@ -531,7 +532,7 @@ namespace MongoDB.Driver.GridFS {
         /// Finds all GridFS files.
         /// </summary>
         /// <returns>The matching GridFS files.</returns>
-        public IEnumerable<MongoGridFSFileInfo> FindAll() {
+        public MongoCursor<MongoGridFSFileInfo> FindAll() {
             return Find(Query.Null);
         }
 

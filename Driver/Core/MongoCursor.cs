@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
 
@@ -41,6 +42,7 @@ namespace MongoDB.Driver {
         private int skip;
         private int limit; // number of documents to return (enforced by cursor)
         private int batchSize; // number of documents to return in each reply
+        private IBsonSerializationOptions serializationOptions;
         private bool isFrozen; // prevent any further modifications once enumeration has begun
         #endregion
 
@@ -96,7 +98,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual IMongoFields Fields {
             get { return fields; }
-            set { fields = value; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                fields = value;
+            }
         }
 
         /// <summary>
@@ -104,7 +109,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual BsonDocument Options {
             get { return options; }
-            set { options = value; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                options = value;
+            }
         }
 
         /// <summary>
@@ -112,7 +120,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual QueryFlags Flags {
             get { return flags | (slaveOk ? QueryFlags.SlaveOk : 0); }
-            set { flags = value; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                flags = value;
+            }
         }
 
         /// <summary>
@@ -120,7 +131,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual bool SlaveOk {
             get { return slaveOk || ((flags & QueryFlags.SlaveOk) != 0); }
-            set { slaveOk = value; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                slaveOk = value;
+            }
         }
 
         /// <summary>
@@ -128,7 +142,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual int Skip {
             get { return skip; }
-            set { skip = value; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                skip = value;
+            }
         }
 
         /// <summary>
@@ -136,7 +153,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual int Limit {
             get { return limit; }
-            set { limit = value; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                limit = value;
+            }
         }
 
         /// <summary>
@@ -144,7 +164,21 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual int BatchSize {
             get { return batchSize; }
-            set { batchSize = value; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                batchSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the serialization options (only needed in rare cases).
+        /// </summary>
+        public virtual IBsonSerializationOptions SerializationOptions {
+            get { return serializationOptions; }
+            set {
+                if (isFrozen) { ThrowFrozen(); }
+                serializationOptions = value;
+            }
         }
 
         /// <summary>
@@ -201,6 +235,7 @@ namespace MongoDB.Driver {
             clone.skip = skip;
             clone.limit = limit;
             clone.batchSize = batchSize;
+            clone.serializationOptions = serializationOptions;
             return clone;
         }
 
@@ -421,6 +456,19 @@ namespace MongoDB.Driver {
                 if (this.options == null) { this.options = new BsonDocument(); }
                 this.options.Merge(options, true); // overwriteExistingElements
             }
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the serialization options (only needed in rare cases).
+        /// </summary>
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public virtual MongoCursor SetSerializationOptions(
+            IBsonSerializationOptions serializationOptions
+        ) {
+            if (isFrozen) { ThrowFrozen(); }
+            this.serializationOptions = serializationOptions;
             return this;
         }
 
@@ -700,6 +748,17 @@ namespace MongoDB.Driver {
             BsonDocument options
         ) {
             return (MongoCursor<TDocument>) base.SetOptions(options);
+        }
+
+        /// <summary>
+        /// Sets the serialization options (only needed in rare cases).
+        /// </summary>
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetSerializationOptions(
+            IBsonSerializationOptions serializationOptions
+        ) {
+            return (MongoCursor<TDocument>) base.SetSerializationOptions(serializationOptions);
         }
 
         /// <summary>

@@ -412,6 +412,11 @@ namespace MongoDB.Bson.Serialization.Serializers {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
+            var guidSerializationOptions = options as GuidSerializationOptions;
+            if (guidSerializationOptions == null) {
+                guidSerializationOptions = GuidSerializationOptions.Defaults;
+            }
+
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType) {
                 case BsonType.Binary:
@@ -423,6 +428,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     }
                     if (subType != BsonBinarySubType.Uuid) {
                         throw new FileFormatException("BinaryData sub type is not Uuid");
+                    }
+                    if (guidSerializationOptions.ByteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
+                        // we don't need to Clone bytes this time because we know we own this byte array
+                        Array.Reverse(bytes, 0, 4);
+                        Array.Reverse(bytes, 4, 2);
+                        Array.Reverse(bytes, 6, 2);
                     }
                     return new Guid(bytes);
                 case BsonType.String:
@@ -447,16 +458,33 @@ namespace MongoDB.Bson.Serialization.Serializers {
             IBsonSerializationOptions options
         ) {
             var guid = (Guid) value;
-            var representation = (options == null) ? BsonType.Binary : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            var guidSerializationOptions = options as GuidSerializationOptions;
+            if (guidSerializationOptions == null) {
+                var representationOptions = options as RepresentationSerializationOptions;
+                if (representationOptions != null) {
+                    guidSerializationOptions = new GuidSerializationOptions(representationOptions.Representation);
+                }
+            }
+            if (guidSerializationOptions == null) {
+                guidSerializationOptions = GuidSerializationOptions.Defaults;
+            }
+
+            switch (guidSerializationOptions.Representation) {
                 case BsonType.Binary:
-                    bsonWriter.WriteBinaryData(guid.ToByteArray(), BsonBinarySubType.Uuid);
+                    var bytes = guid.ToByteArray();
+                    if (guidSerializationOptions.ByteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
+                        bytes = (byte[]) bytes.Clone(); // Clone is defensive in case Guid.ToByteArray returns an internal copy
+                        Array.Reverse(bytes, 0, 4);
+                        Array.Reverse(bytes, 4, 2);
+                        Array.Reverse(bytes, 6, 2);
+                    }
+                    bsonWriter.WriteBinaryData(bytes, BsonBinarySubType.Uuid);
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(guid.ToString());
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Guid'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'Guid'", guidSerializationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }

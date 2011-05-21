@@ -303,7 +303,7 @@ namespace MongoDB.BsonUnitTests.IO {
         [Test]
         public void TestGuid() {
             var guid = new Guid("B5F21E0C2A0D42d6AD03D827008D8AB6");
-            string json = "BinData(3, \"DB7ytQ0q1kKtA9gnAI2Ktg==\")";
+            var json = "BinData(3, \"DB7ytQ0q1kKtA9gnAI2Ktg==\")"; // test plain BinData without "new"
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.Binary, bsonReader.ReadBsonType());
                 byte[] bytes;
@@ -313,7 +313,8 @@ namespace MongoDB.BsonUnitTests.IO {
                 Assert.AreEqual(BsonBinarySubType.Uuid, subType);
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
-            Assert.AreEqual(json, BsonSerializer.Deserialize<Guid>(new StringReader(json)).ToJson());
+            var expected = "new " + json; // ToJson output will have "new" prepended
+            Assert.AreEqual(expected, BsonSerializer.Deserialize<Guid>(new StringReader(json)).ToJson());
         }
 
         [Test]

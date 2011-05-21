@@ -86,19 +86,19 @@ namespace MongoDB.Driver {
             string value,
             out MongoServerAddress address
         ) {
-            address = null;
-
-            Match match = Regex.Match(value, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
-            if (match.Success) {
-                string host = match.Groups["host"].Value;
-                string portString = match.Groups["port"].Value;
-                int port = (portString == "") ? 27017 : XmlConvert.ToInt32(portString);
-                address = new MongoServerAddress(host, port);
-                return true;
-
-            } else {
-                return false;
+            if (value != null) {
+                Match match = Regex.Match(value, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
+                if (match.Success) {
+                    string host = match.Groups["host"].Value;
+                    string portString = match.Groups["port"].Value;
+                    int port = (portString == "") ? 27017 : XmlConvert.ToInt32(portString);
+                    address = new MongoServerAddress(host, port);
+                    return true;
+                }
             }
+            
+            address = null;
+            return false;
         }
         #endregion
 

@@ -239,6 +239,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsFalse(BsonObjectId.TryParse("102030405060708090a0b0c", out objectId1)); // too short
             Assert.IsFalse(BsonObjectId.TryParse("x102030405060708090a0b0c", out objectId1)); // invalid character
             Assert.IsFalse(BsonObjectId.TryParse("00102030405060708090a0b0c", out objectId1)); // too long
+            Assert.IsFalse(BsonObjectId.TryParse(null, out objectId1)); // null
         }
     }
 }

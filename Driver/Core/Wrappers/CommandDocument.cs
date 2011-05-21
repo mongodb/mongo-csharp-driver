@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -73,6 +74,28 @@ namespace MongoDB.Driver {
         public CommandDocument(
             IDictionary<string, object> dictionary,
             IEnumerable<string> keys
+        )
+            : base(dictionary, keys) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the CommandDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public CommandDocument(
+            IDictionary dictionary
+        )
+            : base(dictionary) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the CommandDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public CommandDocument(
+            IDictionary dictionary,
+            IEnumerable keys
         )
             : base(dictionary, keys) {
         }

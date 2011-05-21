@@ -284,7 +284,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : BinData(0, 'AQ==') }".Replace("'", "\""); ;
+            var expected = "{ 'a' : new BinData(0, 'AQ==') }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -299,7 +299,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : BinData(0, 'AQI=') } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : new BinData(0, 'AQI=') } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -313,7 +313,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : BinData(0, 'AQ=='), 'b' : BinData(0, 'Ag==') }".Replace("'", "\""); ;
+            var expected = "{ 'a' : new BinData(0, 'AQ=='), 'b' : new BinData(0, 'Ag==') }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -329,7 +329,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : BinData(0, 'AQ=='), 'b' : BinData(0, 'Ag==') } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : new BinData(0, 'AQ=='), 'b' : new BinData(0, 'Ag==') } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 

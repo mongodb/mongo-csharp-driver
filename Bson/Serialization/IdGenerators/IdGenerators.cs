@@ -58,24 +58,23 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         public object GenerateId(
             object document
         ) {
-            var guidArray = Guid.NewGuid().ToByteArray();
+            var baseDate = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var now = DateTime.UtcNow;
+            var days = (ushort) (now - baseDate).TotalDays;
+            var milliseconds = (int) now.TimeOfDay.TotalMilliseconds;
 
-            var baseDate = new DateTime(1900, 1, 1);
-            var now = DateTime.Now;
+            // replace last 6 bytes of a new Guid with 2 bytes from days and 4 bytes from milliseconds
+            // see: The Cost of GUIDs as Primary Keys by Jimmy Nilson
+            // at: http://www.informit.com/articles/article.aspx?p=25862&seqNum=7
 
-            var days = new TimeSpan(now.Ticks - baseDate.Ticks);
-            var msecs = now.TimeOfDay;
-
-            var daysArray = BitConverter.GetBytes(days.Days);
-            var msecsArray = BitConverter.GetBytes((long) (msecs.TotalMilliseconds));
-
-            Array.Reverse(daysArray);
-            Array.Reverse(msecsArray);
-
-            Array.Copy(daysArray, daysArray.Length - 2, guidArray, guidArray.Length - 6, 2);
-            Array.Copy(msecsArray, msecsArray.Length - 4, guidArray, guidArray.Length - 4, 4);
-
-            return new Guid(guidArray);
+            var bytes = Guid.NewGuid().ToByteArray();
+            Array.Copy(BitConverter.GetBytes(days), 0, bytes, 10, 2);
+            Array.Copy(BitConverter.GetBytes(milliseconds), 0, bytes, 12, 4);
+            if (BitConverter.IsLittleEndian) {
+                Array.Reverse(bytes, 10, 2);
+                Array.Reverse(bytes, 12, 4);
+            }
+            return new Guid(bytes);
         }
 
         /// <summary>

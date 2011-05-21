@@ -23,6 +23,7 @@ using System.Text;
 
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Internal {
     internal enum MongoConnectionState {
@@ -291,7 +292,7 @@ namespace MongoDB.Driver.Internal {
                 SendMessage(message, SafeMode.False);
             }
 
-            var reply = ReceiveMessage<BsonDocument>();
+            var reply = ReceiveMessage<BsonDocument>(null);
             if (reply.NumberReturned == 0) {
                 var message = string.Format("Command '{0}' failed: no response returned", commandName);
                 throw new MongoCommandException(message);
@@ -305,7 +306,9 @@ namespace MongoDB.Driver.Internal {
             return commandResult;
         }
 
-        internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>() {
+        internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(
+            IBsonSerializationOptions serializationOptions
+        ) {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed"); }
             lock (connectionLock) {
                 try {
@@ -314,7 +317,7 @@ namespace MongoDB.Driver.Internal {
                         networkStream.ReadTimeout = (int) serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
                         buffer.LoadFrom(networkStream);
                         var reply = new MongoReplyMessage<TDocument>(this);
-                        reply.ReadFrom(buffer);
+                        reply.ReadFrom(buffer, serializationOptions);
                         return reply;
                     }
                 } catch (Exception ex) {
@@ -367,7 +370,7 @@ namespace MongoDB.Driver.Internal {
 
                 SafeModeResult safeModeResult = null;
                 if (safeMode.Enabled) {
-                    var replyMessage = ReceiveMessage<BsonDocument>();
+                    var replyMessage = ReceiveMessage<BsonDocument>(null);
                     var safeModeResponse = replyMessage.Documents[0];
                     safeModeResult = new SafeModeResult();
                     safeModeResult.Initialize(safeModeCommand, safeModeResponse);
