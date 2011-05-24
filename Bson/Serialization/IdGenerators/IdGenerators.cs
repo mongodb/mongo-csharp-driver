@@ -25,6 +25,56 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.IdGenerators {
     /// <summary>
+    /// Represents an Id generator for BsonObjectIds.
+    /// </summary>
+    public class BsonObjectIdGenerator : IIdGenerator {
+        #region private static fields
+        private static BsonObjectIdGenerator instance = new BsonObjectIdGenerator();
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonObjectIdGenerator class.
+        /// </summary>
+        public BsonObjectIdGenerator() {
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets an instance of ObjectIdGenerator.
+        /// </summary>
+        public static BsonObjectIdGenerator Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Generates an Id.
+        /// </summary>
+        /// <param name="document">The document for which an Id is being generated.</param>
+        /// <returns>An Id.</returns>
+        public object GenerateId(
+            object document
+        ) {
+            return BsonObjectId.GenerateNewId();
+        }
+
+        /// <summary>
+        /// Tests whether an Id is empty.
+        /// </summary>
+        /// <param name="id">The Id.</param>
+        /// <returns>True if the Id is empty.</returns>
+        public bool IsEmpty(
+            object id
+        ) {
+            return id == null || ((BsonValue) id).IsBsonNull || ((BsonObjectId) id).Value == ObjectId.Empty;
+        }
+        #endregion
+    }
+
+    /// <summary>
     /// Represents an Id generator for Guids using the COMB algorithm.
     /// </summary>
     public class CombGuidGenerator : IIdGenerator {

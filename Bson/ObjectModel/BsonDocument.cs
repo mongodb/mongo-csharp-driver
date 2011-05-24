@@ -661,7 +661,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Gets the Id of the document.
         /// </summary>
-        /// <param name="id">The Id of the document.</param>
+        /// <param name="id">The Id of the document (the RawValue if it has one, otherwise the element Value).</param>
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
         /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
@@ -673,15 +673,16 @@ namespace MongoDB.Bson {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {
                 id = idElement.Value.RawValue;
-                if (id != null) {
-                    idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
-                } else {
-                    idGenerator = ObjectIdGenerator.Instance;
+                if (id == null) {
+                    id = idElement.Value;
                 }
+
+                idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
             } else {
                 id = null;
                 idGenerator = ObjectIdGenerator.Instance;
             }
+
             idNominalType = typeof(BsonValue);
             return true;
         }

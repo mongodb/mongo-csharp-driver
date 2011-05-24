@@ -21,6 +21,7 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace MongoDB.BsonUnitTests.Serialization {
     [TestFixture]
@@ -41,14 +42,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
 
         [Test]
         public void TestIntZeroIdChecker() {
-            var idChecker = BsonSerializer.LookupIdGenerator(typeof(int));
+            var idChecker = new ZeroIdChecker<int>();
             Assert.IsTrue(idChecker.IsEmpty(0));
             Assert.IsFalse(idChecker.IsEmpty(1));
         }
 
         [Test]
         public void TestNullIdChecker() {
-            var idChecker = BsonSerializer.LookupIdGenerator(typeof(object));
+            var idChecker = new NullIdChecker();
             Assert.IsTrue(idChecker.IsEmpty(null));
             Assert.IsFalse(idChecker.IsEmpty(new object()));
         }
@@ -62,7 +63,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
 
         [Test]
         public void TestStructZeroIdChecker() {
-            var idChecker = BsonSerializer.LookupIdGenerator(typeof(S));
+            var idChecker = new ZeroIdChecker<S>();
             Assert.IsTrue(idChecker.IsEmpty(default(S)));
             Assert.IsTrue(idChecker.IsEmpty(new S()));
             Assert.IsTrue(idChecker.IsEmpty(new S { I = 0 }));

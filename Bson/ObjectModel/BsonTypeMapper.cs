@@ -234,7 +234,8 @@ namespace MongoDB.Bson {
             out BsonValue bsonValue
         ) {
             if (value == null) {
-                throw new ArgumentNullException("Value to be mapped to BsonValue cannot be null");
+                bsonValue = null;
+                return false;
             }
 
             var valueType = value.GetType();

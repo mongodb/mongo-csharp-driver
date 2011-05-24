@@ -34,12 +34,32 @@ namespace MongoDB.Bson.Serialization {
         private static Dictionary<Type, IBsonSerializer> serializers = new Dictionary<Type, IBsonSerializer>();
         private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
         private static List<IBsonSerializationProvider> serializationProviders = new List<IBsonSerializationProvider>();
+        private static bool useNullIdChecker = false;
+        private static bool useZeroIdChecker = false;
         #endregion
 
         #region static constructor
         static BsonSerializer() {
             RegisterDefaultSerializationProvider();
             RegisterIdGenerators();
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
+        /// </summary>
+        public static bool UseNullIdChecker {
+            get { return useNullIdChecker; }
+            set { useNullIdChecker = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
+        /// </summary>
+        public static bool UseZeroIdChecker {
+            get { return useZeroIdChecker; }
+            set { useZeroIdChecker = value; }
         }
         #endregion
 
@@ -283,7 +303,7 @@ namespace MongoDB.Bson.Serialization {
             lock (configLock) {
                 IIdGenerator idGenerator;
                 if (!idGenerators.TryGetValue(type, out idGenerator)) {
-                    if (type.IsValueType) {
+                    if (type.IsValueType && useZeroIdChecker) {
                         var iEquatableDefinition = typeof(IEquatable<>);
                         var iEquatableType = iEquatableDefinition.MakeGenericType(type);
                         if (iEquatableType.IsAssignableFrom(type)) {
@@ -291,8 +311,10 @@ namespace MongoDB.Bson.Serialization {
                             var zeroIdCheckerType = zeroIdCheckerDefinition.MakeGenericType(type);
                             idGenerator = (IIdGenerator) Activator.CreateInstance(zeroIdCheckerType);
                         }
-                    } else {
+                    } else if (useNullIdChecker) {
                         idGenerator = NullIdChecker.Instance;
+                    } else {
+                        idGenerator = null;
                     }
 
                     idGenerators[type] = idGenerator; // remember it even if it's null
@@ -476,6 +498,7 @@ namespace MongoDB.Bson.Serialization {
         }
 
         private static void RegisterIdGenerators() {
+            BsonSerializer.RegisterIdGenerator(typeof(BsonObjectId), BsonObjectIdGenerator.Instance);
             BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
             BsonSerializer.RegisterIdGenerator(typeof(ObjectId), ObjectIdGenerator.Instance);
         }
