@@ -1036,8 +1036,8 @@ namespace MongoDB.DriverOnlineTests {
             var nindexes = result.IndexCount;
             var keysPerIndex = result.KeysPerIndex;
             var valid = result.IsValid;
-            //var errors = result.Errors;
-            //var warning = result.Warning;
+            var errors = result.Errors;
+            var warning = result.Warning;
         }
     }
 }
