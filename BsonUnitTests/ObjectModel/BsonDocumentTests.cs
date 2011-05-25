@@ -314,6 +314,12 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual(3, document["B"].AsBsonDocument["D"].AsInt32);
         }
 
+        [Test]
+        public void TestParse() {
+            var json = "{ a : 1, b : 'abc' }";
+            var document = BsonDocument.Parse(json);
+        }
+
         private void AssertAreEqual(
             string expected,
             byte[] actual

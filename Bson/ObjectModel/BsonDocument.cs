@@ -338,6 +338,20 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Parses a JSON string and returns a BsonDocument.
+        /// </summary>
+        /// <param name="json">The JSON string.</param>
+        /// <returns>A BsonDocument.</returns>
+        public static BsonDocument Parse(
+            string json
+        ) {
+            using (var bsonReader = BsonReader.Create(json)) {
+                var document = new BsonDocument();
+                return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument), null);
+            }
+        }
+
+        /// <summary>
         /// Reads a BsonDocument from a BsonBuffer.
         /// </summary>
         /// <param name="buffer">The BsonBuffer.</param>
