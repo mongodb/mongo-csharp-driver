@@ -46,7 +46,6 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             var result = collection.Validate();
             Assert.IsTrue(result.Ok);
             Assert.AreEqual("driveronlinetests.test", result.Namespace);
-            Assert.IsTrue(result.ResultString.Length > 0);
         }
     }
 }
