@@ -151,7 +151,7 @@
     <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
     <Compile Include="Internal\DirectConnector.cs" />
     <Compile Include="Internal\IndexCache.cs" />
-    <Compile Include="Internal\MongoCursorEnumerator.cs" />
+    <Compile Include="Core\MongoCursorEnumerator.cs" />
     <Compile Include="Internal\MongoKillCursorsMessages.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
     <Compile Include="Internal\MongoConnection.cs" />
