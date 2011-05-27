@@ -102,21 +102,15 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
                 { "A", 1 }
             };
             collection.Save(document);
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual("_id", document.GetElement(0).Name);
-            Assert.IsInstanceOf<BsonObjectId>(document["_id"]);
-            Assert.AreNotEqual(ObjectId.Empty, document["_id"].AsObjectId);
             Assert.AreEqual(1, collection.Count());
 
-            var id = document["_id"].AsObjectId;
             document["A"] = 2;
             collection.Save(document);
-            Assert.AreEqual(id, document["_id"].AsObjectId);
             Assert.AreEqual(1, collection.Count());
 
             document = collection.FindOneAs<BsonDocument>();
             Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(id, document["_id"].AsObjectId);
+            Assert.AreEqual(BsonNull.Value, document["_id"].AsBsonNull);
             Assert.AreEqual(2, document["A"].AsInt32);
         }
 
@@ -444,22 +438,23 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         public void TestCStringId() {
             collection.RemoveAll();
 
-            var document = new CStringId { A = 1 };
+            var document = new CStringId { Id = null, A = 1 };
             Assert.Throws<InvalidOperationException>(() => collection.Save(document)); // Id is null
 
-            var id = "123";
-            document.Id = id;
+            document = new CStringId { Id = "123", A = 1 };
             collection.Save(document);
-            Assert.AreEqual(id, document.Id);
-            Assert.AreEqual(1, collection.Count());
-
-            document.A = 2;
-            collection.Save(document);
-            Assert.AreEqual(id, document.Id);
             Assert.AreEqual(1, collection.Count());
 
             document = collection.FindOneAs<CStringId>();
-            Assert.AreEqual(id, document.Id);
+            Assert.AreEqual("123", document.Id);
+            Assert.AreEqual(1, document.A);
+
+            document.A = 2;
+            collection.Save(document);
+            Assert.AreEqual(1, collection.Count());
+
+            document = collection.FindOneAs<CStringId>();
+            Assert.AreEqual("123", document.Id);
             Assert.AreEqual(2, document.A);
         }
     }

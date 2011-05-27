@@ -1009,8 +1009,35 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void Validate() {
+        public void TestValidate() {
+            // ensure collection exists
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument("x", 1));
+
             var result = collection.Validate();
+            var ns = result.Namespace;
+            var firstExtent = result.FirstExtent;
+            var lastExtent = result.LastExtent;
+            var extentCount = result.ExtentCount;
+            var dataSize = result.DataSize;
+            var nrecords = result.RecordCount;
+            var lastExtentSize = result.LastExtentSize;
+            var padding = result.Padding;
+            var firstExtentDetails = result.FirstExtentDetails;
+            var loc = firstExtentDetails.Loc;
+            var xnext = firstExtentDetails.XNext;
+            var xprev = firstExtentDetails.XPrev;
+            var nsdiag = firstExtentDetails.NSDiag;
+            var size = firstExtentDetails.Size;
+            var firstRecord = firstExtentDetails.FirstRecord;
+            var lastRecord = firstExtentDetails.LastRecord;
+            var deletedCount = result.DeletedCount;
+            var deletedSize = result.DeletedSize;
+            var nindexes = result.IndexCount;
+            var keysPerIndex = result.KeysPerIndex;
+            var valid = result.IsValid;
+            var errors = result.Errors;
+            var warning = result.Warning;
         }
     }
 }

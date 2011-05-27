@@ -57,13 +57,6 @@ namespace MongoDB.Bson {
 
         #region public properties
         /// <summary>
-        /// Gets the BsonTimestamp as a long.
-        /// </summary>
-        public override object RawValue {
-            get { return value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonTimestamp.
         /// </summary>
         public long Value {

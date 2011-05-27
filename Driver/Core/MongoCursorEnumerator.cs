@@ -23,9 +23,14 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Internal;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoCursorEnumerator<TDocument> : IEnumerator<TDocument> {
+namespace MongoDB.Driver {
+    /// <summary>
+    /// Reprsents an enumerator that fetches the results of a query sent to the server.
+    /// </summary>
+    /// <typeparam name="TDocument"></typeparam>
+    public class MongoCursorEnumerator<TDocument> : IEnumerator<TDocument> {
         #region private fields
         private bool disposed = false;
         private bool started = false;
@@ -36,10 +41,15 @@ namespace MongoDB.Driver.Internal {
         private int positiveLimit;
         private MongoReplyMessage<TDocument> reply;
         private int replyIndex;
+        private ResponseFlags responseFlags;
         private long openCursorId;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MongoCursorEnumerator class.
+        /// </summary>
+        /// <param name="cursor">The cursor to be enumerated.</param>
         public MongoCursorEnumerator(
             MongoCursor<TDocument> cursor
         ) {
@@ -49,6 +59,9 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the current document.
+        /// </summary>
         public TDocument Current {
             get {
                 if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
@@ -61,9 +74,26 @@ namespace MongoDB.Driver.Internal {
                 return reply.Documents[replyIndex];
             }
         }
+
+        /// <summary>
+        /// Gets whether the cursor is dead (used with tailable cursors).
+        /// </summary>
+        public bool IsDead {
+            get { return openCursorId == 0; }
+        }
+
+        /// <summary>
+        /// Gets whether the server is await capable (used with tailable cursors).
+        /// </summary>
+        public bool IsServerAwaitCapable {
+            get { return (responseFlags & ResponseFlags.AwaitCapable) != 0; }
+        }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Disposes of any resources held by this enumerator.
+        /// </summary>
         public void Dispose() {
             if (!disposed) {
                 try {
@@ -74,10 +104,21 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
+        /// <summary>
+        /// Moves to the next result and returns true if another result is available.
+        /// </summary>
+        /// <returns>True if another result is available.</returns>
         public bool MoveNext() {
             if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
             if (done) {
-                return false;
+                // normally once MoveNext returns false the enumerator is done and MoveNext will return false forever after that
+                // but for a tailable cursor MoveNext can return false for awhile and eventually return true again once new data arrives
+                // so a tailable cursor is never really done (at least while there is still an open cursor)
+                if ((cursor.Flags & QueryFlags.TailableCursor) != 0 && openCursorId != 0) {
+                    done = false;
+                } else {
+                    return false;
+                }
             }
 
             if (!started) {
@@ -98,7 +139,8 @@ namespace MongoDB.Driver.Internal {
                 return false;
             }
 
-            if (replyIndex < reply.Documents.Count - 1) {
+            // reply would only be null if the cursor is tailable and temporarily ran out of documents
+            if (reply != null && replyIndex < reply.Documents.Count - 1) {
                 replyIndex++; // move to next document in the current reply
             } else {
                 if (openCursorId != 0) {
@@ -120,8 +162,11 @@ namespace MongoDB.Driver.Internal {
             return true;
         }
 
+        /// <summary>
+        /// Resets the enumerator (not supported by MongoCursorEnumerator).
+        /// </summary>
         public void Reset() {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
         #endregion
 
@@ -214,6 +259,7 @@ namespace MongoDB.Driver.Internal {
         ) {
             connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
             var reply = connection.ReceiveMessage<TDocument>(cursor.SerializationOptions);
+            responseFlags = reply.ResponseFlags;
             openCursorId = reply.CursorId;
             return reply;
         }
