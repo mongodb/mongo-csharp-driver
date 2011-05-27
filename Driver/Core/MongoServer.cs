@@ -33,6 +33,7 @@ namespace MongoDB.Driver {
         #region private static fields
         private static object staticLock = new object();
         private static Dictionary<MongoServerSettings, MongoServer> servers = new Dictionary<MongoServerSettings, MongoServer>();
+        private static int maxServerCount = 100;
         #endregion
 
         #region private fields
@@ -101,6 +102,10 @@ namespace MongoDB.Driver {
             lock (staticLock) {
                 MongoServer server;
                 if (!servers.TryGetValue(settings, out server)) {
+                    if (servers.Count >= maxServerCount) {
+                        var message = string.Format("MongoServer.Create has already created the maximum number of servers allowed: {0}", maxServerCount);
+                        throw new MongoException(message);
+                    }
                     server = new MongoServer(settings);
                     servers.Add(settings, server);
                 }
@@ -155,6 +160,40 @@ namespace MongoDB.Driver {
         ) {
             var url = MongoUrl.Create(uri.ToString());
             return Create(url);
+        }
+
+        /// <summary>
+        /// Unregisters a server from the dictionary used by Create to remember which servers have already been created.
+        /// </summary>
+        /// <param name="server">The server to unregister.</param>
+        public static void UnregisterServer(
+            MongoServer server
+        ) {
+            try { server.Disconnect(); } catch { } // ignore exceptions
+            lock (staticLock) {
+                servers.Remove(server.settings);
+            }
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets or sets the maximum number of instances of MongoServer that will be allowed to be created.
+        /// </summary>
+        public static int MaxServerCount {
+            get { return maxServerCount; }
+            set { maxServerCount = value; }
+        }
+
+        /// <summary>
+        /// Gets the number of instances of MongoServer that have been created.
+        /// </summary>
+        public static int ServerCount {
+            get {
+                lock (staticLock) {
+                    return servers.Count;
+                }
+            }
         }
         #endregion
 
