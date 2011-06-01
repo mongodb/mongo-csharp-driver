@@ -62,8 +62,7 @@ namespace MongoDB.Bson.IO {
                     ReadBsonType();
                 }
                 if (state != BsonReaderState.Value) {
-                    var message = string.Format("CurrentBsonType cannot be called when State is: {0}", state);
-                    throw new InvalidOperationException(message);
+                    ThrowInvalidState("CurrentBsonType", BsonReaderState.Value);
                 }
                 return currentBsonType;
             }
@@ -98,8 +97,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             if (state != BsonReaderState.Type) {
-                var message = string.Format("FindElement cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("FindElement", BsonReaderState.Type);
             }
 
             BsonType bsonType;
@@ -124,8 +122,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             if (state != BsonReaderState.Type) {
-                var message = string.Format("FindString cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("FindStringElement", BsonReaderState.Type);
             }
 
             BsonType bsonType;
@@ -272,8 +269,7 @@ namespace MongoDB.Bson.IO {
                 ReadBsonType();
             }
             if (state != BsonReaderState.Name) {
-                var message = string.Format("ReadName cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("ReadName", BsonReaderState.Name);
             }
 
             state = BsonReaderState.Value;
@@ -394,6 +390,36 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
+        /// Throws an InvalidOperationException when the method called is not valid for the current ContextType.
+        /// </summary>
+        /// <param name="methodName">The name of the method.</param>
+        /// <param name="actualContextType">The actual ContextType.</param>
+        /// <param name="validContextTypes">The valid ContextTypes.</param>
+        protected void ThrowInvalidContextType(
+            string methodName,
+            ContextType actualContextType,
+            params ContextType[] validContextTypes
+        ) {
+            var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
+            var message = string.Format("{0} can only be called when ContextType is {1}, not when ContextType is {2}.", methodName, validContextTypesString, actualContextType);
+            throw new InvalidOperationException(message);
+        }
+
+        /// <summary>
+        /// Throws an InvalidOperationException when the method called is not valid for the current state.
+        /// </summary>
+        /// <param name="methodName">The name of the method.</param>
+        /// <param name="validStates">The valid states.</param>
+        protected void ThrowInvalidState(
+            string methodName,
+            params BsonReaderState[] validStates
+        ) {
+            var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
+            var message = string.Format("{0} can only be called when State is {1}, not when State is {2}.", methodName, validStatesString, state);
+            throw new InvalidOperationException(message);
+        }
+
+        /// <summary>
         /// Throws an ObjectDisposedException.
         /// </summary>
         protected void ThrowObjectDisposedException() {
@@ -417,11 +443,10 @@ namespace MongoDB.Bson.IO {
                 state = BsonReaderState.Value;
             }
             if (state != BsonReaderState.Value) {
-                var message = string.Format("{0} cannot be called when State is: {1}", methodName, state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState(methodName, BsonReaderState.Value);
             }
             if (currentBsonType != requiredBsonType) {
-                var message = string.Format("{0} cannot be called when BsonType is: {1}", methodName, currentBsonType);
+                var message = string.Format("{0} can only be called when CurrentBsonType is {1}, not when CurrentBsonType is {2}.", methodName, requiredBsonType, currentBsonType);
                 throw new InvalidOperationException(message);
             }
         }
@@ -436,7 +461,7 @@ namespace MongoDB.Bson.IO {
             ReadBsonType();
             var actualName = ReadName();
             if (actualName != expectedName) {
-                var message = string.Format("Element name is not: {0}", expectedName);
+                var message = string.Format("Expected element name to be '{0}', not '{1}'.", expectedName, actualName);
                 throw new FileFormatException(message);
             }
         }

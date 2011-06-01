@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            throw new InvalidOperationException("Subclass must implement Deserialize");
+            throw new NotSupportedException("Subclass must implement Deserialize.");
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
-            throw new InvalidOperationException("Subclass must implement GetDocumentId");
+            throw new NotSupportedException("Subclass must implement GetDocumentId.");
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             object value,
             IBsonSerializationOptions options
         ) {
-            throw new InvalidOperationException("Subclass must implement Serialize");
+            throw new NotSupportedException("Subclass must implement Serialize.");
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             object document,
             object id
         ) {
-            throw new InvalidOperationException("Subclass must implement SetDocumentId");
+            throw new NotSupportedException("Subclass must implement SetDocumentId.");
         }
         #endregion
     }

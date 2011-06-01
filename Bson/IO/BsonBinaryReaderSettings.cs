@@ -75,7 +75,7 @@ namespace MongoDB.Bson.IO {
         public bool CloseInput {
             get { return closeInput; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
                 closeInput = value;
             }
         }
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.IO {
         public bool FixOldBinarySubTypeOnInput {
             get { return fixOldBinarySubTypeOnInput; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
                 fixOldBinarySubTypeOnInput = value;
             }
         }
@@ -104,7 +104,7 @@ namespace MongoDB.Bson.IO {
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
                 maxDocumentSize = value;
             }
         }

@@ -359,7 +359,7 @@ namespace MongoDB.Bson.Serialization {
                     }
 
                     if (serializer == null) {
-                        var message = string.Format("No serializer found for type: {0}", type.FullName);
+                        var message = string.Format("No serializer found for type {0}.", type.FullName);
                         throw new BsonSerializationException(message);
                     }
 

@@ -88,7 +88,7 @@ namespace MongoDB.Bson.IO {
         public bool CloseOutput {
             get { return closeOutput; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 closeOutput = value;
             }
         }
@@ -99,7 +99,7 @@ namespace MongoDB.Bson.IO {
         public Encoding Encoding {
             get { return encoding; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 encoding = value;
             }
         }
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.IO {
         public bool Indent {
             get { return indent; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 indent = value;
             }
         }
@@ -121,7 +121,7 @@ namespace MongoDB.Bson.IO {
         public string IndentChars {
             get { return indentChars; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 indentChars = value;
             }
         }
@@ -139,7 +139,7 @@ namespace MongoDB.Bson.IO {
         public string NewLineChars {
             get { return newLineChars; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 newLineChars = value;
             }
         }
@@ -150,7 +150,7 @@ namespace MongoDB.Bson.IO {
         public JsonOutputMode OutputMode {
             get { return outputMode; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 outputMode = value;
             }
         }

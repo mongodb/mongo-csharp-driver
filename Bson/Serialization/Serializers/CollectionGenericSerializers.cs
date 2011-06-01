@@ -66,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonReader.ReadEndArray();
                 return list;
             } else {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}", nominalType.FullName, bsonType);
+                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
             }
         }
@@ -139,7 +139,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonReader.ReadEndArray();
                 return queue;
             } else {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}", nominalType.FullName, bsonType);
+                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
             }
         }
@@ -212,7 +212,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonReader.ReadEndArray();
                 return stack;
             } else {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}", nominalType.FullName, bsonType);
+                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
             }
         }

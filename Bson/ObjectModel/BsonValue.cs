@@ -1027,7 +1027,7 @@ namespace MongoDB.Bson {
                     bsonReader.ReadUndefined();
                     return BsonUndefined.Value;
                 default:
-                    var message = string.Format("Invalid BsonType: {0}", bsonType);
+                    var message = string.Format("Invalid BsonType {0}.", bsonType);
                     throw new BsonInternalException(message);
             }
         }
@@ -1090,7 +1090,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            throw new BsonInternalException("A subclass of BsonValue did not override Equals");
+            throw new BsonInternalException("A subclass of BsonValue did not override Equals.");
         }
 
         /// <summary>
@@ -1098,7 +1098,7 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <returns>The hash code.</returns>
         public override int GetHashCode() {
-            throw new BsonInternalException("A subclass of BsonValue did not override GetHashCode");
+            throw new BsonInternalException("A subclass of BsonValue did not override GetHashCode.");
         }
 
         /// <summary>
@@ -1187,7 +1187,8 @@ namespace MongoDB.Bson {
                         if (documentWrapper != null) {
                             documentWrapper.Serialize(bsonWriter, typeof(BsonDocument), null);
                         } else {
-                            throw new BsonInternalException("Unexpected class for BsonType document: ", this.GetType().FullName);
+                            var message = string.Format("BsonType Document can only be used with the classes BsonDocument or BsonDocumentWrapper, not with the class {0}.", this.GetType().FullName);
+                            throw new BsonInternalException(message);
                         }
                     }
                     break;

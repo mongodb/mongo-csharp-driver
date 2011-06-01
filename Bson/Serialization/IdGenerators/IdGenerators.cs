@@ -224,7 +224,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         public object GenerateId(
             object document
         ) {
-            throw new InvalidOperationException("Id cannot be null");
+            throw new InvalidOperationException("Id cannot be null.");
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         public object GenerateId(
             object document
         ) {
-            throw new InvalidOperationException("Id cannot be default value (all zeros)");
+            throw new InvalidOperationException("Id cannot be default value (all zeros).");
         }
 
         /// <summary>

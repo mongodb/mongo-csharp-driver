@@ -294,7 +294,7 @@ namespace MongoDB.Bson.IO {
             EnsureDataAvailable(1);
             var bsonType = (BsonType) chunk[chunkOffset];
             if (!IsValidBsonType(bsonType)) {
-                string message = string.Format("Invalid BsonType: {0}", (int) bsonType);
+                string message = string.Format("Invalid BsonType {0}.", (int) bsonType);
                 throw new FileFormatException(message);
             }
             return bsonType;
@@ -331,7 +331,7 @@ namespace MongoDB.Bson.IO {
             EnsureDataAvailable(1);
             var bsonType = (BsonType) chunk[chunkOffset];
             if (!IsValidBsonType(bsonType)) {
-                string message = string.Format("Invalid BsonType: {0}", (int) bsonType);
+                string message = string.Format("Invalid BsonType {0}.", (int) bsonType);
                 throw new FileFormatException(message);
             }
             Position++;
@@ -474,7 +474,7 @@ namespace MongoDB.Bson.IO {
             }
             byte terminator = ReadByte();
             if (terminator != 0) {
-                throw new FileFormatException("String is missing null terminator");
+                throw new FileFormatException("String is missing null terminator.");
             }
             return value;
         }
@@ -522,7 +522,7 @@ namespace MongoDB.Bson.IO {
                 localPosition += chunkSize;
             }
 
-            throw new FileFormatException("String is missing null terminator");
+            throw new FileFormatException("String is missing null terminator.");
         }
 
         /// <summary>
@@ -789,7 +789,7 @@ namespace MongoDB.Bson.IO {
             if (length - position < needed) {
                 var available = length - position;
                 var message = string.Format(
-                    "Not enough input bytes available: {0} needed but only {1} available (at position {2})",
+                    "Not enough input bytes available. Needed {0}, but only {1} are available (at position {2}).",
                     needed,
                     available,
                     position

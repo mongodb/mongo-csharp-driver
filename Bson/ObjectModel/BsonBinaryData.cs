@@ -335,7 +335,7 @@ namespace MongoDB.Bson {
                 }
                 return new Guid(bytes);
             } else {
-                throw new InvalidOperationException("BinaryData subtype is not UUID");
+                throw new InvalidOperationException("BinaryData subtype is not UUID.");
             }
         }
 

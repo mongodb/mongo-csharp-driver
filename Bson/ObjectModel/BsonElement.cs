@@ -168,12 +168,12 @@ namespace MongoDB.Bson {
             BsonElement element;
             if (ReadFrom(bsonReader, out element)) {
                 if (element.Name != expectedName) {
-                    string message = string.Format("Element name is not {0}", expectedName);
+                    string message = string.Format("Expected element '{0}', not '{1}'.", expectedName, element.name);
                     throw new FileFormatException(message);
                 }
                 return element;
             } else {
-                string message = string.Format("Element is missing: {0}", expectedName);
+                string message = string.Format("Element '{0}' is missing.", expectedName);
                 throw new FileFormatException(message);
             }
         }

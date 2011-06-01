@@ -138,8 +138,7 @@ namespace MongoDB.Bson.IO {
                 return currentBsonType;
             }
             if (state != BsonReaderState.Type) {
-                var message = string.Format("ReadBsonType cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("ReadBsonType", BsonReaderState.Type);
             }
 
             currentBsonType = buffer.ReadBsonType();
@@ -154,7 +153,7 @@ namespace MongoDB.Bson.IO {
                         state = BsonReaderState.EndOfDocument;
                         return BsonType.EndOfDocument;
                     default:
-                        var message = string.Format("EndOfDocument BsonType not valid when ContextType is: '{0}'", context.ContextType);
+                        var message = string.Format("BsonType EndOfDocument is not valid when ContextType is {0}.", context.ContextType);
                         throw new FileFormatException(message);
                 }
             } else {
@@ -169,7 +168,7 @@ namespace MongoDB.Bson.IO {
                         state = BsonReaderState.Name;
                         break;
                     default:
-                        throw new BsonInternalException("Unexpected ContextType");
+                        throw new BsonInternalException("Unexpected ContextType.");
                 }
 
                 return currentBsonType;
@@ -204,15 +203,13 @@ namespace MongoDB.Bson.IO {
         public override void ReadEndArray() {
             if (disposed) { ThrowObjectDisposedException(); }
             if (context.ContextType != ContextType.Array) {
-                var message = string.Format("ReadEndArray cannot be called when ContextType is: {0}", context.ContextType);
-                throw new InvalidOperationException(message);
+                ThrowInvalidContextType("ReadEndArray", context.ContextType, ContextType.Array);
             }
             if (state == BsonReaderState.Type) {
                 ReadBsonType(); // will set state to EndOfArray if at end of array
             }
             if (state != BsonReaderState.EndOfArray) {
-                var message = string.Format("ReadEndArray cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("ReadEndArray", BsonReaderState.EndOfArray);
             }
 
             context = context.PopContext(buffer.Position);
@@ -220,7 +217,7 @@ namespace MongoDB.Bson.IO {
                 case ContextType.Array: state = BsonReaderState.Type; break;
                 case ContextType.Document: state = BsonReaderState.Type; break;
                 case ContextType.TopLevel: state = BsonReaderState.Done; break;
-                default: throw new BsonInternalException("Unexpected ContextType");
+                default: throw new BsonInternalException("Unexpected ContextType.");
             }
         }
 
@@ -233,15 +230,13 @@ namespace MongoDB.Bson.IO {
                 context.ContextType != ContextType.Document &&
                 context.ContextType != ContextType.ScopeDocument
             ) {
-                var message = string.Format("ReadEndDocument cannot be called when ContextType is: {0}", context.ContextType);
-                throw new InvalidOperationException(message);
+                ThrowInvalidContextType("ReadEndDocument", context.ContextType, ContextType.Document, ContextType.ScopeDocument);
             }
             if (state == BsonReaderState.Type) {
                 ReadBsonType(); // will set state to EndOfDocument if at end of document
             }
             if (state != BsonReaderState.EndOfDocument) {
-                var message = string.Format("ReadEndDocument cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("ReadEndDocument", BsonReaderState.EndOfDocument);
             }
 
             context = context.PopContext(buffer.Position);
@@ -252,7 +247,7 @@ namespace MongoDB.Bson.IO {
                 case ContextType.Array: state = BsonReaderState.Type; break;
                 case ContextType.Document: state = BsonReaderState.Type; break;
                 case ContextType.TopLevel: state = BsonReaderState.Done; break;
-                default: throw new BsonInternalException("Unexpected ContextType");
+                default: throw new BsonInternalException("Unexpected ContextType.");
             }
         }
 
@@ -458,8 +453,7 @@ namespace MongoDB.Bson.IO {
         public override void SkipName() {
             if (disposed) { ThrowObjectDisposedException(); }
             if (state != BsonReaderState.Name) {
-                var message = string.Format("SkipName cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("SkipName", BsonReaderState.Name);
             }
 
             state = BsonReaderState.Value;
@@ -471,8 +465,7 @@ namespace MongoDB.Bson.IO {
         public override void SkipValue() {
             if (disposed) { ThrowObjectDisposedException(); }
             if (state != BsonReaderState.Value) {
-                var message = string.Format("SkipValue cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("SkipValue", BsonReaderState.Value);
             }
 
             int skip;
@@ -496,7 +489,7 @@ namespace MongoDB.Bson.IO {
                 case BsonType.Symbol: skip = ReadSize(); break;
                 case BsonType.Timestamp: skip = 8; break;
                 case BsonType.Undefined: skip = 0; break;
-                default: throw new BsonInternalException("Unexpected BsonType");
+                default: throw new BsonInternalException("Unexpected BsonType.");
             }
             buffer.Skip(skip);
 
@@ -535,17 +528,19 @@ namespace MongoDB.Bson.IO {
                 case ContextType.TopLevel:
                     return BsonReaderState.Done;
                 default:
-                    throw new BsonInternalException("Unexpected ContextType");
+                    throw new BsonInternalException("Unexpected ContextType.");
             }
         }
 
         private int ReadSize() {
             int size = buffer.ReadInt32();
             if (size < 0) {
-                throw new FileFormatException("Size is negative");
+                var message = string.Format("Size {0} is not valid because it is negative.", size);
+                throw new FileFormatException(message);
             }
             if (size > settings.MaxDocumentSize) {
-                throw new FileFormatException("Size is larger than MaxDocumentSize");
+                var message = string.Format("Size {0} is not valid because it is larger than MaxDocumentSize {0}.", size, settings.MaxDocumentSize);
+                throw new FileFormatException(message);
             }
             return size;
         }

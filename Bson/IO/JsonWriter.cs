@@ -85,8 +85,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteBinaryData cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteBinaryData", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             if (settings.OutputMode == JsonOutputMode.Shell) {
@@ -111,8 +110,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteBoolean cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteBoolean", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteNameHelper(name);
@@ -130,8 +128,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteDateTime cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteDateTime", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             switch (settings.OutputMode) {
@@ -159,7 +156,7 @@ namespace MongoDB.Bson.IO {
                     }
                     break;
                 default:
-                    throw new BsonInternalException("Unexpected JsonOutputMode");
+                    throw new BsonInternalException("Unexpected JsonOutputMode.");
             }
 
             state = GetNextState();
@@ -174,8 +171,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteDouble cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteDouble", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteNameHelper(name);
@@ -195,8 +191,7 @@ namespace MongoDB.Bson.IO {
         public override void WriteEndArray() {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value) {
-                var message = string.Format("WriteEndArray cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteEndArray", BsonWriterState.Value);
             }
 
             textWriter.Write("]");
@@ -211,8 +206,7 @@ namespace MongoDB.Bson.IO {
         public override void WriteEndDocument() {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Name) {
-                var message = string.Format("WriteEndDocument cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteEndDocument", BsonWriterState.Name);
             }
 
             if (settings.Indent && context.HasElements) {
@@ -248,8 +242,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteInt32 cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteInt32", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteNameHelper(name);
@@ -267,8 +260,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteInt64 cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteInt64", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             switch (settings.OutputMode) {
@@ -304,8 +296,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteJavaScript cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteJavaScript", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteStartDocument();
@@ -324,8 +315,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteJavaScriptWithScope cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteJavaScriptWithScope", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteStartDocument();
@@ -341,8 +331,7 @@ namespace MongoDB.Bson.IO {
         public override void WriteMaxKey() {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteMaxKey cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteMaxKey", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteStartDocument();
@@ -358,8 +347,7 @@ namespace MongoDB.Bson.IO {
         public override void WriteMinKey() {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteMinKey cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteMinKey", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteStartDocument();
@@ -375,8 +363,7 @@ namespace MongoDB.Bson.IO {
         public override void WriteNull() {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteNull cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteNull", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteNameHelper(name);
@@ -400,8 +387,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteObjectId cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteObjectId", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             var bytes = ObjectId.Pack(timestamp, machine, pid, increment);
@@ -433,8 +419,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteRegularExpression cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteRegularExpression", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             switch (settings.OutputMode) {
@@ -473,8 +458,7 @@ namespace MongoDB.Bson.IO {
         public override void WriteStartArray() {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteStartArray cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteStartArray", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteNameHelper(name);
@@ -490,8 +474,7 @@ namespace MongoDB.Bson.IO {
         public override void WriteStartDocument() {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial && state != BsonWriterState.ScopeDocument) {
-                var message = string.Format("WriteStartDocument cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteStartDocument", BsonWriterState.Value, BsonWriterState.Initial, BsonWriterState.ScopeDocument);
             }
 
             if (state == BsonWriterState.Value || state == BsonWriterState.ScopeDocument) {
@@ -513,8 +496,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteString cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteString", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteNameHelper(name);
@@ -532,8 +514,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteSymbol cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteSymbol", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteStartDocument();
@@ -552,8 +533,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteTimestamp cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteTimestamp", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteStartDocument();
@@ -569,8 +549,7 @@ namespace MongoDB.Bson.IO {
         public override void WriteUndefined() {
             if (disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (state != BsonWriterState.Value && state != BsonWriterState.Initial) {
-                var message = string.Format("WriteUndefined cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteUndefined", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
             WriteNameHelper(name);
@@ -631,7 +610,7 @@ namespace MongoDB.Bson.IO {
                 case ContextType.TopLevel:
                     break;
                 default:
-                    throw new BsonInternalException("Invalid ContextType");
+                    throw new BsonInternalException("Invalid ContextType.");
             }
 
             context.HasElements = true;

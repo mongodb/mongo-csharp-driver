@@ -99,7 +99,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonReader.ReadEndArray();
                 return dictionary;
             } else {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}", nominalType.FullName, bsonType);
+                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
             }
         }
@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             } else if (nominalType == typeof(SortedList)) {
                 return new SortedList();
             } else {
-                var message = string.Format("Invalid nominalType for DictionarySerializer: {0}", nominalType.FullName);
+                var message = string.Format("Invalid nominalType {0} for DictionarySerializer.", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }
         }

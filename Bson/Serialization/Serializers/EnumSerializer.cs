@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.Double: return Enum.ToObject(nominalType, (long) bsonReader.ReadDouble());
                 case BsonType.String: return Enum.Parse(nominalType, bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize {0} from BsonType: {1}", nominalType.FullName, bsonType);
+                    var message = string.Format("Cannot deserialize {0} from BsonType {1}.", nominalType.FullName, bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(value.ToString());
                     break;
                 default:
-                    throw new BsonInternalException("Unexpected EnumRepresentation");
+                    throw new BsonInternalException("Unexpected EnumRepresentation.");
             }
         }
         #endregion
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             Type nominalType
         ) {
             if (!nominalType.IsEnum) {
-                var message = string.Format("EnumSerializer.Deserialize cannot be used with nominal type: {0}", nominalType.FullName);
+                var message = string.Format("EnumSerializer.Deserialize cannot be used with nominal type {0}.", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }
         }
@@ -137,12 +137,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 nominalType.GetGenericArguments().Single() == actualType
             );
             if (nominalType != typeof(object) && nominalType != actualType && !isNullableOfActual) {
-                var message = string.Format("EnumSerializer.Serialize cannot be used with nominal type: {0}", nominalType.FullName);
+                var message = string.Format("EnumSerializer.Serialize cannot be used with nominal type {0}.", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }           
             
             if (!actualType.IsEnum) {
-                var message = string.Format("EnumSerializer.Serialize cannot be used with actual type: {0}", actualType.FullName);
+                var message = string.Format("EnumSerializer.Serialize cannot be used with actual type {0}.", actualType.FullName);
                 throw new BsonSerializationException(message);
             }
         }
