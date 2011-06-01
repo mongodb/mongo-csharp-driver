@@ -83,6 +83,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BsonExtensionMethods.cs" />
+    <Compile Include="ObjectModel\CustomBsonTypeMapper.cs" />
     <Compile Include="Serialization\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonExtraElementsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonRepresentationAttribute.cs" />
