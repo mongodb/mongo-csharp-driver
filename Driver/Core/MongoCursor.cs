@@ -303,7 +303,7 @@ namespace MongoDB.Driver {
             int batchSize
         ) {
             if (isFrozen) { ThrowFrozen(); }
-            if (batchSize < 0) { throw new ArgumentException("BatchSize cannot be negative"); }
+            if (batchSize < 0) { throw new ArgumentException("BatchSize cannot be negative."); }
             this.batchSize = batchSize;
             return this;
         }
@@ -491,7 +491,7 @@ namespace MongoDB.Driver {
             int skip
         ) {
             if (isFrozen) { ThrowFrozen(); }
-            if (skip < 0) { throw new ArgumentException("Skip cannot be negative"); }
+            if (skip < 0) { throw new ArgumentException("Skip cannot be negative."); }
             this.skip = skip;
             return this;
         }
@@ -572,7 +572,7 @@ namespace MongoDB.Driver {
         #region private methods
         // funnel exceptions through this method so we can have a single error message
         private void ThrowFrozen() {
-            throw new InvalidOperationException("A MongoCursor object cannot be modified once it has been frozen");
+            throw new InvalidOperationException("A MongoCursor object cannot be modified once it has been frozen.");
         }
         #endregion
 

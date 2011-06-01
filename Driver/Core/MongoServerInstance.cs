@@ -188,7 +188,7 @@ namespace MongoDB.Driver {
             bool slaveOk
         ) {
             if (state != MongoServerState.Disconnected) {
-                var message = string.Format("MongoServerInstance.Connect called when state is: {0}", state);
+                var message = string.Format("MongoServerInstance.Connect can only be called when state is Disconnected, not when state is {0}.", state);
                 throw new InvalidOperationException(message);
             }
 
@@ -214,7 +214,7 @@ namespace MongoDB.Driver {
                         isPassive = isMasterResult.Response["passive", false].ToBoolean();
                         isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
                         if (!isPrimary && !slaveOk) {
-                            throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
+                            throw new MongoConnectionException("Server is not a primary and SlaveOk is false.");
                         }
 
                         maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();

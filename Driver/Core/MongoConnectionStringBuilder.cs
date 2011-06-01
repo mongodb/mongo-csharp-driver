@@ -451,7 +451,7 @@ namespace MongoDB.Driver {
                         SafeMode = SafeMode.Create(true, fsync, w, wtimeout);
                         break;
                     default:
-                        var message = string.Format("Invalid keyword: {0}", keyword);
+                        var message = string.Format("Invalid keyword '{0}'.", keyword);
                         throw new ArgumentException(message);
                 }
             }

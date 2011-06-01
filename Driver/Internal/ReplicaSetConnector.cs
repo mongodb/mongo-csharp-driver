@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Internal {
 
             var exceptions = responses.Select(r => r.ServerInstance.ConnectException).Where(e => e != null).ToArray();
             var innerException = exceptions.FirstOrDefault();
-            var exception = new MongoConnectionException("Unable to connect to server", innerException);
+            var exception = new MongoConnectionException("Unable to connect to server.", innerException);
             exception.Data.Add("InnerExceptions", exceptions);
             throw exception;
         }

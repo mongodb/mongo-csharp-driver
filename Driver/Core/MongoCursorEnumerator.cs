@@ -66,10 +66,10 @@ namespace MongoDB.Driver {
             get {
                 if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
                 if (!started) {
-                    throw new InvalidOperationException("Current is not valid until MoveNext has been called");
+                    throw new InvalidOperationException("Current is not valid until MoveNext has been called.");
                 }
                 if (done) {
-                    throw new InvalidOperationException("Current is not valid after MoveNext has returned false");
+                    throw new InvalidOperationException("Current is not valid after MoveNext has returned false.");
                 }
                 return reply.Documents[replyIndex];
             }

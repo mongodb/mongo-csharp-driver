@@ -117,7 +117,7 @@ namespace MongoDB.Driver.GridFS {
         ) {
             var fileInfo = FindOne(sourceFileName);
             if (fileInfo == null) {
-                var message = string.Format("GridFS file not found: {0}", sourceFileName);
+                var message = string.Format("GridFS file '{0}' not found.", sourceFileName);
                 throw new FileNotFoundException(message);
             }
             return fileInfo.CopyTo(destFileName);
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.GridFS {
         ) {
             var fileInfo = FindOne(sourceFileName);
             if (fileInfo == null) {
-                var message = string.Format("GridFS file not found: {0}", sourceFileName);
+                var message = string.Format("GridFS file '{0}' not found.", sourceFileName);
                 throw new FileNotFoundException(message);
             }
             return fileInfo.CopyTo(destFileName, createOptions);
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.GridFS {
             var fileInfo = FindOne(query, version);
             if (fileInfo == null) {
                 var jsonQuery = query.ToJson();
-                string errorMessage = string.Format("GridFS file not found: {0}", jsonQuery);
+                string errorMessage = string.Format("GridFS file '{0}' not found.", jsonQuery);
                 throw new FileNotFoundException(errorMessage, jsonQuery);
             }
             Download(stream, fileInfo);
@@ -282,14 +282,14 @@ namespace MongoDB.Driver.GridFS {
                         );
                         var chunk = chunks.FindOne(query);
                         if (chunk == null) {
-                            string errorMessage = string.Format("Chunk {0} missing for: {1}", n, fileInfo.Name);
+                            string errorMessage = string.Format("Chunk {0} missing for GridFS file '{1}'.", n, fileInfo.Name);
                             throw new MongoGridFSException(errorMessage);
                         }
                         var data = chunk["data"].AsBsonBinaryData;
                         if (data.Bytes.Length != fileInfo.ChunkSize) {
                             // the last chunk only has as many bytes as needed to complete the file
                             if (n < numberOfChunks - 1 || data.Bytes.Length != fileInfo.Length % fileInfo.ChunkSize) {
-                                string errorMessage = string.Format("Chunk {0} for {1} is the wrong size", n, fileInfo.Name);
+                                string errorMessage = string.Format("Chunk {0} for GridFS file '{1}' is the wrong size.", n, fileInfo.Name);
                                 throw new MongoGridFSException(errorMessage);
                             }
                         }
@@ -302,7 +302,7 @@ namespace MongoDB.Driver.GridFS {
                 }
 
                 if (!md5Client.Equals(fileInfo.MD5, StringComparison.OrdinalIgnoreCase)) {
-                    throw new MongoGridFSException("Download client and server MD5 hashes are not equal");
+                    throw new MongoGridFSException("Download client and server MD5 hashes are not equal.");
                 }
             }
         }
@@ -620,7 +620,7 @@ namespace MongoDB.Driver.GridFS {
         ) {
             var fileInfo = FindOne(sourceFileName);
             if (fileInfo == null) {
-                var message = string.Format("GridFS file not found: {0}", sourceFileName);
+                var message = string.Format("GridFS file '{0}' not found.", sourceFileName);
                 throw new FileNotFoundException(message);
             }
             fileInfo.MoveTo(destFileName);
@@ -856,7 +856,7 @@ namespace MongoDB.Driver.GridFS {
                 var md5Server = md5Result.Response["md5"].AsString;
 
                 if (!md5Client.Equals(md5Server, StringComparison.OrdinalIgnoreCase)) {
-                    throw new MongoGridFSException("Upload client and server MD5 hashes are not equal");
+                    throw new MongoGridFSException("Upload client and server MD5 hashes are not equal.");
                 }
 
                 var uploadDate = createOptions.UploadDate == DateTime.MinValue ? DateTime.UtcNow : createOptions.UploadDate;

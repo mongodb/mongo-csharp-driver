@@ -119,7 +119,7 @@ namespace MongoDB.Driver {
                             databaseName = bsonReader.ReadString();
                             break;
                         default:
-                            message = string.Format("Invalid element for DBRef: {0}", name);
+                            message = string.Format("Element '{0}' is not valid for DBRef.", name);
                             throw new FileFormatException(message);
                     }
                 }
@@ -133,7 +133,7 @@ namespace MongoDB.Driver {
             out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
-            throw new InvalidOperationException();
+            throw new NotSupportedException();
         }
 
         void IBsonSerializable.Serialize(
@@ -154,7 +154,7 @@ namespace MongoDB.Driver {
         void IBsonSerializable.SetDocumentId(
             object id
         ) {
-            throw new InvalidOperationException();
+            throw new NotSupportedException();
         }
         #endregion
     }

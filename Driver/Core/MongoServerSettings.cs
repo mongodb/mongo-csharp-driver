@@ -138,7 +138,7 @@ namespace MongoDB.Driver {
         public ConnectionMode ConnectionMode {
             get { return connectionMode; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 connectionMode = value;
             }
         }
@@ -149,7 +149,7 @@ namespace MongoDB.Driver {
         public TimeSpan ConnectTimeout {
             get { return connectTimeout; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 connectTimeout = value;
             }
         }
@@ -160,7 +160,7 @@ namespace MongoDB.Driver {
         public MongoCredentials DefaultCredentials {
             get { return defaultCredentials; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 defaultCredentials = value;
             }
         }
@@ -178,7 +178,7 @@ namespace MongoDB.Driver {
         public bool IPv6 {
             get { return ipv6; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 ipv6 = value;
             }
         }
@@ -189,7 +189,7 @@ namespace MongoDB.Driver {
         public TimeSpan MaxConnectionIdleTime {
             get { return maxConnectionIdleTime; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 maxConnectionIdleTime = value;
             }
         }
@@ -200,7 +200,7 @@ namespace MongoDB.Driver {
         public TimeSpan MaxConnectionLifeTime {
             get { return maxConnectionLifeTime; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 maxConnectionLifeTime = value;
             }
         }
@@ -211,7 +211,7 @@ namespace MongoDB.Driver {
         public int MaxConnectionPoolSize {
             get { return maxConnectionPoolSize; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 maxConnectionPoolSize = value;
             }
         }
@@ -222,7 +222,7 @@ namespace MongoDB.Driver {
         public int MinConnectionPoolSize {
             get { return minConnectionPoolSize; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 minConnectionPoolSize = value;
             }
         }
@@ -233,7 +233,7 @@ namespace MongoDB.Driver {
         public string ReplicaSetName {
             get { return replicaSetName; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 replicaSetName = value;
             }
         }
@@ -244,7 +244,7 @@ namespace MongoDB.Driver {
         public SafeMode SafeMode {
             get { return safeMode; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 safeMode = value;
             }
         }
@@ -255,7 +255,7 @@ namespace MongoDB.Driver {
         public MongoServerAddress Server {
             get { return (servers == null) ? null : servers.Single(); }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 servers = new MongoServerAddress[] { value };
             }
         }
@@ -266,7 +266,7 @@ namespace MongoDB.Driver {
         public IEnumerable<MongoServerAddress> Servers {
             get { return servers; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 servers = value;
             }
         }
@@ -277,7 +277,7 @@ namespace MongoDB.Driver {
         public bool SlaveOk {
             get { return slaveOk; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 slaveOk = value;
             }
         }
@@ -288,7 +288,7 @@ namespace MongoDB.Driver {
         public TimeSpan SocketTimeout {
             get { return socketTimeout; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 socketTimeout = value;
             }
         }
@@ -299,7 +299,7 @@ namespace MongoDB.Driver {
         public int WaitQueueSize {
             get { return waitQueueSize; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 waitQueueSize = value;
             }
         }
@@ -310,7 +310,7 @@ namespace MongoDB.Driver {
         public TimeSpan WaitQueueTimeout {
             get { return waitQueueTimeout; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 waitQueueTimeout = value;
             }
         }

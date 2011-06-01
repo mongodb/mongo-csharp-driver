@@ -72,7 +72,7 @@ namespace MongoDB.Driver {
             if (TryParse(value, out address)) {
                 return address;
             } else {
-                throw new FormatException("Invalid server address");
+                throw new FormatException("'{0}' is not a valid server address.");
             }
         }
 
@@ -220,7 +220,7 @@ namespace MongoDB.Driver {
                     }
                 }
             }
-            var message = string.Format("Unable to resolve host name: {0}", host);
+            var message = string.Format("Unable to resolve host name '{0}'.", host);
             throw new MongoConnectionException(message);
         }
         #endregion

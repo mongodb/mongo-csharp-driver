@@ -107,7 +107,7 @@ namespace MongoDB.Driver {
                 if (response.TryGetValue("ok", out ok)) {
                     return ok.ToBoolean();
                 } else {
-                    var message = string.Format("Command '{0}' failed: response has no ok element (response: {1})", CommandName, response.ToJson());
+                    var message = string.Format("Command '{0}' failed. Response has no ok element (response was {1}).", CommandName, response.ToJson());
                     throw new MongoCommandException(message, this);
                 }
             }
@@ -126,7 +126,7 @@ namespace MongoDB.Driver {
             BsonDocument response
         ) {
             if (this.command != null || this.response != null) {
-                var message = string.Format("{0} has already been initialized", this.GetType().Name);
+                var message = string.Format("{0} has already been initialized.", this.GetType().Name);
                 throw new InvalidOperationException(message);
             }
             this.command = command;

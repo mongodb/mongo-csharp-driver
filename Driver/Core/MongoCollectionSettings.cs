@@ -62,7 +62,7 @@ namespace MongoDB.Driver {
         public bool AssignIdOnInsert {
             get { return assignIdOnInsert; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
                 assignIdOnInsert = value;
             }
         }
@@ -94,7 +94,7 @@ namespace MongoDB.Driver {
         public SafeMode SafeMode {
             get { return safeMode; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
                 safeMode = value;
             }
         }
@@ -105,7 +105,7 @@ namespace MongoDB.Driver {
         public bool SlaveOk {
             get { return slaveOk; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
                 slaveOk = value;
             }
         }

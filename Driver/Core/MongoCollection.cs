@@ -1191,7 +1191,7 @@ namespace MongoDB.Driver {
             IIdGenerator idGenerator;
             if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
                 if (id == null && idGenerator == null) {
-                    throw new InvalidOperationException("No IdGenerator found");
+                    throw new InvalidOperationException("No IdGenerator found.");
                 }
 
                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
@@ -1215,7 +1215,7 @@ namespace MongoDB.Driver {
                     return Update(query, update, UpdateFlags.Upsert, safeMode);
                 }
             } else {
-                throw new InvalidOperationException("Save can only be used with documents that have an Id");
+                throw new InvalidOperationException("Save can only be used with documents that have an Id.");
             }
         }
 

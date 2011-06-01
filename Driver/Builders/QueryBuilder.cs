@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Builders {
 
                             // make sure that no conditions are Query.EQ, because duplicates aren't allowed
                             if (existingOperations == null || newOperations == null) {
-                                var message = string.Format("Query.And does not support combining equality comparisons with other operators (field: '{0}')", queryElement.Name);
+                                var message = string.Format("Query.And does not support combining equality comparisons with other operators (field '{0}').", queryElement.Name);
                                 throw new InvalidOperationException(message);
                             }
 
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Builders {
                             foreach (var operation in newOperations) {
                                 // make sure that there are no duplicate $operators
                                 if (existingOperations.Contains(operation.Name)) {
-                                    var message = string.Format("Query.And does not support using the same operator more than once (field: '{0}', operator: '{1}')", queryElement.Name, operation.Name);
+                                    var message = string.Format("Query.And does not support using the same operator more than once (field '{0}', operator '{1}').", queryElement.Name, operation.Name);
                                     throw new InvalidOperationException(message);
                                 } else {
                                     existingOperations.Add(operation);

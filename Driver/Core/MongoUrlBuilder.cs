@@ -364,7 +364,7 @@ namespace MongoDB.Driver {
             string name,
             string value
         ) {
-            return string.Format("Invalid connection string: {0}={1}", name, value);
+            return string.Format("Invalid key value pair in connection string. {0}='{1}'.", name, value);
         }
         #endregion
 
@@ -409,7 +409,7 @@ namespace MongoDB.Driver {
                     }
                     this.servers = addresses;
                 } else {
-                    throw new FormatException("Invalid connection string: server missing");
+                    throw new FormatException("Invalid connection string. Server missing.");
                 }
 
                 this.databaseName = (databaseName != "") ? databaseName : null;
@@ -424,7 +424,7 @@ namespace MongoDB.Driver {
                     foreach (var pair in query.Split('&', ';')) {
                         var parts = pair.Split('=');
                         if (parts.Length != 2) {
-                            throw new FormatException(string.Format("Invalid connection string: {0}", parts));
+                            throw new FormatException(string.Format("Invalid connection string '{0}'.", parts));
                         }
                         var name = parts[0];
                         var value = parts[1];
@@ -505,7 +505,7 @@ namespace MongoDB.Driver {
                     }
                 }
             } else {
-                throw new FormatException(string.Format("Invalid connection string: {0}", url));
+                throw new FormatException(string.Format("Invalid connection string '{0}'.", url));
             }
         }
 
