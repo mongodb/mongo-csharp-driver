@@ -191,8 +191,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Drops this collection.
         /// </summary>
-        public virtual void Drop() {
-            database.DropCollection(name);
+        public virtual CommandResult Drop() {
+            return database.DropCollection(name);
         }
 
         /// <summary>

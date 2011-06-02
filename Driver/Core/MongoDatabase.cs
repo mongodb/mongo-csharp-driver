@@ -352,10 +352,17 @@ namespace MongoDB.Driver {
         public virtual CommandResult DropCollection(
             string collectionName
         ) {
-            var command = new CommandDocument("drop", collectionName);
-            var result = RunCommand(command);
-            server.IndexCache.Reset(name, collectionName);
-            return result;
+            try {
+                var command = new CommandDocument("drop", collectionName);
+                var result = RunCommand(command);
+                server.IndexCache.Reset(name, collectionName);
+                return result;
+            } catch (MongoCommandException ex) {
+                if (ex.CommandResult.ErrorMessage == "ns not found") {
+                    return ex.CommandResult;
+                }
+                throw;
+            }
         }
 
         /// <summary>
