@@ -23,11 +23,12 @@ namespace MongoDB.Bson.Serialization {
     /// </summary>
     public interface IIdGenerator {
         /// <summary>
-        /// Generates an Id.
+        /// Generates an Id for a document.
         /// </summary>
-        /// <param name="document">The document for which an Id is being generated.</param>
+        /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
+        /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
-        object GenerateId(object document);
+        object GenerateId(object container, object document);
         /// <summary>
         /// Tests whether an Id is empty.
         /// </summary>

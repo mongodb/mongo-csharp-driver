@@ -930,7 +930,7 @@ namespace MongoDB.Driver {
                             IIdGenerator idGenerator;
                             if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
                                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
-                                    id = idGenerator.GenerateId(document);
+                                    id = idGenerator.GenerateId(this, document);
                                     serializer.SetDocumentId(document, id);
                                 }
                             }
@@ -1195,7 +1195,7 @@ namespace MongoDB.Driver {
                 }
 
                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
-                    id = idGenerator.GenerateId(document);
+                    id = idGenerator.GenerateId(this, document);
                     serializer.SetDocumentId(document, id);
                     return Insert(nominalType, document, safeMode);
                 } else {
