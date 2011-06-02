@@ -147,6 +147,8 @@ namespace MongoDB.Bson {
             { Mapping.FromTo(typeof(ulong), BsonType.Int64), Conversion.UInt64ToBsonInt64 },
             { Mapping.FromTo(typeof(ulong), BsonType.Timestamp), Conversion.UInt64ToBsonTimestamp }
         };
+
+    	public static Dictionary<Type, CustomBsonTypeMapper> CustomMappers = new Dictionary<Type, CustomBsonTypeMapper>();
         #endregion
 
         #region public static methods
@@ -259,6 +261,13 @@ namespace MongoDB.Bson {
                 bsonValue = Convert(value, conversion);
                 return true;
             }
+			// custom mappings
+			if (CustomMappers.ContainsKey(valueType))
+			{
+				var customMapper = CustomMappers[valueType];
+				bsonValue = customMapper.Convert(value);
+				return true;
+			}
 
             // these mappings can't be handled by the mappings table (because of the interfaces)
             if (value is IEnumerable<object>) {

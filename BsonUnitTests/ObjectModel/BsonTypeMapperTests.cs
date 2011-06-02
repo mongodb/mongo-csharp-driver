@@ -554,5 +554,32 @@ namespace MongoDB.BsonUnitTests {
             var bsonInt64 = (BsonInt64) BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
             Assert.AreEqual((long) (ulong) value, bsonInt64.Value);
         }
+
+    	public struct OurDate
+    	{
+    		public readonly DateTime InternalDate;
+
+    		public OurDate(DateTime internalDate)
+    		{
+    			InternalDate = internalDate;
+    		}
+    	}
+
+    	public class OurDateCustomMapper : CustomBsonTypeMapper<OurDate>
+    	{
+    		public override BsonValue Convert(OurDate source)
+    		{
+    			return new BsonDateTime(source.InternalDate);
+    		}
+    	}
+
+    	[Test]
+    	public void TestMapOurDate()
+    	{
+    		var value = new OurDate(new DateTime(2011, 1, 1));
+    		BsonTypeMapper.CustomMappers.Add(typeof (OurDate), new OurDateCustomMapper());
+    		var bsonValue = BsonTypeMapper.MapToBsonValue(value);
+    		Assert.AreEqual(bsonValue, new BsonDateTime(value.InternalDate));
+    	}
     }
 }
