@@ -123,11 +123,9 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 var dictionary = (IDictionary) value;
                 if (dictionary.Keys.Cast<object>().All(o => o.GetType() == typeof(string))) {
                     bsonWriter.WriteStartDocument();
-                    int index = 0;
                     foreach (DictionaryEntry entry in dictionary) {
                         bsonWriter.WriteName((string) entry.Key);
                         BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
-                        index++;
                     }
                     bsonWriter.WriteEndDocument();
                 } else {

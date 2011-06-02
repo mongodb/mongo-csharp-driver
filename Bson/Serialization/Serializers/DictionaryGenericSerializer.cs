@@ -113,19 +113,17 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     (typeof(TKey) == typeof(object) && dictionary.Keys.All(o => o.GetType() == typeof(string)))
                 ) {
                     bsonWriter.WriteStartDocument();
-                    int index = 0;
                     foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
                         bsonWriter.WriteName((string) (object) entry.Key);
                         BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
-                        index++;
                     }
                     bsonWriter.WriteEndDocument();
                 } else {
                     bsonWriter.WriteStartArray();
                     foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
                         bsonWriter.WriteStartArray();
-                        BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
-                        BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
+                        BsonSerializer.Serialize(bsonWriter, typeof(TKey), entry.Key);
+                        BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
                         bsonWriter.WriteEndArray();
                     }
                     bsonWriter.WriteEndArray();
