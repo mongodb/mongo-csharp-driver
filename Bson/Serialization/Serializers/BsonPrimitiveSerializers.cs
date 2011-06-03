@@ -429,11 +429,32 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     if (subType != BsonBinarySubType.Uuid) {
                         throw new FileFormatException("BinaryData sub type is not Uuid.");
                     }
-                    if (guidSerializationOptions.ByteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
-                        // we don't need to Clone bytes this time because we know we own this byte array
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
+                    switch (guidSerializationOptions.ByteOrder) {
+                        case GuidByteOrder.LittleEndian:
+                            if (!BitConverter.IsLittleEndian) {
+                                Array.Reverse(bytes, 0, 4);
+                                Array.Reverse(bytes, 4, 2);
+                                Array.Reverse(bytes, 6, 2);
+                            }
+                            break;
+                        case GuidByteOrder.BigEndian:
+                            if (BitConverter.IsLittleEndian) {
+                                Array.Reverse(bytes, 0, 4);
+                                Array.Reverse(bytes, 4, 2);
+                                Array.Reverse(bytes, 6, 2);
+                            }
+                            break;
+                        case GuidByteOrder.JavaHistorical:
+                            Array.Reverse(bytes, 0, 8);
+                            Array.Reverse(bytes, 8, 8);
+                            if (BitConverter.IsLittleEndian) {
+                                Array.Reverse(bytes, 0, 4);
+                                Array.Reverse(bytes, 4, 2);
+                                Array.Reverse(bytes, 6, 2);
+                            }
+                            break;
+                        default:
+                            throw new BsonInternalException("Unexpected GuidByteOrder.");
                     }
                     return new Guid(bytes);
                 case BsonType.String:
@@ -471,12 +492,33 @@ namespace MongoDB.Bson.Serialization.Serializers {
 
             switch (guidSerializationOptions.Representation) {
                 case BsonType.Binary:
-                    var bytes = guid.ToByteArray();
-                    if (guidSerializationOptions.ByteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
-                        bytes = (byte[]) bytes.Clone(); // Clone is defensive in case Guid.ToByteArray returns an internal copy
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
+                    var bytes = (byte[]) guid.ToByteArray().Clone(); // defensive clone
+                    switch (guidSerializationOptions.ByteOrder) {
+                        case GuidByteOrder.LittleEndian:
+                            if (!BitConverter.IsLittleEndian) {
+                                Array.Reverse(bytes, 0, 4);
+                                Array.Reverse(bytes, 4, 2);
+                                Array.Reverse(bytes, 6, 2);
+                            }
+                            break;
+                        case GuidByteOrder.BigEndian:
+                            if (BitConverter.IsLittleEndian) {
+                                Array.Reverse(bytes, 0, 4);
+                                Array.Reverse(bytes, 4, 2);
+                                Array.Reverse(bytes, 6, 2);
+                            }
+                            break;
+                        case GuidByteOrder.JavaHistorical:
+                            if (BitConverter.IsLittleEndian) {
+                                Array.Reverse(bytes, 0, 4);
+                                Array.Reverse(bytes, 4, 2);
+                                Array.Reverse(bytes, 6, 2);
+                            }
+                            Array.Reverse(bytes, 0, 8);
+                            Array.Reverse(bytes, 8, 8);
+                            break;
+                        default:
+                            throw new BsonInternalException("Unexpected GuidByteOrder.");
                     }
                     bsonWriter.WriteBinaryData(bytes, BsonBinarySubType.Uuid);
                     break;

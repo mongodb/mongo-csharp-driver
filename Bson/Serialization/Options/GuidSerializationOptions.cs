@@ -26,6 +26,7 @@ namespace MongoDB.Bson.Serialization.Options {
         private static GuidSerializationOptions defaults = new GuidSerializationOptions(GuidByteOrder.LittleEndian);
         private static GuidSerializationOptions littleEndian = new GuidSerializationOptions(GuidByteOrder.LittleEndian);
         private static GuidSerializationOptions bigEndian = new GuidSerializationOptions(GuidByteOrder.BigEndian);
+        private static GuidSerializationOptions javaHistorical = new GuidSerializationOptions(GuidByteOrder.JavaHistorical);
         private static GuidSerializationOptions stringInstance = new GuidSerializationOptions(BsonType.String);
         #endregion
 
@@ -84,6 +85,13 @@ namespace MongoDB.Bson.Serialization.Options {
         /// </summary>
         public static GuidSerializationOptions BigEndian {
             get { return bigEndian; }
+        }
+
+        /// <summary>
+        /// Gets an instance of GuidSerializationOptions with Binary representation and the byte order used by older versions of the Java driver.
+        /// </summary>
+        public static GuidSerializationOptions JavaHistorical {
+            get { return javaHistorical; }
         }
 
         /// <summary>

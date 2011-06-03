@@ -30,7 +30,11 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Use the standard external high endian format (this is compatible with how the Java and other drivers store UUIDs).
         /// </summary>
-        BigEndian
+        BigEndian,
+        /// <summary>
+        /// Use the byte order used by older versions of the Java driver (two 8 byte halves in little endian order).
+        /// </summary>
+        JavaHistorical
     }
 
     /// <summary>
@@ -95,12 +99,33 @@ namespace MongoDB.Bson {
             GuidByteOrder byteOrder
         )
             : base(BsonType.Binary) {
-            var bytes = guid.ToByteArray();
-            if (byteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
-                bytes = (byte[]) bytes.Clone(); // Clone is defensive in case Guid.ToByteArray returns an internal copy
-                Array.Reverse(bytes, 0, 4);
-                Array.Reverse(bytes, 4, 2);
-                Array.Reverse(bytes, 6, 2);
+            var bytes = (byte[]) guid.ToByteArray().Clone(); // defensive clone
+            switch (byteOrder) {
+                case GuidByteOrder.LittleEndian:
+                    if (!BitConverter.IsLittleEndian) {
+                        Array.Reverse(bytes, 0, 4);
+                        Array.Reverse(bytes, 4, 2);
+                        Array.Reverse(bytes, 6, 2);
+                    }
+                    break;
+                case GuidByteOrder.BigEndian:
+                    if (BitConverter.IsLittleEndian) {
+                        Array.Reverse(bytes, 0, 4);
+                        Array.Reverse(bytes, 4, 2);
+                        Array.Reverse(bytes, 6, 2);
+                    }
+                    break;
+                case GuidByteOrder.JavaHistorical:
+                    if (BitConverter.IsLittleEndian) {
+                        Array.Reverse(bytes, 0, 4);
+                        Array.Reverse(bytes, 4, 2);
+                        Array.Reverse(bytes, 6, 2);
+                    }
+                    Array.Reverse(bytes, 0, 8);
+                    Array.Reverse(bytes, 8, 8);
+                    break;
+                default:
+                    throw new BsonInternalException("Unexpected GuidByteOrder.");
             }
             this.bytes = bytes;
             this.subType = BsonBinarySubType.Uuid;
@@ -326,12 +351,33 @@ namespace MongoDB.Bson {
         /// <returns>A Guid.</returns>
         public Guid ToGuid() {
             if (subType == BsonBinarySubType.Uuid) {
-                var bytes = this.bytes;
-                if (guidByteOrder == GuidByteOrder.BigEndian && BitConverter.IsLittleEndian) {
-                    bytes = (byte[]) bytes.Clone(); // Clone is required in order to not alter our own byte array
-                    Array.Reverse(bytes, 0, 4);
-                    Array.Reverse(bytes, 4, 2);
-                    Array.Reverse(bytes, 6, 2);
+                var bytes = (byte[]) this.bytes.Clone(); // defensive clone
+                switch (guidByteOrder) {
+                    case GuidByteOrder.LittleEndian:
+                        if (!BitConverter.IsLittleEndian) {
+                            Array.Reverse(bytes, 0, 4);
+                            Array.Reverse(bytes, 4, 2);
+                            Array.Reverse(bytes, 6, 2);
+                        }
+                        break;
+                    case GuidByteOrder.BigEndian:
+                        if (BitConverter.IsLittleEndian) {
+                            Array.Reverse(bytes, 0, 4);
+                            Array.Reverse(bytes, 4, 2);
+                            Array.Reverse(bytes, 6, 2);
+                        }
+                        break;
+                    case GuidByteOrder.JavaHistorical:
+                        Array.Reverse(bytes, 0, 8);
+                        Array.Reverse(bytes, 8, 8);
+                        if (BitConverter.IsLittleEndian) {
+                            Array.Reverse(bytes, 0, 4);
+                            Array.Reverse(bytes, 4, 2);
+                            Array.Reverse(bytes, 6, 2);
+                        }
+                        break;
+                    default:
+                        throw new BsonInternalException("Unexpected GuidByteOrder.");
                 }
                 return new Guid(bytes);
             } else {
