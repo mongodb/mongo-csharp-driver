@@ -448,6 +448,7 @@ namespace MongoDB.Driver {
             return new MongoDatabaseSettings(
                 databaseName,
                 settings.DefaultCredentials,
+                settings.GuidByteOrder,
                 settings.SafeMode,
                 settings.SlaveOk
             );

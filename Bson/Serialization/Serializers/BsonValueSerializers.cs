@@ -143,7 +143,11 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     byte[] bytes;
                     BsonBinarySubType subType;
                     bsonReader.ReadBinaryData(out bytes, out subType);
-                    return new BsonBinaryData(bytes, subType);
+                    if (subType == BsonBinarySubType.Uuid) {
+                        return new BsonBinaryData(bytes, subType, bsonReader.GuidByteOrder);
+                    } else {
+                        return new BsonBinaryData(bytes, subType);
+                    }
                 default:
                     var message = string.Format("Cannot deserialize BsonBinaryData from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -167,7 +171,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonWriter.WriteNull();
             } else {
                 var binaryData = (BsonBinaryData) value;
-                bsonWriter.WriteBinaryData(binaryData.Bytes, binaryData.SubType);
+                var bytes = binaryData.Bytes;
+                if (binaryData.SubType == BsonBinarySubType.Uuid && binaryData.GuidByteOrder != bsonWriter.GuidByteOrder) {
+                    var guid = GuidConverter.FromBytes(bytes, binaryData.GuidByteOrder);
+                    bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidByteOrder);
+                }
+                bsonWriter.WriteBinaryData(bytes, binaryData.SubType);
             }
         }
         #endregion

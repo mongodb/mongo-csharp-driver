@@ -24,11 +24,20 @@ namespace MongoDB.Bson {
     /// </summary>
     public static class BsonDefaults {
         #region private static fields
+        private static GuidByteOrder guidByteOrder = GuidByteOrder.LittleEndian;
         private static int initialBsonBufferSize = 4 * 1024; // 4KiB
         private static int maxDocumentSize = 4 * 1024 * 1024; // 4MiB
         #endregion
 
         #region public static properties
+        /// <summary>
+        /// Gets or sets the default Guid byte order.
+        /// </summary>
+        public static GuidByteOrder GuidByteOrder {
+            get { return guidByteOrder; }
+            set { guidByteOrder = value; }
+        }
+
         /// <summary>
         /// Gets or sets the default initial BSON buffer size.
         /// </summary>

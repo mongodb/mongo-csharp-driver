@@ -29,6 +29,7 @@ namespace MongoDB.Driver {
         #region public static fields
         private static bool assignIdOnInsert = true;
         private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
+        private static GuidByteOrder guidByteOrder = GuidByteOrder.LittleEndian;
         private static TimeSpan maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan maxConnectionLifeTime = TimeSpan.FromMinutes(30);
         private static int maxConnectionPoolSize = 100;
@@ -72,6 +73,14 @@ namespace MongoDB.Driver {
         public static TimeSpan ConnectTimeout {
             get { return connectTimeout; }
             set { connectTimeout = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the byte order to use for Guids.
+        /// </summary>
+        public static GuidByteOrder GuidByteOrder {
+            get { return guidByteOrder; }
+            set { guidByteOrder = value; }
         }
 
         /// <summary>

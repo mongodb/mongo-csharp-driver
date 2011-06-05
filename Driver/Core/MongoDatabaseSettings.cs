@@ -28,6 +28,7 @@ namespace MongoDB.Driver {
         #region private fields
         private string databaseName;
         private MongoCredentials credentials;
+        private GuidByteOrder guidByteOrder;
         private SafeMode safeMode;
         private bool slaveOk;
         // the following fields are set when Freeze is called
@@ -42,16 +43,19 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="credentials">The credentials to access the database.</param>
+        /// <param name="guidByteOrder">The byte order used for Guids.</param>
         /// <param name="safeMode">The safe mode to use.</param>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         public MongoDatabaseSettings(
             string databaseName,
             MongoCredentials credentials,
+            GuidByteOrder guidByteOrder,
             SafeMode safeMode,
             bool slaveOk
         ) {
             this.databaseName = databaseName;
             this.credentials = credentials;
+            this.guidByteOrder = guidByteOrder;
             this.safeMode = safeMode;
             this.slaveOk = slaveOk;
         }
@@ -74,6 +78,17 @@ namespace MongoDB.Driver {
         /// </summary>
         public string DatabaseName {
             get { return databaseName; }
+        }
+
+        /// <summary>
+        /// Gets or sets the byte order to use for Guids.
+        /// </summary>
+        public GuidByteOrder GuidByteOrder {
+            get { return guidByteOrder; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                guidByteOrder = value;
+            }
         }
 
         /// <summary>
@@ -115,6 +130,7 @@ namespace MongoDB.Driver {
             return new MongoDatabaseSettings(
                 databaseName,
                 credentials,
+                guidByteOrder,
                 safeMode,
                 slaveOk
             );
@@ -136,6 +152,7 @@ namespace MongoDB.Driver {
                     return
                         this.databaseName == rhs.databaseName &&
                         this.credentials == rhs.credentials &&
+                        this.guidByteOrder == rhs.guidByteOrder &&
                         this.safeMode == rhs.safeMode &&
                         this.slaveOk == rhs.slaveOk;
                 }
@@ -186,6 +203,7 @@ namespace MongoDB.Driver {
             int hash = 17;
             hash = 37 * hash + ((databaseName == null) ? 0 : databaseName.GetHashCode());
             hash = 37 * hash + ((credentials == null) ? 0 : credentials.GetHashCode());
+            hash = 37 * hash + guidByteOrder.GetHashCode();
             hash = 37 * hash + ((safeMode == null) ? 0 : safeMode.GetHashCode());
             hash = 37 * hash + slaveOk.GetHashCode();
             return hash;
@@ -193,9 +211,10 @@ namespace MongoDB.Driver {
 
         private string ToStringHelper() {
             return string.Format(
-                "DatabaseName={0};Credentials={1};SafeMode={2};SlaveOk={3}",
+                "DatabaseName={0};Credentials={1};GuidByteOrder={2};SafeMode={3};SlaveOk={4}",
                 databaseName,
                 credentials,
+                guidByteOrder,
                 safeMode,
                 slaveOk
             );

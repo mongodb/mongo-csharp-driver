@@ -28,6 +28,7 @@ namespace MongoDB.Bson.IO {
     public class JsonReader : BsonBaseReader {
         #region private fields
         private JsonBuffer buffer;
+        private JsonReaderSettings settings;
         private JsonReaderContext context;
         private JsonToken currentToken;
         private BsonValue currentValue;
@@ -39,11 +40,23 @@ namespace MongoDB.Bson.IO {
         /// Initializes a new instance of the JsonReader class.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
+        /// <param name="settings">The reader settings.</param>
         public JsonReader(
-            JsonBuffer buffer
+            JsonBuffer buffer,
+            JsonReaderSettings settings
         ) {
             this.buffer = buffer;
+            this.settings = settings.Freeze();
             this.context = new JsonReaderContext(null, ContextType.TopLevel);
+        }
+        #endregion
+
+        #region public properties
+        /// <summary>
+        /// Gets the byte order for Guids.
+        /// </summary>
+        public override GuidByteOrder GuidByteOrder {
+            get { return settings.GuidByteOrder; }
         }
         #endregion
 
@@ -689,7 +702,11 @@ namespace MongoDB.Bson.IO {
             VerifyToken(")");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType) subTypeToken.Int32Value;
-            return new BsonBinaryData(bytes, subType);
+            if (subType == BsonBinarySubType.Uuid) {
+                return new BsonBinaryData(bytes, subType, settings.GuidByteOrder);
+            } else {
+                return new BsonBinaryData(bytes, subType);
+            }
         }
 
         private BsonValue ParseBinaryStrict() {
@@ -710,7 +727,11 @@ namespace MongoDB.Bson.IO {
             VerifyToken("}");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType) Convert.ToInt32(subTypeToken.StringValue, 16);
-            return new BsonBinaryData(bytes, subType);
+            if (subType == BsonBinarySubType.Uuid) {
+                return new BsonBinaryData(bytes, subType, settings.GuidByteOrder);
+            } else {
+                return new BsonBinaryData(bytes, subType);
+            }
         }
 
         private BsonType ParseJavaScript(

@@ -25,7 +25,6 @@ using MongoDB.Bson.IO;
 namespace MongoDB.Driver.Internal {
     internal abstract class MongoMessage {
         #region protected fields
-        protected MongoConnection connection;
         protected int messageLength;
         protected int requestId;
         protected int responseTo;
@@ -34,10 +33,8 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         protected MongoMessage(
-            MongoConnection connection,
             MessageOpcode opcode
         ) {
-            this.connection = connection;
             this.opcode = opcode;
         }
         #endregion
@@ -53,10 +50,6 @@ namespace MongoDB.Driver.Internal {
 
         internal int ResponseTo {
             get { return responseTo; }
-        }
-
-        internal MessageOpcode Opcode {
-            get { return opcode; }
         }
         #endregion
 

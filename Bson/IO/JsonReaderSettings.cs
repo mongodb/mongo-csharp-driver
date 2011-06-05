@@ -20,53 +20,45 @@ using System.Text;
 
 namespace MongoDB.Bson.IO {
     /// <summary>
-    /// Represents settings for a BsonBinaryReader.
+    /// Represents settings for a JsonReader.
     /// </summary>
-    public class BsonBinaryReaderSettings {
+    public class JsonReaderSettings {
         #region private static fields
-        private static BsonBinaryReaderSettings defaults = new BsonBinaryReaderSettings();
+        private static JsonReaderSettings defaults = new JsonReaderSettings();
         #endregion
 
         #region private fields
         private bool closeInput = false;
-        private bool fixOldBinarySubTypeOnInput = true;
         private GuidByteOrder guidByteOrder = BsonDefaults.GuidByteOrder;
-        private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
         private bool isFrozen;
         #endregion
 
         #region constructors
         /// <summary>
-        /// Initializes a new instance of the BsonBinaryReaderSettings class.
+        /// Initializes a new instance of the JsonReaderSettings class.
         /// </summary>
-        public BsonBinaryReaderSettings() {
+        public JsonReaderSettings() {
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonBinaryReaderSettings class.
+        /// Initializes a new instance of the JsonReaderSettings class.
         /// </summary>
         /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
-        /// <param name="fixOldBinarySubTypeOnInput">Whether to fix occurrences of the old binary subtype on input.</param>
         /// <param name="guidByteOrder">The byte order for Guids.</param>
-        /// <param name="maxDocumentSize">The max document size.</param>
-        public BsonBinaryReaderSettings(
+        public JsonReaderSettings(
             bool closeInput,
-            bool fixOldBinarySubTypeOnInput,
-            GuidByteOrder guidByteOrder,
-            int maxDocumentSize
+            GuidByteOrder guidByteOrder
         ) {
             this.closeInput = closeInput;
-            this.fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
             this.guidByteOrder = guidByteOrder;
-            this.maxDocumentSize = maxDocumentSize;
         }
         #endregion
 
         #region public static properties
         /// <summary>
-        /// Gets or sets the default settings for a BsonBinaryReader.
+        /// Gets or sets the default settings for a JsonReader.
         /// </summary>
-        public static BsonBinaryReaderSettings Defaults {
+        public static JsonReaderSettings Defaults {
             get { return defaults; }
             set { defaults = value; }
         }
@@ -79,19 +71,8 @@ namespace MongoDB.Bson.IO {
         public bool CloseInput {
             get { return closeInput; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                if (isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
                 closeInput = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets whether to fix occurrences of the old binary subtype on input. 
-        /// </summary>
-        public bool FixOldBinarySubTypeOnInput {
-            get { return fixOldBinarySubTypeOnInput; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                fixOldBinarySubTypeOnInput = value;
             }
         }
 
@@ -101,7 +82,7 @@ namespace MongoDB.Bson.IO {
         public GuidByteOrder GuidByteOrder {
             get { return guidByteOrder; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                if (isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
                 guidByteOrder = value;
             }
         }
@@ -112,17 +93,6 @@ namespace MongoDB.Bson.IO {
         public bool IsFrozen {
             get { return isFrozen; }
         }
-
-        /// <summary>
-        /// Gets or sets the max document size.
-        /// </summary>
-        public int MaxDocumentSize {
-            get { return maxDocumentSize; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                maxDocumentSize = value;
-            }
-        }
         #endregion
 
         #region public methods
@@ -130,12 +100,10 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public BsonBinaryReaderSettings Clone() {
-            return new BsonBinaryReaderSettings(
+        public JsonReaderSettings Clone() {
+            return new JsonReaderSettings(
                 closeInput,
-                fixOldBinarySubTypeOnInput,
-                guidByteOrder,
-                maxDocumentSize
+                guidByteOrder
             );
         }
 
@@ -143,7 +111,7 @@ namespace MongoDB.Bson.IO {
         /// Freezes the settings.
         /// </summary>
         /// <returns>The settings.</returns>
-        public BsonBinaryReaderSettings Freeze() {
+        public JsonReaderSettings Freeze() {
             isFrozen = true;
             return this;
         }

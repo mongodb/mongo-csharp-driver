@@ -977,7 +977,11 @@ namespace MongoDB.Bson {
                     byte[] bytes;
                     BsonBinarySubType subType;
                     bsonReader.ReadBinaryData(out bytes, out subType);
-                    return new BsonBinaryData(bytes, subType);
+                    if (subType == BsonBinarySubType.Uuid) {
+                        return new BsonBinaryData(bytes, subType, bsonReader.GuidByteOrder);
+                    } else {
+                        return new BsonBinaryData(bytes, subType);
+                    }
                 case BsonType.Boolean:
                     return BsonBoolean.Create(bsonReader.ReadBoolean());
                 case BsonType.DateTime:
@@ -1170,7 +1174,12 @@ namespace MongoDB.Bson {
                     break;
                 case BsonType.Binary:
                     var binaryData = (BsonBinaryData) this;
-                    bsonWriter.WriteBinaryData(binaryData.Bytes, binaryData.SubType);
+                    var bytes = binaryData.Bytes;
+                    if (binaryData.SubType == BsonBinarySubType.Uuid && binaryData.GuidByteOrder != bsonWriter.GuidByteOrder) {
+                        var guid = GuidConverter.FromBytes(bytes, binaryData.GuidByteOrder);
+                        bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidByteOrder);
+                    }
+                    bsonWriter.WriteBinaryData(bytes, binaryData.SubType);
                     break;
                 case BsonType.Boolean:
                     bsonWriter.WriteBoolean(((BsonBoolean) this).Value);

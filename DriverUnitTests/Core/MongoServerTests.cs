@@ -30,6 +30,7 @@ namespace MongoDB.DriverUnitTests {
             var expectedSeedList = new[] { new MongoServerAddress("localhost") };
             Assert.IsNull(server.Settings.DefaultCredentials);
             Assert.AreEqual(0, server.Instances.Count()); // 0 until connected
+            Assert.AreEqual(MongoDefaults.GuidByteOrder, server.Settings.GuidByteOrder);
             Assert.AreEqual(SafeMode.False, server.Settings.SafeMode);
             Assert.AreEqual(false, server.Settings.SlaveOk);
             Assert.AreEqual(MongoServerState.Disconnected, server.State);

@@ -50,6 +50,15 @@ namespace MongoDB.Bson.IO {
         }
         #endregion
 
+        #region public properties
+        /// <summary>
+        /// Gets the byte order for Guids.
+        /// </summary>
+        public override GuidByteOrder GuidByteOrder {
+            get { return settings.GuidByteOrder; }
+        }
+        #endregion
+
         #region public methods
         /// <summary>
         /// Closes the writer.

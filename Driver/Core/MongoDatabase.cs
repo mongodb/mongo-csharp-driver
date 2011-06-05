@@ -308,6 +308,7 @@ namespace MongoDB.Driver {
             return new MongoCollectionSettings<TDefaultDocument>(
                 collectionName,
                 MongoDefaults.AssignIdOnInsert,
+                settings.GuidByteOrder,
                 settings.SafeMode,
                 settings.SlaveOk
             );
@@ -326,11 +327,12 @@ namespace MongoDB.Driver {
         ) {
             var settingsDefinition = typeof(MongoCollectionSettings<>);
             var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(string), typeof(bool), typeof(SafeMode), typeof(bool) });
+            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(string), typeof(bool), typeof(GuidByteOrder), typeof(SafeMode), typeof(bool) });
             return (MongoCollectionSettings) constructorInfo.Invoke(
                 new object[] {
                     collectionName,
                     MongoDefaults.AssignIdOnInsert,
+                    settings.GuidByteOrder,
                     settings.SafeMode,
                     settings.SlaveOk
                 }

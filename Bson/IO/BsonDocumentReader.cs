@@ -25,6 +25,7 @@ namespace MongoDB.Bson.IO {
     /// </summary>
     public class BsonDocumentReader : BsonBaseReader {
         #region private fields
+        private BsonDocumentReaderSettings settings;
         private BsonDocumentReaderContext context;
         private BsonValue currentValue;
         #endregion
@@ -34,15 +35,24 @@ namespace MongoDB.Bson.IO {
         /// Initializes a new instance of the BsonDocumentReader class.
         /// </summary>
         /// <param name="document">A BsonDocument.</param>
+        /// <param name="settings">The reader settings.</param>
         public BsonDocumentReader(
-            BsonDocument document
+            BsonDocument document,
+            BsonDocumentReaderSettings settings
         ) {
             context = new BsonDocumentReaderContext(null, ContextType.TopLevel, document);
             currentValue = document;
+            this.settings = settings.Freeze();
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the byte order for Guids.
+        /// </summary>
+        public override GuidByteOrder GuidByteOrder {
+            get { return settings.GuidByteOrder; }
+        }
         #endregion
 
         #region public methods

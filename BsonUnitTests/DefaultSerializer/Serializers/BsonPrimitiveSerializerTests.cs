@@ -703,12 +703,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
     [TestFixture]
     public class GuidSerializerTests {
         public class TestClass {
-            [BsonGuidOptions(GuidByteOrder.LittleEndian)]
-            public Guid LittleEndian { get; set; }
-            [BsonGuidOptions(GuidByteOrder.BigEndian)]
-            public Guid BigEndian { get; set; }
-            [BsonGuidOptions(GuidByteOrder.JavaHistorical)]
-            public Guid JavaHistorical { get; set; }
+            public Guid Binary { get; set; }
             [BsonRepresentation(BsonType.String)]
             public Guid String { get; set; }
         }
@@ -717,16 +712,12 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestEmpty() {
             var guid = Guid.Empty;
             var obj = new TestClass {
-                LittleEndian = guid,
-                BigEndian = guid,
-                JavaHistorical = guid,
+                Binary = guid,
                 String = guid
             };
             var json = obj.ToJson();
-            var expected = "{ 'LittleEndian' : new BinData(3, '#LE'), 'BigEndian' : new BinData(3, '#BE'), 'JavaHistorical' : new BinData(3, '#JH'), 'String' : '#S' }";
-            expected = expected.Replace("#LE", "AAAAAAAAAAAAAAAAAAAAAA==");
-            expected = expected.Replace("#BE", "AAAAAAAAAAAAAAAAAAAAAA==");
-            expected = expected.Replace("#JH", "AAAAAAAAAAAAAAAAAAAAAA==");
+            var expected = "{ 'Binary' : new BinData(3, '#B'), 'String' : '#S' }";
+            expected = expected.Replace("#B", "AAAAAAAAAAAAAAAAAAAAAA==");
             expected = expected.Replace("#S", "00000000-0000-0000-0000-000000000000");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -741,25 +732,22 @@ namespace MongoDB.BsonUnitTests.Serialization {
             var s = "01020304-0506-0708-090a-0b0c0d0e0f10";
             var guid = new Guid(s);
             var obj = new TestClass {
-                LittleEndian = guid,
-                BigEndian = guid,
-                JavaHistorical = guid,
+                Binary = guid,
                 String = guid
             };
             var json = obj.ToJson();
             var littleEndianBytes = new byte[] { 4, 3, 2, 1, 6, 5, 8, 7, 9, 10, 11, 12, 13, 14, 15, 16 };
             var littleEndianBase64 = Convert.ToBase64String(littleEndianBytes).Replace("\\", "\\\\");
+            var expected = "{ 'Binary' : new BinData(3, '#B'), 'String' : '#S' }";
+            expected = expected.Replace("#B", littleEndianBase64);
+            expected = expected.Replace("#S", s);
+            expected = expected.Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
             var bigEndianBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
             var bigEndianBase64 = Convert.ToBase64String(bigEndianBytes).Replace("\\", "\\\\");
             var javaHistoricalBytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1, 16, 15, 14, 13, 12, 11, 10, 9 };
             var javaHistoricalBase64 = Convert.ToBase64String(javaHistoricalBytes).Replace("\\", "\\\\");
-            var expected = "{ 'LittleEndian' : new BinData(3, '#LE'), 'BigEndian' : new BinData(3, '#BE'), 'JavaHistorical' : new BinData(3, '#JH'), 'String' : '#S' }";
-            expected = expected.Replace("#LE", littleEndianBase64);
-            expected = expected.Replace("#BE", bigEndianBase64);
-            expected = expected.Replace("#JH", javaHistoricalBase64);
-            expected = expected.Replace("#S", s);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);

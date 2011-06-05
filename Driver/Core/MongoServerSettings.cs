@@ -31,6 +31,7 @@ namespace MongoDB.Driver {
         private ConnectionMode connectionMode;
         private TimeSpan connectTimeout;
         private MongoCredentials defaultCredentials;
+        private GuidByteOrder guidByteOrder;
         private bool ipv6;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
@@ -57,6 +58,7 @@ namespace MongoDB.Driver {
             connectionMode = ConnectionMode.Direct;
             connectTimeout = MongoDefaults.ConnectTimeout;
             defaultCredentials = null;
+            guidByteOrder = MongoDefaults.GuidByteOrder;
             ipv6 = false;
             maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
@@ -77,6 +79,7 @@ namespace MongoDB.Driver {
         /// <param name="connectionMode">The connection mode (Direct or ReplicaSet).</param>
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="defaultCredentials">The default credentials.</param>
+        /// <param name="guidByteOrder">The byte order for Guids.</param>
         /// <param name="ipv6">Whether to use IPv6.</param>
         /// <param name="maxConnectionIdleTime">The max connection idle time.</param>
         /// <param name="maxConnectionLifeTime">The max connection life time.</param>
@@ -93,6 +96,7 @@ namespace MongoDB.Driver {
             ConnectionMode connectionMode,
             TimeSpan connectTimeout,
             MongoCredentials defaultCredentials,
+            GuidByteOrder guidByteOrder,
             bool ipv6,
             TimeSpan maxConnectionIdleTime,
             TimeSpan maxConnectionLifeTime,
@@ -109,6 +113,7 @@ namespace MongoDB.Driver {
             this.connectionMode = connectionMode;
             this.connectTimeout = connectTimeout;
             this.defaultCredentials = defaultCredentials;
+            this.guidByteOrder = guidByteOrder;
             this.ipv6 = ipv6;
             this.maxConnectionIdleTime = maxConnectionIdleTime;
             this.maxConnectionLifeTime = maxConnectionLifeTime;
@@ -162,6 +167,17 @@ namespace MongoDB.Driver {
             set {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 defaultCredentials = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the byte order to use for Guids.
+        /// </summary>
+        public GuidByteOrder GuidByteOrder {
+            get { return guidByteOrder; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                guidByteOrder = value;
             }
         }
 
@@ -326,6 +342,7 @@ namespace MongoDB.Driver {
                 connectionMode,
                 connectTimeout,
                 defaultCredentials,
+                guidByteOrder,
                 ipv6,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -358,6 +375,7 @@ namespace MongoDB.Driver {
                         this.connectionMode == rhs.connectionMode &&
                         this.connectTimeout == rhs.connectTimeout &&
                         this.defaultCredentials == rhs.defaultCredentials &&
+                        this.guidByteOrder == rhs.guidByteOrder &&
                         this.ipv6 == rhs.ipv6 &&
                         this.maxConnectionIdleTime == rhs.maxConnectionIdleTime &&
                         this.maxConnectionLifeTime == rhs.maxConnectionLifeTime &&
@@ -419,6 +437,7 @@ namespace MongoDB.Driver {
             hash = 37 * hash + connectionMode.GetHashCode();
             hash = 37 * hash + connectTimeout.GetHashCode();
             hash = 37 * hash + (defaultCredentials == null ? 0 : defaultCredentials.GetHashCode());
+            hash = 37 * hash + guidByteOrder.GetHashCode();
             hash = 37 * hash + ipv6.GetHashCode();
             hash = 37 * hash + maxConnectionIdleTime.GetHashCode();
             hash = 37 * hash + maxConnectionLifeTime.GetHashCode();
@@ -447,6 +466,7 @@ namespace MongoDB.Driver {
             sb.AppendFormat("ConnectionMode={0};", connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", connectTimeout);
             sb.AppendFormat("DefaultCredentials={0};", defaultCredentials);
+            sb.AppendFormat("GuidByteOrder={0};", guidByteOrder);
             sb.AppendFormat("IPv6={0};", ipv6);
             sb.AppendFormat("MaxConnectionIdleTime={0};", maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", maxConnectionLifeTime);

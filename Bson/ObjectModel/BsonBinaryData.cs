@@ -24,6 +24,10 @@ namespace MongoDB.Bson {
     /// </summary>
     public enum GuidByteOrder {
         /// <summary>
+        /// The byte order for Guids is unspecified, so no conversion between byte arrays and Guids is not possible.
+        /// </summary>
+        Unspecified,
+        /// <summary>
         /// Use Microsoft's internal little endian format (this is the default for historical reasons, but is different from how the Java and other drivers store UUIDs).
         /// </summary>
         LittleEndian,
@@ -42,10 +46,6 @@ namespace MongoDB.Bson {
     /// </summary>
     [Serializable]
     public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData> {
-        #region private static fields
-        private static GuidByteOrder defaultGuidByteOrder = GuidByteOrder.LittleEndian;
-        #endregion
-
         #region private fields
         private byte[] bytes;
         private BsonBinarySubType subType;
@@ -82,11 +82,28 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Initializes a new instance of the BsonBinaryData class.
         /// </summary>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidByteOrder">The byte order for Guids.</param>
+        public BsonBinaryData(
+            byte[] bytes,
+            BsonBinarySubType subType,
+            GuidByteOrder guidByteOrder
+        )
+            : base(BsonType.Binary) {
+            this.bytes = bytes;
+            this.subType = subType;
+            this.guidByteOrder = guidByteOrder;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryData class.
+        /// </summary>
         /// <param name="guid">A Guid.</param>
         public BsonBinaryData(
             Guid guid
         )
-            : this(guid, defaultGuidByteOrder) {
+            : this(guid, BsonDefaults.GuidByteOrder) {
         }
 
         /// <summary>
@@ -99,47 +116,9 @@ namespace MongoDB.Bson {
             GuidByteOrder byteOrder
         )
             : base(BsonType.Binary) {
-            var bytes = (byte[]) guid.ToByteArray().Clone(); // defensive clone
-            switch (byteOrder) {
-                case GuidByteOrder.LittleEndian:
-                    if (!BitConverter.IsLittleEndian) {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
-                    break;
-                case GuidByteOrder.BigEndian:
-                    if (BitConverter.IsLittleEndian) {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
-                    break;
-                case GuidByteOrder.JavaHistorical:
-                    if (BitConverter.IsLittleEndian) {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
-                    Array.Reverse(bytes, 0, 8);
-                    Array.Reverse(bytes, 8, 8);
-                    break;
-                default:
-                    throw new BsonInternalException("Unexpected GuidByteOrder.");
-            }
-            this.bytes = bytes;
+            this.bytes = GuidConverter.ToBytes(guid, byteOrder);
             this.subType = BsonBinarySubType.Uuid;
             this.guidByteOrder = byteOrder;
-        }
-        #endregion
-
-        #region public static properties
-        /// <summary>
-        /// Gets or sets the default byte order to use when representing a Guid as a byte array.
-        /// </summary>
-        public static GuidByteOrder DefaultGuidByteOrder {
-            get { return defaultGuidByteOrder; }
-            set { defaultGuidByteOrder = value; }
         }
         #endregion
 
@@ -199,7 +178,7 @@ namespace MongoDB.Bson {
         public static implicit operator BsonBinaryData(
             Guid value
         ) {
-            return new BsonBinaryData(value, defaultGuidByteOrder);
+            return new BsonBinaryData(value, BsonDefaults.GuidByteOrder);
         }
         #endregion
 
@@ -240,7 +219,7 @@ namespace MongoDB.Bson {
         public static BsonBinaryData Create(
             Guid guid
         ) {
-            return new BsonBinaryData(guid, defaultGuidByteOrder);
+            return new BsonBinaryData(guid, BsonDefaults.GuidByteOrder);
         }
 
         /// <summary>
@@ -316,6 +295,7 @@ namespace MongoDB.Bson {
             BsonBinaryData rhs
         ) {
             if (rhs == null) { return false; }
+            // note: guidByteOrder is not considered when testing for Equality
             return object.ReferenceEquals(this, rhs) || this.subType == rhs.subType && this.bytes.SequenceEqual(rhs.bytes);
         }
 
@@ -336,6 +316,7 @@ namespace MongoDB.Bson {
         /// <returns>The hash code.</returns>
         public override int GetHashCode() {
             // see Effective Java by Joshua Bloch
+            // note: guidByteOrder is not considered when computing the hash code
             int hash = 17;
             hash = 37 * hash + bsonType.GetHashCode();
             foreach (byte b in bytes) {
@@ -350,39 +331,25 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <returns>A Guid.</returns>
         public Guid ToGuid() {
-            if (subType == BsonBinarySubType.Uuid) {
-                var bytes = (byte[]) this.bytes.Clone(); // defensive clone
-                switch (guidByteOrder) {
-                    case GuidByteOrder.LittleEndian:
-                        if (!BitConverter.IsLittleEndian) {
-                            Array.Reverse(bytes, 0, 4);
-                            Array.Reverse(bytes, 4, 2);
-                            Array.Reverse(bytes, 6, 2);
-                        }
-                        break;
-                    case GuidByteOrder.BigEndian:
-                        if (BitConverter.IsLittleEndian) {
-                            Array.Reverse(bytes, 0, 4);
-                            Array.Reverse(bytes, 4, 2);
-                            Array.Reverse(bytes, 6, 2);
-                        }
-                        break;
-                    case GuidByteOrder.JavaHistorical:
-                        Array.Reverse(bytes, 0, 8);
-                        Array.Reverse(bytes, 8, 8);
-                        if (BitConverter.IsLittleEndian) {
-                            Array.Reverse(bytes, 0, 4);
-                            Array.Reverse(bytes, 4, 2);
-                            Array.Reverse(bytes, 6, 2);
-                        }
-                        break;
-                    default:
-                        throw new BsonInternalException("Unexpected GuidByteOrder.");
-                }
-                return new Guid(bytes);
-            } else {
+            return ToGuid(guidByteOrder);
+        }
+
+        /// <summary>
+        /// Converts this BsonBinaryData to a Guid.
+        /// </summary>
+        /// <param name="byteOrder">The byte order of the byte array containing the Guid.</param>
+        /// <returns>A Guid.</returns>
+        public Guid ToGuid(
+            GuidByteOrder byteOrder
+        ) {
+            if (subType != BsonBinarySubType.Uuid) {
                 throw new InvalidOperationException("BinaryData subtype is not UUID.");
             }
+            if (bytes.Length != 16) {
+                throw new InvalidOperationException("BinaryData is not 16 bytes long.");
+            }
+
+            return GuidConverter.FromBytes(bytes, byteOrder);
         }
 
         /// <summary>

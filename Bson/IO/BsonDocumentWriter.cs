@@ -26,6 +26,7 @@ namespace MongoDB.Bson.IO {
     public class BsonDocumentWriter : BsonBaseWriter {
         #region private fields
         private BsonDocument topLevelDocument;
+        private BsonDocumentWriterSettings settings;
         private BsonDocumentWriterContext context;
         #endregion
 
@@ -33,24 +34,27 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWriter class.
         /// </summary>
-        public BsonDocumentWriter()
-            : this(new BsonDocument()) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonDocumentWriter class.
-        /// </summary>
         /// <param name="topLevelDocument">The document to write to (normally starts out as an empty document).</param>
+        /// <param name="settings">The settings.</param>
         public BsonDocumentWriter(
-            BsonDocument topLevelDocument
+            BsonDocument topLevelDocument,
+            BsonDocumentWriterSettings settings
         ) {
             this.topLevelDocument = topLevelDocument;
+            this.settings = settings.Freeze();
             context = null;
             state = BsonWriterState.Initial;
         }
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the byte order for Guids.
+        /// </summary>
+        public override GuidByteOrder GuidByteOrder {
+            get { return settings.GuidByteOrder; }
+        }
+
         /// <summary>
         /// Gets the top level BsonDocument.
         /// </summary>

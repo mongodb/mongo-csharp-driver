@@ -60,6 +60,13 @@ namespace MongoDB.Bson.IO {
         public BsonBuffer Buffer {
             get { return buffer; }
         }
+
+        /// <summary>
+        /// Gets the byte order for Guids.
+        /// </summary>
+        public override GuidByteOrder GuidByteOrder {
+            get { return settings.GuidByteOrder; }
+        }
         #endregion
 
         #region public methods

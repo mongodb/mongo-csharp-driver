@@ -34,12 +34,12 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoDeleteMessage(
-            MongoConnection connection,
+            BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
             RemoveFlags flags,
             IMongoQuery query
         ) :
-            base(connection, MessageOpcode.Delete) {
+            base(MessageOpcode.Delete, null, writerSettings) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteCString(collectionFullName);
             buffer.WriteInt32((int) flags);
 
-            using (var bsonWriter = CreateBsonWriter()) {
+            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
                 if (query == null) {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteEndDocument();

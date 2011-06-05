@@ -278,9 +278,13 @@ namespace MongoDB.Driver.Internal {
         ) {
             var commandName = command.GetElement(0).Name;
 
+            var writerSettings = new BsonBinaryWriterSettings {
+                GuidByteOrder = GuidByteOrder.Unspecified,
+                MaxDocumentSize = serverInstance.MaxDocumentSize
+            };
             using (
                 var message = new MongoQueryMessage(
-                    this,
+                    writerSettings,
                     collectionName,
                     queryFlags,
                     0, // numberToSkip
@@ -292,7 +296,11 @@ namespace MongoDB.Driver.Internal {
                 SendMessage(message, SafeMode.False);
             }
 
-            var reply = ReceiveMessage<BsonDocument>(null);
+            var readerSettings = new BsonBinaryReaderSettings {
+                    GuidByteOrder = GuidByteOrder.Unspecified,
+                    MaxDocumentSize = serverInstance.MaxDocumentSize
+            };
+            var reply = ReceiveMessage<BsonDocument>(readerSettings, null);
             if (reply.NumberReturned == 0) {
                 var message = string.Format("Command '{0}' failed. No response returned.", commandName);
                 throw new MongoCommandException(message);
@@ -307,6 +315,7 @@ namespace MongoDB.Driver.Internal {
         }
 
         internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(
+            BsonBinaryReaderSettings readerSettings,
             IBsonSerializationOptions serializationOptions
         ) {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
@@ -316,7 +325,7 @@ namespace MongoDB.Driver.Internal {
                         var networkStream = GetNetworkStream();
                         networkStream.ReadTimeout = (int) serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
                         buffer.LoadFrom(networkStream);
-                        var reply = new MongoReplyMessage<TDocument>(this);
+                        var reply = new MongoReplyMessage<TDocument>(readerSettings);
                         reply.ReadFrom(buffer, serializationOptions);
                         return reply;
                     }
@@ -344,14 +353,14 @@ namespace MongoDB.Driver.Internal {
                     };
                     using (
                         var getLastErrorMessage = new MongoQueryMessage(
-                            this,
+                            message.Buffer, // piggy back on network transmission for message
+                            message.WriterSettings,
                             "admin.$cmd", // collectionFullName
                             QueryFlags.None,
                             0, // numberToSkip
                             1, // numberToReturn
                             safeModeCommand,
-                            null, // fields
-                            message.Buffer // piggy back on network transmission for message
+                            null // fields
                         )
                     ) {
                         getLastErrorMessage.WriteToBuffer();
@@ -370,7 +379,11 @@ namespace MongoDB.Driver.Internal {
 
                 SafeModeResult safeModeResult = null;
                 if (safeMode.Enabled) {
-                    var replyMessage = ReceiveMessage<BsonDocument>(null);
+                    var readerSettings = new BsonBinaryReaderSettings {
+                        GuidByteOrder = message.WriterSettings.GuidByteOrder,
+                        MaxDocumentSize = serverInstance.MaxDocumentSize
+                    };
+                    var replyMessage = ReceiveMessage<BsonDocument>(readerSettings, null);
                     var safeModeResponse = replyMessage.Documents[0];
                     safeModeResult = new SafeModeResult();
                     safeModeResult.Initialize(safeModeCommand, safeModeResponse);
