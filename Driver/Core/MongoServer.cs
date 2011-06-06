@@ -930,6 +930,7 @@ namespace MongoDB.Driver {
                 if (state == MongoServerState.Disconnected) {
                     Connect();
                 }
+
                 if (slaveOk) {
                     // round robin the connected secondaries, fall back to primary if no secondary found
                     lock (instances) {
@@ -942,7 +943,12 @@ namespace MongoDB.Driver {
                         }
                     }
                 }
-                return Primary;
+
+                var primary = Primary;
+                if (primary == null) {
+                    throw new MongoConnectionException("Primary server not found.");
+                }
+                return primary;
             }
         }
 
