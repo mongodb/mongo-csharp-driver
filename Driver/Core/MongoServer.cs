@@ -869,8 +869,11 @@ namespace MongoDB.Driver {
                 }
             }
 
-            var serverInstance = GetServerInstance(slaveOk);
-            return serverInstance.AcquireConnection(database);
+            // get lock so serverInstance doesn't get disconnected before AcquireConnection is called
+            lock (serverLock) {
+                var serverInstance = GetServerInstance(slaveOk);
+                return serverInstance.AcquireConnection(database);
+            }
         }
 
         internal MongoConnection AcquireConnection(
