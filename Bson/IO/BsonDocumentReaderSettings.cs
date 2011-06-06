@@ -24,7 +24,7 @@ namespace MongoDB.Bson.IO {
     /// </summary>
     public class BsonDocumentReaderSettings {
         #region private static fields
-        private static BsonDocumentReaderSettings defaults = new BsonDocumentReaderSettings();
+        private static BsonDocumentReaderSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
 
         #region private fields
@@ -55,7 +55,12 @@ namespace MongoDB.Bson.IO {
         /// Gets or sets the default settings for a BsonDocumentReader.
         /// </summary>
         public static BsonDocumentReaderSettings Defaults {
-            get { return defaults; }
+            get {
+                if (defaults == null) {
+                    defaults = new BsonDocumentReaderSettings();
+                }
+                return defaults;
+            }
             set { defaults = value; }
         }
         #endregion

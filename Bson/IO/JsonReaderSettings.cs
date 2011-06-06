@@ -24,7 +24,7 @@ namespace MongoDB.Bson.IO {
     /// </summary>
     public class JsonReaderSettings {
         #region private static fields
-        private static JsonReaderSettings defaults = new JsonReaderSettings();
+        private static JsonReaderSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
 
         #region private fields
@@ -59,7 +59,12 @@ namespace MongoDB.Bson.IO {
         /// Gets or sets the default settings for a JsonReader.
         /// </summary>
         public static JsonReaderSettings Defaults {
-            get { return defaults; }
+            get {
+                if (defaults == null) {
+                    defaults = new JsonReaderSettings();
+                }
+                return defaults;
+            }
             set { defaults = value; }
         }
         #endregion

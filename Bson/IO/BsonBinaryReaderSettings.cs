@@ -24,7 +24,7 @@ namespace MongoDB.Bson.IO {
     /// </summary>
     public class BsonBinaryReaderSettings {
         #region private static fields
-        private static BsonBinaryReaderSettings defaults = new BsonBinaryReaderSettings();
+        private static BsonBinaryReaderSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
 
         #region private fields
@@ -67,7 +67,12 @@ namespace MongoDB.Bson.IO {
         /// Gets or sets the default settings for a BsonBinaryReader.
         /// </summary>
         public static BsonBinaryReaderSettings Defaults {
-            get { return defaults; }
+            get {
+                if (defaults == null) {
+                    defaults = new BsonBinaryReaderSettings();
+                }
+                return defaults;
+            }
             set { defaults = value; }
         }
         #endregion

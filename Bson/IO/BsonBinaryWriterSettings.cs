@@ -25,7 +25,7 @@ namespace MongoDB.Bson.IO {
     [Serializable]
     public class BsonBinaryWriterSettings {
         #region private static fields
-        private static BsonBinaryWriterSettings defaults = new BsonBinaryWriterSettings();
+        private static BsonBinaryWriterSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
 
         #region private fields
@@ -68,7 +68,12 @@ namespace MongoDB.Bson.IO {
         /// Gets or sets the default BsonBinaryWriter settings.
         /// </summary>
         public static BsonBinaryWriterSettings Defaults {
-            get { return defaults; }
+            get {
+                if (defaults == null) {
+                    defaults = new BsonBinaryWriterSettings();
+                }
+                return defaults;
+            }
             set { defaults = value; }
         }
         #endregion

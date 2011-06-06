@@ -20,28 +20,6 @@ using System.Text;
 
 namespace MongoDB.Bson {
     /// <summary>
-    /// Represents the byte order to use when representing a Guid as a byte array.
-    /// </summary>
-    public enum GuidByteOrder {
-        /// <summary>
-        /// The byte order for Guids is unspecified, so no conversion between byte arrays and Guids is not possible.
-        /// </summary>
-        Unspecified,
-        /// <summary>
-        /// Use Microsoft's internal little endian format (this is the default for historical reasons, but is different from how the Java and other drivers store UUIDs).
-        /// </summary>
-        LittleEndian,
-        /// <summary>
-        /// Use the standard external high endian format (this is compatible with how the Java and other drivers store UUIDs).
-        /// </summary>
-        BigEndian,
-        /// <summary>
-        /// Use the byte order used by older versions of the Java driver (two 8 byte halves in little endian order).
-        /// </summary>
-        JavaHistorical
-    }
-
-    /// <summary>
     /// Represents BSON binary data.
     /// </summary>
     [Serializable]

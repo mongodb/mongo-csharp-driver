@@ -25,7 +25,7 @@ namespace MongoDB.Bson.IO {
     [Serializable]
     public class JsonWriterSettings {
         #region private static fields
-        private static JsonWriterSettings defaults = new JsonWriterSettings();
+        private static JsonWriterSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
 
         #region private fields
@@ -77,7 +77,12 @@ namespace MongoDB.Bson.IO {
         /// Gets or sets the default JsonWriterSettings.
         /// </summary>
         public static JsonWriterSettings Defaults {
-            get { return defaults; }
+            get {
+                if (defaults == null) {
+                    defaults = new JsonWriterSettings();
+                }
+                return defaults;
+            }
             set { defaults = value; }
         }
         #endregion
