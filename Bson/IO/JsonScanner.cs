@@ -395,7 +395,7 @@ namespace MongoDB.Bson.IO {
                                 }
                                 break;
                             default:
-                               if (c != -1) {
+                                if (c != -1) {
                                     var message = string.Format("Invalid escape sequence in JSON string '\\{0}'.", (char) c);
                                     throw new FileFormatException(message);
                                 }

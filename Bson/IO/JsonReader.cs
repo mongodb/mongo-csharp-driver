@@ -934,7 +934,7 @@ namespace MongoDB.Bson.IO {
             VerifyToken(":");
             var valueToken = PopToken();
             long value;
-            if (valueToken.Type == JsonTokenType.Int32 && valueToken.Type == JsonTokenType.Int64) {
+            if (valueToken.Type == JsonTokenType.Int32 || valueToken.Type == JsonTokenType.Int64) {
                 value = valueToken.Int64Value;
             } else if (valueToken.Type == JsonTokenType.UnquotedString && valueToken.Lexeme == "NumberLong") {
                 value = ParseNumberLong().AsInt64;
