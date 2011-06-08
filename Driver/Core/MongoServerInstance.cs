@@ -239,8 +239,11 @@ namespace MongoDB.Driver {
         internal void Disconnect() {
             if (state != MongoServerState.Disconnected) {
                 try {
-                    connectionPool.Close();
-                    connectionPool = null;
+                    // if we fail during Connect the connectionPool field will still be null
+                    if (connectionPool != null) {
+                        connectionPool.Close();
+                        connectionPool = null;
+                    }
                 } finally {
                     State = MongoServerState.Disconnected;
                 }
