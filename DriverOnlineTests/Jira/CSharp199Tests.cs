@@ -49,7 +49,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199
             var expectedDoc = new BsonDocument {
                 { "$rename" , new BsonDocument { { "a", "b"} }}
             };
-            Assert.AreEqual(expectedDoc, renameDoc);
+            Assert.AreEqual(expectedDoc.ToJson(), renameDoc.ToJson());
 
             var query = Query.EQ("a", 1);
             collection.Update(query, renameDoc);
@@ -76,11 +76,37 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199
                     { "a", "x" },
                     { "b", "y" }}}
             };
-            // Assert.AreEqual(expectedDoc, renameDoc);
             Assert.AreEqual(expectedDoc.ToJson(), renameDoc.ToJson());
 
             var query = Query.EQ("a", 1);
             collection.Update(query, renameDoc);
         }
+
+        [Test]
+        public void TestRenameWithSet()
+        {
+            var server = MongoServer.Create("mongodb://localhost/?safe=true");
+            var database = server["onlinetests"];
+            var collection = database.GetCollection("CSharp199");
+            collection.RemoveAll();
+
+            var testDoc = new BsonDocument
+            {
+                { "a", 1 },
+                { "x", 1 }
+            };
+
+            var result = collection.Insert(testDoc);
+            var renameDoc = Update.Rename("a", "b").Set("x", 2);
+            var expectedDoc = new BsonDocument {
+                { "$rename" , new BsonDocument { {"a", "b"} }},
+                { "$set", new BsonDocument { {"x", 2} }}
+            };
+            Assert.AreEqual(expectedDoc.ToJson(), renameDoc.ToJson());
+
+            var query = Query.EQ("a", 1);
+            collection.Update(query, renameDoc);
+        }
+
     }
 }
