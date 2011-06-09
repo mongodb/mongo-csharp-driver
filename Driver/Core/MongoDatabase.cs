@@ -58,7 +58,9 @@ namespace MongoDB.Driver {
             // make sure commands get routed to the primary server by using slaveOk false
             var commandCollectionSettings = CreateCollectionSettings<BsonDocument>("$cmd");
             commandCollectionSettings.AssignIdOnInsert = false;
-            commandCollectionSettings.SlaveOk = false;
+            if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet) {
+                commandCollectionSettings.SlaveOk = false;
+            }
             commandCollection = GetCollection(commandCollectionSettings);
         }
         #endregion

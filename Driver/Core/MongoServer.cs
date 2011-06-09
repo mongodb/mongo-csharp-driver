@@ -931,24 +931,28 @@ namespace MongoDB.Driver {
                     Connect();
                 }
 
-                if (slaveOk) {
-                    // round robin the connected secondaries, fall back to primary if no secondary found
-                    lock (instances) {
-                        for (int i = 0; i < instances.Count; i++) {
-                            loadBalancingInstanceIndex = (loadBalancingInstanceIndex + 1) % instances.Count; // round robin
-                            var instance = instances[loadBalancingInstanceIndex];
-                            if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
-                                return instance;
+                if (settings.ConnectionMode == ConnectionMode.ReplicaSet) {
+                    if (slaveOk) {
+                        // round robin the connected secondaries, fall back to primary if no secondary found
+                        lock (instances) {
+                            for (int i = 0; i < instances.Count; i++) {
+                                loadBalancingInstanceIndex = (loadBalancingInstanceIndex + 1) % instances.Count; // round robin
+                                var instance = instances[loadBalancingInstanceIndex];
+                                if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
+                                    return instance;
+                                }
                             }
                         }
                     }
-                }
 
-                var primary = Primary;
-                if (primary == null) {
-                    throw new MongoConnectionException("Primary server not found.");
+                    var primary = Primary;
+                    if (primary == null) {
+                        throw new MongoConnectionException("Primary server not found.");
+                    }
+                    return primary;
+                } else {
+                    return instances.First();
                 }
-                return primary;
             }
         }
 
