@@ -937,7 +937,7 @@ namespace MongoDB.DriverOnlineTests {
                 Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
                 Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
             } catch (InvalidOperationException ex) {
-                Assert.AreEqual("Duplicate element name: 'ok'.", ex.Message);
+                Assert.AreEqual("Duplicate element name 'ok'.", ex.Message);
             }
         }
 
