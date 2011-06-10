@@ -400,7 +400,6 @@ namespace MongoDB.Driver.Builders {
             string oldElementName,
             string newElementName
         ) {
-            // return new UpdateDocument("$rename", new BsonDocument(oldElementName, newElementName));
             return new UpdateBuilder().Rename(oldElementName, newElementName);
         }
 
@@ -943,6 +942,25 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Adds a $rename update modifider.
+        /// </summary>
+        /// <param name="oldElementName">The old element name.</param>
+        /// <param name="newElementName">The new element name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Rename(
+            string oldElementName,
+            string newElementName
+        ) {
+            BsonElement element;
+            if (document.TryGetElement("$rename", out element)) {
+                element.Value.AsBsonDocument.Add(oldElementName, newElementName);
+            } else {
+                document.Add("$rename", new BsonDocument(oldElementName, newElementName));
+            }
+            return this;
+        }
+        
+        /// <summary>
         /// Adds a $set update modifier.
         /// </summary>
         /// <param name="name">The name of the element to be set.</param>
@@ -1005,31 +1023,6 @@ namespace MongoDB.Driver.Builders {
             }
             return this;
         }
-
-
-        /// <summary>
-        /// Adds a $rename update modifider.
-        /// </summary>
-        /// <param name="oldElementName">The name of the element to be renamed.</param>
-        /// <param name="newElementName">The new name of the element.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Rename(
-            string oldElementName,
-            string newElementName
-        )
-        {
-            BsonElement element;
-            if (document.TryGetElement("$rename", out element))
-            {
-                element.Value.AsBsonDocument.Add(oldElementName, newElementName);
-            }
-            else
-            {
-                document.Add("$rename", new BsonDocument(oldElementName, newElementName));
-            }
-            return this;
-        }
-
         #endregion
 
         #region protected methods
