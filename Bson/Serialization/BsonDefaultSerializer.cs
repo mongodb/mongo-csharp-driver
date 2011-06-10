@@ -21,6 +21,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -90,6 +91,8 @@ namespace MongoDB.Bson.Serialization {
                 { typeof(Int16), Int16Serializer.Instance },
                 { typeof(Int32), Int32Serializer.Instance },
                 { typeof(Int64), Int64Serializer.Instance },
+                { typeof(IPAddress), IPAddressSerializer.Instance },
+                { typeof(IPEndPoint), IPEndPointSerializer.Instance },
                 { typeof(ListDictionary), DictionarySerializer.Instance },
                 { typeof(Object), ObjectSerializer.Instance },
                 { typeof(ObjectId), ObjectIdSerializer.Instance },

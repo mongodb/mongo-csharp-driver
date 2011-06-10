@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Xml;
 using NUnit.Framework;
@@ -762,6 +763,104 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
             var json = obj.ToJson();
             var expected = ("{ 'D' : 32767.0, 'I' : 32767, 'L' : NumberLong(32767), 'S' : '32767' }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class IPAddressSerializerTests {
+        public class TestClass {
+            public IPAddress Address { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                Address = null
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'Address' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestIPv4() {
+            var obj = new TestClass {
+                Address = new IPAddress(new byte[] { 1, 2, 3, 4 })
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'Address' : '1.2.3.4' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestIPv6() {
+            var obj = new TestClass {
+                Address = new IPAddress(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'Address' : '[102:304:506:708:90a:b0c:d0e:f10]' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class IPEndPointSerializerTests {
+        public class TestClass {
+            public IPEndPoint EndPoint { get; set; }
+        }
+
+        [Test]
+        public void TestNull() {
+            var obj = new TestClass {
+                EndPoint = null
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'EndPoint' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestIPv4() {
+            var obj = new TestClass {
+                EndPoint = new IPEndPoint(new IPAddress(new byte[] { 1, 2, 3, 4 }), 1234)
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'EndPoint' : '1.2.3.4:1234' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestIPv6() {
+            var obj = new TestClass {
+                EndPoint = new IPEndPoint(new IPAddress(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }), 1234)
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'EndPoint' : '[102:304:506:708:90a:b0c:d0e:f10]:1234' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

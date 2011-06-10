@@ -19,6 +19,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -878,6 +880,186 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 default:
                     var message = string.Format("'{0}' is not a valid representation for type Int16.", representationOptions.Representation);
                     throw new BsonSerializationException(message);
+            }
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Represents a serializer for IPAddresses.
+    /// </summary>
+    public class IPAddressSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static IPAddressSerializer instance = new IPAddressSerializer();
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the IPAddressSerializer class.
+        /// </summary>
+        public IPAddressSerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets an instance of the IPAddressSerializer class.
+        /// </summary>
+        public static IPAddressSerializer Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            IBsonSerializationOptions options
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            string message;
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.String:
+                    var stringValue = bsonReader.ReadString();
+                    IPAddress address;
+                    if (IPAddress.TryParse(stringValue, out address)) {
+                        return address;
+                    }
+                    message = string.Format("Invalid IPAddress value '{0}'.", stringValue);
+                    throw new FileFormatException(message);
+                default:
+                    message = string.Format("Cannot deserialize IPAddress from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var address = (IPAddress) value;
+                string stringValue;
+                if (address.AddressFamily == AddressFamily.InterNetwork) {
+                    stringValue = address.ToString();
+                } else {
+                    stringValue = string.Format("[{0}]", address);
+                }
+                bsonWriter.WriteString(stringValue);
+            }
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Represents a serializer for IPEndPoints.
+    /// </summary>
+    public class IPEndPointSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static IPEndPointSerializer instance = new IPEndPointSerializer();
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the IPEndPointSerializer class.
+        /// </summary>
+        public IPEndPointSerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets an instance of the IPEndPointSerializer class.
+        /// </summary>
+        public static IPEndPointSerializer Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            IBsonSerializationOptions options
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            string message;
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.String:
+                    var stringValue = bsonReader.ReadString();
+                    var match = Regex.Match(stringValue, @"^(?<address>(.+|\[.*\]))\:(?<port>\d+)$");
+                    if (match.Success) {
+                        IPAddress address;
+                        if (IPAddress.TryParse(match.Groups["address"].Value, out address)) {
+                            int port;
+                            if (int.TryParse(match.Groups["port"].Value, out port)) {
+                                return new IPEndPoint(address, port);
+                            }
+                        }
+                    }
+                    message = string.Format("Invalid IPEndPoint value '{0}'.", stringValue);
+                    throw new FileFormatException(message);
+                default:
+                    message = string.Format("Cannot deserialize IPEndPoint from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var endPoint = (IPEndPoint) value;
+                string stringValue;
+                if (endPoint.AddressFamily == AddressFamily.InterNetwork) {
+                    stringValue = string.Format("{0}:{1}", endPoint.Address, endPoint.Port); // IPv4
+                } else {
+                    stringValue = string.Format("[{0}]:{1}", endPoint.Address, endPoint.Port); // IPv6
+                }
+                bsonWriter.WriteString(stringValue);
             }
         }
         #endregion
