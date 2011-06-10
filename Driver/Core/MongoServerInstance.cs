@@ -38,6 +38,7 @@ namespace MongoDB.Driver {
 
         #region private fields
         private MongoServerAddress address;
+        private MongoServerBuildInfo buildInfo;
         private Exception connectException;
         private MongoConnectionPool connectionPool;
         private IPEndPoint endPoint;
@@ -71,6 +72,13 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerAddress Address {
             get { return address; }
+        }
+
+        /// <summary>
+        /// Gets the version of this server instance.
+        /// </summary>
+        public MongoServerBuildInfo BuildInfo {
+            get { return buildInfo; }
         }
 
         /// <summary>
@@ -219,6 +227,15 @@ namespace MongoDB.Driver {
 
                         maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
                         maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
+
+                        var buildInfoCommand = new CommandDocument("buildinfo", 1);
+                        var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
+                        buildInfo = new MongoServerBuildInfo(
+                            buildInfoResult.Response["bits"].ToInt32(), // bits
+                            buildInfoResult.Response["gitVersion"].AsString, // gitVersion
+                            buildInfoResult.Response["sysInfo"].AsString, // sysInfo
+                            buildInfoResult.Response["version"].AsString // versionString
+                        );
                     } finally {
                         connectionPool.ReleaseConnection(connection);
                     }

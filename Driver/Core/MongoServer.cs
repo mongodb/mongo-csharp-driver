@@ -217,6 +217,24 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the build info of the server.
+        /// </summary>
+        public MongoServerBuildInfo BuildInfo {
+            get {
+                MongoServerInstance instance;
+                if (settings.ConnectionMode == ConnectionMode.ReplicaSet) {
+                    instance = Primary;
+                    if (instance == null) {
+                        throw new InvalidOperationException("Primary not found.");
+                    }
+                } else {
+                    instance = instances.First();
+                }
+                return instance.BuildInfo;
+            }
+        }
+
+        /// <summary>
         /// Gets the index cache (used by EnsureIndex) for this server.
         /// </summary>
         public virtual IndexCache IndexCache {

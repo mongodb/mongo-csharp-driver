@@ -31,61 +31,70 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199 {
         [Test]
         public void TestSingleRename() {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("CSharp199");
+            server.Connect();
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
+                var database = server["onlinetests"];
+                var collection = database.GetCollection("CSharp199");
 
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 } });
+                collection.RemoveAll();
+                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 } });
 
-            var query = Query.EQ("_id", 1);
-            var update = Update.Rename("a", "x");
-            collection.Update(query, update);
-            var document = collection.FindOne();
+                var query = Query.EQ("_id", 1);
+                var update = Update.Rename("a", "x");
+                collection.Update(query, update);
+                var document = collection.FindOne();
 
-            var expectedUpdate = "{ '$rename' : { 'a' : 'x' } }".Replace("'", "\"");
-            Assert.AreEqual(expectedUpdate, update.ToJson());
-            var expectedDocument = "{ '_id' : 1, 'x' : 2 }".Replace("'", "\"");
-            Assert.AreEqual(expectedDocument, document.ToJson());
+                var expectedUpdate = "{ '$rename' : { 'a' : 'x' } }".Replace("'", "\"");
+                Assert.AreEqual(expectedUpdate, update.ToJson());
+                var expectedDocument = "{ '_id' : 1, 'x' : 2 }".Replace("'", "\"");
+                Assert.AreEqual(expectedDocument, document.ToJson());
+            }
         }
 
         [Test]
         public void TestMultipleRenames() {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("CSharp199");
+            server.Connect();
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
+                var database = server["onlinetests"];
+                var collection = database.GetCollection("CSharp199");
 
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
+                collection.RemoveAll();
+                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
 
-            var query = Query.EQ("_id", 1);
-            var update = Update.Rename("a", "x").Rename("b", "y");
-            collection.Update(query, update);
-            var document = collection.FindOne();
+                var query = Query.EQ("_id", 1);
+                var update = Update.Rename("a", "x").Rename("b", "y");
+                collection.Update(query, update);
+                var document = collection.FindOne();
 
-            var expectedUpdate = "{ '$rename' : { 'a' : 'x', 'b' : 'y' } }".Replace("'", "\"");
-            Assert.AreEqual(expectedUpdate, update.ToJson());
-            var expectedDocument = "{ '_id' : 1, 'x' : 2, 'y' : 3 }".Replace("'", "\"");
-            Assert.AreEqual(expectedDocument, document.ToJson());
+                var expectedUpdate = "{ '$rename' : { 'a' : 'x', 'b' : 'y' } }".Replace("'", "\"");
+                Assert.AreEqual(expectedUpdate, update.ToJson());
+                var expectedDocument = "{ '_id' : 1, 'x' : 2, 'y' : 3 }".Replace("'", "\"");
+                Assert.AreEqual(expectedDocument, document.ToJson());
+            }
         }
 
         [Test]
         public void TestRenameWithSet() {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("CSharp199");
+            server.Connect();
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
+                var database = server["onlinetests"];
+                var collection = database.GetCollection("CSharp199");
 
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "_id", 1}, { "a", 2 }, { "b", 3 } });
+                collection.RemoveAll();
+                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
 
-            var query = Query.EQ("_id", 1);
-            var update = Update.Rename("a", "x").Set("b", 4);
-            collection.Update(query, update);
-            var document = collection.FindOne();
+                var query = Query.EQ("_id", 1);
+                var update = Update.Rename("a", "x").Set("b", 4);
+                collection.Update(query, update);
+                var document = collection.FindOne();
 
-            var expectedUpdate = "{ '$rename' : { 'a' : 'x' }, '$set' : { 'b' : 4 } }".Replace("'", "\"");
-            Assert.AreEqual(expectedUpdate, update.ToJson());
-            var expectedDocument = "{ '_id' : 1, 'b' : 4, 'x' : 2 }".Replace("'", "\""); // server rearranges elements
-            Assert.AreEqual(expectedDocument, document.ToJson());
+                var expectedUpdate = "{ '$rename' : { 'a' : 'x' }, '$set' : { 'b' : 4 } }".Replace("'", "\"");
+                Assert.AreEqual(expectedUpdate, update.ToJson());
+                var expectedDocument = "{ '_id' : 1, 'b' : 4, 'x' : 2 }".Replace("'", "\""); // server rearranges elements
+                Assert.AreEqual(expectedDocument, document.ToJson());
+            }
         }
     }
 }
