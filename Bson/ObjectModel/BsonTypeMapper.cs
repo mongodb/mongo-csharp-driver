@@ -163,7 +163,7 @@ namespace MongoDB.Bson {
                 return bsonValue;
             }
 
-            var message = string.Format(".NET type {0} cannot be mapped to a BsonValue", value.GetType().FullName);
+            var message = string.Format(".NET type {0} cannot be mapped to a BsonValue.", value.GetType().FullName);
             throw new ArgumentException(message);
         }
 
@@ -219,7 +219,7 @@ namespace MongoDB.Bson {
                     break;
             }
 
-            string message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}", value.GetType().FullName, bsonType);
+            string message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}.", value.GetType().FullName, bsonType);
             throw new ArgumentException(message, "value");
         }
 
@@ -361,7 +361,7 @@ namespace MongoDB.Bson {
                 case Conversion.UInt64ToBsonTimestamp: return new BsonTimestamp((long) (ulong) value);
             }
 
-            throw new BsonInternalException("Unexpected Conversion");
+            throw new BsonInternalException("Unexpected Conversion.");
         }
         #endregion
 

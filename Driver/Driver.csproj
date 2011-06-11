@@ -113,6 +113,7 @@
     <Compile Include="Core\MongoCollectionSettings.cs" />
     <Compile Include="Core\MongoDatabaseSettings.cs" />
     <Compile Include="Core\MongoDBRef.cs" />
+    <Compile Include="Core\MongoServerBuildInfo.cs" />
     <Compile Include="Core\MongoServerInstance.cs" />
     <Compile Include="Core\MongoServerSettings.cs" />
     <Compile Include="Core\MongoUrlBuilder.cs" />
@@ -152,7 +153,7 @@
     <Compile Include="Internal\DirectConnector.cs" />
     <Compile Include="Internal\IndexCache.cs" />
     <Compile Include="Core\MongoCursorEnumerator.cs" />
-    <Compile Include="Internal\MongoKillCursorsMessages.cs" />
+    <Compile Include="Internal\MongoKillCursorsMessage.cs" />
     <Compile Include="Internal\BlockingQueue.cs" />
     <Compile Include="Internal\MongoConnection.cs" />
     <Compile Include="Internal\MongoConnectionPool.cs" />

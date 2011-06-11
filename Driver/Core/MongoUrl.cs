@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using MongoDB.Bson;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver {
@@ -112,6 +113,13 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoCredentials DefaultCredentials {
             get { return serverSettings.DefaultCredentials; }
+        }
+
+        /// <summary>
+        /// Gets the byte order to use for Guids.
+        /// </summary>
+        public GuidByteOrder GuidByteOrder {
+            get { return serverSettings.GuidByteOrder; }
         }
 
         /// <summary>

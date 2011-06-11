@@ -21,6 +21,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -90,6 +91,8 @@ namespace MongoDB.Bson.Serialization {
                 { typeof(Int16), Int16Serializer.Instance },
                 { typeof(Int32), Int32Serializer.Instance },
                 { typeof(Int64), Int64Serializer.Instance },
+                { typeof(IPAddress), IPAddressSerializer.Instance },
+                { typeof(IPEndPoint), IPEndPointSerializer.Instance },
                 { typeof(ListDictionary), DictionarySerializer.Instance },
                 { typeof(Object), ObjectSerializer.Instance },
                 { typeof(ObjectId), ObjectIdSerializer.Instance },
@@ -185,7 +188,7 @@ namespace MongoDB.Bson.Serialization {
                             if (actualType == null) {
                                 actualType = type;
                             } else {
-                                string message = string.Format("Ambiguous discriminator: {0}", discriminator);
+                                string message = string.Format("Ambiguous discriminator '{0}'.", discriminator);
                                 throw new BsonSerializationException(message);
                             }
                         }
@@ -197,12 +200,12 @@ namespace MongoDB.Bson.Serialization {
                 }
 
                 if (actualType == null) {
-                    string message = string.Format("Unknown discriminator value: {0}", discriminator);
+                    string message = string.Format("Unknown discriminator value '{0}'.", discriminator);
                     throw new BsonSerializationException(message);
                 }
 
                 if (!nominalType.IsAssignableFrom(actualType)) {
-                    string message = string.Format("Actual type {0} is not assignable to expected type {1}", actualType.FullName, nominalType.FullName);
+                    string message = string.Format("Actual type {0} is not assignable to expected type {1}.", actualType.FullName, nominalType.FullName);
                     throw new BsonSerializationException(message);
                 }
 
@@ -239,7 +242,7 @@ namespace MongoDB.Bson.Serialization {
                         Type parentType = type.BaseType;
                         while (convention == null) {
                             if (parentType == null) {
-                                var message = string.Format("No discriminator convention found for type: {0}", type.FullName);
+                                var message = string.Format("No discriminator convention found for type {0}.", type.FullName);
                                 throw new BsonSerializationException(message);
                             }
                             if (discriminatorConventions.TryGetValue(parentType, out convention)) {
@@ -270,7 +273,7 @@ namespace MongoDB.Bson.Serialization {
             BsonValue discriminator
         ) {
             if (type.IsInterface) {
-                var message = string.Format("Discriminators can only be registered for classes, not for interface: {0}", type.FullName);
+                var message = string.Format("Discriminators can only be registered for classes, not for interface {0}.", type.FullName);
                 throw new BsonSerializationException(message);
             }
 
@@ -305,7 +308,7 @@ namespace MongoDB.Bson.Serialization {
                 if (!discriminatorConventions.ContainsKey(type)) {
                     discriminatorConventions.Add(type, convention);
                 } else {
-                    var message = string.Format("There is already a discriminator convention registered for type: {0}", type.FullName);
+                    var message = string.Format("There is already a discriminator convention registered for type {0}.", type.FullName);
                     throw new BsonSerializationException(message);
                 }
             }
@@ -370,7 +373,7 @@ namespace MongoDB.Bson.Serialization {
                         var threeDimensionalArraySerializerType = threeDimensionalArraySerializerDefinition.MakeGenericType(elementType);
                         return (IBsonSerializer) Activator.CreateInstance(threeDimensionalArraySerializerType);
                     default:
-                        var message = string.Format("No serializer found for array for rank: {0}", type.GetArrayRank());
+                        var message = string.Format("No serializer found for array for rank {0}.", type.GetArrayRank());
                         throw new BsonSerializationException(message);
                 }
             }

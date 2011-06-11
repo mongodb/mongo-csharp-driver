@@ -90,5 +90,11 @@ namespace MongoDB.DriverOnlineTests {
             var result = server.RunAdminCommandAs<CommandResult>("ping");
             Assert.AreEqual(true, result.Ok);
         }
+
+        [Test]
+        public void TestVersion() {
+            var versionZero = new Version(0, 0, 0, 0);
+            Assert.AreNotEqual(versionZero, server.BuildInfo.Version);
+        }
     }
 }

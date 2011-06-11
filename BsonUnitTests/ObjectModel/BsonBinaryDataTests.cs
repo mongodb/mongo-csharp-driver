@@ -47,5 +47,17 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual(guid, binaryData.AsGuid);
             Assert.AreEqual(guid, binaryData.RawValue);
         }
+
+        [Test]
+        public void TestGuidJavaHistorical() {
+            var guid = new Guid("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var binaryData = new BsonBinaryData(guid, GuidByteOrder.JavaHistorical);
+            var expected = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1, 16, 15, 14, 13, 12, 11, 10, 9 };
+            Assert.IsTrue(expected.SequenceEqual(binaryData.Bytes));
+            Assert.AreEqual(BsonBinarySubType.Uuid, binaryData.SubType);
+            Assert.AreEqual(GuidByteOrder.JavaHistorical, binaryData.GuidByteOrder);
+            Assert.AreEqual(guid, binaryData.AsGuid);
+            Assert.AreEqual(guid, binaryData.RawValue);
+        }
     }
 }

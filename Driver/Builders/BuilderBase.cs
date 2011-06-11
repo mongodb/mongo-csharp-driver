@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Builders {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            throw new InvalidOperationException();
+            throw new NotSupportedException();
         }
 
         bool IBsonSerializable.GetDocumentId(
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Builders {
             out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
-            throw new InvalidOperationException();
+            throw new NotSupportedException();
         }
 
         void IBsonSerializable.Serialize(
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Builders {
         void IBsonSerializable.SetDocumentId(
             object id
         ) {
-            throw new InvalidOperationException();
+            throw new NotSupportedException();
         }
 
         BsonDocument IConvertibleToBsonDocument.ToBsonDocument() {

@@ -74,10 +74,18 @@ namespace MongoDB.Bson {
         )
             : base(BsonType.RegularExpression) {
             this.pattern = regex.ToString();
-            // TODO: figure out how other .NET options map to JavaScript options
             this.options = "";
             if ((regex.Options & RegexOptions.IgnoreCase) != 0) {
                 this.options += "i";
+            }
+            if ((regex.Options & RegexOptions.Multiline) != 0) {
+                this.options += "m";
+            }
+            if ((regex.Options & RegexOptions.IgnorePatternWhitespace) != 0) {
+                this.options += "x";
+            }
+            if ((regex.Options & RegexOptions.Singleline) != 0) {
+                this.options += "s";
             }
         }
         #endregion
@@ -258,10 +266,18 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <returns>A Regex.</returns>
         public Regex ToRegex() {
-            // TODO: figure out how other JavaScript options map to .NET options
             var options = RegexOptions.None;
             if (this.options.Contains("i")) {
                 options |= RegexOptions.IgnoreCase;
+            }
+            if (this.options.Contains("m")) {
+                options |= RegexOptions.Multiline;
+            }
+            if (this.options.Contains("x")) {
+                options |= RegexOptions.IgnorePatternWhitespace;
+            }
+            if (this.options.Contains("s")) {
+                options |= RegexOptions.Singleline;
             }
             return new Regex(pattern, options);
         }

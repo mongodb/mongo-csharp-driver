@@ -26,6 +26,7 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver.Internal {
     internal class MongoReplyMessage<TDocument> : MongoMessage {
         #region private fields
+        private BsonBinaryReaderSettings readerSettings;
         private ResponseFlags responseFlags;
         private long cursorId;
         private int startingFrom;
@@ -35,9 +36,10 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoReplyMessage(
-            MongoConnection connection
+            BsonBinaryReaderSettings readerSettings
         )
-            : base(connection, MessageOpcode.Reply) {
+            : base(MessageOpcode.Reply) {
+            this.readerSettings = readerSettings;
         }
         #endregion
 
@@ -76,15 +78,14 @@ namespace MongoDB.Driver.Internal {
             startingFrom = buffer.ReadInt32();
             numberReturned = buffer.ReadInt32();
 
-            var settings = new BsonBinaryReaderSettings { MaxDocumentSize = connection.ServerInstance.MaxDocumentSize };
-            using (BsonReader bsonReader = BsonReader.Create(buffer, settings)) {
+            using (BsonReader bsonReader = BsonReader.Create(buffer, readerSettings)) {
                 if ((responseFlags & ResponseFlags.CursorNotFound) != 0) {
                     throw new MongoQueryException("Cursor not found.");
                 }
                 if ((responseFlags & ResponseFlags.QueryFailure) != 0) {
                     var document = BsonDocument.ReadFrom(bsonReader);
                     var err = document["$err", null].AsString ?? "Unknown error.";
-                    var message = string.Format("QueryFailure flag set: {0} (response: {1})", err, document.ToJson());
+                    var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
                     throw new MongoQueryException(message);
                 }
 

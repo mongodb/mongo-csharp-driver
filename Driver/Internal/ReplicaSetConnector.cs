@@ -68,15 +68,20 @@ namespace MongoDB.Driver.Internal {
                 // return as soon as we've connected to the primary
                 var serverInstance = response.ServerInstance;
                 if (serverInstance.State == MongoServerState.Connected && serverInstance.IsPrimary) {
-                    // process any additional responses in the background
-                    ThreadPool.QueueUserWorkItem(ProcessAdditionalResponsesWorkItem);
-                    return;
+                    // make sure this serverInstance is still an instance of this server
+                    // it might have been removed if the connection string used a DNS alias for the host
+                    // (in which case we have already queued a connect using the official host name and should see that response shortly)
+                    if (server.Instances.Contains(serverInstance)) {
+                        // process any additional responses in the background
+                        ThreadPool.QueueUserWorkItem(ProcessAdditionalResponsesWorkItem);
+                        return;
+                    }
                 }
             }
 
             var exceptions = responses.Select(r => r.ServerInstance.ConnectException).Where(e => e != null).ToArray();
             var innerException = exceptions.FirstOrDefault();
-            var exception = new MongoConnectionException("Unable to connect to server", innerException);
+            var exception = new MongoConnectionException("Unable to connect to server.", innerException);
             exception.Data.Add("InnerExceptions", exceptions);
             throw exception;
         }

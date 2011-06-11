@@ -306,7 +306,7 @@ namespace MongoDB.Bson {
                 if (indexes.TryGetValue(name, out index)) {
                     return elements[index].Value;
                 } else {
-                    string message = string.Format("Element \"{0}\" not found", name);
+                    string message = string.Format("Element '{0}' not found.", name);
                     throw new KeyNotFoundException(message);
                 }
             }
@@ -431,7 +431,7 @@ namespace MongoDB.Bson {
                 bool found;
                 int index;
                 if ((found = indexes.TryGetValue(element.Name, out index)) && !allowDuplicateNames) {
-                    var message = string.Format("Duplicate element name: '{0}'.", element.Name);
+                    var message = string.Format("Duplicate element name '{0}'.", element.Name);
                     throw new InvalidOperationException(message);
                 } else {
                     elements.Add(element);
@@ -747,7 +747,7 @@ namespace MongoDB.Bson {
             if (indexes.TryGetValue(name, out index)) {
                 return elements[index];
             } else {
-                string message = string.Format("Element \"{0}\" not found", name);
+                string message = string.Format("Element '{0}' not found.", name);
                 throw new KeyNotFoundException(message);
             }
         }
@@ -820,7 +820,8 @@ namespace MongoDB.Bson {
         ) {
             if (element != null) {
                 if (indexes.ContainsKey(element.Name) && !allowDuplicateNames) {
-                    throw new InvalidOperationException("Duplicate element names not allowed");
+                    var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
+                    throw new InvalidOperationException(message);
                 } else {
                     elements.Insert(index, element);
                     RebuildDictionary();

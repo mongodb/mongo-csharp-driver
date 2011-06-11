@@ -35,13 +35,13 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoUpdateMessage(
-            MongoConnection connection,
+            BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
             UpdateFlags flags,
             IMongoQuery query,
             IMongoUpdate update
         ) :
-            base(connection, MessageOpcode.Update) {
+            base(MessageOpcode.Update, null, writerSettings) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteCString(collectionFullName);
             buffer.WriteInt32((int) flags);
 
-            using (var bsonWriter = CreateBsonWriter()) {
+            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
                 BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 BsonSerializer.Serialize(bsonWriter, update.GetType(), update, DocumentSerializationOptions.SerializeIdFirstInstance);
             }

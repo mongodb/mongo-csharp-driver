@@ -144,49 +144,49 @@ namespace MongoDB.Bson.IO {
         /// Gets the value of a DateTime token.
         /// </summary>
         public virtual BsonDateTime DateTimeValue {
-            get { throw new InvalidOperationException(); }
+            get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of a Double token.
         /// </summary>
         public virtual double DoubleValue {
-            get { throw new InvalidOperationException(); }
+            get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of an Int32 token.
         /// </summary>
         public virtual int Int32Value {
-            get { throw new InvalidOperationException(); }
+            get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of an Int64 token.
         /// </summary>
         public virtual long Int64Value {
-            get { throw new InvalidOperationException(); }
+            get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of an ObjectId token.
         /// </summary>
         public virtual ObjectId ObjectIdValue {
-            get { throw new InvalidOperationException(); }
+            get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of a regular expression token.
         /// </summary>
         public virtual BsonRegularExpression RegularExpressionValue {
-            get { throw new InvalidOperationException(); }
+            get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of a string token.
         /// </summary>
         public virtual string StringValue {
-            get { throw new InvalidOperationException(); }
+            get { throw new NotSupportedException(); }
         }
         #endregion
     }

@@ -214,7 +214,7 @@ namespace MongoDB.Bson.Serialization {
             object obj
         ) {
             if (!hasDefaultValue) {
-                throw new InvalidOperationException("BsonMemberMap has no default value");
+                throw new InvalidOperationException("BsonMemberMap has no default value.");
             }
             this.Setter(obj, defaultValue);
         }
@@ -391,7 +391,7 @@ namespace MongoDB.Bson.Serialization {
             var fieldInfo = (FieldInfo) memberInfo;
 
             if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) {
-                var message = string.Format("The field '{0} {1}' of class '{2}' is readonly", fieldInfo.FieldType.FullName, fieldInfo.Name, fieldInfo.DeclaringType.FullName);
+                var message = string.Format("The field '{0} {1}' of class '{2}' is readonly.", fieldInfo.FieldType.FullName, fieldInfo.Name, fieldInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
             }
 
@@ -414,7 +414,7 @@ namespace MongoDB.Bson.Serialization {
                 var propertyInfo = (PropertyInfo) memberInfo;
                 var getMethodInfo = propertyInfo.GetGetMethod(true);
                 if (getMethodInfo == null) {
-                    var message = string.Format("The property '{0} {1}' of class '{2}' has no 'get' accessor", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+                    var message = string.Format("The property '{0} {1}' of class '{2}' has no 'get' accessor.", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
                     throw new BsonSerializationException(message);
                 }
             }
@@ -438,7 +438,7 @@ namespace MongoDB.Bson.Serialization {
             var propertyInfo = (PropertyInfo) memberInfo;
             var setMethodInfo = propertyInfo.GetSetMethod(true);
             if (setMethodInfo == null) {
-                var message = string.Format("The property '{0} {1}' of class '{2}' has no 'set' accessor", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+                var message = string.Format("The property '{0} {1}' of class '{2}' has no 'set' accessor.", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
             }
 

@@ -102,13 +102,13 @@ namespace MongoDB.Bson.Serialization {
                 return null;
             } else {
                 if (actualType.IsValueType) {
-                    var message = string.Format("Value class cannot be deserialized: '{0}'", actualType.FullName);
+                    var message = string.Format("Value class {0} cannot be deserialized.", actualType.FullName);
                     throw new BsonSerializationException(message);
                 }
 
                 var classMap = BsonClassMap.LookupClassMap(actualType);
                 if (classMap.IsAnonymous) {
-                    throw new InvalidOperationException("Anonymous class cannot be deserialized");
+                    throw new InvalidOperationException("Anonymous class cannot be deserialized.");
                 }
                 var obj = classMap.CreateInstance();
 
@@ -132,7 +132,7 @@ namespace MongoDB.Bson.Serialization {
                         } else if (classMap.IgnoreExtraElements) {
                             bsonReader.SkipValue();
                         } else {
-                            string message = string.Format("Unexpected element: {0}", elementName);
+                            string message = string.Format("Unexpected element '{0}'.", elementName);
                             throw new FileFormatException(message);
                         }
                     }
@@ -141,7 +141,7 @@ namespace MongoDB.Bson.Serialization {
 
                 foreach (var memberMap in missingElementMemberMaps) {
                     if (memberMap.IsRequired) {
-                        var message = string.Format("Required element is missing: {0}", memberMap.ElementName);
+                        var message = string.Format("Required element '{0}' is missing.", memberMap.ElementName);
                         throw new FileFormatException(message);
                     }
 
@@ -257,7 +257,7 @@ namespace MongoDB.Bson.Serialization {
         ) {
             var documentType = document.GetType();
             if (documentType.IsValueType) {
-                var message = string.Format("SetDocumentId cannot be used with value type: '{0}'", documentType.FullName);
+                var message = string.Format("SetDocumentId cannot be used with value type '{0}'.", documentType.FullName);
                 throw new BsonSerializationException(message);
             }
 
@@ -266,7 +266,7 @@ namespace MongoDB.Bson.Serialization {
             if (idMemberMap != null) {
                 idMemberMap.Setter(document, id);
             } else {
-                var message = string.Format("Class {0} has no Id member", document.GetType());
+                var message = string.Format("Class {0} has no Id member.", document.GetType());
                 throw new InvalidOperationException(message);
             }
         }
@@ -349,7 +349,7 @@ namespace MongoDB.Bson.Serialization {
                 !(nominalType.IsClass || (nominalType.IsValueType && !nominalType.IsPrimitive) || nominalType.IsInterface) ||
                 typeof(Array).IsAssignableFrom(nominalType)
             ) {
-                string message = string.Format("BsonClassMapSerializer cannot be used with type: {0}", nominalType.FullName);
+                string message = string.Format("BsonClassMapSerializer cannot be used with type {0}.", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }
         }

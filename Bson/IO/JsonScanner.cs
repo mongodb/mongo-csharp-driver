@@ -86,7 +86,7 @@ namespace MongoDB.Bson.IO {
             } else {
                 snippet = buffer.Substring(start, length) + "...";
             }
-            return string.Format("{0}: '{1}'", message, snippet);
+            return string.Format("{0} '{1}'.", message, snippet);
         }
 
         private static JsonToken GetNumberToken(
@@ -395,8 +395,8 @@ namespace MongoDB.Bson.IO {
                                 }
                                 break;
                             default:
-                               if (c != -1) {
-                                    var message = string.Format("Invalid escape sequence in JSON string: '\\{0}'", (char) c);
+                                if (c != -1) {
+                                    var message = string.Format("Invalid escape sequence in JSON string '\\{0}'.", (char) c);
                                     throw new FileFormatException(message);
                                 }
                                 break;
@@ -413,7 +413,7 @@ namespace MongoDB.Bson.IO {
                         break;
                 }
                 if (c == -1) {
-                    throw new FileFormatException(FormatMessage("End of file in JSON string", buffer, start));
+                    throw new FileFormatException(FormatMessage("End of file in JSON string.", buffer, start));
                 }
             }
         }

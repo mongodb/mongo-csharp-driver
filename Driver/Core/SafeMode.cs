@@ -91,13 +91,13 @@ namespace MongoDB.Driver {
             TimeSpan wtimeout
         ) {
             if (fsync && !enabled) {
-                throw new ArgumentException("fsync cannot be true when SafeMode is not enabled");
+                throw new ArgumentException("fsync cannot be true when SafeMode is not enabled.");
             }
             if (w != 0 && !enabled) {
-                throw new ArgumentException("w cannot be non-zero when SafeMode is not enabled");
+                throw new ArgumentException("w cannot be non-zero when SafeMode is not enabled.");
             }
             if (wtimeout != TimeSpan.Zero && w == 0) {
-                throw new ArgumentException("wtimeout cannot be non-zero when w is zero");
+                throw new ArgumentException("wtimeout cannot be non-zero when w is zero.");
             }
 
             this.enabled = enabled;

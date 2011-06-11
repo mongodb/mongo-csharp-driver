@@ -78,7 +78,20 @@ namespace MongoDB.Bson.IO {
         public static BsonWriter Create(
             BsonDocument document
         ) {
-            return new BsonDocumentWriter(document);
+            return Create(document, BsonDocumentWriterSettings.Defaults);
+        }
+
+        /// <summary>
+        /// Creates a BsonWriter to a BsonDocument.
+        /// </summary>
+        /// <param name="document">A BsonDocument.</param>
+        /// <param name="settings">The settings.</param>
+        /// <returns>A BsonWriter.</returns>
+        public static BsonWriter Create(
+            BsonDocument document,
+            BsonDocumentWriterSettings settings
+        ) {
+            return new BsonDocumentWriter(document, settings);
         }
 
         /// <summary>
@@ -131,6 +144,11 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the byte order for Guids.
+        /// </summary>
+        public abstract GuidByteOrder GuidByteOrder { get; }
+
         /// <summary>
         /// Gets the current state of the writer.
         /// </summary>

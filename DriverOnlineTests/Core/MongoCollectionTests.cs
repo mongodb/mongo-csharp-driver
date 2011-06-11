@@ -306,48 +306,50 @@ namespace MongoDB.DriverOnlineTests {
 
         [Test]
         public void TestFindNearSphericalTrue() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+            if (server.BuildInfo.Version >= new Version(1, 7, 0, 0)) {
+                if (collection.Exists()) { collection.Drop(); }
+                collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+                collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+                collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+                collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
-            var query = Query.Near("Location", -74.0, 40.74, double.MaxValue, true); // spherical
-            var hits = collection.Find(query).ToArray();
-            Assert.AreEqual(3, hits.Length);
+                var query = Query.Near("Location", -74.0, 40.74, double.MaxValue, true); // spherical
+                var hits = collection.Find(query).ToArray();
+                Assert.AreEqual(3, hits.Length);
 
-            var hit0 = hits[0];
-            Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
-            Assert.AreEqual("10gen", hit0["Name"].AsString);
-            Assert.AreEqual("Office", hit0["Type"].AsString);
+                var hit0 = hits[0];
+                Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
+                Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual("10gen", hit0["Name"].AsString);
+                Assert.AreEqual("Office", hit0["Type"].AsString);
 
-            // with spherical true "Two" is considerably closer than "Three"
-            var hit1 = hits[1];
-            Assert.AreEqual(-75.0, hit1["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit1["Location"].AsBsonArray[1].AsDouble);
-            Assert.AreEqual("Two", hit1["Name"].AsString);
-            Assert.AreEqual("Coffee", hit1["Type"].AsString);
+                // with spherical true "Two" is considerably closer than "Three"
+                var hit1 = hits[1];
+                Assert.AreEqual(-75.0, hit1["Location"].AsBsonArray[0].AsDouble);
+                Assert.AreEqual(40.74, hit1["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual("Two", hit1["Name"].AsString);
+                Assert.AreEqual("Coffee", hit1["Type"].AsString);
 
-            var hit2 = hits[2];
-            Assert.AreEqual(-74.0, hit2["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(41.73, hit2["Location"].AsBsonArray[1].AsDouble);
-            Assert.AreEqual("Three", hit2["Name"].AsString);
-            Assert.AreEqual("Coffee", hit2["Type"].AsString);
+                var hit2 = hits[2];
+                Assert.AreEqual(-74.0, hit2["Location"].AsBsonArray[0].AsDouble);
+                Assert.AreEqual(41.73, hit2["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual("Three", hit2["Name"].AsString);
+                Assert.AreEqual("Coffee", hit2["Type"].AsString);
 
-            query = Query.Near("Location", -74.0, 40.74, 0.5); // with maxDistance
-            hits = collection.Find(query).ToArray();
-            Assert.AreEqual(1, hits.Length);
+                query = Query.Near("Location", -74.0, 40.74, 0.5); // with maxDistance
+                hits = collection.Find(query).ToArray();
+                Assert.AreEqual(1, hits.Length);
 
-            hit0 = hits[0];
-            Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
-            Assert.AreEqual("10gen", hit0["Name"].AsString);
-            Assert.AreEqual("Office", hit0["Type"].AsString);
+                hit0 = hits[0];
+                Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
+                Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual("10gen", hit0["Name"].AsString);
+                Assert.AreEqual("Office", hit0["Type"].AsString);
 
-            query = Query.Near("Location", -174.0, 40.74, 0.5); // with no hits
-            hits = collection.Find(query).ToArray();
-            Assert.AreEqual(0, hits.Length);
+                query = Query.Near("Location", -174.0, 40.74, 0.5); // with no hits
+                hits = collection.Find(query).ToArray();
+                Assert.AreEqual(0, hits.Length);
+            }
         }
 
         [Test]
@@ -429,24 +431,26 @@ namespace MongoDB.DriverOnlineTests {
 
         [Test]
         public void TestFindWithinCircleSphericalTrue() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+            if (server.BuildInfo.Version >= new Version(1, 7, 0, 0)) {
+                if (collection.Exists()) { collection.Drop(); }
+                collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+                collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+                collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+                collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
-            var query = Query.WithinCircle("Location", -74.0, 40.74, 0.1, true); // spherical
-            var hits = collection.Find(query).ToArray();
-            Assert.AreEqual(3, hits.Length);
-            // note: the hits are unordered
+                var query = Query.WithinCircle("Location", -74.0, 40.74, 0.1, true); // spherical
+                var hits = collection.Find(query).ToArray();
+                Assert.AreEqual(3, hits.Length);
+                // note: the hits are unordered
 
-            query = Query.WithinCircle("Location", -74.0, 40.74, 0.01, false); // smaller radius
-            hits = collection.Find(query).ToArray();
-            Assert.AreEqual(1, hits.Length);
+                query = Query.WithinCircle("Location", -74.0, 40.74, 0.01, false); // smaller radius
+                hits = collection.Find(query).ToArray();
+                Assert.AreEqual(1, hits.Length);
 
-            query = Query.WithinCircle("Location", -174.0, 40.74, 0.1, false); // different part of the world
-            hits = collection.Find(query).ToArray();
-            Assert.AreEqual(0, hits.Length);
+                query = Query.WithinCircle("Location", -174.0, 40.74, 0.1, false); // different part of the world
+                hits = collection.Find(query).ToArray();
+                Assert.AreEqual(0, hits.Length);
+            }
         }
 
         [Test]
@@ -590,46 +594,48 @@ namespace MongoDB.DriverOnlineTests {
 
         [Test]
         public void TestGeoNearSphericalTrue() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+            if (server.BuildInfo.Version >= new Version(1, 7, 0, 0)) {
+                if (collection.Exists()) { collection.Drop(); }
+                collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+                collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+                collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+                collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
-            var options = GeoNearOptions.SetSpherical(true);
-            var result = collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
-            Assert.IsTrue(result.Ok);
-            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
-            Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
-            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
-            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
-            Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
-            Assert.IsTrue(result.Stats.NumberScanned >= 0);
-            Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
-            Assert.AreEqual(3, result.Hits.Count);
+                var options = GeoNearOptions.SetSpherical(true);
+                var result = collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
+                Assert.IsTrue(result.Ok);
+                Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+                Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
+                Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+                Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+                Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
+                Assert.IsTrue(result.Stats.NumberScanned >= 0);
+                Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
+                Assert.AreEqual(3, result.Hits.Count);
 
-            var hit0 = result.Hits[0];
-            Assert.IsTrue(hit0.Distance == 0.0);
-            Assert.AreEqual(-74.0, hit0.RawDocument["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit0.RawDocument["Location"].AsBsonArray[1].AsDouble);
-            Assert.AreEqual("10gen", hit0.RawDocument["Name"].AsString);
-            Assert.AreEqual("Office", hit0.RawDocument["Type"].AsString);
+                var hit0 = result.Hits[0];
+                Assert.IsTrue(hit0.Distance == 0.0);
+                Assert.AreEqual(-74.0, hit0.RawDocument["Location"].AsBsonArray[0].AsDouble);
+                Assert.AreEqual(40.74, hit0.RawDocument["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual("10gen", hit0.RawDocument["Name"].AsString);
+                Assert.AreEqual("Office", hit0.RawDocument["Type"].AsString);
 
-            // with spherical true "Two" is considerably closer than "Three"
-            var hit1 = result.Hits[1];
-            Assert.IsTrue(hit1.Distance > 0.0);
-            Assert.AreEqual(-75.0, hit1.RawDocument["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit1.RawDocument["Location"].AsBsonArray[1].AsDouble);
-            Assert.AreEqual("Two", hit1.RawDocument["Name"].AsString);
-            Assert.AreEqual("Coffee", hit1.RawDocument["Type"].AsString);
+                // with spherical true "Two" is considerably closer than "Three"
+                var hit1 = result.Hits[1];
+                Assert.IsTrue(hit1.Distance > 0.0);
+                Assert.AreEqual(-75.0, hit1.RawDocument["Location"].AsBsonArray[0].AsDouble);
+                Assert.AreEqual(40.74, hit1.RawDocument["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual("Two", hit1.RawDocument["Name"].AsString);
+                Assert.AreEqual("Coffee", hit1.RawDocument["Type"].AsString);
 
-            var hit2 = result.Hits[2];
-            Assert.IsTrue(hit2.Distance > 0.0);
-            Assert.IsTrue(hit2.Distance > hit1.Distance);
-            Assert.AreEqual(-74.0, hit2.RawDocument["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(41.73, hit2.RawDocument["Location"].AsBsonArray[1].AsDouble);
-            Assert.AreEqual("Three", hit2.RawDocument["Name"].AsString);
-            Assert.AreEqual("Coffee", hit2.RawDocument["Type"].AsString);
+                var hit2 = result.Hits[2];
+                Assert.IsTrue(hit2.Distance > 0.0);
+                Assert.IsTrue(hit2.Distance > hit1.Distance);
+                Assert.AreEqual(-74.0, hit2.RawDocument["Location"].AsBsonArray[0].AsDouble);
+                Assert.AreEqual(41.73, hit2.RawDocument["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual("Three", hit2.RawDocument["Name"].AsString);
+                Assert.AreEqual("Coffee", hit2.RawDocument["Type"].AsString);
+            }
         }
 
         [Test]
@@ -789,36 +795,37 @@ namespace MongoDB.DriverOnlineTests {
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
             // by Kristina Chodorow and Michael Dirolf
 
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
-            collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
-            collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+            if (server.BuildInfo.Version >= new Version(1, 7, 4, 0)) {
+                collection.RemoveAll();
+                collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+                collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+                collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
 
-            var map =
-                "function() {\n" +
-                "    for (var key in this) {\n" +
-                "        emit(key, {count : 1});\n" +
-                "    }\n" +
-                "}\n";
+                var map =
+                    "function() {\n" +
+                    "    for (var key in this) {\n" +
+                    "        emit(key, {count : 1});\n" +
+                    "    }\n" +
+                    "}\n";
 
-            var reduce =
-                "function(key, emits) {\n" +
-                "    total = 0;\n" +
-                "    for (var i in emits) {\n" +
-                "        total += emits[i].count;\n" +
-                "    }\n" +
-                "    return {count : total};\n" +
-                "}\n";
+                var reduce =
+                    "function(key, emits) {\n" +
+                    "    total = 0;\n" +
+                    "    for (var i in emits) {\n" +
+                    "        total += emits[i].count;\n" +
+                    "    }\n" +
+                    "    return {count : total};\n" +
+                    "}\n";
 
-            var result = collection.MapReduce(map, reduce);
-            Assert.IsTrue(result.Ok);
-            Assert.IsTrue(result.Duration >= TimeSpan.Zero);
-            Assert.AreEqual(9, result.EmitCount);
-            Assert.AreEqual(5, result.OutputCount);
-            Assert.AreEqual(3, result.InputCount);
-            Assert.IsNullOrEmpty(result.CollectionName);
+                var result = collection.MapReduce(map, reduce);
+                Assert.IsTrue(result.Ok);
+                Assert.IsTrue(result.Duration >= TimeSpan.Zero);
+                Assert.AreEqual(9, result.EmitCount);
+                Assert.AreEqual(5, result.OutputCount);
+                Assert.AreEqual(3, result.InputCount);
+                Assert.IsNullOrEmpty(result.CollectionName);
 
-            var expectedCounts = new Dictionary<string, int> {
+                var expectedCounts = new Dictionary<string, int> {
                     { "A", 1 },
                     { "B", 3 },
                     { "C", 1 },
@@ -826,30 +833,31 @@ namespace MongoDB.DriverOnlineTests {
                     { "_id", 3 }
                 };
 
-            // test InlineResults as BsonDocuments
-            foreach (var document in result.InlineResults) {
-                var key = document["_id"].AsString;
-                var count = document["value"].AsBsonDocument["count"].ToInt32();
-                Assert.AreEqual(expectedCounts[key], count);
-            }
+                // test InlineResults as BsonDocuments
+                foreach (var document in result.InlineResults) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
 
-            // test InlineResults as TestInlineResultDocument
-            foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
-                var key = document.Id;
-                var count = document.Value.Count;
-                Assert.AreEqual(expectedCounts[key], count);
-            }
+                // test InlineResults as TestInlineResultDocument
+                foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
+                    var key = document.Id;
+                    var count = document.Value.Count;
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
 
-            // test GetResults
-            foreach (var document in result.GetResults()) {
-                var key = document["_id"].AsString;
-                var count = document["value"].AsBsonDocument["count"].ToInt32();
-                Assert.AreEqual(expectedCounts[key], count);
-            }
+                // test GetResults
+                foreach (var document in result.GetResults()) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
 
-            // test GetResultsAs<>
-            foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
-                Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
+                // test GetResultsAs<>
+                foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                    Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
+                }
             }
         }
 
@@ -858,38 +866,39 @@ namespace MongoDB.DriverOnlineTests {
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
             // by Kristina Chodorow and Michael Dirolf
 
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
-            collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
-            collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+            if (server.BuildInfo.Version >= new Version(1, 7, 4, 0)) {
+                collection.RemoveAll();
+                collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+                collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+                collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
 
-            var query = Query.Exists("B", true);
+                var query = Query.Exists("B", true);
 
-            var map =
-                "function() {\n" +
-                "    for (var key in this) {\n" +
-                "        emit(key, {count : 1});\n" +
-                "    }\n" +
-                "}\n";
+                var map =
+                    "function() {\n" +
+                    "    for (var key in this) {\n" +
+                    "        emit(key, {count : 1});\n" +
+                    "    }\n" +
+                    "}\n";
 
-            var reduce =
-                "function(key, emits) {\n" +
-                "    total = 0;\n" +
-                "    for (var i in emits) {\n" +
-                "        total += emits[i].count;\n" +
-                "    }\n" +
-                "    return {count : total};\n" +
-                "}\n";
+                var reduce =
+                    "function(key, emits) {\n" +
+                    "    total = 0;\n" +
+                    "    for (var i in emits) {\n" +
+                    "        total += emits[i].count;\n" +
+                    "    }\n" +
+                    "    return {count : total};\n" +
+                    "}\n";
 
-            var result = collection.MapReduce(query, map, reduce);
-            Assert.IsTrue(result.Ok);
-            Assert.IsTrue(result.Duration >= TimeSpan.Zero);
-            Assert.AreEqual(9, result.EmitCount);
-            Assert.AreEqual(5, result.OutputCount);
-            Assert.AreEqual(3, result.InputCount);
-            Assert.IsNullOrEmpty(result.CollectionName);
+                var result = collection.MapReduce(query, map, reduce);
+                Assert.IsTrue(result.Ok);
+                Assert.IsTrue(result.Duration >= TimeSpan.Zero);
+                Assert.AreEqual(9, result.EmitCount);
+                Assert.AreEqual(5, result.OutputCount);
+                Assert.AreEqual(3, result.InputCount);
+                Assert.IsNullOrEmpty(result.CollectionName);
 
-            var expectedCounts = new Dictionary<string, int> {
+                var expectedCounts = new Dictionary<string, int> {
                     { "A", 1 },
                     { "B", 3 },
                     { "C", 1 },
@@ -897,30 +906,31 @@ namespace MongoDB.DriverOnlineTests {
                     { "_id", 3 }
                 };
 
-            // test InlineResults as BsonDocuments
-            foreach (var document in result.InlineResults) {
-                var key = document["_id"].AsString;
-                var count = document["value"].AsBsonDocument["count"].ToInt32();
-                Assert.AreEqual(expectedCounts[key], count);
-            }
+                // test InlineResults as BsonDocuments
+                foreach (var document in result.InlineResults) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
 
-            // test InlineResults as TestInlineResultDocument
-            foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
-                var key = document.Id;
-                var count = document.Value.Count;
-                Assert.AreEqual(expectedCounts[key], count);
-            }
+                // test InlineResults as TestInlineResultDocument
+                foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
+                    var key = document.Id;
+                    var count = document.Value.Count;
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
 
-            // test GetResults
-            foreach (var document in result.GetResults()) {
-                var key = document["_id"].AsString;
-                var count = document["value"].AsBsonDocument["count"].ToInt32();
-                Assert.AreEqual(expectedCounts[key], count);
-            }
+                // test GetResults
+                foreach (var document in result.GetResults()) {
+                    var key = document["_id"].AsString;
+                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    Assert.AreEqual(expectedCounts[key], count);
+                }
 
-            // test GetResultsAs<>
-            foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
-                Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
+                // test GetResultsAs<>
+                foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                    Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
+                }
             }
         }
 
@@ -937,7 +947,7 @@ namespace MongoDB.DriverOnlineTests {
                 Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
                 Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
             } catch (InvalidOperationException ex) {
-                Assert.AreEqual("Duplicate element name: 'ok'.", ex.Message);
+                Assert.AreEqual("Duplicate element name 'ok'.", ex.Message);
             }
         }
 

@@ -67,7 +67,7 @@ namespace MongoDB.Bson.IO {
         ) {
             int actualSize = position - startPosition;
             if (actualSize != size) {
-                var message = string.Format("{0} size is incorrect", contextType);
+                var message = string.Format("Expected size to be {0}, not {1}.", size, actualSize);
                 throw new FileFormatException(message);
             }
             return parentContext;

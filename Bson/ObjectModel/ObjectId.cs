@@ -272,7 +272,8 @@ namespace MongoDB.Bson {
             if (TryParse(s, out objectId)) {
                 return objectId;
             } else {
-                throw new FormatException("Argument is not a valid 24 digit hex string");
+                var message = string.Format("'{0}' is not a valid 24 digit hex string.", s);
+                throw new FormatException(message);
             }
         }
 
@@ -314,7 +315,7 @@ namespace MongoDB.Bson {
             out int increment
         ) {
             if (bytes.Length != 12) {
-                throw new ArgumentOutOfRangeException("Byte array must be 12 bytes long");
+                throw new ArgumentOutOfRangeException("Byte array must be 12 bytes long.");
             }
             timestamp = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
             machine = (bytes[4] << 16) + (bytes[5] << 8) + bytes[6];

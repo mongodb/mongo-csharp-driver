@@ -92,7 +92,7 @@ namespace MongoDB.Driver.GridFS {
                     break;
                 case FileMode.CreateNew:
                     if (exists) {
-                        message = string.Format("File already exists: {0}", fileInfo.Name);
+                        message = string.Format("File '{0}' already exists.", fileInfo.Name);
                         throw new IOException(message);
                     } else {
                         OpenCreate();
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.GridFS {
                     if (exists) {
                         OpenExisting();
                     } else {
-                        message = string.Format("File not found: {0}", fileInfo.Name);
+                        message = string.Format("File '{0}' not found.", fileInfo.Name);
                         throw new FileNotFoundException(message);
                     }
                     break;
@@ -117,12 +117,12 @@ namespace MongoDB.Driver.GridFS {
                     if (exists) {
                         OpenTruncate();
                     } else {
-                        message = string.Format("File not found: {0}", fileInfo.Name);
+                        message = string.Format("File '{0}' not found.", fileInfo.Name);
                         throw new FileNotFoundException(message);
                     }
                     break;
                 default:
-                    message = string.Format("Invalid FileMode: {0}", fileInfo.Name);
+                    message = string.Format("Invalid FileMode {0}.", mode);
                     throw new ArgumentException(message, "mode");
             }
             gridFS.EnsureIndexes();
@@ -499,7 +499,7 @@ namespace MongoDB.Driver.GridFS {
             if (fileInfo.Id == null) {
                 fileInfo.SetId(ObjectId.GenerateNewId());
             } else {
-                throw new InvalidOperationException("OpenCreate called and FileInfo.Id already has a value");
+                throw new InvalidOperationException("OpenCreate called and FileInfo.Id already has a value.");
             }
 
             var file = new BsonDocument {
@@ -532,7 +532,7 @@ namespace MongoDB.Driver.GridFS {
         private void SaveChunk() {
             var lastChunkIndex = (int) ((length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize) - 1;
             if (chunkIndex == -1 || chunkIndex > lastChunkIndex) {
-                var message = string.Format("Invalid chunk index: {0}", chunkIndex);
+                var message = string.Format("Invalid chunk index {0}.", chunkIndex);
                 throw new MongoGridFSException(message);
             }
 

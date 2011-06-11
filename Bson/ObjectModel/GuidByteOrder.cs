@@ -15,34 +15,29 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson {
     /// <summary>
-    /// Used by BsonReaders and BsonWriters to represent the current context.
+    /// Represents the byte order to use when representing a Guid as a byte array.
     /// </summary>
-    public enum ContextType {
+    public enum GuidByteOrder {
         /// <summary>
-        /// The top level of a BSON document.
+        /// The byte order for Guids is unspecified, so conversion between byte arrays and Guids is not possible.
         /// </summary>
-        TopLevel,
+        Unspecified,
         /// <summary>
-        /// A (possibly embedded) BSON document.
+        /// Use Microsoft's internal little endian format (this is the default for historical reasons, but is different from how the Java and other drivers store UUIDs).
         /// </summary>
-        Document,
+        LittleEndian,
         /// <summary>
-        /// A BSON array.
+        /// Use the standard external high endian format (this is compatible with how the Java and other drivers store UUIDs).
         /// </summary>
-        Array,
+        BigEndian,
         /// <summary>
-        /// A JavaScriptWithScope BSON value.
+        /// Use the byte order used by older versions of the Java driver (two 8 byte halves in little endian order).
         /// </summary>
-        JavaScriptWithScope,
-        /// <summary>
-        /// The scope document of a JavaScriptWithScope BSON value.
-        /// </summary>
-        ScopeDocument
+        JavaHistorical
     }
 }

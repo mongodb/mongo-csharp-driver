@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         internal MongoQueryMessage(
-            MongoConnection connection,
+            BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
             QueryFlags flags,
             int numberToSkip,
@@ -45,20 +45,20 @@ namespace MongoDB.Driver.Internal {
             IMongoQuery query,
             IMongoFields fields
         ) :
-            this(connection, collectionFullName, flags, numberToSkip, numberToReturn, query, fields, null) {
+            this(null, writerSettings, collectionFullName, flags, numberToSkip, numberToReturn, query, fields) {
         }
 
         internal MongoQueryMessage(
-            MongoConnection connection,
+            BsonBuffer buffer,
+            BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
             QueryFlags flags,
             int numberToSkip,
             int numberToReturn,
             IMongoQuery query,
-            IMongoFields fields,
-            BsonBuffer buffer
+            IMongoFields fields
         ) :
-            base(connection, MessageOpcode.Query, buffer) {
+            base(MessageOpcode.Query, buffer, writerSettings) {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.numberToSkip = numberToSkip;
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Internal {
             buffer.WriteInt32(numberToSkip);
             buffer.WriteInt32(numberToReturn);
 
-            using (var bsonWriter = CreateBsonWriter()) {
+            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
                 if (query == null) {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteEndDocument();

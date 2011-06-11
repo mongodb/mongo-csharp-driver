@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MongoDB.DriverUnitTests {
@@ -35,6 +36,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, url.ConnectTimeout);
+            Assert.AreEqual(MongoDefaults.GuidByteOrder, url.GuidByteOrder);
             Assert.AreEqual(false, url.IPv6);
             Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, url.MaxConnectionIdleTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, url.MaxConnectionLifeTime);
@@ -209,6 +211,30 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
+        public void TestGuidByteOrderLittleEndian() {
+            string connectionString = "mongodb://localhost/?guids=LittleEndian";
+            MongoUrl url = new MongoUrl(connectionString);
+            Assert.AreEqual(GuidByteOrder.LittleEndian, url.GuidByteOrder);
+            Assert.AreEqual("mongodb://localhost", url.ToString()); // guids=LittleEndian dropped
+        }
+
+        [Test]
+        public void TestGuidByteOrderBigEndian() {
+            string connectionString = "mongodb://localhost/?guids=BigEndian";
+            MongoUrl url = new MongoUrl(connectionString);
+            Assert.AreEqual(GuidByteOrder.BigEndian, url.GuidByteOrder);
+            Assert.AreEqual(connectionString, url.ToString());
+        }
+
+        [Test]
+        public void TestGuidByteOrderJavaHistorical() {
+            string connectionString = "mongodb://localhost/?guids=JavaHistorical";
+            MongoUrl url = new MongoUrl(connectionString);
+            Assert.AreEqual(GuidByteOrder.JavaHistorical, url.GuidByteOrder);
+            Assert.AreEqual(connectionString, url.ToString());
+        }
+
+        [Test]
         public void TestMaxConnectionIdleTime() {
             string connectionString = "mongodb://localhost/?maxIdleTime=123ms";
             MongoUrl url = new MongoUrl(connectionString);
@@ -373,7 +399,7 @@ namespace MongoDB.DriverUnitTests {
 
         [Test]
         public void TestAll() {
-            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s";
+            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s;guids=BigEndian";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());
@@ -382,6 +408,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual("name", url.ReplicaSetName);
+            Assert.AreEqual(GuidByteOrder.BigEndian, url.GuidByteOrder);
             Assert.AreEqual(SafeMode.Create(true, true, 2, TimeSpan.FromSeconds(2)), url.SafeMode);
             Assert.AreEqual(true, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());

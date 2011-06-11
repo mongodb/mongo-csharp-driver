@@ -38,6 +38,7 @@ namespace MongoDB.Driver {
 
         #region private fields
         private MongoServerAddress address;
+        private MongoServerBuildInfo buildInfo;
         private Exception connectException;
         private MongoConnectionPool connectionPool;
         private IPEndPoint endPoint;
@@ -71,6 +72,13 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerAddress Address {
             get { return address; }
+        }
+
+        /// <summary>
+        /// Gets the version of this server instance.
+        /// </summary>
+        public MongoServerBuildInfo BuildInfo {
+            get { return buildInfo; }
         }
 
         /// <summary>
@@ -188,7 +196,7 @@ namespace MongoDB.Driver {
             bool slaveOk
         ) {
             if (state != MongoServerState.Disconnected) {
-                var message = string.Format("MongoServerInstance.Connect called when state is: {0}", state);
+                var message = string.Format("MongoServerInstance.Connect can only be called when state is Disconnected, not when state is {0}.", state);
                 throw new InvalidOperationException(message);
             }
 
@@ -214,11 +222,20 @@ namespace MongoDB.Driver {
                         isPassive = isMasterResult.Response["passive", false].ToBoolean();
                         isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
                         if (!isPrimary && !slaveOk) {
-                            throw new MongoConnectionException("Server is not a primary and SlaveOk is false");
+                            throw new MongoConnectionException("Server is not a primary and SlaveOk is false.");
                         }
 
                         maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
                         maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
+
+                        var buildInfoCommand = new CommandDocument("buildinfo", 1);
+                        var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
+                        buildInfo = new MongoServerBuildInfo(
+                            buildInfoResult.Response["bits"].ToInt32(), // bits
+                            buildInfoResult.Response["gitVersion"].AsString, // gitVersion
+                            buildInfoResult.Response["sysInfo"].AsString, // sysInfo
+                            buildInfoResult.Response["version"].AsString // versionString
+                        );
                     } finally {
                         connectionPool.ReleaseConnection(connection);
                     }
@@ -239,8 +256,11 @@ namespace MongoDB.Driver {
         internal void Disconnect() {
             if (state != MongoServerState.Disconnected) {
                 try {
-                    connectionPool.Close();
-                    connectionPool = null;
+                    // if we fail during Connect the connectionPool field will still be null
+                    if (connectionPool != null) {
+                        connectionPool.Close();
+                        connectionPool = null;
+                    }
                 } finally {
                     State = MongoServerState.Disconnected;
                 }

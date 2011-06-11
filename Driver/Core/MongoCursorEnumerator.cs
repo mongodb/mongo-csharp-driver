@@ -21,6 +21,7 @@ using System.Net;
 using System.Text;
 
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
@@ -66,10 +67,10 @@ namespace MongoDB.Driver {
             get {
                 if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
                 if (!started) {
-                    throw new InvalidOperationException("Current is not valid until MoveNext has been called");
+                    throw new InvalidOperationException("Current is not valid until MoveNext has been called.");
                 }
                 if (done) {
-                    throw new InvalidOperationException("Current is not valid after MoveNext has returned false");
+                    throw new InvalidOperationException("Current is not valid after MoveNext has returned false.");
                 }
                 return reply.Documents[replyIndex];
             }
@@ -207,9 +208,10 @@ namespace MongoDB.Driver {
                     numberToReturn = cursor.BatchSize;
                 }
 
+                var writerSettings = cursor.Collection.GetWriterSettings(connection);
                 using (
                     var message = new MongoQueryMessage(
-                        connection,
+                        writerSettings,
                         cursor.Collection.FullName,
                         cursor.Flags,
                         cursor.Skip,
@@ -240,7 +242,6 @@ namespace MongoDB.Driver {
 
                 using (
                     var message = new MongoGetMoreMessage(
-                        connection,
                         cursor.Collection.FullName,
                         numberToReturn,
                         openCursorId
@@ -257,8 +258,9 @@ namespace MongoDB.Driver {
             MongoConnection connection,
             MongoRequestMessage message
         ) {
+            var readerSettings = cursor.Collection.GetReaderSettings(connection);
             connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-            var reply = connection.ReceiveMessage<TDocument>(cursor.SerializationOptions);
+            var reply = connection.ReceiveMessage<TDocument>(readerSettings, cursor.SerializationOptions);
             responseFlags = reply.ResponseFlags;
             openCursorId = reply.CursorId;
             return reply;
@@ -270,7 +272,7 @@ namespace MongoDB.Driver {
                     if (serverInstance != null && serverInstance.State == MongoServerState.Connected) {
                         var connection = cursor.Server.AcquireConnection(cursor.Database, serverInstance);
                         try {
-                            using (var message = new MongoKillCursorsMessage(connection, openCursorId)) {
+                            using (var message = new MongoKillCursorsMessage(openCursorId)) {
                                 connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
                             }
                         } finally {

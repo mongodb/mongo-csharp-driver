@@ -30,6 +30,7 @@ namespace MongoDB.Driver {
         protected string collectionName;
         protected bool assignIdOnInsert;
         protected Type defaultDocumentType;
+        protected GuidByteOrder guidByteOrder;
         protected SafeMode safeMode;
         protected bool slaveOk;
         // the following fields are set when Freeze is called
@@ -43,12 +44,14 @@ namespace MongoDB.Driver {
             string collectionName,
             bool assignIdOnInsert,
             Type defaultDocumentType,
+            GuidByteOrder guidByteOrder,
             SafeMode safeMode,
             bool slaveOk
         ) {
             this.collectionName = collectionName;
             this.assignIdOnInsert = assignIdOnInsert;
             this.defaultDocumentType = defaultDocumentType;
+            this.guidByteOrder = guidByteOrder;
             this.safeMode = safeMode;
             this.slaveOk = slaveOk;
         }
@@ -62,7 +65,7 @@ namespace MongoDB.Driver {
         public bool AssignIdOnInsert {
             get { return assignIdOnInsert; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
                 assignIdOnInsert = value;
             }
         }
@@ -82,6 +85,17 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets or sets the byte order used for Guids.
+        /// </summary>
+        public GuidByteOrder GuidByteOrder {
+            get { return guidByteOrder; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                guidByteOrder = value;
+            }
+        }
+
+        /// <summary>
         /// Gets whether the settings have been frozen to prevent further changes.
         /// </summary>
         public bool IsFrozen {
@@ -94,7 +108,7 @@ namespace MongoDB.Driver {
         public SafeMode SafeMode {
             get { return safeMode; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
                 safeMode = value;
             }
         }
@@ -105,7 +119,7 @@ namespace MongoDB.Driver {
         public bool SlaveOk {
             get { return slaveOk; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
                 slaveOk = value;
             }
         }
@@ -135,6 +149,7 @@ namespace MongoDB.Driver {
                         this.collectionName == rhs.collectionName &&
                         this.assignIdOnInsert == rhs.assignIdOnInsert &&
                         this.defaultDocumentType == rhs.defaultDocumentType &&
+                        this.guidByteOrder == rhs.guidByteOrder &&
                         this.safeMode == rhs.safeMode &&
                         this.slaveOk == rhs.slaveOk;
                 }
@@ -186,6 +201,7 @@ namespace MongoDB.Driver {
             hash = 37 * hash + ((collectionName == null) ? 0 : collectionName.GetHashCode());
             hash = 37 * hash + assignIdOnInsert.GetHashCode();
             hash = 37 * hash + ((defaultDocumentType == null) ? 0 : defaultDocumentType.GetHashCode());
+            hash = 37 * hash + guidByteOrder.GetHashCode();
             hash = 37 * hash + ((safeMode == null) ? 0 : safeMode.GetHashCode());
             hash = 37 * hash + slaveOk.GetHashCode();
             return hash;
@@ -193,10 +209,11 @@ namespace MongoDB.Driver {
 
         private string ToStringHelper() {
             return string.Format(
-                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};SafeMode={3};SlaveOk={4}",
+                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};GuidByteOrder={3};SafeMode={4};SlaveOk={5}",
                 collectionName,
                 assignIdOnInsert,
                 defaultDocumentType,
+                guidByteOrder,
                 safeMode,
                 slaveOk
             );
@@ -215,15 +232,17 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="assignIdOnInsert">Whether the driver should assign the Id values if necessary.</param>
+        /// <param name="guidByteOrder">The byte order for Guids.</param>
         /// <param name="safeMode">The safe mode to use.</param>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         public MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
+            GuidByteOrder guidByteOrder,
             SafeMode safeMode,
             bool slaveOk
         )
-            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), safeMode, slaveOk) {
+            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), guidByteOrder, safeMode, slaveOk) {
         }
         #endregion
 
@@ -236,6 +255,7 @@ namespace MongoDB.Driver {
             return new MongoCollectionSettings<TDefaultDocument>(
                 collectionName,
                 assignIdOnInsert,
+                guidByteOrder,
                 safeMode,
                 slaveOk
             );

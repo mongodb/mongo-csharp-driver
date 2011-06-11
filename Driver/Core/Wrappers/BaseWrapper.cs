@@ -70,8 +70,8 @@ namespace MongoDB.Driver.Wrappers {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            var message = string.Format("Deserialize method cannot be called on a {0}", this.GetType().Name);
-            throw new InvalidOperationException(message);
+            var message = string.Format("Deserialize method cannot be called on a {0}.", this.GetType().Name);
+            throw new NotSupportedException(message);
         }
 
         /// <summary>
@@ -86,8 +86,8 @@ namespace MongoDB.Driver.Wrappers {
             out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
-            var message = string.Format("GetDocumentId method cannot be called on a {0}", this.GetType().Name);
-            throw new InvalidOperationException(message);
+            var message = string.Format("GetDocumentId method cannot be called on a {0}.", this.GetType().Name);
+            throw new NotSupportedException(message);
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace MongoDB.Driver.Wrappers {
         public void SetDocumentId(
             object id
         ) {
-            var message = string.Format("SetDocumentId method cannot be called on a {0}", this.GetType().Name);
-            throw new InvalidOperationException(message);
+            var message = string.Format("SetDocumentId method cannot be called on a {0}.", this.GetType().Name);
+            throw new NotSupportedException(message);
         }
         #endregion
     }

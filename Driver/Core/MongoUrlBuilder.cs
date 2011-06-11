@@ -20,6 +20,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
+using MongoDB.Bson;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver {
@@ -35,6 +36,7 @@ namespace MongoDB.Driver {
         private TimeSpan connectTimeout;
         private string databaseName;
         private MongoCredentials defaultCredentials;
+        private GuidByteOrder guidByteOrder;
         private bool ipv6;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
@@ -113,6 +115,14 @@ namespace MongoDB.Driver {
         public MongoCredentials DefaultCredentials {
             get { return defaultCredentials; }
             set { defaultCredentials = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the byte order to use for Guids.
+        /// </summary>
+        public GuidByteOrder GuidByteOrder {
+            get { return guidByteOrder; }
+            set { guidByteOrder = value; }
         }
 
         /// <summary>
@@ -364,7 +374,7 @@ namespace MongoDB.Driver {
             string name,
             string value
         ) {
-            return string.Format("Invalid connection string: {0}={1}", name, value);
+            return string.Format("Invalid key value pair in connection string. {0}='{1}'.", name, value);
         }
         #endregion
 
@@ -409,7 +419,7 @@ namespace MongoDB.Driver {
                     }
                     this.servers = addresses;
                 } else {
-                    throw new FormatException("Invalid connection string: server missing");
+                    throw new FormatException("Invalid connection string. Server missing.");
                 }
 
                 this.databaseName = (databaseName != "") ? databaseName : null;
@@ -424,7 +434,7 @@ namespace MongoDB.Driver {
                     foreach (var pair in query.Split('&', ';')) {
                         var parts = pair.Split('=');
                         if (parts.Length != 2) {
-                            throw new FormatException(string.Format("Invalid connection string: {0}", parts));
+                            throw new FormatException(string.Format("Invalid connection string '{0}'.", parts));
                         }
                         var name = parts[0];
                         var value = parts[1];
@@ -441,6 +451,9 @@ namespace MongoDB.Driver {
                                 safeModeChanged = true;
                                 safe = true;
                                 fsync = ParseBoolean(name, value);
+                                break;
+                            case "guids":
+                                guidByteOrder = (GuidByteOrder) Enum.Parse(typeof(GuidByteOrder), value, true); // ignoreCase
                                 break;
                             case "ipv6":
                                 ipv6 = ParseBoolean(name, value);
@@ -505,7 +518,7 @@ namespace MongoDB.Driver {
                     }
                 }
             } else {
-                throw new FormatException(string.Format("Invalid connection string: {0}", url));
+                throw new FormatException(string.Format("Invalid connection string '{0}'.", url));
             }
         }
 
@@ -526,6 +539,7 @@ namespace MongoDB.Driver {
                 connectionMode,
                 connectTimeout,
                 defaultCredentials,
+                guidByteOrder,
                 ipv6,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -622,6 +636,9 @@ namespace MongoDB.Driver {
             if (waitQueueTimeout != MongoDefaults.WaitQueueTimeout) {
                 query.AppendFormat("waitQueueTimeout={0};", FormatTimeSpan(WaitQueueTimeout));
             }
+            if (guidByteOrder != MongoDefaults.GuidByteOrder) {
+                query.AppendFormat("guids={0};", guidByteOrder);
+            }
             if (query.Length != 0) {
                 query.Length = query.Length - 1; // remove trailing ";"
                 if (databaseName == null) {
@@ -640,6 +657,7 @@ namespace MongoDB.Driver {
             connectTimeout = MongoDefaults.ConnectTimeout;
             databaseName = null;
             defaultCredentials = null;
+            guidByteOrder = MongoDefaults.GuidByteOrder;
             ipv6 = false;
             maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MongoDB.DriverUnitTests {
@@ -34,6 +35,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
             Assert.AreEqual(null, builder.DatabaseName);
             Assert.AreEqual(null, builder.DefaultCredentials);
+            Assert.AreEqual(MongoDefaults.GuidByteOrder, builder.GuidByteOrder);
             Assert.AreEqual(false, builder.IPv6);
             Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
@@ -274,6 +276,33 @@ namespace MongoDB.DriverUnitTests {
             connectionString = "mongodb://localhost/?ipv6=true";
             builder = new MongoUrlBuilder("mongodb://localhost") { IPv6 = true };
             Assert.AreEqual(true, builder.IPv6);
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestGuidByteOrderLittleEndian() {
+            var connectionString = "mongodb://localhost/?guids=LittleEndian";
+            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidByteOrder = GuidByteOrder.LittleEndian };
+            Assert.AreEqual(GuidByteOrder.LittleEndian, builder.GuidByteOrder);
+            Assert.AreEqual("mongodb://localhost", builder.ToString());
+            Assert.AreEqual("mongodb://localhost", new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestGuidByteOrderBigEndian() {
+            var connectionString = "mongodb://localhost/?guids=BigEndian";
+            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidByteOrder = GuidByteOrder.BigEndian };
+            Assert.AreEqual(GuidByteOrder.BigEndian, builder.GuidByteOrder);
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestGuidByteOrderJavaHistorical() {
+            var connectionString = "mongodb://localhost/?guids=JavaHistorical";
+            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidByteOrder = GuidByteOrder.JavaHistorical };
+            Assert.AreEqual(GuidByteOrder.JavaHistorical, builder.GuidByteOrder);
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }

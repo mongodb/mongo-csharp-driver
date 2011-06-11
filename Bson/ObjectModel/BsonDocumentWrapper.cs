@@ -146,7 +146,7 @@ namespace MongoDB.Bson {
         public override int CompareTo(
             BsonValue other
         ) {
-            throw new InvalidOperationException("CompareTo not supported for BsonDocumentWrapper");
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace MongoDB.Bson {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            throw new InvalidOperationException("Deserialize not valid for BsonDocumentWrapper");
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace MongoDB.Bson {
             out Type idNominalType,
             out IIdGenerator idGenerator
         ) {
-            throw new InvalidOperationException();
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            throw new InvalidOperationException("Equals not supported for BsonDocumentWrapper");
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <returns>Not applicable.</returns>
         public override int GetHashCode() {
-            throw new InvalidOperationException("GetHashCode not supported for BsonDocumentWrapper");
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace MongoDB.Bson {
         public void SetDocumentId(
             object Id
         ) {
-            throw new InvalidOperationException();
+            throw new NotSupportedException();
         }
 
         /// <summary>

@@ -219,7 +219,7 @@ namespace MongoDB.Driver.GridFS {
 
         #region private methods
         private void ThrowFrozen() {
-            throw new InvalidOperationException("A MongoGridFSSettings object cannot be modified once it has been frozen");
+            throw new InvalidOperationException("A MongoGridFSSettings object cannot be modified once it has been frozen.");
         }
         #endregion
     }

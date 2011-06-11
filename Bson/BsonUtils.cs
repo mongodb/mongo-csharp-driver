@@ -38,7 +38,8 @@ namespace MongoDB.Bson {
         ) {
             byte[] bytes;
             if (!TryParseHexString(s, out bytes)) {
-                throw new FormatException("Not a valid hex string");
+                var message = string.Format("'{0}' is not a valid hex string.", s);
+                throw new FormatException(message);
             }
             return bytes;
         }

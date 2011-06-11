@@ -39,6 +39,11 @@ namespace MongoDB.Bson.IO {
         public abstract BsonType CurrentBsonType { get; }
 
         /// <summary>
+        /// Gets the byte order for Guids.
+        /// </summary>
+        public abstract GuidByteOrder GuidByteOrder { get; }
+
+        /// <summary>
         /// Gets the current state of the reader.
         /// </summary>
         public abstract BsonReaderState State { get; }
@@ -77,7 +82,20 @@ namespace MongoDB.Bson.IO {
         public static BsonReader Create(
             BsonDocument document
         ) {
-            return new BsonDocumentReader(document);
+            return Create(document, BsonDocumentReaderSettings.Defaults);
+        }
+
+        /// <summary>
+        /// Creates a BsonReader for a BsonDocument.
+        /// </summary>
+        /// <param name="document">The BsonDocument.</param>
+        /// <param name="settings">The settings.</param>
+        /// <returns>A BsonReader.</returns>
+        public static BsonReader Create(
+            BsonDocument document,
+            BsonDocumentReaderSettings settings
+        ) {
+            return new BsonDocumentReader(document, settings);
         }
 
         /// <summary>
@@ -88,7 +106,20 @@ namespace MongoDB.Bson.IO {
         public static BsonReader Create(
             JsonBuffer buffer
         ) {
-            return new JsonReader(buffer);
+            return Create(buffer, JsonReaderSettings.Defaults);
+        }
+
+        /// <summary>
+        /// Creates a BsonReader for a JsonBuffer.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="settings">The settings.</param>
+        /// <returns>A BsonReader.</returns>
+        public static BsonReader Create(
+            JsonBuffer buffer,
+            JsonReaderSettings settings
+        ) {
+            return new JsonReader(buffer, settings);
         }
 
         /// <summary>
