@@ -53,7 +53,7 @@ namespace MongoDB.DriverOnlineTests {
             var collectionName = "testcreatecollection";
             Assert.IsFalse(database.CollectionExists(collectionName));
 
-            database.CreateCollection(collectionName, CollectionOptions.Null);
+            database.CreateCollection(collectionName);
             Assert.IsTrue(database.CollectionExists(collectionName));
         }
 
