@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             IBsonSerializationOptions options
         ) {
             if (nominalType != typeof(object)) {
-                var message = string.Format("ObjectSerializer called for nominal type: {0}", nominalType.FullName);
+                var message = string.Format("ObjectSerializer called for nominal type {0}.", nominalType.FullName);
                 throw new InvalidOperationException(message);
             }
 
@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
             var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
             if (actualType == typeof(object)) {
-                var message = string.Format("Unable to determine actual type of object to deserialize (nominalType: 'object', BsonType: '{0}')", bsonType);
+                var message = string.Format("Unable to determine actual type of object to deserialize. NominalType is System.Object and BsonType is {0}.", bsonType);
                 throw new FileFormatException(message);
             }
             var serializer = BsonSerializer.LookupSerializer(actualType);
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             } else {
                 var actualType = value.GetType();
                 if (actualType != typeof(object)) {
-                    var message = string.Format("ObjectSerializer called for type: {0}", actualType.FullName);
+                    var message = string.Format("ObjectSerializer called for type {0}.", actualType.FullName);
                     throw new InvalidOperationException(message);
                 }
 

@@ -434,7 +434,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            Assert.Throws<InvalidOperationException>(() => BsonSerializer.Deserialize<TestClass>(bson));
+            Assert.Throws<NotSupportedException>(() => BsonSerializer.Deserialize<TestClass>(bson));
         }
 
         [Test]
@@ -445,7 +445,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            Assert.Throws<InvalidOperationException>(() => BsonSerializer.Deserialize<TestClass>(bson));
+            Assert.Throws<NotSupportedException>(() => BsonSerializer.Deserialize<TestClass>(bson));
         }
 
         [Test]
@@ -463,7 +463,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            Assert.Throws<InvalidOperationException>(() => BsonSerializer.Deserialize<TestClass>(bson));
+            Assert.Throws<NotSupportedException>(() => BsonSerializer.Deserialize<TestClass>(bson));
         }
     }
 

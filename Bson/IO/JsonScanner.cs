@@ -56,7 +56,9 @@ namespace MongoDB.Bson.IO {
                 case ')': return new JsonToken(JsonTokenType.RightParen, ")");
                 case ':': return new JsonToken(JsonTokenType.Colon, ":");
                 case ',': return new JsonToken(JsonTokenType.Comma, ",");
-                case '"': return GetStringToken(buffer);
+                case '\'':
+                case '"':
+                    return GetStringToken(buffer, (char) c);
                 case '/': return GetRegularExpressionToken(buffer);
                 default:
                     if (c == '-' || char.IsDigit((char) c)) {
@@ -84,7 +86,7 @@ namespace MongoDB.Bson.IO {
             } else {
                 snippet = buffer.Substring(start, length) + "...";
             }
-            return string.Format("{0}: '{1}'", message, snippet);
+            return string.Format("{0} '{1}'.", message, snippet);
         }
 
         private static JsonToken GetNumberToken(
@@ -360,7 +362,8 @@ namespace MongoDB.Bson.IO {
         }
 
         private static JsonToken GetStringToken(
-            JsonBuffer buffer
+            JsonBuffer buffer,
+            char quoteCharacter // either single or double quote
         ) {
             // opening quote has already been read
             var start = buffer.Position - 1;
@@ -371,6 +374,7 @@ namespace MongoDB.Bson.IO {
                     case '\\':
                         c = buffer.Read();
                         switch (c) {
+                            case '\'': sb.Append('\''); break;
                             case '"': sb.Append('"'); break;
                             case '\\': sb.Append('\\'); break;
                             case '/': sb.Append('/'); break;
@@ -392,23 +396,24 @@ namespace MongoDB.Bson.IO {
                                 break;
                             default:
                                 if (c != -1) {
-                                    var message = string.Format("Invalid escape sequence in JSON string: '\\{0}'", (char) c);
+                                    var message = string.Format("Invalid escape sequence in JSON string '\\{0}'.", (char) c);
                                     throw new FileFormatException(message);
                                 }
                                 break;
                         }
                         break;
-                    case '"':
-                        var lexeme = buffer.Substring(start, buffer.Position - start);
-                        return new StringJsonToken(JsonTokenType.String, lexeme, sb.ToString());
                     default:
+                        if (c == quoteCharacter) {
+                            var lexeme = buffer.Substring(start, buffer.Position - start);
+                            return new StringJsonToken(JsonTokenType.String, lexeme, sb.ToString());
+                        }
                         if (c != -1) {
                             sb.Append((char) c);
                         }
                         break;
                 }
                 if (c == -1) {
-                    throw new FileFormatException(FormatMessage("End of file in JSON string", buffer, start));
+                    throw new FileFormatException(FormatMessage("End of file in JSON string.", buffer, start));
                 }
             }
         }

@@ -19,6 +19,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -79,7 +81,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.Binary:
                     bsonReader.ReadBinaryData(out bytes, out subType);
                     if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary) {
-                        message = string.Format("Invalid Binary sub type: {0}", subType);
+                        message = string.Format("Invalid Binary sub type {0}.", subType);
                         throw new FileFormatException(message);
                     }
                     return new BitArray(bytes);
@@ -88,7 +90,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     var length = bsonReader.ReadInt32("Length");
                     bsonReader.ReadBinaryData("Bytes", out bytes, out subType);
                     if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary) {
-                        message = string.Format("Invalid Binary sub type: {0}", subType);
+                        message = string.Format("Invalid Binary sub type {0}.", subType);
                         throw new FileFormatException(message);
                     }
                     bsonReader.ReadEndDocument();
@@ -107,12 +109,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
                                 bitArray[i] = true;
                                 break;
                             default:
-                                throw new FileFormatException("String value is not a valid BitArray");
+                                throw new FileFormatException("String value is not a valid BitArray.");
                         }
                     }
                     return bitArray;
                 default:
-                    message = string.Format("Cannot deserialize Byte[] from BsonType: {0}", bsonType);
+                    message = string.Format("Cannot deserialize Byte[] from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -155,7 +157,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         bsonWriter.WriteString(sb.ToString());
                         break;
                     default:
-                        var message = string.Format("'{0}' is not a valid representation for type 'BitArray'", representation);
+                        var message = string.Format("'{0}' is not a valid representation for type BitArray.", representation);
                         throw new BsonSerializationException(message);
                 }
             }
@@ -232,7 +234,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     BsonBinarySubType subType;
                     bsonReader.ReadBinaryData(out bytes, out subType);
                     if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary) {
-                        message = string.Format("Invalid Binary sub type: {0}", subType);
+                        message = string.Format("Invalid Binary sub type {0}.", subType);
                         throw new FileFormatException(message);
                     }
                     return bytes;
@@ -249,7 +251,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     }
                     return bytes;
                 default:
-                    message = string.Format("Cannot deserialize Byte[] from BsonType: {0}", bsonType);
+                    message = string.Format("Cannot deserialize Byte[] from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -285,7 +287,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         bsonWriter.WriteString(sb.ToString());
                         break;
                     default:
-                        var message = string.Format("'{0}' is not a valid representation for type 'Byte[]'", representation);
+                        var message = string.Format("'{0}' is not a valid representation for type Byte[].", representation);
                         throw new BsonSerializationException(message);
                 }
             }
@@ -341,7 +343,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     BsonBinarySubType subType;
                     bsonReader.ReadBinaryData(out bytes, out subType);
                     if (bytes.Length != 1) {
-                        throw new FileFormatException("Binary data for Byte must be exactly one byte long");
+                        throw new FileFormatException("Binary data for Byte must be exactly one byte long.");
                     }
                     value = bytes[0];
                     break;
@@ -363,11 +365,11 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     value = byte.Parse(s, NumberStyles.HexNumber);
                     break;
                 default:
-                    var message = string.Format("Cannot deserialize Byte from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize Byte from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
             if (lostData) {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to Byte", bsonType);
+                var message = string.Format("Data loss occurred when trying to convert from {0} to Byte.", bsonType);
                 throw new FileFormatException(message);
             }
 
@@ -403,7 +405,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(string.Format("{0:x2}", byteValue));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Byte'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type Byte.", representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -455,7 +457,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return (char) bsonReader.ReadString()[0];
                 default:
-                    var message = string.Format("Cannot deserialize Char from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize Char from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -483,7 +485,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(new string(new[] { charValue }));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Char'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type Char.", representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -542,7 +544,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return new CultureInfo(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize CultureInfo from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize CultureInfo from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -636,7 +638,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return XmlConvert.ToDateTimeOffset(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize DateTimeOffset from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize DateTimeOffset from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -675,7 +677,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(XmlConvert.ToString(dateTimeOffset));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'DateTimeOffset'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type DateTimeOffset.", representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -741,7 +743,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return XmlConvert.ToDecimal(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize Decimal from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize Decimal from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -784,7 +786,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(XmlConvert.ToString(decimalValue));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Decimal'", representationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid representation for type Decimal.", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -842,7 +844,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return XmlConvert.ToInt16(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize Int16 from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize Int16 from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -876,8 +878,188 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(XmlConvert.ToString(int16Value));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Int16'", representationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid representation for type Int16.", representationOptions.Representation);
                     throw new BsonSerializationException(message);
+            }
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Represents a serializer for IPAddresses.
+    /// </summary>
+    public class IPAddressSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static IPAddressSerializer instance = new IPAddressSerializer();
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the IPAddressSerializer class.
+        /// </summary>
+        public IPAddressSerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets an instance of the IPAddressSerializer class.
+        /// </summary>
+        public static IPAddressSerializer Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            IBsonSerializationOptions options
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            string message;
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.String:
+                    var stringValue = bsonReader.ReadString();
+                    IPAddress address;
+                    if (IPAddress.TryParse(stringValue, out address)) {
+                        return address;
+                    }
+                    message = string.Format("Invalid IPAddress value '{0}'.", stringValue);
+                    throw new FileFormatException(message);
+                default:
+                    message = string.Format("Cannot deserialize IPAddress from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var address = (IPAddress) value;
+                string stringValue;
+                if (address.AddressFamily == AddressFamily.InterNetwork) {
+                    stringValue = address.ToString();
+                } else {
+                    stringValue = string.Format("[{0}]", address);
+                }
+                bsonWriter.WriteString(stringValue);
+            }
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Represents a serializer for IPEndPoints.
+    /// </summary>
+    public class IPEndPointSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static IPEndPointSerializer instance = new IPEndPointSerializer();
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the IPEndPointSerializer class.
+        /// </summary>
+        public IPEndPointSerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets an instance of the IPEndPointSerializer class.
+        /// </summary>
+        public static IPEndPointSerializer Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            IBsonSerializationOptions options
+        ) {
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            string message;
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.String:
+                    var stringValue = bsonReader.ReadString();
+                    var match = Regex.Match(stringValue, @"^(?<address>(.+|\[.*\]))\:(?<port>\d+)$");
+                    if (match.Success) {
+                        IPAddress address;
+                        if (IPAddress.TryParse(match.Groups["address"].Value, out address)) {
+                            int port;
+                            if (int.TryParse(match.Groups["port"].Value, out port)) {
+                                return new IPEndPoint(address, port);
+                            }
+                        }
+                    }
+                    message = string.Format("Invalid IPEndPoint value '{0}'.", stringValue);
+                    throw new FileFormatException(message);
+                default:
+                    message = string.Format("Cannot deserialize IPEndPoint from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options
+        ) {
+            if (value == null) {
+                bsonWriter.WriteNull();
+            } else {
+                var endPoint = (IPEndPoint) value;
+                string stringValue;
+                if (endPoint.AddressFamily == AddressFamily.InterNetwork) {
+                    stringValue = string.Format("{0}:{1}", endPoint.Address, endPoint.Port); // IPv4
+                } else {
+                    stringValue = string.Format("[{0}]:{1}", endPoint.Address, endPoint.Port); // IPv6
+                }
+                bsonWriter.WriteString(stringValue);
             }
         }
         #endregion
@@ -931,7 +1113,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     BsonBinarySubType subType;
                     bsonReader.ReadBinaryData(out bytes, out subType);
                     if (bytes.Length != 1) {
-                        throw new FileFormatException("Binary data for SByte must be exactly one byte long");
+                        throw new FileFormatException("Binary data for SByte must be exactly one byte long.");
                     }
                     value = (sbyte) bytes[0];
                     break;
@@ -953,11 +1135,11 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     value = (sbyte) byte.Parse(s, NumberStyles.HexNumber);
                     break;
                 default:
-                    var message = string.Format("Cannot deserialize SByte from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize SByte from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
             if (lostData) {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to SByte", bsonType);
+                var message = string.Format("Data loss occurred when trying to convert from {0} to SByte.", bsonType);
                 throw new FileFormatException(message);
             }
 
@@ -993,7 +1175,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(string.Format("{0:x2}", (byte) sbyteValue));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Byte'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type Byte.", representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -1051,7 +1233,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return XmlConvert.ToSingle(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize Single from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize Single from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -1085,7 +1267,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(floatValue.ToString("R", NumberFormatInfo.InvariantInfo));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'Single'", representationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid representation for type Single.", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -1139,7 +1321,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                      return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
                 default:
-                    var message = string.Format("Cannot deserialize TimeSpan from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -1167,7 +1349,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(timeSpan.ToString()); // for TimeSpan use .NET's format instead of XmlConvert.ToString
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'TimeSpan'", representation);
+                    var message = string.Format("'{0}' is not a valid representation for type TimeSpan.", representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -1225,7 +1407,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return XmlConvert.ToUInt16(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize uInt16 from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize uInt16 from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -1317,7 +1499,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return XmlConvert.ToUInt32(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize uInt32 from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize UInt32 from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -1351,7 +1533,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(XmlConvert.ToString(uint32Value));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'UInt32'", representationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid representation for type UInt32.", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -1409,7 +1591,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return XmlConvert.ToUInt64(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize UInt64 from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize UInt64 from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -1443,7 +1625,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteString(XmlConvert.ToString(uint64Value));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'UInt64'", representationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid representation for type UInt64.", representationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -1496,7 +1678,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return new Uri(bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize Uri from BsonType: {0}", bsonType);
+                    var message = string.Format("Cannot deserialize Uri from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -1578,16 +1760,16 @@ namespace MongoDB.Bson.Serialization.Serializers {
                             case "Build": build = bsonReader.ReadInt32(); break;
                             case "Revision": revision = bsonReader.ReadInt32(); break;
                             default:
-                                message = string.Format("Unrecognized element in Version: {0}", name);
+                                message = string.Format("Unrecognized element '{0}' while deserializing a Version value.", name);
                                 throw new FileFormatException(message);
                         }
                     }
                     bsonReader.ReadEndDocument();
                     if (major == -1) {
-                        message = string.Format("Version missing Major element");
+                        message = string.Format("Version missing Major element.");
                         throw new FileFormatException(message);
                     } else if (minor == -1) {
-                        message = string.Format("Version missing Minor element");
+                        message = string.Format("Version missing Minor element.");
                         throw new FileFormatException(message);
                     } else if (build == -1) {
                         return new Version(major, minor);
@@ -1599,7 +1781,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.String:
                     return new Version(bsonReader.ReadString());
                 default:
-                    message = string.Format("Cannot deserialize Version from BsonType: {0}", bsonType);
+                    message = string.Format("Cannot deserialize Version from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -1639,7 +1821,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         bsonWriter.WriteString(version.ToString());
                         break;
                     default:
-                        var message = string.Format("'{0}' is not a valid representation for type 'Version'", representation);
+                        var message = string.Format("'{0}' is not a valid representation for type Version.", representation);
                         throw new BsonSerializationException(message);
                 }
             }

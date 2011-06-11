@@ -20,12 +20,29 @@ using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO {
-    // this enum is used by BsonReaders and BsonWriters
-    internal enum ContextType {
+    /// <summary>
+    /// Used by BsonReaders and BsonWriters to represent the current context.
+    /// </summary>
+    public enum ContextType {
+        /// <summary>
+        /// The top level of a BSON document.
+        /// </summary>
         TopLevel,
+        /// <summary>
+        /// A (possibly embedded) BSON document.
+        /// </summary>
         Document,
+        /// <summary>
+        /// A BSON array.
+        /// </summary>
         Array,
+        /// <summary>
+        /// A JavaScriptWithScope BSON value.
+        /// </summary>
         JavaScriptWithScope,
+        /// <summary>
+        /// The scope document of a JavaScriptWithScope BSON value.
+        /// </summary>
         ScopeDocument
     }
 }

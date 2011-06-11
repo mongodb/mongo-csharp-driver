@@ -269,11 +269,51 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsObjectId; });
         }
 
-        public void TestAsRegex() {
+        public void TestAsRegexOptionNone() {
+            BsonValue v = new BsonRegularExpression("xyz");
+            BsonValue s = "";
+            var r = v.AsRegex;
+            Assert.AreEqual(0, r.Options);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
+        }
+
+        public void TestAsRegexOptionAll() {
+            BsonValue v = new BsonRegularExpression("xyz", "imxs");
+            BsonValue s = "";
+            var r = v.AsRegex;
+            Assert.AreEqual(RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline, r.Options);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
+        }
+
+        public void TestAsRegexOptionI() {
             BsonValue v = new BsonRegularExpression("xyz", "i");
             BsonValue s = "";
             var r = v.AsRegex;
             Assert.AreEqual(RegexOptions.IgnoreCase, r.Options);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
+        }
+
+        public void TestAsRegexOptionM() {
+            BsonValue v = new BsonRegularExpression("xyz", "m");
+            BsonValue s = "";
+            var r = v.AsRegex;
+            Assert.AreEqual(RegexOptions.Multiline, r.Options);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
+        }
+
+        public void TestAsRegexOptionX() {
+            BsonValue v = new BsonRegularExpression("xyz", "x");
+            BsonValue s = "";
+            var r = v.AsRegex;
+            Assert.AreEqual(RegexOptions.IgnorePatternWhitespace, r.Options);
+            Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
+        }
+
+        public void TestAsRegexOptionS() {
+            BsonValue v = new BsonRegularExpression("xyz", "s");
+            BsonValue s = "";
+            var r = v.AsRegex;
+            Assert.AreEqual(RegexOptions.Singleline, r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
@@ -312,10 +352,30 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("", regex.Options);
 
+            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline));
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("imxs", regex.Options);
+
             regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.IgnoreCase));
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("i", regex.Options);
+
+            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.Multiline));
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("m", regex.Options);
+
+            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.IgnorePatternWhitespace));
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("x", regex.Options);
+
+            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.Singleline));
+            Assert.IsInstanceOf<BsonRegularExpression>(regex);
+            Assert.AreEqual("pattern", regex.Pattern);
+            Assert.AreEqual("s", regex.Options);
         }
 
         [Test]
@@ -534,7 +594,29 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestImplicitConversionFromRegex() {
+        public void TestImplicitConversionFromRegexOptionNone() {
+            BsonValue v = new Regex("xyz");
+            BsonValue n = (Regex) null;
+            Assert.IsInstanceOf<BsonRegularExpression>(v);
+            Assert.IsNull(n);
+            var r = (BsonRegularExpression) v;
+            Assert.AreEqual("xyz", r.Pattern);
+            Assert.AreEqual("", r.Options);
+        }
+
+        [Test]
+        public void TestImplicitConversionFromRegexOptionAll() {
+            BsonValue v = new Regex("xyz", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
+            BsonValue n = (Regex) null;
+            Assert.IsInstanceOf<BsonRegularExpression>(v);
+            Assert.IsNull(n);
+            var r = (BsonRegularExpression) v;
+            Assert.AreEqual("xyz", r.Pattern);
+            Assert.AreEqual("imxs", r.Options);
+        }
+
+        [Test]
+        public void TestImplicitConversionFromRegexOptionI() {
             BsonValue v = new Regex("xyz", RegexOptions.IgnoreCase);
             BsonValue n = (Regex) null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
@@ -542,6 +624,39 @@ namespace MongoDB.BsonUnitTests {
             var r = (BsonRegularExpression) v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("i", r.Options);
+        }
+
+        [Test]
+        public void TestImplicitConversionFromRegexOptionM() {
+            BsonValue v = new Regex("xyz", RegexOptions.Multiline);
+            BsonValue n = (Regex) null;
+            Assert.IsInstanceOf<BsonRegularExpression>(v);
+            Assert.IsNull(n);
+            var r = (BsonRegularExpression) v;
+            Assert.AreEqual("xyz", r.Pattern);
+            Assert.AreEqual("m", r.Options);
+        }
+
+        [Test]
+        public void TestImplicitConversionFromRegexOptionX() {
+            BsonValue v = new Regex("xyz", RegexOptions.IgnorePatternWhitespace);
+            BsonValue n = (Regex) null;
+            Assert.IsInstanceOf<BsonRegularExpression>(v);
+            Assert.IsNull(n);
+            var r = (BsonRegularExpression) v;
+            Assert.AreEqual("xyz", r.Pattern);
+            Assert.AreEqual("x", r.Options);
+        }
+
+        [Test]
+        public void TestImplicitConversionFromRegexOptionS() {
+            BsonValue v = new Regex("xyz", RegexOptions.Singleline);
+            BsonValue n = (Regex) null;
+            Assert.IsInstanceOf<BsonRegularExpression>(v);
+            Assert.IsNull(n);
+            var r = (BsonRegularExpression) v;
+            Assert.AreEqual("xyz", r.Pattern);
+            Assert.AreEqual("s", r.Options);
         }
 
         [Test]

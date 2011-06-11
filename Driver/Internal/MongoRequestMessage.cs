@@ -32,24 +32,18 @@ namespace MongoDB.Driver.Internal {
         #region protected fields
         protected bool disposed = false;
         protected BsonBuffer buffer;
+        protected BsonBinaryWriterSettings writerSettings;
         protected bool disposeBuffer;
         protected int messageStartPosition = -1; // start position in buffer for backpatching messageLength
         #endregion
 
         #region constructors
         protected MongoRequestMessage(
-            MongoConnection connection,
-            MessageOpcode opcode
-        )
-            : this(connection, opcode, null) {
-        }
-
-        protected MongoRequestMessage(
-            MongoConnection connection,
             MessageOpcode opcode,
-            BsonBuffer buffer // not null if piggybacking this message onto an existing buffer
+            BsonBuffer buffer, // not null if piggybacking this message onto an existing buffer
+            BsonBinaryWriterSettings writerSettings
         )
-            : base(connection, opcode) {
+            : base(opcode) {
             if (buffer == null) {
                 this.buffer = new BsonBuffer();
                 this.disposeBuffer = true; // only call Dispose if we allocated the buffer
@@ -57,6 +51,7 @@ namespace MongoDB.Driver.Internal {
                 this.buffer = buffer;
                 this.disposeBuffer = false;
             }
+            this.writerSettings = writerSettings;
             this.requestId = Interlocked.Increment(ref lastRequestId);
         }
         #endregion
@@ -64,6 +59,10 @@ namespace MongoDB.Driver.Internal {
         #region public propertieds
         public BsonBuffer Buffer {
             get { return buffer; }
+        }
+
+        public BsonBinaryWriterSettings WriterSettings {
+            get { return writerSettings; }
         }
         #endregion
 
@@ -81,7 +80,9 @@ namespace MongoDB.Driver.Internal {
 
         #region internal methods
         internal void WriteToBuffer() {
-            // this method is sometimes called more than once (see MongoConnection and MongoCollection)
+            // normally this method is only called once (from MongoConnection.SendMessage)
+            // but in the case of InsertBatch it is called before SendMessage is called to initialize the message so that AddDocument can be called
+            // therefore we need the if statement to ignore subsequent calls from SendMessage
             if (messageStartPosition == -1) {
                 messageStartPosition = buffer.Position;
                 WriteMessageHeaderTo(buffer);
@@ -92,11 +93,6 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region protected methods
-        protected BsonWriter CreateBsonWriter() {
-            var settings = new BsonBinaryWriterSettings { MaxDocumentSize = connection.ServerInstance.MaxDocumentSize };
-            return BsonWriter.Create(buffer, settings);
-        }
-
         protected void BackpatchMessageLength() {
             messageLength = buffer.Position - messageStartPosition;
             buffer.Backpatch(messageStartPosition, messageLength);

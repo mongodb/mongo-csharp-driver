@@ -25,6 +25,58 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.IdGenerators {
     /// <summary>
+    /// Represents an Id generator for BsonObjectIds.
+    /// </summary>
+    public class BsonObjectIdGenerator : IIdGenerator {
+        #region private static fields
+        private static BsonObjectIdGenerator instance = new BsonObjectIdGenerator();
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonObjectIdGenerator class.
+        /// </summary>
+        public BsonObjectIdGenerator() {
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets an instance of ObjectIdGenerator.
+        /// </summary>
+        public static BsonObjectIdGenerator Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Generates an Id for a document.
+        /// </summary>
+        /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
+        /// <param name="document">The document.</param>
+        /// <returns>An Id.</returns>
+        public object GenerateId(
+            object container,
+            object document
+        ) {
+            return BsonObjectId.GenerateNewId();
+        }
+
+        /// <summary>
+        /// Tests whether an Id is empty.
+        /// </summary>
+        /// <param name="id">The Id.</param>
+        /// <returns>True if the Id is empty.</returns>
+        public bool IsEmpty(
+            object id
+        ) {
+            return id == null || ((BsonValue) id).IsBsonNull || ((BsonObjectId) id).Value == ObjectId.Empty;
+        }
+        #endregion
+    }
+
+    /// <summary>
     /// Represents an Id generator for Guids using the COMB algorithm.
     /// </summary>
     public class CombGuidGenerator : IIdGenerator {
@@ -51,11 +103,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
 
         #region public methods
         /// <summary>
-        /// Generates an Id.
+        /// Generates an Id for a document.
         /// </summary>
-        /// <param name="document">The document for which an Id is being generated.</param>
+        /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
+        /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
         public object GenerateId(
+            object container,
             object document
         ) {
             var baseDate = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -117,11 +171,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
 
         #region public methods
         /// <summary>
-        /// Generates an Id.
+        /// Generates an Id for a document.
         /// </summary>
-        /// <param name="document">The document for which an Id is being generated.</param>
+        /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
+        /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
         public object GenerateId(
+            object container,
             object document
         ) {
             return Guid.NewGuid();
@@ -167,14 +223,16 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
 
         #region public methods
         /// <summary>
-        /// Throws an exception because we can't generate an Id.
+        /// Generates an Id for a document.
         /// </summary>
-        /// <param name="document">The document for which an Id is being generated.</param>
-        /// <returns>Nothing.</returns>
+        /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
+        /// <param name="document">The document.</param>
+        /// <returns>An Id.</returns>
         public object GenerateId(
+            object container,
             object document
         ) {
-            throw new InvalidOperationException("Id cannot be null");
+            throw new InvalidOperationException("Id cannot be null.");
         }
 
         /// <summary>
@@ -217,11 +275,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
 
         #region public methods
         /// <summary>
-        /// Generates an Id.
+        /// Generates an Id for a document.
         /// </summary>
-        /// <param name="document">The document for which an Id is being generated.</param>
+        /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
+        /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
         public object GenerateId(
+            object container,
             object document
         ) {
             return ObjectId.GenerateNewId();
@@ -267,11 +327,13 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
 
         #region public methods
         /// <summary>
-        /// Generates an Id.
+        /// Generates an Id for a document.
         /// </summary>
-        /// <param name="document">The document for which an Id is being generated.</param>
+        /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
+        /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
         public object GenerateId(
+            object container,
             object document
         ) {
             return ObjectId.GenerateNewId().ToString();
@@ -305,14 +367,16 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
 
         #region public methods
         /// <summary>
-        /// Throws an exception because we can't generate an Id.
+        /// Generates an Id for a document.
         /// </summary>
-        /// <param name="document">The document for which an Id is being generated.</param>
+        /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
+        /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
         public object GenerateId(
+            object container,
             object document
         ) {
-            throw new InvalidOperationException("Id cannot be default value (all zeros)");
+            throw new InvalidOperationException("Id cannot be default value (all zeros).");
         }
 
         /// <summary>

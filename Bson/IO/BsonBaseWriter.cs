@@ -204,8 +204,7 @@ namespace MongoDB.Bson.IO {
         ) {
             if (disposed) { throw new ObjectDisposedException(this.GetType().Name); }
             if (state != BsonWriterState.Name) {
-                var message = string.Format("WriteName cannot be called when State is: {0}", state);
-                throw new InvalidOperationException(message);
+                ThrowInvalidState("WriteName", BsonWriterState.Name);
             }
 
             this.name = name;
@@ -338,6 +337,36 @@ namespace MongoDB.Bson.IO {
         protected abstract void Dispose(
             bool disposing
         );
+
+        /// <summary>
+        /// Throws an InvalidOperationException when the method called is not valid for the current ContextType.
+        /// </summary>
+        /// <param name="methodName">The name of the method.</param>
+        /// <param name="actualContextType">The actual ContextType.</param>
+        /// <param name="validContextTypes">The valid ContextTypes.</param>
+        protected void ThrowInvalidContextType(
+            string methodName,
+            ContextType actualContextType,
+            params ContextType[] validContextTypes
+        ) {
+            var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
+            var message = string.Format("{0} can only be called when ContextType is {1}, not when ContextType is {2}.", methodName, validContextTypesString, actualContextType);
+            throw new InvalidOperationException(message);
+        }
+
+        /// <summary>
+        /// Throws an InvalidOperationException when the method called is not valid for the current state.
+        /// </summary>
+        /// <param name="methodName">The name of the method.</param>
+        /// <param name="validStates">The valid states.</param>
+        protected void ThrowInvalidState(
+            string methodName,
+            params BsonWriterState[] validStates
+        ) {
+            var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
+            var message = string.Format("{0} can only be called when State is {1}, not when State is {2}", methodName, validStatesString, state);
+            throw new InvalidOperationException(message);
+        }
         #endregion
     }
 }

@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
@@ -191,8 +192,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Drops this collection.
         /// </summary>
-        public virtual void Drop() {
-            database.DropCollection(name);
+        public virtual CommandResult Drop() {
+            return database.DropCollection(name);
         }
 
         /// <summary>
@@ -919,7 +920,8 @@ namespace MongoDB.Driver {
             try {
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
-                using (var message = new MongoInsertMessage(connection, FullName)) {
+                var writerSettings = GetWriterSettings(connection);
+                using (var message = new MongoInsertMessage(writerSettings, FullName)) {
                     message.WriteToBuffer(); // must be called before AddDocument
 
                     foreach (var document in documents) {
@@ -930,7 +932,7 @@ namespace MongoDB.Driver {
                             IIdGenerator idGenerator;
                             if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
                                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
-                                    id = idGenerator.GenerateId(document);
+                                    id = idGenerator.GenerateId(this, document);
                                     serializer.SetDocumentId(document, id);
                                 }
                             }
@@ -1094,7 +1096,8 @@ namespace MongoDB.Driver {
         ) {
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try {
-                using (var message = new MongoDeleteMessage(connection, FullName, flags, query)) {
+                var writerSettings = GetWriterSettings(connection);
+                using (var message = new MongoDeleteMessage(writerSettings, FullName, flags, query)) {
                     return connection.SendMessage(message, safeMode);
                 }
             } finally {
@@ -1191,11 +1194,11 @@ namespace MongoDB.Driver {
             IIdGenerator idGenerator;
             if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
                 if (id == null && idGenerator == null) {
-                    throw new InvalidOperationException("No IdGenerator found");
+                    throw new InvalidOperationException("No IdGenerator found.");
                 }
 
                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
-                    id = idGenerator.GenerateId(document);
+                    id = idGenerator.GenerateId(this, document);
                     serializer.SetDocumentId(document, id);
                     return Insert(nominalType, document, safeMode);
                 } else {
@@ -1215,7 +1218,7 @@ namespace MongoDB.Driver {
                     return Update(query, update, UpdateFlags.Upsert, safeMode);
                 }
             } else {
-                throw new InvalidOperationException("Save can only be used with documents that have an Id");
+                throw new InvalidOperationException("Save can only be used with documents that have an Id.");
             }
         }
 
@@ -1286,7 +1289,8 @@ namespace MongoDB.Driver {
         ) {
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try {
-                using (var message = new MongoUpdateMessage(connection, FullName, flags, query, update)) {
+                var writerSettings = GetWriterSettings(connection);
+                using (var message = new MongoUpdateMessage(writerSettings, FullName, flags, query, update)) {
                     return connection.SendMessage(message, safeMode);
                 }
             } finally {
@@ -1301,6 +1305,26 @@ namespace MongoDB.Driver {
         public virtual ValidateCollectionResult Validate() {
             var command = new CommandDocument("validate", name);
             return database.RunCommandAs<ValidateCollectionResult>(command);
+        }
+        #endregion
+
+        #region internal methods
+        internal BsonBinaryReaderSettings GetReaderSettings(
+            MongoConnection connection
+        ) {
+            return new BsonBinaryReaderSettings {
+                GuidByteOrder = settings.GuidByteOrder,
+                MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
+            };
+        }
+
+        internal BsonBinaryWriterSettings GetWriterSettings(
+            MongoConnection connection
+        ) {
+            return new BsonBinaryWriterSettings {
+                GuidByteOrder = settings.GuidByteOrder,
+                MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
+            };
         }
         #endregion
 

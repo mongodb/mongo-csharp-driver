@@ -93,10 +93,10 @@ namespace MongoDB.Bson {
         public DateTime Value {
             get {
                 if (millisecondsSinceEpoch < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch) {
-                    throw new OverflowException("MillisecondsSinceEpoch value is before DateTime.MinValue");
+                    throw new OverflowException("MillisecondsSinceEpoch value is before DateTime.MinValue.");
                 }
                 if (millisecondsSinceEpoch > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch) {
-                    throw new OverflowException("MillisecondsSinceEpoch value is after DateTime.MaxValue");
+                    throw new OverflowException("MillisecondsSinceEpoch value is after DateTime.MaxValue.");
                 }
                 return value;
             }

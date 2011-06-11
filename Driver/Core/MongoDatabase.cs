@@ -58,7 +58,9 @@ namespace MongoDB.Driver {
             // make sure commands get routed to the primary server by using slaveOk false
             var commandCollectionSettings = CreateCollectionSettings<BsonDocument>("$cmd");
             commandCollectionSettings.AssignIdOnInsert = false;
-            commandCollectionSettings.SlaveOk = false;
+            if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet) {
+                commandCollectionSettings.SlaveOk = false;
+            }
             commandCollection = GetCollection(commandCollectionSettings);
         }
         #endregion
@@ -96,7 +98,7 @@ namespace MongoDB.Driver {
             string databaseName
         ) {
             if (databaseName == null) {
-                throw new ArgumentException("Database name is missing");
+                throw new ArgumentException("Database name is missing.");
             }
             var server = MongoServer.Create(serverSettings);
             return server.GetDatabase(databaseName);
@@ -308,6 +310,7 @@ namespace MongoDB.Driver {
             return new MongoCollectionSettings<TDefaultDocument>(
                 collectionName,
                 MongoDefaults.AssignIdOnInsert,
+                settings.GuidByteOrder,
                 settings.SafeMode,
                 settings.SlaveOk
             );
@@ -326,11 +329,12 @@ namespace MongoDB.Driver {
         ) {
             var settingsDefinition = typeof(MongoCollectionSettings<>);
             var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(string), typeof(bool), typeof(SafeMode), typeof(bool) });
+            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(string), typeof(bool), typeof(GuidByteOrder), typeof(SafeMode), typeof(bool) });
             return (MongoCollectionSettings) constructorInfo.Invoke(
                 new object[] {
                     collectionName,
                     MongoDefaults.AssignIdOnInsert,
+                    settings.GuidByteOrder,
                     settings.SafeMode,
                     settings.SlaveOk
                 }
@@ -352,10 +356,17 @@ namespace MongoDB.Driver {
         public virtual CommandResult DropCollection(
             string collectionName
         ) {
-            var command = new CommandDocument("drop", collectionName);
-            var result = RunCommand(command);
-            server.IndexCache.Reset(name, collectionName);
-            return result;
+            try {
+                var command = new CommandDocument("drop", collectionName);
+                var result = RunCommand(command);
+                server.IndexCache.Reset(name, collectionName);
+                return result;
+            } catch (MongoCommandException ex) {
+                if (ex.CommandResult.ErrorMessage == "ns not found") {
+                    return ex.CommandResult;
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -728,7 +739,7 @@ namespace MongoDB.Driver {
             var response = CommandCollection.FindOne(command);
             if (response == null) {
                 var commandName = command.ToBsonDocument().GetElement(0).Name;
-                var message = string.Format("Command '{0}' failed: no response returned", commandName);
+                var message = string.Format("Command '{0}' failed. No response returned.", commandName);
                 throw new MongoCommandException(message);
             }
             var commandResult = (CommandResult) Activator.CreateInstance(commandResultType); // constructor can't have arguments
@@ -773,13 +784,13 @@ namespace MongoDB.Driver {
                 throw new ArgumentNullException("name");
             }
             if (name == "") {
-                throw new ArgumentException("Database name is empty");
+                throw new ArgumentException("Database name is empty.");
             }
             if (name.IndexOfAny(new char[] { '\0', ' ', '.', '$', '/', '\\' }) != -1) {
-                throw new ArgumentException("Database name cannot contain the following special characters: null, space, period, $, / or \\");
+                throw new ArgumentException("Database name cannot contain the following special characters: null, space, period, $, / or \\.");
             }
             if (Encoding.UTF8.GetBytes(name).Length > 64) {
-                throw new ArgumentException("Database name cannot exceed 64 bytes (after encoding to UTF8)");
+                throw new ArgumentException("Database name cannot exceed 64 bytes (after encoding to UTF8).");
             }
         }
         #endregion

@@ -77,12 +77,12 @@ namespace MongoDB.Driver.Internal {
             MongoDatabase database
         ) {
             if (database != null && database.Server != server) {
-                throw new ArgumentException("This connection pool is for a different server", "database");
+                throw new ArgumentException("This connection pool is for a different server.", "database");
             }
 
             lock (connectionPoolLock) {
                 if (waitQueueSize >= server.Settings.WaitQueueSize) {
-                    throw new MongoConnectionException("Too many threads are already waiting for a connection");
+                    throw new MongoConnectionException("Too many threads are already waiting for a connection.");
                 }
 
                 waitQueueSize += 1;
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Internal {
                     DateTime timeoutAt = DateTime.UtcNow + server.Settings.WaitQueueTimeout;
                     while (true) {
                         if (closed) {
-                            throw new InvalidOperationException("Attempt to get a connection from a closed connection pool");
+                            throw new InvalidOperationException("Attempt to get a connection from a closed connection pool.");
                         }
 
                         if (availableConnections.Count > 0) {
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Internal {
                         if (timeRemaining > TimeSpan.Zero) {
                             Monitor.Wait(connectionPoolLock, timeRemaining);
                         } else {
-                            throw new TimeoutException("Timeout waiting for a MongoConnection");
+                            throw new TimeoutException("Timeout waiting for a MongoConnection.");
                         }
                     }
                 } finally {

@@ -32,7 +32,6 @@ namespace MongoDB.Driver {
         private static TimeSpan maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan maxConnectionLifeTime = TimeSpan.FromMinutes(30);
         private static int maxConnectionPoolSize = 100;
-        private static int maxDocumentSize = BsonDefaults.MaxDocumentSize;
         private static int maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int minConnectionPoolSize = 0;
         private static SafeMode safeMode = SafeMode.False;
@@ -75,6 +74,14 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets or sets the byte order to use for Guids (this is an alias for BsonDefaults.GuidByteOrder).
+        /// </summary>
+        public static GuidByteOrder GuidByteOrder {
+            get { return BsonDefaults.GuidByteOrder; }
+            set { BsonDefaults.GuidByteOrder = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the max connection idle time.
         /// </summary>
         public static TimeSpan MaxConnectionIdleTime {
@@ -99,11 +106,11 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets or sets the max document size.
+        /// Gets or sets the max document size (this is an alias for BsonDefaults.MaxDocumentSize).
         /// </summary>
         public static int MaxDocumentSize {
-            get { return maxDocumentSize; }
-            set { maxDocumentSize = value; }
+            get { return BsonDefaults.MaxDocumentSize; }
+            set { BsonDefaults.MaxDocumentSize = value; }
         }
 
         /// <summary>

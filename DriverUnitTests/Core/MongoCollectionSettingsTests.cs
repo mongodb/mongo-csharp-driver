@@ -30,6 +30,7 @@ namespace MongoDB.DriverUnitTests {
             var settings = new MongoCollectionSettings<BsonDocument>(
                 "collection",
                 true, // asssignIdOnInsert
+                GuidByteOrder.LittleEndian,
                 SafeMode.Create(5, TimeSpan.FromSeconds(5)),
                 true // slaveOkd
             );
@@ -37,6 +38,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual("collection", settings.CollectionName);
             Assert.AreEqual(true, settings.AssignIdOnInsert);
             Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
+            Assert.AreEqual(GuidByteOrder.LittleEndian, settings.GuidByteOrder);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(5)), settings.SafeMode);
             Assert.AreEqual(true, settings.SlaveOk);
 

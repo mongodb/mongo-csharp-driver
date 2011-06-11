@@ -306,7 +306,7 @@ namespace MongoDB.Bson {
                 if (indexes.TryGetValue(name, out index)) {
                     return elements[index].Value;
                 } else {
-                    string message = string.Format("Element \"{0}\" not found", name);
+                    string message = string.Format("Element '{0}' not found.", name);
                     throw new KeyNotFoundException(message);
                 }
             }
@@ -334,6 +334,20 @@ namespace MongoDB.Bson {
                 return (BsonDocument) BsonTypeMapper.MapToBsonValue(value, BsonType.Document);
             } else {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Parses a JSON string and returns a BsonDocument.
+        /// </summary>
+        /// <param name="json">The JSON string.</param>
+        /// <returns>A BsonDocument.</returns>
+        public static BsonDocument Parse(
+            string json
+        ) {
+            using (var bsonReader = BsonReader.Create(json)) {
+                var document = new BsonDocument();
+                return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument), null);
             }
         }
 
@@ -417,7 +431,7 @@ namespace MongoDB.Bson {
                 bool found;
                 int index;
                 if ((found = indexes.TryGetValue(element.Name, out index)) && !allowDuplicateNames) {
-                    var message = string.Format("Duplicate element name: '{0}'.", element.Name);
+                    var message = string.Format("Duplicate element name '{0}'.", element.Name);
                     throw new InvalidOperationException(message);
                 } else {
                     elements.Add(element);
@@ -661,7 +675,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Gets the Id of the document.
         /// </summary>
-        /// <param name="id">The Id of the document.</param>
+        /// <param name="id">The Id of the document (the RawValue if it has one, otherwise the element Value).</param>
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
         /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
@@ -673,15 +687,16 @@ namespace MongoDB.Bson {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement)) {
                 id = idElement.Value.RawValue;
-                if (id != null) {
-                    idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
-                } else {
-                    idGenerator = ObjectIdGenerator.Instance;
+                if (id == null) {
+                    id = idElement.Value;
                 }
+
+                idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
             } else {
                 id = null;
                 idGenerator = ObjectIdGenerator.Instance;
             }
+
             idNominalType = typeof(BsonValue);
             return true;
         }
@@ -732,7 +747,7 @@ namespace MongoDB.Bson {
             if (indexes.TryGetValue(name, out index)) {
                 return elements[index];
             } else {
-                string message = string.Format("Element \"{0}\" not found", name);
+                string message = string.Format("Element '{0}' not found.", name);
                 throw new KeyNotFoundException(message);
             }
         }
@@ -805,7 +820,8 @@ namespace MongoDB.Bson {
         ) {
             if (element != null) {
                 if (indexes.ContainsKey(element.Name) && !allowDuplicateNames) {
-                    throw new InvalidOperationException("Duplicate element names not allowed");
+                    var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
+                    throw new InvalidOperationException(message);
                 } else {
                     elements.Insert(index, element);
                     RebuildDictionary();

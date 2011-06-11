@@ -24,12 +24,13 @@ namespace MongoDB.Bson.IO {
     /// </summary>
     public class BsonBinaryReaderSettings {
         #region private static fields
-        private static BsonBinaryReaderSettings defaults = new BsonBinaryReaderSettings();
+        private static BsonBinaryReaderSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
 
         #region private fields
         private bool closeInput = false;
         private bool fixOldBinarySubTypeOnInput = true;
+        private GuidByteOrder guidByteOrder = BsonDefaults.GuidByteOrder;
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
         private bool isFrozen;
         #endregion
@@ -46,14 +47,17 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
         /// <param name="fixOldBinarySubTypeOnInput">Whether to fix occurrences of the old binary subtype on input.</param>
+        /// <param name="guidByteOrder">The byte order for Guids.</param>
         /// <param name="maxDocumentSize">The max document size.</param>
         public BsonBinaryReaderSettings(
             bool closeInput,
             bool fixOldBinarySubTypeOnInput,
+            GuidByteOrder guidByteOrder,
             int maxDocumentSize
         ) {
             this.closeInput = closeInput;
             this.fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
+            this.guidByteOrder = guidByteOrder;
             this.maxDocumentSize = maxDocumentSize;
         }
         #endregion
@@ -63,7 +67,12 @@ namespace MongoDB.Bson.IO {
         /// Gets or sets the default settings for a BsonBinaryReader.
         /// </summary>
         public static BsonBinaryReaderSettings Defaults {
-            get { return defaults; }
+            get {
+                if (defaults == null) {
+                    defaults = new BsonBinaryReaderSettings();
+                }
+                return defaults;
+            }
             set { defaults = value; }
         }
         #endregion
@@ -75,7 +84,7 @@ namespace MongoDB.Bson.IO {
         public bool CloseInput {
             get { return closeInput; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
                 closeInput = value;
             }
         }
@@ -86,8 +95,19 @@ namespace MongoDB.Bson.IO {
         public bool FixOldBinarySubTypeOnInput {
             get { return fixOldBinarySubTypeOnInput; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
                 fixOldBinarySubTypeOnInput = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the byte order for Guids.
+        /// </summary>
+        public GuidByteOrder GuidByteOrder {
+            get { return guidByteOrder; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                guidByteOrder = value;
             }
         }
 
@@ -104,7 +124,7 @@ namespace MongoDB.Bson.IO {
         public int MaxDocumentSize {
             get { return maxDocumentSize; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
                 maxDocumentSize = value;
             }
         }
@@ -119,6 +139,7 @@ namespace MongoDB.Bson.IO {
             return new BsonBinaryReaderSettings(
                 closeInput,
                 fixOldBinarySubTypeOnInput,
+                guidByteOrder,
                 maxDocumentSize
             );
         }

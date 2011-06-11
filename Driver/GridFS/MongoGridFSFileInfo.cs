@@ -456,7 +456,7 @@ namespace MongoDB.Driver.GridFS {
             if (this.id == null) {
                 this.id = id;
             } else {
-                throw new InvalidOperationException("FileInfo already has an Id");
+                throw new InvalidOperationException("FileInfo already has an Id.");
             }
         }
         #endregion

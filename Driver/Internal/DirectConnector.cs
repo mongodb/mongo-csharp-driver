@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Internal {
             }
 
             var innerException = exceptions.FirstOrDefault();
-            var connectionException = new MongoConnectionException("Unable to connect to server", innerException);
+            var connectionException = new MongoConnectionException("Unable to connect to server.", innerException);
             if (exceptions.Count > 1) {
                 connectionException.Data.Add("exceptions", exceptions);
             }

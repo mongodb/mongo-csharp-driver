@@ -99,7 +99,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             Type type
         ) {
             if (type != typeof(T[])) {
-                var message = string.Format("ArraySerializer<{0}> cannot be used with type: {1}", typeof(T).FullName, type.FullName);
+                var message = string.Format("ArraySerializer<{0}> cannot be used with type {1}.", typeof(T).FullName, type.FullName);
                 throw new BsonSerializationException(message);
             }
         }
@@ -158,7 +158,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 for (int i = 0; i < length1; i++) {
                     var innerList = outerList[i];
                     if (innerList.Count != length2) {
-                        var message = string.Format("Inner list {0} is of wrong length: {1} (should be: {2})", i, innerList.Count, length2);
+                        var message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", i, innerList.Count, length2);
                         throw new FileFormatException(message);
                     }
                     for (int j = 0; j < length2; j++) {
@@ -208,7 +208,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             Type type
         ) {
             if (type != typeof(T[,])) {
-                var message = string.Format("TwoDimensionalArraySerializer<{0}> cannot be used with type: {1}", typeof(T).FullName, type.FullName);
+                var message = string.Format("TwoDimensionalArraySerializer<{0}> cannot be used with type {1}.", typeof(T).FullName, type.FullName);
                 throw new BsonSerializationException(message);
             }
         }
@@ -274,13 +274,13 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 for (int i = 0; i < length1; i++) {
                     var middleList = outerList[i];
                     if (middleList.Count != length2) {
-                        var message = string.Format("Middle list {0} is of wrong length: {1} (should be: {2})", i, middleList.Count, length2);
+                        var message = string.Format("Middle list {0} is of length {1} but should be of length {2}.", i, middleList.Count, length2);
                         throw new FileFormatException(message);
                     }
                     for (int j = 0; j < length2; j++) {
                         var innerList = middleList[j];
                         if (innerList.Count != length3) {
-                            var message = string.Format("Inner list {0} is of wrong length: {1} (should be: {2})", j, innerList.Count, length3);
+                            var message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", j, innerList.Count, length3);
                             throw new FileFormatException(message);
                         }
                         for (int k = 0; k < length3; k++) {
@@ -336,7 +336,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             Type type
         ) {
             if (type != typeof(T[,,])) {
-                var message = string.Format("ThreeDimensionalArraySerializer<{0}> cannot be used with type: {1}", typeof(T).FullName, type.FullName);
+                var message = string.Format("ThreeDimensionalArraySerializer<{0}> cannot be used with type {1}.", typeof(T).FullName, type.FullName);
                 throw new BsonSerializationException(message);
             }
         }

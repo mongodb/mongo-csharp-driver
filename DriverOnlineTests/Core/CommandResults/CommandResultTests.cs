@@ -43,7 +43,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
             try {
                 var dummy = result.Ok;
             } catch (MongoCommandException ex) {
-                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: response has no ok element (response: "));
+                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed. Response has no ok element (response was "));
             }
         }
 

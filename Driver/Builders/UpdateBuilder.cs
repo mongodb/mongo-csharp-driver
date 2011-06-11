@@ -396,11 +396,11 @@ namespace MongoDB.Driver.Builders {
         /// <param name="oldElementName">The name of the element to be renamed.</param>
         /// <param name="newElementName">The new name of the element.</param>
         /// <returns>An UpdateDocuemnt.</returns>
-        public static IMongoUpdate Rename(
+        public static UpdateBuilder Rename(
             string oldElementName,
             string newElementName
         ) {
-            return new UpdateDocument("$rename", new BsonDocument(oldElementName, newElementName));
+            return new UpdateBuilder().Rename(oldElementName, newElementName);
         }
 
         /// <summary>
@@ -941,6 +941,25 @@ namespace MongoDB.Driver.Builders {
             return this;
         }
 
+        /// <summary>
+        /// Adds a $rename update modifider.
+        /// </summary>
+        /// <param name="oldElementName">The old element name.</param>
+        /// <param name="newElementName">The new element name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Rename(
+            string oldElementName,
+            string newElementName
+        ) {
+            BsonElement element;
+            if (document.TryGetElement("$rename", out element)) {
+                element.Value.AsBsonDocument.Add(oldElementName, newElementName);
+            } else {
+                document.Add("$rename", new BsonDocument(oldElementName, newElementName));
+            }
+            return this;
+        }
+        
         /// <summary>
         /// Adds a $set update modifier.
         /// </summary>

@@ -86,7 +86,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonReader.ReadEndArray();
                 return dictionary;
             } else {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}", nominalType.FullName, bsonType);
+                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
             }
         }
@@ -113,19 +113,17 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     (typeof(TKey) == typeof(object) && dictionary.Keys.All(o => o.GetType() == typeof(string)))
                 ) {
                     bsonWriter.WriteStartDocument();
-                    int index = 0;
                     foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
                         bsonWriter.WriteName((string) (object) entry.Key);
                         BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
-                        index++;
                     }
                     bsonWriter.WriteEndDocument();
                 } else {
                     bsonWriter.WriteStartArray();
                     foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
                         bsonWriter.WriteStartArray();
-                        BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
-                        BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
+                        BsonSerializer.Serialize(bsonWriter, typeof(TKey), entry.Key);
+                        BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
                         bsonWriter.WriteEndArray();
                     }
                     bsonWriter.WriteEndArray();
@@ -147,7 +145,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
             } else if (nominalType == typeof(SortedList<TKey, TValue>)) {
                 return new SortedList<TKey, TValue>();
             } else {
-                var message = string.Format("Invalid nominalType for DictionarySerializer<{0}, {1}>: {2}", typeof(TKey).FullName, typeof(TValue).FullName, nominalType.FullName);
+                var message = string.Format("Invalid nominalType {0} for DictionarySerializer<{1}, {2}>.", nominalType.FullName, typeof(TKey).FullName, typeof(TValue).FullName);
                 throw new BsonSerializationException(message);
             }
         }

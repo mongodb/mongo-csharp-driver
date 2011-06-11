@@ -25,12 +25,13 @@ namespace MongoDB.Bson.IO {
     [Serializable]
     public class JsonWriterSettings {
         #region private static fields
-        private static JsonWriterSettings defaults = new JsonWriterSettings();
+        private static JsonWriterSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
 
         #region private fields
         private bool closeOutput = false;
         private Encoding encoding = Encoding.UTF8;
+        private GuidByteOrder guidByteOrder = BsonDefaults.GuidByteOrder;
         private bool indent = false;
         private string indentChars = "  ";
         private string newLineChars = "\r\n";
@@ -76,7 +77,12 @@ namespace MongoDB.Bson.IO {
         /// Gets or sets the default JsonWriterSettings.
         /// </summary>
         public static JsonWriterSettings Defaults {
-            get { return defaults; }
+            get {
+                if (defaults == null) {
+                    defaults = new JsonWriterSettings();
+                }
+                return defaults;
+            }
             set { defaults = value; }
         }
         #endregion
@@ -88,7 +94,7 @@ namespace MongoDB.Bson.IO {
         public bool CloseOutput {
             get { return closeOutput; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 closeOutput = value;
             }
         }
@@ -99,8 +105,19 @@ namespace MongoDB.Bson.IO {
         public Encoding Encoding {
             get { return encoding; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 encoding = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the byte order for Guids.
+        /// </summary>
+        public GuidByteOrder GuidByteOrder {
+            get { return guidByteOrder; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                guidByteOrder = value;
             }
         }
 
@@ -110,7 +127,7 @@ namespace MongoDB.Bson.IO {
         public bool Indent {
             get { return indent; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 indent = value;
             }
         }
@@ -121,7 +138,7 @@ namespace MongoDB.Bson.IO {
         public string IndentChars {
             get { return indentChars; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 indentChars = value;
             }
         }
@@ -139,7 +156,7 @@ namespace MongoDB.Bson.IO {
         public string NewLineChars {
             get { return newLineChars; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 newLineChars = value;
             }
         }
@@ -150,7 +167,7 @@ namespace MongoDB.Bson.IO {
         public JsonOutputMode OutputMode {
             get { return outputMode; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen"); }
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 outputMode = value;
             }
         }

@@ -25,7 +25,6 @@ using MongoDB.Bson.IO;
 namespace MongoDB.Driver.Internal {
     internal abstract class MongoMessage {
         #region protected fields
-        protected MongoConnection connection;
         protected int messageLength;
         protected int requestId;
         protected int responseTo;
@@ -34,10 +33,8 @@ namespace MongoDB.Driver.Internal {
 
         #region constructors
         protected MongoMessage(
-            MongoConnection connection,
             MessageOpcode opcode
         ) {
-            this.connection = connection;
             this.opcode = opcode;
         }
         #endregion
@@ -54,10 +51,6 @@ namespace MongoDB.Driver.Internal {
         internal int ResponseTo {
             get { return responseTo; }
         }
-
-        internal MessageOpcode Opcode {
-            get { return opcode; }
-        }
         #endregion
 
         #region protected methods
@@ -68,7 +61,7 @@ namespace MongoDB.Driver.Internal {
             requestId = buffer.ReadInt32();
             responseTo = buffer.ReadInt32();
             if ((MessageOpcode) buffer.ReadInt32() != opcode) {
-                throw new FileFormatException("Message header opcode is not the expected one");
+                throw new FileFormatException("Message header opcode is not the expected one.");
             }
         }
 

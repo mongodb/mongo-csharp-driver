@@ -56,18 +56,6 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonSerializationException class.
-        /// </summary>
-        /// <param name="format">The error message format string.</param>
-        /// <param name="args">One or more args for the error message.</param>
-        public BsonSerializationException(
-            string format,
-            params object[] args
-        )
-            : base(string.Format(format, args)) {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the BsonSerializationException class (this overload used by deserialization).
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>

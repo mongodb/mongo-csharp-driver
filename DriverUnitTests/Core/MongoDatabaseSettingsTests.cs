@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MongoDB.DriverUnitTests {
@@ -29,12 +30,14 @@ namespace MongoDB.DriverUnitTests {
             var settings = new MongoDatabaseSettings(
                 "database",
                 MongoCredentials.Create("username", "password"),
+                GuidByteOrder.LittleEndian,
                 SafeMode.Create(5, TimeSpan.FromSeconds(5)),
                 true
             );
 
             Assert.AreEqual("database", settings.DatabaseName);
             Assert.AreEqual(MongoCredentials.Create("username", "password"), settings.Credentials);
+            Assert.AreEqual(GuidByteOrder.LittleEndian, settings.GuidByteOrder);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(5)), settings.SafeMode);
             Assert.AreEqual(true, settings.SlaveOk);
 
