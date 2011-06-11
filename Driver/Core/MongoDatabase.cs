@@ -281,6 +281,18 @@ namespace MongoDB.Driver {
 
         /// <summary>
         /// Creates a collection. MongoDB creates collections automatically when they are first used, so
+        /// this command is mainly here for frameworks.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <returns>A CommandResult.</returns>
+        public virtual CommandResult CreateCollection(
+            string collectionName
+        ) {
+            return CreateCollection(collectionName, null);
+        }
+
+        /// <summary>
+        /// Creates a collection. MongoDB creates collections automatically when they are first used, so
         /// you only need to call this method if you want to provide non-default options.
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
