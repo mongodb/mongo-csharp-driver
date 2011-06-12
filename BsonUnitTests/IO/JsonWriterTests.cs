@@ -314,6 +314,21 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
+        public void TestGuidToDocument()
+        {
+            var x = new Test {Id = new Guid("B5F21E0C2A0D42d6AD03D827008D8AB6")};
+            var document = x.ToBsonDocument();
+            string expected = "{ \"_id\" : new BinData(3, \"DB7ytQ0q1kKtA9gnAI2Ktg==\") }";
+            string actual = document.ToJson();
+            Assert.AreEqual(expected, actual);
+        }
+
+        public class Test
+        {
+            public Guid Id { get; set; }
+        }
+
+        [Test]
         public void TestMaxKey() {
             var document = new BsonDocument {
                 { "maxkey", BsonMaxKey.Value }

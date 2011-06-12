@@ -1175,7 +1175,7 @@ namespace MongoDB.Bson {
                 case BsonType.Binary:
                     var binaryData = (BsonBinaryData) this;
                     var bytes = binaryData.Bytes;
-                    if (binaryData.SubType == BsonBinarySubType.Uuid && binaryData.GuidByteOrder != bsonWriter.GuidByteOrder) {
+                    if (binaryData.SubType == BsonBinarySubType.Uuid && binaryData.GuidByteOrder != bsonWriter.GuidByteOrder && binaryData.GuidByteOrder != GuidByteOrder.Unspecified) {
                         var guid = GuidConverter.FromBytes(bytes, binaryData.GuidByteOrder);
                         bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidByteOrder);
                     }
