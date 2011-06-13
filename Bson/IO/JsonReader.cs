@@ -53,10 +53,10 @@ namespace MongoDB.Bson.IO {
 
         #region public properties
         /// <summary>
-        /// Gets the byte order for Guids.
+        /// Gets the representation for Guids.
         /// </summary>
-        public override GuidByteOrder GuidByteOrder {
-            get { return settings.GuidByteOrder; }
+        public override GuidRepresentation GuidRepresentation {
+            get { return settings.GuidRepresentation; }
         }
         #endregion
 
@@ -702,11 +702,7 @@ namespace MongoDB.Bson.IO {
             VerifyToken(")");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType) subTypeToken.Int32Value;
-            if (subType == BsonBinarySubType.Uuid) {
-                return new BsonBinaryData(bytes, subType, settings.GuidByteOrder);
-            } else {
-                return new BsonBinaryData(bytes, subType);
-            }
+            return new BsonBinaryData(bytes, subType); // don't worry about subType Uuid or UuidLegacy here (that's handled at a higher level)
         }
 
         private BsonValue ParseBinaryStrict() {
@@ -727,11 +723,7 @@ namespace MongoDB.Bson.IO {
             VerifyToken("}");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType) Convert.ToInt32(subTypeToken.StringValue, 16);
-            if (subType == BsonBinarySubType.Uuid) {
-                return new BsonBinaryData(bytes, subType, settings.GuidByteOrder);
-            } else {
-                return new BsonBinaryData(bytes, subType);
-            }
+            return new BsonBinaryData(bytes, subType); // don't worry about subType Uuid or UuidLegacy here (that's handled at a higher level)
         }
 
         private BsonType ParseJavaScript(

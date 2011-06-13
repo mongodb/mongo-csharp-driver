@@ -74,11 +74,11 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets or sets the byte order to use for Guids (this is an alias for BsonDefaults.GuidByteOrder).
+        /// Gets or sets the representation to use for Guids (this is an alias for BsonDefaults.GuidRepresentation).
         /// </summary>
-        public static GuidByteOrder GuidByteOrder {
-            get { return BsonDefaults.GuidByteOrder; }
-            set { BsonDefaults.GuidByteOrder = value; }
+        public static GuidRepresentation GuidRepresentation {
+            get { return BsonDefaults.GuidRepresentation; }
+            set { BsonDefaults.GuidRepresentation = value; }
         }
 
         /// <summary>

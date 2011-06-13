@@ -49,10 +49,10 @@ namespace MongoDB.Bson.IO {
 
         #region public properties
         /// <summary>
-        /// Gets the byte order for Guids.
+        /// Gets the representation for Guids.
         /// </summary>
-        public override GuidByteOrder GuidByteOrder {
-            get { return settings.GuidByteOrder; }
+        public override GuidRepresentation GuidRepresentation {
+            get { return settings.GuidRepresentation; }
         }
 
         /// <summary>

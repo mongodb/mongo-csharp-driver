@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO {
         #endregion
 
         #region private fields
-        private GuidByteOrder guidByteOrder = BsonDefaults.GuidByteOrder;
+        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
         private bool isFrozen;
         #endregion
 
@@ -42,11 +42,11 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Initializes a new instance of the BsonDocumentReaderSettings class.
         /// </summary>
-        /// <param name="guidByteOrder">The byte order for Guids.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
         public BsonDocumentReaderSettings(
-            GuidByteOrder guidByteOrder
+            GuidRepresentation guidRepresentation
         ) {
-            this.guidByteOrder = guidByteOrder;
+            this.guidRepresentation = guidRepresentation;
         }
         #endregion
 
@@ -67,13 +67,13 @@ namespace MongoDB.Bson.IO {
 
         #region public properties
         /// <summary>
-        /// Gets or sets the byte order for Guids.
+        /// Gets or sets the representation for Guids.
         /// </summary>
-        public GuidByteOrder GuidByteOrder {
-            get { return guidByteOrder; }
+        public GuidRepresentation GuidRepresentation {
+            get { return guidRepresentation; }
             set {
                 if (isFrozen) { throw new InvalidOperationException("BsonDocumentReaderSettings is frozen."); }
-                guidByteOrder = value;
+                guidRepresentation = value;
             }
         }
 
@@ -92,7 +92,7 @@ namespace MongoDB.Bson.IO {
         /// <returns>A clone of the settings.</returns>
         public BsonDocumentReaderSettings Clone() {
             return new BsonDocumentReaderSettings(
-                guidByteOrder
+                guidRepresentation
             );
         }
 

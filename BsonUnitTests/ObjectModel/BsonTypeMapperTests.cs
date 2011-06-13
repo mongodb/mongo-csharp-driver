@@ -310,10 +310,10 @@ namespace MongoDB.BsonUnitTests {
             var value = Guid.NewGuid();
             var bsonValue = (BsonBinaryData) BsonTypeMapper.MapToBsonValue(value);
             Assert.IsTrue(value.ToByteArray().SequenceEqual(bsonValue.Bytes));
-            Assert.AreEqual(BsonBinarySubType.Uuid, bsonValue.SubType);
+            Assert.AreEqual(BsonBinarySubType.UuidLegacy, bsonValue.SubType);
             var bsonBinary = (BsonBinaryData) BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);
             Assert.IsTrue(value.ToByteArray().SequenceEqual(bsonBinary.Bytes));
-            Assert.AreEqual(BsonBinarySubType.Uuid, bsonBinary.SubType);
+            Assert.AreEqual(BsonBinarySubType.UuidLegacy, bsonBinary.SubType);
         }
 
         [Test]

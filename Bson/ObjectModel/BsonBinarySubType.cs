@@ -37,9 +37,13 @@ namespace MongoDB.Bson {
         /// </summary>
         [Obsolete("Use Binary instead")] OldBinary = 0x02,
         /// <summary>
-        /// A UUID.
+        /// A UUID in a driver dependent legacy byte order.
         /// </summary>
-        Uuid = 0x03,
+        UuidLegacy = 0x03,
+        /// <summary>
+        /// A UUID in standard network byte order.
+        /// </summary>
+        Uuid = 0x04,
         /// <summary>
         /// An MD5 hash.
         /// </summary>

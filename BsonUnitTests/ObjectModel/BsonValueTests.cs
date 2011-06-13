@@ -467,7 +467,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsInstanceOf<BsonBinaryData>(v);
             var b = (BsonBinaryData) v;
             Assert.IsTrue(guid.ToByteArray().SequenceEqual(b.AsByteArray));
-            Assert.AreEqual(BsonBinarySubType.Uuid, b.SubType);
+            Assert.AreEqual(BsonBinarySubType.UuidLegacy, b.SubType);
         }
 
         [Test]
@@ -550,7 +550,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsInstanceOf<BsonNull>(n);
             var b = (BsonBinaryData) v;
             Assert.IsTrue(guid.ToByteArray().SequenceEqual(b.AsByteArray));
-            Assert.AreEqual(BsonBinarySubType.Uuid, b.SubType);
+            Assert.AreEqual(BsonBinarySubType.UuidLegacy, b.SubType);
         }
 
         [Test]

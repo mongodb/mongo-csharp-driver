@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Internal {
             var commandName = command.GetElement(0).Name;
 
             var writerSettings = new BsonBinaryWriterSettings {
-                GuidByteOrder = GuidByteOrder.Unspecified,
+                GuidRepresentation = GuidRepresentation.Unspecified,
                 MaxDocumentSize = serverInstance.MaxDocumentSize
             };
             using (
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Internal {
             }
 
             var readerSettings = new BsonBinaryReaderSettings {
-                    GuidByteOrder = GuidByteOrder.Unspecified,
+                    GuidRepresentation = GuidRepresentation.Unspecified,
                     MaxDocumentSize = serverInstance.MaxDocumentSize
             };
             var reply = ReceiveMessage<BsonDocument>(readerSettings, null);
@@ -380,7 +380,7 @@ namespace MongoDB.Driver.Internal {
                 SafeModeResult safeModeResult = null;
                 if (safeMode.Enabled) {
                     var readerSettings = new BsonBinaryReaderSettings {
-                        GuidByteOrder = message.WriterSettings.GuidByteOrder,
+                        GuidRepresentation = message.WriterSettings.GuidRepresentation,
                         MaxDocumentSize = serverInstance.MaxDocumentSize
                     };
                     var replyMessage = ReceiveMessage<BsonDocument>(readerSettings, null);

@@ -36,7 +36,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsNull(url.DatabaseName);
             Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, url.ConnectTimeout);
-            Assert.AreEqual(MongoDefaults.GuidByteOrder, url.GuidByteOrder);
+            Assert.AreEqual(MongoDefaults.GuidRepresentation, url.GuidRepresentation);
             Assert.AreEqual(false, url.IPv6);
             Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, url.MaxConnectionIdleTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, url.MaxConnectionLifeTime);
@@ -211,26 +211,26 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestGuidByteOrderLittleEndian() {
-            string connectionString = "mongodb://localhost/?guids=LittleEndian";
+        public void TestGuidRepresentationCSharpLegacy() {
+            string connectionString = "mongodb://localhost/?guids=CSharpLegacy";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual(GuidByteOrder.LittleEndian, url.GuidByteOrder);
-            Assert.AreEqual("mongodb://localhost", url.ToString()); // guids=LittleEndian dropped
+            Assert.AreEqual(GuidRepresentation.CSharpLegacy, url.GuidRepresentation);
+            Assert.AreEqual("mongodb://localhost", url.ToString()); // guids=CSharpLegacy dropped
         }
 
         [Test]
-        public void TestGuidByteOrderBigEndian() {
-            string connectionString = "mongodb://localhost/?guids=BigEndian";
+        public void TestGuidRepresentationPythonLegacy() {
+            string connectionString = "mongodb://localhost/?guids=PythonLegacy";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual(GuidByteOrder.BigEndian, url.GuidByteOrder);
+            Assert.AreEqual(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
         [Test]
-        public void TestGuidByteOrderJavaHistorical() {
-            string connectionString = "mongodb://localhost/?guids=JavaHistorical";
+        public void TestGuidRepresentationJavaLegacy() {
+            string connectionString = "mongodb://localhost/?guids=JavaLegacy";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual(GuidByteOrder.JavaHistorical, url.GuidByteOrder);
+            Assert.AreEqual(GuidRepresentation.JavaLegacy, url.GuidRepresentation);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -399,7 +399,7 @@ namespace MongoDB.DriverUnitTests {
 
         [Test]
         public void TestAll() {
-            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s;guids=BigEndian";
+            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s;guids=PythonLegacy";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());
@@ -408,7 +408,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(null, url.DatabaseName);
             Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
             Assert.AreEqual("name", url.ReplicaSetName);
-            Assert.AreEqual(GuidByteOrder.BigEndian, url.GuidByteOrder);
+            Assert.AreEqual(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
             Assert.AreEqual(SafeMode.Create(true, true, 2, TimeSpan.FromSeconds(2)), url.SafeMode);
             Assert.AreEqual(true, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());

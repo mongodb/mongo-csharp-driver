@@ -31,29 +31,26 @@ namespace MongoDB.Bson {
         /// Converts a byte array to a Guid.
         /// </summary>
         /// <param name="bytes">The byte array.</param>
-        /// <param name="byteOrder">The byte order of the Guid in the byte array.</param>
+        /// <param name="representation">The representation of the Guid in the byte array.</param>
         /// <returns>A Guid.</returns>
         public static Guid FromBytes(
             byte[] bytes,
-            GuidByteOrder byteOrder
+            GuidRepresentation representation
         ) {
+            if (bytes.Length != 16) {
+                var message = string.Format("Length of byte array must be 16, not {0}.", bytes.Length);
+                throw new ArgumentException(message);
+            }
             bytes = (byte[]) bytes.Clone();
-            switch (byteOrder) {
-                case GuidByteOrder.BigEndian:
-                    if (BitConverter.IsLittleEndian) {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
-                    break;
-                case GuidByteOrder.LittleEndian:
+            switch (representation) {
+                case GuidRepresentation.CSharpLegacy:
                     if (!BitConverter.IsLittleEndian) {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
                         Array.Reverse(bytes, 6, 2);
                     }
                     break;
-                case GuidByteOrder.JavaHistorical:
+                case GuidRepresentation.JavaLegacy:
                     Array.Reverse(bytes, 0, 8);
                     Array.Reverse(bytes, 8, 8);
                     if (BitConverter.IsLittleEndian) {
@@ -62,10 +59,18 @@ namespace MongoDB.Bson {
                         Array.Reverse(bytes, 6, 2);
                     }
                     break;
-                case GuidByteOrder.Unspecified:
-                    throw new InvalidOperationException("Unable to convert byte array to Guid because GuidByteOrder is Unspecified.");
+                case GuidRepresentation.PythonLegacy:
+                case GuidRepresentation.Standard:
+                    if (BitConverter.IsLittleEndian) {
+                        Array.Reverse(bytes, 0, 4);
+                        Array.Reverse(bytes, 4, 2);
+                        Array.Reverse(bytes, 6, 2);
+                    }
+                    break;
+                case GuidRepresentation.Unspecified:
+                    throw new InvalidOperationException("Unable to convert byte array to Guid because GuidRepresentation is Unspecified.");
                 default:
-                    throw new BsonInternalException("Unexpected GuidByteOrder.");
+                    throw new BsonInternalException("Unexpected GuidRepresentation.");
             }
             return new Guid(bytes);
         }
@@ -74,29 +79,22 @@ namespace MongoDB.Bson {
         /// Converts a Guid to a byte array.
         /// </summary>
         /// <param name="guid">The Guid.</param>
-        /// <param name="byteOrder">The byte order of the Guid in the byte array.</param>
+        /// <param name="representation">The representation of the Guid in the byte array.</param>
         /// <returns>A byte array.</returns>
         public static byte[] ToBytes(
             Guid guid,
-            GuidByteOrder byteOrder
+            GuidRepresentation representation
         ) {
             var bytes = (byte[]) guid.ToByteArray().Clone();
-            switch (byteOrder) {
-                case GuidByteOrder.BigEndian:
-                     if (BitConverter.IsLittleEndian) {
-                        Array.Reverse(bytes, 0, 4);
-                        Array.Reverse(bytes, 4, 2);
-                        Array.Reverse(bytes, 6, 2);
-                    }
-                   break;
-                case GuidByteOrder.LittleEndian:
+            switch (representation) {
+                 case GuidRepresentation.CSharpLegacy:
                     if (!BitConverter.IsLittleEndian) {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
                         Array.Reverse(bytes, 6, 2);
                     }
                     break;
-                case GuidByteOrder.JavaHistorical:
+                case GuidRepresentation.JavaLegacy:
                     if (BitConverter.IsLittleEndian) {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
@@ -105,10 +103,18 @@ namespace MongoDB.Bson {
                     Array.Reverse(bytes, 0, 8);
                     Array.Reverse(bytes, 8, 8);
                     break;
-                case GuidByteOrder.Unspecified:
-                    throw new InvalidOperationException("Unable to convert Guid to byte array because GuidByteOrder is Unspecified.");
+               case GuidRepresentation.PythonLegacy:
+               case GuidRepresentation.Standard:
+                    if (BitConverter.IsLittleEndian) {
+                        Array.Reverse(bytes, 0, 4);
+                        Array.Reverse(bytes, 4, 2);
+                        Array.Reverse(bytes, 6, 2);
+                    }
+                   break;
+                case GuidRepresentation.Unspecified:
+                    throw new InvalidOperationException("Unable to convert Guid to byte array because GuidRepresentation is Unspecified.");
                 default:
-                    throw new BsonInternalException("Unexpected GuidByteOrder.");
+                    throw new BsonInternalException("Unexpected GuidRepresentation.");
             }
             return bytes;
         }

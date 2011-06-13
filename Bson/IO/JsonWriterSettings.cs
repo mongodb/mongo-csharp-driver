@@ -31,7 +31,7 @@ namespace MongoDB.Bson.IO {
         #region private fields
         private bool closeOutput = false;
         private Encoding encoding = Encoding.UTF8;
-        private GuidByteOrder guidByteOrder = BsonDefaults.GuidByteOrder;
+        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
         private bool indent = false;
         private string indentChars = "  ";
         private string newLineChars = "\r\n";
@@ -111,13 +111,13 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
-        /// Gets or sets the byte order for Guids.
+        /// Gets or sets the representation for Guids.
         /// </summary>
-        public GuidByteOrder GuidByteOrder {
-            get { return guidByteOrder; }
+        public GuidRepresentation GuidRepresentation {
+            get { return guidRepresentation; }
             set {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                guidByteOrder = value;
+                guidRepresentation = value;
             }
         }
 

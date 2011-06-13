@@ -36,7 +36,7 @@ namespace MongoDB.Driver {
         private TimeSpan connectTimeout;
         private string databaseName;
         private MongoCredentials defaultCredentials;
-        private GuidByteOrder guidByteOrder;
+        private GuidRepresentation guidRepresentation;
         private bool ipv6;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
@@ -118,11 +118,11 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets or sets the byte order to use for Guids.
+        /// Gets or sets the representation to use for Guids.
         /// </summary>
-        public GuidByteOrder GuidByteOrder {
-            get { return guidByteOrder; }
-            set { guidByteOrder = value; }
+        public GuidRepresentation GuidRepresentation {
+            get { return guidRepresentation; }
+            set { guidRepresentation = value; }
         }
 
         /// <summary>
@@ -453,7 +453,7 @@ namespace MongoDB.Driver {
                                 fsync = ParseBoolean(name, value);
                                 break;
                             case "guids":
-                                guidByteOrder = (GuidByteOrder) Enum.Parse(typeof(GuidByteOrder), value, true); // ignoreCase
+                                guidRepresentation = (GuidRepresentation) Enum.Parse(typeof(GuidRepresentation), value, true); // ignoreCase
                                 break;
                             case "ipv6":
                                 ipv6 = ParseBoolean(name, value);
@@ -539,7 +539,7 @@ namespace MongoDB.Driver {
                 connectionMode,
                 connectTimeout,
                 defaultCredentials,
-                guidByteOrder,
+                guidRepresentation,
                 ipv6,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -636,8 +636,8 @@ namespace MongoDB.Driver {
             if (waitQueueTimeout != MongoDefaults.WaitQueueTimeout) {
                 query.AppendFormat("waitQueueTimeout={0};", FormatTimeSpan(WaitQueueTimeout));
             }
-            if (guidByteOrder != MongoDefaults.GuidByteOrder) {
-                query.AppendFormat("guids={0};", guidByteOrder);
+            if (guidRepresentation != MongoDefaults.GuidRepresentation) {
+                query.AppendFormat("guids={0};", guidRepresentation);
             }
             if (query.Length != 0) {
                 query.Length = query.Length - 1; // remove trailing ";"
@@ -657,7 +657,7 @@ namespace MongoDB.Driver {
             connectTimeout = MongoDefaults.ConnectTimeout;
             databaseName = null;
             defaultCredentials = null;
-            guidByteOrder = MongoDefaults.GuidByteOrder;
+            guidRepresentation = MongoDefaults.GuidRepresentation;
             ipv6 = false;
             maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;

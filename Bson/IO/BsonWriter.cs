@@ -145,9 +145,9 @@ namespace MongoDB.Bson.IO {
 
         #region public properties
         /// <summary>
-        /// Gets the byte order for Guids.
+        /// Gets the representation for Guids.
         /// </summary>
-        public abstract GuidByteOrder GuidByteOrder { get; }
+        public abstract GuidRepresentation GuidRepresentation { get; }
 
         /// <summary>
         /// Gets the current state of the writer.

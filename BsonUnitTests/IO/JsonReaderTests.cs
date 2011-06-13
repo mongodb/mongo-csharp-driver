@@ -310,7 +310,7 @@ namespace MongoDB.BsonUnitTests.IO {
                 BsonBinarySubType subType;
                 bsonReader.ReadBinaryData(out bytes, out subType);
                 Assert.IsTrue(bytes.SequenceEqual(guid.ToByteArray()));
-                Assert.AreEqual(BsonBinarySubType.Uuid, subType);
+                Assert.AreEqual(BsonBinarySubType.UuidLegacy, subType);
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             var expected = "new " + json; // ToJson output will have "new" prepended

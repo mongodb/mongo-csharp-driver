@@ -405,7 +405,14 @@ namespace MongoDB.Bson {
         /// Tests whether this BsonValue is a Guid.
         /// </summary>
         public bool IsGuid {
-            get { return bsonType == BsonType.Binary && ((BsonBinaryData) this).SubType == BsonBinarySubType.Uuid; }
+            get {
+                if (bsonType == BsonType.Binary) {
+                    var subType = ((BsonBinaryData) this).SubType;
+                    return subType == BsonBinarySubType.Uuid || subType == BsonBinarySubType.UuidLegacy;
+                } else {
+                    return false;
+                }
+            }
         }
 
         /// <summary>
@@ -978,7 +985,9 @@ namespace MongoDB.Bson {
                     BsonBinarySubType subType;
                     bsonReader.ReadBinaryData(out bytes, out subType);
                     if (subType == BsonBinarySubType.Uuid) {
-                        return new BsonBinaryData(bytes, subType, bsonReader.GuidByteOrder);
+                        return new BsonBinaryData(bytes, subType, GuidRepresentation.Standard);
+                    } else if (subType == BsonBinarySubType.UuidLegacy) {
+                        return new BsonBinaryData(bytes, subType, bsonReader.GuidRepresentation);
                     } else {
                         return new BsonBinaryData(bytes, subType);
                     }
@@ -1175,11 +1184,19 @@ namespace MongoDB.Bson {
                 case BsonType.Binary:
                     var binaryData = (BsonBinaryData) this;
                     var bytes = binaryData.Bytes;
-                    if (binaryData.SubType == BsonBinarySubType.Uuid && binaryData.GuidByteOrder != bsonWriter.GuidByteOrder) {
-                        var guid = GuidConverter.FromBytes(bytes, binaryData.GuidByteOrder);
-                        bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidByteOrder);
+                    var subType = binaryData.SubType;
+                    if (subType == BsonBinarySubType.UuidLegacy && bsonWriter.GuidRepresentation != GuidRepresentation.Unspecified) {
+                        if (binaryData.GuidRepresentation != bsonWriter.GuidRepresentation) {
+                            if (binaryData.GuidRepresentation == GuidRepresentation.Unspecified) {
+                                var message = string.Format("Cannot write binary data of sub type UuidLegacy and GuidRepresentation Unspecified to a collection with GuidRepresentation {0}.", bsonWriter.GuidRepresentation);
+                                throw new BsonSerializationException(message);
+                            }
+                            var guid = GuidConverter.FromBytes(bytes, binaryData.GuidRepresentation);
+                            bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidRepresentation);
+                            subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy;
+                        }
                     }
-                    bsonWriter.WriteBinaryData(bytes, binaryData.SubType);
+                    bsonWriter.WriteBinaryData(bytes, subType);
                     break;
                 case BsonType.Boolean:
                     bsonWriter.WriteBoolean(((BsonBoolean) this).Value);

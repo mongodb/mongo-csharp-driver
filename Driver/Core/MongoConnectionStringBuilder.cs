@@ -66,7 +66,7 @@ namespace MongoDB.Driver {
         private ConnectionMode connectionMode;
         private TimeSpan connectTimeout;
         private string databaseName;
-        private GuidByteOrder guidByteOrder;
+        private GuidRepresentation guidRepresentation;
         private bool ipv6;
         private TimeSpan maxConnectionIdleTime;
         private TimeSpan maxConnectionLifeTime;
@@ -151,12 +151,12 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets or sets the byte order for Guids.
+        /// Gets or sets the representation for Guids.
         /// </summary>
-        public GuidByteOrder GuidByteOrder {
-            get { return guidByteOrder; }
+        public GuidRepresentation GuidRepresentation {
+            get { return guidRepresentation; }
             set {
-                base["guids"] = guidByteOrder = value;
+                base["guids"] = guidRepresentation = value;
             }
         }
 
@@ -392,7 +392,7 @@ namespace MongoDB.Driver {
                         SafeMode = SafeMode.Create(true, fsync, w, wtimeout);
                         break;
                     case "guids":
-                        GuidByteOrder = (GuidByteOrder) Enum.Parse(typeof(GuidByteOrder), (string) value, true); // ignoreCase
+                        GuidRepresentation = (GuidRepresentation) Enum.Parse(typeof(GuidRepresentation), (string) value, true); // ignoreCase
                         break;
                     case "ipv6":
                         IPv6 = Convert.ToBoolean(value);
@@ -503,7 +503,7 @@ namespace MongoDB.Driver {
                 connectionMode,
                 connectTimeout,
                 MongoCredentials.Create(username, password), // defaultCredentials
-                guidByteOrder,
+                guidRepresentation,
                 ipv6,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -549,7 +549,7 @@ namespace MongoDB.Driver {
         	connectionMode = ConnectionMode.Direct;
         	connectTimeout = MongoDefaults.ConnectTimeout;
         	databaseName = null;
-            guidByteOrder = MongoDefaults.GuidByteOrder;
+            guidRepresentation = MongoDefaults.GuidRepresentation;
             ipv6 = false;
         	maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
         	maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;

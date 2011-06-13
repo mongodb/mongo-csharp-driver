@@ -35,7 +35,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
             Assert.AreEqual(null, builder.DatabaseName);
             Assert.AreEqual(null, builder.DefaultCredentials);
-            Assert.AreEqual(MongoDefaults.GuidByteOrder, builder.GuidByteOrder);
+            Assert.AreEqual(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
             Assert.AreEqual(false, builder.IPv6);
             Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
@@ -281,28 +281,28 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestGuidByteOrderLittleEndian() {
-            var connectionString = "mongodb://localhost/?guids=LittleEndian";
-            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidByteOrder = GuidByteOrder.LittleEndian };
-            Assert.AreEqual(GuidByteOrder.LittleEndian, builder.GuidByteOrder);
+        public void TestGuidRepresentationCSharpLegacy() {
+            var connectionString = "mongodb://localhost/?guids=CSharpLegacy";
+            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidRepresentation = GuidRepresentation.CSharpLegacy };
+            Assert.AreEqual(GuidRepresentation.CSharpLegacy, builder.GuidRepresentation);
             Assert.AreEqual("mongodb://localhost", builder.ToString());
             Assert.AreEqual("mongodb://localhost", new MongoUrlBuilder(connectionString).ToString());
         }
 
         [Test]
-        public void TestGuidByteOrderBigEndian() {
-            var connectionString = "mongodb://localhost/?guids=BigEndian";
-            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidByteOrder = GuidByteOrder.BigEndian };
-            Assert.AreEqual(GuidByteOrder.BigEndian, builder.GuidByteOrder);
+        public void TestGuidRepresentationPythonLegacy() {
+            var connectionString = "mongodb://localhost/?guids=PythonLegacy";
+            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidRepresentation = GuidRepresentation.PythonLegacy };
+            Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }
 
         [Test]
-        public void TestGuidByteOrderJavaHistorical() {
-            var connectionString = "mongodb://localhost/?guids=JavaHistorical";
-            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidByteOrder = GuidByteOrder.JavaHistorical };
-            Assert.AreEqual(GuidByteOrder.JavaHistorical, builder.GuidByteOrder);
+        public void TestGuidRepresentationJavaLegacy() {
+            var connectionString = "mongodb://localhost/?guids=JavaLegacy";
+            var builder = new MongoUrlBuilder("mongodb://localhost") { GuidRepresentation = GuidRepresentation.JavaLegacy };
+            Assert.AreEqual(GuidRepresentation.JavaLegacy, builder.GuidRepresentation);
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }

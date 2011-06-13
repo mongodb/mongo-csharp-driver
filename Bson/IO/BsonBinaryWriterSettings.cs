@@ -31,7 +31,7 @@ namespace MongoDB.Bson.IO {
         #region private fields
         private bool closeOutput = false;
         private bool fixOldBinarySubTypeOnOutput = true;
-        private GuidByteOrder guidByteOrder = BsonDefaults.GuidByteOrder;
+        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
         private bool isFrozen;
         #endregion
@@ -48,17 +48,17 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="closeOutput">Whether to close the output stream when the writer is closed.</param>
         /// <param name="fixOldBinarySubTypeOnOutput">Whether to fix old binary data subtype on output.</param>
-        /// <param name="guidByteOrder">The byte order for Guids.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="maxDocumentSize">The max document size.</param>
         public BsonBinaryWriterSettings(
             bool closeOutput,
             bool fixOldBinarySubTypeOnOutput,
-            GuidByteOrder guidByteOrder,
+            GuidRepresentation guidRepresentation,
             int maxDocumentSize
         ) {
             this.closeOutput = closeOutput;
             this.fixOldBinarySubTypeOnOutput = fixOldBinarySubTypeOnOutput;
-            this.guidByteOrder = guidByteOrder;
+            this.guidRepresentation = guidRepresentation;
             this.maxDocumentSize = maxDocumentSize;
         }
         #endregion
@@ -102,13 +102,13 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
-        /// Gets or sets the byte order for Guids.
+        /// Gets or sets the representation for Guids.
         /// </summary>
-        public GuidByteOrder GuidByteOrder {
-            get { return guidByteOrder; }
+        public GuidRepresentation GuidRepresentation {
+            get { return guidRepresentation; }
             set {
                 if (isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
-                guidByteOrder = value;
+                guidRepresentation = value;
             }
         }
 
@@ -140,7 +140,7 @@ namespace MongoDB.Bson.IO {
             return new BsonBinaryWriterSettings(
                 closeOutput,
                 fixOldBinarySubTypeOnOutput,
-                guidByteOrder,
+                guidRepresentation,
                 maxDocumentSize
             );
         }

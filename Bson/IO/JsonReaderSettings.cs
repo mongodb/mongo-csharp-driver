@@ -29,7 +29,7 @@ namespace MongoDB.Bson.IO {
 
         #region private fields
         private bool closeInput = false;
-        private GuidByteOrder guidByteOrder = BsonDefaults.GuidByteOrder;
+        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
         private bool isFrozen;
         #endregion
 
@@ -44,13 +44,13 @@ namespace MongoDB.Bson.IO {
         /// Initializes a new instance of the JsonReaderSettings class.
         /// </summary>
         /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
-        /// <param name="guidByteOrder">The byte order for Guids.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
         public JsonReaderSettings(
             bool closeInput,
-            GuidByteOrder guidByteOrder
+            GuidRepresentation guidRepresentation
         ) {
             this.closeInput = closeInput;
-            this.guidByteOrder = guidByteOrder;
+            this.guidRepresentation = guidRepresentation;
         }
         #endregion
 
@@ -82,13 +82,13 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
-        /// Gets or sets the byte order for Guids.
+        /// Gets or sets the representation for Guids.
         /// </summary>
-        public GuidByteOrder GuidByteOrder {
-            get { return guidByteOrder; }
+        public GuidRepresentation GuidRepresentation {
+            get { return guidRepresentation; }
             set {
                 if (isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
-                guidByteOrder = value;
+                guidRepresentation = value;
             }
         }
 
@@ -108,7 +108,7 @@ namespace MongoDB.Bson.IO {
         public JsonReaderSettings Clone() {
             return new JsonReaderSettings(
                 closeInput,
-                guidByteOrder
+                guidRepresentation
             );
         }
 

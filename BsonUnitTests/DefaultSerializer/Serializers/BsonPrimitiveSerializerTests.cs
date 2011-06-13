@@ -728,7 +728,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestByteOrder() {
+        public void TestGuidRepresentation() {
             var s = "01020304-0506-0708-090a-0b0c0d0e0f10";
             var guid = new Guid(s);
             var obj = new TestClass {
@@ -736,18 +736,13 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 String = guid
             };
             var json = obj.ToJson();
-            var littleEndianBytes = new byte[] { 4, 3, 2, 1, 6, 5, 8, 7, 9, 10, 11, 12, 13, 14, 15, 16 };
-            var littleEndianBase64 = Convert.ToBase64String(littleEndianBytes).Replace("\\", "\\\\");
+            var csharpLegacyBytes = new byte[] { 4, 3, 2, 1, 6, 5, 8, 7, 9, 10, 11, 12, 13, 14, 15, 16 };
+            var csharpLegacyBase64 = Convert.ToBase64String(csharpLegacyBytes).Replace("\\", "\\\\");
             var expected = "{ 'Binary' : new BinData(3, '#B'), 'String' : '#S' }";
-            expected = expected.Replace("#B", littleEndianBase64);
+            expected = expected.Replace("#B", csharpLegacyBase64);
             expected = expected.Replace("#S", s);
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
-
-            var bigEndianBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-            var bigEndianBase64 = Convert.ToBase64String(bigEndianBytes).Replace("\\", "\\\\");
-            var javaHistoricalBytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1, 16, 15, 14, 13, 12, 11, 10, 9 };
-            var javaHistoricalBase64 = Convert.ToBase64String(javaHistoricalBytes).Replace("\\", "\\\\");
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);

@@ -31,7 +31,7 @@ namespace MongoDB.DriverUnitTests {
             settings.ConnectionMode = ConnectionMode.ReplicaSet;
             settings.ConnectTimeout = TimeSpan.FromSeconds(1);
             settings.DefaultCredentials = MongoCredentials.Create("username", "password");
-            settings.GuidByteOrder = GuidByteOrder.LittleEndian;
+            settings.GuidRepresentation = GuidRepresentation.CSharpLegacy;
             settings.IPv6 = true;
             settings.MaxConnectionIdleTime = TimeSpan.FromSeconds(2);
             settings.MaxConnectionLifeTime = TimeSpan.FromSeconds(3);
@@ -48,7 +48,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(ConnectionMode.ReplicaSet, settings.ConnectionMode);
             Assert.AreEqual(TimeSpan.FromSeconds(1), settings.ConnectTimeout);
             Assert.AreEqual(MongoCredentials.Create("username", "password"), settings.DefaultCredentials);
-            Assert.AreEqual(GuidByteOrder.LittleEndian, settings.GuidByteOrder);
+            Assert.AreEqual(GuidRepresentation.CSharpLegacy, settings.GuidRepresentation);
             Assert.AreEqual(true, settings.IPv6);
             Assert.AreEqual(TimeSpan.FromSeconds(2), settings.MaxConnectionIdleTime);
             Assert.AreEqual(TimeSpan.FromSeconds(3), settings.MaxConnectionLifeTime);
@@ -79,7 +79,7 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(ConnectionMode.Direct, settings.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
             Assert.AreEqual(null, settings.DefaultCredentials);
-            Assert.AreEqual(MongoDefaults.GuidByteOrder, settings.GuidByteOrder);
+            Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(false, settings.IPv6);
             Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);

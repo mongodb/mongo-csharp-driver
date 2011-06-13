@@ -116,10 +116,10 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets the byte order to use for Guids.
+        /// Gets the representation to use for Guids.
         /// </summary>
-        public GuidByteOrder GuidByteOrder {
-            get { return serverSettings.GuidByteOrder; }
+        public GuidRepresentation GuidRepresentation {
+            get { return serverSettings.GuidRepresentation; }
         }
 
         /// <summary>

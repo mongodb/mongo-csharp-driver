@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Serialization.Conventions {
                         byte[] bytes;
                         BsonBinarySubType subType;
                         bsonReader.ReadBinaryData(out bytes, out subType);
-                        if (subType == BsonBinarySubType.Uuid && bytes.Length == 16) {
+                        if (subType == BsonBinarySubType.Uuid || subType == BsonBinarySubType.UuidLegacy) {
                             primitiveType = typeof(Guid);
                         }
                         bsonReader.ReturnToBookmark(bookmark);

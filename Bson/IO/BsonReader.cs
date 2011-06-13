@@ -39,9 +39,9 @@ namespace MongoDB.Bson.IO {
         public abstract BsonType CurrentBsonType { get; }
 
         /// <summary>
-        /// Gets the byte order for Guids.
+        /// Gets the representation for Guids.
         /// </summary>
-        public abstract GuidByteOrder GuidByteOrder { get; }
+        public abstract GuidRepresentation GuidRepresentation { get; }
 
         /// <summary>
         /// Gets the current state of the reader.

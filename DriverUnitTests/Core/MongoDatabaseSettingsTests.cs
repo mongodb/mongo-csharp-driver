@@ -30,14 +30,14 @@ namespace MongoDB.DriverUnitTests {
             var settings = new MongoDatabaseSettings(
                 "database",
                 MongoCredentials.Create("username", "password"),
-                GuidByteOrder.LittleEndian,
+                GuidRepresentation.CSharpLegacy,
                 SafeMode.Create(5, TimeSpan.FromSeconds(5)),
                 true
             );
 
             Assert.AreEqual("database", settings.DatabaseName);
             Assert.AreEqual(MongoCredentials.Create("username", "password"), settings.Credentials);
-            Assert.AreEqual(GuidByteOrder.LittleEndian, settings.GuidByteOrder);
+            Assert.AreEqual(GuidRepresentation.CSharpLegacy, settings.GuidRepresentation);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(5)), settings.SafeMode);
             Assert.AreEqual(true, settings.SlaveOk);
 

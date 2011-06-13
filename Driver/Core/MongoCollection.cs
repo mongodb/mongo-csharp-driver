@@ -1313,7 +1313,7 @@ namespace MongoDB.Driver {
             MongoConnection connection
         ) {
             return new BsonBinaryReaderSettings {
-                GuidByteOrder = settings.GuidByteOrder,
+                GuidRepresentation = settings.GuidRepresentation,
                 MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
             };
         }
@@ -1322,7 +1322,7 @@ namespace MongoDB.Driver {
             MongoConnection connection
         ) {
             return new BsonBinaryWriterSettings {
-                GuidByteOrder = settings.GuidByteOrder,
+                GuidRepresentation = settings.GuidRepresentation,
                 MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
             };
         }
