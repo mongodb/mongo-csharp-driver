@@ -70,6 +70,19 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Writes a BSON binary data element to the writer.
         /// </summary>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
+        public override void WriteBinaryData(
+            byte[] bytes,
+            BsonBinarySubType subType
+        ) {
+            var guidRepresentation = (subType == BsonBinarySubType.Uuid) ? GuidRepresentation.Standard : GuidRepresentation.Unspecified;
+            WriteBinaryData(bytes, subType, guidRepresentation);
+        }
+
+        /// <summary>
+        /// Writes a BSON binary data element to the writer.
+        /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
@@ -80,6 +93,23 @@ namespace MongoDB.Bson.IO {
         ) {
             WriteName(name);
             WriteBinaryData(bytes, subType);
+        }
+
+        /// <summary>
+        /// Writes a BSON binary data element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
+        public override void WriteBinaryData(
+            string name,
+            byte[] bytes,
+            BsonBinarySubType subType,
+            GuidRepresentation guidRepresentation
+        ) {
+            WriteName(name);
+            WriteBinaryData(bytes, subType, guidRepresentation);
         }
 
         /// <summary>

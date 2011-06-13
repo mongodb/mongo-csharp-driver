@@ -175,20 +175,22 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 var binaryData = (BsonBinaryData) value;
                 var bytes = binaryData.Bytes;
                 var subType = binaryData.SubType;
+                var guidRepresentation = binaryData.GuidRepresentation;
                 if (subType == BsonBinarySubType.Uuid || subType == BsonBinarySubType.UuidLegacy) {
                     if (bsonWriter.GuidRepresentation != GuidRepresentation.Unspecified) {
-                        if (binaryData.GuidRepresentation == GuidRepresentation.Unspecified) {
+                        if (guidRepresentation == GuidRepresentation.Unspecified) {
                             var message = string.Format("Cannot serialize BsonBinaryData with GuidRepresentation Unspecified to destination with GuidRepresentation {1}.", bsonWriter.GuidRepresentation);
                             throw new BsonSerializationException(message);
                         }
-                        if (binaryData.GuidRepresentation != bsonWriter.GuidRepresentation) {
-                            var guid = GuidConverter.FromBytes(bytes, binaryData.GuidRepresentation);
+                        if (guidRepresentation != bsonWriter.GuidRepresentation) {
+                            var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
                             bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidRepresentation);
                             subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy;
+                            guidRepresentation = bsonWriter.GuidRepresentation;
                         }
                     }
                 }
-                bsonWriter.WriteBinaryData(bytes, subType);
+                bsonWriter.WriteBinaryData(bytes, subType, guidRepresentation);
             }
         }
         #endregion

@@ -182,6 +182,18 @@ namespace MongoDB.Bson.IO {
         );
 
         /// <summary>
+        /// Writes BSON binary data to the writer.
+        /// </summary>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The respresentation for Guids.</param>
+        public abstract void WriteBinaryData(
+            byte[] bytes,
+            BsonBinarySubType subType,
+            GuidRepresentation guidRepresentation
+        );
+
+        /// <summary>
         /// Writes a BSON binary data element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
@@ -191,6 +203,20 @@ namespace MongoDB.Bson.IO {
             string name,
             byte[] bytes,
             BsonBinarySubType subType
+        );
+
+        /// <summary>
+        /// Writes a BSON binary data element to the writer.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The respresentation for Guids.</param>
+        public abstract void WriteBinaryData(
+            string name,
+            byte[] bytes,
+            BsonBinarySubType subType,
+            GuidRepresentation guidRepresentation
         );
 
         /// <summary>

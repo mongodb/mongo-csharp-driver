@@ -117,9 +117,11 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
         public override void WriteBinaryData(
             byte[] bytes,
-            BsonBinarySubType subType
+            BsonBinarySubType subType,
+            GuidRepresentation guidRepresentation // ignored since BSON doesn't have a place to store this
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
             if (state != BsonWriterState.Value) {

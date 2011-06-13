@@ -467,7 +467,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     }
                     var bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidRepresentation);
                     var subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy;
-                    bsonWriter.WriteBinaryData(bytes, subType);
+                    bsonWriter.WriteBinaryData(bytes, subType, bsonWriter.GuidRepresentation);
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(guid.ToString());

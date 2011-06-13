@@ -1185,18 +1185,20 @@ namespace MongoDB.Bson {
                     var binaryData = (BsonBinaryData) this;
                     var bytes = binaryData.Bytes;
                     var subType = binaryData.SubType;
+                    var guidRepresentation = binaryData.GuidRepresentation;
                     if (subType == BsonBinarySubType.UuidLegacy && bsonWriter.GuidRepresentation != GuidRepresentation.Unspecified) {
-                        if (binaryData.GuidRepresentation != bsonWriter.GuidRepresentation) {
-                            if (binaryData.GuidRepresentation == GuidRepresentation.Unspecified) {
+                        if (guidRepresentation != bsonWriter.GuidRepresentation) {
+                            if (guidRepresentation == GuidRepresentation.Unspecified) {
                                 var message = string.Format("Cannot write binary data of sub type UuidLegacy and GuidRepresentation Unspecified to a collection with GuidRepresentation {0}.", bsonWriter.GuidRepresentation);
                                 throw new BsonSerializationException(message);
                             }
-                            var guid = GuidConverter.FromBytes(bytes, binaryData.GuidRepresentation);
+                            var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
                             bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidRepresentation);
                             subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy;
+                            guidRepresentation = bsonWriter.GuidRepresentation;
                         }
                     }
-                    bsonWriter.WriteBinaryData(bytes, subType);
+                    bsonWriter.WriteBinaryData(bytes, subType, guidRepresentation);
                     break;
                 case BsonType.Boolean:
                     bsonWriter.WriteBoolean(((BsonBoolean) this).Value);
