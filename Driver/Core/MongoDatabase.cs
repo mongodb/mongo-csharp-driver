@@ -258,14 +258,25 @@ namespace MongoDB.Driver {
             MongoCredentials credentials,
             bool readOnly
         ) {
+            var user = new MongoUser(credentials, readOnly);
+            AddUser(user);
+        }
+
+        /// <summary>
+        /// Adds a user to this database.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        public virtual void AddUser(
+            MongoUser user
+        ) {
             var users = GetCollection("system.users");
-            var user = users.FindOne(Query.EQ("user", credentials.Username));
-            if (user == null) {
-                user = new BsonDocument("user", credentials.Username);
+            var document = users.FindOne(Query.EQ("user", user.Username));
+            if (document == null) {
+                document = new BsonDocument("user", user.Username);
             }
-            user["readOnly"] = readOnly;
-            user["pwd"] = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
-            users.Save(user);
+            document["readOnly"] = user.IsReadOnly;
+            document["pwd"] = user.PasswordHash;
+            users.Save(document);
         }
 
         /// <summary>
@@ -439,6 +450,43 @@ namespace MongoDB.Driver {
             var collection = GetCollection(dbRef.CollectionName);
             var query = Query.EQ("_id", BsonValue.Create(dbRef.Id));
             return collection.FindOneAs(documentType, query);
+        }
+
+        /// <summary>
+        /// Finds all users of this database.
+        /// </summary>
+        /// <returns>An array of users.</returns>
+        public virtual MongoUser[] FindAllUsers() {
+            var result = new List<MongoUser>();
+            var users = GetCollection("system.users");
+            foreach (var document in users.FindAll()) {
+                var username = document["user"].AsString;
+                var passwordHash = document["pwd"].AsString;
+                var readOnly = document["readOnly"].ToBoolean();
+                var user = new MongoUser(username, passwordHash, readOnly);
+                result.Add(user);
+            };
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Finds a user of this database.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <returns>The user.</returns>
+        public virtual MongoUser FindUser(
+            string username
+        ) {
+            var users = GetCollection("system.users");
+            var query = Query.EQ("user", username);
+            var document = users.FindOne(query);
+            if (document != null) {
+                var passwordHash = document["pwd"].AsString;
+                var readOnly = document["readOnly"].ToBoolean();
+                return new MongoUser(username, passwordHash, readOnly);
+            } else {
+                return null;
+            }
         }
 
         /// <summary>
@@ -636,6 +684,16 @@ namespace MongoDB.Driver {
         }
 
         // TODO: mongo shell has IsMaster at database level?
+
+        /// <summary>
+        /// Removes a user from this database.
+        /// </summary>
+        /// <param name="user">The user to remove.</param>
+        public virtual void RemoveUser(
+            MongoUser user
+        ) {
+            RemoveUser(user.Username);
+        }
 
         /// <summary>
         /// Removes a user from this database.

@@ -133,5 +133,27 @@ namespace MongoDB.DriverOnlineTests {
             Assert.IsFalse(database.CollectionExists(collectionName1));
             Assert.IsTrue(database.CollectionExists(collectionName2));
         }
+
+        [Test]
+        public void TestUserMethods() {
+            var collection = database["system.users"];
+            collection.RemoveAll();
+            database.AddUser(new MongoCredentials("username", "password"), true);
+            Assert.AreEqual(1, collection.Count());
+
+            var user = database.FindUser("username");
+            Assert.AreEqual("username", user.Username);
+            Assert.AreEqual(MongoUtils.Hash("username:mongo:password"), user.PasswordHash);
+            Assert.AreEqual(true, user.IsReadOnly);
+
+            var users = database.FindAllUsers();
+            Assert.AreEqual(1, users.Length);
+            Assert.AreEqual("username", users[0].Username);
+            Assert.AreEqual(MongoUtils.Hash("username:mongo:password"), users[0].PasswordHash);
+            Assert.AreEqual(true, users[0].IsReadOnly);
+
+            database.RemoveUser(user);
+            Assert.AreEqual(0, collection.Count());
+        }
     }
 }

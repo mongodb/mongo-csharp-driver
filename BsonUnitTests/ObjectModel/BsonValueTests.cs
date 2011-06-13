@@ -34,16 +34,18 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBoolean; });
         }
 
+        [Test]
         public void TestAsBsonArray() {
             BsonValue v = new BsonArray { 1, 2 };
             BsonValue s = "";
             var a = v.AsBsonArray;
             Assert.AreEqual(2, a.Count);
-            Assert.AreEqual(1, a[0]);
-            Assert.AreEqual(2, a[1]);
+            Assert.AreEqual(1, a[0].AsInt32);
+            Assert.AreEqual(2, a[1].AsInt32);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonArray; });
         }
 
+        [Test]
         public void TestAsBinaryData() {
             BsonValue v = new byte[] { 1, 2 };
             BsonValue s = "";
@@ -55,6 +57,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonBinaryData; });
         }
 
+        [Test]
         public void TestAsBsonDocument() {
             BsonValue v = new BsonDocument("x", 1);
             BsonValue s = "";
@@ -65,6 +68,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonDocument; });
         }
 
+        [Test]
         public void TestAsBsonJavaScript() {
             BsonValue v = new BsonJavaScript("code");
             BsonValue s = "";
@@ -73,6 +77,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonJavaScript; });
         }
 
+        [Test]
         public void TestAsBsonJavaScriptWithScode() {
             var scope = new BsonDocument("x", 1);
             BsonValue s = "";
@@ -80,12 +85,13 @@ namespace MongoDB.BsonUnitTests {
             var js = v.AsBsonJavaScriptWithScope;
             Assert.AreEqual("code", js.Code);
             Assert.AreEqual(1, js.Scope.ElementCount);
-            Assert.AreEqual("name", js.Scope.GetElement(0).Name);
-            Assert.AreEqual(1, js.Scope["name"].AsInt32);
+            Assert.AreEqual("x", js.Scope.GetElement(0).Name);
+            Assert.AreEqual(1, js.Scope["x"].AsInt32);
             Assert.AreSame(v.AsBsonJavaScript, v.AsBsonJavaScriptWithScope);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonJavaScriptWithScope; });
         }
 
+        [Test]
         public void TestAsBsonMaxKey() {
             BsonValue v = BsonMaxKey.Value;
             BsonValue s = "";
@@ -94,6 +100,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonMaxKey; });
         }
 
+        [Test]
         public void TestAsBsonMinKey() {
             BsonValue v = BsonMinKey.Value;
             BsonValue s = "";
@@ -102,6 +109,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonMinKey; });
         }
 
+        [Test]
         public void TestAsBsonNull() {
             BsonValue v = BsonNull.Value;
             BsonValue s = "";
@@ -110,6 +118,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonNull; });
         }
 
+        [Test]
         public void TestAsBsonRegularExpression() {
             BsonValue v = new BsonRegularExpression("pattern", "options");
             BsonValue s = "";
@@ -119,6 +128,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonRegularExpression; });
         }
 
+        [Test]
         public void TestAsBsonSymbol() {
             BsonValue v = BsonSymbol.Create("name");
             BsonValue s = "";
@@ -127,6 +137,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonSymbol; });
         }
 
+        [Test]
         public void TestAsBsonTimestamp() {
             BsonValue v = new BsonTimestamp(1234);
             BsonValue s = "";
@@ -135,6 +146,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonTimestamp; });
         }
 
+        [Test]
         public void TestAsByteArray() {
             BsonValue v = new byte[] { 1, 2 };
             BsonValue s = "";
@@ -145,6 +157,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsByteArray; });
         }
 
+        [Test]
         public void TestAsDateTime() {
             var utcNow = DateTime.UtcNow;
             BsonValue v = utcNow;
@@ -154,6 +167,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsDateTime; });
         }
 
+        [Test]
         public void TestAsDouble() {
             BsonValue v = 1.5;
             BsonValue s = "";
@@ -162,6 +176,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsDouble; });
         }
 
+        [Test]
         public void TestAsGuid() {
             var guid = Guid.NewGuid();
             BsonValue v = guid;
@@ -171,6 +186,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsGuid; });
         }
 
+        [Test]
         public void TestAsInt32() {
             BsonValue v = 1;
             BsonValue s = "";
@@ -179,6 +195,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsInt32; });
         }
 
+        [Test]
         public void TestAsInt64() {
             BsonValue v = 1L;
             BsonValue s = "";
@@ -260,6 +277,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableObjectId; });
         }
 
+        [Test]
         public void TestAsObjectId() {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
@@ -269,14 +287,16 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsObjectId; });
         }
 
+        [Test]
         public void TestAsRegexOptionNone() {
             BsonValue v = new BsonRegularExpression("xyz");
             BsonValue s = "";
             var r = v.AsRegex;
-            Assert.AreEqual(0, r.Options);
+            Assert.AreEqual(RegexOptions.None, r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
+        [Test]
         public void TestAsRegexOptionAll() {
             BsonValue v = new BsonRegularExpression("xyz", "imxs");
             BsonValue s = "";
@@ -285,6 +305,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
+        [Test]
         public void TestAsRegexOptionI() {
             BsonValue v = new BsonRegularExpression("xyz", "i");
             BsonValue s = "";
@@ -293,6 +314,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
+        [Test]
         public void TestAsRegexOptionM() {
             BsonValue v = new BsonRegularExpression("xyz", "m");
             BsonValue s = "";
@@ -301,6 +323,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
+        [Test]
         public void TestAsRegexOptionX() {
             BsonValue v = new BsonRegularExpression("xyz", "x");
             BsonValue s = "";
@@ -309,6 +332,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
+        [Test]
         public void TestAsRegexOptionS() {
             BsonValue v = new BsonRegularExpression("xyz", "s");
             BsonValue s = "";
@@ -317,6 +341,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.Throws<InvalidCastException>(() => { var x = s.AsRegex; });
         }
 
+        [Test]
         public void TestAsString() {
             BsonValue v = "Hello";
             BsonValue i = 1;
