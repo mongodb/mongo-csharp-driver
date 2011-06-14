@@ -147,6 +147,8 @@ namespace MongoDB.Bson {
             { Mapping.FromTo(typeof(ulong), BsonType.Int64), Conversion.UInt64ToBsonInt64 },
             { Mapping.FromTo(typeof(ulong), BsonType.Timestamp), Conversion.UInt64ToBsonTimestamp }
         };
+
+        private static Dictionary<Type, ICustomBsonTypeMapper> customTypeMappers = new Dictionary<Type, ICustomBsonTypeMapper>();
         #endregion
 
         #region public static methods
@@ -224,6 +226,18 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Registers a custom type mapper.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="customTypeMapper">A custom type mapper.</param>
+        public static void RegisterCustomTypeMapper(
+            Type type,
+            ICustomBsonTypeMapper customTypeMapper
+        ) {
+            customTypeMappers.Add(type, customTypeMapper);
+        }
+
+        /// <summary>
         /// Tries to map an object to a BsonValue.
         /// </summary>
         /// <param name="value">An object.</param>
@@ -272,6 +286,11 @@ namespace MongoDB.Bson {
             if (value is IDictionary) {
                 bsonValue = new BsonDocument((IDictionary) value);
                 return true;
+            }
+
+            ICustomBsonTypeMapper customTypeMapper;
+            if (customTypeMappers.TryGetValue(valueType, out customTypeMapper)) {
+                return customTypeMapper.TryMapToBsonValue(value, out bsonValue);
             }
 
             bsonValue = null;

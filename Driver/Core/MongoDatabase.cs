@@ -55,10 +55,10 @@ namespace MongoDB.Driver {
             this.settings = settings.Freeze();
             this.name = settings.DatabaseName;
 
-            // make sure commands get routed to the primary server by using slaveOk false
             var commandCollectionSettings = CreateCollectionSettings<BsonDocument>("$cmd");
             commandCollectionSettings.AssignIdOnInsert = false;
             if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet) {
+                // make sure commands get routed to the primary server by using slaveOk false
                 commandCollectionSettings.SlaveOk = false;
             }
             commandCollection = GetCollection(commandCollectionSettings);
