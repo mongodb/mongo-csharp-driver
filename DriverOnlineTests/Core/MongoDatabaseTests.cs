@@ -70,6 +70,34 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestEvalNoArgs() {
+            var code = "function() { return 1; }";
+            var result = database.Eval(code);
+            Assert.AreEqual(1, result.ToInt32());
+        }
+
+        [Test]
+        public void TestEvalNoArgsNoLock() {
+            var code = "function() { return 1; }";
+            var result = database.Eval(code, null, true);
+            Assert.AreEqual(1, result.ToInt32());
+        }
+
+        [Test]
+        public void TestEvalWithArgs() {
+            var code = "function(x, y) { return x / y; }";
+            var result = database.Eval(code, 6, 2);
+            Assert.AreEqual(3, result.ToInt32());
+        }
+
+        [Test]
+        public void TestEvalWithArgsNoLock() {
+            var code = "function(x, y) { return x / y; }";
+            var result = database.Eval(code, new object[] { 6, 2 }, true);
+            Assert.AreEqual(3, result.ToInt32());
+        }
+
+        [Test]
         public void TestFetchDBRef() {
             var collectionName = "testdbref";
             var collection = database.GetCollection(collectionName);

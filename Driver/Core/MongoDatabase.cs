@@ -397,17 +397,33 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="code">The code to evaluate.</param>
         /// <param name="args">Optional arguments (only used when the code is a function with parameters).</param>
+        /// <param name="nolock">Whether to run without taking a write lock.</param>
         /// <returns>The result of evaluating the code.</returns>
         public virtual BsonValue Eval(
-            string code,
-            params object[] args
+            BsonJavaScript code,
+            object[] args,
+            bool nolock
         ) {
             var command = new CommandDocument {
                 { "$eval", code },
-                { "args", new BsonArray(args) }
+                { "args", BsonArray.Create(args), args != null && args.Length > 0 },
+                { "nolock", true, nolock }
             };
             var result = RunCommand(command);
             return result.Response["retval"];
+        }
+
+        /// <summary>
+        /// Evaluates JavaScript code at the server.
+        /// </summary>
+        /// <param name="code">The code to evaluate.</param>
+        /// <param name="args">Optional arguments (only used when the code is a function with parameters).</param>
+        /// <returns>The result of evaluating the code.</returns>
+        public virtual BsonValue Eval(
+            BsonJavaScript code,
+            params object[] args
+        ) {
+            return Eval(code, args, false); // nolock = false
         }
 
         /// <summary>
