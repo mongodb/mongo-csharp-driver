@@ -1410,6 +1410,20 @@ namespace MongoDB.Driver {
         )
             : base(database, settings) {
         }
+
+        /// <summary>
+        /// Creates a new instance of a generic typed <c>MongoCollection</c> from a non-generic <c>MongoCollection</c>. This is meant to be used by powershell.
+        /// </summary>
+        /// <param name="collection">The non-generic <c>MongoCollection</c> to convert to a <c>MongoCollection</c>.</param>
+        /// <remarks>
+        /// Powershell cannon call generic methods of non-generic classes. It can however use one parameter constructurs to cast types.
+        /// </remarks>
+        public MongoCollection(
+            MongoCollection collection
+        )
+            : base(collection.Database, collection.Settings)
+        {
+        }
         #endregion
 
         #region public methods

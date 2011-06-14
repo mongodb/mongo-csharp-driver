@@ -61,6 +61,17 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         public UpdateDocument(
+            IDictionary dictionary
+        )
+            : base(dictionary)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the UpdateDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public UpdateDocument(
             IDictionary<string, object> dictionary
         )
             : base(dictionary) {
