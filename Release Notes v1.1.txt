@@ -1,0 +1,517 @@
+C# Driver Version 1.1 Release Notes
+===================================
+
+This is a significant release of the C# driver, with many new features and immprovements. There are also a few
+breaking changes, which probably will affect very few users as they are mostly at a very low level. Because
+there are some breaking changes make sure to read these release notes and be prepared to make some minor
+changes.
+
+Highlights
+    BsonDocument.Parse allows you to easily parse a JSON string
+    New Shell JsonOutputMode (it's now the default)
+    Many JsonReader improvements
+    Support for new regular expressions options (i, m, x, and s)
+    Support for custom type mappers that can be registered with BsonTypeMapper
+    Deserializer optimized to not look for discriminator when not necessary
+    New IsClassMapRegistered method in BsonClassSerializer
+    If a class defines a ShouldSerializeXyz method it is called to determine if property Xyz should be serialized
+    Driver now throws EndOfStreamException instead of hanging when server closes socket
+    BsonDateTime now supports full range of valid BSON DateTime values (not just .NET range)
+    New GuidRepresentation enum and Uuid vs UuidLegacy binary subtypes
+    Id values of 0 and BsonNull are no longer prohibited (unless you want them to be)
+    GenerateDocument method of IIdGenerator now has access to container (i.e. collection) and document
+    Driver is more PowerShell (and metadata) friendly by adding non-generic versions of all generic methods
+    MapReduce output can now be sent to a collection in a different database
+    ValidateCollectionResult supports new embedded document result (or parses string when connected to older servers)
+    FindAndModify no longer throws an exception when no matching document is found
+    FindAndRemove no longer throws an exception when no matching document is found
+    Save now works correctly with a compound _id
+    Tailable cursors are supported
+    New MongoServerInstance class represents a physical instance of a MongoDB server
+    New MongoBuildInfo class has information about server version
+    GridFS Download and Upload methods now verify MD5 hash to detect transmission errors
+    Connecting to a replica set is faster because it returns as soon as primary is found
+
+Shell output mode
+
+The purpose of this new JsonOutputMode is to generate JSON strings that can be directly pasted into the MongoDB shell. It
+is now the default JsonOutputMode.
+
+GuidRepresentation and Uuid vs UuidLegacy
+
+In the past three drivers have supported UUIDs: C#, Java and Python. All three have used BSON binary sub type 3 to store
+UUIDs, but unfortunately they have all used different byte orders to store the UUID, making sharing UUID data between the
+drivers and the MongoDB shell difficult. In the future all drivers will standardize on network byte order for UUIDs, and
+a new binary sub type 4 will be used for these UUIDs. Binary sub type 3 will indicate that the UUID is stored in a driver
+dependent byte order.
+
+This release of the C# driver defaults to GuidRepresentation CSharpLegacy, which means that unless you take some positive
+action it will continue to behave exactly like the previous version. It is recommended that at some point you begin
+using the Standard GuidRepresentation. Note that the driver allows you to configure the GuidRepresentation at the
+server, database and collection level. The lowest level at which it can be configured is the collection, which means that
+all UUIDs in the same collection must be stored using the same representation. This may sound like a limitation, but it
+actually should help keep things from getting too confusing. If you absolutely must write code that handles a mix of 
+UUID representations in the same collection configure the GuidRepresentation to Unspecified and use BsonDocuments instead
+of POCOs, and work directly at the level of BsonBinaryData instances.
+
+Breaking changes
+    Many error messaged changed slightly (only breaking if you were relying on the text of the error message)
+    Some methods throw a different exception (only breaking if you were catching them)
+    ReadDateTime return type changed
+    WriteDateTime parameter type changed
+    IBsonSerializable interface changed
+    IBsonSerializer interface changed
+    IIdGenerator interface changed
+    Several properties of MongoServer removed
+        
+
+
+BSON Library changes
+--------------------
+
+BsonBaseReader.cs
+    ReadDateTime returns long instead of DateTime
+    Added ReadName method
+
+BsonBaseWriter.cs
+    Added overloads of WriteBinaryData that take a guidRepresentation parameter
+    WriteDateTime value parameter is now a long instead of a DateTime
+
+BsonBinaryReader.cs
+    Added GuidRepresentation property
+    ReadDateTime returns long instead of DateTime
+
+BsonBinaryReaderSettings.cs
+    Added GuidRepresentation property
+
+BsonBinaryWriter.cs
+    Added GuidRepresentation property
+    WriteBinaryData now takes a guidRepresentation parameter
+    WriteDateTime value parameter is now a long instead of a DateTime
+
+BsonBinaryWriterSettings.cs
+    Added GuidRepresentation property
+
+BsonBuffer.cs
+    LoadFrom now throws an EndOfStreamException instead of hanging when server closes socket
+
+BsonDocumentReader.cs
+    Added settings field
+    Added GuidRepresentation property
+    ReadDateTime returns long instead of DateTime
+
+BsonDocumentReaderSettings.cs
+    New class
+    Added GuidRepresentation property
+
+BsonDocumentWriter.cs
+    Added settings field
+    Added GuidRepresentation property
+    WriteBinaryData now takes a guidRepresentation parameter
+    WriteDateTime value parameter is now a long instead of a DateTime
+
+BsonDocumentWriterSettings.cs
+    New class
+    Added GuidRepresentation property
+
+BsonReader.cs
+    Added GuidRepresentation property
+    Added some new Create overloads
+    ReadDateTime returns long instead of DateTime
+    Added ReadName method
+
+BsonWriter.cs
+    Added GuidRepresentation property
+    Added some new Create overloads
+    Added overloads of WriteBinaryData that take a guidRepresentation parameter
+    WriteDateTime value parameter is now a long instead of a DateTime
+
+ContextType.cs
+    Class is now public
+    
+JsonOutputMode.cs
+    Added new Shell value (shell output mode is now the default for ToJson)      
+
+JsonReader.cs
+    Added new settings field
+    Added GuidRepresentation property
+    Added support for double constants positive and negative Infinity, NaN
+    Added support for BinData constants (with or without "new" keyword)
+    Added support for Date constants (with or without "new" keyword)
+    Added support for ISODate constants (with or without "new" keyword)
+    Added support for NumberLong constants (with or without "new" keyword)
+    Added support for ObjectId constants (with or without "new" keyword)
+    ReadDateTime returns long instead of DateTime
+    
+JsonReaderSettings.cs
+    New class
+    Added GuidRepresentation property
+
+JsonScanner.cs
+    Added support for left and right parenthesis (required for "new" keyword)
+    Added support for single quoted strings (in addition to existing support for double quoted strings)
+
+JsonToken.cs
+    Added new LeftParen and RightParen values to JsonTokenType enum
+    Changed type of value field of DateTimeJsonToken from DateTime to BsonDateTime
+
+JsonWriter.cs
+    Added support for new Shell JsonOutputMode (so named because output can be pasted into mongo shell)
+    Added GuidRepresentation property
+    WriteBinaryData now takes a guidRepresentation parameter
+    WriteBinaryData now supports BinData constant in Shell output mode
+    WriteDateTime value parameter is now a long instead of a DateTime
+    WriteDateTime now supports ISODate constant in Shell output mode
+    WriteDouble now always outputs decimal point so doubles can be identified visually
+    WriteInt64 now supports NumberLong constant in Shell output mode
+    WriteRegularExpression now escapes empty pattern and special characters
+
+JsonWriterSettings.cs
+    Added GuidRepresentation property
+    Default JsonOutputMode is now Shell
+
+BsonArray.cs
+    Added ToList method
+
+BsonBinaryData.cs
+    Added GuidRepresentation property (only relevant if subType is Uuid or UuidLegacy)
+    Added new constructors and Create methods
+    Added ToGuid overload that allows GuidRepresentation to be specified
+
+BsonBinarySubType.cs
+    SubType 3 is now called UuidLegacy
+    SubType 4 is new and is called Uuid (Uuid used to be subType 3)
+
+BsonDateTime.cs
+    Now supports full range of valid BsonDateTime values (not just range of DateTime)
+    Added new constructors and Create methods
+    Added IsValidDateTime property
+    Added MillisecondsSinceEpoch property
+    Value now throws an exception if IsValidDateTime is false
+
+BsonDocument.cs
+    Changed constructors with Hashtable to IDictionary
+    Added Parse method to parse BsonDocument from JSON string
+    Changed Add methods with Hashtable to IDictionary
+    Added ToString method (calls ToJson)
+
+BsonDocumentWrapper.cs
+    Added non-generic Create method
+    Added non-generic CreateMultiple method
+
+BsonRegularExpression.cs
+    Constructor now unescapes empty pattern and special characters
+    Constructor now maps .NET options to new server options (i, m, x and s)
+    ToRegex now maps new server options (i, m, x and s) to .NET options
+    ToString escapes special characters
+
+BsonTimestamp.cs
+    RawValue property now returns null
+
+BsonTypeMapper.cs
+    Added support for custom type mappers
+    Added support for mappping IDictionary values
+    Added RegisterCustomTypeMapper method
+    TryMapToBsonValue returns false instead of throwing exception when value is null
+
+BsonValue.cs
+    Added AsBsonDateTime property
+    Added IsBsonDateTime property
+    IsDateTime only returns true if IsValidDateTime also returns true
+    IsGuid now returns true for Uuid and UuidLegacy
+    ReadFrom uses GuidRepresentation of reader when a UuidLegacy value is read
+    WriteTo converts UuidLegacy value to GuidRepresentation of writer (if not Unspecified)
+
+GuidConvert.cs
+    Helper class that converts to and from the various GuidRepresentations
+    Added FromBytes method
+    Added ToBytes method
+
+GuidRepresentation.cs
+    New enum that represents the various representations for Guids
+    Values are: Unspecified, Standard, CSharpLegacy, JavaLegacy and PythonLegacy
+
+ICustomBsonTypeMapper.cs
+    New interface implemented by custom type mappers that can be registered with the BsonTypeMapper
+    Added TryMapToBsonValue method
+
+DiscriminatorConventions.cs
+    GetActualType now calls EnsureKnownTypesAreRegistered
+    GetActualType is optimized to not check input for discriminator when not required
+
+IdGenerators.cs
+    Added new BsonObjectIdGenerator (similar to existing ObjectIdGenerator)
+    Refactored GenerateId method of CombGuidGenerator
+    GenerateId methods now take container and document parameters
+
+BsonPrimitiveSerializers.cs
+    Moved ToLocalTimeHelper and ToUniversalTimeHelper to BsonUtils.cs
+    GuidSerializer Deserialize uses GuidRepresentation of bsonReader
+    GuidSerializer Serialize uses GuidRepresentation of bsonWriter
+
+BsonValueSerializers.cs
+    BsonBinaryDataSerializer Deserialize uses GuidRepresentation of bsonReader
+    BsonBinaryDataSerializer Serialize uses GuidRepresentation of bsonWriter
+    BsonDateTimeSerializer no longer delegates to DateTimeSerializer
+
+DictionaryGenericSerializer.cs
+    DictionarySerializer Serialize now uses TKey and TValue as nominal types so "_t" discriminator is no longer written when not needed
+
+NetPrimitiveSerializers.cs
+    Added IPAddressSerializer
+    Added IPEndPointSerialzier
+
+BsonClassMap.cs
+    Uses BsonSerializer.ConfigLock instead of staticLock to prevent deadlocks
+    Added IsClassMapRegistered method
+    AutoMapMember now supports ShouldSerializeXyz methods
+
+BsonClassMapSerializer.cs
+    Deserialize has better error message when attempt is made to deserialize a struct (which is not supported)
+    SetDocumentId has better error message when attempt is made to use it with a struct (which is not supported)
+    SerializeMember now calls ShouldSerializeXyz if it exists
+
+BsonDefaultSerializer.cs
+    Uses BsonSerializer.ConfigLock instead of staticLock to prevent deadlocks
+    New typesWithRegisteredKnownTypes field (used by EnsureKnownTypesAreRegistered)
+    New discriminatedTypes field to track which types have a discriminator
+    Added IsTypeDiscriminated method
+    LookupActualType now calls EnsureKnownTypesAreRegistered first
+
+BsonMemberMap.cs
+    Added ShouldSerializeMethod property
+    Added SetShouldSerializeMethod method
+
+BsonSerializer.cs
+    Uses BsonSerializer.ConfigLock instead of staticLock to prevent deadlocks
+    Added UseNullIdChecker property
+    Added UseZeroIdChecker property
+    LookupIdGenerator no longer uses NullIdChecker or ZeroIdChecker unless told to do so
+
+IBsonSerializable.cs
+    GetDocumentId now has out idNominalType parameter
+
+IBsonSerializer.cs
+    GetDocumentId now has out idNominalType parameter
+
+IIdGenerator.cs
+    GenerateId now has container and document parameters
+
+BsonDefaults.cs
+    Added GuidRepresentation property
+
+BsonExtensionMethods.cs
+    Added non-generic overloads of ToBson
+    Added non-generic overloads of ToBsonDocument
+    Added non-generic overloads to ToJson
+
+BsonUtils.cs
+    Added ToDateTimeFromMillisecondsSinceEpoch method
+    Added ToLocalTime method
+    Added ToMillisecondsSinceEpoch method
+    Added ToUniversalTime method
+
+
+
+Driver changes
+--------------
+
+MapReduceOptionsBuilder.cs
+    Added new overload of Replace that takes databaseName parameter
+    Added new overload of Merge that takes databaseName parameter
+    Added new overload of Reduce that takes databaseName parameter
+
+QueryBuilder.cs
+    Type of queries parameter to And method changed to IMongoQuery[]
+    And method ignores any elements of the queries array thar are null
+    Type of query parameter to ElemMatch method changed to IMongoQuery
+    Added new Nor method
+    Type of queries parameter to Or method changed to IMongoQuery[]
+    Or method ignores any elements of the queries array thar are null
+    Type of size parameter to Size method changed to int (was already int in Query, changed in QueryBuilder)
+
+UpdateBuilder.cs
+    Return type of Rename method changed to UpdateBuiler (so Renames can now be chained)
+    Added non-generic overload of Replace method
+
+GeoNearResult.cs
+    GeoNearResult and related classes refactored to be PowerShell friendly
+    New non-generic abstract base classes introduced (GeoNearResult, GeoNearHit)
+    Changes should not break existing code
+
+MapReduceResult.cs
+    CollectionName now handles compound result element { db : ..., collection : ... }
+    Added DatabaseName property
+    Added non-generic overload of GetInlineResultsAs
+    GetResults now handles output collections sent to a different database
+    Added non-generic overload of GetResultsAs
+    GetResultsAs not handles output collections sent to a different database
+
+ValidateCollectionResult.cs
+    Now works with either old string format result or new document format result
+    Added DataSize property
+    Added DeletedCount property
+    Added DeletedSize property
+    Added Errors property
+    Added ExtentCount property
+    Added FirstExtent property
+    Added FirstExtentDetails property
+    Added IndexCount property
+    Added IsValid property
+    Added KeysPerIndex property
+    Added LastExtent property
+    Added LastExtentSize property
+    Added Padding property
+    Added RecordCount property
+    Added Warning property
+    Added ExtentDetails nested class
+
+CollectionOptionsDocument.cs
+CommandDocument.cs
+FieldsDocument.cs
+GeoNearOptionsDocument.cs
+GroupByDocument.cs
+IndexKeysDocument.cs
+IndexOptionsDocument.cs
+MapReduceOptionsDocument.cs
+QueryDocument.cs
+ScopeDocument.cs
+SortByDocument.cs
+UpdateDocument.cs
+    Added constructors with IDictionary parameter
+
+UpdateWrapper.cs
+    Removed constructor that was missing nominalType parameter
+    Added nominalType parameter to non-generic overload of Create
+
+MongoCollection.cs
+    Drop now returns a CommandResult instead of void
+    Added non-generic overload of FindAllAs
+    FindAndModify no longer throws an exception if there is no matching document
+    FindAndRemove no longer throws an exception if there is no matching document
+    Added non-generic version of FindAs
+    Added non-generic versions of FindOneAs
+    Added non-generic version of FindOneByIdAs
+    Added non-generic versions of GeoNearAs
+    Added non-generic versions of Insert and InsertBatch
+    Added non-generic versions of Save
+    Save now works with compound _id values
+    Save now supports generating new _id values for strings represented externally as ObjectId
+    Added Insert methods to MongoCollection<TDefaultDocument>
+
+MongoCollectionSettings.cs
+    Added GuidRepresentation property
+
+MongoConnectionStringBuilder.cs
+    Added GuidRepresentation property
+
+MongoCursor.cs
+    MongoCursor is now a non-generic abstract base class
+    MongoCursor<TDocument> now derives from MongoCursor
+    Added SerializationOptions property
+    Added SetSerializationOptions method
+    
+MongoCursorEnumerator.cs
+    class is now public
+    connection is now returned to connection pool between calls to GetMore
+    added support for tailable cursors
+    Added IsDead property
+    Added IsServerAwaitCapable property
+
+MongoDatabase.cs
+    only force commands to primary when connected to a replica set
+    Added new overload of AddUser that takes a MongoUser parameter
+    Added new overload of CreateConnection that takes only collection name parameter
+    Added non-generic version of CreateCollectionSettings
+    DropCollection no longer throws an exception if the collection doesn't exist
+    Added support for nolock to Eval
+    Added non-generic overload of FetchDBRefAs
+    Added FindAllUsers method
+    Added FindUser method
+    Added non-generic overloads of GetCollection
+    Added RemoveUser method
+    Added non-generic overloads of RunCommandAs
+
+MongoDatabaseSettings.cs
+    Added GuidRepresentation property
+
+MongoServer.cs
+    now uses new MongoServerInstance class to track server(s) it is connected to
+    ConnectionPool property moved to MongoServerInstance
+    MaxDocumentSize and MaxMessageLength moved to MongoServerInstance
+    EndPoints property removed
+    ReplicaSet property removed
+    SecondaryConnectionPools property removed
+    Added MaxServerCount property
+    Added ServerCount property
+    Create method now throws exception if more than MaxServerCount instances are created
+    Added UnregisterServer method
+    Added Arbiters property
+    Added BuildInfo property (delegates to primary MongoServerInstance)
+    Added Instance and Instances property
+    Added Passives property
+    Added Primary property
+    Added ReplicaSetName property
+    Added Secondaries property
+    Connect now returns as soon as primary is found when connecting to a replica set (without waiting for all secondaries to respond)
+    Added non-generic overload of FetchDBRefAs
+    Added Ping method
+    Added non-generic overloads of RunAdminCommandAs
+    Added Shutdown method
+
+MongoServerAddress.cs
+    Comparison of host names is now case insensitive
+
+MongoServerBuildInfo.cs
+    new class
+    Added Bits property (32 or 64)
+    Added GitVersion property (the git commit Id)
+    Added SysInfo property
+    Added Version property
+    Added VersionString property
+
+MongoServerInstances.cs
+    new class
+    Added Address property
+    Added BuildInfo property
+    Added ConnectException property
+    Added ConnectionPool property
+    Added EndPoint property
+    Added IsArbiter property
+    Added IsPassive property
+    Added IsPrimary property
+    Added IsSecondary property
+    Added MaxDocumentSize property
+    Added MaxMessageLength property
+    Added State property
+
+MongoServerSettings.cs
+    Added GuidRepresentation property
+
+MongoUrl.cs
+    Added GuidRepresentation property
+
+MongoUrlBuilder.cs
+    Added GuidRepresentation property
+    Setting ReplicaSetName implies ReplicaSet ConnectionMode
+    Setting Servers seed list to more than one server implies ReplicaSet ConnectionMode
+    Now supports escaping special characters in username in password (using URL escape rules)
+
+MongoUser.cs
+    new class
+    Added Username property
+    Added PasswordHash property
+    Added IsReadOnly property
+
+MongoGridFS.cs
+    Download method now verifies the MD5 hash
+    Find and FindAll methods now return a real MongoCursor, so cursor methods like SetSkip and SetLimit can be used
+    Upload method now verifies the MD5 hash
+
+MongoGridFSStream.cs
+    Added UpdateMD5 property (useful when file is updated many times and you want to do MD5 calculation just once at the end)
+    Fixed a bug that resulted in metadata not being properly set when file was created
+
+MongoDefaults.cs
+    Added GuidRepresentation property (it's an alias for the same property in BsonDefaults)
+    Added MaxDocumentSize (it's an alias for the same property in BsonDefaults)
