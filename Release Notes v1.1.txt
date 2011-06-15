@@ -1,7 +1,7 @@
 C# Driver Version 1.1 Release Notes
 ===================================
 
-This is a significant release of the C# driver, with many new features and immprovements. There are also a few
+This is a significant release of the C# driver, with many new features and improvements. There are also a few
 breaking changes, which probably will affect very few users as they are mostly at a very low level. Because
 there are some breaking changes make sure to read these release notes and be prepared to make some minor
 changes.
@@ -17,7 +17,7 @@ Highlights
     If a class defines a ShouldSerializeXyz method it is called to determine if property Xyz should be serialized
     Driver now throws EndOfStreamException instead of hanging when server closes socket
     BsonDateTime now supports full range of valid BSON DateTime values (not just .NET range)
-    New GuidRepresentation enum and Uuid vs UuidLegacy binary subtypes
+    New GuidRepresentation enum and UUID vs UUIDLegacy binary subtypes
     Id values of 0 and BsonNull are no longer prohibited (unless you want them to be)
     GenerateDocument method of IIdGenerator now has access to container (i.e. collection) and document
     Driver is more PowerShell (and metadata) friendly by adding non-generic versions of all generic methods
@@ -37,27 +37,28 @@ Shell output mode
 The purpose of this new JsonOutputMode is to generate JSON strings that can be directly pasted into the MongoDB shell. It
 is now the default JsonOutputMode.
 
-GuidRepresentation and Uuid vs UuidLegacy
+GuidRepresentation and UUID vs UUIDLegacy
 
 In the past three drivers have supported UUIDs: C#, Java and Python. All three have used BSON binary sub type 3 to store
 UUIDs, but unfortunately they have all used different byte orders to store the UUID, making sharing UUID data between the
 drivers and the MongoDB shell difficult. In the future all drivers will standardize on network byte order for UUIDs, and
 a new binary sub type 4 will be used for these UUIDs. Binary sub type 3 will indicate that the UUID is stored in a driver
-dependent byte order.
+dependent byte order. Note - Python already stores in network byte order.
 
-This release of the C# driver defaults to GuidRepresentation CSharpLegacy, which means that unless you take some positive
-action it will continue to behave exactly like the previous version. It is recommended that at some point you begin
-using the Standard GuidRepresentation. Note that the driver allows you to configure the GuidRepresentation at the
-server, database and collection level. The lowest level at which it can be configured is the collection, which means that
-all UUIDs in the same collection must be stored using the same representation. This may sound like a limitation, but it
-actually should help keep things from getting too confusing. If you absolutely must write code that handles a mix of 
-UUID representations in the same collection configure the GuidRepresentation to Unspecified and use BsonDocuments instead
-of POCOs, and work directly at the level of BsonBinaryData instances.
+This release of the C# driver defaults to GuidRepresentation CSharpLegacy, which means that unless you take some 
+action it will continue to behave exactly like the previous version. Note that the driver allows you to configure the 
+GuidRepresentation at the server, database and collection level. The lowest level at which it can be configured is the 
+collection, which means that all UUIDs in the same collection must be stored using the same representation. This may sound
+like a limitation, but it actually should help keep things from getting too confusing. If you absolutely must write code
+that handles a mix of UUID representations in the same collection configure the GuidRepresentation to Unspecified and use
+BsonDocuments instead of POCOs, and work directly at the level of BsonBinaryData instances.
+Note - Do not use GuidRepresentation Standard for existing collections
 
 Breaking changes
-    Many error messaged changed slightly (only breaking if you were relying on the text of the error message)
+    Many error messages changed slightly (only breaking if you were relying on the text of the error message)
     Some methods throw a different exception (only breaking if you were catching them)
     ReadDateTime return type changed
+    Rename return type changed
     WriteDateTime parameter type changed
     IBsonSerializable interface changed
     IBsonSerializer interface changed
