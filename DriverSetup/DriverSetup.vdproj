@@ -21,32 +21,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0E4CD013D74E472A830500FDCA2ACFE4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1F2B25DB0B3140D1A6F888E8C0F5AFC6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_223F85C0B1D0179321167AC2BBB8EF24"
+        "MsmKey" = "8:_2A63140B5953A72E8B4858F3903F2772"
         "OwnerKey" = "8:_BD76DB2CA357431595A0F671A8188FDD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_537E4DDB9292DA822A7E00E1173402EE"
-        "OwnerKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_537E4DDB9292DA822A7E00E1173402EE"
-        "OwnerKey" = "8:_5ED81B2A1EFD4E9DA129583F00560B33"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -57,7 +39,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
+        "OwnerKey" = "8:_5ED81B2A1EFD4E9DA129583F00560B33"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
+        "OwnerKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_943C461628514581BF0B49C5E33E9ADB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -82,19 +82,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5ED81B2A1EFD4E9DA129583F00560B33"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_537E4DDB9292DA822A7E00E1173402EE"
+        "OwnerKey" = "8:_5ED81B2A1EFD4E9DA129583F00560B33"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_68791BFCA02EDE379F08E6AC19E7F96F"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -222,26 +222,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0E4CD013D74E472A830500FDCA2ACFE4"
-            {
-            "SourcePath" = "8:..\\Release Notes v1.0.txt"
-            "TargetName" = "8:Release Notes v1.0.txt"
-            "Tag" = "8:"
-            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1F2B25DB0B3140D1A6F888E8C0F5AFC6"
             {
             "SourcePath" = "8:..\\Help\\CSharpDriverDocs.chm"
@@ -262,7 +242,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_223F85C0B1D0179321167AC2BBB8EF24"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A63140B5953A72E8B4858F3903F2772"
             {
             "SourcePath" = "8:MongoDB.Bson.xml"
             "TargetName" = "8:MongoDB.Bson.xml"
@@ -282,13 +262,18 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_537E4DDB9292DA822A7E00E1173402EE"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_68791BFCA02EDE379F08E6AC19E7F96F"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.0.1.20266, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.1.0.18913, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_68791BFCA02EDE379F08E6AC19E7F96F"
+                    {
+                    "Name" = "8:MongoDB.Bson.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:MongoDB.Bson.dll"
             "TargetName" = "8:"
@@ -306,6 +291,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_943C461628514581BF0B49C5E33E9ADB"
+            {
+            "SourcePath" = "8:..\\Release Notes v1.1.txt"
+            "TargetName" = "8:Release Notes v1.1.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
         }
@@ -345,7 +350,7 @@
                         {
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_714AC4AABA3743F280D3824A1345875C"
                             {
-                            "Name" = "8:CSharpDriver 1.0"
+                            "Name" = "8:CSharpDriver 1.1"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
@@ -371,7 +376,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_D4C7539AEF6E411F98A857872FF5F2FC"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]\\MongoDB\\CSharpDriver 1.0"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\MongoDB\\CSharpDriver 1.1"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -396,16 +401,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:MongoDB CSharpDriver 1.0"
-        "ProductCode" = "8:{724AC356-F1C7-484A-BBC7-C8050758699D}"
-        "PackageCode" = "8:{F802C54E-88EB-4BDF-927E-923DC8B18D35}"
+        "ProductName" = "8:MongoDB CSharpDriver 1.1"
+        "ProductCode" = "8:{D60B97F0-100B-4C20-AD48-3388E738C787}"
+        "PackageCode" = "8:{5BF482B8-496E-4F5B-B3F3-5EC6886C6632}"
         "UpgradeCode" = "8:{B144CF09-09EC-4B64-9981-236E85AC93F7}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.1.0"
         "Manufacturer" = "8:10gen Inc."
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -554,6 +559,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_33CC9B1B63E44B12BCBA586AC9511702"
+            {
+            "Name" = "8:Release Notes v1.1.txt"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_943C461628514581BF0B49C5E33E9ADB"
+            "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
+            "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_3C9077C10002485F8BB1CD9CA3F09B6A"
             {
             "Name" = "8:CSharpDriverDocs.chm"
@@ -563,20 +582,6 @@
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_1F2B25DB0B3140D1A6F888E8C0F5AFC6"
-            "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
-            "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4E232E9577764AF99794B65D64BBF537"
-            {
-            "Name" = "8:Release Notes v1.0.txt"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_0E4CD013D74E472A830500FDCA2ACFE4"
             "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
             "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
             "Icon" = "8:"
