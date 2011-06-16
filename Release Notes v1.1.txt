@@ -16,7 +16,7 @@ Highlights
     If a class defines a ShouldSerializeXyz method it is called to determine if property Xyz should be serialized
     Driver now throws EndOfStreamException instead of hanging when server closes socket
     BsonDateTime now supports full range of valid BSON DateTime values (not just .NET range)
-    New GuidRepresentation enum and Uuid vs UuidLegacy BsonBinarySubTypes
+    New GuidRepresentation enum and UuidStandard or UuidLegacy BsonBinarySubTypes
     Id values of 0 and BsonNull.Value are no longer prohibited (unless you want them to be)
     GenerateDocument method of IIdGenerator now has access to container (i.e. collection) and document
     Driver is more PowerShell (and metadata) friendly by adding non-generic versions of all generic methods
@@ -36,7 +36,7 @@ Shell output mode
 The purpose of this new JsonOutputMode is to generate JSON strings that can be directly pasted into the MongoDB shell. It
 is now the default JsonOutputMode.
 
-GuidRepresentation and Uuid vs UuidLegacy BsonBinaryRepresentation
+GuidRepresentation and UuidStandard or UuidLegacy BsonBinarySubTypes
 
 In the past, three drivers have supported UUIDs: C#, Java and Python. All three have used BSON binary sub type 3 to store
 UUIDs, but unfortunately they have all used different byte orders to store the UUID, making sharing UUID data between the
@@ -177,13 +177,13 @@ BsonArray.cs
     Added ToList method
 
 BsonBinaryData.cs
-    Added GuidRepresentation property (only relevant if subType is Uuid or UuidLegacy)
+    Added GuidRepresentation property (only relevant if subType is UuidStandard or UuidLegacy)
     Added new constructors and Create methods
     Added ToGuid overload that allows GuidRepresentation to be specified
 
 BsonBinarySubType.cs
     SubType 3 is now called UuidLegacy
-    SubType 4 is new and is called Uuid (Uuid used to be subType 3)
+    SubType 4 is new and is called UuidStandard
 
 BsonDateTime.cs
     Now supports full range of valid BsonDateTime values (not just range of DateTime)
@@ -221,7 +221,7 @@ BsonValue.cs
     Added AsBsonDateTime property
     Added IsBsonDateTime property
     IsDateTime only returns true if IsValidDateTime also returns true
-    IsGuid now returns true for Uuid and UuidLegacy
+    IsGuid now returns true for UuidStandard or UuidLegacy
     ReadFrom uses GuidRepresentation of reader when a UuidLegacy value is read
     WriteTo converts UuidLegacy value to GuidRepresentation of writer (if not Unspecified)
 
