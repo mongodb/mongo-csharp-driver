@@ -266,7 +266,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.1.0.18913, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.1.0.4184, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_68791BFCA02EDE379F08E6AC19E7F96F"
@@ -403,7 +403,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:MongoDB CSharpDriver 1.1"
         "ProductCode" = "8:{D60B97F0-100B-4C20-AD48-3388E738C787}"
-        "PackageCode" = "8:{5BF482B8-496E-4F5B-B3F3-5EC6886C6632}"
+        "PackageCode" = "8:{9EA15A68-8662-40AB-AFBE-1F7FA93BDE2C}"
         "UpgradeCode" = "8:{B144CF09-09EC-4B64-9981-236E85AC93F7}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
