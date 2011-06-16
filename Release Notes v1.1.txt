@@ -17,7 +17,7 @@ Highlights
     If a class defines a ShouldSerializeXyz method it is called to determine if property Xyz should be serialized
     Driver now throws EndOfStreamException instead of hanging when server closes socket
     BsonDateTime now supports full range of valid BSON DateTime values (not just .NET range)
-    New GuidRepresentation enum and UUID vs UUIDLegacy binary subtypes
+    New GuidRepresentation enum and Uuid vs UuidLegacy BsonBinarySubTypes
     Id values of 0 and BsonNull are no longer prohibited (unless you want them to be)
     GenerateDocument method of IIdGenerator now has access to container (i.e. collection) and document
     Driver is more PowerShell (and metadata) friendly by adding non-generic versions of all generic methods
@@ -37,13 +37,13 @@ Shell output mode
 The purpose of this new JsonOutputMode is to generate JSON strings that can be directly pasted into the MongoDB shell. It
 is now the default JsonOutputMode.
 
-GuidRepresentation and UUID vs UUIDLegacy
+GuidRepresentation and Uuid vs UuidLegacy BsonBinaryRepresentation
 
 In the past three drivers have supported UUIDs: C#, Java and Python. All three have used BSON binary sub type 3 to store
 UUIDs, but unfortunately they have all used different byte orders to store the UUID, making sharing UUID data between the
 drivers and the MongoDB shell difficult. In the future all drivers will standardize on network byte order for UUIDs, and
 a new binary sub type 4 will be used for these UUIDs. Binary sub type 3 will indicate that the UUID is stored in a driver
-dependent byte order. Note - Python already stores in network byte order.
+dependent byte order.
 
 This release of the C# driver defaults to GuidRepresentation CSharpLegacy, which means that unless you take some 
 action it will continue to behave exactly like the previous version. Note that the driver allows you to configure the 
@@ -52,7 +52,10 @@ collection, which means that all UUIDs in the same collection must be stored usi
 like a limitation, but it actually should help keep things from getting too confusing. If you absolutely must write code
 that handles a mix of UUID representations in the same collection configure the GuidRepresentation to Unspecified and use
 BsonDocuments instead of POCOs, and work directly at the level of BsonBinaryData instances.
-Note - Do not use GuidRepresentation Standard for existing collections
+
+Note: make sure that whatever you set the GuidRepresentation to matches what is actually stored in the collection. If
+you want to change the GuidRepresentation for a collection the existing data must be converted as well. We will be providing
+an offline utility for converting GUIDs between the various representations.
 
 Breaking changes
     Many error messages changed slightly (only breaking if you were relying on the text of the error message)
