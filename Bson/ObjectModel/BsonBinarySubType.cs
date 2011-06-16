@@ -43,7 +43,7 @@ namespace MongoDB.Bson {
         /// <summary>
         /// A UUID in standard network byte order.
         /// </summary>
-        Uuid = 0x04,
+        UuidStandard = 0x04,
         /// <summary>
         /// An MD5 hash.
         /// </summary>

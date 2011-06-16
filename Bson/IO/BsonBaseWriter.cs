@@ -76,7 +76,7 @@ namespace MongoDB.Bson.IO {
             byte[] bytes,
             BsonBinarySubType subType
         ) {
-            var guidRepresentation = (subType == BsonBinarySubType.Uuid) ? GuidRepresentation.Standard : GuidRepresentation.Unspecified;
+            var guidRepresentation = (subType == BsonBinarySubType.UuidStandard) ? GuidRepresentation.Standard : GuidRepresentation.Unspecified;
             WriteBinaryData(bytes, subType, guidRepresentation);
         }
 

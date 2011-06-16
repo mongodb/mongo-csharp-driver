@@ -408,7 +408,7 @@ namespace MongoDB.Bson {
             get {
                 if (bsonType == BsonType.Binary) {
                     var subType = ((BsonBinaryData) this).SubType;
-                    return subType == BsonBinarySubType.Uuid || subType == BsonBinarySubType.UuidLegacy;
+                    return subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy;
                 } else {
                     return false;
                 }
@@ -984,7 +984,7 @@ namespace MongoDB.Bson {
                     byte[] bytes;
                     BsonBinarySubType subType;
                     bsonReader.ReadBinaryData(out bytes, out subType);
-                    if (subType == BsonBinarySubType.Uuid) {
+                    if (subType == BsonBinarySubType.UuidStandard) {
                         return new BsonBinaryData(bytes, subType, GuidRepresentation.Standard);
                     } else if (subType == BsonBinarySubType.UuidLegacy) {
                         return new BsonBinaryData(bytes, subType, bsonReader.GuidRepresentation);
@@ -1194,7 +1194,7 @@ namespace MongoDB.Bson {
                             }
                             var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
                             bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidRepresentation);
-                            subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy;
+                            subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
                             guidRepresentation = bsonWriter.GuidRepresentation;
                         }
                     }

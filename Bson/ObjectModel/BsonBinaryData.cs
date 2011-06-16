@@ -27,7 +27,7 @@ namespace MongoDB.Bson {
         #region private fields
         private byte[] bytes;
         private BsonBinarySubType subType;
-        private GuidRepresentation guidRepresentation; // only relevant if subType is Uuid or UuidLegacy
+        private GuidRepresentation guidRepresentation; // only relevant if subType is UuidStandard or UuidLegacy
         #endregion
 
         #region constructors
@@ -65,19 +65,19 @@ namespace MongoDB.Bson {
             GuidRepresentation guidRepresentation
         )
             : base(BsonType.Binary) {
-            if (subType == BsonBinarySubType.Uuid || subType == BsonBinarySubType.UuidLegacy) {
+            if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy) {
                 if (bytes.Length != 16) {
                     var message = string.Format("Length must be 16, not {0}, when subType is {1}.", bytes.Length, subType);
                     throw new ArgumentException(message);
                 }
-                var expectedSubType = (guidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy;
+                var expectedSubType = (guidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
                 if (subType != expectedSubType) {
                     var message = string.Format("SubType must be {0}, not {1}, when GuidRepresentation is {2}.", expectedSubType, subType, GuidRepresentation);
                     throw new ArgumentException(message);
                 }
             } else {
                 if (guidRepresentation != GuidRepresentation.Unspecified) {
-                    var message = string.Format("GuidRepresentation must be Unspecified, not {0}, when SubType is not Uuid or UuidLegacy.", guidRepresentation);
+                    var message = string.Format("GuidRepresentation must be Unspecified, not {0}, when SubType is not UuidStandard or UuidLegacy.", guidRepresentation);
                     throw new ArgumentException(message);
                 }
             }
@@ -107,7 +107,7 @@ namespace MongoDB.Bson {
         )
             : this(
                 GuidConverter.ToBytes(guid, guidRepresentation),
-                (guidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy,
+                (guidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy,
                 guidRepresentation
             ) {
         }
@@ -129,11 +129,11 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Gets the BsonBinaryData as a Guid if the subtype is Uuid or UuidLegacy, otherwise null.
+        /// Gets the BsonBinaryData as a Guid if the subtype is UuidStandard or UuidLegacy, otherwise null.
         /// </summary>
         public override object RawValue {
             get {
-                if (subType == BsonBinarySubType.Uuid || subType == BsonBinarySubType.UuidLegacy) {
+                if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy) {
                     return ToGuid();
                 } else {
                     return null;
@@ -352,8 +352,8 @@ namespace MongoDB.Bson {
         public Guid ToGuid(
             GuidRepresentation guidRepresentation
         ) {
-            if (subType != BsonBinarySubType.Uuid && subType != BsonBinarySubType.UuidLegacy) {
-                var message = string.Format("SubType must be Uuid (or UuidLegacy), not {0}.", subType);
+            if (subType != BsonBinarySubType.UuidStandard && subType != BsonBinarySubType.UuidLegacy) {
+                var message = string.Format("SubType must be UuidStandard or UuidLegacy, not {0}.", subType);
                 throw new InvalidOperationException(message);
             }
             if (guidRepresentation == GuidRepresentation.Unspecified) {

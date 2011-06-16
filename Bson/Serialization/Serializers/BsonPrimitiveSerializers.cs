@@ -423,14 +423,14 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         message = string.Format("Expected length to be 16, not {0}.", bytes.Length);
                         throw new FileFormatException(message);
                     }
-                    if (subType != BsonBinarySubType.Uuid && subType != BsonBinarySubType.UuidLegacy) {
-                        message = string.Format("Expected binary sub type to be Uuid or UuidLegacy, not {0}.", subType);
+                    if (subType != BsonBinarySubType.UuidStandard && subType != BsonBinarySubType.UuidLegacy) {
+                        message = string.Format("Expected binary sub type to be UuidStandard or UuidLegacy, not {0}.", subType);
                         throw new FileFormatException(message);
                     }
                     if (bsonReader.GuidRepresentation == GuidRepresentation.Unspecified) {
                         throw new BsonSerializationException("GuidSerializer cannot deserialize a Guid when GuidRepresentation is Unspecified.");
                     }
-                    var expectedSubType = (bsonReader.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy;
+                    var expectedSubType = (bsonReader.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
                     if (subType != expectedSubType) {
                         message = string.Format("Expected binary sub type {0}, not {1}, for GuidRepresentation {2}.", expectedSubType, subType, bsonReader.GuidRepresentation);
                         throw new FileFormatException(message);
@@ -466,7 +466,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         throw new BsonSerializationException("GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified.");
                     }
                     var bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidRepresentation);
-                    var subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.Uuid : BsonBinarySubType.UuidLegacy;
+                    var subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
                     bsonWriter.WriteBinaryData(bytes, subType, bsonWriter.GuidRepresentation);
                     break;
                 case BsonType.String:

@@ -702,7 +702,7 @@ namespace MongoDB.Bson.IO {
             VerifyToken(")");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType) subTypeToken.Int32Value;
-            return new BsonBinaryData(bytes, subType); // don't worry about subType Uuid or UuidLegacy here (that's handled at a higher level)
+            return new BsonBinaryData(bytes, subType); // don't worry about UUIDs here (that's handled at a higher level)
         }
 
         private BsonValue ParseBinaryStrict() {
@@ -723,7 +723,7 @@ namespace MongoDB.Bson.IO {
             VerifyToken("}");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType) Convert.ToInt32(subTypeToken.StringValue, 16);
-            return new BsonBinaryData(bytes, subType); // don't worry about subType Uuid or UuidLegacy here (that's handled at a higher level)
+            return new BsonBinaryData(bytes, subType); // don't worry about UUIDs here (that's handled at a higher level)
         }
 
         private BsonType ParseJavaScript(
