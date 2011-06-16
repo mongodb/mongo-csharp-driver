@@ -2,9 +2,8 @@ C# Driver Version 1.1 Release Notes
 ===================================
 
 This is a significant release of the C# driver, with many new features and improvements. There are also a few
-breaking changes, which probably will affect very few users as they are mostly at a very low level. Because
-there are some breaking changes make sure to read these release notes and be prepared to make some minor
-changes.
+breaking changes, which should affect very few users as they are mostly at a very low level. Because there are
+some breaking changes make sure to read these release notes and be prepared to make some minor changes.
 
 Highlights
     BsonDocument.Parse allows you to easily parse a JSON string
@@ -18,7 +17,7 @@ Highlights
     Driver now throws EndOfStreamException instead of hanging when server closes socket
     BsonDateTime now supports full range of valid BSON DateTime values (not just .NET range)
     New GuidRepresentation enum and Uuid vs UuidLegacy BsonBinarySubTypes
-    Id values of 0 and BsonNull are no longer prohibited (unless you want them to be)
+    Id values of 0 and BsonNull.Value are no longer prohibited (unless you want them to be)
     GenerateDocument method of IIdGenerator now has access to container (i.e. collection) and document
     Driver is more PowerShell (and metadata) friendly by adding non-generic versions of all generic methods
     MapReduce output can now be sent to a collection in a different database
@@ -39,13 +38,13 @@ is now the default JsonOutputMode.
 
 GuidRepresentation and Uuid vs UuidLegacy BsonBinaryRepresentation
 
-In the past three drivers have supported UUIDs: C#, Java and Python. All three have used BSON binary sub type 3 to store
+In the past, three drivers have supported UUIDs: C#, Java and Python. All three have used BSON binary sub type 3 to store
 UUIDs, but unfortunately they have all used different byte orders to store the UUID, making sharing UUID data between the
 drivers and the MongoDB shell difficult. In the future all drivers will standardize on network byte order for UUIDs, and
 a new binary sub type 4 will be used for these UUIDs. Binary sub type 3 will indicate that the UUID is stored in a driver
-dependent byte order.
+dependent byte order. Eventually binary sub type 3 will be deprecated.
 
-This release of the C# driver defaults to GuidRepresentation CSharpLegacy, which means that unless you take some 
+This version of the C# driver defaults to GuidRepresentation CSharpLegacy, which means that unless you take some 
 action it will continue to behave exactly like the previous version. Note that the driver allows you to configure the 
 GuidRepresentation at the server, database and collection level. The lowest level at which it can be configured is the 
 collection, which means that all UUIDs in the same collection must be stored using the same representation. This may sound
@@ -60,13 +59,13 @@ an offline utility for converting GUIDs between the various representations.
 Breaking changes
     Many error messages changed slightly (only breaking if you were relying on the text of the error message)
     Some methods throw a different exception (only breaking if you were catching them)
-    ReadDateTime return type changed
-    Rename return type changed
-    WriteDateTime parameter type changed
+    BsonReader ReadDateTime return type changed
+    BsonWriter WriteDateTime parameter type changed
     IBsonSerializable interface changed
     IBsonSerializer interface changed
     IIdGenerator interface changed
     Several properties of MongoServer removed
+    Update builder Rename return type changed
         
 
 
@@ -227,7 +226,7 @@ BsonValue.cs
     WriteTo converts UuidLegacy value to GuidRepresentation of writer (if not Unspecified)
 
 GuidConvert.cs
-    Helper class that converts to and from the various GuidRepresentations
+    New helper class that converts to and from the various GuidRepresentations
     Added FromBytes method
     Added ToBytes method
 
@@ -277,8 +276,6 @@ BsonClassMapSerializer.cs
 
 BsonDefaultSerializer.cs
     Uses BsonSerializer.ConfigLock instead of staticLock to prevent deadlocks
-    New typesWithRegisteredKnownTypes field (used by EnsureKnownTypesAreRegistered)
-    New discriminatedTypes field to track which types have a discriminator
     Added IsTypeDiscriminated method
     LookupActualType now calls EnsureKnownTypesAreRegistered first
 
@@ -327,11 +324,11 @@ MapReduceOptionsBuilder.cs
 
 QueryBuilder.cs
     Type of queries parameter to And method changed to IMongoQuery[]
-    And method ignores any elements of the queries array thar are null
+    And method ignores any elements of the queries array that are null
     Type of query parameter to ElemMatch method changed to IMongoQuery
     Added new Nor method
     Type of queries parameter to Or method changed to IMongoQuery[]
-    Or method ignores any elements of the queries array thar are null
+    Or method ignores any elements of the queries array that are null
     Type of size parameter to Size method changed to int (was already int in Query, changed in QueryBuilder)
 
 UpdateBuilder.cs
@@ -433,7 +430,7 @@ MongoDatabase.cs
     Added FindAllUsers method
     Added FindUser method
     Added non-generic overloads of GetCollection
-    Added RemoveUser method
+    Added new overload of RemoveUser method that takes a MongoUser parameter
     Added non-generic overloads of RunCommandAs
 
 MongoDatabaseSettings.cs
@@ -468,7 +465,7 @@ MongoServerAddress.cs
 
 MongoServerBuildInfo.cs
     new class
-    Added Bits property (32 or 64)
+    Added Bits property (returns 32 or 64)
     Added GitVersion property (the git commit Id)
     Added SysInfo property
     Added Version property
