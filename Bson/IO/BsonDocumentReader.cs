@@ -23,9 +23,9 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents a BSON reader for a BsonDocument.
     /// </summary>
-    public class BsonDocumentReader : BsonBaseReader {
+    public class BsonDocumentReader : BsonReader {
         #region private fields
-        private BsonDocumentReaderSettings settings;
+        private new BsonDocumentReaderSettings settings; // same value as in base class just declared as derived class
         private BsonDocumentReaderContext context;
         private BsonValue currentValue;
         #endregion
@@ -39,19 +39,11 @@ namespace MongoDB.Bson.IO {
         public BsonDocumentReader(
             BsonDocument document,
             BsonDocumentReaderSettings settings
-        ) {
+        )
+            : base(settings) {
             context = new BsonDocumentReaderContext(null, ContextType.TopLevel, document);
             currentValue = document;
-            this.settings = settings.Freeze();
-        }
-        #endregion
-
-        #region public properties
-        /// <summary>
-        /// Gets the representation for Guids.
-        /// </summary>
-        public override GuidRepresentation GuidRepresentation {
-            get { return settings.GuidRepresentation; }
+            this.settings = settings; // already frozen by base class
         }
         #endregion
 

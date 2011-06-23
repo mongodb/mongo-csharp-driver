@@ -83,6 +83,7 @@
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="IO\BsonDocumentReaderSettings.cs" />
     <Compile Include="IO\BsonDocumentWriterSettings.cs" />
+    <Compile Include="IO\BsonReaderSettings.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
     <Compile Include="ObjectModel\GuidRepresentation.cs" />
     <Compile Include="ObjectModel\GuidConverter.cs" />
@@ -97,7 +98,6 @@
     <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />
     <Compile Include="Serialization\Options\RepresentationSerializationOptions.cs" />
     <Compile Include="Exceptions\TruncationException.cs" />
-    <Compile Include="IO\BsonBaseReader.cs" />
     <Compile Include="IO\BsonDocumentReader.cs" />
     <Compile Include="IO\BsonDocumentReaderBookmark.cs" />
     <Compile Include="IO\BsonDocumentReaderContext.cs" />

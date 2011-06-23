@@ -143,6 +143,13 @@ namespace MongoDB.Bson.Serialization {
         }
 
         /// <summary>
+        /// Gets whether the class map is frozen.
+        /// </summary>
+        public bool IsFrozen {
+            get { return frozen; }
+        }
+
+        /// <summary>
         /// Gets whether this class is a root class.
         /// </summary>
         public bool IsRootClass {

@@ -25,10 +25,10 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents a BSON reader for a JSON string.
     /// </summary>
-    public class JsonReader : BsonBaseReader {
+    public class JsonReader : BsonReader {
         #region private fields
         private JsonBuffer buffer;
-        private JsonReaderSettings settings;
+        private new JsonReaderSettings settings; // same value as in base class just declared as derived class
         private JsonReaderContext context;
         private JsonToken currentToken;
         private BsonValue currentValue;
@@ -44,19 +44,11 @@ namespace MongoDB.Bson.IO {
         public JsonReader(
             JsonBuffer buffer,
             JsonReaderSettings settings
-        ) {
+        )
+            : base(settings) {
             this.buffer = buffer;
-            this.settings = settings.Freeze();
+            this.settings = settings; // already frozen by base class
             this.context = new JsonReaderContext(null, ContextType.TopLevel);
-        }
-        #endregion
-
-        #region public properties
-        /// <summary>
-        /// Gets the representation for Guids.
-        /// </summary>
-        public override GuidRepresentation GuidRepresentation {
-            get { return settings.GuidRepresentation; }
         }
         #endregion
 

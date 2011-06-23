@@ -22,14 +22,10 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents settings for a BsonDocumentReader.
     /// </summary>
-    public class BsonDocumentReaderSettings {
+    [Serializable]
+    public class BsonDocumentReaderSettings : BsonReaderSettings {
         #region private static fields
         private static BsonDocumentReaderSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
-
-        #region private fields
-        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
-        private bool isFrozen;
         #endregion
 
         #region constructors
@@ -45,8 +41,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="guidRepresentation">The representation for Guids.</param>
         public BsonDocumentReaderSettings(
             GuidRepresentation guidRepresentation
-        ) {
-            this.guidRepresentation = guidRepresentation;
+        ) 
+            : base(guidRepresentation) {
         }
         #endregion
 
@@ -65,44 +61,25 @@ namespace MongoDB.Bson.IO {
         }
         #endregion
 
-        #region public properties
-        /// <summary>
-        /// Gets or sets the representation for Guids.
-        /// </summary>
-        public GuidRepresentation GuidRepresentation {
-            get { return guidRepresentation; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonDocumentReaderSettings is frozen."); }
-                guidRepresentation = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets whether the settings are frozen.
-        /// </summary>
-        public bool IsFrozen {
-            get { return isFrozen; }
-        }
-        #endregion
-
         #region public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public BsonDocumentReaderSettings Clone() {
+        public new BsonDocumentReaderSettings Clone() {
+            return (BsonDocumentReaderSettings) CloneImplementation();
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Creates a clone of the settings.
+        /// </summary>
+        /// <returns>A clone of the settings.</returns>
+        protected override BsonReaderSettings CloneImplementation() {
             return new BsonDocumentReaderSettings(
                 guidRepresentation
             );
-        }
-
-        /// <summary>
-        /// Freezes the settings.
-        /// </summary>
-        /// <returns>The settings.</returns>
-        public BsonDocumentReaderSettings Freeze() {
-            isFrozen = true;
-            return this;
         }
         #endregion
     }

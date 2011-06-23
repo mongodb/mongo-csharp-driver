@@ -22,15 +22,14 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents settings for a JsonReader.
     /// </summary>
-    public class JsonReaderSettings {
+    [Serializable]
+    public class JsonReaderSettings : BsonReaderSettings {
         #region private static fields
         private static JsonReaderSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
 
         #region private fields
         private bool closeInput = false;
-        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
-        private bool isFrozen;
         #endregion
 
         #region constructors
@@ -48,9 +47,9 @@ namespace MongoDB.Bson.IO {
         public JsonReaderSettings(
             bool closeInput,
             GuidRepresentation guidRepresentation
-        ) {
+        )
+            : base(guidRepresentation) {
             this.closeInput = closeInput;
-            this.guidRepresentation = guidRepresentation;
         }
         #endregion
 
@@ -80,24 +79,6 @@ namespace MongoDB.Bson.IO {
                 closeInput = value;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the representation for Guids.
-        /// </summary>
-        public GuidRepresentation GuidRepresentation {
-            get { return guidRepresentation; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
-                guidRepresentation = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets whether the settings are frozen.
-        /// </summary>
-        public bool IsFrozen {
-            get { return isFrozen; }
-        }
         #endregion
 
         #region public methods
@@ -105,20 +86,21 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public JsonReaderSettings Clone() {
+        public new JsonReaderSettings Clone() {
+            return (JsonReaderSettings) CloneImplementation();
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Creates a clone of the settings.
+        /// </summary>
+        /// <returns>A clone of the settings.</returns>
+        protected override BsonReaderSettings CloneImplementation() {
             return new JsonReaderSettings(
                 closeInput,
                 guidRepresentation
             );
-        }
-
-        /// <summary>
-        /// Freezes the settings.
-        /// </summary>
-        /// <returns>The settings.</returns>
-        public JsonReaderSettings Freeze() {
-            isFrozen = true;
-            return this;
         }
         #endregion
     }

@@ -22,7 +22,8 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents settings for a BsonBinaryReader.
     /// </summary>
-    public class BsonBinaryReaderSettings {
+    [Serializable]
+    public class BsonBinaryReaderSettings : BsonReaderSettings {
         #region private static fields
         private static BsonBinaryReaderSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
@@ -30,9 +31,7 @@ namespace MongoDB.Bson.IO {
         #region private fields
         private bool closeInput = false;
         private bool fixOldBinarySubTypeOnInput = true;
-        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
-        private bool isFrozen;
         #endregion
 
         #region constructors
@@ -54,10 +53,10 @@ namespace MongoDB.Bson.IO {
             bool fixOldBinarySubTypeOnInput,
             GuidRepresentation guidRepresentation,
             int maxDocumentSize
-        ) {
+        ) 
+            : base(guidRepresentation) {
             this.closeInput = closeInput;
             this.fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
-            this.guidRepresentation = guidRepresentation;
             this.maxDocumentSize = maxDocumentSize;
         }
         #endregion
@@ -101,24 +100,6 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
-        /// Gets or sets the representation for Guids.
-        /// </summary>
-        public GuidRepresentation GuidRepresentation {
-            get { return guidRepresentation; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                guidRepresentation = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets whether the settings are frozen.
-        /// </summary>
-        public bool IsFrozen {
-            get { return isFrozen; }
-        }
-
-        /// <summary>
         /// Gets or sets the max document size.
         /// </summary>
         public int MaxDocumentSize {
@@ -135,22 +116,23 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public BsonBinaryReaderSettings Clone() {
+        public new BsonBinaryReaderSettings Clone() {
+            return (BsonBinaryReaderSettings) CloneImplementation();
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Creates a clone of the settings.
+        /// </summary>
+        /// <returns>A clone of the settings.</returns>
+        protected override BsonReaderSettings CloneImplementation() {
             return new BsonBinaryReaderSettings(
                 closeInput,
                 fixOldBinarySubTypeOnInput,
                 guidRepresentation,
                 maxDocumentSize
             );
-        }
-
-        /// <summary>
-        /// Freezes the settings.
-        /// </summary>
-        /// <returns>The settings.</returns>
-        public BsonBinaryReaderSettings Freeze() {
-            isFrozen = true;
-            return this;
         }
         #endregion
     }

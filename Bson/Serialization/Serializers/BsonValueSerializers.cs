@@ -146,7 +146,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     if (subType == BsonBinarySubType.UuidStandard) {
                         return new BsonBinaryData(bytes, subType, GuidRepresentation.Standard);
                     } else if (subType == BsonBinarySubType.UuidLegacy) {
-                        return new BsonBinaryData(bytes, subType, bsonReader.GuidRepresentation);
+                        return new BsonBinaryData(bytes, subType, bsonReader.Settings.GuidRepresentation);
                     } else {
                         return new BsonBinaryData(bytes, subType);
                     }

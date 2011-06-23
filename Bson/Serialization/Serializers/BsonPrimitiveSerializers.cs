@@ -427,15 +427,16 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         message = string.Format("Expected binary sub type to be UuidStandard or UuidLegacy, not {0}.", subType);
                         throw new FileFormatException(message);
                     }
-                    if (bsonReader.GuidRepresentation == GuidRepresentation.Unspecified) {
+                    var readerGuidRepresentation = bsonReader.Settings.GuidRepresentation;
+                    if (readerGuidRepresentation == GuidRepresentation.Unspecified) {
                         throw new BsonSerializationException("GuidSerializer cannot deserialize a Guid when GuidRepresentation is Unspecified.");
                     }
-                    var expectedSubType = (bsonReader.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
+                    var expectedSubType = (readerGuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
                     if (subType != expectedSubType) {
-                        message = string.Format("Expected binary sub type {0}, not {1}, for GuidRepresentation {2}.", expectedSubType, subType, bsonReader.GuidRepresentation);
+                        message = string.Format("Expected binary sub type {0}, not {1}, for GuidRepresentation {2}.", expectedSubType, subType, readerGuidRepresentation);
                         throw new FileFormatException(message);
                     }
-                    return GuidConverter.FromBytes(bytes, bsonReader.GuidRepresentation);
+                    return GuidConverter.FromBytes(bytes, readerGuidRepresentation);
                 case BsonType.String:
                     return new Guid(bsonReader.ReadString());
                 default:

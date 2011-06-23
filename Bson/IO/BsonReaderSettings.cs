@@ -20,10 +20,10 @@ using System.Text;
 
 namespace MongoDB.Bson.IO {
     /// <summary>
-    /// Represents settings for a BsonWriter.
+    /// Represents settings for a BsonReader.
     /// </summary>
     [Serializable]
-    public abstract class BsonWriterSettings {
+    public abstract class BsonReaderSettings {
         #region protected fields
         /// <summary>
         /// The representation for Guids.
@@ -37,16 +37,16 @@ namespace MongoDB.Bson.IO {
 
         #region constructors
         /// <summary>
-        /// Initializes a new instance of the BsonWriterSettings class.
+        /// Initializes a new instance of the BsonReaderSettings class.
         /// </summary>
-        protected BsonWriterSettings() {
+        protected BsonReaderSettings() {
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonWriterSettings class.
+        /// Initializes a new instance of the BsonReaderSettings class.
         /// </summary>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        protected BsonWriterSettings(
+        protected BsonReaderSettings(
             GuidRepresentation guidRepresentation
         ) {
             this.guidRepresentation = guidRepresentation;
@@ -78,7 +78,7 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public BsonWriterSettings Clone() {
+        public BsonReaderSettings Clone() {
             return CloneImplementation();
         }
 
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.IO {
         /// Freezes the settings.
         /// </summary>
         /// <returns>The settings.</returns>
-        public BsonWriterSettings Freeze() {
+        public BsonReaderSettings Freeze() {
             isFrozen = true;
             return this;
         }
@@ -97,7 +97,7 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected abstract BsonWriterSettings CloneImplementation();
+        protected abstract BsonReaderSettings CloneImplementation();
 
         /// <summary>
         /// Throws an InvalidOperationException when an attempt is made to change a setting after the settings are frozen.

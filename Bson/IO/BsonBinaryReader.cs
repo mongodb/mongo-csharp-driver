@@ -23,11 +23,11 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents a BSON reader for a binary BSON byte array.
     /// </summary>
-    public class BsonBinaryReader : BsonBaseReader {
+    public class BsonBinaryReader : BsonReader {
         #region private fields
         private BsonBuffer buffer; // if reading from a stream Create will have loaded the buffer
         private bool disposeBuffer;
-        private BsonBinaryReaderSettings settings;
+        private new BsonBinaryReaderSettings settings; // same value as in base class just declared as derived class
         private BsonBinaryReaderContext context;
         #endregion
 
@@ -40,7 +40,8 @@ namespace MongoDB.Bson.IO {
         public BsonBinaryReader(
             BsonBuffer buffer,
             BsonBinaryReaderSettings settings
-        ) {
+        )
+            : base(settings) {
             if (buffer == null) {
                 this.buffer = new BsonBuffer();
                 this.disposeBuffer = true; // only call Dispose if we allocated the buffer
@@ -48,7 +49,7 @@ namespace MongoDB.Bson.IO {
                 this.buffer = buffer;
                 this.disposeBuffer = false;
             }
-            this.settings = settings.Freeze();
+            this.settings = settings; // already frozen by base class
             context = new BsonBinaryReaderContext(null, ContextType.TopLevel, 0, 0);
         }
         #endregion
@@ -59,13 +60,6 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         public BsonBuffer Buffer {
             get { return buffer; }
-        }
-
-        /// <summary>
-        /// Gets the representation for Guids.
-        /// </summary>
-        public override GuidRepresentation GuidRepresentation {
-            get { return settings.GuidRepresentation; }
         }
         #endregion
 
