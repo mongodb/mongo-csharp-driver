@@ -83,6 +83,7 @@
     <Compile Include="BsonExtensionMethods.cs" />
     <Compile Include="IO\BsonDocumentReaderSettings.cs" />
     <Compile Include="IO\BsonDocumentWriterSettings.cs" />
+    <Compile Include="IO\BsonWriterSettings.cs" />
     <Compile Include="ObjectModel\GuidRepresentation.cs" />
     <Compile Include="ObjectModel\GuidConverter.cs" />
     <Compile Include="IO\JsonReaderSettings.cs" />
@@ -131,7 +132,6 @@
     <Compile Include="Serialization\Serializers\ObjectSerializer.cs" />
     <Compile Include="Exceptions\BsonInternalException.cs" />
     <Compile Include="Exceptions\BsonSerializationException.cs" />
-    <Compile Include="IO\BsonBaseWriter.cs" />
     <Compile Include="IO\BsonBinaryReaderBookmark.cs" />
     <Compile Include="ObjectModel\IConvertibleToBsonDocument.cs" />
     <Compile Include="Serialization\Attributes\BsonDefaultValueAttribute.cs" />

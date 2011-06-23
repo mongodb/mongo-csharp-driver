@@ -392,7 +392,7 @@ namespace MongoDB.Driver {
                 { "findAndModify", name },
                 { "query", BsonDocumentWrapper.Create(query) },
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
-                { "update", BsonDocumentWrapper.Create(update) },
+                { "update", BsonDocumentWrapper.Create(update, true) }, // isUpdateDocument = true
                 { "fields", BsonDocumentWrapper.Create(fields) },
                 { "new", true, returnNew },
                 { "upsert", true, upsert}
@@ -1204,7 +1204,7 @@ namespace MongoDB.Driver {
                 } else {
                     BsonValue idBsonValue;
                     if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue)) {
-                        idBsonValue = new BsonDocumentWrapper(idNominalType, id);
+                        idBsonValue = BsonDocumentWrapper.Create(idNominalType, id);
                     }
                     if (idBsonValue.IsString && BsonClassMap.IsClassMapRegistered(document.GetType())) {
                         var classMap = BsonClassMap.LookupClassMap(document.GetType());

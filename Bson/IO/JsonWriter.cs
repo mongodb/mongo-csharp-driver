@@ -26,10 +26,10 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents a BSON writer to a TextWriter (in JSON format).
     /// </summary>
-    public class JsonWriter : BsonBaseWriter {
+    public class JsonWriter : BsonWriter {
         #region private fields
         private TextWriter textWriter;
-        private JsonWriterSettings settings;
+        private new JsonWriterSettings settings; // same value as in base class just declared as derived class
         private JsonWriterContext context;
         #endregion
 
@@ -42,20 +42,12 @@ namespace MongoDB.Bson.IO {
         public JsonWriter(
             TextWriter writer,
             JsonWriterSettings settings
-        ) {
+        ) 
+            : base(settings) {
             this.textWriter = writer;
-            this.settings = settings.Freeze();
+            this.settings = settings; // already frozen by base class
             context = new JsonWriterContext(null, ContextType.TopLevel, "");
             state = BsonWriterState.Initial;
-        }
-        #endregion
-
-        #region public properties
-        /// <summary>
-        /// Gets the representation for Guids.
-        /// </summary>
-        public override GuidRepresentation GuidRepresentation {
-            get { return settings.GuidRepresentation; }
         }
         #endregion
 

@@ -26,11 +26,74 @@ namespace MongoDB.Bson.IO {
     /// Represents a BSON writer for some external format (see subclasses).
     /// </summary>
     public abstract class BsonWriter : IDisposable {
+        #region protected fields
+        /// <summary>
+        /// Whether the object has been disposed.
+        /// </summary>
+        protected bool disposed = false;
+        /// <summary>
+        /// The settings of the writer.
+        /// </summary>
+        protected BsonWriterSettings settings;
+        /// <summary>
+        /// The current state of the writer.
+        /// </summary>
+        protected BsonWriterState state;
+        /// <summary>
+        /// The name of the current element.
+        /// </summary>
+        protected string name;
+        /// <summary>
+        /// Whether to check element names (no periods or leading $).
+        /// </summary>
+        protected bool checkElementNames;
+        /// <summary>
+        /// Whether to check an update document (turns CheckElementNames on if first element name does *not* start with $).
+        /// </summary>
+        protected bool checkUpdateDocument;
+        #endregion
+
         #region constructors
         /// <summary>
         /// Initializes a new instance of the BsonWriter class.
         /// </summary>
-        protected BsonWriter() {
+        protected BsonWriter(
+            BsonWriterSettings settings
+        ) {
+            this.settings = settings.Freeze();
+            this.state = BsonWriterState.Initial;
+        }
+        #endregion
+
+        #region public properties
+        /// <summary>
+        /// Gets or sets whether to check element names (no periods or leading $).
+        /// </summary>
+        public bool CheckElementNames {
+            get { return checkElementNames; }
+            set { checkElementNames = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to check an update document (turns CheckElementNames on if first element name does *not* start with $).
+        /// </summary>
+        public bool CheckUpdateDocument {
+            get { return checkUpdateDocument; }
+            set { checkUpdateDocument = value; }
+        }
+
+        /// <summary>
+        /// Gets the settings of the writer.
+        /// </summary>
+        public BsonWriterSettings Settings {
+            get { return settings; }
+        }
+
+        /// <summary>
+        /// Gets the current state of the writer.
+        /// </summary>
+        public BsonWriterState State {
+            get { return state; }
         }
         #endregion
 
@@ -143,18 +206,6 @@ namespace MongoDB.Bson.IO {
         }
         #endregion
 
-        #region public properties
-        /// <summary>
-        /// Gets the representation for Guids.
-        /// </summary>
-        public abstract GuidRepresentation GuidRepresentation { get; }
-
-        /// <summary>
-        /// Gets the current state of the writer.
-        /// </summary>
-        public abstract BsonWriterState State { get; }
-        #endregion
-
         #region public methods
         /// <summary>
         /// Closes the writer.
@@ -164,7 +215,12 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Disposes of any resources used by the writer.
         /// </summary>
-        public abstract void Dispose();
+        public void Dispose() {
+            if (!disposed) {
+                Dispose(true);
+                disposed = true;
+            }
+        }
 
         /// <summary>
         /// Flushes any pending data to the output destination.
@@ -172,14 +228,17 @@ namespace MongoDB.Bson.IO {
         public abstract void Flush();
 
         /// <summary>
-        /// Writes BSON binary data to the writer.
+        /// Writes a BSON binary data element to the writer.
         /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
-        public abstract void WriteBinaryData(
+        public void WriteBinaryData(
             byte[] bytes,
             BsonBinarySubType subType
-        );
+        ) {
+            var guidRepresentation = (subType == BsonBinarySubType.UuidStandard) ? GuidRepresentation.Standard : GuidRepresentation.Unspecified;
+            WriteBinaryData(bytes, subType, guidRepresentation);
+        }
 
         /// <summary>
         /// Writes BSON binary data to the writer.
@@ -199,11 +258,14 @@ namespace MongoDB.Bson.IO {
         /// <param name="name">The name of the element.</param>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
-        public abstract void WriteBinaryData(
+        public void WriteBinaryData(
             string name,
             byte[] bytes,
             BsonBinarySubType subType
-        );
+        ) {
+            WriteName(name);
+            WriteBinaryData(bytes, subType);
+        }
 
         /// <summary>
         /// Writes a BSON binary data element to the writer.
@@ -211,13 +273,16 @@ namespace MongoDB.Bson.IO {
         /// <param name="name">The name of the element.</param>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The respresentation for Guids.</param>
-        public abstract void WriteBinaryData(
+        /// <param name="guidRepresentation">The representation for Guids.</param>
+        public void WriteBinaryData(
             string name,
             byte[] bytes,
             BsonBinarySubType subType,
             GuidRepresentation guidRepresentation
-        );
+        ) {
+            WriteName(name);
+            WriteBinaryData(bytes, subType, guidRepresentation);
+        }
 
         /// <summary>
         /// Writes a BSON Boolean to the writer.
@@ -232,10 +297,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The Boolean value.</param>
-        public abstract void WriteBoolean(
+        public void WriteBoolean(
             string name,
             bool value
-        );
+        ) {
+            WriteName(name);
+            WriteBoolean(value);
+        }
 
         /// <summary>
         /// Writes a BSON DateTime to the writer.
@@ -250,10 +318,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The number of milliseconds since the Unix epoch.</param>
-        public abstract void WriteDateTime(
+        public void WriteDateTime(
             string name,
             long value
-        );
+        ) {
+            WriteName(name);
+            WriteDateTime(value);
+        }
 
         /// <summary>
         /// Writes a BSON Double to the writer.
@@ -268,10 +339,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The Double value.</param>
-        public abstract void WriteDouble(
+        public void WriteDouble(
             string name,
             double value
-        );
+        ) {
+            WriteName(name);
+            WriteDouble(value);
+        }
 
         /// <summary>
         /// Writes the end of a BSON array to the writer.
@@ -296,10 +370,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The Int32 value.</param>
-        public abstract void WriteInt32(
+        public void WriteInt32(
             string name,
             int value
-        );
+        ) {
+            WriteName(name);
+            WriteInt32(value);
+        }
 
         /// <summary>
         /// Writes a BSON Int64 to the writer.
@@ -314,10 +391,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The Int64 value.</param>
-        public abstract void WriteInt64(
+        public void WriteInt64(
             string name,
             long value
-        );
+        ) {
+            WriteName(name);
+            WriteInt64(value);
+        }
 
         /// <summary>
         /// Writes a BSON JavaScript to the writer.
@@ -332,10 +412,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="code">The JavaScript code.</param>
-        public abstract void WriteJavaScript(
+        public void WriteJavaScript(
             string name,
             string code
-        );
+        ) {
+            WriteName(name);
+            WriteJavaScript(code);
+        }
 
         /// <summary>
         /// Writes a BSON JavaScript to the writer (call WriteStartDocument to start writing the scope).
@@ -350,10 +433,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="code">The JavaScript code.</param>
-        public abstract void WriteJavaScriptWithScope(
+        public void WriteJavaScriptWithScope(
             string name,
             string code
-        );
+        ) {
+            WriteName(name);
+            WriteJavaScriptWithScope(code);
+        }
 
         /// <summary>
         /// Writes a BSON MaxKey to the writer.
@@ -364,9 +450,12 @@ namespace MongoDB.Bson.IO {
         /// Writes a BSON MaxKey element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public abstract void WriteMaxKey(
+        public void WriteMaxKey(
             string name
-        );
+        ) {
+            WriteName(name);
+            WriteMaxKey();
+        }
 
         /// <summary>
         /// Writes a BSON MinKey to the writer.
@@ -377,17 +466,29 @@ namespace MongoDB.Bson.IO {
         /// Writes a BSON MinKey element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public abstract void WriteMinKey(
+        public void WriteMinKey(
             string name
-        );
+        ) {
+            WriteName(name);
+            WriteMinKey();
+        }
 
         /// <summary>
         /// Writes the name of an element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public abstract void WriteName(
+        public virtual void WriteName(
             string name
-        );
+        ) {
+            if (disposed) { throw new ObjectDisposedException(this.GetType().Name); }
+            if (state != BsonWriterState.Name) {
+                ThrowInvalidState("WriteName", BsonWriterState.Name);
+            }
+            CheckElementName(name);
+
+            this.name = name;
+            state = BsonWriterState.Value;
+        }
 
         /// <summary>
         /// Writes a BSON null to the writer.
@@ -398,9 +499,12 @@ namespace MongoDB.Bson.IO {
         /// Writes a BSON null element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public abstract void WriteNull(
+        public void WriteNull(
             string name
-        );
+        ) {
+            WriteName(name);
+            WriteNull();
+        }
 
         /// <summary>
         /// Writes a BSON ObjectId to the writer.
@@ -424,13 +528,16 @@ namespace MongoDB.Bson.IO {
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
-        public abstract void WriteObjectId(
+        public void WriteObjectId(
             string name,
             int timestamp,
             int machine,
             short pid,
             int increment
-        );
+        ) {
+            WriteName(name);
+            WriteObjectId(timestamp, machine, pid, increment);
+        }
 
         /// <summary>
         /// Writes a BSON regular expression to the writer.
@@ -448,11 +555,14 @@ namespace MongoDB.Bson.IO {
         /// <param name="name">The name of the element.</param>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">A regular expression options.</param>
-        public abstract void WriteRegularExpression(
+        public void WriteRegularExpression(
             string name,
             string pattern,
             string options
-        );
+        ) {
+            WriteName(name);
+            WriteRegularExpression(pattern, options);
+        }
 
         /// <summary>
         /// Writes the start of a BSON array to the writer.
@@ -463,9 +573,12 @@ namespace MongoDB.Bson.IO {
         /// Writes the start of a BSON array element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public abstract void WriteStartArray(
+        public void WriteStartArray(
             string name
-        );
+        ) {
+            WriteName(name);
+            WriteStartArray();
+        }
 
         /// <summary>
         /// Writes the start of a BSON document to the writer.
@@ -476,9 +589,12 @@ namespace MongoDB.Bson.IO {
         /// Writes the start of a BSON document element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public abstract void WriteStartDocument(
+        public void WriteStartDocument(
             string name
-        );
+        ) {
+            WriteName(name);
+            WriteStartDocument();
+        }
 
         /// <summary>
         /// Writes a BSON String to the writer.
@@ -493,10 +609,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The String value.</param>
-        public abstract void WriteString(
+        public void WriteString(
             string name,
             string value
-        );
+        ) {
+            WriteName(name);
+            WriteString(value);
+        }
 
         /// <summary>
         /// Writes a BSON Symbol to the writer.
@@ -511,10 +630,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The symbol.</param>
-        public abstract void WriteSymbol(
+        public void WriteSymbol(
             string name,
             string value
-        );
+        ) {
+            WriteName(name);
+            WriteSymbol(value);
+        }
 
         /// <summary>
         /// Writes a BSON timestamp to the writer.
@@ -529,10 +651,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The combined timestamp/increment value.</param>
-        public abstract void WriteTimestamp(
+        public void WriteTimestamp(
             string name,
             long value
-        );
+        ) {
+            WriteName(name);
+            WriteTimestamp(value);
+        }
 
         /// <summary>
         /// Writes a BSON undefined to the writer.
@@ -543,9 +668,88 @@ namespace MongoDB.Bson.IO {
         /// Writes a BSON undefined element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public abstract void WriteUndefined(
+        public void WriteUndefined(
             string name
+        ) {
+            WriteName(name);
+            WriteUndefined();
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Checks that the name is valid.
+        /// </summary>
+        /// <param name="name"></param>
+        protected void CheckElementName(
+            string name
+        ) {
+            if (checkUpdateDocument) {
+                checkElementNames = !name.StartsWith("$");
+                checkUpdateDocument = false;
+                return;
+            }
+
+            if (checkElementNames) {
+                if (name.StartsWith("$")) {
+                    // a few element names starting with $ have to be allowed for historical reasons
+                    switch (name) {
+                        case "$csharpnull":
+                        case "$code":
+                        case "$db":
+                        case "$id":
+                        case "$ref":
+                        case "$scope":
+                            break;
+                        default:
+                            var message = string.Format("Element name '{0}' is not valid because it starts with a '$'.", name);
+                            throw new BsonSerializationException(message);
+                    }
+                }
+                if (name.Contains('.')) {
+                    var message = string.Format("Element name '{0}' is not valid because it contains a '.'.", name);
+                    throw new BsonSerializationException(message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Disposes of any resources used by the writer.
+        /// </summary>
+        /// <param name="disposing">True if called from Dispose.</param>
+        protected abstract void Dispose(
+            bool disposing
         );
+
+        /// <summary>
+        /// Throws an InvalidOperationException when the method called is not valid for the current ContextType.
+        /// </summary>
+        /// <param name="methodName">The name of the method.</param>
+        /// <param name="actualContextType">The actual ContextType.</param>
+        /// <param name="validContextTypes">The valid ContextTypes.</param>
+        protected void ThrowInvalidContextType(
+            string methodName,
+            ContextType actualContextType,
+            params ContextType[] validContextTypes
+        ) {
+            var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
+            var message = string.Format("{0} can only be called when ContextType is {1}, not when ContextType is {2}.", methodName, validContextTypesString, actualContextType);
+            throw new InvalidOperationException(message);
+        }
+
+        /// <summary>
+        /// Throws an InvalidOperationException when the method called is not valid for the current state.
+        /// </summary>
+        /// <param name="methodName">The name of the method.</param>
+        /// <param name="validStates">The valid states.</param>
+        protected void ThrowInvalidState(
+            string methodName,
+            params BsonWriterState[] validStates
+        ) {
+            var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
+            var message = string.Format("{0} can only be called when State is {1}, not when State is {2}", methodName, validStatesString, state);
+            throw new InvalidOperationException(message);
+        }
         #endregion
     }
 }

@@ -177,16 +177,17 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 var subType = binaryData.SubType;
                 var guidRepresentation = binaryData.GuidRepresentation;
                 if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy) {
-                    if (bsonWriter.GuidRepresentation != GuidRepresentation.Unspecified) {
+                    var writerGuidRepresentation = bsonWriter.Settings.GuidRepresentation;
+                    if (writerGuidRepresentation != GuidRepresentation.Unspecified) {
                         if (guidRepresentation == GuidRepresentation.Unspecified) {
-                            var message = string.Format("Cannot serialize BsonBinaryData with GuidRepresentation Unspecified to destination with GuidRepresentation {1}.", bsonWriter.GuidRepresentation);
+                            var message = string.Format("Cannot serialize BsonBinaryData with GuidRepresentation Unspecified to destination with GuidRepresentation {1}.", writerGuidRepresentation);
                             throw new BsonSerializationException(message);
                         }
-                        if (guidRepresentation != bsonWriter.GuidRepresentation) {
+                        if (guidRepresentation != writerGuidRepresentation) {
                             var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
-                            bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidRepresentation);
-                            subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
-                            guidRepresentation = bsonWriter.GuidRepresentation;
+                            bytes = GuidConverter.ToBytes(guid, writerGuidRepresentation);
+                            subType = (writerGuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
+                            guidRepresentation = writerGuidRepresentation;
                         }
                     }
                 }

@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO {
     /// Represents settings for a BsonBinaryWriter.
     /// </summary>
     [Serializable]
-    public class BsonBinaryWriterSettings {
+    public class BsonBinaryWriterSettings : BsonWriterSettings {
         #region private static fields
         private static BsonBinaryWriterSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
@@ -31,9 +31,7 @@ namespace MongoDB.Bson.IO {
         #region private fields
         private bool closeOutput = false;
         private bool fixOldBinarySubTypeOnOutput = true;
-        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
-        private bool isFrozen;
         #endregion
 
         #region constructors
@@ -55,10 +53,10 @@ namespace MongoDB.Bson.IO {
             bool fixOldBinarySubTypeOnOutput,
             GuidRepresentation guidRepresentation,
             int maxDocumentSize
-        ) {
+        )
+            : base(guidRepresentation) {
             this.closeOutput = closeOutput;
             this.fixOldBinarySubTypeOnOutput = fixOldBinarySubTypeOnOutput;
-            this.guidRepresentation = guidRepresentation;
             this.maxDocumentSize = maxDocumentSize;
         }
         #endregion
@@ -102,24 +100,6 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
-        /// Gets or sets the representation for Guids.
-        /// </summary>
-        public GuidRepresentation GuidRepresentation {
-            get { return guidRepresentation; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
-                guidRepresentation = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets whether the settings are frozen.
-        /// </summary>
-        public bool IsFrozen {
-            get { return isFrozen; }
-        }
-
-        /// <summary>
         /// Gets or sets the max document size.
         /// </summary>
         public int MaxDocumentSize {
@@ -136,22 +116,23 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public BsonBinaryWriterSettings Clone() {
+        public new BsonBinaryWriterSettings Clone() {
+            return (BsonBinaryWriterSettings) CloneImplementation();
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Creates a clone of the settings.
+        /// </summary>
+        /// <returns>A clone of the settings.</returns>
+        protected override BsonWriterSettings CloneImplementation() {
             return new BsonBinaryWriterSettings(
                 closeOutput,
                 fixOldBinarySubTypeOnOutput,
                 guidRepresentation,
                 maxDocumentSize
             );
-        }
-
-        /// <summary>
-        /// Freezes the settings.
-        /// </summary>
-        /// <returns>The settings.</returns>
-        public BsonBinaryWriterSettings Freeze() {
-            isFrozen = true;
-            return this;
         }
         #endregion
     }

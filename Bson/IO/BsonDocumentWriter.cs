@@ -23,10 +23,10 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents a BSON writer to a BsonDocument.
     /// </summary>
-    public class BsonDocumentWriter : BsonBaseWriter {
+    public class BsonDocumentWriter : BsonWriter {
         #region private fields
         private BsonDocument topLevelDocument;
-        private BsonDocumentWriterSettings settings;
+        private new BsonDocumentWriterSettings settings; // same value as in base class just declared as derived class
         private BsonDocumentWriterContext context;
         #endregion
 
@@ -39,22 +39,16 @@ namespace MongoDB.Bson.IO {
         public BsonDocumentWriter(
             BsonDocument topLevelDocument,
             BsonDocumentWriterSettings settings
-        ) {
+        )
+            : base(settings) {
             this.topLevelDocument = topLevelDocument;
-            this.settings = settings.Freeze();
+            this.settings = settings; // already frozen by base class
             context = null;
             state = BsonWriterState.Initial;
         }
         #endregion
 
         #region public properties
-        /// <summary>
-        /// Gets the representation for Guids.
-        /// </summary>
-        public override GuidRepresentation GuidRepresentation {
-            get { return settings.GuidRepresentation; }
-        }
-
         /// <summary>
         /// Gets the top level BsonDocument.
         /// </summary>
@@ -298,13 +292,8 @@ namespace MongoDB.Bson.IO {
         public override void WriteName(
             string name
         ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Name) {
-                ThrowInvalidState("WriteName", BsonWriterState.Name);
-            }
-
+            base.WriteName(name);
             context.Name = name;
-            state = BsonWriterState.Value;
         }
 
         /// <summary>

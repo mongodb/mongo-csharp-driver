@@ -20,44 +20,55 @@ using System.Text;
 
 namespace MongoDB.Bson.IO {
     /// <summary>
-    /// Represents settings for a BsonDocumentWriter.
+    /// Represents settings for a BsonWriter.
     /// </summary>
     [Serializable]
-    public class BsonDocumentWriterSettings : BsonWriterSettings {
-        #region private static fields
-        private static BsonDocumentWriterSettings defaults = null; // delay creation to pick up the latest default values
+    public abstract class BsonWriterSettings {
+        #region protected fields
+        /// <summary>
+        /// The representation for Guids.
+        /// </summary>
+        protected GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
+        /// <summary>
+        /// Whether the settings are frozen.
+        /// </summary>
+        protected bool isFrozen;
         #endregion
 
         #region constructors
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWriterSettings class.
         /// </summary>
-        public BsonDocumentWriterSettings() {
+        protected BsonWriterSettings() {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWriterSettings class.
         /// </summary>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        public BsonDocumentWriterSettings(
+        protected BsonWriterSettings(
             GuidRepresentation guidRepresentation
-        ) 
-            : base(guidRepresentation) {
+        ) {
+            this.guidRepresentation = guidRepresentation;
         }
         #endregion
 
-        #region public static properties
+        #region public properties
         /// <summary>
-        /// Gets or sets the default BsonDocumentWriter settings.
+        /// Gets or sets the representation for Guids.
         /// </summary>
-        public static BsonDocumentWriterSettings Defaults {
-            get {
-                if (defaults == null) {
-                    defaults = new BsonDocumentWriterSettings();
-                }
-                return defaults;
+        public GuidRepresentation GuidRepresentation {
+            get { return guidRepresentation; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("BsonWriterSettings is frozen."); }
+                guidRepresentation = value;
             }
-            set { defaults = value; }
+        }
+
+        /// <summary>
+        /// Gets whether the settings are frozen.
+        /// </summary>
+        public bool IsFrozen {
+            get { return isFrozen; }
         }
         #endregion
 
@@ -66,8 +77,17 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new BsonDocumentWriterSettings Clone() {
-            return (BsonDocumentWriterSettings) CloneImplementation();
+        public BsonWriterSettings Clone() {
+            return CloneImplementation();
+        }
+
+        /// <summary>
+        /// Freezes the settings.
+        /// </summary>
+        /// <returns>The settings.</returns>
+        public BsonWriterSettings Freeze() {
+            isFrozen = true;
+            return this;
         }
         #endregion
 
@@ -76,11 +96,7 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonWriterSettings CloneImplementation() {
-            return new BsonDocumentWriterSettings(
-                guidRepresentation
-            );
-        }
+        protected abstract BsonWriterSettings CloneImplementation();
         #endregion
     }
 }

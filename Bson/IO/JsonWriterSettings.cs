@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO {
     /// Represents settings for a JsonWriter.
     /// </summary>
     [Serializable]
-    public class JsonWriterSettings {
+    public class JsonWriterSettings : BsonWriterSettings {
         #region private static fields
         private static JsonWriterSettings defaults = null; // delay creation to pick up the latest default values
         #endregion
@@ -31,12 +31,10 @@ namespace MongoDB.Bson.IO {
         #region private fields
         private bool closeOutput = false;
         private Encoding encoding = Encoding.UTF8;
-        private GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
         private bool indent = false;
         private string indentChars = "  ";
         private string newLineChars = "\r\n";
         private JsonOutputMode outputMode = JsonOutputMode.Shell;
-        private bool isFrozen;
         #endregion
 
         #region constructors
@@ -51,6 +49,7 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="closeOutput">Whether to close the output when the writer is closed.</param>
         /// <param name="encoding">The output Encoding.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="indent">Whether to indent the output.</param>
         /// <param name="indentChars">The indentation characters.</param>
         /// <param name="newLineChars">The new line characters.</param>
@@ -58,11 +57,13 @@ namespace MongoDB.Bson.IO {
         public JsonWriterSettings(
             bool closeOutput,
             Encoding encoding,
+            GuidRepresentation guidRepresentation,
             bool indent,
             string indentChars,
             string newLineChars,
             JsonOutputMode outputMode
-        ) {
+        ) 
+            : base(guidRepresentation) {
             this.closeOutput = closeOutput;
             this.encoding = encoding;
             this.indent = indent;
@@ -111,17 +112,6 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
-        /// Gets or sets the representation for Guids.
-        /// </summary>
-        public GuidRepresentation GuidRepresentation {
-            get { return guidRepresentation; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                guidRepresentation = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets whether to indent the output.
         /// </summary>
         public bool Indent {
@@ -141,13 +131,6 @@ namespace MongoDB.Bson.IO {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 indentChars = value;
             }
-        }
-
-        /// <summary>
-        /// Gets whether the settings are frozen.
-        /// </summary>
-        public bool IsFrozen {
-            get { return isFrozen; }
         }
 
         /// <summary>
@@ -178,24 +161,26 @@ namespace MongoDB.Bson.IO {
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public JsonWriterSettings Clone() {
+        public new JsonWriterSettings Clone() {
+            return (JsonWriterSettings) CloneImplementation();
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Creates a clone of the settings.
+        /// </summary>
+        /// <returns>A clone of the settings.</returns>
+        protected override BsonWriterSettings CloneImplementation() {
             return new JsonWriterSettings(
                 closeOutput,
                 encoding,
+                guidRepresentation,
                 indent,
                 indentChars,
                 newLineChars,
                 outputMode
             );
-        }
-
-        /// <summary>
-        /// Freezes the settings.
-        /// </summary>
-        /// <returns>The settings.</returns>
-        public JsonWriterSettings Freeze() {
-            isFrozen = true;
-            return this;
         }
         #endregion
     }

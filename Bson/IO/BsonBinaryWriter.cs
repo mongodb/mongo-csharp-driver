@@ -23,12 +23,12 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents a BSON writer to a BSON Stream.
     /// </summary>
-    public class BsonBinaryWriter : BsonBaseWriter {
+    public class BsonBinaryWriter : BsonWriter {
         #region private fields
         private Stream stream; // can be null if we're only writing to the buffer
         private BsonBuffer buffer;
         private bool disposeBuffer;
-        private BsonBinaryWriterSettings settings;
+        private new BsonBinaryWriterSettings settings; // same value as in base class just declared as derived class
         private BsonBinaryWriterContext context;
         #endregion
 
@@ -43,7 +43,8 @@ namespace MongoDB.Bson.IO {
             Stream stream,
             BsonBuffer buffer,
             BsonBinaryWriterSettings settings
-        ) {
+        )
+            : base(settings) {
             this.stream = stream;
             if (buffer == null) {
                 this.buffer = new BsonBuffer();
@@ -52,7 +53,7 @@ namespace MongoDB.Bson.IO {
                 this.buffer = buffer;
                 this.disposeBuffer = false;
             }
-            this.settings = settings.Freeze();
+            this.settings = settings; // already frozen by base class
 
             context = null;
             state = BsonWriterState.Initial;
@@ -65,13 +66,6 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         public BsonBuffer Buffer {
             get { return buffer; }
-        }
-
-        /// <summary>
-        /// Gets the representation for Guids.
-        /// </summary>
-        public override GuidRepresentation GuidRepresentation {
-            get { return settings.GuidRepresentation; }
         }
         #endregion
 

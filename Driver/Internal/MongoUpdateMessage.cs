@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Internal {
 
             using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
                 BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                bsonWriter.CheckUpdateDocument = true;
                 BsonSerializer.Serialize(bsonWriter, update.GetType(), update, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
         }

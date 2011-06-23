@@ -462,12 +462,13 @@ namespace MongoDB.Bson.Serialization.Serializers {
 
             switch (representation) {
                 case BsonType.Binary:
-                    if (bsonWriter.GuidRepresentation == GuidRepresentation.Unspecified) {
+                    var writerGuidRepresentation = bsonWriter.Settings.GuidRepresentation;
+                    if (writerGuidRepresentation == GuidRepresentation.Unspecified) {
                         throw new BsonSerializationException("GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified.");
                     }
-                    var bytes = GuidConverter.ToBytes(guid, bsonWriter.GuidRepresentation);
-                    var subType = (bsonWriter.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
-                    bsonWriter.WriteBinaryData(bytes, subType, bsonWriter.GuidRepresentation);
+                    var bytes = GuidConverter.ToBytes(guid, writerGuidRepresentation);
+                    var subType = (writerGuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
+                    bsonWriter.WriteBinaryData(bytes, subType, writerGuidRepresentation);
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(guid.ToString());

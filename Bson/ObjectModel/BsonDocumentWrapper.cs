@@ -37,6 +37,7 @@ namespace MongoDB.Bson {
         #region private fields
         private Type wrappedNominalType;
         private object wrappedObject;
+        private bool isUpdateDocument;
         #endregion
 
         #region constructors
@@ -71,6 +72,23 @@ namespace MongoDB.Bson {
             this.wrappedNominalType = wrappedNominalType;
             this.wrappedObject = wrappedObject;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <param name="wrappedNominalType">The nominal type of the wrapped object.</param>
+        /// <param name="wrappedObject">The wrapped object.</param>
+        /// <param name="isUpdateDocument">Whether the wrapped object is an update document that needs to be checked.</param>
+        internal BsonDocumentWrapper(
+            Type wrappedNominalType,
+            object wrappedObject,
+            bool isUpdateDocument
+        )
+            : base(BsonType.Document) {
+            this.wrappedNominalType = wrappedNominalType;
+            this.wrappedObject = wrappedObject;
+            this.isUpdateDocument = isUpdateDocument;
+        }
         #endregion
 
         #region public static methods
@@ -89,6 +107,20 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Creates a new instance of the BsonDocumentWrapper class.
         /// </summary>
+        /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
+        /// <param name="value">The wrapped object.</param>
+        /// <param name="isUpdateDocument">Whether the wrapped object is an update document.</param>
+        /// <returns>A BsonDocumentWrapper or null.</returns>
+        public static BsonDocumentWrapper Create<TNominalType>(
+            TNominalType value,
+            bool isUpdateDocument
+        ) {
+            return Create(typeof(TNominalType), value, isUpdateDocument);
+        }
+
+        /// <summary>
+        /// Creates a new instance of the BsonDocumentWrapper class.
+        /// </summary>
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="value">The wrapped object.</param>
         /// <returns>A BsonDocumentWrapper or null.</returns>
@@ -96,8 +128,23 @@ namespace MongoDB.Bson {
             Type nominalType,
             object value
         ) {
+            return Create(nominalType, value, false); // isUpdateDocument = false
+        }
+
+        /// <summary>
+        /// Creates a new instance of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the wrapped object.</param>
+        /// <param name="value">The wrapped object.</param>
+        /// <param name="isUpdateDocument">Whether the wrapped object is an update document.</param>
+        /// <returns>A BsonDocumentWrapper or null.</returns>
+        public static BsonDocumentWrapper Create(
+            Type nominalType,
+            object value,
+            bool isUpdateDocument
+        ) {
             if (value != null) {
-                return new BsonDocumentWrapper(nominalType, value);
+                return new BsonDocumentWrapper(nominalType, value, isUpdateDocument);
             } else {
                 return null;
             }
@@ -209,7 +256,20 @@ namespace MongoDB.Bson {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, options);
+            if (isUpdateDocument) {
+                var savedCheckElementNames = bsonWriter.CheckElementNames;
+                var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
+                try {
+                    bsonWriter.CheckElementNames = false;
+                    bsonWriter.CheckUpdateDocument = true;
+                    BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, options);
+                } finally {
+                    bsonWriter.CheckElementNames = savedCheckElementNames;
+                    bsonWriter.CheckUpdateDocument = savedCheckUpdateDocument;
+                }
+            } else {
+                BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, options);
+            }
         }
 
         /// <summary>
