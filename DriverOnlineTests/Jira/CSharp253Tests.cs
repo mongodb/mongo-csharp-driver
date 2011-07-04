@@ -84,5 +84,10 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp253 {
             };
             collection.Insert(document);
         }
+
+        [Test]
+        public void TestCreateIndexOnNestedElement() {
+            collection.CreateIndex("a.b");
+        }
     }
 }

@@ -133,7 +133,11 @@ namespace MongoDB.Driver {
                 { "key", keysDocument }
             };
             index.Merge(optionsDocument);
-            var result = indexes.Insert(index, SafeMode.True);
+            var insertOptions = new MongoInsertOptions(this) {
+                CheckElementNames = false,
+                SafeMode = SafeMode.True
+            };
+            var result = indexes.Insert(index, insertOptions);
             return result;
         }
 
@@ -827,6 +831,20 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the document to insert.</typeparam>
         /// <param name="document">The document to insert.</param>
+        /// <param name="options">The options to use for this Insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert<TNominalType>(
+            TNominalType document,
+            MongoInsertOptions options
+        ) {
+            return Insert(typeof(TNominalType), document, options);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <typeparam name="TNominalType">The nominal type of the document to insert.</typeparam>
+        /// <param name="document">The document to insert.</param>
         /// <param name="safeMode">The SafeMode to use for this Insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Insert<TNominalType>(
@@ -854,6 +872,22 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="nominalType">The nominal type of the document to insert.</param>
         /// <param name="document">The document to insert.</param>
+        /// <param name="options">The options to use for this Insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert(
+            Type nominalType,
+            object document,
+            MongoInsertOptions options
+        ) {
+            var results = InsertBatch(nominalType, new object[] { document }, options);
+            return (results == null) ? null : results.Single();
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the document to insert.</param>
+        /// <param name="document">The document to insert.</param>
         /// <param name="safeMode">The SafeMode to use for this Insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Insert(
@@ -861,8 +895,8 @@ namespace MongoDB.Driver {
             object document,
             SafeMode safeMode
         ) {
-            var results = InsertBatch(nominalType, new object[] { document }, safeMode);
-            return (results == null) ? null : results.Single();
+            var options = new MongoInsertOptions(this) { SafeMode = safeMode };
+            return Insert(nominalType, document, options);
         }
 
         /// <summary>
@@ -875,6 +909,20 @@ namespace MongoDB.Driver {
             IEnumerable<TNominalType> documents
         ) {
             return InsertBatch(typeof(TNominalType), documents.Cast<object>());
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <typeparam name="TNominalType">The type of the documents to insert.</typeparam>
+        /// <param name="documents">The documents to insert.</param>
+        /// <param name="options">The options to use for this Insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
+            IEnumerable<TNominalType> documents,
+            MongoInsertOptions options
+        ) {
+            return InsertBatch(typeof(TNominalType), documents.Cast<object>(), options);
         }
 
         /// <summary>
@@ -916,12 +964,29 @@ namespace MongoDB.Driver {
             IEnumerable<object> documents,
             SafeMode safeMode
         ) {
+            var options = new MongoInsertOptions(this) { SafeMode = safeMode };
+            return InsertBatch(nominalType, documents, options);
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the documents to insert.</param>
+        /// <param name="documents">The documents to insert.</param>
+        /// <param name="options">The options to use for this Insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch(
+            Type nominalType,
+            IEnumerable<object> documents,
+            MongoInsertOptions options
+        ) {
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try {
+                var safeMode = options.SafeMode;
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoInsertMessage(writerSettings, FullName)) {
+                using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames)) {
                     message.WriteToBuffer(); // must be called before AddDocument
 
                     foreach (var document in documents) {
