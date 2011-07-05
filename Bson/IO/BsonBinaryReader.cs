@@ -184,7 +184,13 @@ namespace MongoDB.Bson.IO {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
             state = GetNextState();
-            return buffer.ReadInt64();
+            var value = buffer.ReadInt64();
+            if (value == BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch + 1) {
+                if (settings.FixOldDateTimeMaxValueOnInput) {
+                    value = BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch;
+                }
+            }
+            return value;
         }
 
         /// <summary>

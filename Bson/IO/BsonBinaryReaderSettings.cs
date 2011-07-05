@@ -31,6 +31,7 @@ namespace MongoDB.Bson.IO {
         #region private fields
         private bool closeInput = false;
         private bool fixOldBinarySubTypeOnInput = true;
+        private bool fixOldDateTimeMaxValueOnInput = true;
         private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
         #endregion
 
@@ -46,17 +47,20 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
         /// <param name="fixOldBinarySubTypeOnInput">Whether to fix occurrences of the old binary subtype on input.</param>
+        /// <param name="fixOldDateTimeMaxValueOnInput">Whether to fix occurrences of the old representation of DateTime.MaxValue on input.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="maxDocumentSize">The max document size.</param>
         public BsonBinaryReaderSettings(
             bool closeInput,
             bool fixOldBinarySubTypeOnInput,
+            bool fixOldDateTimeMaxValueOnInput,
             GuidRepresentation guidRepresentation,
             int maxDocumentSize
         ) 
             : base(guidRepresentation) {
             this.closeInput = closeInput;
             this.fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
+            this.fixOldDateTimeMaxValueOnInput = fixOldDateTimeMaxValueOnInput;
             this.maxDocumentSize = maxDocumentSize;
         }
         #endregion
@@ -100,6 +104,17 @@ namespace MongoDB.Bson.IO {
         }
 
         /// <summary>
+        /// Gets or sets whether to fix occurrences of the old representation of DateTime.MaxValue on input. 
+        /// </summary>
+        public bool FixOldDateTimeMaxValueOnInput {
+            get { return fixOldDateTimeMaxValueOnInput; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                fixOldDateTimeMaxValueOnInput = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the max document size.
         /// </summary>
         public int MaxDocumentSize {
@@ -130,6 +145,7 @@ namespace MongoDB.Bson.IO {
             return new BsonBinaryReaderSettings(
                 closeInput,
                 fixOldBinarySubTypeOnInput,
+                fixOldDateTimeMaxValueOnInput,
                 guidRepresentation,
                 maxDocumentSize
             );
