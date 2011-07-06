@@ -497,13 +497,13 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestRegularExpressionShell() {
-            var json = "/pattern/gim";
+            var json = "/pattern/imxs";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.RegularExpression, bsonReader.ReadBsonType());
                 string pattern, options;
                 bsonReader.ReadRegularExpression(out pattern, out options);
                 Assert.AreEqual("pattern", pattern);
-                Assert.AreEqual("gim", options);
+                Assert.AreEqual("imxs", options);
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonRegularExpression>(new StringReader(json)).ToJson());
@@ -511,13 +511,13 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestRegularExpressionStrict() {
-            var json = "{ \"$regex\" : \"pattern\", \"$options\" : \"gim\" }";
+            var json = "{ \"$regex\" : \"pattern\", \"$options\" : \"imxs\" }";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.RegularExpression, bsonReader.ReadBsonType());
                 string pattern, options;
                 bsonReader.ReadRegularExpression(out pattern, out options);
                 Assert.AreEqual("pattern", pattern);
-                Assert.AreEqual("gim", options);
+                Assert.AreEqual("imxs", options);
                 Assert.AreEqual(BsonReaderState.Done, bsonReader.State);
             }
             var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };

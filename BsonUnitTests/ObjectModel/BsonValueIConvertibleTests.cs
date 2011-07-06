@@ -310,7 +310,7 @@ namespace MongoDB.BsonUnitTests {
 
         [Test]
         public void TestBsonRegularExpression() {
-            var value = BsonRegularExpression.Create("pattern", "gim");
+            var value = BsonRegularExpression.Create("pattern", "imxs");
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToChar(value));

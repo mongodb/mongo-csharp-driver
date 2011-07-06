@@ -398,11 +398,11 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestRegularExpressionPatternAndOptions() {
-            var json = "\t /pattern/gim,";
+            var json = "\t /pattern/imxs,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
             Assert.AreEqual(JsonTokenType.RegularExpression, token.Type);
-            Assert.AreEqual("/pattern/gim", token.Lexeme);
+            Assert.AreEqual("/pattern/imxs", token.Lexeme);
             Assert.AreEqual(',', buffer.Read());
         }
     }

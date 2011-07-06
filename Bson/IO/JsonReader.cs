@@ -221,6 +221,10 @@ namespace MongoDB.Bson.IO {
                             currentBsonType = BsonType.ObjectId;
                             currentValue = ParseObjectIdShell();
                             break;
+                        case "RegExp":
+                            currentBsonType = BsonType.RegularExpression;
+                            currentValue = ParseRegularExpressionConstructor();
+                            break;
                         case "new":
                             currentBsonType = ParseNew(out currentValue);
                             break;
@@ -793,7 +797,7 @@ namespace MongoDB.Bson.IO {
                     case "$maxkey": currentValue = ParseMaxKey(); return BsonType.MaxKey;
                     case "$minkey": currentValue = ParseMinKey(); return BsonType.MinKey;
                     case "$oid": currentValue = ParseObjectIdStrict(); return BsonType.ObjectId;
-                    case "$regex": currentValue = ParseRegularExpression(); return BsonType.RegularExpression;
+                    case "$regex": currentValue = ParseRegularExpressionStrict(); return BsonType.RegularExpression;
                     case "$symbol": currentValue = ParseSymbol(); return BsonType.Symbol;
                     case "$timestamp": currentValue = ParseTimestamp(); return BsonType.Timestamp;
                 }
@@ -840,6 +844,9 @@ namespace MongoDB.Bson.IO {
                 case "ObjectId":
                     value = ParseObjectIdShell();
                     return BsonType.ObjectId;
+                case "RegExp":
+                    value = ParseRegularExpressionConstructor();
+                    return BsonType.RegularExpression;
                 default:
                     var message = string.Format("JSON reader expected a type name but found '{0}'.", typeToken.Lexeme);
                     throw new FileFormatException(message);
@@ -884,23 +891,52 @@ namespace MongoDB.Bson.IO {
             return BsonObjectId.Create(valueToken.StringValue);
         }
 
-        private BsonValue ParseRegularExpression() {
+        private BsonValue ParseRegularExpressionConstructor() {
+            VerifyToken("(");
+            var patternToken = PopToken();
+            if (patternToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found '{0}'.", patternToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            var options = "";
+            var commaToken = PopToken();
+            if (commaToken.Lexeme == ",") {
+                var optionsToken = PopToken();
+                if (optionsToken.Type != JsonTokenType.String) {
+                    var message = string.Format("JSON reader expected a string but found '{0}'.", optionsToken.Lexeme);
+                    throw new FileFormatException(message);
+                }
+                options = optionsToken.StringValue;
+            } else {
+                PushToken(commaToken);
+            }
+            VerifyToken(")");
+            return BsonRegularExpression.Create(patternToken.StringValue, options);
+        }
+
+        private BsonValue ParseRegularExpressionStrict() {
             VerifyToken(":");
             var patternToken = PopToken();
             if (patternToken.Type != JsonTokenType.String) {
                 var message = string.Format("JSON reader expected a string but found '{0}'.", patternToken.Lexeme);
                 throw new FileFormatException(message);
             }
-            VerifyToken(",");
-            VerifyString("$options");
-            VerifyToken(":");
-            var optionsToken = PopToken();
-            if (optionsToken.Type != JsonTokenType.String) {
-                var message = string.Format("JSON reader expected a string but found '{0}'.", optionsToken.Lexeme);
-                throw new FileFormatException(message);
+            var options = "";
+            var commaToken = PopToken();
+            if (commaToken.Lexeme == ",") {
+                VerifyString("$options");
+                VerifyToken(":");
+                var optionsToken = PopToken();
+                if (optionsToken.Type != JsonTokenType.String) {
+                    var message = string.Format("JSON reader expected a string but found '{0}'.", optionsToken.Lexeme);
+                    throw new FileFormatException(message);
+                }
+                options = optionsToken.StringValue;
+            } else {
+                PushToken(commaToken);
             }
             VerifyToken("}");
-            return BsonRegularExpression.Create(patternToken.StringValue, optionsToken.StringValue);
+            return BsonRegularExpression.Create(patternToken.StringValue, options);
         }
 
         private BsonValue ParseSymbol() {
@@ -954,7 +990,7 @@ namespace MongoDB.Bson.IO {
             string expectedString
         ) {
             var token = PopToken();
-            if (token.Type != JsonTokenType.String || token.StringValue != expectedString) {
+            if ((token.Type != JsonTokenType.String && token.Type != JsonTokenType.UnquotedString) || token.StringValue != expectedString) {
                 var message = string.Format("JSON reader expected '{0}' but found '{1}'.", expectedString, token.StringValue);
                 throw new FileFormatException(message);
             }

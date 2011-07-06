@@ -440,15 +440,7 @@ namespace MongoDB.Bson.IO {
                     var escaped = (pattern == "") ? "(?:)" : pattern.Replace(@"\", @"\\").Replace("/", @"\/");
                     textWriter.Write(escaped);
                     textWriter.Write("/");
-                    foreach (char c in options.ToLower()) {
-                        switch (c) {
-                            case 'g':
-                            case 'i':
-                            case 'm':
-                                textWriter.Write(c);
-                                break;
-                        }
-                    }
+                    textWriter.Write(options);
                     break;
             }
 

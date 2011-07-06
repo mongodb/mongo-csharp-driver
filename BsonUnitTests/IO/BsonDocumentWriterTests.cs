@@ -1040,12 +1040,12 @@ namespace MongoDB.BsonUnitTests.IO {
             var document = new BsonDocument();
             using (var writer = BsonWriter.Create(document)) {
                 writer.WriteStartDocument();
-                writer.WriteRegularExpression("a", "p", "g");
-                writer.WriteRegularExpression("b", "q", "i");
+                writer.WriteRegularExpression("a", "p", "i");
+                writer.WriteRegularExpression("b", "q", "m");
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'a' : /p/g, 'b' : /q/i }".Replace("'", "\""); ;
+            var expected = "{ 'a' : /p/i, 'b' : /q/m }".Replace("'", "\""); ;
             Assert.AreEqual(expected, json);
         }
 
@@ -1055,13 +1055,13 @@ namespace MongoDB.BsonUnitTests.IO {
             using (var writer = BsonWriter.Create(document)) {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                writer.WriteRegularExpression("a", "p", "g");
-                writer.WriteRegularExpression("b", "q", "i");
+                writer.WriteRegularExpression("a", "p", "i");
+                writer.WriteRegularExpression("b", "q", "m");
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
-            var expected = "{ 'nested' : { 'a' : /p/g, 'b' : /q/i } }".Replace("'", "\"");
+            var expected = "{ 'nested' : { 'a' : /p/i, 'b' : /q/m } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 

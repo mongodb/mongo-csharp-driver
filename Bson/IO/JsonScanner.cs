@@ -326,9 +326,10 @@ namespace MongoDB.Bson.IO {
                         break;
                     case RegularExpressionState.InOptions:
                         switch (c) {
-                            case 'g':
                             case 'i':
                             case 'm':
+                            case 'x':
+                            case 's':
                                 state = RegularExpressionState.InOptions;
                                 break;
                             case ',':
