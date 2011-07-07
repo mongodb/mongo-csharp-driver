@@ -207,7 +207,7 @@ namespace MongoDB.BsonUnitTests.IO {
 
         [Test]
         public void TestDateTimeTengen() {
-            var json = "Date(0)";
+            var json = "new Date(0)";
             using (bsonReader = BsonReader.Create(json)) {
                 Assert.AreEqual(BsonType.DateTime, bsonReader.ReadBsonType());
                 Assert.AreEqual(0, bsonReader.ReadDateTime());

@@ -143,7 +143,7 @@ namespace MongoDB.Bson.IO {
                 case JsonOutputMode.JavaScript:
                 case JsonOutputMode.TenGen:
                     WriteNameHelper(name);
-                    textWriter.Write("Date({0})", value);
+                    textWriter.Write("new Date({0})", value);
                     break;
                 case JsonOutputMode.Shell:
                     WriteNameHelper(name);

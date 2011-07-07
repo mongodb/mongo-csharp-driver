@@ -265,15 +265,15 @@ namespace MongoDB.BsonUnitTests.IO {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             var ms = BsonUtils.ToMillisecondsSinceEpoch(utcNowTruncated);
-            var tenGenDate = string.Format("Date({0})", ms);
+            var tenGenDate = string.Format("new Date({0})", ms);
             var tests = new TestData<BsonDateTime>[] {
-                new TestData<BsonDateTime>(BsonDateTime.Create(long.MinValue), "Date(-9223372036854775808)"),
-                new TestData<BsonDateTime>(BsonDateTime.Create(0), "Date(0)"),
-                new TestData<BsonDateTime>(BsonDateTime.Create(long.MaxValue), "Date(9223372036854775807)"),
-                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MinValue), "Date(-62135596800000)"),
-                new TestData<BsonDateTime>(BsonDateTime.Create(BsonConstants.UnixEpoch), "Date(0)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MinValue), "new Date(-9223372036854775808)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(0), "new Date(0)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(long.MaxValue), "new Date(9223372036854775807)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MinValue), "new Date(-62135596800000)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(BsonConstants.UnixEpoch), "new Date(0)"),
                 new TestData<BsonDateTime>(BsonDateTime.Create(utcNowTruncated), tenGenDate),
-                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MaxValue), "Date(253402300799999)"),
+                new TestData<BsonDateTime>(BsonDateTime.Create(DateTime.MaxValue), "new Date(253402300799999)"),
             };
             var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
             foreach (var test in tests) {
