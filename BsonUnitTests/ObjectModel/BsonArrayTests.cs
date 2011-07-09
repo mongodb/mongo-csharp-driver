@@ -27,6 +27,14 @@ namespace MongoDB.BsonUnitTests {
     [TestFixture]
     public class BsonArrayTests {
         [Test]
+        public void TestCapacity() {
+            var array = new BsonArray(4);
+            Assert.AreEqual(4, array.Capacity);
+            array.Capacity = 8;
+            Assert.AreEqual(8, array.Capacity);
+        }
+
+        [Test]
         public void TestCreateBooleanArray() {
             var values = new Boolean[] { true, false };
             var array = BsonArray.Create(values);

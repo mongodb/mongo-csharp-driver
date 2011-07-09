@@ -153,6 +153,14 @@ namespace MongoDB.Bson {
 
         #region public properties
         /// <summary>
+        /// Gets or sets the total number of elements the internal data structure can hold without resizing.
+        /// </summary>
+        public int Capacity {
+            get { return values.Capacity; }
+            set { values.Capacity = value; }
+        }
+
+        /// <summary>
         /// Gets the count of array elements.
         /// </summary>
         public int Count {
