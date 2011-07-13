@@ -21,6 +21,7 @@ using System.IO;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers {
     /// <summary>
@@ -108,25 +109,48 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonWriter.WriteNull();
             } else {
                 var dictionary = (IDictionary<TKey, TValue>) value;
-                if (
-                    typeof(TKey) == typeof(string) ||
-                    (typeof(TKey) == typeof(object) && dictionary.Keys.All(o => o.GetType() == typeof(string)))
-                ) {
-                    bsonWriter.WriteStartDocument();
-                    foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
-                        bsonWriter.WriteName((string) (object) entry.Key);
-                        BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
+
+                var representationOptions = options as RepresentationSerializationOptions;
+                BsonType representation;
+                if (representationOptions == null) {
+                    if (typeof(TKey) == typeof(string) || typeof(TKey) == typeof(object)) {
+                        representation = BsonType.Document;
+                        foreach (object key in dictionary.Keys) {
+                            var name = key as string; // check for null and type string at the same time
+                            if (name == null || name.StartsWith("$") || name.Contains(".")) {
+                                representation = BsonType.Array;
+                                break;
+                            }
+                        }
+                    } else {
+                        representation = BsonType.Array;
                     }
-                    bsonWriter.WriteEndDocument();
                 } else {
-                    bsonWriter.WriteStartArray();
-                    foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
+                    representation = representationOptions.Representation;
+                }
+
+                switch (representation) {
+                    case BsonType.Document:
+                        bsonWriter.WriteStartDocument();
+                        foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
+                            bsonWriter.WriteName((string) (object) entry.Key);
+                            BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
+                        }
+                        bsonWriter.WriteEndDocument();
+                        break;
+                    case BsonType.Array:
                         bsonWriter.WriteStartArray();
-                        BsonSerializer.Serialize(bsonWriter, typeof(TKey), entry.Key);
-                        BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
+                        foreach (KeyValuePair<TKey, TValue> entry in dictionary) {
+                            bsonWriter.WriteStartArray();
+                            BsonSerializer.Serialize(bsonWriter, typeof(TKey), entry.Key);
+                            BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
+                            bsonWriter.WriteEndArray();
+                        }
                         bsonWriter.WriteEndArray();
-                    }
-                    bsonWriter.WriteEndArray();
+                        break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type IDictionary<{1}, {2}>.", representation, typeof(TKey).Name, typeof(TValue).Name);
+                        throw new BsonSerializationException(message);
                 }
             }
         }
