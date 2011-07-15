@@ -716,8 +716,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 String = guid
             };
             var json = obj.ToJson();
-            var expected = "{ 'Binary' : new BinData(3, '#B'), 'String' : '#S' }";
-            expected = expected.Replace("#B", "AAAAAAAAAAAAAAAAAAAAAA==");
+            var expected = "{ 'Binary' : CSUUID('#B'), 'String' : '#S' }";
+            expected = expected.Replace("#B", "00000000-0000-0000-0000-000000000000");
             expected = expected.Replace("#S", "00000000-0000-0000-0000-000000000000");
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -736,10 +736,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 String = guid
             };
             var json = obj.ToJson();
-            var csharpLegacyBytes = new byte[] { 4, 3, 2, 1, 6, 5, 8, 7, 9, 10, 11, 12, 13, 14, 15, 16 };
-            var csharpLegacyBase64 = Convert.ToBase64String(csharpLegacyBytes).Replace("\\", "\\\\");
-            var expected = "{ 'Binary' : new BinData(3, '#B'), 'String' : '#S' }";
-            expected = expected.Replace("#B", csharpLegacyBase64);
+            var expected = "{ 'Binary' : CSUUID('#B'), 'String' : '#S' }";
+            expected = expected.Replace("#B", s);
             expected = expected.Replace("#S", s);
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);

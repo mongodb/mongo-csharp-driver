@@ -115,18 +115,37 @@ namespace MongoDB.Bson.IO {
         public override void WriteBinaryData(
             byte[] bytes,
             BsonBinarySubType subType,
-            GuidRepresentation guidRepresentation // ignored since BSON doesn't have a place to store this
+            GuidRepresentation guidRepresentation
         ) {
             if (disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
             if (state != BsonWriterState.Value) {
                 ThrowInvalidState("WriteBinaryData", BsonWriterState.Value);
             }
 
+            switch (subType) {
+                case BsonBinarySubType.OldBinary:
+                    if (settings.FixOldBinarySubTypeOnOutput) {
+                        subType = BsonBinarySubType.Binary; // replace obsolete OldBinary with new Binary sub type
+                    }
+                    break;
+                case BsonBinarySubType.UuidLegacy:
+                case BsonBinarySubType.UuidStandard:
+                    if (settings.GuidRepresentation != GuidRepresentation.Unspecified) {
+                        var expectedSubType = (settings.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
+                        if (subType != expectedSubType) {
+                            var message = string.Format("The GuidRepresentation for the writer is {0}, which requires the subType argument to be {1}, not {2}.", settings.GuidRepresentation, expectedSubType, subType);
+                            throw new BsonSerializationException(message);
+                        }
+                        if (guidRepresentation != settings.GuidRepresentation) {
+                            var message = string.Format("The GuidRepresentation for the writer is {0}, which requires the the guidRepresentation argument to also be {0}, not {1}.", settings.GuidRepresentation, guidRepresentation);
+                            throw new BsonSerializationException(message);
+                        }
+                    }
+                    break;
+            }
+
             buffer.WriteByte((byte) BsonType.Binary);
             WriteNameHelper();
-            if (subType == BsonBinarySubType.OldBinary && settings.FixOldBinarySubTypeOnOutput) {
-                subType = BsonBinarySubType.Binary; // replace obsolete OldBinary with new Binary sub type
-            }
             if (subType == BsonBinarySubType.OldBinary) {
                 // sub type OldBinary has two sizes (for historical reasons)
                 buffer.WriteInt32(bytes.Length + 4);

@@ -142,14 +142,9 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 case BsonType.Binary:
                     byte[] bytes;
                     BsonBinarySubType subType;
-                    bsonReader.ReadBinaryData(out bytes, out subType);
-                    if (subType == BsonBinarySubType.UuidStandard) {
-                        return new BsonBinaryData(bytes, subType, GuidRepresentation.Standard);
-                    } else if (subType == BsonBinarySubType.UuidLegacy) {
-                        return new BsonBinaryData(bytes, subType, bsonReader.Settings.GuidRepresentation);
-                    } else {
-                        return new BsonBinaryData(bytes, subType);
-                    }
+                    GuidRepresentation guidRepresentation;
+                    bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
+                    return new BsonBinaryData(bytes, subType, guidRepresentation);
                 default:
                     var message = string.Format("Cannot deserialize BsonBinaryData from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);

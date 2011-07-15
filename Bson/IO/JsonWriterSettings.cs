@@ -35,6 +35,7 @@ namespace MongoDB.Bson.IO {
         private string indentChars = "  ";
         private string newLineChars = "\r\n";
         private JsonOutputMode outputMode = JsonOutputMode.Shell;
+        private Version shellVersion = new Version(2, 0, 0);
         #endregion
 
         #region constructors
@@ -54,6 +55,7 @@ namespace MongoDB.Bson.IO {
         /// <param name="indentChars">The indentation characters.</param>
         /// <param name="newLineChars">The new line characters.</param>
         /// <param name="outputMode">The output mode.</param>
+        /// <param name="shellVersion">The version of the shell to target.</param>
         public JsonWriterSettings(
             bool closeOutput,
             Encoding encoding,
@@ -61,7 +63,8 @@ namespace MongoDB.Bson.IO {
             bool indent,
             string indentChars,
             string newLineChars,
-            JsonOutputMode outputMode
+            JsonOutputMode outputMode,
+            Version shellVersion
         ) 
             : base(guidRepresentation) {
             this.closeOutput = closeOutput;
@@ -70,6 +73,7 @@ namespace MongoDB.Bson.IO {
             this.indentChars = indentChars;
             this.newLineChars = newLineChars;
             this.outputMode = outputMode;
+            this.shellVersion = shellVersion;
         }
         #endregion
 
@@ -154,6 +158,17 @@ namespace MongoDB.Bson.IO {
                 outputMode = value;
             }
         }
+
+        /// <summary>
+        /// Gets or sets the shell version (used with OutputMode Shell).
+        /// </summary>
+        public Version ShellVersion {
+            get { return shellVersion; }
+            set {
+                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                shellVersion = value;
+            }
+        }
         #endregion
 
         #region public methods
@@ -179,7 +194,8 @@ namespace MongoDB.Bson.IO {
                 indent,
                 indentChars,
                 newLineChars,
-                outputMode
+                outputMode,
+                shellVersion
             );
         }
         #endregion

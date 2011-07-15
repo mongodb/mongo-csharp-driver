@@ -77,9 +77,11 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
         public override void ReadBinaryData(
             out byte[] bytes,
-            out BsonBinarySubType subType
+            out BsonBinarySubType subType,
+            out GuidRepresentation guidRepresentation
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
@@ -87,6 +89,7 @@ namespace MongoDB.Bson.IO {
             var binaryData = currentValue.AsBsonBinaryData;
             bytes = binaryData.Bytes;
             subType = binaryData.SubType;
+            guidRepresentation = binaryData.GuidRepresentation;
         }
 
         /// <summary>
@@ -204,11 +207,15 @@ namespace MongoDB.Bson.IO {
                             break;
                         case "BinData":
                             currentBsonType = BsonType.Binary;
-                            currentValue = ParseBinaryConstructor();
+                            currentValue = ParseBinDataConstructor();
                             break;
                         case "Date":
                             currentBsonType = BsonType.String;
                             currentValue = ParseDateTimeConstructor(false); // withNew = false
+                            break;
+                        case "HexData":
+                            currentBsonType = BsonType.Binary;
+                            currentValue = ParseHexDataConstructor();
                             break;
                         case "ISODate":
                             currentBsonType = BsonType.DateTime;
@@ -225,6 +232,17 @@ namespace MongoDB.Bson.IO {
                         case "RegExp":
                             currentBsonType = BsonType.RegularExpression;
                             currentValue = ParseRegularExpressionConstructor();
+                            break;
+                        case "UUID":
+                        case "GUID":
+                        case "CSUUID":
+                        case "CSGUID":
+                        case "JUUID":
+                        case "JGUID":
+                        case "PYUUID":
+                        case "PYGUID":
+                            currentBsonType = BsonType.Binary;
+                            currentValue = ParseUUIDConstructor(valueToken.Lexeme);
                             break;
                         case "new":
                             currentBsonType = ParseNew(out currentValue);
@@ -707,7 +725,7 @@ namespace MongoDB.Bson.IO {
             }
         }
 
-        private BsonValue ParseBinaryConstructor() {
+        private BsonValue ParseBinDataConstructor() {
             VerifyToken("(");
             var subTypeToken = PopToken();
             if (subTypeToken.Type != JsonTokenType.Int32) {
@@ -723,10 +741,16 @@ namespace MongoDB.Bson.IO {
             VerifyToken(")");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType) subTypeToken.Int32Value;
-            return new BsonBinaryData(bytes, subType); // don't worry about UUIDs here (that's handled at a higher level)
+            GuidRepresentation guidRepresentation;
+            switch (subType) {
+                case BsonBinarySubType.UuidLegacy: guidRepresentation = settings.GuidRepresentation; break;
+                case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
+                default: guidRepresentation = GuidRepresentation.Unspecified; break;
+            }
+            return new BsonBinaryData(bytes, subType, guidRepresentation);
         }
 
-        private BsonValue ParseBinaryExtendedJson() {
+        private BsonValue ParseBinDataExtendedJson() {
             VerifyToken(":");
             var bytesToken = PopToken();
             if (bytesToken.Type != JsonTokenType.String) {
@@ -744,7 +768,38 @@ namespace MongoDB.Bson.IO {
             VerifyToken("}");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType) Convert.ToInt32(subTypeToken.StringValue, 16);
-            return new BsonBinaryData(bytes, subType); // don't worry about UUIDs here (that's handled at a higher level)
+            GuidRepresentation guidRepresentation;
+            switch (subType) {
+                case BsonBinarySubType.UuidLegacy: guidRepresentation = settings.GuidRepresentation; break;
+                case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
+                default: guidRepresentation = GuidRepresentation.Unspecified; break;
+            }
+            return new BsonBinaryData(bytes, subType, guidRepresentation);
+        }
+
+        private BsonValue ParseHexDataConstructor() {
+            VerifyToken("(");
+            var subTypeToken = PopToken();
+            if (subTypeToken.Type != JsonTokenType.Int32) {
+                var message = string.Format("JSON reader expected a binary subtype but found '{0}'.", subTypeToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(",");
+            var bytesToken = PopToken();
+            if (bytesToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found '{0}'.", bytesToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(")");
+            var bytes = BsonUtils.ParseHexString(bytesToken.StringValue);
+            var subType = (BsonBinarySubType) subTypeToken.Int32Value;
+            GuidRepresentation guidRepresentation;
+            switch (subType) {
+                case BsonBinarySubType.UuidLegacy: guidRepresentation = settings.GuidRepresentation; break;
+                case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
+                default: guidRepresentation = GuidRepresentation.Unspecified; break;
+            }
+            return new BsonBinaryData(bytes, subType, guidRepresentation);
         }
 
         private BsonType ParseJavaScriptExtendedJson(
@@ -870,7 +925,7 @@ namespace MongoDB.Bson.IO {
             var nameToken = PopToken();
             if (nameToken.Type == JsonTokenType.String || nameToken.Type == JsonTokenType.UnquotedString) {
                 switch (nameToken.StringValue) {
-                    case "$binary": currentValue = ParseBinaryExtendedJson(); return BsonType.Binary;
+                    case "$binary": currentValue = ParseBinDataExtendedJson(); return BsonType.Binary;
                     case "$code": return ParseJavaScriptExtendedJson(out currentValue);
                     case "$date": currentValue = ParseDateTimeExtendedJson(); return BsonType.DateTime;
                     case "$maxkey": currentValue = ParseMaxKeyExtendedJson(); return BsonType.MaxKey;
@@ -918,11 +973,14 @@ namespace MongoDB.Bson.IO {
             }
             switch (typeToken.Lexeme) {
                 case "BinData":
-                    value = ParseBinaryConstructor();
+                    value = ParseBinDataConstructor();
                     return BsonType.Binary;
                 case "Date":
                     value = ParseDateTimeConstructor(true); // withNew = true
                     return BsonType.DateTime;
+                case "HexData":
+                    value = ParseHexDataConstructor();
+                    return BsonType.Binary;
                 case "ISODate":
                     value = ParseISODateTimeConstructor();
                     return BsonType.DateTime;
@@ -935,6 +993,16 @@ namespace MongoDB.Bson.IO {
                 case "RegExp":
                     value = ParseRegularExpressionConstructor();
                     return BsonType.RegularExpression;
+                case "UUID":
+                case "GUID":
+                case "CSUUID":
+                case "CSGUID":
+                case "JUUID":
+                case "JGUID":
+                case "PYUUID":
+                case "PYGUID":
+                    value = ParseUUIDConstructor(typeToken.Lexeme);
+                    return BsonType.Binary;
                 default:
                     var message = string.Format("JSON reader expected a type name but found '{0}'.", typeToken.Lexeme);
                     throw new FileFormatException(message);
@@ -1052,6 +1120,45 @@ namespace MongoDB.Bson.IO {
             }
             VerifyToken("}");
             return BsonTimestamp.Create(value);
+        }
+
+        private BsonValue ParseUUIDConstructor(
+            string uuidConstructorName
+        ) {
+            VerifyToken("(");
+            var bytesToken = PopToken();
+            if (bytesToken.Type != JsonTokenType.String) {
+                var message = string.Format("JSON reader expected a string but found '{0}'.", bytesToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(")");
+            var hexString = bytesToken.StringValue.Replace("{", "").Replace("}", "").Replace("-", "");
+            var bytes = BsonUtils.ParseHexString(hexString);
+            var guid = GuidConverter.FromBytes(bytes, GuidRepresentation.Standard);
+            GuidRepresentation guidRepresentation;
+            switch (uuidConstructorName) {
+                case "CSUUID":
+                case "CSGUID":
+                    guidRepresentation = GuidRepresentation.CSharpLegacy;
+                    break;
+                case "JUUID":
+                case "JGUID":
+                    guidRepresentation = GuidRepresentation.JavaLegacy;
+                    break;
+                case "PYUUID":
+                case "PYGUID":
+                    guidRepresentation = GuidRepresentation.PythonLegacy;
+                    break;
+                case "UUID":
+                case "GUID":
+                    guidRepresentation = GuidRepresentation.Standard;
+                    break;
+                default:
+                    throw new BsonInternalException("Unexpected uuidConstructorName");
+            }
+            bytes = GuidConverter.ToBytes(guid, guidRepresentation);
+            var subType = (guidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
+            return new BsonBinaryData(bytes, subType, guidRepresentation);
         }
 
         private JsonToken PopToken() {

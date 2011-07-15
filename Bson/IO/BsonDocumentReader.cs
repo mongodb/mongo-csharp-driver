@@ -71,9 +71,11 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
         public override void ReadBinaryData(
             out byte[] bytes,
-            out BsonBinarySubType subType
+            out BsonBinarySubType subType,
+            out GuidRepresentation guidRepresentation
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
@@ -81,6 +83,7 @@ namespace MongoDB.Bson.IO {
             var binaryData = currentValue.AsBsonBinaryData;
             bytes = binaryData.Bytes;
             subType = binaryData.SubType;
+            guidRepresentation = binaryData.GuidRepresentation;
             state = GetNextState();
         }
 

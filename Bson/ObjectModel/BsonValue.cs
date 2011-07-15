@@ -983,14 +983,9 @@ namespace MongoDB.Bson {
                 case BsonType.Binary:
                     byte[] bytes;
                     BsonBinarySubType subType;
-                    bsonReader.ReadBinaryData(out bytes, out subType);
-                    if (subType == BsonBinarySubType.UuidStandard) {
-                        return new BsonBinaryData(bytes, subType, GuidRepresentation.Standard);
-                    } else if (subType == BsonBinarySubType.UuidLegacy) {
-                        return new BsonBinaryData(bytes, subType, bsonReader.Settings.GuidRepresentation);
-                    } else {
-                        return new BsonBinaryData(bytes, subType);
-                    }
+                    GuidRepresentation guidRepresentation;
+                    bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
+                    return new BsonBinaryData(bytes, subType, guidRepresentation);
                 case BsonType.Boolean:
                     return BsonBoolean.Create(bsonReader.ReadBoolean());
                 case BsonType.DateTime:

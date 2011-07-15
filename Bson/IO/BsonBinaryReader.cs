@@ -87,10 +87,12 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
         #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         public override void ReadBinaryData(
             out byte[] bytes,
-            out BsonBinarySubType subType
+            out BsonBinarySubType subType,
+            out GuidRepresentation guidRepresentation
         ) {
             if (disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
@@ -108,6 +110,22 @@ namespace MongoDB.Bson.IO {
                 if (settings.FixOldBinarySubTypeOnInput) {
                     subType = BsonBinarySubType.Binary; // replace obsolete OldBinary with new Binary sub type
                 }
+            }
+            switch (subType) {
+                case BsonBinarySubType.UuidLegacy:
+                case BsonBinarySubType.UuidStandard:
+                    if (settings.GuidRepresentation != GuidRepresentation.Unspecified) {
+                        var expectedSubType = (settings.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
+                        if (subType != expectedSubType) {
+                            var message = string.Format("The GuidRepresentation for the reader is {0}, which requires the binary sub type to be {1}, not {2}.", settings.GuidRepresentation, expectedSubType, subType);
+                            throw new FileFormatException(message);
+                        }
+                    }
+                    guidRepresentation = (subType == BsonBinarySubType.UuidStandard) ? GuidRepresentation.Standard : settings.GuidRepresentation;
+                    break;
+                default:
+                    guidRepresentation = GuidRepresentation.Unspecified;
+                    break;
             }
             bytes = buffer.ReadBytes(size);
 

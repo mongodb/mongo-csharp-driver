@@ -112,7 +112,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
         public void TestEmpty() {
             var obj = new TestClass(Guid.Empty);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "new BinData(3, 'AAAAAAAAAAAAAAAAAAAAAA==')").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "CSUUID('00000000-0000-0000-0000-000000000000')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -122,10 +122,11 @@ namespace MongoDB.BsonUnitTests.Serialization {
 
         [Test]
         public void TestNew() {
-            var obj = new TestClass(Guid.NewGuid());
+            var guid = Guid.NewGuid();
+            var obj = new TestClass(guid);
             var json = obj.ToJson();
             var base64 = Convert.ToBase64String(obj.V.Bytes).Replace("\\", "\\\\");
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "new BinData(3, '" + base64 + "')").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "CSUUID('" + guid.ToString() + "')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

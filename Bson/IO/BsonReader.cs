@@ -292,9 +292,24 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
-        public abstract void ReadBinaryData(
+        public void ReadBinaryData(
             out byte[] bytes,
             out BsonBinarySubType subType
+        ) {
+            GuidRepresentation guidRepresentation;
+            ReadBinaryData(out bytes, out subType, out guidRepresentation);
+        }
+
+        /// <summary>
+        /// Reads BSON binary data from the reader.
+        /// </summary>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
+        public abstract void ReadBinaryData(
+            out byte[] bytes,
+            out BsonBinarySubType subType,
+            out GuidRepresentation guidRepresentation
         );
 
         /// <summary>
@@ -308,8 +323,25 @@ namespace MongoDB.Bson.IO {
             out byte[] bytes,
             out BsonBinarySubType subType
         ) {
+            GuidRepresentation guidRepresentation;
+            ReadBinaryData(name, out bytes, out subType, out guidRepresentation);
+        }
+
+        /// <summary>
+        /// Reads a BSON binary data element from the reader.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="bytes">The binary data.</param>
+        /// <param name="subType">The binary data subtype.</param>
+        /// <param name="guidRepresentation">The representation for Guids.</param>
+        public void ReadBinaryData(
+            string name,
+            out byte[] bytes,
+            out BsonBinarySubType subType,
+            out GuidRepresentation guidRepresentation
+        ) {
             VerifyName(name);
-            ReadBinaryData(out bytes, out subType);
+            ReadBinaryData(out bytes, out subType, out guidRepresentation);
         }
 
         /// <summary>
