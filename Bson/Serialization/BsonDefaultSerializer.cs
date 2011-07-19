@@ -174,12 +174,12 @@ namespace MongoDB.Bson.Serialization {
                 return nominalType;
             }
 
-            // TODO: will there be too much contention on staticLock?
-            lock (BsonSerializer.ConfigLock) {
-                Type actualType = null;
+            // note: EnsureKnownTypesAreRegistered handles its own locking so call from outside any lock
+            EnsureKnownTypesAreRegistered(nominalType);
 
-                // make sure any KnownTypes of nominal type have been registered
-                EnsureKnownTypesAreRegistered(nominalType);
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try {
+                Type actualType = null;
 
                 HashSet<Type> hashSet;
                 if (discriminators.TryGetValue(discriminator, out hashSet)) {
@@ -210,6 +210,8 @@ namespace MongoDB.Bson.Serialization {
                 }
 
                 return actualType;
+            } finally {
+                BsonSerializer.ConfigLock.ExitReadLock();
             }
         }
 
@@ -221,7 +223,18 @@ namespace MongoDB.Bson.Serialization {
         public static IDiscriminatorConvention LookupDiscriminatorConvention(
             Type type
         ) {
-            lock (BsonSerializer.ConfigLock) {
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try {
+                IDiscriminatorConvention convention;
+                if (discriminatorConventions.TryGetValue(type, out convention)) {
+                    return convention;
+                }
+            } finally {
+                BsonSerializer.ConfigLock.ExitReadLock();
+            }
+
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try {
                 IDiscriminatorConvention convention;
                 if (!discriminatorConventions.TryGetValue(type, out convention)) {
                     // if there is no convention registered for object register the default one
@@ -260,6 +273,8 @@ namespace MongoDB.Bson.Serialization {
                     }
                 }
                 return convention;
+            } finally {
+                BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
 
@@ -277,7 +292,8 @@ namespace MongoDB.Bson.Serialization {
                 throw new BsonSerializationException(message);
             }
 
-            lock (BsonSerializer.ConfigLock) {
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try {
                 HashSet<Type> hashSet;
                 if (!discriminators.TryGetValue(discriminator, out hashSet)) {
                     hashSet = new HashSet<Type>();
@@ -292,6 +308,8 @@ namespace MongoDB.Bson.Serialization {
                         discriminatedTypes.Add(baseType);
                     }
                 }
+            } finally {
+                BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
 
@@ -304,13 +322,16 @@ namespace MongoDB.Bson.Serialization {
             Type type,
             IDiscriminatorConvention convention
         ) {
-            lock (BsonSerializer.ConfigLock) {
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try {
                 if (!discriminatorConventions.ContainsKey(type)) {
                     discriminatorConventions.Add(type, convention);
                 } else {
                     var message = string.Format("There is already a discriminator convention registered for type {0}.", type.FullName);
                     throw new BsonSerializationException(message);
                 }
+            } finally {
+                BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
         #endregion
@@ -319,7 +340,17 @@ namespace MongoDB.Bson.Serialization {
         internal static void EnsureKnownTypesAreRegistered(
             Type nominalType
         ) {
-            lock (BsonSerializer.ConfigLock) {
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try {
+                if (typesWithRegisteredKnownTypes.Contains(nominalType)) {
+                    return;
+                }
+            } finally {
+                BsonSerializer.ConfigLock.ExitReadLock();
+            }
+
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try {
                 if (!typesWithRegisteredKnownTypes.Contains(nominalType)) {
                     // only call LookupClassMap for classes with a BsonKnownTypesAttribute
                     var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
@@ -330,6 +361,8 @@ namespace MongoDB.Bson.Serialization {
 
                     typesWithRegisteredKnownTypes.Add(nominalType);
                 }
+            } finally {
+                BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
         #endregion

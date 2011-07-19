@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 // don't add using statement for MongoDB.Bson.Serialization.Serializers to minimize dependencies on DefaultSerializer
 using MongoDB.Bson.IO;
@@ -29,7 +30,7 @@ namespace MongoDB.Bson.Serialization {
     /// </summary>
     public static class BsonSerializer {
         #region private static fields
-        private static object configLock = new object();
+        private static ReaderWriterLockSlim configLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private static Dictionary<Type, IIdGenerator> idGenerators = new Dictionary<Type, IIdGenerator>();
         private static Dictionary<Type, IBsonSerializer> serializers = new Dictionary<Type, IBsonSerializer>();
         private static Dictionary<Type, Type> genericSerializerDefinitions = new Dictionary<Type, Type>();
@@ -64,7 +65,7 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region internal static properties
-        internal static object ConfigLock {
+        internal static ReaderWriterLockSlim ConfigLock {
             get { return configLock; }
         }
         #endregion
@@ -297,10 +298,13 @@ namespace MongoDB.Bson.Serialization {
         public static Type LookupGenericSerializerDefinition(
             Type genericTypeDefinition
         ) {
-            lock (configLock) {
+            configLock.EnterReadLock();
+            try {
                 Type genericSerializerDefinition;
                 genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition);
                 return genericSerializerDefinition;
+            } finally {
+                configLock.ExitReadLock();
             }
         }
 
@@ -312,7 +316,18 @@ namespace MongoDB.Bson.Serialization {
         public static IIdGenerator LookupIdGenerator(
             Type type
         ) {
-            lock (configLock) {
+            configLock.EnterReadLock();
+            try {
+                IIdGenerator idGenerator;
+                if (idGenerators.TryGetValue(type, out idGenerator)) {
+                    return idGenerator;
+                }
+            } finally {
+                configLock.ExitReadLock();
+            }
+
+            configLock.EnterWriteLock();
+            try {
                 IIdGenerator idGenerator;
                 if (!idGenerators.TryGetValue(type, out idGenerator)) {
                     if (type.IsValueType && useZeroIdChecker) {
@@ -333,6 +348,8 @@ namespace MongoDB.Bson.Serialization {
                 }
 
                 return idGenerator;
+            } finally {
+                configLock.ExitWriteLock();
             }
         }
 
@@ -344,7 +361,18 @@ namespace MongoDB.Bson.Serialization {
         public static IBsonSerializer LookupSerializer(
             Type type
         ) {
-            lock (configLock) {
+            configLock.EnterReadLock();
+            try {
+                IBsonSerializer serializer;
+                if (serializers.TryGetValue(type, out serializer)) {
+                    return serializer;
+                }
+            } finally {
+                configLock.ExitReadLock();
+            }
+
+            configLock.EnterWriteLock();
+            try {
                 IBsonSerializer serializer;
                 if (!serializers.TryGetValue(type, out serializer)) {
                     // special case for IBsonSerializable
@@ -379,6 +407,8 @@ namespace MongoDB.Bson.Serialization {
                 }
 
                 return serializer;
+            } finally {
+                configLock.ExitWriteLock();
             }
         }
 
@@ -391,8 +421,11 @@ namespace MongoDB.Bson.Serialization {
             Type genericTypeDefinition,
             Type genericSerializerDefinition
         ) {
-            lock (configLock) {
+            configLock.EnterWriteLock();
+            try {
                 genericSerializerDefinitions[genericTypeDefinition] = genericSerializerDefinition;
+            } finally {
+                configLock.ExitWriteLock();
             }
         }
 
@@ -405,8 +438,11 @@ namespace MongoDB.Bson.Serialization {
             Type type,
             IIdGenerator idGenerator
         ) {
-            lock (configLock) {
+            configLock.EnterWriteLock();
+            try {
                 idGenerators[type] = idGenerator;
+            } finally {
+                configLock.ExitWriteLock();
             }
         }
 
@@ -417,9 +453,12 @@ namespace MongoDB.Bson.Serialization {
         public static void RegisterSerializationProvider(
             IBsonSerializationProvider provider
         ) {
-            lock (configLock) {
+            configLock.EnterWriteLock();
+            try {
                 // add new provider to the front of the list
                 serializationProviders.Insert(0, provider);
+            } finally {
+                configLock.ExitWriteLock();
             }
         }
 
@@ -432,8 +471,11 @@ namespace MongoDB.Bson.Serialization {
             Type type,
             IBsonSerializer serializer
         ) {
-            lock (configLock) {
+            configLock.EnterWriteLock();
+            try {
                 serializers[type] = serializer;
+            } finally {
+                configLock.ExitWriteLock();
             }
         }
 

@@ -242,8 +242,11 @@ namespace MongoDB.Bson.Serialization {
         public static bool IsClassMapRegistered(
             Type type
         ) {
-            lock (BsonSerializer.ConfigLock) {
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try {
                 return classMaps.ContainsKey(type);
+            } finally {
+                BsonSerializer.ConfigLock.ExitReadLock();
             }
         }
 
@@ -255,7 +258,20 @@ namespace MongoDB.Bson.Serialization {
         public static BsonClassMap LookupClassMap(
             Type classType
         ) {
-            lock (BsonSerializer.ConfigLock) {
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try {
+                BsonClassMap classMap;
+                if (classMaps.TryGetValue(classType, out classMap)) {
+                    if (classMap.IsFrozen) {
+                        return classMap;
+                    }
+                }
+            } finally {
+                BsonSerializer.ConfigLock.ExitReadLock();
+            }
+
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try {
                 BsonClassMap classMap;
                 if (!classMaps.TryGetValue(classType, out classMap)) {
                     // automatically create a classMap for classType and register it
@@ -266,6 +282,8 @@ namespace MongoDB.Bson.Serialization {
                     RegisterClassMap(classMap);
                 }
                 return classMap.Freeze();
+            } finally {
+                BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
 
@@ -316,10 +334,13 @@ namespace MongoDB.Bson.Serialization {
         public static void RegisterClassMap(
             BsonClassMap classMap
         ) {
-            lock (BsonSerializer.ConfigLock) {
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try {
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
                 classMaps.Add(classMap.ClassType, classMap);
                 BsonDefaultSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
+            } finally {
+                BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
 
@@ -366,7 +387,17 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <returns>The class map.</returns>
         public BsonClassMap Freeze() {
-            lock (BsonSerializer.ConfigLock) {
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try {
+                if (frozen) {
+                    return this;
+                }
+            } finally {
+                BsonSerializer.ConfigLock.ExitReadLock();
+            }
+
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try {
                 if (!frozen) {
                     freezeNestingLevel++;
                     try {
@@ -452,6 +483,8 @@ namespace MongoDB.Bson.Serialization {
                         freezeNestingLevel--;
                     }
                 }
+            } finally {
+                BsonSerializer.ConfigLock.ExitWriteLock();
             }
             return this;
         }
