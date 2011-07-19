@@ -26,14 +26,32 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Internal {
-    internal enum MongoConnectionState {
+    /// <summary>
+    /// Represents the state of a connection.
+    /// </summary>
+    public enum MongoConnectionState {
+        /// <summary>
+        /// The connection has not yet been initialized.
+        /// </summary>
         Initial,
+        /// <summary>
+        /// The connection is open.
+        /// </summary>
         Open,
+        /// <summary>
+        /// The connection is damaged.
+        /// </summary>
         Damaged,
+        /// <summary>
+        /// The connection is closed.
+        /// </summary>
         Closed
     }
 
-    internal class MongoConnection {
+    /// <summary>
+    /// Represents a connection to a MongoServerInstance.
+    /// </summary>
+    public class MongoConnection {
         #region private fields
         private object connectionLock = new object();
         private MongoServerInstance serverInstance;
@@ -57,29 +75,47 @@ namespace MongoDB.Driver.Internal {
         }
         #endregion
 
-        #region internal properties
-        internal MongoConnectionPool ConnectionPool {
+        #region public properties
+        /// <summary>
+        /// Gets the connection pool that this connection belongs to.
+        /// </summary>
+        public MongoConnectionPool ConnectionPool {
             get { return connectionPool; }
         }
 
-        internal DateTime CreatedAt {
+        /// <summary>
+        /// Gets the DateTime that this connection was created at.
+        /// </summary>
+        public DateTime CreatedAt {
             get { return createdAt; }
         }
 
-        internal DateTime LastUsedAt {
+        /// <summary>
+        /// Gets the DateTime that this connection was last used at.
+        /// </summary>
+        public DateTime LastUsedAt {
             get { return lastUsedAt; }
-            set { lastUsedAt = value; }
+            internal set { lastUsedAt = value; }
         }
 
-        internal int MessageCounter {
+        /// <summary>
+        /// Gets a count of the number of messages that have been sent using this connection.
+        /// </summary>
+        public int MessageCounter {
             get { return messageCounter; }
         }
 
-        internal MongoServerInstance ServerInstance {
+        /// <summary>
+        /// Gets the server instance this connection is connected to.
+        /// </summary>
+        public MongoServerInstance ServerInstance {
             get { return serverInstance; }
         }
 
-        internal MongoConnectionState State {
+        /// <summary>
+        /// Gets the state of this connection.
+        /// </summary>
+        public MongoConnectionState State {
             get { return state; }
         }
         #endregion

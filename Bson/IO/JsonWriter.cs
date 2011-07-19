@@ -104,7 +104,7 @@ namespace MongoDB.Bson.IO {
                             throw new ArgumentException("GuidRepresentation for binary subtype UuidLegacy must not be Standard.");
                         }
                         if (subType == BsonBinarySubType.UuidStandard && guidRepresentation != GuidRepresentation.Standard) {
-                            var message = string.Format("GuidRepresentation for binary subtype UuidStandard must Standard, not {0}.", guidRepresentation);
+                            var message = string.Format("GuidRepresentation for binary subtype UuidStandard must be Standard, not {0}.", guidRepresentation);
                             throw new ArgumentException(message);
                         }
                         if (settings.ShellVersion >= new Version(2, 0, 0)) {

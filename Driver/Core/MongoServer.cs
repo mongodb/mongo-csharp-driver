@@ -294,6 +294,23 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the connection reserved by the current RequestStart scope (null if not in the scope of a RequestStart).
+        /// </summary>
+        public virtual MongoConnection RequestConnection {
+            get {
+                int threadId = Thread.CurrentThread.ManagedThreadId;
+                lock (requestsLock) {
+                    Request request;
+                    if (requests.TryGetValue(threadId, out request)) {
+                        return request.Connection;
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the RequestStart nesting level for the current thread.
         /// </summary>
         public virtual int RequestNestingLevel {
@@ -758,20 +775,38 @@ namespace MongoDB.Driver {
         public virtual IDisposable RequestStart(
             MongoDatabase initialDatabase
         ) {
+            return RequestStart(initialDatabase, false); // not slaveOk
+        }
+
+        /// <summary>
+        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
+        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
+        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
+        /// </summary>
+        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
+        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
+        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
+        public virtual IDisposable RequestStart(
+            MongoDatabase initialDatabase,
+            bool slaveOk
+        ) {
             int threadId = Thread.CurrentThread.ManagedThreadId;
             lock (requestsLock) {
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
+                    if (!slaveOk && request.SlaveOk) {
+                        throw new InvalidOperationException("A nested call to RequestStart with slaveOk false is not allowed when the original call to RequestStart was made with slaveOk true.");
+                    }
                     request.NestingLevel++;
                     return new RequestStartResult(this);
                 }
             }
 
             // get the connection outside of the lock
-            var connection = AcquireConnection(initialDatabase, false); // not slaveOk
+            var connection = AcquireConnection(initialDatabase, slaveOk);
 
             lock (requestsLock) {
-                var request = new Request(connection);
+                var request = new Request(connection, slaveOk);
                 requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
@@ -882,6 +917,9 @@ namespace MongoDB.Driver {
             lock (requestsLock) {
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
+                    if (!slaveOk && request.SlaveOk) {
+                        throw new InvalidOperationException("A call to AcquireConnection with slaveOk false is not allowed when the current RequestStart was made with slaveOk true.");
+                    }
                     request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
                     return request.Connection;
                 }
@@ -1041,14 +1079,17 @@ namespace MongoDB.Driver {
         private class Request {
             #region private fields
             private MongoConnection connection;
+            private bool slaveOk;
             private int nestingLevel;
             #endregion
 
             #region constructors
             public Request(
-                MongoConnection connection
+                MongoConnection connection,
+                bool slaveOk
             ) {
                 this.connection = connection;
+                this.slaveOk = slaveOk;
                 this.nestingLevel = 1;
             }
             #endregion
@@ -1062,6 +1103,11 @@ namespace MongoDB.Driver {
             public int NestingLevel {
                 get { return nestingLevel; }
                 set { nestingLevel = value; }
+            }
+
+            public bool SlaveOk {
+                get { return slaveOk; }
+                internal set { slaveOk = value; }
             }
             #endregion
         }

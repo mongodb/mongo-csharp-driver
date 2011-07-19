@@ -269,7 +269,7 @@ namespace MongoDB.Driver.GridFS {
             Stream stream,
             MongoGridFSFileInfo fileInfo
         ) {
-            using (database.RequestStart()) {
+            using (database.RequestStart(database.Settings.SlaveOk)) {
                 EnsureIndexes();
 
                 string md5Client;
@@ -441,8 +441,18 @@ namespace MongoDB.Driver.GridFS {
             int maxFiles
         ) {
             // don't try to create indexes on secondaries
-            if (files.Settings.SlaveOk) {
-                return;
+            var requestConnection = database.Server.RequestConnection;
+            if (requestConnection != null) {
+                // check whether the actual server instance we are using is a primary
+                var serverInstance = requestConnection.ServerInstance;
+                if (!serverInstance.IsPrimary) {
+                    return;
+                }
+            } else {
+                // check whether we are guaranteed to use a primary
+                if (database.Settings.SlaveOk) {
+                    return;
+                }
             }
 
             // avoid round trip to count files if possible
@@ -796,7 +806,7 @@ namespace MongoDB.Driver.GridFS {
             string remoteFileName,
             MongoGridFSCreateOptions createOptions
         ) {
-            using (database.RequestStart()) {
+            using (database.RequestStart(false)) { // not slaveOk
                 EnsureIndexes();
 
                 var files_id = createOptions.Id ?? BsonObjectId.GenerateNewId();
