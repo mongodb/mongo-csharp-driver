@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Internal {
         private DateTime createdAt;
         private DateTime lastUsedAt; // set every time the connection is Released
         private int messageCounter;
+        private int requestId;
         private Dictionary<string, Authentication> authentications = new Dictionary<string, Authentication>();
         #endregion
 
@@ -103,6 +104,13 @@ namespace MongoDB.Driver.Internal {
         /// </summary>
         public int MessageCounter {
             get { return messageCounter; }
+        }
+
+        /// <summary>
+        /// Gets the RequestId of the last message sent on this connection.
+        /// </summary>
+        public int RequestId {
+            get { return requestId; }
         }
 
         /// <summary>
@@ -378,6 +386,8 @@ namespace MongoDB.Driver.Internal {
         ) {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
             lock (connectionLock) {
+                requestId = message.RequestId;
+
                 message.WriteToBuffer();
                 CommandDocument safeModeCommand = null;
                 if (safeMode.Enabled) {
