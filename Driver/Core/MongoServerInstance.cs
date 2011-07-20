@@ -221,6 +221,8 @@ namespace MongoDB.Driver {
                         isSecondary = isMasterResult.Response["secondary", false].ToBoolean();
                         isPassive = isMasterResult.Response["passive", false].ToBoolean();
                         isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
+                        // workaround for CSHARP-273
+                        if (isPassive && isArbiter) { isPassive = false; }
                         if (!isPrimary && !slaveOk) {
                             throw new MongoConnectionException("Server is not a primary and SlaveOk is false.");
                         }
