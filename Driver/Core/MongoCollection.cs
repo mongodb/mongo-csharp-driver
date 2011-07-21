@@ -1217,6 +1217,21 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <typeparam name="TNominalType">The type of the document to save.</typeparam>
         /// <param name="document">The document to save.</param>
+        /// <param name="options">The options to use for this Save.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save<TNominalType>(
+            TNominalType document,
+            MongoInsertOptions options
+        ) {
+            return Save(typeof(TNominalType), document, options);
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <typeparam name="TNominalType">The type of the document to save.</typeparam>
+        /// <param name="document">The document to save.</param>
         /// <param name="safeMode">The SafeMode to use for this operation.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Save<TNominalType>(
@@ -1246,12 +1261,12 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="nominalType">The type of the document to save.</param>
         /// <param name="document">The document to save.</param>
-        /// <param name="safeMode">The SafeMode to use for this operation.</param>
+        /// <param name="options">The options to use for this Save.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Save(
             Type nominalType,
             object document,
-            SafeMode safeMode
+            MongoInsertOptions options
         ) {
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
             object id;
@@ -1265,7 +1280,7 @@ namespace MongoDB.Driver {
                 if (idGenerator != null && idGenerator.IsEmpty(id)) {
                     id = idGenerator.GenerateId(this, document);
                     serializer.SetDocumentId(document, id);
-                    return Insert(nominalType, document, safeMode);
+                    return Insert(nominalType, document, options);
                 } else {
                     BsonValue idBsonValue;
                     if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue)) {
@@ -1273,18 +1288,35 @@ namespace MongoDB.Driver {
                     }
                     if (idBsonValue.IsString && BsonClassMap.IsClassMapRegistered(document.GetType())) {
                         var classMap = BsonClassMap.LookupClassMap(document.GetType());
-                        var options = (RepresentationSerializationOptions) classMap.IdMemberMap.SerializationOptions;
-                        if (options != null && options.Representation == BsonType.ObjectId) {
+                        var serializationOptions = (RepresentationSerializationOptions) classMap.IdMemberMap.SerializationOptions;
+                        if (serializationOptions != null && serializationOptions.Representation == BsonType.ObjectId) {
                             idBsonValue = ObjectId.Parse(idBsonValue.AsString);
                         }
                     }
                     var query = Query.EQ("_id", idBsonValue);
                     var update = Builders.Update.Replace(nominalType, document);
-                    return Update(query, update, UpdateFlags.Upsert, safeMode);
+                    return Update(query, update, UpdateFlags.Upsert, options.SafeMode);
                 }
             } else {
                 throw new InvalidOperationException("Save can only be used with documents that have an Id.");
             }
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <param name="nominalType">The type of the document to save.</param>
+        /// <param name="document">The document to save.</param>
+        /// <param name="safeMode">The SafeMode to use for this operation.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save(
+            Type nominalType,
+            object document,
+            SafeMode safeMode
+        ) {
+            var options = new MongoInsertOptions(this) { SafeMode = safeMode };
+            return Save(nominalType, document, options);
         }
 
         /// <summary>
@@ -1578,6 +1610,19 @@ namespace MongoDB.Driver {
         /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
         /// </summary>
         /// <param name="document">The document to insert.</param>
+        /// <param name="options">The options to use for this Insert.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Insert(
+            TDefaultDocument document,
+            MongoInsertOptions options
+        ) {
+            return Insert<TDefaultDocument>(document, options);
+        }
+
+        /// <summary>
+        /// Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).
+        /// </summary>
+        /// <param name="document">The document to insert.</param>
         /// <param name="safeMode">The SafeMode to use for this Insert.</param>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Insert(
@@ -1585,6 +1630,83 @@ namespace MongoDB.Driver {
             SafeMode safeMode
         ) {
             return Insert<TDefaultDocument>(document, safeMode);
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <param name="documents">The documents to insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch(
+            IEnumerable<TDefaultDocument> documents
+        ) {
+            return InsertBatch<TDefaultDocument>(documents);
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <param name="documents">The documents to insert.</param>
+        /// <param name="options">The options to use for this Insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch(
+            IEnumerable<TDefaultDocument> documents,
+            MongoInsertOptions options
+        ) {
+            return InsertBatch<TDefaultDocument>(documents, options);
+        }
+
+        /// <summary>
+        /// Inserts multiple documents at once into this collection (see also Insert to insert a single document).
+        /// </summary>
+        /// <param name="documents">The documents to insert.</param>
+        /// <param name="safeMode">The SafeMode to use for this Insert.</param>
+        /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
+        public virtual IEnumerable<SafeModeResult> InsertBatch(
+            IEnumerable<TDefaultDocument> documents,
+            SafeMode safeMode
+        ) {
+            return InsertBatch<TDefaultDocument>(documents, safeMode);
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <param name="document">The document to save.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save(
+            TDefaultDocument document
+        ) {
+            return Save<TDefaultDocument>(document);
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <param name="document">The document to save.</param>
+        /// <param name="options">The options to use for this Save.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save(
+            TDefaultDocument document,
+            MongoInsertOptions options
+        ) {
+            return Save<TDefaultDocument>(document, options);
+        }
+
+        /// <summary>
+        /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+        /// of the Id field Save will perform either an Insert or an Update.
+        /// </summary>
+        /// <param name="document">The document to save.</param>
+        /// <param name="safeMode">The SafeMode to use for this operation.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Save(
+            TDefaultDocument document,
+            SafeMode safeMode
+        ) {
+            return Save<TDefaultDocument>(document, safeMode);
         }
         #endregion
     }
