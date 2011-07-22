@@ -35,7 +35,7 @@ namespace MongoDB.Driver.GridFS {
         private int chunkSize;
         private string contentType;
         private BsonValue id; // usually a BsonObjectId but not required to be
-        private int length;
+        private long length;
         private string md5;
         private BsonDocument metadata;
         private string name;
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Gets the file lenth.
         /// </summary>
-        public int Length {
+        public long Length {
             get {
                 if (!cached) { Refresh(); }
                 return length;
@@ -491,7 +491,7 @@ namespace MongoDB.Driver.GridFS {
                 }
                 exists = true;
                 id = fileInfo["_id"];
-                length = fileInfo["length"].ToInt32();
+                length = fileInfo["length"].ToInt64();
                 var md5Value = fileInfo["md5", null];
                 if (md5Value != null && !md5Value.IsBsonNull) {
                     md5 = md5Value.AsString;

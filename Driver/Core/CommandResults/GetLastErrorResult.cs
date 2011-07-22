@@ -39,8 +39,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the number of documents affected.
         /// </summary>
-        public int DocumentsAffected {
-            get { return response["n"].ToInt32(); }
+        public long DocumentsAffected {
+            get { return response["n"].ToInt64(); }
         }
 
         /// <summary>

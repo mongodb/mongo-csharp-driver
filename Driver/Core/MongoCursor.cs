@@ -243,14 +243,14 @@ namespace MongoDB.Driver {
         /// Returns the number of documents that match the query (ignores Skip and Limit, unlike Size which honors them).
         /// </summary>
         /// <returns>The number of documents that match the query.</returns>
-        public virtual int Count() {
+        public virtual long Count() {
             isFrozen = true;
             var command = new CommandDocument {
                 { "count", collection.Name },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
-            return result.Response["n"].ToInt32();
+            return result.Response["n"].ToInt64();
         }
 
         /// <summary>
@@ -548,7 +548,7 @@ namespace MongoDB.Driver {
         /// Returns the size of the result set (honors Skip and Limit, unlike Count which does not).
         /// </summary>
         /// <returns>The size of the result set.</returns>
-        public virtual int Size() {
+        public virtual long Size() {
             isFrozen = true;
             var command = new CommandDocument {
                 { "count", collection.Name },
@@ -557,7 +557,7 @@ namespace MongoDB.Driver {
                 { "skip", skip, skip != 0 }
             };
             var result = database.RunCommand(command);
-            return result.Response["n"].ToInt32();
+            return result.Response["n"].ToInt64();
         }
         #endregion
 

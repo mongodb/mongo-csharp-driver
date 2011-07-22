@@ -79,15 +79,15 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the emit count.
         /// </summary>
-        public int EmitCount {
-            get { return response["counts"].AsBsonDocument["emit"].ToInt32(); }
+        public long EmitCount {
+            get { return response["counts"].AsBsonDocument["emit"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the output count.
         /// </summary>
-        public int OutputCount {
-            get { return response["counts"].AsBsonDocument["output"].ToInt32(); }
+        public long OutputCount {
+            get { return response["counts"].AsBsonDocument["output"].ToInt64(); }
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the input count.
         /// </summary>
-        public int InputCount {
-            get { return response["counts"].AsBsonDocument["input"].ToInt32(); }
+        public long InputCount {
+            get { return response["counts"].AsBsonDocument["input"].ToInt64(); }
         }
         #endregion
 

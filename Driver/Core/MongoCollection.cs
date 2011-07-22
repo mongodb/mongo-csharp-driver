@@ -93,7 +93,7 @@ namespace MongoDB.Driver {
         /// Counts the number of documents in this collection.
         /// </summary>
         /// <returns>The number of documents in this collection.</returns>
-        public virtual int Count() {
+        public virtual long Count() {
             return Count(Query.Null);
         }
 
@@ -102,7 +102,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>The number of documents in this collection that match the query.</returns>
-        public virtual int Count(
+        public virtual long Count(
             IMongoQuery query
         ) {
             var command = new CommandDocument {
@@ -110,7 +110,7 @@ namespace MongoDB.Driver {
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
             };
             var result = database.RunCommand(command);
-            return result.Response["n"].ToInt32();
+            return result.Response["n"].ToInt64();
         }
 
         /// <summary>
