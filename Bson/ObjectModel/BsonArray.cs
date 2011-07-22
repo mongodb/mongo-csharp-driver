@@ -142,6 +142,17 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
+        /// <param name="values">A list of values to add to the array.</param>
+        public BsonArray(
+            IEnumerable values
+        )
+            : this(0) {
+            AddRange(values);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonArray class.
+        /// </summary>
         /// <param name="capacity">The initial capacity of the array.</param>
         public BsonArray(
             int capacity
@@ -342,6 +353,21 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Creates a new BsonArray.
         /// </summary>
+        /// <param name="values">A list of values to add to the array.</param>
+        /// <returns>A BsonArray or null.</returns>
+        public static BsonArray Create(
+            IEnumerable values
+        ) {
+            if (values != null) {
+                return new BsonArray(values);
+            } else {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new BsonArray.
+        /// </summary>
         /// <param name="value">A value to be mapped to a BsonArray.</param>
         /// <returns>A BsonArray or null.</returns>
         public new static BsonArray Create(
@@ -525,6 +551,22 @@ namespace MongoDB.Bson {
             if (values != null) {
                 foreach (var value in values) {
                     this.values.Add(BsonString.Create(value));
+                }
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds multiple elements to the array.
+        /// </summary>
+        /// <param name="values">A list of values to add to the array.</param>
+        /// <returns>The array (so method calls can be chained).</returns>
+        public BsonArray AddRange(
+            IEnumerable values
+        ) {
+            if (values != null) {
+                foreach (var value in values) {
+                    this.values.Add(BsonValue.Create(value));
                 }
             }
             return this;

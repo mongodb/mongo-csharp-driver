@@ -143,9 +143,9 @@ namespace MongoDB.BsonUnitTests {
 
         [Test]
         public void TestCreateFromObject() {
-            var values = new BsonDocument {
-                { "a", 1 },
-                { "b", 1.5 }
+            var values = (object) new object[] {
+                1,
+                1.5
             };
             var array = BsonArray.Create(values);
             Assert.AreEqual(2, array.Count);

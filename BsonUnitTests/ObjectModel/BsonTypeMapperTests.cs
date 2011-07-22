@@ -107,8 +107,6 @@ namespace MongoDB.BsonUnitTests {
             var value = new BsonDocument();
             var bsonValue = (BsonDocument) BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
-            var bsonArray = (BsonArray) BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
-            Assert.AreEqual(0, bsonArray.Count);
             var bsonDocument = (BsonDocument) BsonTypeMapper.MapToBsonValue(value, BsonType.Document);
             Assert.AreSame(value, bsonDocument);
         }
