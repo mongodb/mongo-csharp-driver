@@ -687,9 +687,9 @@ namespace MongoDB.Driver.Builders {
         ) {
             BsonElement element;
             if (document.TryGetElement("$pop", out element)) {
-                element.Value.AsBsonDocument.Add(name, 1);
+                element.Value.AsBsonDocument.Add(name, -1);
             } else {
-                document.Add("$pop", new BsonDocument(name, 1));
+                document.Add("$pop", new BsonDocument(name, -1));
             }
             return this;
         }
@@ -704,9 +704,9 @@ namespace MongoDB.Driver.Builders {
         ) {
             BsonElement element;
             if (document.TryGetElement("$pop", out element)) {
-                element.Value.AsBsonDocument.Add(name, -1);
+                element.Value.AsBsonDocument.Add(name, 1);
             } else {
-                document.Add("$pop", new BsonDocument(name, -1));
+                document.Add("$pop", new BsonDocument(name, 1));
             }
             return this;
         }

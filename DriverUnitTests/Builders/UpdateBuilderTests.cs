@@ -148,14 +148,14 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestPopFirst() {
             var update = Update.PopFirst("name");
-            var expected = "{ \"$pop\" : { \"name\" : 1 } }";
+            var expected = "{ \"$pop\" : { \"name\" : -1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPopLast() {
             var update = Update.PopLast("name");
-            var expected = "{ \"$pop\" : { \"name\" : -1 } }";
+            var expected = "{ \"$pop\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -288,14 +288,14 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestPopFirstTwice() {
             var update = Update.PopFirst("a").PopFirst("b");
-            var expected = "{ \"$pop\" : { \"a\" : 1, \"b\" : 1 } }";
+            var expected = "{ \"$pop\" : { \"a\" : -1, \"b\" : -1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestPopLastTwice() {
             var update = Update.PopLast("a").PopLast("b");
-            var expected = "{ \"$pop\" : { \"a\" : -1, \"b\" : -1 } }";
+            var expected = "{ \"$pop\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -379,14 +379,14 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestSetThenPopFirst() {
             var update = Update.Set("x", 1).PopFirst("name");
-            var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pop\" : { \"name\" : 1 } }";
+            var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pop\" : { \"name\" : -1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
         public void TestSetThenPopLast() {
             var update = Update.Set("x", 1).PopLast("name");
-            var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pop\" : { \"name\" : -1 } }";
+            var expected = "{ \"$set\" : { \"x\" : 1 }, \"$pop\" : { \"name\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
