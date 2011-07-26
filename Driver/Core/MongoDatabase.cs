@@ -727,20 +727,31 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="oldCollectionName">The old name for the collection.</param>
         /// <param name="newCollectionName">The new name for the collection.</param>
-        /// <param name="dropTarget">drop target collection if exist in db</param>
+        /// <returns>A CommandResult.</returns>
+        public virtual CommandResult RenameCollection(
+            string oldCollectionName,
+            string newCollectionName
+        ) {
+            return RenameCollection(oldCollectionName, newCollectionName, false); // dropTarget = false
+        }
+
+        /// <summary>
+        /// Renames a collection on this database.
+        /// </summary>
+        /// <param name="oldCollectionName">The old name for the collection.</param>
+        /// <param name="newCollectionName">The new name for the collection.</param>
+        /// <param name="dropTarget">Whether to drop the target collection first if it already exists.</param>
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult RenameCollection(
             string oldCollectionName,
             string newCollectionName,
-            bool dropTarget = false
+            bool dropTarget
         ) {
             var command = new CommandDocument {
                 { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
-                { "to", string.Format("{0}.{1}", name, newCollectionName) }
+                { "to", string.Format("{0}.{1}", name, newCollectionName) },
+                { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
-            if (dropTarget) {
-              command.Add("dropTarget", BsonBoolean.True);
-            }
             return server.RunAdminCommand(command);
         }
 

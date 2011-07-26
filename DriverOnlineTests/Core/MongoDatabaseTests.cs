@@ -164,17 +164,17 @@ namespace MongoDB.DriverOnlineTests {
 
         [Test]
         public void TestRenameCollectionDropTarget() {
-            const string collectionName1 = "testrenamecollection3";
-            const string collectionName2 = "testrenamecollection4";
+            const string collectionName1 = "testrenamecollectiondroptarget1";
+            const string collectionName2 = "testrenamecollectiondroptarget2";
             Assert.IsFalse(database.CollectionExists(collectionName1));
             Assert.IsFalse(database.CollectionExists(collectionName2));
 
             database[collectionName1].Insert(new BsonDocument());
             database[collectionName2].Insert(new BsonDocument());
             Assert.IsTrue(database.CollectionExists(collectionName1));
-            Assert.True(database.CollectionExists(collectionName2));
+            Assert.IsTrue(database.CollectionExists(collectionName2));
 
-            Assert.Throws(typeof(MongoCommandException), () => database.RenameCollection(collectionName1, collectionName2));
+            Assert.Throws<MongoCommandException>(() => database.RenameCollection(collectionName1, collectionName2));
             database.RenameCollection(collectionName1, collectionName2, true);
             Assert.IsFalse(database.CollectionExists(collectionName1));
             Assert.IsTrue(database.CollectionExists(collectionName2));
