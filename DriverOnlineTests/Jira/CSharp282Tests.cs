@@ -25,7 +25,7 @@ using MongoDB.Driver.Builders;
 
 namespace MongoDB.DriverOnlineTests.Jira {
     [TestFixture]
-    public class CSharp281Tests {
+    public class CSharp282Tests {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
@@ -39,37 +39,13 @@ namespace MongoDB.DriverOnlineTests.Jira {
         }
 
         [Test]
-        public void TestPopFirst() {
-            var document = new BsonDocument("x", new BsonArray { 1, 2, 3 });
-            collection.RemoveAll();
+        public void TestEmptyUpdateBuilder() {
+            var document = new BsonDocument("x", 1);
             collection.Insert(document);
 
             var query = Query.EQ("_id", document["_id"]);
-            var update = Update.PopFirst("x");
-            collection.Update(query, update);
-
-            document = collection.FindOne();
-            var array = document["x"].AsBsonArray;
-            Assert.AreEqual(2, array.Count);
-            Assert.AreEqual(2, array[0].AsInt32);
-            Assert.AreEqual(3, array[1].AsInt32);
-        }
-
-        [Test]
-        public void TestPopLast() {
-            var document = new BsonDocument("x", new BsonArray { 1, 2, 3 });
-            collection.RemoveAll();
-            collection.Insert(document);
-
-            var query = Query.EQ("_id", document["_id"]);
-            var update = Update.PopLast("x");
-            collection.Update(query, update);
-
-            document = collection.FindOne();
-            var array = document["x"].AsBsonArray;
-            Assert.AreEqual(2, array.Count);
-            Assert.AreEqual(1, array[0].AsInt32);
-            Assert.AreEqual(2, array[1].AsInt32);
+            var update = new UpdateBuilder();
+            Assert.Throws<ArgumentException>(() => collection.Update(query, update));
         }
     }
 }

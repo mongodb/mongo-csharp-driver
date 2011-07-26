@@ -1384,6 +1384,13 @@ namespace MongoDB.Driver {
             UpdateFlags flags,
             SafeMode safeMode
         ) {
+            var updateBuilder = update as UpdateBuilder;
+            if (updateBuilder != null) {
+                if (updateBuilder.Document.ElementCount == 0) {
+                    throw new ArgumentException("Update called with an empty UpdateBuilder that has no update operations.");
+                }
+            }
+
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try {
                 var writerSettings = GetWriterSettings(connection);

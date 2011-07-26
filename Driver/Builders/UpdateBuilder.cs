@@ -485,6 +485,12 @@ namespace MongoDB.Driver.Builders {
         }
         #endregion
 
+        #region internal properties
+        internal BsonDocument Document {
+            get { return document; }
+        }
+        #endregion
+
         #region public methods
         /// <summary>
         /// Adds an $addToSet update modifier.
