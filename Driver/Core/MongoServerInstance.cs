@@ -246,6 +246,11 @@ namespace MongoDB.Driver {
                     throw;
                 }
 
+                // for the primary only immediately start creating connections to reach MinConnectionPoolSize
+                if (isPrimary) {
+                    connectionPool.CreateInitialConnections(); // will be done on a background thread
+                }
+
                 State = MongoServerState.Connected;
                 this.connectionPool = connectionPool;
             } catch (Exception ex) {

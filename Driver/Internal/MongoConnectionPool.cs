@@ -154,6 +154,50 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
+        internal void CreateInitialConnections() {
+            ThreadPool.QueueUserWorkItem(CreateInitialConnectionsWorkItem);
+        }
+
+        internal void CreateInitialConnectionsWorkItem(
+            object state // ignored
+        ) {
+            // keep creating connections one at a time until MinConnectionPoolSize is reached
+            while (true) {
+                lock (connectionPoolLock) {
+                    // stop if connection pool has been closed or we have already reached MinConnectionPoolSize
+                    if (closed || poolSize >= server.Settings.MinConnectionPoolSize) {
+                        return;
+                    }
+                }
+
+                var connection = new MongoConnection(this);
+                try {
+                    connection.Open();
+
+                    // compare against MaxConnectionPoolSize instead of MinConnectionPoolSize
+                    // because while we were opening this connection many others may have already been created
+                    // and we don't want to throw this one away unless we would exceed MaxConnectionPoolSize
+                    var added = false;
+                    lock (connectionPoolLock) {
+                        if (poolSize < server.Settings.MaxConnectionPoolSize) {
+                            availableConnections.Add(connection);
+                            poolSize++;
+                            added = true;
+                        }
+                    }
+
+                    if (!added) {
+                        // turns out we couldn't use the connection after all
+                        connection.Close();
+                    }
+                } catch {
+                    // TODO: log exception?
+                    // wait a bit before trying again
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                }
+            }
+        }
+
         internal void ReleaseConnection(
             MongoConnection connection
         ) {
