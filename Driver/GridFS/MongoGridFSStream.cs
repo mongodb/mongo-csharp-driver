@@ -498,8 +498,6 @@ namespace MongoDB.Driver.GridFS {
         private void OpenCreate() {
             if (fileInfo.Id == null) {
                 fileInfo.SetId(ObjectId.GenerateNewId());
-            } else {
-                throw new InvalidOperationException("OpenCreate called and FileInfo.Id already has a value.");
             }
 
             var file = new BsonDocument {

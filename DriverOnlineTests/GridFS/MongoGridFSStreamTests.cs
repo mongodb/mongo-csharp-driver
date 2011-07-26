@@ -204,6 +204,24 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
+        public void TestOpenCreateWithId() {
+            gridFS.Files.RemoveAll();
+            gridFS.Chunks.RemoveAll();
+            gridFS.Chunks.ResetIndexCache();
+
+            var createOptions = new MongoGridFSCreateOptions {
+                Id = 1
+            };
+            using (var stream = gridFS.Create("test", createOptions)) {
+                var bytes = new byte[] { 1, 2, 3, 4 };
+                stream.Write(bytes, 0, 4);
+            }
+
+            var fileInfo = gridFS.FindOne("test");
+            Assert.AreEqual(BsonInt32.Create(1), fileInfo.Id);
+        }
+
+        [Test]
         public void TestOpenCreateWithMetadata() {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
