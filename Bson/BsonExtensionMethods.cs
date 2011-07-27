@@ -341,5 +341,18 @@ namespace MongoDB.Bson {
         ) {
             return ToJson(obj, nominalType, null, settings);
         }
+
+        /// <summary>
+        /// Converts an object to a BsonValue.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <returns>A BsonValue.</returns>
+        public static BsonValue ToBsonValue(
+            this object obj
+        )
+        {
+            return BsonValue.Create(obj);
+        }
     }
 }
