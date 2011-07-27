@@ -282,6 +282,24 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
+        public void TestAddArrayListWithOneEntry() {
+            var arrayList = new ArrayList { 1 };
+            var array = new BsonArray(arrayList);
+            var json = array.ToJson();
+            var expected = "[1]".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
+        public void TestAddArrayListWithTwoEntries() {
+            var arrayList = new ArrayList { 1, 2 };
+            var array = new BsonArray(arrayList);
+            var json = array.ToJson();
+            var expected = "[1, 2]".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+        }
+
+        [Test]
         public void TestAddHashtableWithOneEntry() {
             var hashtable = new Hashtable { { "A", 1 } };
             var document = new BsonDocument(hashtable);

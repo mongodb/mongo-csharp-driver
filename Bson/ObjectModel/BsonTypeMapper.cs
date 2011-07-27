@@ -206,8 +206,8 @@ namespace MongoDB.Bson {
             // these coercions can't be handled by the conversions table (because of the interfaces)
             switch (bsonType) {
                 case BsonType.Array:
-                    if (value is IEnumerable<object>) {
-                        return new BsonArray((IEnumerable<object>) value);
+                    if (value is IEnumerable) {
+                        return new BsonArray((IEnumerable) value);
                     }
                     break;
                 case BsonType.Document:
@@ -274,16 +274,18 @@ namespace MongoDB.Bson {
             }
 
             // these mappings can't be handled by the mappings table (because of the interfaces)
-            if (value is IEnumerable<object>) {
-                bsonValue = new BsonArray((IEnumerable<object>) value);
-                return true;
-            }
             if (value is IDictionary<string, object>) {
                 bsonValue = new BsonDocument((IDictionary<string, object>) value);
                 return true;
             }
             if (value is IDictionary) {
                 bsonValue = new BsonDocument((IDictionary) value);
+                return true;
+            }
+            // NOTE: the check for non-generic IEnumerable must be after the check for either IDictionary interface
+            // because they both inherit from IEnumerable yet we want to handle them differently
+            if (value is IEnumerable) {
+                bsonValue = new BsonArray((IEnumerable) value);
                 return true;
             }
 

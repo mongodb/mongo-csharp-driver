@@ -947,7 +947,7 @@ namespace MongoDB.Driver {
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
         public virtual IEnumerable<SafeModeResult> InsertBatch(
             Type nominalType,
-            IEnumerable<object> documents
+            IEnumerable documents
         ) {
             return InsertBatch(nominalType, documents, settings.SafeMode);
         }
@@ -961,7 +961,7 @@ namespace MongoDB.Driver {
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
         public virtual IEnumerable<SafeModeResult> InsertBatch(
             Type nominalType,
-            IEnumerable<object> documents,
+            IEnumerable documents,
             SafeMode safeMode
         ) {
             var options = new MongoInsertOptions(this) { SafeMode = safeMode };
@@ -977,7 +977,7 @@ namespace MongoDB.Driver {
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
         public virtual IEnumerable<SafeModeResult> InsertBatch(
             Type nominalType,
-            IEnumerable<object> documents,
+            IEnumerable documents,
             MongoInsertOptions options
         ) {
             var connection = server.AcquireConnection(database, false); // not slaveOk

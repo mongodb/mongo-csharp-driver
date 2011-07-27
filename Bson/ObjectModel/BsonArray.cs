@@ -111,17 +111,6 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         public BsonArray(
-            IEnumerable<object> values
-        )
-            : this(0) {
-            AddRange(values);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonArray class.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        public BsonArray(
             IEnumerable<ObjectId> values
         )
             : this(0) {
@@ -297,21 +286,6 @@ namespace MongoDB.Bson {
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(
             IEnumerable<long> values
-        ) {
-            if (values != null) {
-                return new BsonArray(values);
-            } else {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(
-            IEnumerable<object> values
         ) {
             if (values != null) {
                 return new BsonArray(values);
@@ -503,22 +477,6 @@ namespace MongoDB.Bson {
             if (values != null) {
                 foreach (var value in values) {
                     this.values.Add(BsonInt64.Create(value));
-                }
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// Adds multiple elements to the array.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(
-            IEnumerable<object> values
-        ) {
-            if (values != null) {
-                foreach (var value in values) {
-                    this.values.Add(BsonValue.Create(value));
                 }
             }
             return this;

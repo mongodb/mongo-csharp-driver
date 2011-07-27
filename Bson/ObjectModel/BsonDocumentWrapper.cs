@@ -174,10 +174,16 @@ namespace MongoDB.Bson {
         /// <returns>A list of BsonDocumentWrappers or null.</returns>
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple(
             Type nominalType,
-            IEnumerable<object> values
+            IEnumerable values
         ) {
             if (values != null) {
-                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(nominalType, v));
+                var wrappers = new List<BsonDocumentWrapper>();
+                foreach (var value in values) {
+                    if (value != null) {
+                        wrappers.Add(new BsonDocumentWrapper(nominalType, value));
+                    }
+                }
+                return wrappers;
             } else {
                 return null;
             }
