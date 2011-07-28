@@ -48,7 +48,7 @@ namespace MongoDB.BsonUnitTests {
         [Test]
         public void TestCreateBsonValueArray() {
             var values = new BsonValue[] { true, 1, 1.5 };
-            var array = BsonArray.Create((IEnumerable<BsonValue>) values);
+            var array = BsonArray.Create(values);
             Assert.AreEqual(3, array.Count);
             Assert.IsInstanceOf<BsonBoolean>(array[0]);
             Assert.IsInstanceOf<BsonInt32>(array[1]);
@@ -133,7 +133,7 @@ namespace MongoDB.BsonUnitTests {
         [Test]
         public void TestCreateStringArray() {
             var values = new string[] { "a", "b" };
-            var array = BsonArray.Create((IEnumerable<string>) values);
+            var array = BsonArray.Create(values);
             Assert.AreEqual(2, array.Count);
             Assert.IsInstanceOf<BsonString>(array[0]);
             Assert.IsInstanceOf<BsonString>(array[1]);

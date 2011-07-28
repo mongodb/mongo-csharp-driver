@@ -211,9 +211,6 @@ namespace MongoDB.Bson {
                     }
                     break;
                 case BsonType.Document:
-                    if (value is IDictionary<string, object>) {
-                        return new BsonDocument((IDictionary<string, object>) value);
-                    }
                     if (value is IDictionary) {
                         return new BsonDocument((IDictionary) value);
                     }
@@ -274,16 +271,12 @@ namespace MongoDB.Bson {
             }
 
             // these mappings can't be handled by the mappings table (because of the interfaces)
-            if (value is IDictionary<string, object>) {
-                bsonValue = new BsonDocument((IDictionary<string, object>) value);
-                return true;
-            }
             if (value is IDictionary) {
                 bsonValue = new BsonDocument((IDictionary) value);
                 return true;
             }
-            // NOTE: the check for non-generic IEnumerable must be after the check for either IDictionary interface
-            // because they both inherit from IEnumerable yet we want to handle them differently
+            // NOTE: the check for IEnumerable must be after the check for IDictionary
+            // because IDictionary implements IEnumerable
             if (value is IEnumerable) {
                 bsonValue = new BsonArray((IEnumerable) value);
                 return true;

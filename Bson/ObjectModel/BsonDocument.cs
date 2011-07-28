@@ -73,9 +73,9 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from an <see cref="IDictionary">IDictionary</see>.
+        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
         public BsonDocument(
             IDictionary dictionary
         )
@@ -84,73 +84,13 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from an <see cref="IDictionary">IDictionary</see>.
+        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
-        /// <remarks>
-        /// The intended usage of this constructor is to ease the use of the Bson library and MongoDB driver with Windows Powershell.
-        /// Powershell has native support for Hashtables via its <c>@{"key1"= "value1; "key2"= "value2; . . .}</c> notation.
-        /// </remarks>
-        /// <param name="dictionary">
-        /// A Dictionary. The keys in this dictionary must be strings. The values will be mapped to BsonValues.
-        /// </param>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        /// <example>
-        /// Using this constructor to create a <c>BsonDocument</c> with PowerShell's Hashtable notation:
-        /// <code lang="powershell">
-        /// # We assume that the driver is installed via the MSI.
-        /// [string] $mongoDriverPath = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\.NETFramework\v3.5\AssemblyFoldersEx\MongoDB CSharpDriver 1.1").'(default)';
-        /// Add-Type -Path "$($mongoDriverPath)\MongoDB.Bson.dll";
-        /// [MongoDB.Bson.BsonDocument] $doc = @{
-        ///     "_id" = [MongoDB.Bson.ObjectId]::GenerateNewId();
-        ///     "FirstName" = "Justin";
-        ///     "LastName" = "Dearing";
-        ///     "PhoneNumbers" = [MongoDB.Bson.BsonDocument] @{
-        ///         'Home' = '718-641-2098';
-        ///         'Mobile' = '646-288-5621';
-        ///     };
-        /// };
-        /// $doc;
-        /// </code>
-        /// <b>Output:</b>
-        /// <pre>
-        /// Name                                                                                                        Value
-        /// ----                                                                                                        -----
-        /// _id                                                                                                         4d711f54d9a8b11fe4d4395d
-        /// FirstName                                                                                                   Justin
-        /// LastName                                                                                                    Dearing
-        /// PhoneNumbers                                                                                                {Mobile=646-288-5621, Home=718-641-2098}
-        /// </pre>
-        /// <br/>
-        /// </example>
-        /// <seealso cref="Hashtable" />
-        /// <seealso cref="IDictionary" />
         public BsonDocument(
             IDictionary dictionary,
             IEnumerable keys
-        )
-            : base(BsonType.Document) {
-            Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public BsonDocument(
-            IDictionary<string, object> dictionary
-        )
-            : base(BsonType.Document) {
-            Add(dictionary);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public BsonDocument(
-            IDictionary<string, object> dictionary,
-            IEnumerable<string> keys
         )
             : base(BsonType.Document) {
             Add(dictionary, keys);
@@ -469,38 +409,6 @@ namespace MongoDB.Bson {
         ) {
             if (dictionary != null) {
                 foreach (string key in keys) {
-                    Add(key, BsonValue.Create(dictionary[key]));
-                }
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            IDictionary<string, object> dictionary
-        ) {
-            if (dictionary != null) {
-                Add(dictionary, dictionary.Keys);
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the dictionary to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            IDictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        ) {
-            if (dictionary != null) {
-                foreach (var key in keys) {
                     Add(key, BsonValue.Create(dictionary[key]));
                 }
             }

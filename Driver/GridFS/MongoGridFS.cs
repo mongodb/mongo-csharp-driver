@@ -744,7 +744,7 @@ namespace MongoDB.Driver.GridFS {
             string[] aliases
         ) {
             var query = Query.EQ("_id", fileInfo.Id);
-            var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create((IEnumerable<string>) aliases));
+            var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create(aliases));
             files.Update(query, update);
         }
 
@@ -878,7 +878,7 @@ namespace MongoDB.Driver.GridFS {
                     { "uploadDate", uploadDate },
                     { "md5", md5Server },
                     { "contentType", createOptions.ContentType }, // optional
-                    { "aliases", BsonArray.Create((IEnumerable<string>) createOptions.Aliases) }, // optional
+                    { "aliases", BsonArray.Create(createOptions.Aliases) }, // optional
                     { "metadata", createOptions.Metadata } // optional
                 };
                 files.Insert(fileInfo, settings.SafeMode);
