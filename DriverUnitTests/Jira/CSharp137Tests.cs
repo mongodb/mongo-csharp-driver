@@ -31,14 +31,15 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         [Test]
         public void TestAndInNotIn() {
             var query = Query.And(
-                Query.In("value", new BsonArray(new int[] { 1, 2, 3, 4 })),
-                Query.NotIn("value", new BsonArray(new int[] { 11, 12, 13, 14 })));
+                Query.In("value", 1, 2, 3, 4 ),
+                Query.NotIn("value", 11, 12, 13, 14)
+            );
 
             Assert.AreEqual(
-                new BsonDocument() {
-                    {"value", new BsonDocument() {
-                        {"$in", new BsonArray(new int[] { 1, 2, 3, 4 })},
-                        {"$nin", new BsonArray(new int[] { 11, 12, 13, 14 })}
+                new BsonDocument {
+                    {"value", new BsonDocument {
+                        {"$in", new BsonArray { 1, 2, 3, 4 }},
+                        {"$nin", new BsonArray { 11, 12, 13, 14 }}
                     }}
                 },
                 query.ToBsonDocument());
@@ -47,15 +48,16 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         [Test]
         public void TestAndGtLt() {
             var query = Query.And(
-                Query.NotIn("value", new BsonArray(new int[] {1,2,3})),
+                Query.NotIn("value", 1, 2, 3),
                 Query.EQ("OtherValue", 1),
                 Query.GT("value", 6),
-                Query.LT("value", 20));
+                Query.LT("value", 20)
+            );
 
             Assert.AreEqual(
-                new BsonDocument() {
-                    {"value", new BsonDocument() {
-                        {"$nin", new BsonArray(new int[] {1,2,3})},
+                new BsonDocument {
+                    {"value", new BsonDocument {
+                        {"$nin", new BsonArray { 1, 2, 3 }},
                         {"$gt", 6},
                         {"$lt", 20}
                     }},

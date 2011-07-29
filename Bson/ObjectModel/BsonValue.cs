@@ -171,6 +171,13 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Casts the BsonValue to a BsonValue (a way of upcasting subclasses of BsonValue to BsonValue at compile time).
+        /// </summary>
+        public BsonValue AsBsonValue {
+            get { return this; }
+        }
+
+        /// <summary>
         /// Casts the BsonValue to a Byte[] (throws an InvalidCastException if the cast is not valid).
         /// </summary>
         public byte[] AsByteArray {

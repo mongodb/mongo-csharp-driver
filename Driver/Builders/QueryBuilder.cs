@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Builders {
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList All(
             string name,
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
             return new QueryConditionList(name).All(values);
         }
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Builders {
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList In(
             string name,
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
             return new QueryConditionList(name).In(values);
         }
@@ -339,7 +339,7 @@ namespace MongoDB.Driver.Builders {
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList NotIn(
             string name,
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
             return new QueryConditionList(name).NotIn(values);
         }
@@ -584,9 +584,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList All(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
-            conditions.Add("$all", values);
+            conditions.Add("$all", new BsonArray(values));
             return this;
         }
 
@@ -656,9 +656,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList In(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
-            conditions.Add("$in", values);
+            conditions.Add("$in", new BsonArray(values));
             return this;
         }
 
@@ -780,9 +780,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NotIn(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
-            conditions.Add("$nin", values);
+            conditions.Add("$nin", new BsonArray(values));
             return this;
         }
 
@@ -903,7 +903,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
             return new QueryNotConditionList(name).All(values);
         }
@@ -969,7 +969,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
             return new QueryNotConditionList(name).In(values);
         }
@@ -1037,7 +1037,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
             return new QueryNotConditionList(name).NotIn(values);
         }
@@ -1117,9 +1117,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
-            conditions.Add("$all", values);
+            conditions.Add("$all", new BsonArray(values));
             return this;
         }
 
@@ -1189,9 +1189,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
-            conditions.Add("$in", values);
+            conditions.Add("$in", new BsonArray(values));
             return this;
         }
 
@@ -1263,9 +1263,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="values">A BsonArray of values.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(
-            BsonArray values
+            IEnumerable<BsonValue> values
         ) {
-            conditions.Add("$nin", values);
+            conditions.Add("$nin", new BsonArray(values));
             return this;
         }
 
