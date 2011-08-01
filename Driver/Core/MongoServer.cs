@@ -38,10 +38,9 @@ namespace MongoDB.Driver {
 
         #region private fields
         private object serverLock = new object();
-        private object requestsLock = new object();
         private MongoServerSettings settings;
         private MongoServerState state = MongoServerState.Disconnected;
-        private List<MongoServerInstance> instances = new List<MongoServerInstance>(); // serves as its own lock
+        private List<MongoServerInstance> instances = new List<MongoServerInstance>();
         private string replicaSetName;
         private int loadBalancingInstanceIndex; // used to distribute reads across secondaries in round robin fashion
         private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
@@ -210,7 +209,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerInstance[] Arbiters {
             get {
-                lock (instances) {
+                lock (serverLock) {
                     return instances.Where(i => i.IsArbiter).ToArray();
                 }
             }
@@ -246,8 +245,13 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual MongoServerInstance Instance {
             get {
-                lock (instances) {
-                    return instances.SingleOrDefault();
+                lock (serverLock) {
+                    switch (instances.Count) {
+                        case 0: return null;
+                        case 1: return instances[0];
+                        default:
+                            throw new InvalidOperationException("Instance property cannot be used when there is more than one instance.");
+                    }
                 }
             }
         }
@@ -257,7 +261,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual MongoServerInstance[] Instances {
             get {
-                lock (instances) {
+                lock (serverLock) {
                     return instances.ToArray();
                 }
             }
@@ -268,7 +272,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerInstance[] Passives {
             get {
-                lock (instances) {
+                lock (serverLock) {
                     return instances.Where(i => i.IsPassive).ToArray();
                 }
             }
@@ -279,7 +283,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerInstance Primary {
             get {
-                lock (instances) {
+                lock (serverLock) {
                     return instances.Where(i => i.IsPrimary).SingleOrDefault();
                 }
             }
@@ -298,8 +302,8 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual MongoConnection RequestConnection {
             get {
-                int threadId = Thread.CurrentThread.ManagedThreadId;
-                lock (requestsLock) {
+                lock (serverLock) {
+                    int threadId = Thread.CurrentThread.ManagedThreadId;
                     Request request;
                     if (requests.TryGetValue(threadId, out request)) {
                         return request.Connection;
@@ -315,8 +319,8 @@ namespace MongoDB.Driver {
         /// </summary>
         public virtual int RequestNestingLevel {
             get {
-                int threadId = Thread.CurrentThread.ManagedThreadId;
-                lock (requestsLock) {
+                lock (serverLock) {
+                    int threadId = Thread.CurrentThread.ManagedThreadId;
                     Request request;
                     if (requests.TryGetValue(threadId, out request)) {
                         return request.NestingLevel;
@@ -332,7 +336,7 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerInstance[] Secondaries {
             get {
-                lock (instances) {
+                lock (serverLock) {
                     return instances.Where(i => i.IsSecondary).ToArray();
                 }
             }
@@ -509,10 +513,8 @@ namespace MongoDB.Driver {
             // but anyone can call it if they want to close all sockets to the server
             lock (serverLock) {
                 if (state == MongoServerState.Connected) {
-                    lock (instances) {
-                        foreach (var instance in instances) {
-                            instance.Disconnect();
-                        }
+                    foreach (var instance in instances) {
+                        instance.Disconnect();
                     }
                 }
             }
@@ -745,23 +747,17 @@ namespace MongoDB.Driver {
         /// to put the return value of RequestStart in a using statement.
         /// </summary>
         public virtual void RequestDone() {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            MongoConnection connection = null;
-            lock (requestsLock) {
+            lock (serverLock) {
+                int threadId = Thread.CurrentThread.ManagedThreadId;
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
                     if (--request.NestingLevel == 0) {
-                        connection = request.Connection;
                         requests.Remove(threadId);
+                        ReleaseConnection(request.Connection);
                     }
                 } else {
                     throw new InvalidOperationException("Thread is not in a request (did you call RequestStart?).");
                 }
-            }
-
-            // release the connection outside of the lock
-            if (connection != null) {
-                ReleaseConnection(connection);
             }
         }
 
@@ -791,23 +787,19 @@ namespace MongoDB.Driver {
             bool slaveOk
         ) {
             int threadId = Thread.CurrentThread.ManagedThreadId;
-            lock (requestsLock) {
+            lock (serverLock) {
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
                     if (!slaveOk && request.SlaveOk) {
                         throw new InvalidOperationException("A nested call to RequestStart with slaveOk false is not allowed when the original call to RequestStart was made with slaveOk true.");
                     }
                     request.NestingLevel++;
-                    return new RequestStartResult(this);
+                } else {
+                    var connection = AcquireConnection(initialDatabase, slaveOk);
+                    request = new Request(connection, slaveOk);
+                    requests.Add(threadId, request);
                 }
-            }
 
-            // get the connection outside of the lock
-            var connection = AcquireConnection(initialDatabase, slaveOk);
-
-            lock (requestsLock) {
-                var request = new Request(connection, slaveOk);
-                requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
         }
@@ -912,9 +904,9 @@ namespace MongoDB.Driver {
             MongoDatabase database,
             bool slaveOk
         ) {
-            // if a thread has called RequestStart it wants all operations to take place on the same connection
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            lock (requestsLock) {
+            lock (serverLock) {
+                // if a thread has called RequestStart it wants all operations to take place on the same connection
+                int threadId = Thread.CurrentThread.ManagedThreadId;
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
                     if (!slaveOk && request.SlaveOk) {
@@ -923,10 +915,7 @@ namespace MongoDB.Driver {
                     request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
                     return request.Connection;
                 }
-            }
 
-            // get lock so serverInstance doesn't get disconnected before AcquireConnection is called
-            lock (serverLock) {
                 var serverInstance = GetServerInstance(slaveOk);
                 return serverInstance.AcquireConnection(database);
             }
@@ -936,9 +925,9 @@ namespace MongoDB.Driver {
             MongoDatabase database,
             MongoServerInstance serverInstance
         ) {
-            // if a thread has called RequestStart it wants all operations to take place on the same connection
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            lock (requestsLock) {
+            lock (serverLock) {
+                // if a thread has called RequestStart it wants all operations to take place on the same connection
+                int threadId = Thread.CurrentThread.ManagedThreadId;
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
                     if (request.Connection.ServerInstance != serverInstance) {
@@ -952,15 +941,15 @@ namespace MongoDB.Driver {
                     request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
                     return request.Connection;
                 }
-            }
 
-            return serverInstance.AcquireConnection(database);
+                return serverInstance.AcquireConnection(database);
+            }
         }
 
         internal void AddInstance(
             MongoServerInstance instance
         ) {
-            lock (instances) {
+            lock (serverLock) {
                 if (instances.Any(i => i.Address == instance.Address)) {
                     var message = string.Format("A server instance already exists for address '{0}'.", instance.Address);
                     throw new ArgumentException(message);
@@ -972,7 +961,7 @@ namespace MongoDB.Driver {
         }
 
         internal void ClearInstances() {
-            lock (instances) {
+            lock (serverLock) {
                 instances.ForEach(i => { i.StateChanged -= InstanceStateChanged; });
                 instances.Clear();
                 state = MongoServerState.Disconnected;
@@ -990,13 +979,11 @@ namespace MongoDB.Driver {
                 if (settings.ConnectionMode == ConnectionMode.ReplicaSet) {
                     if (slaveOk) {
                         // round robin the connected secondaries, fall back to primary if no secondary found
-                        lock (instances) {
-                            for (int i = 0; i < instances.Count; i++) {
-                                loadBalancingInstanceIndex = (loadBalancingInstanceIndex + 1) % instances.Count; // round robin
-                                var instance = instances[loadBalancingInstanceIndex];
-                                if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
-                                    return instance;
-                                }
+                        for (int i = 0; i < instances.Count; i++) {
+                            loadBalancingInstanceIndex = (loadBalancingInstanceIndex + 1) % instances.Count; // round robin
+                            var instance = instances[loadBalancingInstanceIndex];
+                            if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive)) {
+                                return instance;
                             }
                         }
                     }
@@ -1015,9 +1002,9 @@ namespace MongoDB.Driver {
         internal void ReleaseConnection(
             MongoConnection connection
         ) {
-            // if the thread has called RequestStart just verify that the connection it is releasing is the right one
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            lock (requestsLock) {
+            lock (serverLock) {
+                // if the thread has called RequestStart just verify that the connection it is releasing is the right one
+                int threadId = Thread.CurrentThread.ManagedThreadId;
                 Request request;
                 if (requests.TryGetValue(threadId, out request)) {
                     if (connection != request.Connection) {
@@ -1025,17 +1012,15 @@ namespace MongoDB.Driver {
                     }
                     return; // hold on to the connection until RequestDone is called
                 }
-            }
 
-            // the connection might belong to a connection pool that has already been discarded
-            // so always release it to the connection pool it came from and not the current pool
-            connection.ConnectionPool.ReleaseConnection(connection);
+                connection.ServerInstance.ReleaseConnection(connection);
+            }
         }
 
         internal void RemoveInstance(
             MongoServerInstance instance
         ) {
-            lock (instances) {
+            lock (serverLock) {
                 instance.StateChanged -= InstanceStateChanged;
                 instances.Remove(instance);
                 InstanceStateChanged(null, null); // removing an instance can change server state
@@ -1048,7 +1033,7 @@ namespace MongoDB.Driver {
             object sender,
             object args
         ) {
-            lock (instances) {
+            lock (serverLock) {
                 if (instances.Any(i => i.State == MongoServerState.Connected && i.IsPrimary)) {
                     // Console.WriteLine("Server state: Connected");
                     state = MongoServerState.Connected;
