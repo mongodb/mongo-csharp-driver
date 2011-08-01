@@ -59,6 +59,18 @@ namespace MongoDB.Driver {
             MongoServerSettings settings
         ) {
             this.settings = settings.Freeze();
+
+            if (settings.ConnectionMode == ConnectionMode.ReplicaSet) {
+                // initialize the set of server instances from the seed list (might change once we connect)
+                foreach (var address in settings.Servers) {
+                    var serverInstance = new MongoServerInstance(this, address);
+                    AddInstance(serverInstance);
+                }
+            } else {
+                // initialize the server instance to the first (or only) address provided
+                var serverInstance = new MongoServerInstance(this, settings.Servers.First());
+                AddInstance(serverInstance);
+            }
         }
         #endregion
 
@@ -970,15 +982,7 @@ namespace MongoDB.Driver {
                 }
                 instances.Add(instance);
                 instance.StateChanged += InstanceStateChanged;
-                InstanceStateChanged(null, null); // adding an instance can change server state
-            }
-        }
-
-        internal void ClearInstances() {
-            lock (stateLock) {
-                instances.ForEach(i => { i.StateChanged -= InstanceStateChanged; });
-                instances.Clear();
-                state = MongoServerState.Disconnected;
+                InstanceStateChanged(instance, null); // adding an instance can change server state
             }
         }
 
@@ -1039,7 +1043,7 @@ namespace MongoDB.Driver {
             lock (stateLock) {
                 instance.StateChanged -= InstanceStateChanged;
                 instances.Remove(instance);
-                InstanceStateChanged(null, null); // removing an instance can change server state
+                InstanceStateChanged(instance, null); // removing an instance can change server state
             }
         }
         #endregion

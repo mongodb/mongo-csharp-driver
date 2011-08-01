@@ -73,6 +73,14 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerAddress Address {
             get { return address; }
+            internal set {
+                lock (serverInstanceLock) {
+                    if (state != MongoServerState.Disconnected) {
+                        throw new MongoInternalException("MongoServerInstance Address can only be set when State is Disconnected.");
+                    }
+                    address = value;
+                }
+            }
         }
 
         /// <summary>

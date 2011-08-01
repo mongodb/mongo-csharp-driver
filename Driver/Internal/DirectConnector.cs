@@ -39,20 +39,14 @@ namespace MongoDB.Driver.Internal {
         internal void Connect(
             TimeSpan timeout
         ) {
-            server.ClearInstances();
-
             var exceptions = new List<Exception>();
             foreach (var address in server.Settings.Servers) {
                 try {
-                    var serverInstance = new MongoServerInstance(server, address);
-                    server.AddInstance(serverInstance);
-                    try {
-                        serverInstance.Connect(server.Settings.SlaveOk); // TODO: what about timeout?
-                    } catch {
-                        server.RemoveInstance(serverInstance);
-                        throw;
+                    var serverInstance = server.Instance;
+                    if (serverInstance.Address != address) {
+                        serverInstance.Address = address;
                     }
-
+                    serverInstance.Connect(server.Settings.SlaveOk); // TODO: what about timeout?
                     return;
                 } catch (Exception ex) {
                     exceptions.Add(ex);

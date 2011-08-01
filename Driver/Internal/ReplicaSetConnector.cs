@@ -47,10 +47,10 @@ namespace MongoDB.Driver.Internal {
         ) {
             timeoutAt = DateTime.UtcNow + timeout;
 
-            // connect to all servers in the seed list in parallel (they will report responses back through the responseQueue)
-            server.ClearInstances();
-            foreach (var address in server.Settings.Servers) {
-                QueueConnect(address);
+            // connect to all server instances in parallel (they will report responses back through the responseQueue)
+            // the set of Instances initially comes from the seed list, but is adjusted to the official set once connected
+            foreach (var serverInstance in server.Instances) {
+                QueueConnect(serverInstance);
             }
 
             // process the responses as they come back and return as soon as we have connected to the primary
@@ -172,14 +172,16 @@ namespace MongoDB.Driver.Internal {
 
             // remove server instances created from the seed list that turn out to be invalid
             var invalidInstances = server.Instances.Where(i => !validAddresses.Contains(i.Address)).ToArray(); // force evaluation
-            foreach (var instance in invalidInstances) {
-                server.RemoveInstance(instance);
+            foreach (var invalidInstance in invalidInstances) {
+                server.RemoveInstance(invalidInstance);
             }
 
             // add any server instances that were missing from the seed list
             foreach (var address in validAddresses) {
                 if (!server.Instances.Any(i => i.Address == address)) {
-                    QueueConnect(address);
+                    var missingInstance = new MongoServerInstance(server, address);
+                    server.AddInstance(missingInstance);
+                    QueueConnect(missingInstance);
                 }
             }
         }
@@ -215,11 +217,8 @@ namespace MongoDB.Driver.Internal {
         }
 
         private void QueueConnect(
-            MongoServerAddress address
+            MongoServerInstance serverInstance
         ) {
-            var serverInstance = new MongoServerInstance(server, address);
-            server.AddInstance(serverInstance);
-
             var args = new ConnectArgs {
                 ServerInstance = serverInstance,
                 ResponseQueue = responseQueue
