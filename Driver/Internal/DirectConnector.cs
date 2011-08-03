@@ -25,13 +25,16 @@ namespace MongoDB.Driver.Internal {
     internal class DirectConnector {
         #region private fields
         private MongoServer server;
+        private int connectionAttempt;
         #endregion
 
         #region constructors
         internal DirectConnector(
-            MongoServer server
+            MongoServer server,
+            int connectionAttempt
         ) {
             this.server = server;
+            this.connectionAttempt = connectionAttempt;
         }
         #endregion
 

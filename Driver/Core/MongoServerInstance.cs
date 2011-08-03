@@ -216,17 +216,18 @@ namespace MongoDB.Driver {
             bool slaveOk
         ) {
             lock (serverInstanceLock) {
-                if (state != MongoServerState.Disconnected) {
-                    var message = string.Format("MongoServerInstance.Connect can only be called when state is Disconnected, not when state is {0}.", state);
-                    throw new InvalidOperationException(message);
-                }
+                // note: don't check that state is Disconnected here
+                // when reconnecting to a replica set state can transition from Connected -> Connecting -> Connected
 
                 State = MongoServerState.Connecting;
                 connectException = null;
                 try {
                     endPoint = address.ToIPEndPoint(server.Settings.AddressFamily);
 
-                    var connectionPool = new MongoConnectionPool(this);
+                    if (connectionPool == null) {
+                        connectionPool = new MongoConnectionPool(this);
+                    }
+
                     try {
                         var connection = connectionPool.AcquireConnection(null);
                         try {
@@ -260,10 +261,13 @@ namespace MongoDB.Driver {
                                 buildInfoResult.Response["version"].AsString // versionString
                             );
                         } finally {
-                            connectionPool.ReleaseConnection(connection);
+                            connection.ConnectionPool.ReleaseConnection(connection);
                         }
                     } catch {
-                        connectionPool.Close();
+                        if (connectionPool != null) {
+                            connectionPool.Close();
+                            connectionPool = null;
+                        }
                         throw;
                     }
 
@@ -273,7 +277,6 @@ namespace MongoDB.Driver {
                     }
 
                     State = MongoServerState.Connected;
-                    this.connectionPool = connectionPool;
                 } catch (Exception ex) {
                     State = MongoServerState.Disconnected;
                     connectException = ex;

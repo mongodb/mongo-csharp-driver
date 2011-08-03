@@ -20,28 +20,20 @@ using System.Text;
 
 namespace MongoDB.Driver {
     /// <summary>
-    /// The state of a MongoServer instance.
+    /// Used with the Connect method when connecting to a replica set to specify what subset of the replica set must be connected before returning.
     /// </summary>
-    public enum MongoServerState {
+    public enum ConnectWaitFor {
         /// <summary>
-        /// The state has not yet been determined.
+        /// Wait for all members of the replica set to be connected.
         /// </summary>
-        None = 0,
+        All,
         /// <summary>
-        /// Disconnected from the server.
+        /// Wait for the primary member of the replica set to be connected.
         /// </summary>
-        Disconnected,
+        Primary,
         /// <summary>
-        /// Connecting to the server (in progress).
+        /// Wait for any slaveOk member of the replica set to be connected (includes primary, secondaries and passives).
         /// </summary>
-        Connecting,
-        /// <summary>
-        /// Connected to the server.
-        /// </summary>
-        Connected,
-        /// <summary>
-        /// Connected to a subset of the replica set members.
-        /// </summary>
-        ConnectedToSubset
+        AnySlaveOk
     }
 }
