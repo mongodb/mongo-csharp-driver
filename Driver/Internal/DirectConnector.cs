@@ -56,11 +56,11 @@ namespace MongoDB.Driver.Internal {
                 }
             }
 
-            var innerException = exceptions.FirstOrDefault();
-            var connectionException = new MongoConnectionException("Unable to connect to server.", innerException);
-            if (exceptions.Count > 1) {
-                connectionException.Data.Add("exceptions", exceptions);
-            }
+            var firstAddress = server.Settings.Servers.First();
+            var firstException = exceptions.First();
+            var message = string.Format("Unable to connect to server {0}: {1}.", firstAddress, firstException.Message);
+            var connectionException = new MongoConnectionException(message, firstException);
+            connectionException.Data.Add("InnerExceptions", exceptions); // useful when there is more than one
             throw connectionException;
         }
         #endregion

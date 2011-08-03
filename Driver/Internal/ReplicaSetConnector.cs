@@ -101,17 +101,25 @@ namespace MongoDB.Driver.Internal {
                 }
             }
 
-            var exceptions = responses.Select(r => r.ServerInstance.ConnectException).Where(e => e != null).ToArray();
-            var innerException = exceptions.FirstOrDefault();
-            string message;
-            if (innerException == null) {
-                message = "Unable to connect to server.";
-            } else {
-                message = string.Format("Unable to connect to server: {0}.", innerException.Message);
+            string waitForString;
+            switch (waitFor) {
+                case ConnectWaitFor.All: waitForString = "all members"; break;
+                case ConnectWaitFor.AnySlaveOk: waitForString = "any slaveOk member"; break;
+                case ConnectWaitFor.Primary: waitForString = "the primary member"; break;
+                default: throw new ArgumentException("Invalid ConnectWaitFor value.");
             }
-            var exception = new MongoConnectionException(message, innerException);
-            exception.Data.Add("InnerExceptions", exceptions);
-            throw exception;
+
+            var exceptions = responses.Select(r => r.ServerInstance.ConnectException).Where(e => e != null).ToArray();
+            var firstException = exceptions.FirstOrDefault();
+            string message;
+            if (firstException == null) {
+                message = string.Format("Unable to connect to {0} of the replica set.", waitForString);
+            } else {
+                message = string.Format("Unable to connect to {0} of the replica set: {1}.", waitForString, firstException.Message);
+            }
+            var connectionException = new MongoConnectionException(message, firstException);
+            connectionException.Data.Add("InnerExceptions", exceptions); // useful when there is more than one
+            throw connectionException;
         }
         #endregion
 
