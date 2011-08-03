@@ -451,13 +451,33 @@ namespace MongoDB.Bson.Serialization {
                             if (!elementDictionary.TryGetValue(memberMap.ElementName, out conflictingMemberMap)) {
                                 elementDictionary.Add(memberMap.ElementName, memberMap);
                             } else {
-                                var message = string.Format(
-                                    "Member '{0}' of class '{1}' cannot use element name '{2}' because it is already being used by member '{3}'.",
-                                    memberMap.MemberName,
-                                    classType.FullName,
-                                    memberMap.ElementName,
-                                    conflictingMemberMap.MemberName
-                                );
+                                var fieldOrProperty = (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
+                                var conflictingFieldOrProperty = (conflictingMemberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
+                                var conflictingType = conflictingMemberMap.MemberInfo.DeclaringType;
+
+                                string message;
+                                if (conflictingType == classType) {
+                                    message = string.Format(
+                                        "The {0} '{1}' of type '{2}' cannot use element name '{3}' because it is already being used by {4} '{5}'.",
+                                        fieldOrProperty,
+                                        memberMap.MemberName,
+                                        classType.FullName,
+                                        memberMap.ElementName,
+                                        conflictingFieldOrProperty,
+                                        conflictingMemberMap.MemberName
+                                    );
+                                } else {
+                                    message = string.Format(
+                                        "The {0} '{1}' of type '{2}' cannot use element name '{3}' because it is already being used by {4} '{5}' of type '{6}'.",
+                                        fieldOrProperty,
+                                        memberMap.MemberName,
+                                        classType.FullName,
+                                        memberMap.ElementName,
+                                        conflictingFieldOrProperty,
+                                        conflictingMemberMap.MemberName,
+                                        conflictingType.FullName
+                                    );
+                                }
                                 throw new BsonSerializationException(message);
                             }
                         }
