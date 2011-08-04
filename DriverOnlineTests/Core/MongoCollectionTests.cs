@@ -715,8 +715,24 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestIsCapped() {
-            var capped = collection.IsCapped();
+        public void TestIsCappedFalse() {
+            var collection = database["notcappedcollection"];
+            collection.Drop();
+            database.CreateCollection("notcappedcollection");
+
+            Assert.AreEqual(true, collection.Exists());
+            Assert.AreEqual(false, collection.IsCapped());
+        }
+
+        [Test]
+        public void TestIsCappedTrue() {
+            var collection = database["cappedcollection"];
+            collection.Drop();
+            var options = CollectionOptions.SetCapped(true);
+            database.CreateCollection("cappedcollection", options);
+
+            Assert.AreEqual(true, collection.Exists());
+            Assert.AreEqual(true, collection.IsCapped());
         }
 
 #pragma warning disable 649 // never assigned to

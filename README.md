@@ -27,6 +27,7 @@ see also: BreakingChanges.txt
 * Teun Duynstee             teun@duynstee.com
 * Ken Egozi                 mail@kenegozi.com
 * Simon Green               simon@captaincodeman.com
+* Brian Knight              brianknight10@gmail.com  
 * Richard Kreuter           richard@10gen.com
 * Kevin Lewis               kevin.l.lewis@gmail.com
 * Dow Liu                   redforks@gmail.com
