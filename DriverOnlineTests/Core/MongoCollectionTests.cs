@@ -714,6 +714,11 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(true, collection.IndexExists(IndexKeys.Ascending("y")));
         }
 
+        [Test]
+        public void TestIsCapped() {
+            var capped = collection.IsCapped();
+        }
+
 #pragma warning disable 649 // never assigned to
         private class TestMapReduceDocument {
             public string Id;
