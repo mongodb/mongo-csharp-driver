@@ -1027,7 +1027,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <returns>True if this collection is capped.</returns>
         public virtual bool IsCapped() {
-            throw new NotImplementedException();
+            return GetStats().Capped;
         }
 
         /// <summary>

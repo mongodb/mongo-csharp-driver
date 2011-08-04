@@ -48,6 +48,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets whether the collection is capped.
+        /// </summary>
+        public bool Capped {
+            get { return response["capped", false].ToBoolean(); }
+        }
+
+        /// <summary>
         /// Gets the data size.
         /// </summary>
         public long DataSize {
