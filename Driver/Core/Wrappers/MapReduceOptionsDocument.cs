@@ -61,6 +61,50 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         public MapReduceOptionsDocument(
+            Dictionary<string, object> dictionary
+        )
+            : base(dictionary) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MapReduceOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public MapReduceOptionsDocument(
+            Dictionary<string, object> dictionary,
+            IEnumerable<string> keys
+        )
+            : base(dictionary, keys) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MapReduceOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public MapReduceOptionsDocument(
+            IDictionary<string, object> dictionary
+        )
+            : base(dictionary) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MapReduceOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public MapReduceOptionsDocument(
+            IDictionary<string, object> dictionary,
+            IEnumerable<string> keys
+        )
+            : base(dictionary, keys) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MapReduceOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public MapReduceOptionsDocument(
             IDictionary dictionary
         )
             : base(dictionary) {

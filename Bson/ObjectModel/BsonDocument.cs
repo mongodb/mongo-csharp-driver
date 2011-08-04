@@ -77,6 +77,54 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         public BsonDocument(
+            Dictionary<string, object> dictionary
+        )
+            : base(BsonType.Document) {
+            Add(dictionary);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public BsonDocument(
+            Dictionary<string, object> dictionary,
+            IEnumerable<string> keys
+        )
+            : base(BsonType.Document) {
+            Add(dictionary, keys);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public BsonDocument(
+            IDictionary<string, object> dictionary
+        )
+            : base(BsonType.Document) {
+            Add(dictionary);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public BsonDocument(
+            IDictionary<string, object> dictionary,
+            IEnumerable<string> keys
+        )
+            : base(BsonType.Document) {
+            Add(dictionary, keys);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public BsonDocument(
             IDictionary dictionary
         )
             : base(BsonType.Document) {
@@ -378,6 +426,62 @@ namespace MongoDB.Bson {
                     if (!found) {
                         indexes.Add(element.Name, elements.Count - 1); // index of the newly added element
                     }
+                }
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds elements to the document from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <returns>The document (so method calls can be chained).</returns>
+        public BsonDocument Add(
+            Dictionary<string, object> dictionary
+        ) {
+            return Add((IDictionary<string, object>) dictionary);
+        }
+
+        /// <summary>
+        /// Adds elements to the document from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="keys">Which keys of the hash table to add.</param>
+        /// <returns>The document (so method calls can be chained).</returns>
+        public BsonDocument Add(
+            Dictionary<string, object> dictionary,
+            IEnumerable<string> keys
+        ) {
+            return Add((IDictionary<string, object>) dictionary, keys);
+        }
+
+        /// <summary>
+        /// Adds elements to the document from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <returns>The document (so method calls can be chained).</returns>
+        public BsonDocument Add(
+            IDictionary<string, object> dictionary
+        ) {
+            if (dictionary != null) {
+                Add(dictionary, dictionary.Keys);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds elements to the document from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="keys">Which keys of the hash table to add.</param>
+        /// <returns>The document (so method calls can be chained).</returns>
+        public BsonDocument Add(
+            IDictionary<string, object> dictionary,
+            IEnumerable<string> keys
+        ) {
+            if (dictionary != null) {
+                foreach (string key in keys) {
+                    Add(key, BsonValue.Create(dictionary[key]));
                 }
             }
             return this;

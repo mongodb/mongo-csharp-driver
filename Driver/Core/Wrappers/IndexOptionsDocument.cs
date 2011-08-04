@@ -61,6 +61,50 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         public IndexOptionsDocument(
+            Dictionary<string, object> dictionary
+        )
+            : base(dictionary) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IndexOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public IndexOptionsDocument(
+            Dictionary<string, object> dictionary,
+            IEnumerable<string> keys
+        )
+            : base(dictionary, keys) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IndexOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public IndexOptionsDocument(
+            IDictionary<string, object> dictionary
+        )
+            : base(dictionary) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IndexOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public IndexOptionsDocument(
+            IDictionary<string, object> dictionary,
+            IEnumerable<string> keys
+        )
+            : base(dictionary, keys) {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IndexOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public IndexOptionsDocument(
             IDictionary dictionary
         )
             : base(dictionary) {
