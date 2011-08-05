@@ -33,7 +33,7 @@ namespace MongoDB.DriverUnitTests.Builders {
                 .SetCapped(true)
                 .SetMaxDocuments(100)
                 .SetMaxSize(2000);
-            var expected = "{ 'autoIndexId' : true, 'capped' : true, 'max' : 100, 'size' : NumberLong(2000) }".Replace("'", "\"");
+            var expected = "{ 'autoIndexId' : true, 'capped' : true, 'max' : NumberLong(100), 'size' : NumberLong(2000) }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -68,7 +68,7 @@ namespace MongoDB.DriverUnitTests.Builders {
         [Test]
         public void TestSetMaxDocuments() {
             var options = CollectionOptions.SetMaxDocuments(100);
-            var expected = "{ 'max' : 100 }".Replace("'", "\"");
+            var expected = "{ 'max' : NumberLong(100) }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 

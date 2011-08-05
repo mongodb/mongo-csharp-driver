@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="value">The max number of documents.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static CollectionOptionsBuilder SetMaxDocuments(
-            int value
+            long value
         ) {
             return new CollectionOptionsBuilder().SetMaxDocuments(value);
         }
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Builders {
         /// <param name="value">The max number of documents.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetMaxDocuments(
-            int value
+            long value
         ) {
             document["max"] = value;
             return this;

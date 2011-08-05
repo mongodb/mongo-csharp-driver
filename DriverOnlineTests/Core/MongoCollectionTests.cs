@@ -72,6 +72,44 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestCreateCollection() {
+            var collection = database["testcreatecollection"];
+            collection.Drop();
+            Assert.IsFalse(collection.Exists());
+            database.CreateCollection("testcreatecollection");
+            Assert.IsTrue(collection.Exists());
+            collection.Drop();
+        }
+
+        [Test]
+        public void TestCreateCollectionSetCappedSetMaxDocuments() {
+            var collection = database["testcreatecollection"];
+            collection.Drop();
+            Assert.IsFalse(collection.Exists());
+            var options = CollectionOptions.SetCapped(true).SetMaxDocuments(1000);
+            database.CreateCollection("testcreatecollection", options);
+            Assert.IsTrue(collection.Exists());
+            var stats = collection.GetStats();
+            Assert.IsTrue(stats.IsCapped);
+            Assert.IsTrue(stats.MaxDocuments == 1000);
+            collection.Drop();
+        }
+
+        [Test]
+        public void TestCreateCollectionSetCappedSetMaxSize() {
+            var collection = database["testcreatecollection"];
+            collection.Drop();
+            Assert.IsFalse(collection.Exists());
+            var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000);
+            database.CreateCollection("testcreatecollection", options);
+            Assert.IsTrue(collection.Exists());
+            var stats = collection.GetStats();
+            Assert.IsTrue(stats.IsCapped);
+            Assert.IsTrue(stats.StorageSize >= 10000000);
+            collection.Drop();
+        }
+
+        [Test]
         public void TestCreateIndex() {
             collection.DropAllIndexes();
             var indexes = collection.GetIndexes().ToArray();

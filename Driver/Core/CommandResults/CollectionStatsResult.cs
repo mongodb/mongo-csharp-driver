@@ -103,6 +103,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the index count.
+        /// </summary>
+        public long MaxDocuments {
+            get { return response["max", 0].AsInt32; }
+        }
+
+        /// <summary>
         /// Gets the namespace.
         /// </summary>
         public string Namespace {
