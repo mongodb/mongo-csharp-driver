@@ -38,10 +38,23 @@ namespace MongoDB.Driver.Builders {
 
         #region public static methods
         /// <summary>
-        /// Adds a $all test to the query.
+        /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList All(
+            string name,
+            BsonArray values
+        ) {
+            return new QueryConditionList(name).All(values);
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList All(
             string name,
@@ -51,10 +64,10 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $all test to the query.
+        /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList All(
             string name,
@@ -64,9 +77,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Combines subqueries with an and operator.
+        /// Tests that all the subqueries are true (see $and in newer versions of the server).
         /// </summary>
-        /// <param name="queries">The subqueries.</param>
+        /// <param name="queries">A list of subqueries.</param>
         /// <returns>A query.</returns>
         public static QueryComplete And(
             params IMongoQuery[] queries
@@ -107,7 +120,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds an $elemMatch test to the query.
+        /// Tests that at least one item of the named array element matches a query (see $elemMatch).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="query">The query to match elements with.</param>
@@ -120,7 +133,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds an equality test to the query.
+        /// Tests that the value of the named element is equal to some value.
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
@@ -133,7 +146,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $exist test to the query.
+        /// Tests that an element of that name does or does not exist (see $exists).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="exists">Whether to test for the existence or absence of an element.</param>
@@ -146,7 +159,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $gt test to the query.
+        /// Tests that the value of the named element is greater than some value (see $gt).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
@@ -159,7 +172,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $gte test to the query.
+        /// Tests that the value of the named element is greater than or equal to some value (see $gte).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
@@ -172,10 +185,23 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $in test to the query.
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList In(
+            string name,
+            BsonArray values
+        ) {
+            return new QueryConditionList(name).In(values);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList In(
             string name,
@@ -185,10 +211,10 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $in test to the query.
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList In(
             string name,
@@ -198,7 +224,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $lt test to the query.
+        /// Tests that the value of the named element is less than some value (see $lt).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
@@ -211,7 +237,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $lte test to the query.
+        /// Tests that the value of the named element is less than or equal to some value (see $lte).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
@@ -224,7 +250,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a regular expression test to the query.
+        /// Tests that the value of the named element matches a regular expression (see $regex).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="regex">The regular expression to match against.</param>
@@ -237,7 +263,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $mod test to the query.
+        /// Tests that the modulus of the value of the named element matches some value (see $mod).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="modulus">The modulus.</param>
@@ -252,7 +278,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $ne test to the query.
+        /// Tests that the value of the named element is not equal to some value (see $ne).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
@@ -265,7 +291,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $near test to the query.
+        /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="x">The x value of the origin.</param>
@@ -280,7 +306,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $near test to the query.
+        /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="x">The x value of the origin.</param>
@@ -297,7 +323,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $near or $nearSphere test to the query.
+        /// Tests that the value of the named element is near some location (see $near and $nearSphere).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="x">The x value of the origin.</param>
@@ -316,7 +342,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Combines subqueries with a nor operator.
+        /// Tests that none of the subqueries is true (see $nor).
         /// </summary>
         /// <param name="queries">The subqueries.</param>
         /// <returns>A query.</returns>
@@ -332,33 +358,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $nin test to the query.
-        /// </summary>
-        /// <param name="name">The name of the element to test.</param>
-        /// <param name="values">A BsonArray of values.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public static QueryConditionList NotIn(
-            string name,
-            IEnumerable<BsonValue> values
-        ) {
-            return new QueryConditionList(name).NotIn(values);
-        }
-
-        /// <summary>
-        /// Adds a $nin test to the query.
-        /// </summary>
-        /// <param name="name">The name of the element to test.</param>
-        /// <param name="values">One or more BsonValues.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public static QueryConditionList NotIn(
-            string name,
-            params BsonValue[] values
-        ) {
-            return new QueryConditionList(name).NotIn(values);
-        }
-
-        /// <summary>
-        /// Adds a $not test to the query.
+        /// Tests that the value of the named element does not match any of the tests that follow (see $not).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -369,7 +369,46 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Combines subqueries with an or operator.
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList NotIn(
+            string name,
+            BsonArray values
+        ) {
+            return new QueryConditionList(name).NotIn(values);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList NotIn(
+            string name,
+            IEnumerable<BsonValue> values
+        ) {
+            return new QueryConditionList(name).NotIn(values);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList NotIn(
+            string name,
+            params BsonValue[] values
+        ) {
+            return new QueryConditionList(name).NotIn(values);
+        }
+
+        /// <summary>
+        /// Tests that at least one of the subqueries is true (see $or).
         /// </summary>
         /// <param name="queries">The subqueries.</param>
         /// <returns>A query.</returns>
@@ -394,10 +433,10 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $size test to the query.
+        /// Tests that the size of the named array is equal to some value (see $size).
         /// </summary>
-        /// <param name="name">The name of the array element to test.</param>
-        /// <param name="size">The size of the array.</param>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="size">The size to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Size(
             string name,
@@ -407,10 +446,10 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $type test to the query.
+        /// Tests that the type of the named element is equal to some type (see $type).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <param name="type">The type.</param>
+        /// <param name="type">The type to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Type(
             string name,
@@ -420,7 +459,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $where test to the query.
+        /// Tests that a JavaScript expression is true (see $where).
         /// </summary>
         /// <param name="javaScript">The where clause.</param>
         /// <returns>A query.</returns>
@@ -431,7 +470,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $within/$center test to the query.
+        /// Tests that the value of the named element is within a circle (see $within and $center).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="centerX">The x coordinate of the origin.</param>
@@ -448,7 +487,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $within/$center or $within/$centerSphere test to the query.
+        /// Tests that the value of the named element is within a circle (see $within and $center/$centerSphere).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="centerX">The x coordinate of the origin.</param>
@@ -467,7 +506,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $within/$box test to the query.
+        /// Tests that the value of the named element is within a rectangle (see $within and $box).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="lowerLeftX">The x coordinate of the lower left corner.</param>
@@ -568,7 +607,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Initializes a new instance of the QueryConditionList class.
         /// </summary>
-        /// <param name="name">The name of the element to be tested.</param>
+        /// <param name="name">The name of the element to test.</param>
         public QueryConditionList(
             string name
         )
@@ -579,9 +618,21 @@ namespace MongoDB.Driver.Builders {
 
         #region public methods
         /// <summary>
-        /// Adds a $all test to the query.
+        /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList All(
+            BsonArray values
+        ) {
+            conditions.Add("$all", values);
+            return this;
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList All(
             IEnumerable<BsonValue> values
@@ -591,9 +642,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $all test to the query.
+        /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList All(
             params BsonValue[] values
@@ -603,7 +654,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds an $elemMatch test to the query.
+        /// Tests that at least one item of the named array element matches a query (see $elemMatch).
         /// </summary>
         /// <param name="query">The query to match elements with.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -615,7 +666,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $exist test to the query.
+        /// Tests that an element of that name does or does not exist (see $exists).
         /// </summary>
         /// <param name="exists">Whether to test for the existence or absence of an element.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -627,7 +678,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $gt test to the query.
+        /// Tests that the value of the named element is greater than some value (see $gt).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -639,7 +690,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $gte test to the query.
+        /// Tests that the value of the named element is greater than or equal to some value (see $gte).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -651,9 +702,21 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $in test to the query.
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList In(
+            BsonArray values
+        ) {
+            conditions.Add("$in", values);
+            return this;
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList In(
             IEnumerable<BsonValue> values
@@ -663,9 +726,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $in test to the query.
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList In(
             params BsonValue[] values
@@ -675,7 +738,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $lt test to the query.
+        /// Tests that the value of the named element is less than some value (see $lt).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -687,7 +750,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $lte test to the query.
+        /// Tests that the value of the named element is less than or equal to some value (see $lte).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -699,7 +762,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $mod test to the query.
+        /// Tests that the modulus of the value of the named element matches some value (see $mod).
         /// </summary>
         /// <param name="modulus">The modulus.</param>
         /// <param name="equals">The value to compare to.</param>
@@ -713,7 +776,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $ne test to the query.
+        /// Tests that the value of the named element is not equal to some value (see $ne).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -725,7 +788,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $near test to the query.
+        /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
         /// <param name="x">The x value of the origin.</param>
         /// <param name="y">The y value of the origin.</param>
@@ -738,7 +801,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $near test to the query.
+        /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
         /// <param name="x">The x value of the origin.</param>
         /// <param name="y">The y value of the origin.</param>
@@ -753,7 +816,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $near or $nearSphere test to the query.
+        /// Tests that the value of the named element is near some location (see $near and $nearSphere).
         /// </summary>
         /// <param name="x">The x value of the origin.</param>
         /// <param name="y">The y value of the origin.</param>
@@ -775,9 +838,21 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $nin test to the query.
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList NotIn(
+            BsonArray values
+        ) {
+            conditions.Add("$nin", values);
+            return this;
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NotIn(
             IEnumerable<BsonValue> values
@@ -787,9 +862,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $nin test to the query.
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NotIn(
             params BsonValue[] values
@@ -799,7 +874,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $size test to the query.
+        /// Tests that the size of the named array is equal to some value (see $size).
         /// </summary>
         /// <param name="size">The size of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -811,7 +886,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $type test to the query.
+        /// Tests that the type of the named element is equal to some type (see $type).
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -823,7 +898,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $within/$center test to the query.
+        /// Tests that the value of the named element is within a circle (see $within and $center).
         /// </summary>
         /// <param name="x">The x coordinate of the origin.</param>
         /// <param name="y">The y coordinate of the origin.</param>
@@ -838,7 +913,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $within/$center or $within/$centerSphere test to the query.
+        /// Tests that the value of the named element is within a circle (see $within and $center/$centerSphere).
         /// </summary>
         /// <param name="x">The x coordinate of the origin.</param>
         /// <param name="y">The y coordinate of the origin.</param>
@@ -857,7 +932,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $within/$box test to the query.
+        /// Tests that the value of the named element is within a rectangle (see $within and $box).
         /// </summary>
         /// <param name="lowerLeftX">The x coordinate of the lower left corner.</param>
         /// <param name="lowerLeftY">The y coordinate of the lower left corner.</param>
@@ -888,7 +963,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Initializes a new instance of the QueryNot class.
         /// </summary>
-        /// <param name="name">The name of the element to be tested.</param>
+        /// <param name="name">The name of the element to test.</param>
         public QueryNot(
             string name
         ) {
@@ -898,9 +973,20 @@ namespace MongoDB.Driver.Builders {
 
         #region public methods
         /// <summary>
-        /// Adds a $all test to the query.
+        /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList All(
+            BsonArray values
+        ) {
+            return new QueryNotConditionList(name).All(values);
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(
             IEnumerable<BsonValue> values
@@ -909,9 +995,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $all test to the query.
+        /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(
             params BsonValue[] values
@@ -920,7 +1006,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds an $elemMatch test to the query.
+        /// Tests that at least one item of the named array element matches a query (see $elemMatch).
         /// </summary>
         /// <param name="query">The query to match elements with.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -931,7 +1017,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $exist test to the query.
+        /// Tests that an element of that name does or does not exist (see $exists).
         /// </summary>
         /// <param name="exists">Whether to test for the existence or absence of an element.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -942,7 +1028,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $gt test to the query.
+        /// Tests that the value of the named element is greater than some value (see $gt).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -953,7 +1039,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $gte test to the query.
+        /// Tests that the value of the named element is greater than or equal to some value (see $gte).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -964,9 +1050,20 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $in test to the query.
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList In(
+            BsonArray values
+        ) {
+            return new QueryNotConditionList(name).In(values);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(
             IEnumerable<BsonValue> values
@@ -975,9 +1072,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $in test to the query.
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(
             params BsonValue[] values
@@ -986,7 +1083,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $lt test to the query.
+        /// Tests that the value of the named element is less than some value (see $lt).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -997,7 +1094,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $lte test to the query.
+        /// Tests that the value of the named element is less than or equal to some value (see $lte).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1008,7 +1105,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $mod test to the query.
+        /// Tests that the modulus of the value of the named element matches some value (see $mod).
         /// </summary>
         /// <param name="modulus">The modulus.</param>
         /// <param name="equals">The value to compare to.</param>
@@ -1021,7 +1118,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $ne test to the query.
+        /// Tests that the value of the named element is not equal to some value (see $ne).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1032,9 +1129,20 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $nin test to the query.
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList NotIn(
+            BsonArray values
+        ) {
+            return new QueryNotConditionList(name).NotIn(values);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(
             IEnumerable<BsonValue> values
@@ -1043,9 +1151,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $nin test to the query.
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(
             params BsonValue[] values
@@ -1054,7 +1162,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a regular expression test to the query.
+        /// Tests that the value of the named element matches a regular expression (see $regex).
         /// </summary>
         /// <param name="regex">The regular expression to match against.</param>
         /// <returns>A query.</returns>
@@ -1065,7 +1173,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $size test to the query.
+        /// Tests that the size of the named array is equal to some value (see $size).
         /// </summary>
         /// <param name="size">The size of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1076,7 +1184,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $type test to the query.
+        /// Tests that the type of the named element is equal to some type (see $type).
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1101,7 +1209,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Initializes a new instance of the QueryNotConditionList.
         /// </summary>
-        /// <param name="name">The name of the first element to be tested.</param>
+        /// <param name="name">The name of the first element to test.</param>
         public QueryNotConditionList(
             string name
         )
@@ -1112,9 +1220,21 @@ namespace MongoDB.Driver.Builders {
 
         #region public methods
         /// <summary>
-        /// Adds a $all test to the query.
+        /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList All(
+            BsonArray values
+        ) {
+            conditions.Add("$all", values);
+            return this;
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(
             IEnumerable<BsonValue> values
@@ -1124,9 +1244,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $all test to the query.
+        /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(
             params BsonValue[] values
@@ -1136,7 +1256,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds an $elemMatch test to the query.
+        /// Tests that at least one item of the named array element matches a query (see $elemMatch).
         /// </summary>
         /// <param name="query">The query to match elements with.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1148,7 +1268,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $exist test to the query.
+        /// Tests that an element of that name does or does not exist (see $exists).
         /// </summary>
         /// <param name="exists">Whether to test for the existence or absence of an element.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1160,7 +1280,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $gt test to the query.
+        /// Tests that the value of the named element is greater than some value (see $gt).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1172,7 +1292,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $gte test to the query.
+        /// Tests that the value of the named element is greater than or equal to some value (see $gte).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1184,9 +1304,21 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $in test to the query.
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList In(
+            BsonArray values
+        ) {
+            conditions.Add("$in", values);
+            return this;
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(
             IEnumerable<BsonValue> values
@@ -1196,9 +1328,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $in test to the query.
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(
             params BsonValue[] values
@@ -1208,7 +1340,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $lt test to the query.
+        /// Tests that the value of the named element is less than some value (see $lt).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1220,7 +1352,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $lte test to the query.
+        /// Tests that the value of the named element is less than or equal to some value (see $lte).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1232,7 +1364,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $mod test to the query.
+        /// Tests that the modulus of the value of the named element matches some value (see $mod).
         /// </summary>
         /// <param name="modulus">The modulus.</param>
         /// <param name="equals">The value to compare to.</param>
@@ -1246,7 +1378,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $ne test to the query.
+        /// Tests that the value of the named element is not equal to some value ($ne).
         /// </summary>
         /// <param name="value">The value to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1258,9 +1390,21 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $nin test to the query.
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
         /// </summary>
-        /// <param name="values">A BsonArray of values.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList NotIn(
+            BsonArray values
+        ) {
+            conditions.Add("$nin", values);
+            return this;
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(
             IEnumerable<BsonValue> values
@@ -1270,9 +1414,9 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $nin test to the query.
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
         /// </summary>
-        /// <param name="values">One or more BsonValues.</param>
+        /// <param name="values">The values to compare to.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(
             params BsonValue[] values
@@ -1282,7 +1426,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $size test to the query.
+        /// Tests that the size of the named array is equal to some value (see $size).
         /// </summary>
         /// <param name="size">The size of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1294,7 +1438,7 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
-        /// Adds a $type test to the query.
+        /// Tests that the type of the named element is equal to some type (see $type).
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>The builder (so method calls can be chained).</returns>

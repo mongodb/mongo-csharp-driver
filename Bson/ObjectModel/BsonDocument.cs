@@ -536,6 +536,17 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Adds a list of elements to the document.
+        /// </summary>
+        /// <param name="elements">The list of elements.</param>
+        /// <returns>The document (so method calls can be chained).</returns>
+        public BsonDocument Add(
+            params BsonElement[] elements
+        ) {
+            return Add((IEnumerable<BsonElement>) elements);
+        }
+
+        /// <summary>
         /// Creates and adds an element to the document.
         /// </summary>
         /// <param name="name">The name of the element.</param>
