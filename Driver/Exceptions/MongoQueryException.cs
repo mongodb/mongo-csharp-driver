@@ -19,12 +19,18 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver {
     /// <summary>
     /// Represents a MongoDB query exception.
     /// </summary>
     [Serializable]
     public class MongoQueryException : MongoException {
+        #region private fields
+        private BsonDocument queryResult;
+        #endregion
+
         #region constructors
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class.
@@ -49,6 +55,19 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Initializes a new instance of the MongoQueryException class.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="queryResult">The error document returned by the server.</param>
+        public MongoQueryException(
+            string message,
+            BsonDocument queryResult
+        )
+            : base(message) {
+            this.queryResult = queryResult;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
@@ -58,6 +77,15 @@ namespace MongoDB.Driver {
             StreamingContext context
         )
             : base(info, context) {
+        }
+        #endregion
+
+        #region public properties
+        /// <summary>
+        /// Gets the error document returned by the server.
+        /// </summary>
+        public BsonDocument QueryResult {
+            get { return queryResult; }
         }
         #endregion
     }
