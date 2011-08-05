@@ -125,6 +125,26 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestCombineIncSet() {
+            var update = Update.Combine(
+                Update.Inc("x", 1),
+                Update.Set("y", 2)
+            );
+            var expected = "{ '$inc' : { 'x' : 1 }, '$set' : { 'y' : 2 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestCombineSetSet() {
+            var update = Update.Combine(
+                Update.Set("x", 1),
+                Update.Set("y", 2)
+            );
+            var expected = "{ '$set' : { 'x' : 1, 'y' : 2 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestIncDouble() {
             var update = Update.Inc("name", 1.1);
             var expected = "{ \"$inc\" : { \"name\" : 1.1 } }";

@@ -174,6 +174,32 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Combines several UpdateBuilders into a single UpdateBuilder.
+        /// </summary>
+        /// <param name="updates">The UpdateBuilders to combine.</param>
+        /// <returns>A combined UpdateBuilder.</returns>
+        public static UpdateBuilder Combine(
+            IEnumerable<UpdateBuilder> updates
+        ) {
+            var combined = new UpdateBuilder();
+            foreach (var update in updates) {
+                combined.Combine(update);
+            }
+            return combined;
+        }
+
+        /// <summary>
+        /// Combines several UpdateBuilders into a single UpdateBuilder.
+        /// </summary>
+        /// <param name="updates">The UpdateBuilders to combine.</param>
+        /// <returns>A combined UpdateBuilder.</returns>
+        public static UpdateBuilder Combine(
+            params UpdateBuilder[] updates
+        ) {
+            return Combine((IEnumerable<UpdateBuilder>) updates);
+        }
+
+        /// <summary>
         /// Increments the named element by a value (see $inc).
         /// </summary>
         /// <param name="name">The name of the element to be incremented.</param>
@@ -690,6 +716,27 @@ namespace MongoDB.Driver.Builders {
             long value
         ) {
             BitwiseOperation(name, "or", value);
+            return this;
+        }
+
+        /// <summary>
+        /// Combines another UpdateBuilder into this one.
+        /// </summary>
+        /// <param name="otherUpdate">The UpdateBuilder to combine into this one.</param>
+        /// <returns>A combined UpdateBuilder.</returns>
+        public UpdateBuilder Combine(
+            UpdateBuilder otherUpdate
+        ) {
+            foreach (var otherOperation in otherUpdate.Document) {
+                var otherOperationName = otherOperation.Name;
+                var otherTargets = otherOperation.Value.AsBsonDocument;
+                BsonElement operation;
+                if (document.TryGetElement(otherOperationName, out operation)) {
+                    operation.Value.AsBsonDocument.Add(otherTargets);
+                } else {
+                    document.Add(otherOperationName, otherTargets);
+                }
+            }
             return this;
         }
 
