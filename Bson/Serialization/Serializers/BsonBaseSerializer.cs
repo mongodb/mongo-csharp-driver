@@ -49,7 +49,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
-            throw new NotSupportedException("Subclass must implement Deserialize.");
+            // override this method to determine actualType if your serializer handles polymorphic data types
+            return Deserialize(bsonReader, nominalType, nominalType, options);
         }
 
         /// <summary>
@@ -63,10 +64,10 @@ namespace MongoDB.Bson.Serialization.Serializers {
         public virtual object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
-            Type actualType, // ignored
+            Type actualType,
             IBsonSerializationOptions options
         ) {
-            return Deserialize(bsonReader, nominalType, options);
+            throw new NotSupportedException("Subclass must implement Deserialize.");
         }
 
         /// <summary>
@@ -112,6 +113,28 @@ namespace MongoDB.Bson.Serialization.Serializers {
             object id
         ) {
             throw new NotSupportedException("Subclass must implement SetDocumentId.");
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Verifies the nominal and actual types against the expected type.
+        /// </summary>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <param name="expectedType">The expected type.</param>
+        protected void VerifyTypes(
+            Type nominalType,
+            Type actualType,
+            Type expectedType
+        ) {
+            if (actualType != expectedType) {
+                var message = string.Format("{0} can only be used with type {1}, not with type {2}.", this.GetType().FullName, expectedType.FullName, actualType.FullName);
+                throw new BsonSerializationException(message);
+            }
+            if (!nominalType.IsAssignableFrom(actualType)) {
+                var message = string.Format("{0} can only be used with a nominal type that is assignable from the actual type {1}, but nominal type {2} is not.", this.GetType().FullName, actualType.FullName, nominalType.FullName);
+            }
         }
         #endregion
     }

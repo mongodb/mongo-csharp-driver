@@ -25,25 +25,25 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.BsonUnitTests.Jira {
-    public class C {
-        public ObjectId Id;
-        public int N;
-    }
-
-    public class D : C {
-        public new int N { get; set; }
-    }
-
-    public class E {
-        public ObjectId Id;
-        [BsonElement("n")]
-        public int N1;
-        [BsonElement("n")]
-        public int N2 { get; set; }
-    }
-
     [TestFixture]
     public class CSharp293Tests {
+        public class C {
+            public ObjectId Id;
+            public int N;
+        }
+
+        public class D : C {
+            public new int N { get; set; }
+        }
+
+        public class E {
+            public ObjectId Id;
+            [BsonElement("n")]
+            public int N1;
+            [BsonElement("n")]
+            public int N2 { get; set; }
+        }
+
         [Test]
         public void TestDuplicateElementInDerivedClass() {
             var message = "The property 'N' of class 'MongoDB.BsonUnitTests.Jira.D' cannot use element name 'N' because it already being used by field 'N' of class 'MongoDB.BsonUnitTests.Jira.C'.";

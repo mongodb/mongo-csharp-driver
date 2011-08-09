@@ -43,27 +43,41 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// </summary>
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
+            Type actualType,
             IBsonSerializationOptions options
         ) {
-            VerifyType(nominalType);
+            VerifyTypes(nominalType, actualType, typeof(T[]));
+
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull();
-                return null;
-            } else {
-                bsonReader.ReadStartArray();
-                List<T> list = new List<T>();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    var element = BsonSerializer.Deserialize<T>(bsonReader);
-                    list.Add(element);
-                }
-                bsonReader.ReadEndArray();
-                return list.ToArray();
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Array:
+                    bsonReader.ReadStartArray();
+                    var list = new List<T>();
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                        var element = BsonSerializer.Deserialize<T>(bsonReader);
+                        list.Add(element);
+                    }
+                    bsonReader.ReadEndArray();
+                    return list.ToArray();
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadString("_t"); // skip over discriminator
+                    bsonReader.ReadName("_v");
+                    var value = Deserialize(bsonReader, actualType, actualType, options);
+                    bsonReader.ReadEndDocument();
+                    return value;
+                default:
+                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", actualType.FullName, bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -83,24 +97,23 @@ namespace MongoDB.Bson.Serialization.Serializers {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                VerifyType(value.GetType());
-                var array = (T[]) value;
-                bsonWriter.WriteStartArray();
-                for (int index = 0; index < array.Length; index++) {
-                    BsonSerializer.Serialize(bsonWriter, typeof(T), array[index]);
-                }
-                bsonWriter.WriteEndArray();
-            }
-        }
-        #endregion
+                var actualType = value.GetType();
+                VerifyTypes(nominalType, actualType, typeof(T[]));
 
-        #region private methods
-        private void VerifyType(
-            Type type
-        ) {
-            if (type != typeof(T[])) {
-                var message = string.Format("ArraySerializer<{0}> cannot be used with type {1}.", typeof(T).FullName, type.FullName);
-                throw new BsonSerializationException(message);
+                if (nominalType != typeof(object)) {
+                    bsonWriter.WriteStartArray();
+                    var array = (T[]) value;
+                    for (int index = 0; index < array.Length; index++) {
+                        BsonSerializer.Serialize(bsonWriter, typeof(T), array[index]);
+                    }
+                    bsonWriter.WriteEndArray();
+                } else {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("_t", actualType.FullName);
+                    bsonWriter.WriteName("_v");
+                    Serialize(bsonWriter, actualType, value, options);
+                    bsonWriter.WriteEndDocument();
+                }
             }
         }
         #endregion
@@ -125,48 +138,63 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// </summary>
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
+            Type actualType,
             IBsonSerializationOptions options
         ) {
-            VerifyType(nominalType);
+            VerifyTypes(nominalType, actualType, typeof(T[,]));
+
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull();
-                return null;
-            } else {
-                bsonReader.ReadStartArray();
-                var outerList = new List<List<T>>();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+            string message;
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    var innerList = new List<T>();
+                    var outerList = new List<List<T>>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                        var element = BsonSerializer.Deserialize<T>(bsonReader);
-                        innerList.Add(element);
+                        bsonReader.ReadStartArray();
+                        var innerList = new List<T>();
+                        while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                            var element = BsonSerializer.Deserialize<T>(bsonReader);
+                            innerList.Add(element);
+                        }
+                        bsonReader.ReadEndArray();
+                        outerList.Add(innerList);
                     }
                     bsonReader.ReadEndArray();
-                    outerList.Add(innerList);
-                }
-                bsonReader.ReadEndArray();
 
-                var length1 = outerList.Count;
-                var length2 = (length1 == 0) ? 0 : outerList[0].Count;
-                var array = new T[length1, length2];
-                for (int i = 0; i < length1; i++) {
-                    var innerList = outerList[i];
-                    if (innerList.Count != length2) {
-                        var message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", i, innerList.Count, length2);
-                        throw new FileFormatException(message);
+                    var length1 = outerList.Count;
+                    var length2 = (length1 == 0) ? 0 : outerList[0].Count;
+                    var array = new T[length1, length2];
+                    for (int i = 0; i < length1; i++) {
+                        var innerList = outerList[i];
+                        if (innerList.Count != length2) {
+                            message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", i, innerList.Count, length2);
+                            throw new FileFormatException(message);
+                        }
+                        for (int j = 0; j < length2; j++) {
+                            array[i, j] = innerList[j];
+                        }
                     }
-                    for (int j = 0; j < length2; j++) {
-                        array[i, j] = innerList[j];
-                    }
-                }
 
-                return array;
+                    return array;
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadString("_t"); // skip over discriminator
+                    bsonReader.ReadName("_v");
+                    var value = Deserialize(bsonReader, actualType, actualType, options);
+                    bsonReader.ReadEndDocument();
+                    return value;
+                default:
+                    message = string.Format("Can't deserialize a {0} from BsonType {1}.", actualType.FullName, bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -186,30 +214,29 @@ namespace MongoDB.Bson.Serialization.Serializers {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                VerifyType(value.GetType());
-                var array = (T[,]) value;
-                bsonWriter.WriteStartArray();
-                var length1 = array.GetLength(0);
-                var length2 = array.GetLength(1);
-                for (int i = 0; i < length1; i++) {
+                var actualType = value.GetType();
+                VerifyTypes(nominalType, actualType, typeof(T[,]));
+
+                if (nominalType != typeof(object)) {
                     bsonWriter.WriteStartArray();
-                    for (int j = 0; j < length2; j++) {
-                        BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j]);
+                    var array = (T[,]) value;
+                    var length1 = array.GetLength(0);
+                    var length2 = array.GetLength(1);
+                    for (int i = 0; i < length1; i++) {
+                        bsonWriter.WriteStartArray();
+                        for (int j = 0; j < length2; j++) {
+                            BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j]);
+                        }
+                        bsonWriter.WriteEndArray();
                     }
                     bsonWriter.WriteEndArray();
+                } else {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("_t", actualType.FullName);
+                    bsonWriter.WriteName("_v");
+                    Serialize(bsonWriter, actualType, value, options);
+                    bsonWriter.WriteEndDocument();
                 }
-                bsonWriter.WriteEndArray();
-            }
-        }
-        #endregion
-
-        #region private methods
-        private void VerifyType(
-            Type type
-        ) {
-            if (type != typeof(T[,])) {
-                var message = string.Format("TwoDimensionalArraySerializer<{0}> cannot be used with type {1}.", typeof(T).FullName, type.FullName);
-                throw new BsonSerializationException(message);
             }
         }
         #endregion
@@ -234,62 +261,77 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// </summary>
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
+            Type actualType,
             IBsonSerializationOptions options
         ) {
-            VerifyType(nominalType);
+            VerifyTypes(nominalType, actualType, typeof(T[,,]));
+
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
-                bsonReader.ReadNull();
-                return null;
-            } else {
-                bsonReader.ReadStartArray();
-                var outerList = new List<List<List<T>>>();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+            string message;
+            switch (bsonType) {
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    var middleList = new List<List<T>>();
+                    var outerList = new List<List<List<T>>>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
                         bsonReader.ReadStartArray();
-                        var innerList = new List<T>();
+                        var middleList = new List<List<T>>();
                         while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                            var element = BsonSerializer.Deserialize<T>(bsonReader);
-                            innerList.Add(element);
+                            bsonReader.ReadStartArray();
+                            var innerList = new List<T>();
+                            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                                var element = BsonSerializer.Deserialize<T>(bsonReader);
+                                innerList.Add(element);
+                            }
+                            bsonReader.ReadEndArray();
+                            middleList.Add(innerList);
                         }
                         bsonReader.ReadEndArray();
-                        middleList.Add(innerList);
+                        outerList.Add(middleList);
                     }
                     bsonReader.ReadEndArray();
-                    outerList.Add(middleList);
-                }
-                bsonReader.ReadEndArray();
 
-                var length1 = outerList.Count;
-                var length2 = (length1 == 0) ? 0 : outerList[0].Count;
-                var length3 = (length2 == 0) ? 0 : outerList[0][0].Count;
-                var array = new T[length1, length2, length3];
-                for (int i = 0; i < length1; i++) {
-                    var middleList = outerList[i];
-                    if (middleList.Count != length2) {
-                        var message = string.Format("Middle list {0} is of length {1} but should be of length {2}.", i, middleList.Count, length2);
-                        throw new FileFormatException(message);
-                    }
-                    for (int j = 0; j < length2; j++) {
-                        var innerList = middleList[j];
-                        if (innerList.Count != length3) {
-                            var message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", j, innerList.Count, length3);
+                    var length1 = outerList.Count;
+                    var length2 = (length1 == 0) ? 0 : outerList[0].Count;
+                    var length3 = (length2 == 0) ? 0 : outerList[0][0].Count;
+                    var array = new T[length1, length2, length3];
+                    for (int i = 0; i < length1; i++) {
+                        var middleList = outerList[i];
+                        if (middleList.Count != length2) {
+                            message = string.Format("Middle list {0} is of length {1} but should be of length {2}.", i, middleList.Count, length2);
                             throw new FileFormatException(message);
                         }
-                        for (int k = 0; k < length3; k++) {
-                            array[i, j, k] = innerList[k];
+                        for (int j = 0; j < length2; j++) {
+                            var innerList = middleList[j];
+                            if (innerList.Count != length3) {
+                                message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", j, innerList.Count, length3);
+                                throw new FileFormatException(message);
+                            }
+                            for (int k = 0; k < length3; k++) {
+                                array[i, j, k] = innerList[k];
+                            }
                         }
                     }
-                }
 
-                return array;
+                    return array;
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadString("_t"); // skip over discriminator
+                    bsonReader.ReadName("_v");
+                    var value = Deserialize(bsonReader, actualType, actualType, options);
+                    bsonReader.ReadEndDocument();
+                    return value;
+                default:
+                    message = string.Format("Can't deserialize a {0} from BsonType {1}.", actualType.FullName, bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -309,35 +351,34 @@ namespace MongoDB.Bson.Serialization.Serializers {
             if (value == null) {
                 bsonWriter.WriteNull();
             } else {
-                VerifyType(value.GetType());
-                var array = (T[,,]) value;
-                bsonWriter.WriteStartArray();
-                var length1 = array.GetLength(0);
-                var length2 = array.GetLength(1);
-                var length3 = array.GetLength(2);
-                for (int i = 0; i < length1; i++) {
+                var actualType = value.GetType();
+                VerifyTypes(nominalType, actualType, typeof(T[, ,]));
+
+                if (nominalType != typeof(object)) {
                     bsonWriter.WriteStartArray();
-                    for (int j = 0; j < length2; j++) {
+                    var array = (T[, ,]) value;
+                    var length1 = array.GetLength(0);
+                    var length2 = array.GetLength(1);
+                    var length3 = array.GetLength(2);
+                    for (int i = 0; i < length1; i++) {
                         bsonWriter.WriteStartArray();
-                        for (int k = 0; k < length3; k++) {
-                            BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j, k]);
+                        for (int j = 0; j < length2; j++) {
+                            bsonWriter.WriteStartArray();
+                            for (int k = 0; k < length3; k++) {
+                                BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j, k]);
+                            }
+                            bsonWriter.WriteEndArray();
                         }
                         bsonWriter.WriteEndArray();
                     }
                     bsonWriter.WriteEndArray();
+                } else {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("_t", actualType.FullName);
+                    bsonWriter.WriteName("_v");
+                    Serialize(bsonWriter, actualType, value, options);
+                    bsonWriter.WriteEndDocument();
                 }
-                bsonWriter.WriteEndArray();
-            }
-        }
-        #endregion
-
-        #region private methods
-        private void VerifyType(
-            Type type
-        ) {
-            if (type != typeof(T[,,])) {
-                var message = string.Format("ThreeDimensionalArraySerializer<{0}> cannot be used with type {1}.", typeof(T).FullName, type.FullName);
-                throw new BsonSerializationException(message);
             }
         }
         #endregion
