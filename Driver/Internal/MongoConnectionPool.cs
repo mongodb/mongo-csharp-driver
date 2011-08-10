@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Internal {
 
                             // otherwise replace the least recently used connection with a brand new one
                             // if this happens a lot the connection pool size should be increased
-                            ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, availableConnections[0]);
+                            availableConnections[0].Close();
                             availableConnections.RemoveAt(0);
                             return new MongoConnection(this);
                         }
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Internal {
             lock (connectionPoolLock) {
                 if (!closed) {
                     foreach (var connection in availableConnections) {
-                        ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, connection);
+                        connection.Close();
                     }
                     availableConnections = null;
                     closed = true;
@@ -206,9 +206,9 @@ namespace MongoDB.Driver.Internal {
             }
 
             lock (connectionPoolLock) {
-                // if connection pool is closed just close connection on worker thread
+                // if connection pool is closed just close connection
                 if (closed) {
-                    ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, connection);
+                    connection.Close();
                     return;
                 }
 
@@ -235,23 +235,13 @@ namespace MongoDB.Driver.Internal {
         #endregion
 
         #region private methods
-        // note: this method runs on a thread from the ThreadPool
-        private void CloseConnectionWorkItem(
-            object parameters
-        ) {
-            try {
-                var connection = (MongoConnection) parameters;
-                connection.Close();
-            } catch { } // ignore exceptions
-        }
-
         private void RemoveConnection(
             MongoConnection connection
         ) {
             availableConnections.Remove(connection); // it might or might not be in availableConnections (but remove it if it is)
             poolSize -= 1;
             connectionsRemovedSinceLastTimerTick += 1;
-            ThreadPool.QueueUserWorkItem(CloseConnectionWorkItem, connection);
+            connection.Close();
             Monitor.Pulse(connectionPoolLock);
         }
 

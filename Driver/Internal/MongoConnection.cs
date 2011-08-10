@@ -460,20 +460,44 @@ namespace MongoDB.Driver.Internal {
         private void HandleException(
             Exception ex
         ) {
-            // TODO: figure out which exceptions are more serious than others
             // there are three possible situations:
             // 1. we can keep using the connection
             // 2. just this one connection needs to be discarded
             // 3. the whole connection pool needs to be discarded
-            // for now the only exception we know affects only one connection is FileFormatException
-            // and there are no cases where the connection can continue to be used
 
-            state = MongoConnectionState.Damaged;
-            if (!(ex is FileFormatException)) {
-                try {
-                    serverInstance.Disconnect();
-                } catch { } // ignore any further exceptions
+            switch (DetermineAction(ex)) {
+                case HandleExceptionAction.KeepConnection:
+                    break;
+                case HandleExceptionAction.DiscardConnection:
+                    state = MongoConnectionState.Damaged;
+                    break;
+                case HandleExceptionAction.DiscardConnectionPool:
+                    state = MongoConnectionState.Damaged;
+                    try {
+                        serverInstance.Disconnect();
+                    } catch { } // ignore exceptions
+                    break;
+                default:
+                    throw new MongoInternalException("Invalid HandleExceptionAction");
             }
+        }
+
+        private enum HandleExceptionAction {
+            KeepConnection,
+            DiscardConnection,
+            DiscardConnectionPool
+        }
+
+        private HandleExceptionAction DetermineAction(
+            Exception ex
+        ) {
+            // TODO: figure out when to return KeepConnection or DiscardConnectionPool (if ever)
+
+            // don't return DiscardConnectionPool unless you are *sure* it is the right action
+            // definitely don't make DiscardConnectionPool the default action
+            // returning DiscardConnectionPool frequently can result in Connect/Disconnect storms
+
+            return HandleExceptionAction.DiscardConnection; // this should always be the default action
         }
         #endregion
 
