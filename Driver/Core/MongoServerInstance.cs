@@ -187,6 +187,21 @@ namespace MongoDB.Driver {
         }
         #endregion
 
+        #region public method
+        /// <summary>
+        /// Checks whether the server is alive (throws an exception if not).
+        /// </summary>
+        public void Ping() {
+            var connection = connectionPool.AcquireConnection(null);
+            try {
+                var pingCommand = new CommandDocument("ping", 1);
+                connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand);
+            } finally {
+                connection.ConnectionPool.ReleaseConnection(connection);
+            }
+        }
+        #endregion
+
         #region internal methods
         internal MongoConnection AcquireConnection(
             MongoDatabase database

@@ -811,11 +811,12 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Checks whether the server is alive (throws an exception if not).
+        /// Checks whether the server is alive (throws an exception if not). If server is a replica set, pings all members one at a time.
         /// </summary>
         public virtual void Ping() {
-            var command = new CommandDocument("ping", 1);
-            RunAdminCommand(command);
+            foreach (var instance in instances.ToArray()) {
+                instance.Ping();
+            }
         }
 
         /// <summary>
