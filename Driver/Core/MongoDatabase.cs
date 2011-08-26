@@ -395,19 +395,19 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Evaluates JavaScript code at the server.
         /// </summary>
+        /// <param name="flags">Flags that control Eval options.</param>
         /// <param name="code">The code to evaluate.</param>
         /// <param name="args">Optional arguments (only used when the code is a function with parameters).</param>
-        /// <param name="nolock">Whether to run without taking a write lock.</param>
         /// <returns>The result of evaluating the code.</returns>
         public virtual BsonValue Eval(
+            EvalFlags flags,
             BsonJavaScript code,
-            object[] args,
-            bool nolock
+            params object[] args
         ) {
             var command = new CommandDocument {
                 { "$eval", code },
                 { "args", BsonArray.Create(args), args != null && args.Length > 0 },
-                { "nolock", true, nolock }
+                { "nolock", true, (flags & EvalFlags.NoLock) != 0 }
             };
             var result = RunCommand(command);
             return result.Response["retval"];
@@ -423,7 +423,7 @@ namespace MongoDB.Driver {
             BsonJavaScript code,
             params object[] args
         ) {
-            return Eval(code, args, false); // nolock = false
+            return Eval(EvalFlags.None, code, args);
         }
 
         /// <summary>

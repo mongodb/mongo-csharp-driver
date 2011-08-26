@@ -79,7 +79,7 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestEvalNoArgsNoLock() {
             var code = "function() { return 1; }";
-            var result = database.Eval(code, null, true);
+            var result = database.Eval(EvalFlags.NoLock, code);
             Assert.AreEqual(1, result.ToInt32());
         }
 
@@ -93,7 +93,7 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestEvalWithArgsNoLock() {
             var code = "function(x, y) { return x / y; }";
-            var result = database.Eval(code, new object[] { 6, 2 }, true);
+            var result = database.Eval(EvalFlags.NoLock, code, 6, 2);
             Assert.AreEqual(3, result.ToInt32());
         }
 
