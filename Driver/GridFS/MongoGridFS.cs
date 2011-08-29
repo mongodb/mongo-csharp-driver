@@ -468,14 +468,14 @@ namespace MongoDB.Driver.GridFS {
             var count = files.Count();
             if (count < maxFiles) {
                 files.EnsureIndex("filename", "uploadDate");
-                chunks.EnsureIndex("files_id", "n");
+                chunks.EnsureIndex(IndexKeys.Ascending("files_id", "n"), IndexOptions.SetUnique(true));
             } else {
                 // at least check to see if the indexes exist so we can stop calling files.Count()
                 if (files.IndexExistsByName("filename_1_uploadDate_1")) {
                     indexCache.Add(files, "filename_1_uploadDate_1");
                 }
-                if (chunks.IndexExistsByName("files_id_1_n_")) {
-                    indexCache.Add(chunks, "files_id_1_n_");
+                if (chunks.IndexExistsByName("files_id_1_n_1")) {
+                    indexCache.Add(chunks, "files_id_1_n_1");
                 }
             }
         }
