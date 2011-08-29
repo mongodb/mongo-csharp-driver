@@ -879,6 +879,9 @@ namespace MongoDB.Driver {
             object document,
             MongoInsertOptions options
         ) {
+            if (document == null) {
+                throw new ArgumentNullException("document");
+            }
             var results = InsertBatch(nominalType, new object[] { document }, options);
             return (results == null) ? null : results.Single();
         }
@@ -908,6 +911,9 @@ namespace MongoDB.Driver {
         public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
             IEnumerable<TNominalType> documents
         ) {
+            if (documents == null) {
+                throw new ArgumentNullException("documents");
+            }
             return InsertBatch(typeof(TNominalType), documents.Cast<object>());
         }
 
@@ -922,6 +928,9 @@ namespace MongoDB.Driver {
             IEnumerable<TNominalType> documents,
             MongoInsertOptions options
         ) {
+            if (documents == null) {
+                throw new ArgumentNullException("documents");
+            }
             return InsertBatch(typeof(TNominalType), documents.Cast<object>(), options);
         }
 
@@ -936,6 +945,9 @@ namespace MongoDB.Driver {
             IEnumerable<TNominalType> documents,
             SafeMode safeMode
         ) {
+            if (documents == null) {
+                throw new ArgumentNullException("documents");
+            }
             return InsertBatch(typeof(TNominalType), documents.Cast<object>(), safeMode);
         }
 
@@ -980,6 +992,9 @@ namespace MongoDB.Driver {
             IEnumerable documents,
             MongoInsertOptions options
         ) {
+            if (documents == null) {
+                throw new ArgumentNullException("documents");
+            }
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try {
                 var safeMode = options.SafeMode;
@@ -990,6 +1005,9 @@ namespace MongoDB.Driver {
                     message.WriteToBuffer(); // must be called before AddDocument
 
                     foreach (var document in documents) {
+                        if (document == null) {
+                            throw new ArgumentException("Batch contains one or more null documents.");
+                        }
                         if (settings.AssignIdOnInsert) {
                             var serializer = BsonSerializer.LookupSerializer(document.GetType());
                             object id;
@@ -1268,6 +1286,9 @@ namespace MongoDB.Driver {
             object document,
             MongoInsertOptions options
         ) {
+            if (document == null) {
+                throw new ArgumentNullException("document");
+            }
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
             object id;
             Type idNominalType;
