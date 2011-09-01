@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class EnumSerializer : BsonBaseSerializer {
         #region private static fields
-        private static EnumSerializer instance = new EnumSerializer();
+        private static readonly EnumSerializer instance = new EnumSerializer();
         #endregion
 
         #region constructors

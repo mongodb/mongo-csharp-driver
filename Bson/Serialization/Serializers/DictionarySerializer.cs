@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class DictionarySerializer : BsonBaseSerializer {
         #region private static fields
-        private static DictionarySerializer instance = new DictionarySerializer();
+        private static readonly DictionarySerializer instance = new DictionarySerializer();
         #endregion
 
         #region constructors

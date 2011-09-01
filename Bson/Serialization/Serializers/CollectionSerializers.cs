@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class EnumerableSerializer : BsonBaseSerializer {
         #region private static fields
-        private static EnumerableSerializer instance = new EnumerableSerializer();
+        private static readonly EnumerableSerializer instance = new EnumerableSerializer();
         #endregion
 
         #region constructors
@@ -117,7 +117,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class QueueSerializer : BsonBaseSerializer {
         #region private static fields
-        private static QueueSerializer instance = new QueueSerializer();
+        private static readonly QueueSerializer instance = new QueueSerializer();
         #endregion
 
         #region constructors
@@ -205,7 +205,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class StackSerializer : BsonBaseSerializer {
         #region private static fields
-        private static StackSerializer instance = new StackSerializer();
+        private static readonly StackSerializer instance = new StackSerializer();
         #endregion
 
         #region constructors
