@@ -986,6 +986,17 @@ namespace MongoDB.Driver {
                 }
             }
         }
+
+        /// <summary>
+        /// Verifies the state of the server (in the case of a replica set all members are contacted one at a time).
+        /// </summary>
+        public void VerifyState() {
+            lock (serverLock) {
+                foreach (var instance in instances) {
+                    instance.VerifyState();
+                }
+            }
+        }
         #endregion
 
         #region internal methods
@@ -1053,8 +1064,12 @@ namespace MongoDB.Driver {
             bool slaveOk
         ) {
             lock (serverLock) {
+                if (state == MongoServerState.Unknown) {
+                    VerifyUnknownStates();
+                }
+
                 var waitFor = slaveOk ? ConnectWaitFor.AnySlaveOk : ConnectWaitFor.Primary;
-                Connect(waitFor);
+                Connect(waitFor); // will do nothing if already sufficiently connected 
 
                 if (settings.ConnectionMode == ConnectionMode.ReplicaSet) {
                     if (slaveOk) {
@@ -1119,8 +1134,8 @@ namespace MongoDB.Driver {
             lock (stateLock) {
                 var instance = (MongoServerInstance) sender;
 
-                if (instances.Contains(instance)) {
-                    if (instance.IsPrimary && instance.State == MongoServerState.Connected && primary != instance) {
+                if (instance.IsPrimary && instance.State == MongoServerState.Connected && instances.Contains(instance)) {
+                    if (primary != instance) {
                         primary = instance; // new primary
                     }
                 } else {
@@ -1129,14 +1144,44 @@ namespace MongoDB.Driver {
                     }
                 }
 
+                var oldState = state;
                 if (instances.All(i => i.State == MongoServerState.Connected)) {
                     state = MongoServerState.Connected;
+                } else if (instances.All(i => i.State == MongoServerState.Disconnected)) {
+                    state = MongoServerState.Disconnected;
+                } else if (instances.Any(i => i.State == MongoServerState.Unknown)) {
+                    state = MongoServerState.Unknown;
                 } else if (instances.Any(i => i.State == MongoServerState.Connecting)) {
                     state = MongoServerState.Connecting;
                 } else if (instances.Any(i => i.State == MongoServerState.Connected)) {
                     state = MongoServerState.ConnectedToSubset;
                 } else {
-                    state = MongoServerState.Disconnected;
+                    throw new MongoInternalException("Unexpected server instance states.");
+                }
+
+                // when transitioning from or to Disconnected state the connection pool timers need to be started or stopped
+                if (state != oldState && (oldState == MongoServerState.Disconnected || state == MongoServerState.Disconnected)) {
+                    TimeSpan dueTime;
+                    TimeSpan period;
+                    if (oldState == MongoServerState.Disconnected) {
+                        dueTime = TimeSpan.Zero;
+                        period = TimeSpan.FromSeconds(10);
+                    } else {
+                        dueTime = period = TimeSpan.FromMilliseconds(-1); // disables the timer
+                    }
+                    foreach (var serverInstance in instances) {
+                        serverInstance.ConnectionPool.Timer.Change(dueTime, period);
+                    }
+                }
+            }
+        }
+
+        private void VerifyUnknownStates() {
+            lock (serverLock) {
+                foreach (var instance in instances) {
+                    if (instance.State == MongoServerState.Unknown) {
+                        instance.VerifyState();
+                    }
                 }
             }
         }

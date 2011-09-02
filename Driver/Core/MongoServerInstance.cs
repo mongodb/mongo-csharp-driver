@@ -64,6 +64,7 @@ namespace MongoDB.Driver {
             this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
             this.maxMessageLength = MongoDefaults.MaxMessageLength;
             this.state = MongoServerState.Disconnected;
+            this.connectionPool = new MongoConnectionPool(this);
         }
         #endregion
 
@@ -187,7 +188,7 @@ namespace MongoDB.Driver {
         }
         #endregion
 
-        #region public method
+        #region public methods
         /// <summary>
         /// Checks whether the server is alive (throws an exception if not).
         /// </summary>
@@ -197,7 +198,32 @@ namespace MongoDB.Driver {
                 var pingCommand = new CommandDocument("ping", 1);
                 connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand);
             } finally {
-                connection.ConnectionPool.ReleaseConnection(connection);
+                connectionPool.ReleaseConnection(connection);
+            }
+        }
+
+        /// <summary>
+        /// Verifies the state of the server instance.
+        /// </summary>
+        public void VerifyState() {
+            lock (serverInstanceLock) {
+                // if ping fails assume all connections in the connection pool are doomed
+                try {
+                    Ping();
+                } catch {
+                    connectionPool.Clear();
+                }
+
+                var connection = connectionPool.AcquireConnection(null);
+                try {
+                    var previousState = state;
+                    VerifyState(connection);
+                    if (state != previousState && state == MongoServerState.Disconnected) {
+                        connectionPool.Clear();
+                    }
+                } finally {
+                    ReleaseConnection(connection);
+                }
             }
         }
         #endregion
@@ -239,56 +265,19 @@ namespace MongoDB.Driver {
                 try {
                     endPoint = address.ToIPEndPoint(server.Settings.AddressFamily);
 
-                    if (connectionPool == null) {
-                        connectionPool = new MongoConnectionPool(this);
-                    }
-
                     try {
                         var connection = connectionPool.AcquireConnection(null);
                         try {
-                            try {
-                                var isMasterCommand = new CommandDocument("ismaster", 1);
-                                isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
-                            } catch (MongoCommandException ex) {
-                                isMasterResult = ex.CommandResult;
-                                throw;
-                            }
-
-                            isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
-                            isSecondary = isMasterResult.Response["secondary", false].ToBoolean();
-                            isPassive = isMasterResult.Response["passive", false].ToBoolean();
-                            isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
-                            // workaround for CSHARP-273
-                            if (isPassive && isArbiter) { isPassive = false; }
+                            VerifyState(connection);
                             if (!isPrimary && !slaveOk) {
                                 throw new MongoConnectionException("Server is not a primary and SlaveOk is false.");
                             }
-
-                            maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
-                            maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
-
-                            var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                            var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
-                            buildInfo = new MongoServerBuildInfo(
-                                buildInfoResult.Response["bits"].ToInt32(), // bits
-                                buildInfoResult.Response["gitVersion"].AsString, // gitVersion
-                                buildInfoResult.Response["sysInfo"].AsString, // sysInfo
-                                buildInfoResult.Response["version"].AsString // versionString
-                            );
                         } finally {
-                            connection.ConnectionPool.ReleaseConnection(connection);
+                            connectionPool.ReleaseConnection(connection);
                         }
                     } catch {
-                        if (connectionPool != null) {
-                            connectionPool.Close();
-                            connectionPool = null;
-                        }
+                        connectionPool.Clear();
                         throw;
-                    }
-
-                    // for the primary only immediately start creating connections to reach MinConnectionPoolSize
-                    if (isPrimary) {
-                        connectionPool.CreateInitialConnections(); // will be done on a background thread
                     }
 
                     State = MongoServerState.Connected;
@@ -304,11 +293,7 @@ namespace MongoDB.Driver {
             lock (serverInstanceLock) {
                 if (state != MongoServerState.Disconnected) {
                     try {
-                        // if we fail during Connect the connectionPool field will still be null
-                        if (connectionPool != null) {
-                            connectionPool.Close();
-                            connectionPool = null;
-                        }
+                        connectionPool.Clear();
                     } finally {
                         State = MongoServerState.Disconnected;
                     }
@@ -320,9 +305,61 @@ namespace MongoDB.Driver {
             MongoConnection connection
         ) {
             lock (serverInstanceLock) {
-                // the connection might belong to a connection pool that has already been discarded
-                // so always release it to the connection pool it came from and not the current pool
-                connection.ConnectionPool.ReleaseConnection(connection);
+                connectionPool.ReleaseConnection(connection);
+            }
+        }
+
+        internal void VerifyState(
+            MongoConnection connection
+        ) {
+            CommandResult isMasterResult = null;
+            try {
+                try {
+                    var isMasterCommand = new CommandDocument("ismaster", 1);
+                    isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
+                } catch (MongoCommandException ex) {
+                    isMasterResult = ex.CommandResult;
+                    throw;
+                }
+
+                var isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
+                var isSecondary = isMasterResult.Response["secondary", false].ToBoolean();
+                var isPassive = isMasterResult.Response["passive", false].ToBoolean();
+                var isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
+                // workaround for CSHARP-273
+                if (isPassive && isArbiter) { isPassive = false; }
+
+                var maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
+                var maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
+
+                var buildInfoCommand = new CommandDocument("buildinfo", 1);
+                var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
+                var buildInfo = new MongoServerBuildInfo(
+                    buildInfoResult.Response["bits"].ToInt32(), // bits
+                    buildInfoResult.Response["gitVersion"].AsString, // gitVersion
+                    buildInfoResult.Response["sysInfo"].AsString, // sysInfo
+                    buildInfoResult.Response["version"].AsString // versionString
+                );
+
+                this.isMasterResult = isMasterResult;
+                this.isPrimary = isPrimary;
+                this.isSecondary = isSecondary;
+                this.isPassive = isPassive;
+                this.isArbiter = isArbiter;
+                this.maxDocumentSize = maxDocumentSize;
+                this.maxMessageLength = maxMessageLength;
+                this.buildInfo = buildInfo;
+                this.State = MongoServerState.Connected;
+            } catch {
+                this.isMasterResult = isMasterResult;
+                this.isPrimary = false;
+                this.isSecondary = false;
+                this.isPassive = false;
+                this.isArbiter = false;
+                this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
+                this.maxMessageLength = MongoDefaults.MaxMessageLength;
+                this.buildInfo = null;
+                this.State = MongoServerState.Disconnected;
             }
         }
         #endregion

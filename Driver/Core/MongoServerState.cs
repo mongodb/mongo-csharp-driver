@@ -26,7 +26,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// The state has not yet been determined.
         /// </summary>
-        None = 0,
+        Unknown = 0,
         /// <summary>
         /// Disconnected from the server.
         /// </summary>

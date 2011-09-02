@@ -39,10 +39,6 @@ namespace MongoDB.Driver.Internal {
         /// </summary>
         Open,
         /// <summary>
-        /// The connection is damaged.
-        /// </summary>
-        Damaged,
-        /// <summary>
         /// The connection is closed.
         /// </summary>
         Closed
@@ -56,6 +52,7 @@ namespace MongoDB.Driver.Internal {
         private object connectionLock = new object();
         private MongoServerInstance serverInstance;
         private MongoConnectionPool connectionPool;
+        private int generationId; // the generationId of the connection pool at the time this connection was created
         private MongoConnectionState state;
         private TcpClient tcpClient;
         private DateTime createdAt;
@@ -71,6 +68,7 @@ namespace MongoDB.Driver.Internal {
         ) {
             this.serverInstance = connectionPool.ServerInstance;
             this.connectionPool = connectionPool;
+            this.generationId = connectionPool.GenerationId;
             this.createdAt = DateTime.UtcNow;
             this.state = MongoConnectionState.Initial;
         }
@@ -89,6 +87,13 @@ namespace MongoDB.Driver.Internal {
         /// </summary>
         public DateTime CreatedAt {
             get { return createdAt; }
+        }
+
+        /// <summary>
+        /// Gets the generation of the connection pool that this connection belongs to.
+        /// </summary>
+        public int GenerationId {
+            get { return generationId; }
         }
 
         /// <summary>
@@ -462,42 +467,44 @@ namespace MongoDB.Driver.Internal {
         ) {
             // there are three possible situations:
             // 1. we can keep using the connection
-            // 2. just this one connection needs to be discarded
-            // 3. the whole connection pool needs to be discarded
+            // 2. just this one connection needs to be closed
+            // 3. the whole connection pool needs to be cleared
 
             switch (DetermineAction(ex)) {
                 case HandleExceptionAction.KeepConnection:
                     break;
-                case HandleExceptionAction.DiscardConnection:
-                    state = MongoConnectionState.Damaged;
+                case HandleExceptionAction.CloseConnection:
+                    Close();
                     break;
-                case HandleExceptionAction.DiscardConnectionPool:
-                    state = MongoConnectionState.Damaged;
-                    try {
-                        serverInstance.Disconnect();
-                    } catch { } // ignore exceptions
+                case HandleExceptionAction.ClearConnectionPool:
+                    Close();
+                    connectionPool.Clear();
                     break;
                 default:
                     throw new MongoInternalException("Invalid HandleExceptionAction");
             }
+
+            // forces a call to VerifyState before the next message is sent to this server instance
+            // this is a bit drastic but at least it's safe (and perhaps we can optimize a bit in the future)
+            serverInstance.State = MongoServerState.Unknown;
         }
 
         private enum HandleExceptionAction {
             KeepConnection,
-            DiscardConnection,
-            DiscardConnectionPool
+            CloseConnection,
+            ClearConnectionPool
         }
 
         private HandleExceptionAction DetermineAction(
             Exception ex
         ) {
-            // TODO: figure out when to return KeepConnection or DiscardConnectionPool (if ever)
+            // TODO: figure out when to return KeepConnection or ClearConnectionPool (if ever)
 
-            // don't return DiscardConnectionPool unless you are *sure* it is the right action
-            // definitely don't make DiscardConnectionPool the default action
-            // returning DiscardConnectionPool frequently can result in Connect/Disconnect storms
+            // don't return ClearConnectionPool unless you are *sure* it is the right action
+            // definitely don't make ClearConnectionPool the default action
+            // returning ClearConnectionPool frequently can result in Connect/Disconnect storms
 
-            return HandleExceptionAction.DiscardConnection; // this should always be the default action
+            return HandleExceptionAction.CloseConnection; // this should always be the default action
         }
         #endregion
 
