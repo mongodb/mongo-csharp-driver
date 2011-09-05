@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,30 @@ namespace MongoDB.Bson {
     /// A static class containing BSON extension methods.
     /// </summary>
     public static class BsonExtensionMethods {
+		private readonly static List<Type> ScalarTypes = new List<Type> {
+			typeof (char),
+			typeof(string),
+			typeof(byte),
+			typeof(sbyte),
+			typeof(ushort),
+			typeof(short),
+			typeof(uint),
+			typeof(int),
+			typeof(ulong),
+			typeof(long),
+			typeof(float),
+			typeof(double),
+			typeof(decimal),
+			typeof(TimeSpan),
+			typeof(DateTime),
+			typeof(DateTimeOffset),
+			typeof(Guid),
+			typeof(ObjectId),
+			typeof(CultureInfo),
+			typeof(Uri),
+			typeof(Version)
+		};
+		
         /// <summary>
         /// Converts an object to a BSON document byte array.
         /// </summary>
@@ -154,6 +179,7 @@ namespace MongoDB.Bson {
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="obj">The object.</param>
         /// <returns>A BsonDocument.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if this is called against a scalar type.</exception>
         public static BsonDocument ToBsonDocument<TNominalType>(
             this TNominalType obj
         ) {
@@ -167,6 +193,7 @@ namespace MongoDB.Bson {
         /// <param name="obj">The object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A BsonDocument.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if this is called against a scalar type.</exception>
         public static BsonDocument ToBsonDocument<TNominalType>(
             this TNominalType obj,
             IBsonSerializationOptions options
@@ -180,6 +207,7 @@ namespace MongoDB.Bson {
         /// <param name="obj">The object.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <returns>A BsonDocument.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if this is called against a scalar type.</exception>
         public static BsonDocument ToBsonDocument(
             this object obj,
             Type nominalType
@@ -194,11 +222,16 @@ namespace MongoDB.Bson {
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A BsonDocument.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if this is called against a scalar type.</exception>
         public static BsonDocument ToBsonDocument(
             this object obj,
             Type nominalType,
             IBsonSerializationOptions options
         ) {
+			if (ScalarTypes.Contains(nominalType)) {
+				throw new InvalidOperationException(string.Format("Cannot serialize object of type {0} to BsonDocument.", nominalType));
+			}
+			
             if (obj == null) {
                 return null;
             }
