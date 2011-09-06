@@ -29,7 +29,8 @@ namespace MongoDB.Bson {
     /// </summary>
     public static class BsonExtensionMethods {
 		private readonly static List<Type> ScalarTypes = new List<Type> {
-			typeof (char),
+			typeof (bool),
+            typeof (char),
 			typeof(string),
 			typeof(byte),
 			typeof(sbyte),
