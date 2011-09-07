@@ -29,6 +29,10 @@ namespace MongoDB.Driver {
     /// Represents an instance of a MongoDB server host (in the case of a replica set a MongoServer uses multiple MongoServerInstances).
     /// </summary>
     public class MongoServerInstance {
+        #region private static fields
+        private static int nextSequentialId;
+        #endregion
+
         #region public events
         /// <summary>
         /// Occurs when the value of the State property changes.
@@ -50,6 +54,7 @@ namespace MongoDB.Driver {
         private bool isSecondary;
         private int maxDocumentSize;
         private int maxMessageLength;
+        private int sequentialId;
         private MongoServer server;
         private MongoServerState state; // always use property to set value so event gets raised
         #endregion
@@ -61,10 +66,12 @@ namespace MongoDB.Driver {
         ) {
             this.server = server;
             this.address = address;
+            this.sequentialId = Interlocked.Increment(ref nextSequentialId);
             this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
             this.maxMessageLength = MongoDefaults.MaxMessageLength;
             this.state = MongoServerState.Disconnected;
             this.connectionPool = new MongoConnectionPool(this);
+            // Console.WriteLine("MongoServerInstance[{0}]: {1}", sequentialId, address);
         }
         #endregion
 
@@ -163,6 +170,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the unique sequential Id for this server instance.
+        /// </summary>
+        public int SequentialId {
+            get { return sequentialId; }
+        }
+
+        /// <summary>
         /// Gets the server for this server instance.
         /// </summary>
         public MongoServer Server {
@@ -177,7 +191,7 @@ namespace MongoDB.Driver {
             internal set {
                 lock (serverInstanceLock) {
                     if (state != value) {
-                        // Console.WriteLine("{0} state: {1}{2}", address, value, isPrimary ? " (Primary)" : "");
+                        // Console.WriteLine("MongoServerInstance[{0}]: State changed: state={1}{2}", sequentialId, value, isPrimary ? " (Primary)" : "");
                         state = value;
                         if (StateChanged != null) {
                             try { StateChanged(this, null); } catch { } // ignore exceptions
@@ -207,17 +221,24 @@ namespace MongoDB.Driver {
         /// </summary>
         public void VerifyState() {
             lock (serverInstanceLock) {
+                // Console.WriteLine("MongoServerInstance[{0}]: VerifyState called.", sequentialId);
                 // if ping fails assume all connections in the connection pool are doomed
                 try {
                     Ping();
-                } catch {
+                } catch (Exception ex) {
+                    // Console.WriteLine("MongoServerInstance[{0}]: Ping failed: {1}.", sequentialId, ex.Message);
                     connectionPool.Clear();
                 }
 
                 var connection = connectionPool.AcquireConnection(null);
                 try {
                     var previousState = state;
-                    VerifyState(connection);
+                    try {
+                        VerifyState(connection);
+                    } catch (Exception ex) {
+                        // ignore exceptions (if any occured state will already be set to Disconnected)
+                        // Console.WriteLine("MongoServerInstance[{0}]: VerifyState failed: {1}.", sequentialId, ex.Message);
+                    }
                     if (state != previousState && state == MongoServerState.Disconnected) {
                         connectionPool.Clear();
                     }
@@ -256,6 +277,7 @@ namespace MongoDB.Driver {
         internal void Connect(
             bool slaveOk
         ) {
+            // Console.WriteLine("MongoServerInstance[{0}]: Connect(slaveOk={1}) called.", sequentialId, slaveOk);
             lock (serverInstanceLock) {
                 // note: don't check that state is Disconnected here
                 // when reconnecting to a replica set state can transition from Connected -> Connecting -> Connected
@@ -290,9 +312,14 @@ namespace MongoDB.Driver {
         }
 
         internal void Disconnect() {
+            // Console.WriteLine("MongoServerInstance[{0}]: Disconnect called.", sequentialId);
             lock (serverInstanceLock) {
+                if (state == MongoServerState.Disconnecting) {
+                    throw new MongoInternalException("Disconnect called while disconnecting.");
+                }
                 if (state != MongoServerState.Disconnected) {
                     try {
+                        State = MongoServerState.Disconnecting;
                         connectionPool.Clear();
                     } finally {
                         State = MongoServerState.Disconnected;
@@ -360,6 +387,7 @@ namespace MongoDB.Driver {
                 this.maxMessageLength = MongoDefaults.MaxMessageLength;
                 this.buildInfo = null;
                 this.State = MongoServerState.Disconnected;
+                throw;
             }
         }
         #endregion

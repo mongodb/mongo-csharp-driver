@@ -46,8 +46,9 @@ namespace MongoDB.Driver.Internal {
             this.serverInstance = serverInstance;
             poolSize = 0;
 
-            var disabled = TimeSpan.FromMilliseconds(-1);
-            timer = new Timer(TimerCallback, null, disabled, disabled); // will get started when server instance state changes to Connected
+            var dueTime = TimeSpan.FromSeconds(0);
+            var period = TimeSpan.FromSeconds(10);
+            timer = new Timer(TimerCallback, null, dueTime, period);
         }
         #endregion
 
@@ -78,12 +79,6 @@ namespace MongoDB.Driver.Internal {
         /// </summary>
         public MongoServerInstance ServerInstance {
             get { return serverInstance; }
-        }
-        #endregion
-
-        #region internal properties
-        internal Timer Timer {
-            get { return timer; }
         }
         #endregion
 
@@ -254,11 +249,18 @@ namespace MongoDB.Driver.Internal {
         private void TimerCallback(
             object state // not used
         ) {
-            // if another timer callback occurs before we are done with the first one just exit
-            if (inTimerCallback) {
+            var server = serverInstance.Server;
+            if (server.State == MongoServerState.Disconnected || server.State == MongoServerState.Disconnecting) {
                 return;
             }
 
+            // if another timer callback occurs before we are done with the first one just exit
+            if (inTimerCallback) {
+                // Console.WriteLine("MongoConnectionPool[{0}] TimerCallback skipped because previous callback has not completed.", serverInstance.SequentialId);
+                return;
+            }
+
+            // Console.WriteLine("MongoConnectionPool[{0}]: TimerCallback called.", serverInstance.SequentialId);
             inTimerCallback = true;
             try {
                 // on every timer callback verify the state of the server instance because it might have changed
