@@ -29,6 +29,10 @@ namespace MongoDB.Driver {
     /// Represents an instance of a MongoDB server host (in the case of a replica set a MongoServer uses multiple MongoServerInstances).
     /// </summary>
     public class MongoServerInstance {
+        #region private static fields
+        private static int nextSequentialId;
+        #endregion
+
         #region public events
         /// <summary>
         /// Occurs when the value of the State property changes.
@@ -50,6 +54,7 @@ namespace MongoDB.Driver {
         private bool isSecondary;
         private int maxDocumentSize;
         private int maxMessageLength;
+        private int sequentialId;
         private MongoServer server;
         private MongoServerState state; // always use property to set value so event gets raised
         #endregion
@@ -61,9 +66,12 @@ namespace MongoDB.Driver {
         ) {
             this.server = server;
             this.address = address;
+            this.sequentialId = Interlocked.Increment(ref nextSequentialId);
             this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
             this.maxMessageLength = MongoDefaults.MaxMessageLength;
             this.state = MongoServerState.Disconnected;
+            this.connectionPool = new MongoConnectionPool(this);
+            // Console.WriteLine("MongoServerInstance[{0}]: {1}", sequentialId, address);
         }
         #endregion
 
@@ -162,6 +170,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the unique sequential Id for this server instance.
+        /// </summary>
+        public int SequentialId {
+            get { return sequentialId; }
+        }
+
+        /// <summary>
         /// Gets the server for this server instance.
         /// </summary>
         public MongoServer Server {
@@ -176,7 +191,7 @@ namespace MongoDB.Driver {
             internal set {
                 lock (serverInstanceLock) {
                     if (state != value) {
-                        // Console.WriteLine("{0} state: {1}{2}", address, value, isPrimary ? " (Primary)" : "");
+                        // Console.WriteLine("MongoServerInstance[{0}]: State changed: state={1}{2}", sequentialId, value, isPrimary ? " (Primary)" : "");
                         state = value;
                         if (StateChanged != null) {
                             try { StateChanged(this, null); } catch { } // ignore exceptions
@@ -187,7 +202,7 @@ namespace MongoDB.Driver {
         }
         #endregion
 
-        #region public method
+        #region public methods
         /// <summary>
         /// Checks whether the server is alive (throws an exception if not).
         /// </summary>
@@ -197,7 +212,39 @@ namespace MongoDB.Driver {
                 var pingCommand = new CommandDocument("ping", 1);
                 connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand);
             } finally {
-                connection.ConnectionPool.ReleaseConnection(connection);
+                connectionPool.ReleaseConnection(connection);
+            }
+        }
+
+        /// <summary>
+        /// Verifies the state of the server instance.
+        /// </summary>
+        public void VerifyState() {
+            lock (serverInstanceLock) {
+                // Console.WriteLine("MongoServerInstance[{0}]: VerifyState called.", sequentialId);
+                // if ping fails assume all connections in the connection pool are doomed
+                try {
+                    Ping();
+                } catch (Exception ex) {
+                    // Console.WriteLine("MongoServerInstance[{0}]: Ping failed: {1}.", sequentialId, ex.Message);
+                    connectionPool.Clear();
+                }
+
+                var connection = connectionPool.AcquireConnection(null);
+                try {
+                    var previousState = state;
+                    try {
+                        VerifyState(connection);
+                    } catch (Exception ex) {
+                        // ignore exceptions (if any occured state will already be set to Disconnected)
+                        // Console.WriteLine("MongoServerInstance[{0}]: VerifyState failed: {1}.", sequentialId, ex.Message);
+                    }
+                    if (state != previousState && state == MongoServerState.Disconnected) {
+                        connectionPool.Clear();
+                    }
+                } finally {
+                    ReleaseConnection(connection);
+                }
             }
         }
         #endregion
@@ -230,6 +277,7 @@ namespace MongoDB.Driver {
         internal void Connect(
             bool slaveOk
         ) {
+            // Console.WriteLine("MongoServerInstance[{0}]: Connect(slaveOk={1}) called.", sequentialId, slaveOk);
             lock (serverInstanceLock) {
                 // note: don't check that state is Disconnected here
                 // when reconnecting to a replica set state can transition from Connected -> Connecting -> Connected
@@ -239,56 +287,19 @@ namespace MongoDB.Driver {
                 try {
                     endPoint = address.ToIPEndPoint(server.Settings.AddressFamily);
 
-                    if (connectionPool == null) {
-                        connectionPool = new MongoConnectionPool(this);
-                    }
-
                     try {
                         var connection = connectionPool.AcquireConnection(null);
                         try {
-                            try {
-                                var isMasterCommand = new CommandDocument("ismaster", 1);
-                                isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
-                            } catch (MongoCommandException ex) {
-                                isMasterResult = ex.CommandResult;
-                                throw;
-                            }
-
-                            isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
-                            isSecondary = isMasterResult.Response["secondary", false].ToBoolean();
-                            isPassive = isMasterResult.Response["passive", false].ToBoolean();
-                            isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
-                            // workaround for CSHARP-273
-                            if (isPassive && isArbiter) { isPassive = false; }
+                            VerifyState(connection);
                             if (!isPrimary && !slaveOk) {
                                 throw new MongoConnectionException("Server is not a primary and SlaveOk is false.");
                             }
-
-                            maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
-                            maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
-
-                            var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                            var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
-                            buildInfo = new MongoServerBuildInfo(
-                                buildInfoResult.Response["bits"].ToInt32(), // bits
-                                buildInfoResult.Response["gitVersion"].AsString, // gitVersion
-                                buildInfoResult.Response["sysInfo"].AsString, // sysInfo
-                                buildInfoResult.Response["version"].AsString // versionString
-                            );
                         } finally {
-                            connection.ConnectionPool.ReleaseConnection(connection);
+                            connectionPool.ReleaseConnection(connection);
                         }
                     } catch {
-                        if (connectionPool != null) {
-                            connectionPool.Close();
-                            connectionPool = null;
-                        }
+                        connectionPool.Clear();
                         throw;
-                    }
-
-                    // for the primary only immediately start creating connections to reach MinConnectionPoolSize
-                    if (isPrimary) {
-                        connectionPool.CreateInitialConnections(); // will be done on a background thread
                     }
 
                     State = MongoServerState.Connected;
@@ -301,14 +312,15 @@ namespace MongoDB.Driver {
         }
 
         internal void Disconnect() {
+            // Console.WriteLine("MongoServerInstance[{0}]: Disconnect called.", sequentialId);
             lock (serverInstanceLock) {
+                if (state == MongoServerState.Disconnecting) {
+                    throw new MongoInternalException("Disconnect called while disconnecting.");
+                }
                 if (state != MongoServerState.Disconnected) {
                     try {
-                        // if we fail during Connect the connectionPool field will still be null
-                        if (connectionPool != null) {
-                            connectionPool.Close();
-                            connectionPool = null;
-                        }
+                        State = MongoServerState.Disconnecting;
+                        connectionPool.Clear();
                     } finally {
                         State = MongoServerState.Disconnected;
                     }
@@ -320,9 +332,62 @@ namespace MongoDB.Driver {
             MongoConnection connection
         ) {
             lock (serverInstanceLock) {
-                // the connection might belong to a connection pool that has already been discarded
-                // so always release it to the connection pool it came from and not the current pool
-                connection.ConnectionPool.ReleaseConnection(connection);
+                connectionPool.ReleaseConnection(connection);
+            }
+        }
+
+        internal void VerifyState(
+            MongoConnection connection
+        ) {
+            CommandResult isMasterResult = null;
+            try {
+                try {
+                    var isMasterCommand = new CommandDocument("ismaster", 1);
+                    isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
+                } catch (MongoCommandException ex) {
+                    isMasterResult = ex.CommandResult;
+                    throw;
+                }
+
+                var isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
+                var isSecondary = isMasterResult.Response["secondary", false].ToBoolean();
+                var isPassive = isMasterResult.Response["passive", false].ToBoolean();
+                var isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
+                // workaround for CSHARP-273
+                if (isPassive && isArbiter) { isPassive = false; }
+
+                var maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
+                var maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
+
+                var buildInfoCommand = new CommandDocument("buildinfo", 1);
+                var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
+                var buildInfo = new MongoServerBuildInfo(
+                    buildInfoResult.Response["bits"].ToInt32(), // bits
+                    buildInfoResult.Response["gitVersion"].AsString, // gitVersion
+                    buildInfoResult.Response["sysInfo"].AsString, // sysInfo
+                    buildInfoResult.Response["version"].AsString // versionString
+                );
+
+                this.isMasterResult = isMasterResult;
+                this.isPrimary = isPrimary;
+                this.isSecondary = isSecondary;
+                this.isPassive = isPassive;
+                this.isArbiter = isArbiter;
+                this.maxDocumentSize = maxDocumentSize;
+                this.maxMessageLength = maxMessageLength;
+                this.buildInfo = buildInfo;
+                this.State = MongoServerState.Connected;
+            } catch {
+                this.isMasterResult = isMasterResult;
+                this.isPrimary = false;
+                this.isSecondary = false;
+                this.isPassive = false;
+                this.isArbiter = false;
+                this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
+                this.maxMessageLength = MongoDefaults.MaxMessageLength;
+                this.buildInfo = null;
+                this.State = MongoServerState.Disconnected;
+                throw;
             }
         }
         #endregion

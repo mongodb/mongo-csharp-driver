@@ -861,6 +861,7 @@ namespace MongoDB.Driver {
             commandResult.Initialize(command, response); // so two phase construction required
             if (!commandResult.Ok) {
                 if (commandResult.ErrorMessage == "not master") {
+                    // TODO: figure out which instance gave the error and set its state to Unknown
                     server.Disconnect();
                 }
                 throw new MongoCommandException(commandResult);
