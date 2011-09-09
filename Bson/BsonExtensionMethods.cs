@@ -232,7 +232,12 @@ namespace MongoDB.Bson {
 			if (ScalarTypes.Contains(nominalType)) {
 				throw new InvalidOperationException(string.Format("Cannot serialize object of type {0} to BsonDocument.", nominalType));
 			}
-			
+
+            if (nominalType is IBsonScalar)
+            {
+                throw new InvalidOperationException(string.Format("Cannot convert IBsonScalar of type {0} to BsonDocument.", nominalType));
+            }
+
             if (obj == null) {
                 return null;
             }

@@ -24,7 +24,8 @@ namespace MongoDB.Bson {
     /// Represents a BSON timestamp value.
     /// </summary>
     [Serializable]
-    public class BsonTimestamp : BsonValue, IComparable<BsonTimestamp>, IEquatable<BsonTimestamp> {
+    public class BsonTimestamp : BsonValue, IBsonScalar, IComparable<BsonTimestamp>, IEquatable<BsonTimestamp>
+    {
         #region private fields
         private long value;
         #endregion

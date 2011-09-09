@@ -24,7 +24,8 @@ namespace MongoDB.Bson {
     /// Represents a BSON int value.
     /// </summary>
     [Serializable]
-    public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32> {
+    public class BsonInt32 : BsonValue, IBsonScalar, IComparable<BsonInt32>, IEquatable<BsonInt32>
+    {
         #region private static fields
         private static int firstInstance = -10;
         private static int lastInstance = 100;

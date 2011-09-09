@@ -24,6 +24,19 @@ namespace MongoDB.BsonUnitTests.Jira
     [TestFixture]
     public class CSharp313Tests
     {
+        private static readonly ArrayList bsonScalarVals = new ArrayList {
+            BsonBoolean.False,
+            new BsonString("a"),
+            new BsonInt32(-2),
+            new BsonInt64(-4294967296),
+            new BsonDouble(3.1415928),
+            new BsonDateTime(DateTime.Now),
+            BsonObjectId.GenerateNewId(),
+            new BsonTimestamp(2002020),
+            BsonNull.Value,
+            new BsonBinaryData(Guid.NewGuid())
+        };
+
         private static readonly ArrayList scalarVals = new ArrayList {
             false,
             'a', 
@@ -50,18 +63,44 @@ namespace MongoDB.BsonUnitTests.Jira
         };
 
         [Test]
-        public void ScalarToBsonDocumentTest() {
-            foreach (var scalar in scalarVals) {
+        public void BsonScalarToBsonDocumentTest()
+        {
+            foreach (var scalar in bsonScalarVals)
+            {
+                var msg = string.Format("Cannot convert IBsonScalar of type {0} to BsonDocument.", scalar.GetType());
+                var failureMsg =
+                    string.Format(
+                        "scalar.ToBsonDocument({0}) should have thrown an InvalidOperationException with message {0}",
+                        msg);
+                try
+                {
+                    scalar.ToBsonDocument(scalar.GetType());
+                    Assert.Fail(failureMsg);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Assert.AreEqual(msg, ex.Message);
+                }
+            }
+        }
+
+        [Test]
+        public void ScalarToBsonDocumentTest()
+        {
+            foreach (var scalar in scalarVals)
+            {
                 var msg = string.Format("Cannot serialize object of type {0} to BsonDocument.", scalar.GetType());
                 var failureMsg =
                     string.Format(
                         "scalar.ToBsonDocument({0}) should have thrown an InvalidOperationException with message {0}",
                         msg);
-                try {
+                try
+                {
                     scalar.ToBsonDocument(scalar.GetType());
                     Assert.Fail(failureMsg);
                 }
-                catch (InvalidOperationException ex) {
+                catch (InvalidOperationException ex)
+                {
                     Assert.AreEqual(msg, ex.Message);
                 }
             }

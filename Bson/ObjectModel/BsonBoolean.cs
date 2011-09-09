@@ -24,7 +24,8 @@ namespace MongoDB.Bson {
     /// Represents a BSON boolean value.
     /// </summary>
     [Serializable]
-    public class BsonBoolean : BsonValue, IComparable<BsonBoolean>, IEquatable<BsonBoolean> {
+    public class BsonBoolean : BsonValue, IBsonScalar, IComparable<BsonBoolean>, IEquatable<BsonBoolean>
+    {
         #region private static fields
         private static BsonBoolean falseInstance = new BsonBoolean(false);
         private static BsonBoolean trueInstance = new BsonBoolean(true);

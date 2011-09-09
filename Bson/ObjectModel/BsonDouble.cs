@@ -25,7 +25,8 @@ namespace MongoDB.Bson {
     /// Represents a BSON double value.
     /// </summary>
     [Serializable]
-    public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble> {
+    public class BsonDouble : BsonValue, IBsonScalar, IComparable<BsonDouble>, IEquatable<BsonDouble>
+    {
         #region private fields
         private double value;
         #endregion

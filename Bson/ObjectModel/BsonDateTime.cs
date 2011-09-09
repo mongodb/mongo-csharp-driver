@@ -24,7 +24,8 @@ namespace MongoDB.Bson {
     /// Represents a BSON DateTime value.
     /// </summary>
     [Serializable]
-    public class BsonDateTime : BsonValue, IComparable<BsonDateTime>, IEquatable<BsonDateTime> {
+    public class BsonDateTime : BsonValue, IBsonScalar, IComparable<BsonDateTime>, IEquatable<BsonDateTime>
+    {
         #region private fields
         private long millisecondsSinceEpoch;
         private DateTime value; // only valid if millisecondsSinceEpoch is between MinValue and MaxValue for DateTime
