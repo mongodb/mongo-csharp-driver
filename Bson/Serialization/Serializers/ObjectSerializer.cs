@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class ObjectSerializer : IBsonSerializer {
         #region private static fields
-        private static ObjectSerializer instance = new ObjectSerializer();
+        private static readonly ObjectSerializer instance = new ObjectSerializer();
         #endregion
 
         #region constructors

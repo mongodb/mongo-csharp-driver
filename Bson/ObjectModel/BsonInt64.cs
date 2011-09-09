@@ -24,7 +24,8 @@ namespace MongoDB.Bson {
     /// Represents a BSON long value.
     /// </summary>
     [Serializable]
-    public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64> {
+    public class BsonInt64 : BsonValue, IBsonScalar, IComparable<BsonInt64>, IEquatable<BsonInt64>
+    {
         #region private fields
         private long value;
         #endregion

@@ -23,7 +23,7 @@ namespace MongoDB.Bson {
     /// Represents BSON binary data.
     /// </summary>
     [Serializable]
-    public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData> {
+    public class BsonBinaryData : BsonValue, IBsonScalar, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData> {
         #region private fields
         private byte[] bytes;
         private BsonBinarySubType subType;

@@ -88,6 +88,7 @@
     <Compile Include="ObjectModel\GuidRepresentation.cs" />
     <Compile Include="ObjectModel\GuidConverter.cs" />
     <Compile Include="IO\JsonReaderSettings.cs" />
+    <Compile Include="ObjectModel\IBsonScalar.cs" />
     <Compile Include="ObjectModel\ICustomBsonTypeMapper.cs" />
     <Compile Include="Serialization\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonExtraElementsAttribute.cs" />

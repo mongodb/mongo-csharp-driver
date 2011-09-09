@@ -23,7 +23,8 @@ namespace MongoDB.Bson {
     /// Represents the BSON Null value.
     /// </summary>
     [Serializable]
-    public class BsonNull : BsonValue, IComparable<BsonNull>, IEquatable<BsonNull> {
+    public class BsonNull : BsonValue, IBsonScalar, IComparable<BsonNull>, IEquatable<BsonNull>
+    {
         #region private static fields
         private static BsonNull value = new BsonNull();
         #endregion

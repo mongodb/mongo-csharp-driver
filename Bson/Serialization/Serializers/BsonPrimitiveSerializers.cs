@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class BooleanSerializer : BsonBaseSerializer {
         #region private static fields
-        private static BooleanSerializer instance = new BooleanSerializer();
+        private static readonly BooleanSerializer instance = new BooleanSerializer();
         #endregion
 
         #region constructors
@@ -134,7 +134,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class DateTimeSerializer : BsonBaseSerializer {
         #region private static fields
-        private static DateTimeSerializer instance = new DateTimeSerializer();
+        private static readonly DateTimeSerializer instance = new DateTimeSerializer();
         #endregion
 
         #region constructors
@@ -295,8 +295,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class DoubleSerializer : BsonBaseSerializer {
         #region private static fields
-        private static DoubleSerializer instance = new DoubleSerializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Double);
+        private static readonly DoubleSerializer instance = new DoubleSerializer();
+        private static readonly RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Double);
         #endregion
 
         #region constructors
@@ -391,7 +391,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class GuidSerializer : BsonBaseSerializer {
         #region private static fields
-        private static GuidSerializer instance = new GuidSerializer();
+        private static readonly GuidSerializer instance = new GuidSerializer();
         #endregion
 
         #region constructors
@@ -498,8 +498,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class Int32Serializer : BsonBaseSerializer {
         #region private static fields
-        private static Int32Serializer instance = new Int32Serializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
+        private static readonly Int32Serializer instance = new Int32Serializer();
+        private static readonly RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
         #endregion
 
         #region constructors
@@ -594,8 +594,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class Int64Serializer : BsonBaseSerializer {
         #region private static fields
-        private static Int64Serializer instance = new Int64Serializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int64);
+        private static readonly Int64Serializer instance = new Int64Serializer();
+        private static readonly RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int64);
         #endregion
 
         #region constructors
@@ -690,7 +690,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class ObjectIdSerializer : BsonBaseSerializer {
         #region private static fields
-        private static ObjectIdSerializer instance = new ObjectIdSerializer();
+        private static readonly ObjectIdSerializer instance = new ObjectIdSerializer();
         #endregion
 
         #region constructors
@@ -778,7 +778,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// </summary>
     public class StringSerializer : BsonBaseSerializer {
         #region private static fields
-        private static StringSerializer instance = new StringSerializer();
+        private static readonly StringSerializer instance = new StringSerializer();
         #endregion
 
         #region constructors
