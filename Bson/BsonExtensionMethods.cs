@@ -229,17 +229,17 @@ namespace MongoDB.Bson {
             Type nominalType,
             IBsonSerializationOptions options
         ) {
+            if (obj == null) {
+                return null;
+            }
+
 			if (ScalarTypes.Contains(nominalType)) {
 				throw new InvalidOperationException(string.Format("Cannot serialize object of type {0} to BsonDocument.", nominalType));
 			}
 
-            if (nominalType is IBsonScalar)
+            if (nominalType.GetInterface("IBsonScalar") != null)
             {
                 throw new InvalidOperationException(string.Format("Cannot convert IBsonScalar of type {0} to BsonDocument.", nominalType));
-            }
-
-            if (obj == null) {
-                return null;
             }
 
             var bsonDocument = obj as BsonDocument;

@@ -26,7 +26,7 @@ namespace MongoDB.Bson {
     /// Represents a BSON ObjectId value (see also ObjectId).
     /// </summary>
     [Serializable]
-    public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId> {
+    public class BsonObjectId : BsonValue, IBsonScalar, IComparable<BsonObjectId>, IEquatable<BsonObjectId> {
         #region private static fields
         private static BsonObjectId emptyInstance = new BsonObjectId(ObjectId.Empty);
         #endregion
