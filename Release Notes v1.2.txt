@@ -1,0 +1,193 @@
+C# Driver Version 1.2 Release Notes
+===================================
+
+Highlights
+
+Breaking changes
+        
+
+
+BSON Library changes
+--------------------
+
+BsonBaseReader.cs
+    removed class
+    moved functionality up to BsonReader
+
+BsonBaseWriter.cs
+    removed class
+    moved functionality up to BsonWriter
+
+BsonBinaryReader.cs
+    changed base class from BsonBaseReader to BsonReader
+    removed GuidRepresentation property (it's in the settings)
+    ReadBinaryData now supports all GuidRepresentations
+    ReadDateTime has workaround to fix old (incorrect) representation for DateTimeMaxValue
+
+BsonBinaryReaderSettings
+    now derived from BsonReaderSettings
+    added FixOldDateTimeMaxValueOnInput property
+    moved GuidRepresentation property to new base class
+    moved Freeze and IsFrozen to base class
+
+BsonBinaryWriter.cs
+    changed base class from BsonBaseWriter to BsonWriter
+    removed GuidRepresentation property (it's in the settings)
+    WriteBinaryData now supports all GuidRepresentations
+
+BsonBinaryWriterSettings
+    now derived from BsonWriterSettings
+    moved GuidRepresentation to base class
+    moved Freeze and IsFrozen to base class
+
+BsonDocumentReader.cs
+    changed base class from BsonBaseReader to BsonReader
+    removed GuidRepresentation property (it's in the settings)
+    ReadBinaryData now supports all GuidRepresentations
+
+BsonDocumentReaderSettings.cs
+    now derived from BsonReaderSettings
+    moved GuidRepresentation to base class
+    moved Freeze and IsFrozen to base class
+
+BsonDocumentWriter.cs
+    changed base class from BsonBaseWriter to BsonWriter
+    removed GuidRepresentation property (it's in the settings)
+    changed WriteName to call base method
+
+BsonDocumentWriterSettings.cs
+    now derived from BsonWriterSettings
+    moved GuidRepresentation to base class
+    moved Freeze and IsFrozen to base class
+
+BsonReader.cs
+    absorbed functionality moved up from removed BsonBaseReader class
+    implements CurrentBsonType property (no longer abstract)
+    implements Settings property (no longer abstract)
+    implements State property (no longer abstract)
+    implements Dispose (no longer abstract)
+    implements FindElement (no longer abstract)
+    implements FindStringElement (no longer abstract)
+    added guidRepresentation parameter to ReadBinaryData
+    implements all ReadXyz overloads with a string name parameter (no longer abstract)
+    implements ReadName (no longer abstract)
+
+BsonReaderSettings.cs
+    new class
+    added GuidRepresentation property
+    added IsFrozen property
+    added Freeze method
+
+BsonWriter.cs
+    absorbed functionality moved up from removed BsonBaseWriter class
+    added CheckElementNames property
+    added CheckUpdateDocument property
+    added Settings property
+    implements State property (no longer abstract)
+    removed GuidRepresentation property (it's in the settings)
+    implements Dispose (no longer abstract)
+    implements all WriteXyz overloads with a string name parameter (no longer abstract)
+    implements WriteName (no longer abstract)
+    added CheckElementName to verify that element names are valid
+
+BsonWriterSettings.cs
+    new class
+    added GuidRepresentation property
+    added IsFrozen property
+    added Freeze method
+
+JsonReader.cs
+    now derived from BsonReaderSettings
+    removed GuidRepresentation property (it's in the settings)
+    ReadBinaryData now supports all GuidRepresentations
+    ReadDateTime has workaround to fix old (incorrect) representation for DateTimeMaxValue
+    Date constructor without "new" now returns string value (weird, but that's how JavaScript is defined)
+    supports HexData constructor (with and without "new")
+    supports RegExp constructor (with and without "new")
+    supports UUID, CSUUID, JUUID, PYUUID constructors (with and without "new")
+    supports GUID, CSGUID, JGUID, PYGUID as synonyms on Windows
+    Date constructor now supports all JavaScript defined variations
+    Date constructor now parses some JavaScript date time strings (next release should support more)
+    BinData and HexData constructor formats now take GuidRepresentation into account
+
+JsonReaderSettings.cs
+    now derived from BsonReaderSettings
+    moved GuidRepresentation to base class
+    moved Freeze and IsFrozen to base class
+
+JsonScanner.cs
+    supports new regex options 'x' and 's'
+
+JsonWriter.cs
+    now derived from BsonWriter
+    removed GuidRepresentation property (it's in the settings)
+    WriteBinaryData now supports all GuidRepresentations
+    WriteDateTime only uses new ISODate representation if ShellVersion supports it
+    WriteInt64 only uses NumberLong representation if ShellVersion supports it
+
+JsonyWriterSettings
+    now derived from BsonWriterSettings
+    moved GuidRepresentation to base class
+    moved Freeze and IsFrozen to base class
+    added ShellVersion property (used with Shell output mode to target a particular shell version)
+
+BsonArray.cs
+    added constructor allowing caller to set initial capacity
+    replaced IEnumerable<object> overloads with IEnumerable to be PowerShell friendly
+    added IEnumerable<ObjectId> overloads
+    added Capacity property
+
+BsonDocument.cs
+    need to have both Dictionary<string, object> and IDictionary<string, object> overloads to avoid ambiguities
+    Added params BsonElement[] overload of Add method
+
+BsonDocumentWrapper.cs
+    added isUpdateDocument field
+    added isUpdateDocument parameter to constructor and Create
+    Serialize now uses isUpdateDocument to set BsonWriter CheckUpdateDocument
+
+BsonTypeMapper.cs
+    removed support for mapping BsonDocument to BsonArray (not really a justifiable mapping)
+    added support for mapping IEnumerable to BsonArray
+
+BsonValue.cs
+    added AsBsonValue property
+    ReadFrom now delegates guidRepresentation handling to BsonReader
+
+XyzSerializer.cs
+    all serializers have new actualType parameter to Deserialize (though not all will use it)
+
+ArraySerializer.cs
+    when serializing an array with nominal type object wrap it in a document with a discriminator so it can be deserialized
+
+BsonBaseSerializer.cs
+    switched which Deserialize method is implemented in the base class (so subclasses need to adjust)
+
+DictionaryGenericSerializer.cs
+    Serialize automatically chooses representation depending on whether keys are valid element names
+
+DictionarySerializer.cs
+    Serialize automatically chooses representation depending on whether keys are valid element names
+
+ObjectSerializer.cs
+    now implements IBsonSerializer and is not derived from BsonBaseSerializer
+
+BsonClassMap.cs
+    added IsFrozen property (makes existing frozen field visible)
+    changed locking scheme to use ReaderWriterLockSlim to increase concurrency (specially important in LookupClassMap)
+    improved error messages for conflicting element names to better identify origin of conflict
+
+BsonClassMapSerializer.cs
+    improved error messages for missing or unmatched element names
+
+BsonDefaultSerializer.cs
+    changed locking scheme to use ReaderWriterLockSlim to increase concurrency
+    fixed deadlock in EnsureKnownTypesAreRegistered
+
+BsonSerializer.cs
+    changed locking scheme to use ReaderWriterLockSlim to increase concurrency (specially important in LookupSerializer)
+    Deserialize now supports deserializing to nominal type that is an interface
+
+Driver changes
+--------------
+

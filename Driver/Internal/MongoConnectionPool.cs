@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Internal {
         }
 
         internal void EnsureMinConnectionPoolSizeWorkItem(
-            object state // ignored
+            object state // forGenerationId
         ) {
             // keep creating connections one at a time until MinConnectionPoolSize is reached
             var forGenerationId = (int) state;

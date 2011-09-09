@@ -480,7 +480,7 @@ namespace MongoDB.Bson {
             IEnumerable<string> keys
         ) {
             if (dictionary != null) {
-                foreach (string key in keys) {
+                foreach (var key in keys) {
                     Add(key, BsonValue.Create(dictionary[key]));
                 }
             }
