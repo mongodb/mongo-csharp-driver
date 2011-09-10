@@ -201,5 +201,11 @@ namespace MongoDB.DriverOnlineTests {
             database.RemoveUser(user);
             Assert.AreEqual(0, collection.Count());
         }
+
+        [Test]
+        public void TestGetProfilingStatus() {
+            var result = database.GetProfilingStatus();
+            Assert.AreEqual(result.Level, MongoDatabaseProfilingLevel.Off);
+        }
     }
 }

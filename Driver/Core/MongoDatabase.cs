@@ -681,6 +681,13 @@ namespace MongoDB.Driver {
         // TODO: mongo shell has GetReplicationInfo at the database level?
 
         /// <summary>
+        /// Gets the profiling status for the database
+        /// </summary>
+        public virtual ProfilingStatusResult GetProfilingStatus() {
+            return RunCommandAs<ProfilingStatusResult>("profile");
+        }
+
+        /// <summary>
         /// Gets a sister database on the same server.
         /// </summary>
         /// <param name="databaseName">The name of the sister database.</param>

@@ -92,6 +92,7 @@
     <Compile Include="Builders\UpdateBuilder.cs" />
     <Compile Include="Core\CommandResults\CollectionStatsResult.cs" />
     <Compile Include="Core\CommandResults\CommandResult.cs" />
+    <Compile Include="Core\CommandResults\ProfilingStatusResult.cs" />
     <Compile Include="Core\CommandResults\DatabaseStatsResult.cs" />
     <Compile Include="Core\CommandResults\FindAndModifyResult.cs" />
     <Compile Include="Core\CommandResults\GeoNearResult.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Core\Interfaces\IMongoSortBy.cs" />
     <Compile Include="Core\Interfaces\IMongoUpdate.cs" />
     <Compile Include="Core\MongoCollectionSettings.cs" />
+    <Compile Include="Core\MongoDatabaseProfilingLevel.cs" />
     <Compile Include="Core\MongoDatabaseSettings.cs" />
     <Compile Include="Core\MongoDBRef.cs" />
     <Compile Include="Core\MongoInsertOptions.cs" />
