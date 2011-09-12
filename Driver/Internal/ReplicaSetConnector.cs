@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Internal {
             }
 
             // don't process response if it was for a previous connection attempt
-            if (server.State == MongoServerState.Disconnected || connectionAttempt != server.ConnectionAttempt) {
+            if (connectionAttempt != server.ConnectionAttempt) {
                 return;
             }
 

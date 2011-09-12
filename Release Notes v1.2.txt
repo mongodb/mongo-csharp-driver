@@ -1,11 +1,33 @@
 C# Driver Version 1.2 Release Notes
 ===================================
 
+This release of the C# driver has significant changes to it, but most are low level and the few breaking changes should affect
+very few users. As mentioned below, you must recompile your application to use this version of the C# driver, because some
+of the changes are non-breaking at the source code level but breaking at the binary level.
+
 Highlights
-
-Breaking changes
-        
-
+    better support for replica set status monitoring and failover
+    faster connection to replica sets (might not have to wait for all members to respond)
+    more efficient handling of connections (to avoid Disconnect/Connect storms)
+    new Disconnecting MongoServerState (analagous to Connecting and used when Disconnect is called)
+    new Unknown MongoServerState (a temporary state used after an error to trigger verification of the server state)
+    better concurrency support and several deadlock fixes
+    JsonReader support for more variations of the Date constructor (with or without "new")
+    JsonReader support for HexData constructor as an alternative to BinData
+    JsonReader support for RegExp constructor format for regular expresssions
+    JsonReader support for UUID, CSUUID, JUUID and PYUUID constructors (and GUID synonyms)
+    JsonWriter now more accurately handles ShellVersion
+    additional minor changes to be more PowerShell friendly
+    BsonSerializer can now deserialize to an interface
+    fewer ambiguities when resolving overloaded method calls
+    
+Breaking changes (mostly internal and/or low level)
+    some changes are compatible at the source code level but not at the binary level so you need to recompile your application
+    BsonBaseReader class removed (only affects you if you derived from BsonBaseReader)
+    BsonBaseWriter class removed (only affects you if you derived from BsonBaseWriter)
+    GuidRepresentation property removed from BsonReaders and BsonWriters (it's in the settings)
+    some 32-bit parameters and properties/return values have been changed to 64-bit
+    Eval with nolock now requires using EvalFlags instead
 
 BSON Library changes
 --------------------
@@ -22,7 +44,7 @@ BsonBinaryReader.cs
     changed base class from BsonBaseReader to BsonReader
     removed GuidRepresentation property (it's in the settings)
     ReadBinaryData now supports all GuidRepresentations
-    ReadDateTime has workaround to fix old (incorrect) representation for DateTimeMaxValue
+    ReadDateTime has workaround to support old (incorrect) representation for DateTimeMaxValue
 
 BsonBinaryReaderSettings
     now derived from BsonReaderSettings
@@ -68,12 +90,12 @@ BsonReader.cs
     implements Dispose (no longer abstract)
     implements FindElement (no longer abstract)
     implements FindStringElement (no longer abstract)
-    added guidRepresentation parameter to ReadBinaryData
+    added guidRepresentation out parameter to ReadBinaryData
     implements all ReadXyz overloads with a string name parameter (no longer abstract)
     implements ReadName (no longer abstract)
 
 BsonReaderSettings.cs
-    new class
+    new abstract class
     added GuidRepresentation property
     added IsFrozen property
     added Freeze method
@@ -91,7 +113,7 @@ BsonWriter.cs
     added CheckElementName to verify that element names are valid
 
 BsonWriterSettings.cs
-    new class
+    new abstract class
     added GuidRepresentation property
     added IsFrozen property
     added Freeze method
@@ -99,7 +121,7 @@ BsonWriterSettings.cs
 JsonReader.cs
     now derived from BsonReaderSettings
     removed GuidRepresentation property (it's in the settings)
-    ReadBinaryData now supports all GuidRepresentations
+    added GuidRepresentation out parameter to ReadBinaryData
     ReadDateTime has workaround to fix old (incorrect) representation for DateTimeMaxValue
     Date constructor without "new" now returns string value (weird, but that's how JavaScript is defined)
     supports HexData constructor (with and without "new")
@@ -107,7 +129,7 @@ JsonReader.cs
     supports UUID, CSUUID, JUUID, PYUUID constructors (with and without "new")
     supports GUID, CSGUID, JGUID, PYGUID as synonyms on Windows
     Date constructor now supports all JavaScript defined variations
-    Date constructor now parses some JavaScript date time strings (next release should support more)
+    Date constructor now parses some JavaScript date time strings (next release will support more)
     BinData and HexData constructor formats now take GuidRepresentation into account
 
 JsonReaderSettings.cs
@@ -123,6 +145,7 @@ JsonWriter.cs
     removed GuidRepresentation property (it's in the settings)
     WriteBinaryData now supports all GuidRepresentations
     WriteDateTime only uses new ISODate representation if ShellVersion supports it
+    WriteDateTime now always uses the "new" keyword with the Date constructor
     WriteInt64 only uses NumberLong representation if ShellVersion supports it
 
 JsonyWriterSettings
@@ -134,7 +157,6 @@ JsonyWriterSettings
 BsonArray.cs
     added constructor allowing caller to set initial capacity
     replaced IEnumerable<object> overloads with IEnumerable to be PowerShell friendly
-    added IEnumerable<ObjectId> overloads
     added Capacity property
 
 BsonDocument.cs
@@ -143,7 +165,7 @@ BsonDocument.cs
 
 BsonDocumentWrapper.cs
     added isUpdateDocument field
-    added isUpdateDocument parameter to constructor and Create
+    added isUpdateDocument parameter to constructor and Create method
     Serialize now uses isUpdateDocument to set BsonWriter CheckUpdateDocument
 
 BsonTypeMapper.cs
@@ -169,25 +191,182 @@ DictionaryGenericSerializer.cs
 DictionarySerializer.cs
     Serialize automatically chooses representation depending on whether keys are valid element names
 
+NetPrimitiveSerializer.cs
+    added support for serializing System.Drawing.Size
+
 ObjectSerializer.cs
-    now implements IBsonSerializer and is not derived from BsonBaseSerializer
+    now implements IBsonSerializer directly and is not derived from BsonBaseSerializer
 
 BsonClassMap.cs
-    added IsFrozen property (makes existing frozen field visible)
-    changed locking scheme to use ReaderWriterLockSlim to increase concurrency (specially important in LookupClassMap)
+    added IsFrozen property
+    changed locking scheme to use ReaderWriterLockSlim to increase concurrency (specially important for LookupClassMap)
     improved error messages for conflicting element names to better identify origin of conflict
 
 BsonClassMapSerializer.cs
     improved error messages for missing or unmatched element names
 
 BsonDefaultSerializer.cs
-    changed locking scheme to use ReaderWriterLockSlim to increase concurrency
+    changed locking scheme to use ReaderWriterLockSlim to increase concurrency (specially important for LookupActualType)
     fixed deadlock in EnsureKnownTypesAreRegistered
 
 BsonSerializer.cs
-    changed locking scheme to use ReaderWriterLockSlim to increase concurrency (specially important in LookupSerializer)
+    changed locking scheme to use ReaderWriterLockSlim to increase concurrency (specially important for LookupSerializer)
     Deserialize now supports deserializing to nominal type that is an interface
 
 Driver changes
 --------------
 
+CollectionOptionsBuilder.cs
+    SetMaxDocuments parameter is now long instead of int
+
+QueryBuilder.cs
+    added new overload of All method with IEnumerable<BsonValue> parameter
+    added new overload of In method with IEnumerable<BsonValue> parameter
+    added new overload of NotIn method with IEnumerable<BsonValue> parameter
+
+UpdateBuilder.cs
+    added new overload of AddToSetEach method with BsonArray parameter
+    added new Combine method
+    added new overload of PullAll method with BsonArray parameter
+    added new overload of PushAll method with BsonArray parameter
+    fixed PopFirst and PopLast (which were both doing the opposite of what they were supposed to)
+
+CollectionStatsResult.cs
+    added IsCapped property
+    added MaxDocuments property
+
+GetLastErrorResult.cs
+    DocumentsAffectedProperty is now long instead of int
+
+MapReduceResult.cs
+    EmitCount is now long instead of int
+    OutputCount is now long instead of int
+    InputCount is now long instead of int
+
+CollectionOptionsDocument.cs
+CommandDocument.cs
+FieldsDocument.cs
+GeoNearOptionsDocument.cs
+GroupByDocument.cs
+IndexKeysDocument.cs
+IndexOptionsDocument.cs
+MapReduceOptionsDocument.cs
+QueryDocument.cs
+ScopeDocument.cs
+SortByDocument.cs
+UpdateDocument.cs
+    added new constructors with Dictionary<string, object> parameter
+
+ConnectWaitFor.cs
+    new enum used when connecting to replica sets to support connecting faster before all members have responded
+
+EvalFlags.cs
+    new flags used with Eval to specify NoLock option
+
+MongoCollection.cs
+    Count is now long instead of int
+    FindAndModify now checks update document for valid field names
+    added new overloads of Insert method with MongoInsertOptions parameter
+    added new overloads of InsertBatch method with MongoInsertOptions parameter
+    Insert, InsertBatch, Save and Update now throw ArgumentNullException if called with a null document
+    replaced overload of InsertBatch with IEnumerable<object> parameter with one with IEnumerable parameter
+    implemented IsCapped
+    added overload of Save method with MongoInsertOptions parameter
+    added InsertBatch methods to MongoCollection<TDefaultDocument>
+    added Save methods to MongoCollection<TDefaultDocument>
+
+MongoCursor.cs
+    Count is now long instead of int
+    Size is now long instead of int
+
+MongoDatabase.cs
+    changed implementation of Eval with nolock parameter to Eval with flags to fix overload ambiguity
+    added overload of RenameCollection with dropTarget parameter
+    added overload of RequestStart with slaveOk parameter
+
+MongoInsertOptions.cs
+    new class
+    added CheckElementNames property
+    added SafeMode property
+
+MongoServer.cs
+    changed locking design to avoid deadlocks
+    added connectionAttempt field (so delayed responses to aborted connection attempts can be ignored)
+    added primary field (so we don't have to scan instances whenever we need the primary)
+    added SequentialId property to use when logging
+    create MongoServerInstances when MongoServer is created (can change later if seed list is incomplete)
+    added RequestConnection property (name is awkard... Request is an adjective in this method, not a verb)
+    added overload of Connect with ConnectWaitFor parameter
+    Connect now returns immediately if waitFor condition is already met
+    Disconnect now sets the state to the new Disconnecting state while disconnecting
+    rearchitected replica set connection implementation
+    Ping now pings all members when connected to a replica set
+    added overload of RequestStart with slaveOk parameter
+    added VerifyState method
+    ChooseServerInstance now first attempts to choose an instance quickly from the currently available instances
+    ChooseServerInstance now only calls Connect or VerifyUnknownStates when it can't find a suitable instance
+    changed implementation of InstanceStateChanged to handle new Disconnecting state
+
+MongoServerInstance.cs
+    added locking for thread safety
+    only create one instance of MongoConnectionPool for the lifetime of the MongoServerInstance
+    call the clear method of MongoConnectionPool when needed instead of creating a new instance of MongoConnectionPool
+    added SequentialId property to use when logging
+    added Ping method
+    added VerifyState method
+
+MongoServerState.cs
+    removed None state
+    added ConnectedToSubset state (used with replica sets)
+    added Disconnecting state
+    added Unknown state
+
+MongoQueryException.cs
+    added QueryResult property
+
+MongoGridFS.cs
+    Download now supports downloading with slaveOk true
+    EnsureIndexes now does nothing if not connected to a primary
+    EnsureIndexes now sets the unique option to true on the "files_id, n" index
+
+MongoGridFSFileInfo.cs
+    Length property is now long instead of int
+
+MongoGridFSStream.cs
+    fixed bug in OpenCreate that prevented using a custom file Id
+
+DirectConnector.cs
+    changed Connect so when trying more than address it changes the address of an existing MongoServerInstance of instead of creating a new instance
+
+MongoConnection.cs
+    MongoConnectionState enum is now public
+    removed Damaged MongoConnectionState (connections is just closed instead)
+    class is now public (but only property gets are public)
+    added GenerationId property
+    added RequestId property
+    changed HandleException to not call Disconnect (was causing Connect/Disconnect storms)
+    HandleException now sets server instance state to Unknown on error (instead of calling Disconnect)
+
+MongoConnectionPool.cs
+    added GenerationId property
+    Timer now started as soon as connection pool is created (solves race conditions starting and stopping the timer)
+    TimerCallback now returns immediately when MongoServer is Disconnected
+    TimerCallback now quits immediately if previous Timer callback has not finished
+    TimerCallback now calls VerifyState to detect when a replica set member comes back online
+    connections are now closed synchronously instead of on a background thread (because connections could be opened faster than they were being closed)
+    minimum connection pool size is now checked by the timer and not just at connect time
+    EnsureMinConnectionPoolSizeWorkItem now knows to abandon its efforts if the GenerationId changes
+
+MongoInsertMessage.cs
+    Added checkElementNames field
+    AddDocument now sets CheckElementNames on BsonWriter
+
+MongoUpdateMessage.cs
+    WriteBody now sets CheckUpdateDocument on BsonWriter
+
+ReplicaSetConnector.cs
+    added connectionAttempt field
+    added ConnectWaitFor parameter to Connect method
+    Connect will exit early as soon as ConnectWaitFor condition is met
+    improved connect error messages
+    ProcessResponse now ignores delayed responses if Disconnected or connectionAttempt has changed

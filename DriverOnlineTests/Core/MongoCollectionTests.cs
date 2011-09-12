@@ -86,11 +86,12 @@ namespace MongoDB.DriverOnlineTests {
             var collection = database["testcreatecollection"];
             collection.Drop();
             Assert.IsFalse(collection.Exists());
-            var options = CollectionOptions.SetCapped(true).SetMaxDocuments(1000);
+            var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000).SetMaxDocuments(1000);
             database.CreateCollection("testcreatecollection", options);
             Assert.IsTrue(collection.Exists());
             var stats = collection.GetStats();
             Assert.IsTrue(stats.IsCapped);
+            Assert.IsTrue(stats.StorageSize >= 10000000);
             Assert.IsTrue(stats.MaxDocuments == 1000);
             collection.Drop();
         }
@@ -766,7 +767,7 @@ namespace MongoDB.DriverOnlineTests {
         public void TestIsCappedTrue() {
             var collection = database["cappedcollection"];
             collection.Drop();
-            var options = CollectionOptions.SetCapped(true);
+            var options = CollectionOptions.SetCapped(true).SetMaxSize(100000);
             database.CreateCollection("cappedcollection", options);
 
             Assert.AreEqual(true, collection.Exists());
