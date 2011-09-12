@@ -821,6 +821,85 @@ namespace MongoDB.Bson.Serialization.Serializers {
         #endregion
     }
 
+
+    /// <summary>
+    /// Represents a serializer for System.Drawing.Size.
+    /// </summary>
+    public class DrawingSizeSerializer : BsonBaseSerializer {
+        #region private static fields
+        private static DrawingSizeSerializer instance = new DrawingSizeSerializer();
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the DrawingSizeSerializer class.
+        /// </summary>
+        public DrawingSizeSerializer() {
+        }
+        #endregion
+
+        #region public static properties
+        /// <summary>
+        /// Gets an instance of the DrawingSizeSerializer class.
+        /// </summary>
+        public static DrawingSizeSerializer Instance {
+            get { return instance; }
+        }
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Deserializes an object of type System.Drawing.Size from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options
+        ) {
+            VerifyTypes(nominalType, actualType, typeof(System.Drawing.Size));
+
+            var bsonType = bsonReader.CurrentBsonType;
+            switch (bsonType) {
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    var width = bsonReader.ReadInt32("Width");
+                    var height = bsonReader.ReadInt32("Height");
+                    bsonReader.ReadEndDocument();
+                    return new System.Drawing.Size(width, height);
+                default:
+                    var message = string.Format("Cannot deserialize Size from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
+            }
+        }
+
+        /// <summary>
+        /// Serializes an object of type System.Drawing.Size  to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options
+        ) {
+            var size = (System.Drawing.Size) value;
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteInt32("Width", size.Width);
+            bsonWriter.WriteInt32("Height", size.Height);
+            bsonWriter.WriteEndDocument();
+        }
+        #endregion
+    }
+
     /// <summary>
     /// Represents a serializer for Int16s.
     /// </summary>

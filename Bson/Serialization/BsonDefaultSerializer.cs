@@ -81,6 +81,7 @@ namespace MongoDB.Bson.Serialization {
                 { typeof(DateTimeOffset), DateTimeOffsetSerializer.Instance },
                 { typeof(Decimal), DecimalSerializer.Instance },
                 { typeof(Double), DoubleSerializer.Instance },
+                { typeof(System.Drawing.Size), DrawingSizeSerializer.Instance },
                 { typeof(Guid), GuidSerializer.Instance },
                 { typeof(Hashtable), DictionarySerializer.Instance },
                 { typeof(IBsonSerializable), BsonIBsonSerializableSerializer.Instance },

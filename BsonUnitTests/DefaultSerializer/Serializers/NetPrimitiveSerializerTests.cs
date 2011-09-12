@@ -673,6 +673,60 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
+    public class DrawingSizeSerializerTests {
+        public class TestClass {
+            public System.Drawing.Size V1 { get; set; }
+            public System.Drawing.Size? V2 { get; set; }
+        }
+
+        [Test]
+        public void TestEmpty() {
+            var obj = new TestClass {
+                V1 = System.Drawing.Size.Empty,
+                V2 = System.Drawing.Size.Empty
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V1' : { 'Width' : 0, 'Height' : 0 }, 'V2' : { 'Width' : 0, 'Height' : 0 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+
+        public void TestNull() {
+            var obj = new TestClass {
+                V1 = System.Drawing.Size.Empty,
+                V2 = (System.Drawing.Size?) null
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V1' : { 'Width' : 0, 'Height' : 0 }, 'V2' : null }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSize12() {
+            var obj = new TestClass {
+                V1 = new System.Drawing.Size(1, 2),
+                V2 = new System.Drawing.Size(new System.Drawing.Point(1, 2))
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V1' : { 'Width' : 1, 'Height' : 2 }, 'V2' : { 'Width' : 1, 'Height' : 2 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
     public class Int16SerializerTests {
         public class TestClass {
             [BsonRepresentation(BsonType.Double)]
@@ -1633,4 +1687,5 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
+
 }
