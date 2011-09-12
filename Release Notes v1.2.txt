@@ -28,6 +28,7 @@ Breaking changes (mostly internal and/or low level)
     GuidRepresentation property removed from BsonReaders and BsonWriters (it's in the settings)
     some 32-bit parameters and properties/return values have been changed to 64-bit
     Eval with nolock now requires using EvalFlags instead
+    PopFirst and PopLast fixed (breaking if you were working around the bug by calling the opposite method)
 
 BSON Library changes
 --------------------
@@ -340,7 +341,7 @@ DirectConnector.cs
 
 MongoConnection.cs
     MongoConnectionState enum is now public
-    removed Damaged MongoConnectionState (connections is just closed instead)
+    removed Damaged MongoConnectionState (connection is just closed instead)
     class is now public (but only property gets are public)
     added GenerationId property
     added RequestId property
