@@ -70,7 +70,7 @@ namespace MongoDB.BsonUnitTests.Jira {
 
         [Test]
         public void TestTwoDimensionalArrayEmpty() {
-            var c = new C { Id = 1, Obj = new int[,] { } };
+            var c = new C { Id = 1, Obj = new int[0,0] };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,]', '_v' : [] } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -106,7 +106,7 @@ namespace MongoDB.BsonUnitTests.Jira {
 
         [Test]
         public void TestThreeDimensionalArrayEmpty() {
-            var c = new C { Id = 1, Obj = new int[,,] { } };
+            var c = new C { Id = 1, Obj = new int[0,0,0] };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,,]', '_v' : [] } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);

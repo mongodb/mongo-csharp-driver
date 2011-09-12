@@ -225,7 +225,7 @@ namespace MongoDB.Driver {
                 // if ping fails assume all connections in the connection pool are doomed
                 try {
                     Ping();
-                } catch (Exception ex) {
+                } catch {
                     // Console.WriteLine("MongoServerInstance[{0}]: Ping failed: {1}.", sequentialId, ex.Message);
                     connectionPool.Clear();
                 }
@@ -235,7 +235,7 @@ namespace MongoDB.Driver {
                     var previousState = state;
                     try {
                         VerifyState(connection);
-                    } catch (Exception ex) {
+                    } catch {
                         // ignore exceptions (if any occured state will already be set to Disconnected)
                         // Console.WriteLine("MongoServerInstance[{0}]: VerifyState failed: {1}.", sequentialId, ex.Message);
                     }
