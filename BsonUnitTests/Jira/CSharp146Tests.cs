@@ -65,8 +65,13 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp146 {
             var doc = new Doc { Values = table };
 
             var json = doc.ToJson();
-            var expected = "{ 'Values' : { 'Text' : 'hello', 'Enum' : 1 } }".Replace("'", "\"");
-            Assert.AreEqual(expected, json);
+            // var expected = "{ 'Values' : { 'Text' : 'hello', 'Enum' : 1 } }".Replace("'", "\"");
+            // Assert.AreEqual(expected, json);
+			var rehydrated = BsonSerializer.Deserialize<Doc>(json);
+			Assert.IsNotNull(rehydrated.Values);
+			Assert.AreEqual(doc.Values.Count, rehydrated.Values.Count);
+			Assert.AreEqual(doc.Values["Text"], rehydrated.Values["Text"]);
+			Assert.AreEqual((int) doc.Values["Enum"], rehydrated.Values["Enum"]);
         }
     }
 }
