@@ -33,6 +33,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_348534DCA707411BA80C95E8A3985821"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5ED81B2A1EFD4E9DA129583F00560B33"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -52,12 +58,6 @@
         "Entry"
         {
         "MsmKey" = "8:_7E238670C4D047C8A103FBE7754619DD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_943C461628514581BF0B49C5E33E9ADB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -262,11 +262,31 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_348534DCA707411BA80C95E8A3985821"
+            {
+            "SourcePath" = "8:..\\Release Notes v1.2.txt"
+            "TargetName" = "8:Release Notes v1.2.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_68791BFCA02EDE379F08E6AC19E7F96F"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.1.0.4184, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.2.0.4273, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_68791BFCA02EDE379F08E6AC19E7F96F"
@@ -291,26 +311,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_943C461628514581BF0B49C5E33E9ADB"
-            {
-            "SourcePath" = "8:..\\Release Notes v1.1.txt"
-            "TargetName" = "8:Release Notes v1.1.txt"
-            "Tag" = "8:"
-            "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
         }
@@ -350,7 +350,7 @@
                         {
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_714AC4AABA3743F280D3824A1345875C"
                             {
-                            "Name" = "8:CSharpDriver 1.1"
+                            "Name" = "8:CSharpDriver 1.2"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
@@ -376,7 +376,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_D4C7539AEF6E411F98A857872FF5F2FC"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]\\MongoDB\\CSharpDriver 1.1"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\MongoDB\\CSharpDriver 1.2"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -401,16 +401,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:MongoDB CSharpDriver 1.1"
-        "ProductCode" = "8:{D60B97F0-100B-4C20-AD48-3388E738C787}"
-        "PackageCode" = "8:{9EA15A68-8662-40AB-AFBE-1F7FA93BDE2C}"
+        "ProductName" = "8:MongoDB CSharpDriver 1.2"
+        "ProductCode" = "8:{A2F11FB7-C134-4275-B79A-DAC0293915FB}"
+        "PackageCode" = "8:{9BA35207-4D3C-4751-9631-A650FEAD0766}"
         "UpgradeCode" = "8:{B144CF09-09EC-4B64-9981-236E85AC93F7}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.1.0"
+        "ProductVersion" = "8:1.2.0"
         "Manufacturer" = "8:10gen Inc."
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -559,20 +559,6 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_33CC9B1B63E44B12BCBA586AC9511702"
-            {
-            "Name" = "8:Release Notes v1.1.txt"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_943C461628514581BF0B49C5E33E9ADB"
-            "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
-            "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_3C9077C10002485F8BB1CD9CA3F09B6A"
             {
             "Name" = "8:CSharpDriverDocs.chm"
@@ -582,6 +568,20 @@
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_1F2B25DB0B3140D1A6F888E8C0F5AFC6"
+            "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
+            "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_7CCBC5AD117E429EB48469227B5F6204"
+            {
+            "Name" = "8:Release Notes v1.2.txt"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_348534DCA707411BA80C95E8A3985821"
             "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
             "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
             "Icon" = "8:"
