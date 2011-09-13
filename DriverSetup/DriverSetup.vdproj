@@ -403,7 +403,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:MongoDB CSharpDriver 1.2"
         "ProductCode" = "8:{A2F11FB7-C134-4275-B79A-DAC0293915FB}"
-        "PackageCode" = "8:{9BA35207-4D3C-4751-9631-A650FEAD0766}"
+        "PackageCode" = "8:{BEABE6F2-557F-4138-B13A-19090B86EB27}"
         "UpgradeCode" = "8:{B144CF09-09EC-4B64-9981-236E85AC93F7}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
