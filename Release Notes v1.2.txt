@@ -23,12 +23,16 @@ Highlights
     
 Breaking changes (mostly internal and/or low level)
     some changes are compatible at the source code level but not at the binary level so you need to recompile your application
-    BsonBaseReader class removed (only affects you if you derived from BsonBaseReader)
-    BsonBaseWriter class removed (only affects you if you derived from BsonBaseWriter)
+    BsonBaseReader class removed (if you derived from BsonBaseReader derive from BsonReader instead).
+    BsonBaseWriter class removed (if you derived from BsonBaseWriter derive from BsonWriter instead)
     GuidRepresentation property removed from BsonReaders and BsonWriters (it's in the settings)
     some 32-bit parameters and properties/return values have been changed to 64-bit
     Eval with nolock now requires using EvalFlags instead
     PopFirst and PopLast fixed (breaking if you were working around the bug by calling the opposite method)
+
+JIRA Issues addressed
+---------------------
+The list of JIRA issues addressed in this driver release can be found at https://jira.mongodb.org/secure/IssueNavigator.jspa?mode=hide&requestId=11022
 
 BSON Library changes
 --------------------
@@ -374,3 +378,9 @@ ReplicaSetConnector.cs
     Connect will exit early as soon as ConnectWaitFor condition is met
     improved connect error messages
     ProcessResponse now ignores delayed responses if Disconnected or connectionAttempt has changed
+
+Environments tested on
+----------------------
+Visual Studio 2010 on Windows 7 x64 against MongoDB 1.8.3, 2.0.0
+Visual Studio 2008 on Windows 7 x64 against MongoDB 1.8.3, 2.0.0
+MonoDevelop 2.6 on Windows 7 x64, OS X Snow Leopard against MongoDB 1.8.3, 2.0.0
