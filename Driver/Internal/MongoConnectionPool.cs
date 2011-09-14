@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Internal {
         private int waitQueueSize;
         private Timer timer;
         private bool inTimerCallback;
+        private bool inEnsureMinConnectionPoolSizeWorkItem;
         private int connectionsRemovedSinceLastTimerTick;
         #endregion
 
@@ -161,41 +162,55 @@ namespace MongoDB.Driver.Internal {
         internal void EnsureMinConnectionPoolSizeWorkItem(
             object state // forGenerationId
         ) {
-            // keep creating connections one at a time until MinConnectionPoolSize is reached
-            var forGenerationId = (int) state;
-            while (true) {
-                lock (connectionPoolLock) {
-                    // stop if the connection pool generationId has changed or we have already reached MinConnectionPoolSize
-                    if (generationId != forGenerationId || poolSize >= server.Settings.MinConnectionPoolSize) {
-                        return;
-                    }
-                }
+            // make sure only one instance of EnsureMinConnectionPoolSizeWorkItem is running at a time
+            if (inEnsureMinConnectionPoolSizeWorkItem) {
+                return;
+            }
 
-                var connection = new MongoConnection(this);
-                try {
-                    connection.Open();
-
-                    // compare against MaxConnectionPoolSize instead of MinConnectionPoolSize
-                    // because while we were opening this connection many others may have already been created
-                    // and we don't want to throw this one away unless we would exceed MaxConnectionPoolSize
-                    var added = false;
+            inEnsureMinConnectionPoolSizeWorkItem = true;
+            try {
+                // keep creating connections one at a time until MinConnectionPoolSize is reached
+                var forGenerationId = (int) state;
+                while (true) {
                     lock (connectionPoolLock) {
-                        if (generationId == forGenerationId && poolSize < server.Settings.MaxConnectionPoolSize) {
-                            availableConnections.Add(connection);
-                            poolSize++;
-                            added = true;
+                        // stop if the connection pool generationId has changed or we have already reached MinConnectionPoolSize
+                        if (generationId != forGenerationId || poolSize >= server.Settings.MinConnectionPoolSize) {
+                            return;
                         }
                     }
 
-                    if (!added) {
-                        // turns out we couldn't use the connection after all
-                        connection.Close();
+                    var connection = new MongoConnection(this);
+                    try {
+                        connection.Open();
+
+                        // compare against MaxConnectionPoolSize instead of MinConnectionPoolSize
+                        // because while we were opening this connection many others may have already been created
+                        // and we don't want to throw this one away unless we would exceed MaxConnectionPoolSize
+                        var added = false;
+                        lock (connectionPoolLock) {
+                            if (generationId == forGenerationId && poolSize < server.Settings.MaxConnectionPoolSize) {
+                                availableConnections.Add(connection);
+                                poolSize++;
+                                added = true;
+                            }
+                        }
+
+                        if (!added) {
+                            // turns out we couldn't use the connection after all
+                            connection.Close();
+                        }
+                    } catch {
+                        // TODO: log exception?
+                        // wait a bit before trying again
+                        Thread.Sleep(TimeSpan.FromSeconds(1));
                     }
-                } catch {
-                    // TODO: log exception?
-                    // wait a bit before trying again
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
                 }
+            } catch {
+                // don't let unhandled exceptions leave EnsureMinConnectionPoolSizeWorkItem
+                // if the minimum connection pool size was not achieved a new work item will be queued shortly
+                // TODO: log exception?
+            } finally {
+                inEnsureMinConnectionPoolSizeWorkItem = false;
             }
         }
 
@@ -249,7 +264,7 @@ namespace MongoDB.Driver.Internal {
         private void TimerCallback(
             object state // not used
         ) {
-            // if another timer callback occurs before we are done with the first one just exit
+            // make sure only one instance of TimerCallback is running at a time
             if (inTimerCallback) {
                 // Console.WriteLine("MongoConnectionPool[{0}] TimerCallback skipped because previous callback has not completed.", serverInstance.SequentialId);
                 return;
