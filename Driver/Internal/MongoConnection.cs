@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Internal {
                         if (tcpClient.Connected) {
                             // even though MSDN says TcpClient.Close doesn't close the underlying socket
                             // it actually does (as proven by disassembling TcpClient and by experimentation)
-                            tcpClient.Close();
+                            try { tcpClient.Close(); } catch { } // ignore exceptions
                         }
                         tcpClient = null;
                     }
