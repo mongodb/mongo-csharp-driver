@@ -249,11 +249,6 @@ namespace MongoDB.Driver.Internal {
         private void TimerCallback(
             object state // not used
         ) {
-            var server = serverInstance.Server;
-            if (server.State == MongoServerState.Disconnected || server.State == MongoServerState.Disconnecting) {
-                return;
-            }
-
             // if another timer callback occurs before we are done with the first one just exit
             if (inTimerCallback) {
                 // Console.WriteLine("MongoConnectionPool[{0}] TimerCallback skipped because previous callback has not completed.", serverInstance.SequentialId);
@@ -263,6 +258,11 @@ namespace MongoDB.Driver.Internal {
             // Console.WriteLine("MongoConnectionPool[{0}]: TimerCallback called.", serverInstance.SequentialId);
             inTimerCallback = true;
             try {
+                var server = serverInstance.Server;
+                if (server.State == MongoServerState.Disconnected || server.State == MongoServerState.Disconnecting) {
+                    return;
+                }
+
                 // on every timer callback verify the state of the server instance because it might have changed
                 // we do this even if this one instance is currently Disconnected so we can discover when a disconnected instance comes back online
                 serverInstance.VerifyState();
@@ -300,6 +300,10 @@ namespace MongoDB.Driver.Internal {
                 if (poolSize < server.Settings.MinConnectionPoolSize) {
                     ThreadPool.QueueUserWorkItem(EnsureMinConnectionPoolSizeWorkItem, generationId);
                 }
+            } catch {
+                // don't let any unhandled exceptions leave TimerCallback
+                // server state will already have been change by earlier exception handling
+                // TODO: log exception?
             } finally {
                 inTimerCallback = false;
             }
