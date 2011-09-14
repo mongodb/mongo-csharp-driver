@@ -315,6 +315,7 @@ MongoServerInstance.cs
     added SequentialId property to use when logging
     added Ping method
     added VerifyState method
+    VerifyState sets BuildInfo to null if the buildInfo command fails due to auth (due to a change in the 2.0 server)
 
 MongoServerState.cs
     removed None state
@@ -354,9 +355,11 @@ MongoConnectionPool.cs
     TimerCallback now returns immediately when MongoServer is Disconnected
     TimerCallback now quits immediately if previous Timer callback has not finished
     TimerCallback now calls VerifyState to detect when a replica set member comes back online
+    TimerCallback doesn't let unhandled exceptions happen
     connections are now closed synchronously instead of on a background thread (because connections could be opened faster than they were being closed)
     minimum connection pool size is now checked by the timer and not just at connect time
     EnsureMinConnectionPoolSizeWorkItem now knows to abandon its efforts if the GenerationId changes
+    EnsureMinConnectionPoolSizeWorkItem doesn't let unhandled exception happen
 
 MongoInsertMessage.cs
     Added checkElementNames field
