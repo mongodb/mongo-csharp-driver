@@ -286,7 +286,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.2.0.4273, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.2.0.4274, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_68791BFCA02EDE379F08E6AC19E7F96F"

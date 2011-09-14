@@ -383,4 +383,4 @@ Environments tested on
 ----------------------
 Visual Studio 2010 on Windows 7 x64 against MongoDB 1.8.3, 2.0.0
 Visual Studio 2008 on Windows 7 x64 against MongoDB 1.8.3, 2.0.0
-MonoDevelop 2.6 on Windows 7 x64, OS X Snow Leopard against MongoDB 1.8.3, 2.0.0
+MonoDevelop 2.6 (with Mono 2.10) on Windows 7 x64, OS X Snow Leopard against MongoDB 1.8.3, 2.0.0
