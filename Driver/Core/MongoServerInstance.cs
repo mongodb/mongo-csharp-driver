@@ -359,14 +359,24 @@ namespace MongoDB.Driver {
                 var maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
                 var maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
 
-                var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
-                var buildInfo = new MongoServerBuildInfo(
-                    buildInfoResult.Response["bits"].ToInt32(), // bits
-                    buildInfoResult.Response["gitVersion"].AsString, // gitVersion
-                    buildInfoResult.Response["sysInfo"].AsString, // sysInfo
-                    buildInfoResult.Response["version"].AsString // versionString
-                );
+                MongoServerBuildInfo buildInfo;
+                try {
+                    var buildInfoCommand = new CommandDocument("buildinfo", 1);
+                    var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
+                    buildInfo = new MongoServerBuildInfo(
+                        buildInfoResult.Response["bits"].ToInt32(), // bits
+                        buildInfoResult.Response["gitVersion"].AsString, // gitVersion
+                        buildInfoResult.Response["sysInfo"].AsString, // sysInfo
+                        buildInfoResult.Response["version"].AsString // versionString
+                    );
+                } catch (MongoCommandException ex) {
+                    // short term fix: if buildInfo fails due to auth we don't know the server version
+                    if (ex.CommandResult.ErrorMessage == "need to login") {
+                        buildInfo = null;
+                    } else {
+                        throw;
+                    }
+                }
 
                 this.isMasterResult = isMasterResult;
                 this.isPrimary = isPrimary;
