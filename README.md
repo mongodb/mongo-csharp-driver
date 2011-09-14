@@ -15,8 +15,6 @@ apidoc: http://api.mongodb.org/csharp/ (coming soon)
 
 http://jira.mongodb.org/browse/CSHARP
 
-see also: BreakingChanges.txt
-
 ### Maintainers:
 * Robert Stam               robert@10gen.com
 * Sridhar Nanjundeswaran    sridhar@10gen.com
