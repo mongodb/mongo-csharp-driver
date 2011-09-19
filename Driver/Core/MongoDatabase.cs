@@ -52,11 +52,12 @@ namespace MongoDB.Driver {
         ) {
             ValidateDatabaseName(settings.DatabaseName);
             this.server = server;
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.name = settings.DatabaseName;
 
-            var commandCollectionSettings = CreateCollectionSettings<BsonDocument>("$cmd");
-            commandCollectionSettings.AssignIdOnInsert = false;
+            var commandCollectionSettings = new MongoCollectionSettings<BsonDocument>(this, "$cmd") {
+                AssignIdOnInsert = false
+            };
             if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet) {
                 // make sure commands get routed to the primary server by using slaveOk false
                 commandCollectionSettings.SlaveOk = false;
@@ -331,11 +332,8 @@ namespace MongoDB.Driver {
             string collectionName
         ) {
             return new MongoCollectionSettings<TDefaultDocument>(
-                collectionName,
-                MongoDefaults.AssignIdOnInsert,
-                settings.GuidRepresentation,
-                settings.SafeMode,
-                settings.SlaveOk
+                this,
+                collectionName
             );
         }
 
@@ -352,14 +350,11 @@ namespace MongoDB.Driver {
         ) {
             var settingsDefinition = typeof(MongoCollectionSettings<>);
             var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(string), typeof(bool), typeof(GuidRepresentation), typeof(SafeMode), typeof(bool) });
+            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string) });
             return (MongoCollectionSettings) constructorInfo.Invoke(
                 new object[] {
-                    collectionName,
-                    MongoDefaults.AssignIdOnInsert,
-                    settings.GuidRepresentation,
-                    settings.SafeMode,
-                    settings.SlaveOk
+                    this,
+                    collectionName
                 }
             );
         }
@@ -534,7 +529,7 @@ namespace MongoDB.Driver {
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName
         ) {
-            var collectionSettings = CreateCollectionSettings<TDefaultDocument>(collectionName);
+            var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
             return GetCollection(collectionSettings);
         }
 
@@ -549,8 +544,9 @@ namespace MongoDB.Driver {
             string collectionName,
             SafeMode safeMode
         ) {
-            var collectionSettings = CreateCollectionSettings<TDefaultDocument>(collectionName);
-            collectionSettings.SafeMode = safeMode;
+            var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName) {
+                SafeMode = safeMode
+            };
             return GetCollection(collectionSettings);
         }
 
@@ -585,7 +581,7 @@ namespace MongoDB.Driver {
         public virtual MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
-            var collectionSettings = CreateCollectionSettings<BsonDocument>(collectionName);
+            var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName);
             return GetCollection(collectionSettings);
         }
 
@@ -600,8 +596,9 @@ namespace MongoDB.Driver {
             string collectionName,
             SafeMode safeMode
         ) {
-            var collectionSettings = CreateCollectionSettings<BsonDocument>(collectionName);
-            collectionSettings.SafeMode = safeMode;
+            var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName) {
+                SafeMode = safeMode
+            };
             return GetCollection(collectionSettings);
         }
 

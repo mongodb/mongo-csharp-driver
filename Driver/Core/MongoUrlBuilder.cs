@@ -425,12 +425,6 @@ namespace MongoDB.Driver {
                 this.databaseName = (databaseName != "") ? databaseName : null;
 
                 if (!string.IsNullOrEmpty(query)) {
-                    var safeModeChanged = false;
-                    var safe = false;
-                    var w = 0;
-                    var wtimeout = TimeSpan.Zero;
-                    var fsync = false;
-
                     foreach (var pair in query.Split('&', ';')) {
                         var parts = pair.Split('=');
                         if (parts.Length != 2) {
@@ -448,15 +442,18 @@ namespace MongoDB.Driver {
                                 connectTimeout = ParseTimeSpan(name, value);
                                 break;
                             case "fsync":
-                                safeModeChanged = true;
-                                safe = true;
-                                fsync = ParseBoolean(name, value);
+                                if (safeMode == null) { safeMode = new SafeMode(false); }
+                                safeMode.FSync = ParseBoolean(name, value);
                                 break;
                             case "guids":
                                 guidRepresentation = (GuidRepresentation) Enum.Parse(typeof(GuidRepresentation), value, true); // ignoreCase
                                 break;
                             case "ipv6":
                                 ipv6 = ParseBoolean(name, value);
+                                break;
+                            case "j":
+                                if (safeMode == null) { safeMode = new SafeMode(false); }
+                                SafeMode.J = ParseBoolean(name, value);
                                 break;
                             case "maxidletime":
                             case "maxidletimems":
@@ -477,8 +474,8 @@ namespace MongoDB.Driver {
                                 this.connectionMode = ConnectionMode.ReplicaSet;
                                 break;
                             case "safe":
-                                safeModeChanged = true;
-                                safe = ParseBoolean(name, value);
+                                if (safeMode == null) { safeMode = new SafeMode(false); }
+                                SafeMode.Enabled = ParseBoolean(name, value);
                                 break;
                             case "slaveok":
                                 slaveOk = ParseBoolean(name, value);
@@ -488,9 +485,12 @@ namespace MongoDB.Driver {
                                 socketTimeout = ParseTimeSpan(name, value);
                                 break;
                             case "w":
-                                safeModeChanged = true;
-                                safe = true;
-                                w = ParseInt32(name, value);
+                                if (safeMode == null) { safeMode = new SafeMode(false); }
+                                try {
+                                    SafeMode.W = ParseInt32(name, value);
+                                } catch (FormatException) {
+                                    SafeMode.WMode = value;
+                                }
                                 break;
                             case "waitqueuemultiple":
                                 waitQueueMultiple = ParseDouble(name, value);
@@ -506,15 +506,10 @@ namespace MongoDB.Driver {
                                 break;
                             case "wtimeout":
                             case "wtimeoutms":
-                                safeModeChanged = true;
-                                safe = true;
-                                wtimeout = ParseTimeSpan(name, value);
+                                if (safeMode == null) { safeMode = new SafeMode(false); }
+                                SafeMode.WTimeout = ParseTimeSpan(name, value);
                                 break;
                         }
-                    }
-
-                    if (safeModeChanged) {
-                        this.safeMode = SafeMode.Create(safe, fsync, w, wtimeout);
                     }
                 }
             } else {
@@ -600,10 +595,17 @@ namespace MongoDB.Driver {
             if (safeMode != null && safeMode.Enabled) {
                 query.AppendFormat("safe=true;");
                 if (safeMode.FSync) {
-                    query.AppendFormat("fsync={0};", (safeMode.FSync) ? "true" : "false");
+                    query.Append("fsync=true;");
                 }
-                if (safeMode.W != 0) {
-                    query.AppendFormat("w={0};", safeMode.W);
+                if (safeMode.J) {
+                    query.Append("j=true;");
+                }
+                if (safeMode.W != 0 || safeMode.WMode != null) {
+                    if (safeMode.W != 0) {
+                        query.AppendFormat("w={0};", safeMode.W);
+                    } else {
+                        query.AppendFormat("w={0};", safeMode.WMode);
+                    }
                     if (safeMode.WTimeout != TimeSpan.Zero) {
                         query.AppendFormat("wtimeout={0};", FormatTimeSpan(safeMode.WTimeout));
                     }

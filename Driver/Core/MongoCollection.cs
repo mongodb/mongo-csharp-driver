@@ -53,7 +53,7 @@ namespace MongoDB.Driver {
             ValidateCollectionName(settings.CollectionName);
             this.server = database.Server;
             this.database = database;
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.name = settings.CollectionName;
         }
         #endregion

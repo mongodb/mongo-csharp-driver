@@ -60,7 +60,7 @@ namespace MongoDB.Bson.IO {
         protected BsonWriter(
             BsonWriterSettings settings
         ) {
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.state = BsonWriterState.Initial;
         }
         #endregion

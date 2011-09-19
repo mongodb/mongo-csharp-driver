@@ -54,7 +54,7 @@ namespace MongoDB.Bson.IO {
         protected BsonReader(
             BsonReaderSettings settings
         ) {
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.state = BsonReaderState.Initial;
         }
         #endregion

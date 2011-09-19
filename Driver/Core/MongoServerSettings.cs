@@ -393,16 +393,29 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Freezes the settings to prevent any further changes to them.
+        /// Freezes the settings.
         /// </summary>
-        /// <returns>Itself.</returns>
+        /// <returns>The frozen settings.</returns>
         public MongoServerSettings Freeze() {
             if (!isFrozen) {
+                safeMode = safeMode.FrozenCopy();
                 frozenHashCode = GetHashCodeHelper();
                 frozenStringRepresentation = ToStringHelper();
                 isFrozen = true;
             }
             return this;
+        }
+
+        /// <summary>
+        /// Returns a frozen copy of the settings.
+        /// </summary>
+        /// <returns>A frozen copy of the settings.</returns>
+        public MongoServerSettings FrozenCopy() {
+            if (isFrozen) {
+                return this;
+            } else {
+                return Clone().Freeze();
+            }
         }
 
         /// <summary>

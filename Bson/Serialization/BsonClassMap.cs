@@ -385,7 +385,7 @@ namespace MongoDB.Bson.Serialization {
         /// <summary>
         /// Freezes the class map.
         /// </summary>
-        /// <returns>The class map.</returns>
+        /// <returns>The frozen class map.</returns>
         public BsonClassMap Freeze() {
             BsonSerializer.ConfigLock.EnterReadLock();
             try {

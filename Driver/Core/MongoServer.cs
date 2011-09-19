@@ -62,7 +62,7 @@ namespace MongoDB.Driver {
         public MongoServer(
             MongoServerSettings settings
         ) {
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.sequentialId = Interlocked.Increment(ref nextSequentialId);
             // Console.WriteLine("MongoServer[{0}]: {1}", sequentialId, settings);
 
@@ -587,11 +587,8 @@ namespace MongoDB.Driver {
             string databaseName
         ) {
             return new MongoDatabaseSettings(
-                databaseName,
-                settings.DefaultCredentials,
-                settings.GuidRepresentation,
-                settings.SafeMode,
-                settings.SlaveOk
+                this,
+                databaseName
             );
         }
 
@@ -746,7 +743,7 @@ namespace MongoDB.Driver {
         public virtual MongoDatabase GetDatabase(
             string databaseName
         ) {
-            var databaseSettings = CreateDatabaseSettings(databaseName);
+            var databaseSettings = new MongoDatabaseSettings(this, databaseName);
             return GetDatabase(databaseSettings);
         }
 
@@ -761,8 +758,9 @@ namespace MongoDB.Driver {
             string databaseName,
             MongoCredentials credentials
         ) {
-            var databaseSettings = CreateDatabaseSettings(databaseName);
-            databaseSettings.Credentials = credentials;
+            var databaseSettings = new MongoDatabaseSettings(this, databaseName) {
+                Credentials = credentials
+            };
             return GetDatabase(databaseSettings);
         }
 
@@ -779,9 +777,10 @@ namespace MongoDB.Driver {
             MongoCredentials credentials,
             SafeMode safeMode
         ) {
-            var databaseSettings = CreateDatabaseSettings(databaseName);
-            databaseSettings.Credentials = credentials;
-            databaseSettings.SafeMode = safeMode;
+            var databaseSettings = new MongoDatabaseSettings(this, databaseName) {
+                Credentials = credentials,
+                SafeMode = safeMode
+            };
             return GetDatabase(databaseSettings);
         }
 
@@ -796,8 +795,9 @@ namespace MongoDB.Driver {
             string databaseName,
             SafeMode safeMode
         ) {
-            var databaseSettings = CreateDatabaseSettings(databaseName);
-            databaseSettings.SafeMode = safeMode;
+            var databaseSettings = new MongoDatabaseSettings(this, databaseName) {
+                SafeMode = safeMode
+            };
             return GetDatabase(databaseSettings);
         }
 

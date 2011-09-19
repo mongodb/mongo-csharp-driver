@@ -132,5 +132,16 @@ namespace MongoDB.DriverUnitTests {
 
             Assert.Throws<InvalidOperationException>(() => { var s = settings.Server; });
         }
+
+        [Test]
+        public void TestFrozenCopy() {
+            var settings = new MongoServerSettings();
+            var frozenCopy = settings.FrozenCopy();
+            var secondFrozenCopy = frozenCopy.FrozenCopy();
+            Assert.AreNotSame(settings, frozenCopy);
+            Assert.AreSame(frozenCopy, secondFrozenCopy);
+            Assert.AreEqual(false, settings.IsFrozen);
+            Assert.AreEqual(true, frozenCopy.IsFrozen);
+        }
     }
 }
