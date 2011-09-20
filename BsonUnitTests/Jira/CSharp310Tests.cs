@@ -30,7 +30,9 @@ namespace MongoDB.BsonUnitTests.Jira {
     public class CSharp310Tests {
         private class C {
             public int Id;
+#pragma warning disable 0649
             public Guid G;
+#pragma warning restore 0649
         }
 
         private class EmptyGuidDefaultValueConvention : IDefaultValueConvention {
