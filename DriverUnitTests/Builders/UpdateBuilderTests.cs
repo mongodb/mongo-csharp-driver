@@ -187,6 +187,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestPullQueryBuilder() {
+            var update = Update.Pull(Query.GT("x", "abc"));
+            var expected = "{ \"$pull\" : { \"x\" : { \"$gt\" : \"abc\" } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestPullQuery() {
             var update = Update.Pull("name", Query.GT("x", "abc"));
             var expected = "{ \"$pull\" : { \"name\" : { \"x\" : { \"$gt\" : \"abc\" } } } }";
