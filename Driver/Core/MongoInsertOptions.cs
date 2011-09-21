@@ -27,6 +27,7 @@ namespace MongoDB.Driver {
     public class MongoInsertOptions {
         #region private fields
         private bool checkElementNames;
+        private InsertFlags flags;
         private SafeMode safeMode;
         #endregion
 
@@ -39,6 +40,7 @@ namespace MongoDB.Driver {
             MongoCollection collection
         ) {
             this.checkElementNames = true;
+            this.flags = InsertFlags.None;
             this.safeMode = collection.Settings.SafeMode;
         }
         #endregion
@@ -50,6 +52,14 @@ namespace MongoDB.Driver {
         public bool CheckElementNames {
             get { return checkElementNames; }
             set { checkElementNames = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the insert flags.
+        /// </summary>
+        public InsertFlags Flags {
+            get { return flags; }
+            set { flags = value; }
         }
 
         /// <summary>

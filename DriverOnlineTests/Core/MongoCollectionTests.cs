@@ -754,6 +754,38 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestInsertBatchContinueOnError() {
+            var collection = database["continueonerror"];
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetUnique(true));
+
+            var batch = new BsonDocument[] {
+                new BsonDocument("x", 1),
+                new BsonDocument("x", 1), // duplicate
+                new BsonDocument("x", 2),
+                new BsonDocument("x", 2), // duplicate
+                new BsonDocument("x", 3),
+                new BsonDocument("x", 3) // duplicate
+            };
+
+            // try the batch without ContinueOnError
+            try {
+                collection.InsertBatch(batch);
+            } catch (MongoSafeModeException) {
+                Assert.AreEqual(1, collection.Count());
+                Assert.AreEqual(1, collection.FindOne()["x"].AsInt32);
+            }
+
+            // try the batch again with ContinueOnError
+            try {
+                var options = new MongoInsertOptions(collection) { Flags = InsertFlags.ContinueOnError };
+                collection.InsertBatch(batch, options);
+            } catch (MongoSafeModeException) {
+                Assert.AreEqual(3, collection.Count());
+            }
+        }
+
+        [Test]
         public void TestIsCappedFalse() {
             var collection = database["notcappedcollection"];
             collection.Drop();

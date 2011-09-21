@@ -1001,7 +1001,7 @@ namespace MongoDB.Driver {
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames)) {
+                using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames, options.Flags)) {
                     message.WriteToBuffer(); // must be called before AddDocument
 
                     foreach (var document in documents) {
