@@ -338,6 +338,146 @@ namespace MongoDB.BsonUnitTests {
             var document = BsonDocument.Parse(json);
         }
 
+        [Test]
+        public void TestToDictionaryEmpty() {
+            var document = new BsonDocument();
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(0, dictionary.Count);
+        }
+
+        [Test]
+        public void TestToDictionaryNestedArray() {
+            var document = new BsonDocument {
+                { "x", 1 },
+                { "array", new BsonArray { 1, "abc" } }
+            };
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(2, dictionary.Count);
+            Assert.IsInstanceOf<int>(dictionary["x"]);
+            Assert.AreEqual(1, dictionary["x"]);
+            Assert.IsInstanceOf<object[]>(dictionary["array"]);
+            var nested = (object[]) dictionary["array"];
+            Assert.IsInstanceOf<int>(nested[0]);
+            Assert.IsInstanceOf<string>(nested[1]);
+            Assert.AreEqual(1, nested[0]);
+            Assert.AreEqual("abc", nested[1]);
+        }
+
+        [Test]
+        public void TestToDictionaryNestedDocument() {
+            var document = new BsonDocument {
+                { "x", 1 },
+                { "nested", new BsonDocument { { "a", 1 }, { "b", 2 } } }
+            };
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(2, dictionary.Count);
+            Assert.IsInstanceOf<int>(dictionary["x"]);
+            Assert.AreEqual(1, dictionary["x"]);
+            Assert.IsInstanceOf<Dictionary<string, object>>(dictionary["nested"]);
+            var nested = (Dictionary<string, object>) dictionary["nested"];
+            Assert.IsInstanceOf<int>(nested["a"]);
+            Assert.IsInstanceOf<int>(nested["b"]);
+            Assert.AreEqual(1, nested["a"]);
+            Assert.AreEqual(2, nested["b"]);
+        }
+
+        [Test]
+        public void TestToDictionaryOneInt32() {
+            var document = new BsonDocument("x", 1);
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<int>(dictionary["x"]);
+            Assert.AreEqual(1, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToDictionaryOneInt64() {
+            var document = new BsonDocument("x", 1L);
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<long>(dictionary["x"]);
+            Assert.AreEqual(1L, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToDictionaryOneString() {
+            var document = new BsonDocument("x", "abc");
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<string>(dictionary["x"]);
+            Assert.AreEqual("abc", dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToHashtableEmpty() {
+            var document = new BsonDocument();
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(0, hashtable.Count);
+        }
+
+        [Test]
+        public void TestToHashtableNestedArray() {
+            var document = new BsonDocument {
+                { "x", 1 },
+                { "array", new BsonArray { 1, "abc" } }
+            };
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(2, hashtable.Count);
+            Assert.IsInstanceOf<int>(hashtable["x"]);
+            Assert.AreEqual(1, hashtable["x"]);
+            Assert.IsInstanceOf<object[]>(hashtable["array"]);
+            var nested = (object[]) hashtable["array"];
+            Assert.IsInstanceOf<int>(nested[0]);
+            Assert.IsInstanceOf<string>(nested[1]);
+            Assert.AreEqual(1, nested[0]);
+            Assert.AreEqual("abc", nested[1]);
+        }
+
+        [Test]
+        public void TestToHashtableNestedDocument() {
+            var document = new BsonDocument {
+                { "x", 1 },
+                { "nested", new BsonDocument { { "a", 1 }, { "b", 2 } } }
+            };
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(2, hashtable.Count);
+            Assert.IsInstanceOf<int>(hashtable["x"]);
+            Assert.AreEqual(1, hashtable["x"]);
+            Assert.IsInstanceOf<Hashtable>(hashtable["nested"]);
+            var nested = (Hashtable) hashtable["nested"];
+            Assert.IsInstanceOf<int>(nested["a"]);
+            Assert.IsInstanceOf<int>(nested["b"]);
+            Assert.AreEqual(1, nested["a"]);
+            Assert.AreEqual(2, nested["b"]);
+        }
+
+        [Test]
+        public void TestToHashtableOneInt32() {
+            var document = new BsonDocument("x", 1);
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(1, hashtable.Count);
+            Assert.IsInstanceOf<int>(hashtable["x"]);
+            Assert.AreEqual(1, hashtable["x"]);
+        }
+
+        [Test]
+        public void TestToHashtableOneInt64() {
+            var document = new BsonDocument("x", 1L);
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(1, hashtable.Count);
+            Assert.IsInstanceOf<long>(hashtable["x"]);
+            Assert.AreEqual(1L, hashtable["x"]);
+        }
+
+        [Test]
+        public void TestToHashtableOneString() {
+            var document = new BsonDocument("x", "abc");
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(1, hashtable.Count);
+            Assert.IsInstanceOf<string>(hashtable["x"]);
+            Assert.AreEqual("abc", hashtable["x"]);
+        }
+
         private void AssertAreEqual(
             string expected,
             byte[] actual

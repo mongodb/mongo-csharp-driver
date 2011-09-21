@@ -1028,6 +1028,30 @@ namespace MongoDB.Bson {
         }
 
         /// <summary>
+        /// Converts the BsonDocument to a Dictionary&lt;string, object&gt;.
+        /// </summary>
+        /// <returns>A dictionary.</returns>
+        public Dictionary<string, object> ToDictionary() {
+            var dictionary = new Dictionary<string, object>(elements.Count);
+            foreach (var element in elements) {
+                dictionary.Add(element.Name, ToDictionaryHelper(element.Value));
+            }
+            return dictionary;
+        }
+
+        /// <summary>
+        /// Converts the BsonDocument to a Hashtable.
+        /// </summary>
+        /// <returns>A hashtable.</returns>
+        public Hashtable ToHashtable() {
+            var hashtable = new Hashtable(elements.Count);
+            foreach (var element in elements) {
+                hashtable.Add(element.Name, ToHashtableHelper(element.Value));
+            }
+            return hashtable;
+        }
+
+        /// <summary>
         /// Returns a string representation of the document.
         /// </summary>
         /// <returns>A string representation of the document.</returns>
@@ -1130,6 +1154,40 @@ namespace MongoDB.Bson {
                 if (!indexes.ContainsKey(element.Name)) {
                     indexes.Add(element.Name, index);
                 }
+            }
+        }
+
+        private object ToDictionaryHelper(
+            BsonValue value
+        ) {
+            switch (value.BsonType) {
+                case BsonType.Array:
+                    var array = new object[value.AsBsonArray.Count];
+                    value.AsBsonArray.CopyTo(array, 0);
+                    return array;
+
+                case BsonType.Document:
+                    return value.AsBsonDocument.ToDictionary();
+
+                default:
+                    return value.RawValue;
+            }
+        }
+
+        private object ToHashtableHelper(
+            BsonValue value
+        ) {
+            switch (value.BsonType) {
+                case BsonType.Array:
+                    var array = new object[value.AsBsonArray.Count];
+                    value.AsBsonArray.CopyTo(array, 0);
+                    return array;
+
+                case BsonType.Document:
+                    return value.AsBsonDocument.ToHashtable();
+
+                default:
+                    return value.RawValue;
             }
         }
         #endregion
