@@ -68,9 +68,23 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutReplaceSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("name", true));
+            var expected = "{ \"out\" : { \"replace\" : \"name\", \"sharded\" : true } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestOutReplaceWithDatabase() {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("database", "name"));
             var expected = "{ \"out\" : { \"replace\" : \"name\", \"db\" : \"database\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutReplaceWithDatabaseSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("database", "name", true));
+            var expected = "{ \"out\" : { \"replace\" : \"name\", \"db\" : \"database\", \"sharded\" : true } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -82,9 +96,23 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutMergeSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("name", true));
+            var expected = "{ \"out\" : { \"merge\" : \"name\", \"sharded\" : true } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestOutMergeWithDatabase() {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("database", "name"));
             var expected = "{ \"out\" : { \"merge\" : \"name\", \"db\" : \"database\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutMergeWithDatabaseSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("database", "name", true));
+            var expected = "{ \"out\" : { \"merge\" : \"name\", \"db\" : \"database\", \"sharded\" : true } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -96,9 +124,23 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutReduceSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("name", true));
+            var expected = "{ \"out\" : { \"reduce\" : \"name\", \"sharded\" : true } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestOutReduceWithDatabase() {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("database", "name"));
             var expected = "{ \"out\" : { \"reduce\" : \"name\", \"db\" : \"database\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutReduceWithDatabaseSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("database", "name", true));
+            var expected = "{ \"out\" : { \"reduce\" : \"name\", \"db\" : \"database\", \"sharded\" : true } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
