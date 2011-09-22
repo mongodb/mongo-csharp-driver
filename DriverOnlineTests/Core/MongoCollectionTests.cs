@@ -1111,6 +1111,33 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestUpdate() {
+            collection.Drop();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
+            var document = collection.FindOne();
+            Assert.AreEqual(2, document["x"].AsInt32);
+        }
+
+        [Test]
+        public void TestUpdateEmptyQueryDocument() {
+            collection.Drop();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Update(new QueryDocument(), Update.Set("x", 2));
+            var document = collection.FindOne();
+            Assert.AreEqual(2, document["x"].AsInt32);
+        }
+
+        [Test]
+        public void TestUpdateNullQuery() {
+            collection.Drop();
+            collection.Insert(new BsonDocument("x", 1));
+            collection.Update(Query.Null, Update.Set("x", 2));
+            var document = collection.FindOne();
+            Assert.AreEqual(2, document["x"].AsInt32);
+        }
+
+        [Test]
         public void TestValidate() {
             // ensure collection exists
             collection.RemoveAll();
