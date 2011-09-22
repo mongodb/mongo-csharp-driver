@@ -40,6 +40,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestJSMode() {
+            var options = MapReduceOptions.SetJSMode(true);
+            var expected = "{ \"jsMode\" : true }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestKeepTemp() {
             var options = MapReduceOptions.SetKeepTemp(true);
             var expected = "{ \"keeptemp\" : true }";
@@ -190,6 +197,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         public void TestQueryAndFinalize() {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetFinalize("code");
             var expected = "{ \"query\" : { \"x\" : 1 }, \"finalize\" : { \"$code\" : \"code\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestQueryAndJSMode() {
+            var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetJSMode(true);
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"jsMode\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 

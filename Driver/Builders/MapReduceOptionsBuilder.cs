@@ -380,6 +380,17 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Sets whether to use jsMode for the map reduce operation.
+        /// </summary>
+        /// <param name="value">Whether to use jsMode.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static MapReduceOptionsBuilder SetJSMode(
+            bool value
+        ) {
+            return new MapReduceOptionsBuilder().SetJSMode(value);
+        }
+
+        /// <summary>
         /// Sets whether to keep the temp collection (obsolete in 1.8.0+).
         /// </summary>
         /// <param name="value">Whether to keep the temp collection.</param>
@@ -497,6 +508,18 @@ namespace MongoDB.Driver.Builders {
             BsonJavaScript finalize
         ) {
             document["finalize"] = finalize;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether to use jsMode for the map reduce operation.
+        /// </summary>
+        /// <param name="value">Whether to use jsMode.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public MapReduceOptionsBuilder SetJSMode(
+            bool value
+        ) {
+            document["jsMode"] = value;
             return this;
         }
 
