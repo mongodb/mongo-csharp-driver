@@ -506,6 +506,19 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Tests that the value of the named element is within a polygon (see $within and $polygon).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="points">An array of points that defines the polygon (the second dimension must be of length 2).</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList WithinPolygon(
+            string name,
+            double[,] points
+        ) {
+            return new QueryConditionList(name).WithinPolygon(points);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is within a rectangle (see $within and $box).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
@@ -928,6 +941,27 @@ namespace MongoDB.Driver.Builders {
         ) {
             var shape = spherical ? "$centerSphere" : "$center";
             conditions.Add("$within", new BsonDocument(shape, new BsonArray { new BsonArray { x, y }, radius }));
+            return this;
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is within a polygon (see $within and $polygon).
+        /// </summary>
+        /// <param name="points">An array of points that defines the polygon (the second dimension must be of length 2).</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList WithinPolygon(
+            double[,] points
+        ) {
+            if (points.GetLength(1) != 2) {
+                var message = string.Format("The second dimension of the points array must be of length 2, not {0}.", points.GetLength(1));
+                throw new ArgumentOutOfRangeException("points", message);
+            }
+
+            var arrayOfPoints = new BsonArray(points.GetLength(0));
+            for (var i = 0; i < points.GetLength(0); i++) {
+                arrayOfPoints.Add(new BsonArray(2) { points[i, 0], points[i, 1] });
+            }
+            conditions.Add("$within", new BsonDocument("$polygon", arrayOfPoints));
             return this;
         }
 
