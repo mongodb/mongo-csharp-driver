@@ -47,6 +47,18 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Initializes a new instance of the MongoGridFSSettings class.
         /// </summary>
+        /// <param name="database">The database from which to inherit some of the settings.</param>
+        public MongoGridFSSettings(
+            MongoDatabase database
+        ) {
+            this.chunkSize = MongoGridFSSettings.Defaults.ChunkSize;
+            this.root = MongoGridFSSettings.Defaults.Root;
+            this.SafeMode = database.Settings.SafeMode;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MongoGridFSSettings class.
+        /// </summary>
         /// <param name="chunkSize">The chunk size.</param>
         /// <param name="root">The root collection name.</param>
         /// <param name="safeMode">The safe mode.</param>

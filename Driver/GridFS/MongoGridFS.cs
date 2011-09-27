@@ -43,7 +43,7 @@ namespace MongoDB.Driver.GridFS {
         public MongoGridFS(
             MongoDatabase database
         )
-            : this(database, MongoGridFSSettings.Defaults) {
+            : this(database, new MongoGridFSSettings(database)) {
         }
 
         /// <summary>
