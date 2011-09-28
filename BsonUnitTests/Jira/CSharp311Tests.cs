@@ -40,6 +40,30 @@ namespace MongoDB.BsonUnitTests.Jira {
         public Dictionary<string, object> D;
     }
 
+    public class C4 {
+        [BsonRepresentation(BsonType.Array)]
+        public Dictionary<string, object> D;
+    }
+
+    public class D1 {
+        public Hashtable H;
+    }
+
+    public class D2 {
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
+        public Hashtable H;
+    }
+
+    public class D3 {
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+        public Hashtable H;
+    }
+
+    public class D4 {
+        [BsonRepresentation(BsonType.Array)]
+        public Hashtable H;
+    }
+
     [TestFixture]
     public class CSharp311Tests {
         [Test]
@@ -76,6 +100,66 @@ namespace MongoDB.BsonUnitTests.Jira {
             var r = BsonSerializer.Deserialize<C3>(json);
             Assert.AreEqual(1, r.D.Count);
             Assert.AreEqual(1, r.D["x"]);
+        }
+
+        [Test]
+        public void TestDictionarySerializedAsBsonArray() {
+            var c = new C4 { D = new Dictionary<string, object> { { "x", 1 } } };
+            var json = c.ToJson();
+            var expected = "{ 'D' : [['x', 1]] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var r = BsonSerializer.Deserialize<C4>(json);
+            Assert.AreEqual(1, r.D.Count);
+            Assert.AreEqual(1, r.D["x"]);
+        }
+
+        [Test]
+        public void TestHashtableSerializedAsDocument() {
+            var d = new D1 { H = new Hashtable { { "x", 1 } } };
+            var json = d.ToJson();
+            var expected = "{ 'H' : { 'x' : 1 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var r = BsonSerializer.Deserialize<D1>(json);
+            Assert.AreEqual(1, r.H.Count);
+            Assert.AreEqual(1, r.H["x"]);
+        }
+
+        [Test]
+        public void TestHashtableSerializedAsArrayOfArrays() {
+            var d = new D2 { H = new Hashtable { { "x", 1 } } };
+            var json = d.ToJson();
+            var expected = "{ 'H' : [['x', 1]] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var r = BsonSerializer.Deserialize<D2>(json);
+            Assert.AreEqual(1, r.H.Count);
+            Assert.AreEqual(1, r.H["x"]);
+        }
+
+        [Test]
+        public void TestHashtableSerializedAsArrayOfDocuments() {
+            var d = new D3 { H = new Hashtable { { "x", 1 } } };
+            var json = d.ToJson();
+            var expected = "{ 'H' : [{ 'k' : 'x', 'v' : 1 }] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var r = BsonSerializer.Deserialize<D3>(json);
+            Assert.AreEqual(1, r.H.Count);
+            Assert.AreEqual(1, r.H["x"]);
+        }
+
+        [Test]
+        public void TestHashtableSerializedAsBsonArray() {
+            var d = new D4 { H = new Hashtable { { "x", 1 } } };
+            var json = d.ToJson();
+            var expected = "{ 'H' : [['x', 1]] }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var r = BsonSerializer.Deserialize<D4>(json);
+            Assert.AreEqual(1, r.H.Count);
+            Assert.AreEqual(1, r.H["x"]);
         }
     }
 }
