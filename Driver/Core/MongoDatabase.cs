@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -29,6 +30,10 @@ namespace MongoDB.Driver {
     /// Represents a MongoDB database and the settings used to access it. This class is thread-safe.
     /// </summary>
     public class MongoDatabase {
+        #region private static fields
+        private static HashSet<char> invalidDatabaseNameChars;
+        #endregion
+
         #region private fields
         private object databaseLock = new object();
         private MongoServer server;
@@ -37,6 +42,15 @@ namespace MongoDB.Driver {
         private Dictionary<MongoCollectionSettings, MongoCollection> collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
         private MongoCollection<BsonDocument> commandCollection;
         private MongoGridFS gridFS;
+        #endregion
+
+        #region static constructor
+        static MongoDatabase() {
+            // MongoDB itself prohibits some characters and the rest are prohibited by the Windows restrictions on filenames
+            invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
+            foreach (var c in Path.GetInvalidPathChars()) { invalidDatabaseNameChars.Add(c); }
+            foreach (var c in Path.GetInvalidFileNameChars()) { invalidDatabaseNameChars.Add(c); }
+        }
         #endregion
 
         #region constructors
@@ -899,11 +913,17 @@ namespace MongoDB.Driver {
             if (name == "") {
                 throw new ArgumentException("Database name is empty.");
             }
-            if (name.IndexOfAny(new char[] { '\0', ' ', '.', '$', '/', '\\' }) != -1) {
-                throw new ArgumentException("Database name cannot contain the following special characters: null, space, period, $, / or \\.");
+            foreach (var c in name) {
+                if (invalidDatabaseNameChars.Contains(c)) {
+                    var bytes = new byte[] { (byte) ((int) c >> 8), (byte) ((int) c & 255) };
+                    var hex = BsonUtils.ToHexString(bytes);
+                    var message = string.Format("Database name '{0}' is not valid. The character 0x{1} '{2}' is not allowed in database names.", name, hex, c);
+                    throw new ArgumentException(message);
+                }
             }
             if (Encoding.UTF8.GetBytes(name).Length > 64) {
-                throw new ArgumentException("Database name cannot exceed 64 bytes (after encoding to UTF8).");
+                var message = string.Format("Database name '{0}' exceeds 64 bytes (after encoding to UTF8).", name);
+                throw new ArgumentException(message);
             }
         }
         #endregion
