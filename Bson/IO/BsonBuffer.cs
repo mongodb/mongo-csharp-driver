@@ -540,8 +540,44 @@ namespace MongoDB.Bson.IO {
         /// Skips over a CString in the buffer (advances the position).
         /// </summary>
         public void SkipCString() {
-            // TODO: optimize this method
-            ReadCString();
+            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+
+            // optimize for the case where the null terminator is on the same chunk
+            int partialCount;
+            if (chunkIndex < chunks.Count - 1) {
+                partialCount = chunkSize - chunkOffset; // remaining part of any chunk but the last
+            } else {
+                partialCount = length - position; // populated part of last chunk
+            }
+            var index = Array.IndexOf<byte>(chunk, 0, chunkOffset, partialCount);
+            if (index != -1) {
+                var stringLength = index - chunkOffset;
+                Position += stringLength + 1;
+                return;
+            }
+
+            // the null terminator is not on the same chunk so keep looking starting with the next chunk
+            var localChunkIndex = chunkIndex + 1;
+            var localPosition = localChunkIndex * chunkSize;
+            while (localPosition < length) {
+                var localChunk = chunks[localChunkIndex];
+                if (localChunkIndex < chunks.Count - 1) {
+                    partialCount = chunkSize; // all of any chunk but the last
+                } else {
+                    partialCount = length - localPosition; // populated part of last chunk
+                }
+                index = Array.IndexOf<byte>(localChunk, 0, 0, partialCount);
+                if (index != -1) {
+                    localPosition += index;
+                    var stringLength = localPosition - position;
+                    Position += stringLength + 1;
+                    return;
+                }
+                localChunkIndex++;
+                localPosition += chunkSize;
+            }
+
+            throw new FileFormatException("String is missing null terminator.");
         }
 
         /// <summary>
