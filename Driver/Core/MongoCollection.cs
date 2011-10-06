@@ -547,6 +547,45 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="options">The options for the geoHaystack search (null if none).</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult<TDocument> GeoHaystackSearchAs<TDocument>(
+            double x,
+            double y,
+            IMongoGeoHaystackSearchOptions options
+        ) {
+            return (GeoHaystackSearchResult<TDocument>) GeoHaystackSearchAs(typeof(TDocument), x, y, options);
+        }
+
+        /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="options">The options for the geoHaystack search (null if none).</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult GeoHaystackSearchAs(
+            Type documentType,
+            double x,
+            double y,
+            IMongoGeoHaystackSearchOptions options
+        ) {
+            var command = new CommandDocument {
+                { "geoSearch", name },
+                { "near", new BsonArray { x, y } }
+            };
+            command.Merge(options.ToBsonDocument());
+            var geoHaystackSearchResultDefinition = typeof(GeoHaystackSearchResult<>);
+            var geoHaystackSearchResultType = geoHaystackSearchResultDefinition.MakeGenericType(documentType);
+            return (GeoHaystackSearchResult) database.RunCommandAs(geoHaystackSearchResultType, command);
+        }
+
+        /// <summary>
         /// Runs a GeoNear command on this collection.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
@@ -1585,6 +1624,21 @@ namespace MongoDB.Driver {
             BsonValue id
         ) {
             return FindOneByIdAs<TDefaultDocument>(id);
+        }
+
+        /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="options">The options for the geoHaystack search (null if none).</param>
+        /// <returns>A <see cref="GeoHaystackSearchResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult<TDefaultDocument> GeoHaystackSearch(
+            double x,
+            double y,
+            IMongoGeoHaystackSearchOptions options
+        ) {
+            return GeoHaystackSearchAs<TDefaultDocument>(x, y, options);
         }
 
         /// <summary>

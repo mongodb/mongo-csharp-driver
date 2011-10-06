@@ -50,6 +50,17 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Sets the bucket size for geospatial haystack indexes.
+        /// </summary>
+        /// <param name="value">The bucket size.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetBucketSize(
+            double value
+        ) {
+            return new IndexOptionsBuilder().SetBucketSize(value);
+        }
+
+        /// <summary>
         /// Sets whether duplicates should be dropped.
         /// </summary>
         /// <param name="value">Whether duplicates should be dropped.</param>
@@ -136,6 +147,18 @@ namespace MongoDB.Driver.Builders {
             bool value
         ) {
             document["background"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the bucket size for geospatial haystack indexes.
+        /// </summary>
+        /// <param name="value">The bucket size.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetBucketSize(
+            double value
+        ) {
+            document["bucketSize"] = value;
             return this;
         }
 

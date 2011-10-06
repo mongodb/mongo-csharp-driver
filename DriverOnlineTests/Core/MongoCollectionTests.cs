@@ -516,6 +516,31 @@ namespace MongoDB.DriverOnlineTests {
 #pragma warning restore
 
         [Test]
+        public void TestGeoHaystackSearch() {
+            if (collection.Exists()) { collection.Drop(); }
+            collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
+            collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
+            collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+            collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
+
+            var options = GeoHaystackSearchOptions
+                .SetLimit(30)
+                .SetMaxDistance(6)
+                .SetQuery("Type", "restaurant");
+            var result = collection.GeoHaystackSearchAs<Place>(33, 33, options);
+            Assert.IsTrue(result.Ok);
+            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+            Assert.AreEqual(2, result.Stats.BTreeMatches);
+            Assert.AreEqual(2, result.Stats.NumberOfHits);
+            Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
+            Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
+            Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
+            Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
+            Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
+            Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
+        }
+
+        [Test]
         public void TestGeoNear() {
             if (collection.Exists()) { collection.Drop(); }
             collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });

@@ -82,6 +82,7 @@
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\CollectionOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
+    <Compile Include="Builders\GeoHaystackSearchOptionsBuilder.cs" />
     <Compile Include="Builders\GeoNearOptionsBuilder.cs" />
     <Compile Include="Builders\GroupByBuilder.cs" />
     <Compile Include="Builders\IndexKeysBuilder.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Core\CommandResults\CommandResult.cs" />
     <Compile Include="Core\CommandResults\DatabaseStatsResult.cs" />
     <Compile Include="Core\CommandResults\FindAndModifyResult.cs" />
+    <Compile Include="Core\CommandResults\GeoHaystackSearchResult.cs" />
     <Compile Include="Core\CommandResults\GeoNearResult.cs" />
     <Compile Include="Core\CommandResults\GetLastErrorResult.cs" />
     <Compile Include="Core\CommandResults\SafeModeResult.cs" />
@@ -104,6 +106,7 @@
     <Compile Include="Core\Interfaces\IMongoCollectionOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoCommand.cs" />
     <Compile Include="Core\Interfaces\IMongoFields.cs" />
+    <Compile Include="Core\Interfaces\IMongoGeoHaystackSearchOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoGeoNearOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoGroupBy.cs" />
     <Compile Include="Core\Interfaces\IMongoIndexKeys.cs" />
@@ -129,6 +132,8 @@
     <Compile Include="Core\Wrappers\CommandWrapper.cs" />
     <Compile Include="Core\Wrappers\FieldsDocument.cs" />
     <Compile Include="Core\Wrappers\FieldsWrapper.cs" />
+    <Compile Include="Core\Wrappers\GeoHaystackSearchOptionsDocument.cs" />
+    <Compile Include="Core\Wrappers\GeoHaystackSearchOptionsWrapper.cs" />
     <Compile Include="Core\Wrappers\GeoNearOptionsDocument.cs" />
     <Compile Include="Core\Wrappers\GeoNearOptionsWrapper.cs" />
     <Compile Include="Core\Wrappers\GroupByDocument.cs" />
