@@ -692,6 +692,28 @@ namespace MongoDB.Driver {
         // TODO: mongo shell has GetReplicationInfo at the database level?
 
         /// <summary>
+        /// Gets one or more documents from the system.profile collection.
+        /// </summary>
+        /// <param name="query">A query to select which documents to return.</param>
+        /// <returns>A cursor.</returns>
+        public MongoCursor<SystemProfileInfo> GetProfilingInfo(
+            IMongoQuery query
+        ) {
+            var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { SlaveOk = false };
+            var collection = GetCollection<SystemProfileInfo>(collectionSettings);
+            return collection.Find(query);
+        }
+
+        /// <summary>
+        /// Gets the current profiling level.
+        /// </summary>
+        /// <returns>The profiling level.</returns>
+        public GetProfilingLevelResult GetProfilingLevel() {
+            var command = new CommandDocument("profile", -1);
+            return RunCommandAs<GetProfilingLevelResult>(command);
+        }
+
+        /// <summary>
         /// Gets a sister database on the same server.
         /// </summary>
         /// <param name="databaseName">The name of the sister database.</param>
@@ -892,6 +914,34 @@ namespace MongoDB.Driver {
         ) {
             var command = new CommandDocument(commandName, true);
             return RunCommandAs(commandResultType, command);
+        }
+
+        /// <summary>
+        /// Sets the level of profile information to write.
+        /// </summary>
+        /// <param name="level">The profiling level.</param>
+        /// <returns></returns>
+        public virtual CommandResult SetProfilingLevel(
+            ProfilingLevel level
+        ) {
+            return SetProfilingLevel(level, TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Sets the level of profile information to write.
+        /// </summary>
+        /// <param name="level">The profiling level.</param>
+        /// <param name="slow">The threshold that defines a slow query.</param>
+        /// <returns></returns>
+        public virtual CommandResult SetProfilingLevel(
+            ProfilingLevel level,
+            TimeSpan slow
+        ) {
+            var command = new CommandDocument {
+                { "profile", (int) level },
+                { "slowms", slow.TotalMilliseconds, slow != TimeSpan.Zero } // optional
+            };
+            return RunCommand(command);
         }
 
         /// <summary>
