@@ -113,24 +113,59 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestCreateIndex() {
             collection.DropAllIndexes();
-            var indexes = collection.GetIndexes().ToArray();
-            Assert.AreEqual(1, indexes.Length);
-            Assert.AreEqual("_id_", indexes[0]["name"].AsString);
+            var indexes = collection.GetIndexes();
+            Assert.AreEqual(1, indexes.Count);
+            Assert.AreEqual(false, indexes[0].DroppedDups);
+            Assert.AreEqual(false, indexes[0].IsBackground);
+            Assert.AreEqual(false, indexes[0].IsSparse);
+            Assert.AreEqual(false, indexes[0].IsUnique);
+            Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
+            Assert.AreEqual("_id_", indexes[0].Name);
+            Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
+            Assert.AreEqual(1, indexes[0].Version);
 
             collection.DropAllIndexes();
             collection.CreateIndex("x");
-            indexes = collection.GetIndexes().ToArray();
-            Assert.AreEqual(2, indexes.Length);
-            Assert.AreEqual("_id_", indexes[0]["name"].AsString);
-            Assert.AreEqual("x_1", indexes[1]["name"].AsString);
+            indexes = collection.GetIndexes();
+            Assert.AreEqual(2, indexes.Count);
+            Assert.AreEqual(false, indexes[0].DroppedDups);
+            Assert.AreEqual(false, indexes[0].IsBackground);
+            Assert.AreEqual(false, indexes[0].IsSparse);
+            Assert.AreEqual(false, indexes[0].IsUnique);
+            Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
+            Assert.AreEqual("_id_", indexes[0].Name);
+            Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
+            Assert.AreEqual(1, indexes[0].Version);
+            Assert.AreEqual(false, indexes[1].DroppedDups);
+            Assert.AreEqual(false, indexes[1].IsBackground);
+            Assert.AreEqual(false, indexes[1].IsSparse);
+            Assert.AreEqual(false, indexes[1].IsUnique);
+            Assert.AreEqual(new BsonDocument("x", 1), indexes[1].Key);
+            Assert.AreEqual("x_1", indexes[1].Name);
+            Assert.AreEqual("onlinetests.testcollection", indexes[1].Namespace);
+            Assert.AreEqual(1, indexes[1].Version);
 
             collection.DropAllIndexes();
-            collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), IndexOptions.SetUnique(true));
-            indexes = collection.GetIndexes().ToArray();
-            Assert.AreEqual(2, indexes.Length);
-            Assert.AreEqual("_id_", indexes[0]["name"].AsString);
-            Assert.AreEqual("x_1_y_-1", indexes[1]["name"].AsString);
-            Assert.AreEqual(true, indexes[1]["unique"].ToBoolean());
+            var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
+            collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
+            indexes = collection.GetIndexes();
+            Assert.AreEqual(2, indexes.Count);
+            Assert.AreEqual(false, indexes[0].DroppedDups);
+            Assert.AreEqual(false, indexes[0].IsBackground);
+            Assert.AreEqual(false, indexes[0].IsSparse);
+            Assert.AreEqual(false, indexes[0].IsUnique);
+            Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
+            Assert.AreEqual("_id_", indexes[0].Name);
+            Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
+            Assert.AreEqual(1, indexes[0].Version);
+            Assert.AreEqual(true, indexes[1].DroppedDups);
+            Assert.AreEqual(true, indexes[1].IsBackground);
+            Assert.AreEqual(true, indexes[1].IsSparse);
+            Assert.AreEqual(true, indexes[1].IsUnique);
+            Assert.AreEqual(new BsonDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
+            Assert.AreEqual("x_1_y_-1", indexes[1].Name);
+            Assert.AreEqual("onlinetests.testcollection", indexes[1].Namespace);
+            Assert.AreEqual(1, indexes[1].Version);
         }
 
         [Test]
@@ -705,9 +740,10 @@ namespace MongoDB.DriverOnlineTests {
         [Test]
         public void TestGetIndexes() {
             collection.DropAllIndexes();
-            var indexes = collection.GetIndexes().ToArray();
-            Assert.AreEqual(1, indexes.Length);
-            Assert.AreEqual("_id_", indexes[0]["name"].AsString);
+            var indexes = collection.GetIndexes();
+            Assert.AreEqual(1, indexes.Count);
+            Assert.AreEqual("_id_", indexes[0].Name);
+			// see additional tests in TestCreateIndex
         }
 
         [Test]

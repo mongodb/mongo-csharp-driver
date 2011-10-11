@@ -683,10 +683,10 @@ namespace MongoDB.Driver {
         /// Gets the indexes for this collection.
         /// </summary>
         /// <returns>A list of BsonDocuments that describe the indexes.</returns>
-        public virtual IEnumerable<BsonDocument> GetIndexes() {
+        public virtual GetIndexesResult GetIndexes() {
             var indexes = database.GetCollection("system.indexes");
             var query = Query.EQ("ns", FullName);
-            return indexes.Find(query).ToList(); // force query to execute before returning
+            return new GetIndexesResult(indexes.Find(query).ToArray()); // ToArray forces execution of the query
         }
 
         /// <summary>
@@ -704,10 +704,8 @@ namespace MongoDB.Driver {
         /// <returns>The total data size.</returns>
         public virtual long GetTotalDataSize() {
             var totalSize = GetStats().DataSize;
-            var indexes = GetIndexes();
-            foreach (var index in indexes) {
-                var indexName = index["name"].AsString;
-                var indexCollectionName = string.Format("{0}.${1}", name, indexName);
+            foreach (var index in GetIndexes()) {
+                var indexCollectionName = string.Format("{0}.${1}", name, index.Name);
                 var indexCollection = database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.GetStats().DataSize;
             }
@@ -720,10 +718,8 @@ namespace MongoDB.Driver {
         /// <returns>The total storage size.</returns>
         public virtual long GetTotalStorageSize() {
             var totalSize = GetStats().StorageSize;
-            var indexes = GetIndexes();
-            foreach (var index in indexes) {
-                var indexName = index["name"].AsString;
-                var indexCollectionName = string.Format("{0}.${1}", name, indexName);
+            foreach (var index in GetIndexes()) {
+                var indexCollectionName = string.Format("{0}.${1}", name, index.Name);
                 var indexCollection = database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.GetStats().StorageSize;
             }
