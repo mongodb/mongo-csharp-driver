@@ -192,6 +192,13 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Gets the raw BSON document containing the index information.
+        /// </summary>
+        public BsonDocument RawDocument {
+            get { return document; }
+        }
+
+        /// <summary>
         /// Gets the version of the index.
         /// </summary>
         public int Version {
