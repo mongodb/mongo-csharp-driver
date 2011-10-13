@@ -132,6 +132,7 @@
     <Compile Include="Jira\CSharp293Tests.cs" />
     <Compile Include="Jira\CSharp311Tests.cs" />
     <Compile Include="Jira\CSharp313Tests.cs" />
+    <Compile Include="Jira\CSharp338Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="IO\JsonWriterTests.cs" />
     <Compile Include="ObjectModel\BsonObjectIdTests.cs" />
     <Compile Include="ObjectModel\BsonTypeMapperTests.cs" />
+    <Compile Include="ObjectModel\BsonValueEqualsTests.cs" />
     <Compile Include="ObjectModel\BsonValueIConvertibleTests.cs" />
     <Compile Include="ObjectModel\BsonValueTests.cs" />
     <Compile Include="ObjectModel\ObjectIdTests.cs" />

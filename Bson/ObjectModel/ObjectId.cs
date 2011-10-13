@@ -189,7 +189,7 @@ namespace MongoDB.Bson {
             ObjectId lhs,
             ObjectId rhs
         ) {
-            return !lhs.Equals(rhs);
+            return !(lhs == rhs);
         }
 
         /// <summary>

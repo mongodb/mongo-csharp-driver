@@ -65,6 +65,33 @@ namespace MongoDB.DriverUnitTests.GridFS {
         }
 
         [Test]
+        public void TestEquals() {
+            var a = new MongoGridFSSettings(123, "root", SafeMode.True);
+            var b = new MongoGridFSSettings(123, "root", SafeMode.True);;
+            var c = new MongoGridFSSettings(345, "root", SafeMode.True);
+            var n = (SafeMode) null;
+
+            Assert.IsTrue(object.Equals(a, b));
+            Assert.IsFalse(object.Equals(a, c));
+            Assert.IsFalse(a.Equals(n));
+            Assert.IsFalse(a.Equals(null));
+
+            Assert.IsTrue(a == b);
+            Assert.IsFalse(a == c);
+            Assert.IsFalse(a == null);
+            Assert.IsFalse(null == a);
+            Assert.IsTrue(n == null);
+            Assert.IsTrue(null == n);
+
+            Assert.IsFalse(a != b);
+            Assert.IsTrue(a != c);
+            Assert.IsTrue(a != null);
+            Assert.IsTrue(null != a);
+            Assert.IsFalse(n != null);
+            Assert.IsFalse(null != n);
+        }
+
+        [Test]
         public void TestFreeze() {
             var settings = new MongoGridFSSettings();
             Assert.IsFalse(settings.IsFrozen);

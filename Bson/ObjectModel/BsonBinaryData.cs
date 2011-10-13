@@ -171,6 +171,33 @@ namespace MongoDB.Bson {
         ) {
             return new BsonBinaryData(value);
         }
+
+        /// <summary>
+        /// Compares two BsonBinaryData values.
+        /// </summary>
+        /// <param name="lhs">The first BsonBinaryData.</param>
+        /// <param name="rhs">The other BsonBinaryData.</param>
+        /// <returns>True if the two BsonBinaryData values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonBinaryData lhs,
+            BsonBinaryData rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonBinaryData values.
+        /// </summary>
+        /// <param name="lhs">The first BsonBinaryData.</param>
+        /// <param name="rhs">The other BsonBinaryData.</param>
+        /// <returns>True if the two BsonBinaryData values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonBinaryData lhs,
+            BsonBinaryData rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
         #endregion
 
         #region public static methods
@@ -304,7 +331,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonBinaryData rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             // note: guidRepresentation is not considered when testing for Equality
             return object.ReferenceEquals(this, rhs) || this.subType == rhs.subType && this.bytes.SequenceEqual(rhs.bytes);
         }
@@ -317,7 +344,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonBinaryData); // works even if obj is null
+            return Equals(obj as BsonBinaryData); // works even if obj is null or of a different type
         }
 
         /// <summary>

@@ -43,6 +43,35 @@ namespace MongoDB.Bson {
         }
         #endregion
 
+        #region public operators
+        /// <summary>
+        /// Compares two BsonJavaScriptWithScope values.
+        /// </summary>
+        /// <param name="lhs">The first BsonJavaScriptWithScope.</param>
+        /// <param name="rhs">The other BsonJavaScriptWithScope.</param>
+        /// <returns>True if the two BsonJavaScriptWithScope values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonJavaScriptWithScope lhs,
+            BsonJavaScriptWithScope rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonJavaScriptWithScope values.
+        /// </summary>
+        /// <param name="lhs">The first BsonJavaScriptWithScope.</param>
+        /// <param name="rhs">The other BsonJavaScriptWithScope.</param>
+        /// <returns>True if the two BsonJavaScriptWithScope values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonJavaScriptWithScope lhs,
+            BsonJavaScriptWithScope rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
+        #endregion
+
         #region public properties
         /// <summary>
         /// Gets the scope (a set of variables with values).
@@ -145,7 +174,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonJavaScriptWithScope rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.code == rhs.code && this.scope == rhs.scope;
         }
 
@@ -157,7 +186,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonJavaScriptWithScope); // works even if obj is null
+            return Equals(obj as BsonJavaScriptWithScope); // works even if obj is null or of a different type
         }
 
         /// <summary>

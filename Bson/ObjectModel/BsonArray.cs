@@ -151,6 +151,35 @@ namespace MongoDB.Bson {
         }
         #endregion
 
+        #region public operators
+        /// <summary>
+        /// Compares two BsonArray values.
+        /// </summary>
+        /// <param name="lhs">The first BsonArray.</param>
+        /// <param name="rhs">The other BsonArray.</param>
+        /// <returns>True if the two BsonArray values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonArray lhs,
+            BsonArray rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonArray values.
+        /// </summary>
+        /// <param name="lhs">The first BsonArray.</param>
+        /// <param name="rhs">The other BsonArray.</param>
+        /// <returns>True if the two BsonArray values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonArray lhs,
+            BsonArray rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
+        #endregion
+
         #region public properties
         /// <summary>
         /// Gets or sets the total number of elements the internal data structure can hold without resizing.
@@ -640,7 +669,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonArray rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return object.ReferenceEquals(this, rhs) || this.values.SequenceEqual(rhs.values);
         }
 

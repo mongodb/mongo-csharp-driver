@@ -23,7 +23,7 @@ namespace MongoDB.Driver {
     /// Represents the different safe modes that can be used.
     /// </summary>
     [Serializable]
-    public class SafeMode {
+    public class SafeMode : IEquatable<SafeMode> {
         #region private static fields
         private static SafeMode @false = new SafeMode(false);
         private static SafeMode fsyncTrue = new SafeMode(true, true);
@@ -408,7 +408,7 @@ namespace MongoDB.Driver {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as SafeMode); // works even if obj is null
+            return Equals(obj as SafeMode); // works even if obj is null or of a different type
         }
 
         /// <summary>
@@ -419,7 +419,7 @@ namespace MongoDB.Driver {
         public bool Equals(
             SafeMode rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return 
                 this.enabled == rhs.enabled &&
                 this.fsync == rhs.fsync &&

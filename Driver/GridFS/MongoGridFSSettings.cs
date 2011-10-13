@@ -156,7 +156,7 @@ namespace MongoDB.Driver.GridFS {
         }
 
         /// <summary>
-        /// Compares two MongoGridFSSettingss.
+        /// Compares two MongoGridFSSettings.
         /// </summary>
         /// <param name="lhs">The first MongoGridFSSettings.</param>
         /// <param name="rhs">The other MongoGridFSSettings.</param>
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.GridFS {
         public bool Equals(
             MongoGridFSSettings rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return 
                 this.chunkSize == rhs.chunkSize &&
                 this.root == rhs.root && 
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.GridFS {
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other objects is a MongoGridFSSettings and is equal to this one.</returns>
         public override bool Equals(object obj) {
-            return Equals(obj as MongoGridFSSettings); // works even if obj is null
+            return Equals(obj as MongoGridFSSettings); // works even if obj is null or of a different type
         }
 
         /// <summary>

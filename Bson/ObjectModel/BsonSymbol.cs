@@ -58,6 +58,33 @@ namespace MongoDB.Bson {
         ) {
             return BsonSymbol.Create(name);
         }
+
+        /// <summary>
+        /// Compares two BsonSymbol values.
+        /// </summary>
+        /// <param name="lhs">The first BsonSymbol.</param>
+        /// <param name="rhs">The other BsonSymbol.</param>
+        /// <returns>True if the two BsonSymbol values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonSymbol lhs,
+            BsonSymbol rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonSymbol values.
+        /// </summary>
+        /// <param name="lhs">The first BsonSymbol.</param>
+        /// <param name="rhs">The other BsonSymbol.</param>
+        /// <returns>True if the two BsonSymbol values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonSymbol lhs,
+            BsonSymbol rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
         #endregion
 
         #region public static methods
@@ -136,6 +163,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonSymbol rhs
         ) {
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return object.ReferenceEquals(this, rhs); // symbols are guaranteed to be unique
         }
 
@@ -147,7 +175,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonSymbol); // works even if obj is null
+            return Equals(obj as BsonSymbol); // works even if obj is null or of a different type
         }
 
         /// <summary>

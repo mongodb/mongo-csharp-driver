@@ -23,7 +23,7 @@ namespace MongoDB.Driver {
     /// Credentials to access a MongoDB database.
     /// </summary>
     [Serializable]
-    public class MongoCredentials {
+    public class MongoCredentials : IEquatable<MongoCredentials> {
         #region private fields
         private string username;
         private string password;
@@ -63,6 +63,7 @@ namespace MongoDB.Driver {
             string password,
             bool admin
         ) {
+            ValidatePassword(password);
             this.username = username;
             this.password = password;
             this.admin = admin;
@@ -115,45 +116,27 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Compares two MongoCredentials.
         /// </summary>
-        /// <param name="lhs">The first credentials.</param>
-        /// <param name="rhs">The other credentials.</param>
-        /// <returns>True if the two credentials are equal (or both null).</returns>
+        /// <param name="lhs">The first MongoCredentials.</param>
+        /// <param name="rhs">The other MongoCredentials.</param>
+        /// <returns>True if the two MongoCredentials are equal (or both null).</returns>
         public static bool operator ==(
             MongoCredentials lhs,
             MongoCredentials rhs
         ) {
-            if (object.ReferenceEquals(lhs, rhs)) { return true; } // both null or same object
-            if (object.ReferenceEquals(lhs, null) || object.ReferenceEquals(rhs, null)) { return false; }
-            if (lhs.GetType() != rhs.GetType()) { return false; }
-            return lhs.username == rhs.username && lhs.password == rhs.password && lhs.admin == rhs.admin;
+            return object.Equals(lhs, rhs);
         }
 
         /// <summary>
         /// Compares two MongoCredentials.
         /// </summary>
-        /// <param name="lhs">The first credentials.</param>
-        /// <param name="rhs">The other credentials.</param>
-        /// <returns>True if the two credentials are not equal (or one is null and the other is not).</returns>
+        /// <param name="lhs">The first MongoCredentials.</param>
+        /// <param name="rhs">The other MongoCredentials.</param>
+        /// <returns>True if the two MongoCredentials are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(
             MongoCredentials lhs,
             MongoCredentials rhs
         ) {
             return !(lhs == rhs);
-        }
-        #endregion
-
-        #region public static methods
-        /// <summary>
-        /// Compares two MongoCredentials.
-        /// </summary>
-        /// <param name="lhs">The first credentials.</param>
-        /// <param name="rhs">The second credentials.</param>
-        /// <returns>True if the two credentials are equal (or both null).</returns>
-        public static bool Equals(
-            MongoCredentials lhs,
-            MongoCredentials rhs
-        ) {
-            return lhs == rhs;
         }
         #endregion
 
@@ -166,7 +149,8 @@ namespace MongoDB.Driver {
         public bool Equals(
             MongoCredentials rhs
         ) {
-            return this == rhs;
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return this.username == rhs.username && this.password == rhs.password && this.admin == rhs.admin;
         }
 
         /// <summary>
@@ -175,7 +159,7 @@ namespace MongoDB.Driver {
         /// <param name="obj">The other credentials.</param>
         /// <returns>True if the two credentials are equal.</returns>
         public override bool Equals(object obj) {
-            return this == obj as MongoCredentials; // works even if obj is null or of a different type
+            return Equals(obj as MongoCredentials); // works even if obj is null or of a different type
         }
 
         /// <summary>
