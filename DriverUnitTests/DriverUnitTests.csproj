@@ -99,6 +99,7 @@
     <Compile Include="Jira\CSharp140Tests.cs" />
     <Compile Include="Jira\CSharp283Tests.cs" />
     <Compile Include="Jira\CSharp290Tests.cs" />
+    <Compile Include="Jira\CSharp321Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />

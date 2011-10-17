@@ -79,44 +79,21 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Tests that all the subqueries are true (see $and in newer versions of the server).
         /// </summary>
-        /// <param name="queries">A list of subqueries.</param>
+        /// <param name="clauses">A list of subqueries.</param>
         /// <returns>A query.</returns>
         public static QueryComplete And(
-            params IMongoQuery[] queries
+            params IMongoQuery[] clauses
         ) {
-            var document = new BsonDocument();
-            foreach (var query in queries) {
-                if (query != null) {
-                    foreach (var queryElement in query.ToBsonDocument()) {
-                        // if result document has existing operations for same field append the new ones
-                        if (document.Contains(queryElement.Name)) {
-                            var existingOperations = document[queryElement.Name] as BsonDocument;
-                            var newOperations = queryElement.Value as BsonDocument;
-
-                            // make sure that no conditions are Query.EQ, because duplicates aren't allowed
-                            if (existingOperations == null || newOperations == null) {
-                                var message = string.Format("Query.And does not support combining equality comparisons with other operators (field '{0}').", queryElement.Name);
-                                throw new InvalidOperationException(message);
-                            }
-
-                            // add each new operation to the existing operations
-                            foreach (var operation in newOperations) {
-                                // make sure that there are no duplicate $operators
-                                if (existingOperations.Contains(operation.Name)) {
-                                    var message = string.Format("Query.And does not support using the same operator more than once (field '{0}', operator '{1}').", queryElement.Name, operation.Name);
-                                    throw new InvalidOperationException(message);
-                                } else {
-                                    existingOperations.Add(operation);
-                                }
-                            }
-                        } else {
-                            document.Add(queryElement);
-                        }
+            var query = new BsonDocument();
+            foreach (var clause in clauses) {
+                if (clause != null) {
+                    foreach (var clauseElement in clause.ToBsonDocument()) {
+                        AddAndClause(query, clauseElement);
                     }
                 }
             }
 
-            return document.ElementCount > 0 ? new QueryComplete(document) : null;
+            return query.ElementCount > 0 ? new QueryComplete(query) : null;
         }
 
         /// <summary>
@@ -535,6 +512,54 @@ namespace MongoDB.Driver.Builders {
             double upperRightY
         ) {
             return new QueryConditionList(name).WithinRectangle(lowerLeftX, lowerLeftY, upperRightX, upperRightY);
+        }
+        #endregion
+
+        #region private static methods
+        // try to keey the query in simple form and only promote to $and form if necessary
+        private static void AddAndClause(
+            BsonDocument query,
+            BsonElement clause
+        ) {
+            if (query.ElementCount == 1 && query.GetElement(0).Name == "$and") {
+                query[0].AsBsonArray.Add(new BsonDocument(clause));
+            } else {
+                if (clause.Name == "$and") {
+                    PromoteQueryToDollarAndForm(query, clause);
+                } else {
+                    if (query.Contains(clause.Name)) {
+                        var existingClause = query.GetElement(clause.Name);
+                        if (existingClause.Value.IsBsonDocument && clause.Value.IsBsonDocument) {
+                            var clauseValue = clause.Value.AsBsonDocument;
+                            var existingClauseValue = existingClause.Value.AsBsonDocument;
+                            if (clauseValue.Names.Any(op => existingClauseValue.Contains(op))) {
+                                PromoteQueryToDollarAndForm(query, clause);
+                            } else {
+                                foreach (var element in clauseValue) {
+                                    existingClauseValue.Add(element);
+                                }
+                            }
+                        } else {
+                            PromoteQueryToDollarAndForm(query, clause);
+                        }
+                    } else {
+                        query.Add(clause);
+                    }
+                }
+            }
+        }
+
+        private static void PromoteQueryToDollarAndForm(
+            BsonDocument query,
+            BsonElement clause
+        ) {
+            var clauses = new BsonArray();
+            foreach (var queryElement in query) {
+                clauses.Add(new BsonDocument(queryElement));
+            }
+            clauses.Add(new BsonDocument(clause));
+            query.Clear();
+            query.Add("$and", clauses);
         }
         #endregion
     }
