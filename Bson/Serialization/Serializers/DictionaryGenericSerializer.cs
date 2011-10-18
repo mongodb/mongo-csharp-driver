@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
         public override object Deserialize(
             BsonReader bsonReader,
             Type nominalType,
-            Type actualType, // ignored
+            Type actualType,
             IBsonSerializationOptions options
         ) {
             var bsonType = bsonReader.CurrentBsonType;
@@ -56,6 +56,15 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonReader.ReadNull();
                 return null;
             } else if (bsonType == BsonType.Document) {
+                if (nominalType == typeof(object)) {
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadString("_t"); // skip over discriminator
+                    bsonReader.ReadName("_v");
+                    var value = Deserialize(bsonReader, actualType, options); // recursive call replacing nominalType with actualType
+                    bsonReader.ReadEndDocument();
+                    return value;
+                }
+
                 var dictionary = CreateInstance(nominalType);
                 bsonReader.ReadStartDocument();
                 var valueDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(TValue));
@@ -149,6 +158,16 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 bsonWriter.WriteNull();
             } else {
                 var dictionary = (IDictionary<TKey, TValue>) value;
+
+                if (nominalType == typeof(object)) {
+                    var actualType = value.GetType();
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
+                    bsonWriter.WriteName("_v");
+                    Serialize(bsonWriter, actualType, value, options); // recursive call replacing nominalType with actualType
+                    bsonWriter.WriteEndDocument();
+                    return;
+                }
 
                 var dictionaryOptions = options as DictionarySerializationOptions;
                 if (dictionaryOptions == null) {

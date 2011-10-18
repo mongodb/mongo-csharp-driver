@@ -109,7 +109,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteEndArray();
                 } else {
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", actualType.FullName);
+                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options);
                     bsonWriter.WriteEndDocument();
@@ -232,7 +232,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteEndArray();
                 } else {
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", actualType.FullName);
+                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options);
                     bsonWriter.WriteEndDocument();
@@ -374,7 +374,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteEndArray();
                 } else {
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", actualType.FullName);
+                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options);
                     bsonWriter.WriteEndDocument();
