@@ -24,23 +24,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 
-
 namespace MongoDB.BsonUnitTests.Jira {
     [TestFixture]
     public class CSharp310Tests {
         private class C {
             public int Id;
-            public Guid G;
+            public Guid G = Guid.Empty;
         }
 
         private class EmptyGuidDefaultValueConvention : IDefaultValueConvention {
             public object GetDefaultValue(MemberInfo memberInfo) {
-                var type = (memberInfo.MemberType == MemberTypes.Field)
-                    ? ((FieldInfo)memberInfo).FieldType : ((PropertyInfo)memberInfo).PropertyType;
+                var type = (memberInfo.MemberType == MemberTypes.Field) ? ((FieldInfo) memberInfo).FieldType : ((PropertyInfo) memberInfo).PropertyType;
                 if (type == typeof(Guid)) {
                     return Guid.Empty;
-                }
-                else {
+                } else {
                     return null;
                 }
             }       

@@ -242,7 +242,9 @@ namespace MongoDB.Bson.Serialization {
         public BsonMemberMap SetDefaultValue(
             object defaultValue
         ) {
-            return SetDefaultValue(defaultValue, true); // serializeDefaultValue
+            this.defaultValue = defaultValue;
+            this.hasDefaultValue = true;
+            return this;
         }
 
         /// <summary>
@@ -255,9 +257,8 @@ namespace MongoDB.Bson.Serialization {
             object defaultValue,
             bool serializeDefaultValue
         ) {
-            this.hasDefaultValue = true;
-            this.serializeDefaultValue = serializeDefaultValue;
-            this.defaultValue = defaultValue;
+            SetDefaultValue(defaultValue);
+            SetSerializeDefaultValue(serializeDefaultValue);
             return this;
         }
 

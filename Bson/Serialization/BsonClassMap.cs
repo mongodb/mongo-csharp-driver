@@ -878,7 +878,7 @@ namespace MongoDB.Bson.Serialization {
 
             var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(memberInfo);
             if (defaultValue != null) {
-                memberMap.SetDefaultValue(defaultValue, memberMap.SerializeDefaultValue);
+                memberMap.SetDefaultValue(defaultValue);
             }
 
             // see if the class has a method called ShouldSerializeXyz where Xyz is the name of this member
