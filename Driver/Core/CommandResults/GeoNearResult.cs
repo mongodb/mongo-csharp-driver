@@ -125,7 +125,7 @@ namespace MongoDB.Driver {
             /// <summary>
             /// Gets the enumerator.
             /// </summary>
-            /// <returns></returns>
+            /// <returns>An enumerator.</returns>
             protected abstract IEnumerator<GeoNearHit> GetEnumeratorImplementation();
 
             /// <summary>

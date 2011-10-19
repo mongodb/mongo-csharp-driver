@@ -570,9 +570,10 @@ namespace MongoDB.Driver.Builders {
     [Serializable]
     public abstract class QueryBuilder : BuilderBase {
         #region private fields
-#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)
+        /// <summary>
+        /// A BSON document containing the query being built.
+        /// </summary>
         protected BsonDocument document;
-#pragma warning restore
         #endregion
 
         #region constructors

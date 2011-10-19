@@ -57,6 +57,7 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Initializes a new instance of the BsonWriter class.
         /// </summary>
+        /// <param name="settings">The writer settings.</param>
         protected BsonWriter(
             BsonWriterSettings settings
         ) {
@@ -678,9 +679,9 @@ namespace MongoDB.Bson.IO {
 
         #region protected methods
         /// <summary>
-        /// Checks that the name is valid.
+        /// Checks that the element name is valid.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The element name to be checked.</param>
         protected void CheckElementName(
             string name
         ) {

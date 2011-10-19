@@ -27,6 +27,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// <summary>
     /// Represents a serializer for dictionaries.
     /// </summary>
+    /// <typeparam name="TKey">The type of the keys.</typeparam>
+    /// <typeparam name="TValue">The type of the values.</typeparam>
     public class DictionarySerializer<TKey, TValue> : BsonBaseSerializer {
         #region constructors
         /// <summary>

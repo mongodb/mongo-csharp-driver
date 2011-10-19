@@ -196,6 +196,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Drops this collection.
         /// </summary>
+        /// <returns>A CommandResult.</returns>
         public virtual CommandResult Drop() {
             return database.DropCollection(name);
         }
@@ -549,6 +550,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Runs a geoHaystack search command on this collection.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the found documents.</typeparam>
         /// <param name="x">The x coordinate of the starting location.</param>
         /// <param name="y">The y coordinate of the starting location.</param>
         /// <param name="options">The options for the geoHaystack search (null if none).</param>
@@ -1158,6 +1160,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Runs the ReIndex command on this collection.
         /// </summary>
+        /// <returns>A CommandResult.</returns>
         public virtual CommandResult ReIndex() {
             var command = new CommandDocument("reIndex", name);
             return database.RunCommand(command);
@@ -1556,6 +1559,7 @@ namespace MongoDB.Driver {
     /// <summary>
     /// Represents a MongoDB collection and the settings used to access it as well as a default document type. This class is thread-safe.
     /// </summary>
+    /// <typeparam name="TDefaultDocument">The default document type of the collection.</typeparam>
     public class MongoCollection<TDefaultDocument> : MongoCollection {
         #region constructors
         /// <summary>

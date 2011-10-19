@@ -25,21 +25,47 @@ namespace MongoDB.Driver {
     /// The settings used to access a collection (an abstract class, see MongoCollectionSettings{TDefaultDocument}).
     /// </summary>
     public abstract class MongoCollectionSettings {
-#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)     
         #region protected fields
+        /// <summary>
+        /// The name of the collection.
+        /// </summary>
         protected string collectionName;
+        /// <summary>
+        /// Whether to automatically assign a value to an empty document Id on insert.
+        /// </summary>
         protected bool assignIdOnInsert;
+        /// <summary>
+        /// The default document type of the collection.
+        /// </summary>
         protected Type defaultDocumentType;
+        /// <summary>
+        /// The GUID representation.
+        /// </summary>
         protected GuidRepresentation guidRepresentation;
+        /// <summary>
+        /// The SafeMode.
+        /// </summary>
         protected SafeMode safeMode;
+        /// <summary>
+        /// Whether to route reads to secondaries.
+        /// </summary>
         protected bool slaveOk;
+        #endregion
+
+        #region private fields
         // the following fields are set when Freeze is called
-        protected bool isFrozen;
-        protected int frozenHashCode;
-        protected string frozenStringRepresentation;
+        private bool isFrozen;
+        private int frozenHashCode;
+        private string frozenStringRepresentation;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MongoCollectionSettings class.
+        /// </summary>
+        /// <param name="database">The database that contains the collection (some collection settings will be inherited from the database settings).</param>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="defaultDocumentType">The default document type for the collection.</param>
         protected MongoCollectionSettings(
             MongoDatabase database,
             string collectionName,
@@ -54,6 +80,15 @@ namespace MongoDB.Driver {
             this.slaveOk = databaseSettings.SlaveOk;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the MongoCollectionSettings class.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="assignIdOnInsert">Whether to automatically assign a value to an empty document Id on insert.</param>
+        /// <param name="defaultDocumentType">The default document type for the collection.</param>
+        /// <param name="guidRepresentation">The GUID representation to use with this collection.</param>
+        /// <param name="safeMode">The SafeMode to use with this collection.</param>
+        /// <param name="slaveOk">Whether to route reads to secondaries for this collection.</param>
         protected MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
@@ -70,7 +105,6 @@ namespace MongoDB.Driver {
             this.slaveOk = slaveOk;
         }
         #endregion
-#pragma warning restore
 
         #region public properties
         /// <summary>

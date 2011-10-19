@@ -374,7 +374,7 @@ namespace MongoDB.Bson.Serialization {
         /// Sets the method that will be called to determine whether the member should be serialized.
         /// </summary>
         /// <param name="shouldSerializeMethod">The method.</param>
-        /// <returns></returns>
+        /// <returns>The member map.</returns>
         public BsonMemberMap SetShouldSerializeMethod(
             Func<object, bool> shouldSerializeMethod
         ) {

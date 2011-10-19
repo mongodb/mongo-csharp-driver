@@ -107,6 +107,7 @@ namespace MongoDB.Driver.Wrappers {
         /// <summary>
         /// SetDocumentId is an invalid operation for wrapper classes.
         /// </summary>
+        /// <param name="id">Not applicable.</param>
         /// <returns>Not applicable.</returns>
         public void SetDocumentId(
             object id

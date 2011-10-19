@@ -191,6 +191,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Returns the server address as an IPEndPoint (does a DNS lookup).
         /// </summary>
+        /// <param name="addressFamily">The address family of the returned IPEndPoint.</param>
         /// <returns>The IPEndPoint of the server.</returns>
         public IPEndPoint ToIPEndPoint(
             AddressFamily addressFamily

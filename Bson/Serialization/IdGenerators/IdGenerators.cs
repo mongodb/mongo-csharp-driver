@@ -355,6 +355,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
     /// <summary>
     /// Represents an Id generator that only checks that the Id is not all zeros.
     /// </summary>
+    /// <typeparam name="T">The type of the Id.</typeparam>
     // TODO: is it worth trying to remove the dependency on IEquatable<T>?
     public class ZeroIdChecker<T> : IIdGenerator where T : struct, IEquatable<T> {
         #region constructors

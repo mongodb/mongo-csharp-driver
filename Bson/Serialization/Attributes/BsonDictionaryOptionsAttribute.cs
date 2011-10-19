@@ -41,6 +41,7 @@ namespace MongoDB.Bson.Serialization.Attributes {
         /// <summary>
         /// Initializes a new instance of the BsonDictionaryOptionsAttribute class.
         /// </summary>
+        /// <param name="representation">The representation to use for the Dictionary.</param>
         public BsonDictionaryOptionsAttribute(
             DictionaryRepresentation representation
         ) {

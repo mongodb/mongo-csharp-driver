@@ -38,6 +38,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the GetIndexesResult class.
         /// </summary>
+        /// <param name="documents">The raw documents containing the information about the indexes.</param>
         public GetIndexesResult(
             BsonDocument[] documents
         ) {

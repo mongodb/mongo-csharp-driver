@@ -34,9 +34,9 @@ namespace MongoDB.Bson.IO {
         #region constructors
         /// <summary>
         /// Initializes a new instance of the BsonBinaryReader class.
+        /// </summary>
         /// <param name="buffer">A BsonBuffer.</param>
         /// <param name="settings">A BsonBinaryReaderSettings.</param>
-        /// </summary>
         public BsonBinaryReader(
             BsonBuffer buffer,
             BsonBinaryReaderSettings settings

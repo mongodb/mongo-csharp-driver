@@ -538,6 +538,7 @@ namespace MongoDB.Driver {
         /// Gets a MongoCollection instance representing a collection on this database
         /// with a default document type of TDefaultDocument.
         /// </summary>
+        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
@@ -551,6 +552,7 @@ namespace MongoDB.Driver {
         /// Gets a MongoCollection instance representing a collection on this database
         /// with a default document type of TDefaultDocument.
         /// </summary>
+        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
@@ -855,6 +857,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Runs a command on this database and returns the result as a TCommandResult.
         /// </summary>
+        /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="command">The command object.</param>
         /// <returns>A TCommandResult</returns>
         public virtual TCommandResult RunCommandAs<TCommandResult>(
@@ -866,6 +869,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Runs a command on this database and returns the result as a TCommandResult.
         /// </summary>
+        /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="commandName">The name of the command.</param>
         /// <returns>A TCommandResult</returns>
         public virtual TCommandResult RunCommandAs<TCommandResult>(
@@ -920,7 +924,7 @@ namespace MongoDB.Driver {
         /// Sets the level of profile information to write.
         /// </summary>
         /// <param name="level">The profiling level.</param>
-        /// <returns></returns>
+        /// <returns>A CommandResult.</returns>
         public virtual CommandResult SetProfilingLevel(
             ProfilingLevel level
         ) {
@@ -932,7 +936,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="level">The profiling level.</param>
         /// <param name="slow">The threshold that defines a slow query.</param>
-        /// <returns></returns>
+        /// <returns>A CommandResult.</returns>
         public virtual CommandResult SetProfilingLevel(
             ProfilingLevel level,
             TimeSpan slow

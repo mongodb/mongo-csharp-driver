@@ -30,7 +30,7 @@ namespace MongoDB.Driver {
     /// <summary>
     /// Reprsents an enumerator that fetches the results of a query sent to the server.
     /// </summary>
-    /// <typeparam name="TDocument"></typeparam>
+    /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
     public class MongoCursorEnumerator<TDocument> : IEnumerator<TDocument> {
         #region private fields
         private bool disposed = false;

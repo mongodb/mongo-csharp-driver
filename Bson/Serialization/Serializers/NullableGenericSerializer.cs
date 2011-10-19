@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers {
     /// <summary>
     /// Represents a serializer for nullable values.
     /// </summary>
+    /// <typeparam name="T">The underlying type.</typeparam>
     public class NullableSerializer<T> : BsonBaseSerializer where T : struct {
         #region private fields
         private IBsonSerializer serializer;
