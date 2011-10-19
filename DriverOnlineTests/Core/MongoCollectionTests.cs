@@ -112,6 +112,8 @@ namespace MongoDB.DriverOnlineTests {
 
         [Test]
         public void TestCreateIndex() {
+            var expectedIndexVersion = (server.BuildInfo.Version >= new Version(2, 0, 0)) ? 1 : 0;
+
             collection.DropAllIndexes();
             var indexes = collection.GetIndexes();
             Assert.AreEqual(1, indexes.Count);
@@ -122,7 +124,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
             Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
-            Assert.AreEqual(1, indexes[0].Version);
+            Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
 
             collection.DropAllIndexes();
             collection.CreateIndex("x");
@@ -135,7 +137,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
             Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
-            Assert.AreEqual(1, indexes[0].Version);
+            Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
             Assert.AreEqual(false, indexes[1].DroppedDups);
             Assert.AreEqual(false, indexes[1].IsBackground);
             Assert.AreEqual(false, indexes[1].IsSparse);
@@ -143,7 +145,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(new BsonDocument("x", 1), indexes[1].Key);
             Assert.AreEqual("x_1", indexes[1].Name);
             Assert.AreEqual("onlinetests.testcollection", indexes[1].Namespace);
-            Assert.AreEqual(1, indexes[1].Version);
+            Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
 
             collection.DropAllIndexes();
             var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
@@ -157,7 +159,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
             Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
-            Assert.AreEqual(1, indexes[0].Version);
+            Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
             Assert.AreEqual(true, indexes[1].DroppedDups);
             Assert.AreEqual(true, indexes[1].IsBackground);
             Assert.AreEqual(true, indexes[1].IsSparse);
@@ -165,7 +167,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(new BsonDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
             Assert.AreEqual("x_1_y_-1", indexes[1].Name);
             Assert.AreEqual("onlinetests.testcollection", indexes[1].Namespace);
-            Assert.AreEqual(1, indexes[1].Version);
+            Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
         }
 
         [Test]
@@ -838,11 +840,13 @@ namespace MongoDB.DriverOnlineTests {
             }
 
             // try the batch again with ContinueOnError
-            try {
-                var options = new MongoInsertOptions(collection) { Flags = InsertFlags.ContinueOnError };
-                collection.InsertBatch(batch, options);
-            } catch (MongoSafeModeException) {
-                Assert.AreEqual(3, collection.Count());
+            if (server.BuildInfo.Version >= new Version(2, 0, 0)) {
+                try {
+                    var options = new MongoInsertOptions(collection) { Flags = InsertFlags.ContinueOnError };
+                    collection.InsertBatch(batch, options);
+                } catch (MongoSafeModeException) {
+                    Assert.AreEqual(3, collection.Count());
+                }
             }
         }
 
