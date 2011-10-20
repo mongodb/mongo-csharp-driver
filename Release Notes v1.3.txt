@@ -1,0 +1,221 @@
+C# Driver Version 1.3 Release Notes
+===================================
+
+This release of the C# driver has fewer changes than most releases before it. The primary goal of this release is to support
+new features introduced by the 2.0 server release, and to fix bugs reported since the 1.2 C# driver was released.
+
+Highlights
+    Support for new features introduced by 2.0 server release
+    A number of minor bug fixes
+    One important bug fix for Disconnect (which caused the connection pool to get jammed)
+    
+Breaking changes (mostly internal and/or low level)
+    Slight changes in Equals and == for BsonValues
+        Equals no longer does numeric coercion and uses Equals (instead of ==) to compare values
+        Comparing BsonDouble NaN values now mirrors Equals and == behavior of System.Double
+        Operator == (and !=) still coerce different numeric types to a compatible type before comparing
+    Calling BsonMemberMap.SetDefaultValue no longer automatically sets SerializeDefaultValue to true
+    GetIndexes now returns a GetIndexesResult (original return value is still available as result.RawDocuments)
+
+JIRA Issues resolved
+--------------------
+
+The list of JIRA issues resolved in this driver release can be found at https://jira.mongodb.org/secure/IssueNavigator.jspa?mode=hide&requestId=11131
+
+BSON Library changes
+--------------------
+
+BsonBuffer.cs
+    SkipCString optimized
+
+BsonWriter.cs
+    Improved error message when trying to write anything other than a BsonDocument at the root level
+
+JsonReader.cs
+    ParseJavaScriptDateTimeString now falls back to RFC 822 DateTime formats if DateTime.Parse fails
+
+BsonArray.cs
+BsonBinaryData.cs
+BsonBoolean.cs
+BsonDateTime.cs
+BsonJavaScript.cs
+BsonJavaScriptWithScope.cs
+BsonMaxKey.cs
+BsonMinKey.s
+BsonNull.cs
+BsonObjectId.cs
+BsonRegularExpression.cs
+BsonString.cs
+BsonSymbol.cs
+BsonTimestamp.cs
+BsonUndefined.cs
+    Added implementations of operator == and operator !=
+    Equals now checks type of rhs
+
+BsonDocument.cs
+    Added implementations of operator == and operator !=
+    Equals now checks type of rhs
+    Added ToDictionary and ToHashtable methods
+
+BsonDouble.cs
+    Added implementations of operator == and operator != (now handles NaN same as System.Double)
+    Equals now uses Equals instead of == to compare values (now handles NaN same as System.Double)
+    Equals now checks type of rhs
+    Equals no longer does numeric coercions (now only == and != do)
+
+BsonElement.cs
+    Equals now checks type of rhs
+
+BsonInt32.cs    
+BsonInt64.cs    
+    Added implementations of operator == and operator !=
+    Equals now checks type of rhs
+    Equals no longer does numeric coercions (now only == and != do)
+
+BsonValue.cs
+    Operator == and != now call virtual method OperatorEqualsImplementation
+    Default implementation of OperatorEqualsImplementation calls Equals, but numeric subclasses override to do numeric coercions
+
+BsonDictionaryOptionsAttribute.cs
+    New attribute used to choose the representation to use when serializing a Dictionary
+
+DictionarySerializationOptions.cs
+    New serialization options used to choose the representation to use when serializing a Dictionary
+
+DictionaryGenericSerializer.cs
+DictionarySerializer.cs
+    Add type information to serialized form when nominalType is object
+    Added support for the new DictionarySerializationOptions
+
+BsonMemberMap.cs
+    SetDefaultValue and SetSerializeDefaultValue now operate independently of each other
+
+Driver changes
+--------------
+
+GeoHaystackSearchOptionsBuilder.cs
+    New class used to build options for GeoHaystack searches
+
+IndexKeysBuilder.cs
+    Added GeoSpatialHaystack method
+
+IndexOptionsBuilder.cs
+    Added SetBucketSize method (used with GeoHaystack indexes)
+
+MapReduceOptionsBuilder.cs
+    Added MapReduceOutputMode enum (Inline, Replace, Merge or Reduce)
+    Added support for specifying output collection to a different database
+    Added support for sharded output collection
+    Added CollectionName property
+    Added DatabaseName property
+    Added Mode property
+    Added Sharded property
+    Added support for jsMode option
+
+QueryBuilder.cs
+    And method now support $and (but avoids using it if possible for backward compatibility)
+    Added WithinPolygon method
+
+GeoHaystackSearchResult.cs
+    New class used to represent the result of a GeoHaystack search
+
+GetProfilingLevelResult.cs
+    New class used to represent the result of GetProfilingLevel
+
+IMongoGeoHaystackSearchOptions.cs
+    New marker interface representing GeoHaystack search options
+
+GeoHaystackSearchOptionsDocument.cs
+    New subclass of BsonDocument that implements IMongoGeoHaystackSearchOptions
+
+GeoHaystackSearchOptionsWrapper.cs
+    New wrapper that implements IMongoGeoHaystackSearchOptions
+
+GetIndexesResult.cs
+    New class used to represent result of GetIndexes
+
+InsertFlags.cs
+    New flags enum used with Insert (ContinueOnError is the only value for now)
+
+MongoCollection.cs
+    Added GeoHaystackSearch method
+    Added GeoHaystackSearchAs method
+    GetIndexes now returns a GetIndexesResult (original return value is still available as result.RawDocuments)
+
+MongoCollectionSettings.cs
+    Added new constructor that inherits some settings from the database settings
+
+MongoConnectionStringBuilder.cs
+    Added support for "j"
+    Added support for "w" string values (in addition to integer)
+
+MongoCredentials.cs
+    Now implements IEquatable<MongoCredentials>
+    Standardized implementation of operator == and Equals
+
+MongoDatabase.cs
+    Stricter validation of characters in database names (prohibit any character that is not valid in a filename)
+    Added GetProfilingInfo method
+    Added GetProfilingLevel method
+    Added SetProfilingLevel method
+
+MongoDatabaseSettings.cs
+    Added new constructor that inherits some settings from the server settings
+
+MongoInsertOptions.cs
+    Added support for InsertFlags
+
+MongoServerAddress.cs
+    Standardized implementation of operator == and Equals
+
+MongoUrl.cs
+    Now implements IEquatable<MongoUrl>
+    Standardized implementation of operator == and Equals
+
+MongoUrlBuilder.cs
+    Added support for "j"
+    Added support for "w" string values (in addition to integer)
+
+ProfilingLevel.cs
+    New enum representing profiling level (None, Slow, All)
+
+Safemode.cs
+    Is no longer an immutable class (so all properties are now settable)
+    Added Freeze method (so instance is effectively immutable once it has been frozen)
+    Now implements IEquatable<Safemode>
+    Added constructor that inherits initial settings from another SafeMode instance
+    Standardized implementation of operator == and Equals
+    Added J property
+    Added WMode property (used when "w" value is a string)
+
+SystemProfileInfo.cs
+    New class to represent a document from the system.profile collection
+
+MongoGridFS.cs
+    Now correctly inherits SafeMode from database settings
+
+MongoGridFSFileInfo.cs
+    Now implements IEquatable<MongoGridFSFileInfo>
+    Standardized implementation of operator == and Equals
+
+MongoGridFSSettings.cs
+    Added a constructor that inherits some settings from the database settings
+
+MongoConnection.cs
+    Implemented support for "j" and "w" string values for getLastError
+
+MongoConnection.cs
+    Fixed bug in Clear (called by Disconnect) that was causing connection pool to get jammed
+
+MongoInsertMessage.cs
+    Added support for Insert flags
+
+MongoUpdateMessage.cs
+    Added support for null query (treated like an empty BsonDocument)
+
+Environments tested on
+----------------------
+
+Visual Studio 2010 on Windows 7 x64 against MongoDB 1.8.3, 2.0.0
+Visual Studio 2008 on Windows 7 x64 against MongoDB 1.8.3, 2.0.0
+MonoDevelop 2.6 (with Mono 2.10) on Windows 7 x64, OS X Snow Leopard against MongoDB 1.8.3, 2.0.0
