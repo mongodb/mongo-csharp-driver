@@ -85,6 +85,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -98,6 +99,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -111,6 +113,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a wrapped value to a named array element if the value is not already in the array (see $addToSet).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -339,6 +342,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -352,6 +356,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -365,6 +370,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Removes all values from the named array element that are equal to some wrapped value (see $pull).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -430,6 +436,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a list of wrapped values to the end of the named array element (see $pushAll).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -443,6 +450,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a list of wrapped values to the end of the named array element (see $pushAll).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -456,6 +464,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a wrapped value to the end of the named array element (see $push).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -520,6 +529,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Sets the value of the named element to a new wrapped value (see $set).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the element to be set.</param>
         /// <param name="value">The new wrapped value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -636,6 +646,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -650,6 +661,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -663,6 +675,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a wrapped value to a named array element if the value is not already in the array (see $addToSet).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -932,6 +945,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -952,6 +966,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -965,6 +980,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Removes all values from the named array element that are equal to some wrapped value (see $pull).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1049,6 +1065,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a list of wrapped values to the end of the named array element (see $pushAll).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1069,6 +1086,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a list of wrapped values to the end of the named array element (see $pushAll).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1082,6 +1100,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Adds a wrapped value to the end of the named array element (see $push).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -1140,6 +1159,7 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Sets the value of the named element to a new wrapped value (see $set).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the element to be set.</param>
         /// <param name="value">The new wrapped value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>

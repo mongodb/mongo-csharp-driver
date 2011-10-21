@@ -35,6 +35,35 @@ namespace MongoDB.Bson {
         }
         #endregion
 
+        #region public operators
+        /// <summary>
+        /// Compares two BsonUndefined values.
+        /// </summary>
+        /// <param name="lhs">The first BsonUndefined.</param>
+        /// <param name="rhs">The other BsonUndefined.</param>
+        /// <returns>True if the two BsonUndefined values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonUndefined lhs,
+            BsonUndefined rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonUndefined values.
+        /// </summary>
+        /// <param name="lhs">The first BsonUndefined.</param>
+        /// <param name="rhs">The other BsonUndefined.</param>
+        /// <returns>True if the two BsonUndefined values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonUndefined lhs,
+            BsonUndefined rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
+        #endregion
+
         #region public static properties
         /// <summary>
         /// Gets the singleton instance of BsonUndefined.
@@ -77,7 +106,8 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonUndefined rhs
         ) {
-            return rhs != null; // it's a singleton
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return true; // it's a singleton
         }
 
         /// <summary>
@@ -88,7 +118,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonUndefined); // works even if obj is null
+            return Equals(obj as BsonUndefined); // works even if obj is null or of a different type
         }
 
         /// <summary>

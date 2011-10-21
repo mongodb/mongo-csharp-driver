@@ -462,6 +462,20 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestWithinPolygon() {
+            var points = new double[,] { { 1.1, 2.2 }, { 3.3, 4.4 } };
+            var query = Query.WithinPolygon("loc", points);
+            var expected = "{ 'loc' : { '$within' : { '$polygon' : [[1.1, 2.2], [3.3, 4.4]] } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestWithinPolygonInvalidSecondDimension() {
+            var points = new double[,] { { 1, 2 , 3 } };
+            Assert.Throws<ArgumentOutOfRangeException>(() => Query.WithinPolygon("loc", points));
+        }
+
+        [Test]
         public void TestWithinRectangle() {
             var query = Query.WithinRectangle("loc", 1.1, 2.2, 3.3, 4.4);
             var expected = "{ 'loc' : { '$within' : { '$box' : [[1.1, 2.2], [3.3, 4.4]] } } }".Replace("'", "\"");

@@ -55,6 +55,35 @@ namespace MongoDB.Bson {
         }
         #endregion
 
+        #region public operators
+        /// <summary>
+        /// Compares two BsonTimestamp values.
+        /// </summary>
+        /// <param name="lhs">The first BsonTimestamp.</param>
+        /// <param name="rhs">The other BsonTimestamp.</param>
+        /// <returns>True if the two BsonTimestamp values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonTimestamp lhs,
+            BsonTimestamp rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonTimestamp values.
+        /// </summary>
+        /// <param name="lhs">The first BsonTimestamp.</param>
+        /// <param name="rhs">The other BsonTimestamp.</param>
+        /// <returns>True if the two BsonTimestamp values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonTimestamp lhs,
+            BsonTimestamp rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
+        #endregion
+
         #region public properties
         /// <summary>
         /// Gets the value of this BsonTimestamp.
@@ -162,7 +191,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonTimestamp rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.value == rhs.value;
         }
 
@@ -174,7 +203,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonTimestamp); // works even if obj is null
+            return Equals(obj as BsonTimestamp); // works even if obj is null or of a different type
         }
 
         /// <summary>

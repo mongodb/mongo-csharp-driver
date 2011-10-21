@@ -35,6 +35,35 @@ namespace MongoDB.Bson {
         }
         #endregion
 
+        #region public operators
+        /// <summary>
+        /// Compares two BsonNull values.
+        /// </summary>
+        /// <param name="lhs">The first BsonNull.</param>
+        /// <param name="rhs">The other BsonNull.</param>
+        /// <returns>True if the two BsonNull values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonNull lhs,
+            BsonNull rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonNull values.
+        /// </summary>
+        /// <param name="lhs">The first BsonNull.</param>
+        /// <param name="rhs">The other BsonNull.</param>
+        /// <returns>True if the two BsonNull values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonNull lhs,
+            BsonNull rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
+        #endregion
+
         #region public static properties
         /// <summary>
         /// Gets the singleton instance of BsonNull.
@@ -78,7 +107,8 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonNull rhs
         ) {
-            return rhs != null; // it's a singleton
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return true; // it's a singleton
         }
 
         /// <summary>
@@ -89,7 +119,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonNull); // works even if obj is null
+            return Equals(obj as BsonNull); // works even if obj is null or of a different type
         }
 
         /// <summary>

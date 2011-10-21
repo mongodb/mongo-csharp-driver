@@ -42,7 +42,7 @@ namespace MongoDB.Driver {
     /// Represents an immutable URL style connection string. See also MongoUrlBuilder.
     /// </summary>
     [Serializable]
-    public class MongoUrl {
+    public class MongoUrl : IEquatable<MongoUrl> {
         #region private static fields
         private static object staticLock = new object();
         private static Dictionary<string, MongoUrl> cache = new Dictionary<string, MongoUrl>();
@@ -65,7 +65,7 @@ namespace MongoDB.Driver {
             string url
         ) {
             var builder = new MongoUrlBuilder(url); // parses url
-            serverSettings = builder.ToServerSettings().Freeze();
+            serverSettings = builder.ToServerSettings().FrozenCopy();
             this.waitQueueMultiple = builder.WaitQueueMultiple;
             this.waitQueueSize = builder.WaitQueueSize;
             this.databaseName = builder.DatabaseName;
@@ -302,8 +302,8 @@ namespace MongoDB.Driver {
         public bool Equals(
             MongoUrl rhs
         ) {
-            // this works because URL is in canonical form
-            return this.url == rhs.url;
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return url == rhs.url; // this works because URL is in canonical form
         }
 
         /// <summary>
@@ -314,7 +314,7 @@ namespace MongoDB.Driver {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as MongoUrl);
+            return Equals(obj as MongoUrl); // works even if obj is null or of a different type
         }
 
         /// <summary>
@@ -322,8 +322,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <returns>The hash code.</returns>
         public override int GetHashCode() {
-            // this works because URL is in canonical form
-            return url.GetHashCode();
+            return url.GetHashCode(); // this works because URL is in canonical form
         }
 
         /// <summary>

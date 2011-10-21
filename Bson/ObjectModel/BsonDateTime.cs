@@ -114,6 +114,33 @@ namespace MongoDB.Bson {
         ) {
             return new BsonDateTime(value);
         }
+
+        /// <summary>
+        /// Compares two BsonDateTime values.
+        /// </summary>
+        /// <param name="lhs">The first BsonDateTime.</param>
+        /// <param name="rhs">The other BsonDateTime.</param>
+        /// <returns>True if the two BsonDateTime values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonDateTime lhs,
+            BsonDateTime rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonDateTime values.
+        /// </summary>
+        /// <param name="lhs">The first BsonDateTime.</param>
+        /// <param name="rhs">The other BsonDateTime.</param>
+        /// <returns>True if the two BsonDateTime values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonDateTime lhs,
+            BsonDateTime rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
         #endregion
 
         #region public static methods
@@ -204,7 +231,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonDateTime rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.millisecondsSinceEpoch == rhs.millisecondsSinceEpoch && this.value == rhs.value;
         }
 
@@ -216,7 +243,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonDateTime); // works even if obj is null
+            return Equals(obj as BsonDateTime); // works even if obj is null or of a different type
         }
 
         /// <summary>

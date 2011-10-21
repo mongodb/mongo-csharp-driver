@@ -51,10 +51,11 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Initializes a new instance of the BsonReader class.
         /// </summary>
+        /// <param name="settings">The reader settings.</param>
         protected BsonReader(
             BsonReaderSettings settings
         ) {
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.state = BsonReaderState.Initial;
         }
         #endregion

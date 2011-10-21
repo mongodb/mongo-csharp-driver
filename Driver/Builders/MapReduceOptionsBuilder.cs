@@ -25,18 +25,69 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders {
     /// <summary>
+    /// Represents the output mode for a map reduce operation.
+    /// </summary>
+    public enum MapReduceOutputMode {
+        /// <summary>
+        /// The output of the map reduce operation is returned inline.
+        /// </summary>
+        Inline,
+        /// <summary>
+        /// The output of the map reduce operation replaces an existing collection.
+        /// </summary>
+        Replace,
+        /// <summary>
+        /// The output of the map reduce operation is merged with an existing collection.
+        /// </summary>
+        Merge,
+        /// <summary>
+        /// The output of the map reduce operation is merged with an existing collection using the reduce function.
+        /// </summary>
+        Reduce
+    }
+
+    /// <summary>
     /// Represents the output options of a map/reduce operation.
     /// </summary>
     public class MapReduceOutput {
         #region private fields
-        private BsonValue output;
+        private MapReduceOutputMode mode;
+        private string databaseName;
+        private string collectionName;
+        private bool sharded;
         #endregion
 
         #region constructors
-        private MapReduceOutput(
-            BsonValue output
+        /// <summary>
+        /// Creates a new instance of the MapReduceOutput class.
+        /// </summary>
+        public MapReduceOutput() {
+            this.mode = MapReduceOutputMode.Inline;
+        }
+
+        /// <summary>
+        /// Creates a new instance of the MapReduceOutput class.
+        /// </summary>
+        /// <param name="collectionName">The name of the output collection.</param>
+        public MapReduceOutput(
+            string collectionName
         ) {
-            this.output = output;
+            this.mode = MapReduceOutputMode.Replace;
+            this.collectionName = collectionName;
+        }
+
+        /// <summary>
+        /// Creates a new instance of the MapReduceOutput class.
+        /// </summary>
+        /// <param name="databaseName">The name of the database that will contain the output collection.</param>
+        /// <param name="collectionName">The name of the output collection.</param>
+        public MapReduceOutput(
+            string databaseName,
+            string collectionName
+        ) {
+            this.mode = MapReduceOutputMode.Replace;
+            this.databaseName = databaseName;
+            this.collectionName = collectionName;
         }
         #endregion
 
@@ -49,7 +100,7 @@ namespace MongoDB.Driver.Builders {
         public static implicit operator MapReduceOutput(
             string collectionName
         ) {
-            return MapReduceOutput.Replace(collectionName);
+            return new MapReduceOutput(collectionName);
         }
         #endregion
 
@@ -59,9 +110,59 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         public static MapReduceOutput Inline {
             get {
-                var output = new BsonDocument("inline", 1);
-                return new MapReduceOutput(output);
+                return new MapReduceOutput();
             }
+        }
+        #endregion
+
+        #region public properties
+        /// <summary>
+        /// Gets or sets the name of the output collection.
+        /// </summary>
+        public string CollectionName {
+            get { return collectionName; }
+            set {
+                collectionName = value;
+                if (collectionName != null && mode == MapReduceOutputMode.Inline) {
+                    mode = MapReduceOutputMode.Replace;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the database that will contain the output collection.
+        /// </summary>
+        public string DatabaseName {
+            get { return databaseName; }
+            set {
+                databaseName = value;
+                if (databaseName != null && mode == MapReduceOutputMode.Inline) {
+                    mode = MapReduceOutputMode.Replace;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the output mode for the results of the map reduce operation.
+        /// </summary>
+        public MapReduceOutputMode Mode {
+            get { return mode; }
+            set {
+                mode = value;
+                if (mode == MapReduceOutputMode.Inline) {
+                    databaseName = null;
+                    collectionName = null;
+                    sharded = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the output collection is sharded.
+        /// </summary>
+        public bool Sharded {
+            get { return sharded; }
+            set { sharded = value; }
         }
         #endregion
 
@@ -74,8 +175,20 @@ namespace MongoDB.Driver.Builders {
         public static MapReduceOutput Replace(
             string collectionName
         ) {
-            var output = collectionName;
-            return new MapReduceOutput(output);
+            return new MapReduceOutput(collectionName);
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (replaces the entire collection).
+        /// </summary>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <param name="sharded">Whether the output collection is sharded.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Replace(
+            string collectionName,
+            bool sharded
+        ) {
+            return new MapReduceOutput(collectionName) { Sharded = sharded };
         }
 
         /// <summary>
@@ -88,11 +201,22 @@ namespace MongoDB.Driver.Builders {
             string databaseName,
             string collectionName
         ) {
-            var output = new BsonDocument {
-                { "replace", collectionName },
-                { "db", databaseName }
-            };
-            return new MapReduceOutput(output);
+            return new MapReduceOutput(databaseName, collectionName);
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (replaces the entire collection).
+        /// </summary>
+        /// <param name="databaseName">The output database name.</param>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <param name="sharded">Whether the output collection is sharded.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Replace(
+            string databaseName,
+            string collectionName,
+            bool sharded
+        ) {
+            return new MapReduceOutput(databaseName, collectionName) { Sharded = sharded };
         }
 
         /// <summary>
@@ -103,8 +227,20 @@ namespace MongoDB.Driver.Builders {
         public static MapReduceOutput Merge(
             string collectionName
         ) {
-            var output = new BsonDocument("merge", collectionName);
-            return new MapReduceOutput(output);
+            return new MapReduceOutput(collectionName) { Mode = MapReduceOutputMode.Merge };
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (adding new values and overwriting existing ones).
+        /// </summary>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <param name="sharded">Whether the output collection is sharded.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Merge(
+            string collectionName,
+            bool sharded
+        ) {
+            return new MapReduceOutput(collectionName) { Mode = MapReduceOutputMode.Merge, Sharded = sharded };
         }
 
         /// <summary>
@@ -117,11 +253,22 @@ namespace MongoDB.Driver.Builders {
             string databaseName,
             string collectionName
         ) {
-            var output = new BsonDocument {
-                { "merge", collectionName },
-                { "db", databaseName }
-            };
-            return new MapReduceOutput(output);
+            return new MapReduceOutput(databaseName, collectionName) { Mode = MapReduceOutputMode.Merge };
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (adding new values and overwriting existing ones).
+        /// </summary>
+        /// <param name="databaseName">The output database name.</param>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <param name="sharded">Whether the output collection is sharded.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Merge(
+            string databaseName,
+            string collectionName,
+            bool sharded
+        ) {
+            return new MapReduceOutput(databaseName, collectionName) { Mode = MapReduceOutputMode.Merge, Sharded = sharded };
         }
 
         /// <summary>
@@ -132,8 +279,20 @@ namespace MongoDB.Driver.Builders {
         public static MapReduceOutput Reduce(
             string collectionName
         ) {
-            var output = new BsonDocument("reduce", collectionName);
-            return new MapReduceOutput(output);
+            return new MapReduceOutput(collectionName) { Mode = MapReduceOutputMode.Reduce };
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (using the reduce function to combine new values with existing values).
+        /// </summary>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <param name="sharded">Whether the output collection is sharded.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Reduce(
+            string collectionName,
+            bool sharded
+        ) {
+            return new MapReduceOutput(collectionName) { Mode = MapReduceOutputMode.Reduce, Sharded = sharded };
         }
 
         /// <summary>
@@ -146,17 +305,51 @@ namespace MongoDB.Driver.Builders {
             string databaseName,
             string collectionName
         ) {
-            var output = new BsonDocument {
-                { "reduce", collectionName },
-                { "db", databaseName }
-            };
-            return new MapReduceOutput(output);
+            return new MapReduceOutput(databaseName, collectionName) { Mode = MapReduceOutputMode.Reduce };
+        }
+
+        /// <summary>
+        /// Gets a MapReduceOutput value that specifies that the output should be stored in a collection (using the reduce function to combine new values with existing values).
+        /// </summary>
+        /// <param name="databaseName">The output database name.</param>
+        /// <param name="collectionName">The output collection name.</param>
+        /// <param name="sharded">Whether the output collection is sharded.</param>
+        /// <returns>A MapReduceOutput.</returns>
+        public static MapReduceOutput Reduce(
+            string databaseName,
+            string collectionName,
+            bool sharded
+        ) {
+            return new MapReduceOutput(databaseName, collectionName) { Mode = MapReduceOutputMode.Reduce, Sharded = sharded };
         }
         #endregion
 
         #region internal methods
         internal BsonValue ToBsonValue() {
-            return output;
+            if (mode == MapReduceOutputMode.Inline) {
+                if (sharded) {
+                    throw new MongoException("MapReduceOutput cannot be sharded when output mode is Inline.");
+                }
+                return new BsonDocument("inline", 1);
+            } else {
+                if (collectionName == null) {
+                    throw new MongoException("MapReduceOutput collection name is missing.");
+                }
+                if (mode == MapReduceOutputMode.Replace && databaseName == null && !sharded) {
+                    return collectionName;
+                } else {
+                    string modeString = "replace";
+                    switch (mode) {
+                        case MapReduceOutputMode.Merge: modeString = "merge"; break;
+                        case MapReduceOutputMode.Reduce: modeString = "reduce"; break;
+                    }
+                    return new BsonDocument {
+                        { modeString, collectionName },
+                        { "db", databaseName }, // optional
+                        { "sharded", true, sharded } // optional
+                    };
+                }
+            }
         }
         #endregion
     }
@@ -184,6 +377,17 @@ namespace MongoDB.Driver.Builders {
             BsonJavaScript finalize
         ) {
             return new MapReduceOptionsBuilder().SetFinalize(finalize);
+        }
+
+        /// <summary>
+        /// Sets whether to use jsMode for the map reduce operation.
+        /// </summary>
+        /// <param name="value">Whether to use jsMode.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static MapReduceOptionsBuilder SetJSMode(
+            bool value
+        ) {
+            return new MapReduceOptionsBuilder().SetJSMode(value);
         }
 
         /// <summary>
@@ -304,6 +508,18 @@ namespace MongoDB.Driver.Builders {
             BsonJavaScript finalize
         ) {
             document["finalize"] = finalize;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether to use jsMode for the map reduce operation.
+        /// </summary>
+        /// <param name="value">Whether to use jsMode.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public MapReduceOptionsBuilder SetJSMode(
+            bool value
+        ) {
+            document["jsMode"] = value;
             return this;
         }
 

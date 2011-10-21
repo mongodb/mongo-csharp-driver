@@ -57,10 +57,11 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Initializes a new instance of the BsonWriter class.
         /// </summary>
+        /// <param name="settings">The writer settings.</param>
         protected BsonWriter(
             BsonWriterSettings settings
         ) {
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.state = BsonWriterState.Initial;
         }
         #endregion
@@ -678,9 +679,9 @@ namespace MongoDB.Bson.IO {
 
         #region protected methods
         /// <summary>
-        /// Checks that the name is valid.
+        /// Checks that the element name is valid.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The element name to be checked.</param>
         protected void CheckElementName(
             string name
         ) {
@@ -746,8 +747,24 @@ namespace MongoDB.Bson.IO {
             string methodName,
             params BsonWriterState[] validStates
         ) {
+            string message;
+            if (state == BsonWriterState.Initial || state == BsonWriterState.ScopeDocument || state == BsonWriterState.Done) {
+                if (!methodName.StartsWith("End") && methodName != "WriteName") {
+                    var typeName = methodName.Substring(5);
+                    if (typeName.StartsWith("Start")) { 
+                        typeName = typeName.Substring(5);
+                    }
+                    var article = "A";
+                    if (new char[] { 'A', 'E', 'I', 'O', 'U' }.Contains(typeName[0])) {
+                        article = "An";
+                    }
+                    message = string.Format("{0} {1} value cannot be written to the root level of a BSON document.", article, typeName);
+                    throw new InvalidOperationException(message);
+                }
+            }
+
             var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
-            var message = string.Format("{0} can only be called when State is {1}, not when State is {2}", methodName, validStatesString, state);
+            message = string.Format("{0} can only be called when State is {1}, not when State is {2}", methodName, validStatesString, state);
             throw new InvalidOperationException(message);
         }
         #endregion

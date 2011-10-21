@@ -53,7 +53,7 @@ namespace MongoDB.Driver {
             ValidateCollectionName(settings.CollectionName);
             this.server = database.Server;
             this.database = database;
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.name = settings.CollectionName;
         }
         #endregion
@@ -196,6 +196,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Drops this collection.
         /// </summary>
+        /// <returns>A CommandResult.</returns>
         public virtual CommandResult Drop() {
             return database.DropCollection(name);
         }
@@ -547,6 +548,46 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the found documents.</typeparam>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="options">The options for the geoHaystack search (null if none).</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult<TDocument> GeoHaystackSearchAs<TDocument>(
+            double x,
+            double y,
+            IMongoGeoHaystackSearchOptions options
+        ) {
+            return (GeoHaystackSearchResult<TDocument>) GeoHaystackSearchAs(typeof(TDocument), x, y, options);
+        }
+
+        /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="options">The options for the geoHaystack search (null if none).</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult GeoHaystackSearchAs(
+            Type documentType,
+            double x,
+            double y,
+            IMongoGeoHaystackSearchOptions options
+        ) {
+            var command = new CommandDocument {
+                { "geoSearch", name },
+                { "near", new BsonArray { x, y } }
+            };
+            command.Merge(options.ToBsonDocument());
+            var geoHaystackSearchResultDefinition = typeof(GeoHaystackSearchResult<>);
+            var geoHaystackSearchResultType = geoHaystackSearchResultDefinition.MakeGenericType(documentType);
+            return (GeoHaystackSearchResult) database.RunCommandAs(geoHaystackSearchResultType, command);
+        }
+
+        /// <summary>
         /// Runs a GeoNear command on this collection.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
@@ -644,10 +685,10 @@ namespace MongoDB.Driver {
         /// Gets the indexes for this collection.
         /// </summary>
         /// <returns>A list of BsonDocuments that describe the indexes.</returns>
-        public virtual IEnumerable<BsonDocument> GetIndexes() {
+        public virtual GetIndexesResult GetIndexes() {
             var indexes = database.GetCollection("system.indexes");
             var query = Query.EQ("ns", FullName);
-            return indexes.Find(query).ToList(); // force query to execute before returning
+            return new GetIndexesResult(indexes.Find(query).ToArray()); // ToArray forces execution of the query
         }
 
         /// <summary>
@@ -665,10 +706,8 @@ namespace MongoDB.Driver {
         /// <returns>The total data size.</returns>
         public virtual long GetTotalDataSize() {
             var totalSize = GetStats().DataSize;
-            var indexes = GetIndexes();
-            foreach (var index in indexes) {
-                var indexName = index["name"].AsString;
-                var indexCollectionName = string.Format("{0}.${1}", name, indexName);
+            foreach (var index in GetIndexes()) {
+                var indexCollectionName = string.Format("{0}.${1}", name, index.Name);
                 var indexCollection = database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.GetStats().DataSize;
             }
@@ -681,10 +720,8 @@ namespace MongoDB.Driver {
         /// <returns>The total storage size.</returns>
         public virtual long GetTotalStorageSize() {
             var totalSize = GetStats().StorageSize;
-            var indexes = GetIndexes();
-            foreach (var index in indexes) {
-                var indexName = index["name"].AsString;
-                var indexCollectionName = string.Format("{0}.${1}", name, indexName);
+            foreach (var index in GetIndexes()) {
+                var indexCollectionName = string.Format("{0}.${1}", name, index.Name);
                 var indexCollection = database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.GetStats().StorageSize;
             }
@@ -1001,7 +1038,7 @@ namespace MongoDB.Driver {
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames)) {
+                using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames, options.Flags)) {
                     message.WriteToBuffer(); // must be called before AddDocument
 
                     foreach (var document in documents) {
@@ -1123,6 +1160,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Runs the ReIndex command on this collection.
         /// </summary>
+        /// <returns>A CommandResult.</returns>
         public virtual CommandResult ReIndex() {
             var command = new CommandDocument("reIndex", name);
             return database.RunCommand(command);
@@ -1521,6 +1559,7 @@ namespace MongoDB.Driver {
     /// <summary>
     /// Represents a MongoDB collection and the settings used to access it as well as a default document type. This class is thread-safe.
     /// </summary>
+    /// <typeparam name="TDefaultDocument">The default document type of the collection.</typeparam>
     public class MongoCollection<TDefaultDocument> : MongoCollection {
         #region constructors
         /// <summary>
@@ -1585,6 +1624,21 @@ namespace MongoDB.Driver {
             BsonValue id
         ) {
             return FindOneByIdAs<TDefaultDocument>(id);
+        }
+
+        /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="options">The options for the geoHaystack search (null if none).</param>
+        /// <returns>A <see cref="GeoHaystackSearchResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult<TDefaultDocument> GeoHaystackSearch(
+            double x,
+            double y,
+            IMongoGeoHaystackSearchOptions options
+        ) {
+            return GeoHaystackSearchAs<TDefaultDocument>(x, y, options);
         }
 
         /// <summary>

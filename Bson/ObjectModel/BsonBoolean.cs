@@ -87,6 +87,33 @@ namespace MongoDB.Bson {
         ) {
             return BsonBoolean.Create(value);
         }
+
+        /// <summary>
+        /// Compares two BsonBoolean values.
+        /// </summary>
+        /// <param name="lhs">The first BsonBoolean.</param>
+        /// <param name="rhs">The other BsonBoolean.</param>
+        /// <returns>True if the two BsonBoolean values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonBoolean lhs,
+            BsonBoolean rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonBoolean values.
+        /// </summary>
+        /// <param name="lhs">The first BsonBoolean.</param>
+        /// <param name="rhs">The other BsonBoolean.</param>
+        /// <returns>True if the two BsonBoolean values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonBoolean lhs,
+            BsonBoolean rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
         #endregion
 
         #region public static methods
@@ -154,7 +181,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonBoolean rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.value == rhs.value;
         }
 
@@ -166,7 +193,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonBoolean); // works even if obj is null
+            return Equals(obj as BsonBoolean); // works even if obj is null or of a different type
         }
 
         /// <summary>

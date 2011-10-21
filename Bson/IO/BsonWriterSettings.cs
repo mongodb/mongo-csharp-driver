@@ -85,10 +85,22 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Freezes the settings.
         /// </summary>
-        /// <returns>The settings.</returns>
+        /// <returns>The frozen settings.</returns>
         public BsonWriterSettings Freeze() {
             isFrozen = true;
             return this;
+        }
+
+        /// <summary>
+        /// Returns a frozen copy of the settings.
+        /// </summary>
+        /// <returns>A frozen copy of the settings.</returns>
+        public BsonWriterSettings FrozenCopy() {
+            if (isFrozen) {
+                return this;
+            } else {
+                return Clone().Freeze();
+            }
         }
         #endregion
 

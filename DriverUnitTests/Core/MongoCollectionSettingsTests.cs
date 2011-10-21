@@ -27,13 +27,13 @@ namespace MongoDB.DriverUnitTests {
     public class MongoCollectionSettingsTests {
         [Test]
         public void TestAll() {
-            var settings = new MongoCollectionSettings<BsonDocument>(
-                "collection",
-                true, // asssignIdOnInsert
-                GuidRepresentation.CSharpLegacy,
-                SafeMode.Create(5, TimeSpan.FromSeconds(5)),
-                true // slaveOkd
-            );
+            var server = MongoServer.Create();
+            var database = server["test"];
+            var settings = new MongoCollectionSettings<BsonDocument>(database, "collection") {
+                AssignIdOnInsert = true,
+                SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5)),
+                SlaveOk = true
+            };
 
             Assert.AreEqual("collection", settings.CollectionName);
             Assert.AreEqual(true, settings.AssignIdOnInsert);
@@ -51,6 +51,19 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsTrue(settings.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
+        }
+
+        [Test]
+        public void TestFrozenCopy() {
+            var server = MongoServer.Create();
+            var database = server["test"];
+            var settings = new MongoCollectionSettings<BsonDocument>(database, "collection");
+            var frozenCopy = settings.FrozenCopy();
+            var secondFrozenCopy = frozenCopy.FrozenCopy();
+            Assert.AreNotSame(settings, frozenCopy);
+            Assert.AreSame(frozenCopy, secondFrozenCopy);
+            Assert.AreEqual(false, settings.IsFrozen);
+            Assert.AreEqual(true, frozenCopy.IsFrozen);
         }
     }
 }

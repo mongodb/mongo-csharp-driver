@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Internal {
         #region private fields
         private string collectionFullName;
         private bool checkElementNames;
+        private InsertFlags flags;
         private int firstDocumentStartPosition;
         private int lastDocumentStartPosition;
         #endregion
@@ -37,11 +38,13 @@ namespace MongoDB.Driver.Internal {
         internal MongoInsertMessage(
             BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
-            bool checkElementNames
+            bool checkElementNames,
+            InsertFlags flags
         )
             : base(MessageOpcode.Insert, null, writerSettings) {
             this.collectionFullName = collectionFullName;
             this.checkElementNames = checkElementNames;
+            this.flags = flags;
         }
         #endregion
 
@@ -79,7 +82,7 @@ namespace MongoDB.Driver.Internal {
 
         #region protected methods
         protected override void WriteBody() {
-            buffer.WriteInt32(0); // reserved
+            buffer.WriteInt32((int) flags);
             buffer.WriteCString(collectionFullName);
             firstDocumentStartPosition = buffer.Position;
             // documents to be added later by calling AddDocument

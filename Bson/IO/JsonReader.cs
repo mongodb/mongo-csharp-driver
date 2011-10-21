@@ -943,10 +943,142 @@ namespace MongoDB.Bson.IO {
         private DateTime ParseJavaScriptDateTimeString(
             string dateTimeString
         ) {
-            // with some minor tweaks we can make a JavaScript dateTimeString acceptable to DateTime.Parse
-            dateTimeString = Regex.Replace(dateTimeString, @" +\(.+\)$", ""); // remove timeZone name
-            dateTimeString = Regex.Replace(dateTimeString, @"GMT([+-])(\d\d)(\d\d)", @"$1$2:$3"); // replace GMT+hhmm with +hh:mm
-            return DateTime.Parse(dateTimeString);
+            // if DateTime.TryParse succeeds we're done, otherwise assume it's an RFC 822 formatted DateTime string
+            DateTime dateTime;
+            if (DateTime.TryParse(dateTimeString, out dateTime)) {
+                return dateTime;
+            } else {
+                var rfc822DateTimePattern =
+                    @"^((?<dayOfWeek>(Mon|Tue|Wed|Thu|Fri|Sat|Sun)), )?" +
+                    @"(?<day>\d{1,2}) +" +
+                    @"(?<monthName>Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) " +
+                    @"(?<year>\d{2}|\d{4}) " +
+                    @"(?<hour>\d{1,2}):" +
+                    @"(?<minutes>\d{1,2}):" +
+                    @"(?<seconds>\d{1,2}(.\d{1,7})?) " +
+                    @"(?<zone>UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-Z]|([+-]\d{4}))$";
+                var match = Regex.Match(dateTimeString, rfc822DateTimePattern);
+                if (match.Success) {
+                    var day = int.Parse(match.Groups["day"].Value);
+
+                    int month;
+                    var monthName = match.Groups["monthName"].Value;
+                    switch (monthName) {
+                        case "Jan": month = 1; break;
+                        case "Feb": month = 2; break;
+                        case "Mar": month = 3; break;
+                        case "Apr": month = 4; break;
+                        case "May": month = 5; break;
+                        case "Jun": month = 6; break;
+                        case "Jul": month = 7; break;
+                        case "Aug": month = 8; break;
+                        case "Sep": month = 9; break;
+                        case "Oct": month = 10; break;
+                        case "Nov": month = 11; break;
+                        case "Dec": month = 12; break;
+                        default:
+                            var message = string.Format("\"{0}\" is not a valid RFC 822 month name.", monthName);
+                            throw new FileFormatException(message);
+                    }
+
+                    var yearString = match.Groups["year"].Value;
+                    int year = int.Parse(yearString);
+                    if (yearString.Length == 2) {
+                        year += 2000;
+                        if (year - DateTime.UtcNow.Year >= 19) { year -= 100; }
+                    }
+
+                    var hour = int.Parse(match.Groups["hour"].Value);
+                    var minutes = int.Parse(match.Groups["minutes"].Value);
+                    var secondsString = match.Groups["seconds"].Value;
+                    int seconds;
+                    double milliseconds;
+                    if (secondsString.Contains(".")) {
+                        var timeSpan = TimeSpan.FromSeconds(double.Parse(secondsString));
+                        seconds = timeSpan.Seconds;
+                        milliseconds = timeSpan.TotalMilliseconds - seconds * 1000;
+                    } else {
+                        seconds = int.Parse(secondsString);
+                        milliseconds = 0;
+                    }
+
+                    dateTime = new DateTime(year, month, day, hour, minutes, seconds, DateTimeKind.Utc).AddMilliseconds(milliseconds);
+
+                    // check day of week before converting to UTC
+                    var dayOfWeekString = match.Groups["dayOfWeek"].Value;
+                    if (dayOfWeekString != "") {
+                        DayOfWeek dayOfWeek;
+                        switch (dayOfWeekString) {
+                            case "Mon": dayOfWeek = DayOfWeek.Monday; break;
+                            case "Tue": dayOfWeek = DayOfWeek.Tuesday; break;
+                            case "Wed": dayOfWeek = DayOfWeek.Wednesday; break;
+                            case "Thu": dayOfWeek = DayOfWeek.Thursday; break;
+                            case "Fri": dayOfWeek = DayOfWeek.Friday; break;
+                            case "Sat": dayOfWeek = DayOfWeek.Saturday; break;
+                            case "Sun": dayOfWeek = DayOfWeek.Sunday; break;
+                            default:
+                                var message = string.Format("\"{0}\" is not a valid RFC 822 day name.", dayOfWeekString);
+                                throw new FileFormatException(message);
+                        }
+                        if (dateTime.DayOfWeek != dayOfWeek) {
+                            var message = string.Format("\"{0}\" is not the right day of the week for {1}.", dayOfWeekString, dateTime.ToString("o"));
+                            throw new FileFormatException(message);
+                        }
+                    }
+
+                    TimeSpan offset;
+                    var zone = match.Groups["zone"].Value;
+                    switch (zone) {
+                        case "UT": case "GMT": case "Z": offset = TimeSpan.Zero; break;
+                        case "EST": offset = TimeSpan.FromHours(-5); break;
+                        case "EDT": offset = TimeSpan.FromHours(-4); break;
+                        case "CST": offset = TimeSpan.FromHours(-6); break;
+                        case "CDT": offset = TimeSpan.FromHours(-5); break;
+                        case "MST": offset = TimeSpan.FromHours(-7); break;
+                        case "MDT": offset = TimeSpan.FromHours(-6); break;
+                        case "PST": offset = TimeSpan.FromHours(-8); break;
+                        case "PDT": offset = TimeSpan.FromHours(-7); break;
+                        case "A": offset = TimeSpan.FromHours(-1); break;
+                        case "B": offset = TimeSpan.FromHours(-2); break;
+                        case "C": offset = TimeSpan.FromHours(-3); break;
+                        case "D": offset = TimeSpan.FromHours(-4); break;
+                        case "E": offset = TimeSpan.FromHours(-5); break;
+                        case "F": offset = TimeSpan.FromHours(-6); break;
+                        case "G": offset = TimeSpan.FromHours(-7); break;
+                        case "H": offset = TimeSpan.FromHours(-8); break;
+                        case "I": offset = TimeSpan.FromHours(-9); break;
+                        case "K": offset = TimeSpan.FromHours(-10); break;
+                        case "L": offset = TimeSpan.FromHours(-11); break;
+                        case "M": offset = TimeSpan.FromHours(-12); break;
+                        case "N": offset = TimeSpan.FromHours(1); break;
+                        case "O": offset = TimeSpan.FromHours(2); break;
+                        case "P": offset = TimeSpan.FromHours(3); break;
+                        case "Q": offset = TimeSpan.FromHours(4); break;
+                        case "R": offset = TimeSpan.FromHours(5); break;
+                        case "S": offset = TimeSpan.FromHours(6); break;
+                        case "T": offset = TimeSpan.FromHours(7); break;
+                        case "U": offset = TimeSpan.FromHours(8); break;
+                        case "V": offset = TimeSpan.FromHours(9); break;
+                        case "W": offset = TimeSpan.FromHours(10); break;
+                        case "X": offset = TimeSpan.FromHours(11); break;
+                        case "Y": offset = TimeSpan.FromHours(12); break;
+                        default:
+                            var offsetSign = zone.Substring(0);
+                            var offsetHours = zone.Substring(1, 2);
+                            var offsetMinutes = zone.Substring(3, 2);
+                            offset = TimeSpan.FromHours(int.Parse(offsetHours)) + TimeSpan.FromMinutes(int.Parse(offsetMinutes));
+                            if (offsetSign == "-") {
+                                offset = -offset;
+                            }
+                            break;
+                    }
+
+                    return dateTime.Add(-offset);
+                } else {
+                    var message = string.Format("The DateTime string \"{0}\" is not a valid DateTime string for either .NET or JavaScript.", dateTimeString);
+                    throw new FileFormatException(message);
+                }
+            }
         }
 
         private BsonValue ParseMaxKeyExtendedJson() {

@@ -28,10 +28,14 @@ namespace MongoDB.Driver {
     [Serializable]
     public class CommandResult {
         #region protected fields
-#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)
+        /// <summary>
+        /// The command.
+        /// </summary>
         protected IMongoCommand command;
+        /// <summary>
+        /// The response.
+        /// </summary>
         protected BsonDocument response;
-#pragma warning restore
         #endregion
 
         #region constructors

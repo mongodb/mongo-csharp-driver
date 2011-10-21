@@ -39,7 +39,24 @@ namespace MongoDB.Driver {
 
         #region constructors
         /// <summary>
-        /// Creates a new instance of MongoDatabaseSettings. Usually you would call MongoServer.CreateDatabaseSettings instead.
+        /// Creates a new instance of MongoDatabaseSettings.
+        /// </summary>
+        /// <param name="server">The server to inherit settings from.</param>
+        /// <param name="databaseName">The name of the database.</param>
+        public MongoDatabaseSettings(
+            MongoServer server,
+            string databaseName
+        ) {
+            var serverSettings = server.Settings;
+            this.databaseName = databaseName;
+            this.credentials = serverSettings.DefaultCredentials;
+            this.guidRepresentation = serverSettings.GuidRepresentation;
+            this.safeMode = serverSettings.SafeMode;
+            this.slaveOk = serverSettings.SlaveOk;
+        }
+
+        /// <summary>
+        /// Creates a new instance of MongoDatabaseSettings.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="credentials">The credentials to access the database.</param>
@@ -160,16 +177,29 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Freezes the settings to prevent any further changes to them.
+        /// Freezes the settings.
         /// </summary>
-        /// <returns>Itself.</returns>
+        /// <returns>The frozen settings.</returns>
         public MongoDatabaseSettings Freeze() {
             if (!isFrozen) {
+                safeMode = safeMode.FrozenCopy();
                 frozenHashCode = GetHashCodeHelper();
                 frozenStringRepresentation = ToStringHelper();
                 isFrozen = true;
             }
             return this;
+        }
+
+        /// <summary>
+        /// Returns a frozen copy of the settings.
+        /// </summary>
+        /// <returns>A frozen copy of the settings.</returns>
+        public MongoDatabaseSettings FrozenCopy() {
+            if (isFrozen) {
+                return this;
+            } else {
+                return Clone().Freeze();
+            }
         }
 
         /// <summary>

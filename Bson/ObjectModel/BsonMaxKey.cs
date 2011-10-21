@@ -35,6 +35,35 @@ namespace MongoDB.Bson {
         }
         #endregion
 
+        #region public operators
+        /// <summary>
+        /// Compares two BsonMaxKey values.
+        /// </summary>
+        /// <param name="lhs">The first BsonMaxKey.</param>
+        /// <param name="rhs">The other BsonMaxKey.</param>
+        /// <returns>True if the two BsonMaxKey values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonMaxKey lhs,
+            BsonMaxKey rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonMaxKey values.
+        /// </summary>
+        /// <param name="lhs">The first BsonMaxKey.</param>
+        /// <param name="rhs">The other BsonMaxKey.</param>
+        /// <returns>True if the two BsonMaxKey values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonMaxKey lhs,
+            BsonMaxKey rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
+        #endregion
+
         #region public static properties
         /// <summary>
         /// Gets the singleton instance of BsonMaxKey.
@@ -76,7 +105,8 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonMaxKey rhs
         ) {
-            return rhs != null; // it's a singleton
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return true; // it's a singleton
         }
 
         /// <summary>
@@ -87,7 +117,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonMaxKey); // works even if obj is null
+            return Equals(obj as BsonMaxKey); // works even if obj is null or of a different type
         }
 
         /// <summary>

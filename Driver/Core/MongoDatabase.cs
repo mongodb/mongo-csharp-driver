@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -29,6 +30,10 @@ namespace MongoDB.Driver {
     /// Represents a MongoDB database and the settings used to access it. This class is thread-safe.
     /// </summary>
     public class MongoDatabase {
+        #region private static fields
+        private static HashSet<char> invalidDatabaseNameChars;
+        #endregion
+
         #region private fields
         private object databaseLock = new object();
         private MongoServer server;
@@ -37,6 +42,15 @@ namespace MongoDB.Driver {
         private Dictionary<MongoCollectionSettings, MongoCollection> collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
         private MongoCollection<BsonDocument> commandCollection;
         private MongoGridFS gridFS;
+        #endregion
+
+        #region static constructor
+        static MongoDatabase() {
+            // MongoDB itself prohibits some characters and the rest are prohibited by the Windows restrictions on filenames
+            invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
+            foreach (var c in Path.GetInvalidPathChars()) { invalidDatabaseNameChars.Add(c); }
+            foreach (var c in Path.GetInvalidFileNameChars()) { invalidDatabaseNameChars.Add(c); }
+        }
         #endregion
 
         #region constructors
@@ -52,11 +66,12 @@ namespace MongoDB.Driver {
         ) {
             ValidateDatabaseName(settings.DatabaseName);
             this.server = server;
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.name = settings.DatabaseName;
 
-            var commandCollectionSettings = CreateCollectionSettings<BsonDocument>("$cmd");
-            commandCollectionSettings.AssignIdOnInsert = false;
+            var commandCollectionSettings = new MongoCollectionSettings<BsonDocument>(this, "$cmd") {
+                AssignIdOnInsert = false
+            };
             if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet) {
                 // make sure commands get routed to the primary server by using slaveOk false
                 commandCollectionSettings.SlaveOk = false;
@@ -331,11 +346,8 @@ namespace MongoDB.Driver {
             string collectionName
         ) {
             return new MongoCollectionSettings<TDefaultDocument>(
-                collectionName,
-                MongoDefaults.AssignIdOnInsert,
-                settings.GuidRepresentation,
-                settings.SafeMode,
-                settings.SlaveOk
+                this,
+                collectionName
             );
         }
 
@@ -352,14 +364,11 @@ namespace MongoDB.Driver {
         ) {
             var settingsDefinition = typeof(MongoCollectionSettings<>);
             var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(string), typeof(bool), typeof(GuidRepresentation), typeof(SafeMode), typeof(bool) });
+            var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string) });
             return (MongoCollectionSettings) constructorInfo.Invoke(
                 new object[] {
-                    collectionName,
-                    MongoDefaults.AssignIdOnInsert,
-                    settings.GuidRepresentation,
-                    settings.SafeMode,
-                    settings.SlaveOk
+                    this,
+                    collectionName
                 }
             );
         }
@@ -529,12 +538,13 @@ namespace MongoDB.Driver {
         /// Gets a MongoCollection instance representing a collection on this database
         /// with a default document type of TDefaultDocument.
         /// </summary>
+        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName
         ) {
-            var collectionSettings = CreateCollectionSettings<TDefaultDocument>(collectionName);
+            var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
             return GetCollection(collectionSettings);
         }
 
@@ -542,6 +552,7 @@ namespace MongoDB.Driver {
         /// Gets a MongoCollection instance representing a collection on this database
         /// with a default document type of TDefaultDocument.
         /// </summary>
+        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
@@ -549,8 +560,9 @@ namespace MongoDB.Driver {
             string collectionName,
             SafeMode safeMode
         ) {
-            var collectionSettings = CreateCollectionSettings<TDefaultDocument>(collectionName);
-            collectionSettings.SafeMode = safeMode;
+            var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName) {
+                SafeMode = safeMode
+            };
             return GetCollection(collectionSettings);
         }
 
@@ -585,7 +597,7 @@ namespace MongoDB.Driver {
         public virtual MongoCollection<BsonDocument> GetCollection(
             string collectionName
         ) {
-            var collectionSettings = CreateCollectionSettings<BsonDocument>(collectionName);
+            var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName);
             return GetCollection(collectionSettings);
         }
 
@@ -600,8 +612,9 @@ namespace MongoDB.Driver {
             string collectionName,
             SafeMode safeMode
         ) {
-            var collectionSettings = CreateCollectionSettings<BsonDocument>(collectionName);
-            collectionSettings.SafeMode = safeMode;
+            var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName) {
+                SafeMode = safeMode
+            };
             return GetCollection(collectionSettings);
         }
 
@@ -679,6 +692,28 @@ namespace MongoDB.Driver {
         // TODO: mongo shell has GetPrevError at the database level?
         // TODO: mongo shell has GetProfilingLevel at the database level?
         // TODO: mongo shell has GetReplicationInfo at the database level?
+
+        /// <summary>
+        /// Gets one or more documents from the system.profile collection.
+        /// </summary>
+        /// <param name="query">A query to select which documents to return.</param>
+        /// <returns>A cursor.</returns>
+        public MongoCursor<SystemProfileInfo> GetProfilingInfo(
+            IMongoQuery query
+        ) {
+            var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { SlaveOk = false };
+            var collection = GetCollection<SystemProfileInfo>(collectionSettings);
+            return collection.Find(query);
+        }
+
+        /// <summary>
+        /// Gets the current profiling level.
+        /// </summary>
+        /// <returns>The profiling level.</returns>
+        public GetProfilingLevelResult GetProfilingLevel() {
+            var command = new CommandDocument("profile", -1);
+            return RunCommandAs<GetProfilingLevelResult>(command);
+        }
 
         /// <summary>
         /// Gets a sister database on the same server.
@@ -822,6 +857,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Runs a command on this database and returns the result as a TCommandResult.
         /// </summary>
+        /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="command">The command object.</param>
         /// <returns>A TCommandResult</returns>
         public virtual TCommandResult RunCommandAs<TCommandResult>(
@@ -833,6 +869,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Runs a command on this database and returns the result as a TCommandResult.
         /// </summary>
+        /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="commandName">The name of the command.</param>
         /// <returns>A TCommandResult</returns>
         public virtual TCommandResult RunCommandAs<TCommandResult>(
@@ -884,6 +921,34 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Sets the level of profile information to write.
+        /// </summary>
+        /// <param name="level">The profiling level.</param>
+        /// <returns>A CommandResult.</returns>
+        public virtual CommandResult SetProfilingLevel(
+            ProfilingLevel level
+        ) {
+            return SetProfilingLevel(level, TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Sets the level of profile information to write.
+        /// </summary>
+        /// <param name="level">The profiling level.</param>
+        /// <param name="slow">The threshold that defines a slow query.</param>
+        /// <returns>A CommandResult.</returns>
+        public virtual CommandResult SetProfilingLevel(
+            ProfilingLevel level,
+            TimeSpan slow
+        ) {
+            var command = new CommandDocument {
+                { "profile", (int) level },
+                { "slowms", slow.TotalMilliseconds, slow != TimeSpan.Zero } // optional
+            };
+            return RunCommand(command);
+        }
+
+        /// <summary>
         /// Gets a canonical string representation for this database.
         /// </summary>
         /// <returns>A canonical string representation for this database.</returns>
@@ -902,11 +967,17 @@ namespace MongoDB.Driver {
             if (name == "") {
                 throw new ArgumentException("Database name is empty.");
             }
-            if (name.IndexOfAny(new char[] { '\0', ' ', '.', '$', '/', '\\' }) != -1) {
-                throw new ArgumentException("Database name cannot contain the following special characters: null, space, period, $, / or \\.");
+            foreach (var c in name) {
+                if (invalidDatabaseNameChars.Contains(c)) {
+                    var bytes = new byte[] { (byte) ((int) c >> 8), (byte) ((int) c & 255) };
+                    var hex = BsonUtils.ToHexString(bytes);
+                    var message = string.Format("Database name '{0}' is not valid. The character 0x{1} '{2}' is not allowed in database names.", name, hex, c);
+                    throw new ArgumentException(message);
+                }
             }
             if (Encoding.UTF8.GetBytes(name).Length > 64) {
-                throw new ArgumentException("Database name cannot exceed 64 bytes (after encoding to UTF8).");
+                var message = string.Format("Database name '{0}' exceeds 64 bytes (after encoding to UTF8).", name);
+                throw new ArgumentException(message);
             }
         }
         #endregion

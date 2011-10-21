@@ -28,7 +28,7 @@ namespace MongoDB.Driver.GridFS {
     /// <summary>
     /// Represents information about a GridFS file (patterned after .NET's FileInfo class).
     /// </summary>
-    public class MongoGridFSFileInfo : IBsonSerializable {
+    public class MongoGridFSFileInfo : IBsonSerializable, IEquatable<MongoGridFSFileInfo> {
         #region private fields
         // these fields are considered in Equals and GetHashCode
         private string[] aliases;
@@ -331,7 +331,7 @@ namespace MongoDB.Driver.GridFS {
         public bool Equals(
             MongoGridFSFileInfo rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return
                 (this.aliases == null && rhs.aliases == null || this.aliases != null && rhs.aliases != null && this.aliases.SequenceEqual(rhs.aliases)) &&
                 this.chunkSize == rhs.chunkSize &&
@@ -350,7 +350,7 @@ namespace MongoDB.Driver.GridFS {
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a MongoGridFSFileInfo and equal to this one.</returns>
         public override bool Equals(object obj) {
-            return Equals(obj as MongoGridFSFileInfo); // works even if obj is null
+            return Equals(obj as MongoGridFSFileInfo); // works even if obj is null or of a different type
         }
 
         /// <summary>

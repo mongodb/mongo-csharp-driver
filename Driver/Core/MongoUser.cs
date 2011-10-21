@@ -94,7 +94,7 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <returns></returns>
+        /// <returns>The password hash.</returns>
         public static string HashPassword(
             string username,
             string password

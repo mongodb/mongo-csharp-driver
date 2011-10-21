@@ -60,7 +60,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
 
         [Test]
         public void TestNewDateString() {
-            var dateTimeString = "Thu Jul 07 2011 14:58:59 GMT-0400 (Eastern Daylight Time)";
+            var dateTimeString = "Thu, 07 Jul 2011 14:58:59 EDT";
             var json = string.Format("{{ date : new Date('{0}') }}", dateTimeString);
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);

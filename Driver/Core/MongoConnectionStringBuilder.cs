@@ -38,6 +38,7 @@ namespace MongoDB.Driver {
             { "database", "database" },
             { "fsync", "fsync" },
             { "guids", "guids" },
+            { "j", "j" },
             { "maxidletime", "maxIdleTime" },
             { "maxlifetime", "maxLifeTime" },
             { "maxpoolsize", "maxPoolSize" },
@@ -248,17 +249,20 @@ namespace MongoDB.Driver {
                     base["w"] = null;
                     base["wtimeout"] = null;
                     base["fsync"] = null;
+                    base["j"] = null;
                 } else {
                     if (value.Enabled) {
                         base["safe"] = "true";
-                        base["w"] = (value.W != 0) ? value.W.ToString() : null;
+                        base["w"] = (value.W != 0) ? value.W.ToString() : (value.WMode != null) ? value.WMode : null;
                         base["wtimeout"] = (value.W != 0 && value.WTimeout != TimeSpan.Zero) ? MongoUrlBuilder.FormatTimeSpan(value.WTimeout) : null;
                         base["fsync"] = (value.FSync) ? "true" : null;
+                        base["j"] = (value.J) ? "true" : null;
                     } else {
                         base["safe"] = "false";
                         base["w"] = null;
                         base["wtimeout"] = null;
                         base["fsync"] = null;
+                        base["j"] = null;
                     }
                 }
             }
@@ -367,9 +371,6 @@ namespace MongoDB.Driver {
             }
             set {
                 if (keyword == null) { throw new ArgumentNullException("keyword"); }
-                bool fsync;
-                int w;
-                TimeSpan wtimeout;
                 switch (keyword.ToLower()) {
                     case "connect":
                         if (value is string) {
@@ -386,16 +387,20 @@ namespace MongoDB.Driver {
                         DatabaseName = (string) value;
                         break;
                     case "fsync":
-                        fsync = Convert.ToBoolean(value);
-                        w = (safeMode != null) ? safeMode.W : 0;
-                        wtimeout = (safeMode != null) ? safeMode.WTimeout : TimeSpan.Zero;
-                        SafeMode = SafeMode.Create(true, fsync, w, wtimeout);
+                        if (safeMode == null) { safeMode = new SafeMode(false); }
+                        safeMode.FSync = Convert.ToBoolean(value);
+                        SafeMode = safeMode;
                         break;
                     case "guids":
                         GuidRepresentation = (GuidRepresentation) Enum.Parse(typeof(GuidRepresentation), (string) value, true); // ignoreCase
                         break;
                     case "ipv6":
                         IPv6 = Convert.ToBoolean(value);
+                        break;
+                    case "j":
+                        if (safeMode == null) { safeMode = new SafeMode(false); }
+                        safeMode.J = Convert.ToBoolean(value);
+                        SafeMode = safeMode;
                         break;
                     case "maxidletime":
                     case "maxidletimems":
@@ -419,14 +424,9 @@ namespace MongoDB.Driver {
                         ConnectionMode = ConnectionMode.ReplicaSet;
                         break;
                     case "safe":
-                        if (Convert.ToBoolean(value)) {
-                            fsync = (safeMode == null) ? false : safeMode.FSync;
-                            w = (safeMode == null) ? 0 : safeMode.W;
-                            wtimeout = (w == 0 || safeMode == null) ? TimeSpan.Zero : safeMode.WTimeout;
-                            SafeMode = SafeMode.Create(true, fsync, w, wtimeout);
-                        } else {
-                            SafeMode = SafeMode.False;
-                        }
+                        if (safeMode == null) { safeMode = new SafeMode(false); }
+                        safeMode.Enabled = Convert.ToBoolean(value);
+                        SafeMode = safeMode;
                         break;
                     case "server":
                     case "servers":
@@ -443,10 +443,13 @@ namespace MongoDB.Driver {
                         Username = (string) value;
                         break;
                     case "w":
-                        w = Convert.ToInt32(value);
-                        fsync = (safeMode == null) ? false : safeMode.FSync;
-                        wtimeout = (w == 0 || safeMode == null) ? TimeSpan.Zero : safeMode.WTimeout;
-                        SafeMode = SafeMode.Create(true, fsync, w, wtimeout);
+                        if (safeMode == null) { safeMode = new SafeMode(false); }
+                        try {
+                            safeMode.W = Convert.ToInt32(value);
+                        } catch (FormatException) {
+                            safeMode.WMode = (string) value;
+                        }
+                        SafeMode = safeMode;
                         break;
                     case "waitqueuemultiple":
                         WaitQueueMultiple = Convert.ToDouble(value);
@@ -461,10 +464,9 @@ namespace MongoDB.Driver {
                         WaitQueueTimeout = ToTimeSpan(keyword, value);
                         break;
                     case "wtimeout":
-                        wtimeout = ToTimeSpan(keyword, value);
-                        fsync = (safeMode == null) ? false : safeMode.FSync;
-                        w = (safeMode == null) ? 0 : safeMode.W;
-                        SafeMode = SafeMode.Create(true, fsync, w, wtimeout);
+                        if (safeMode == null) { safeMode = new SafeMode(false); }
+                        safeMode.WTimeout = ToTimeSpan(keyword, value);
+                        SafeMode = safeMode;
                         break;
                     default:
                         var message = string.Format("Invalid keyword '{0}'.", keyword);

@@ -399,7 +399,9 @@ namespace MongoDB.Driver.Internal {
                     safeModeCommand = new CommandDocument {
                         { "getlasterror", 1 }, // use all lowercase for backward compatibility
                         { "fsync", true, safeMode.FSync },
+                        { "j", true, safeMode.J },
                         { "w", safeMode.W, safeMode.W > 1 },
+                        { "w", safeMode.WMode, safeMode.WMode != null },
                         { "wtimeout", (int) safeMode.WTimeout.TotalMilliseconds, safeMode.W > 1 && safeMode.WTimeout != TimeSpan.Zero }
                     };
                     using (

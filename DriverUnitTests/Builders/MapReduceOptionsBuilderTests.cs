@@ -40,6 +40,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestJSMode() {
+            var options = MapReduceOptions.SetJSMode(true);
+            var expected = "{ \"jsMode\" : true }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestKeepTemp() {
             var options = MapReduceOptions.SetKeepTemp(true);
             var expected = "{ \"keeptemp\" : true }";
@@ -68,9 +75,23 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutReplaceSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("name", true));
+            var expected = "{ \"out\" : { \"replace\" : \"name\", \"sharded\" : true } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestOutReplaceWithDatabase() {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("database", "name"));
             var expected = "{ \"out\" : { \"replace\" : \"name\", \"db\" : \"database\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutReplaceWithDatabaseSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Replace("database", "name", true));
+            var expected = "{ \"out\" : { \"replace\" : \"name\", \"db\" : \"database\", \"sharded\" : true } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -82,9 +103,23 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutMergeSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("name", true));
+            var expected = "{ \"out\" : { \"merge\" : \"name\", \"sharded\" : true } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestOutMergeWithDatabase() {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("database", "name"));
             var expected = "{ \"out\" : { \"merge\" : \"name\", \"db\" : \"database\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutMergeWithDatabaseSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Merge("database", "name", true));
+            var expected = "{ \"out\" : { \"merge\" : \"name\", \"db\" : \"database\", \"sharded\" : true } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -96,9 +131,23 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
+        public void TestOutReduceSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("name", true));
+            var expected = "{ \"out\" : { \"reduce\" : \"name\", \"sharded\" : true } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestOutReduceWithDatabase() {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("database", "name"));
             var expected = "{ \"out\" : { \"reduce\" : \"name\", \"db\" : \"database\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestOutReduceWithDatabaseSharded() {
+            var options = MapReduceOptions.SetOutput(MapReduceOutput.Reduce("database", "name", true));
+            var expected = "{ \"out\" : { \"reduce\" : \"name\", \"db\" : \"database\", \"sharded\" : true } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -148,6 +197,13 @@ namespace MongoDB.DriverUnitTests.Builders {
         public void TestQueryAndFinalize() {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetFinalize("code");
             var expected = "{ \"query\" : { \"x\" : 1 }, \"finalize\" : { \"$code\" : \"code\" } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestQueryAndJSMode() {
+            var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetJSMode(true);
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"jsMode\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 

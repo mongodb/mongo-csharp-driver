@@ -43,7 +43,7 @@ namespace MongoDB.Driver.GridFS {
         public MongoGridFS(
             MongoDatabase database
         )
-            : this(database, MongoGridFSSettings.Defaults) {
+            : this(database, new MongoGridFSSettings(database)) {
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.GridFS {
             MongoGridFSSettings settings
         ) {
             this.database = database;
-            this.settings = settings.Freeze();
+            this.settings = settings.FrozenCopy();
             this.chunks = database[settings.ChunksCollectionName, settings.SafeMode];
             this.files = database[settings.FilesCollectionName, settings.SafeMode];
         }

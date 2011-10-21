@@ -25,21 +25,70 @@ namespace MongoDB.Driver {
     /// The settings used to access a collection (an abstract class, see MongoCollectionSettings{TDefaultDocument}).
     /// </summary>
     public abstract class MongoCollectionSettings {
-#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)     
         #region protected fields
+        /// <summary>
+        /// The name of the collection.
+        /// </summary>
         protected string collectionName;
+        /// <summary>
+        /// Whether to automatically assign a value to an empty document Id on insert.
+        /// </summary>
         protected bool assignIdOnInsert;
+        /// <summary>
+        /// The default document type of the collection.
+        /// </summary>
         protected Type defaultDocumentType;
+        /// <summary>
+        /// The GUID representation.
+        /// </summary>
         protected GuidRepresentation guidRepresentation;
+        /// <summary>
+        /// The SafeMode.
+        /// </summary>
         protected SafeMode safeMode;
+        /// <summary>
+        /// Whether to route reads to secondaries.
+        /// </summary>
         protected bool slaveOk;
+        #endregion
+
+        #region private fields
         // the following fields are set when Freeze is called
-        protected bool isFrozen;
-        protected int frozenHashCode;
-        protected string frozenStringRepresentation;
+        private bool isFrozen;
+        private int frozenHashCode;
+        private string frozenStringRepresentation;
         #endregion
 
         #region constructors
+        /// <summary>
+        /// Initializes a new instance of the MongoCollectionSettings class.
+        /// </summary>
+        /// <param name="database">The database that contains the collection (some collection settings will be inherited from the database settings).</param>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="defaultDocumentType">The default document type for the collection.</param>
+        protected MongoCollectionSettings(
+            MongoDatabase database,
+            string collectionName,
+            Type defaultDocumentType
+        ) {
+            var databaseSettings = database.Settings;
+            this.collectionName = collectionName;
+            this.assignIdOnInsert = MongoDefaults.AssignIdOnInsert;
+            this.defaultDocumentType = defaultDocumentType;
+            this.guidRepresentation = databaseSettings.GuidRepresentation;
+            this.safeMode = databaseSettings.SafeMode;
+            this.slaveOk = databaseSettings.SlaveOk;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MongoCollectionSettings class.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="assignIdOnInsert">Whether to automatically assign a value to an empty document Id on insert.</param>
+        /// <param name="defaultDocumentType">The default document type for the collection.</param>
+        /// <param name="guidRepresentation">The GUID representation to use with this collection.</param>
+        /// <param name="safeMode">The SafeMode to use with this collection.</param>
+        /// <param name="slaveOk">Whether to route reads to secondaries for this collection.</param>
         protected MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
@@ -56,7 +105,6 @@ namespace MongoDB.Driver {
             this.slaveOk = slaveOk;
         }
         #endregion
-#pragma warning restore
 
         #region public properties
         /// <summary>
@@ -65,7 +113,7 @@ namespace MongoDB.Driver {
         public bool AssignIdOnInsert {
             get { return assignIdOnInsert; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                if (isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
                 assignIdOnInsert = value;
             }
         }
@@ -90,7 +138,7 @@ namespace MongoDB.Driver {
         public GuidRepresentation GuidRepresentation {
             get { return guidRepresentation; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                if (isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
                 guidRepresentation = value;
             }
         }
@@ -108,7 +156,7 @@ namespace MongoDB.Driver {
         public SafeMode SafeMode {
             get { return safeMode; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                if (isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
                 safeMode = value;
             }
         }
@@ -119,7 +167,7 @@ namespace MongoDB.Driver {
         public bool SlaveOk {
             get { return slaveOk; }
             set {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                if (isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
                 slaveOk = value;
             }
         }
@@ -157,16 +205,29 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Freezes the settings to prevent any further changes to them.
+        /// Freezes the settings.
         /// </summary>
-        /// <returns>Itself.</returns>
+        /// <returns>The frozen settings.</returns>
         public MongoCollectionSettings Freeze() {
             if (!isFrozen) {
+                safeMode = safeMode.FrozenCopy();
                 frozenHashCode = GetHashCodeHelper();
                 frozenStringRepresentation = ToStringHelper();
                 isFrozen = true;
             }
             return this;
+        }
+
+        /// <summary>
+        /// Returns a frozen copy of the settings.
+        /// </summary>
+        /// <returns>A frozen copy of the settings.</returns>
+        public MongoCollectionSettings FrozenCopy() {
+            if (isFrozen) {
+                return this;
+            } else {
+                return Clone().Freeze();
+            }
         }
 
         /// <summary>
@@ -228,14 +289,26 @@ namespace MongoDB.Driver {
     public class MongoCollectionSettings<TDefaultDocument> : MongoCollectionSettings {
         #region constructors
         /// <summary>
-        /// Creates a new instance of MongoCollectionSettings. Usually you would call MongoDatabase.CreateCollectionSettings instead.
+        /// Creates a new instance of MongoCollectionSettings.
+        /// </summary>
+        /// <param name="database">The database to inherit settings from.</param>
+        /// <param name="collectionName">The name of the collection.</param>
+        public MongoCollectionSettings(
+            MongoDatabase database,
+            string collectionName
+        )
+            : base(database, collectionName, typeof(TDefaultDocument)) {
+        }
+
+        /// <summary>
+        /// Creates a new instance of MongoCollectionSettings.
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="assignIdOnInsert">Whether the driver should assign the Id values if necessary.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="safeMode">The safe mode to use.</param>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
-        public MongoCollectionSettings(
+        private MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
             GuidRepresentation guidRepresentation,

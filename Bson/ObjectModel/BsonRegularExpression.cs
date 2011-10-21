@@ -128,6 +128,33 @@ namespace MongoDB.Bson {
         ) {
             return BsonRegularExpression.Create(value);
         }
+
+        /// <summary>
+        /// Compares two BsonRegularExpression values.
+        /// </summary>
+        /// <param name="lhs">The first BsonRegularExpression.</param>
+        /// <param name="rhs">The other BsonRegularExpression.</param>
+        /// <returns>True if the two BsonRegularExpression values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonRegularExpression lhs,
+            BsonRegularExpression rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonRegularExpression values.
+        /// </summary>
+        /// <param name="lhs">The first BsonRegularExpression.</param>
+        /// <param name="rhs">The other BsonRegularExpression.</param>
+        /// <returns>True if the two BsonRegularExpression values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonRegularExpression lhs,
+            BsonRegularExpression rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.Equals(rhs);
+        }
         #endregion
 
         #region public methods
@@ -233,7 +260,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonRegularExpression rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.pattern == rhs.pattern && this.options == rhs.options;
         }
 
@@ -245,7 +272,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as BsonRegularExpression); // works even if obj is null
+            return Equals(obj as BsonRegularExpression); // works even if obj is null or of a different type
         }
 
         /// <summary>

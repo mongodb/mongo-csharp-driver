@@ -27,13 +27,12 @@ namespace MongoDB.DriverUnitTests {
     public class MongoDatabaseSettingsTests {
         [Test]
         public void TestAll() {
-            var settings = new MongoDatabaseSettings(
-                "database",
-                MongoCredentials.Create("username", "password"),
-                GuidRepresentation.CSharpLegacy,
-                SafeMode.Create(5, TimeSpan.FromSeconds(5)),
-                true
-            );
+            var server = MongoServer.Create();
+            var settings = new MongoDatabaseSettings(server, "database") {
+                Credentials = MongoCredentials.Create("username", "password"),
+                SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5)),
+                SlaveOk = true
+            };
 
             Assert.AreEqual("database", settings.DatabaseName);
             Assert.AreEqual(MongoCredentials.Create("username", "password"), settings.Credentials);
@@ -50,6 +49,18 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsTrue(settings.IsFrozen);
             Assert.AreEqual(hashCode, settings.GetHashCode());
             Assert.AreEqual(stringRepresentation, settings.ToString());
+        }
+
+        [Test]
+        public void TestFrozenCopy() {
+            var server = MongoServer.Create();
+            var settings = new MongoDatabaseSettings(server, "database");
+            var frozenCopy = settings.FrozenCopy();
+            var secondFrozenCopy = frozenCopy.FrozenCopy();
+            Assert.AreNotSame(settings, frozenCopy);
+            Assert.AreSame(frozenCopy, secondFrozenCopy);
+            Assert.AreEqual(false, settings.IsFrozen);
+            Assert.AreEqual(true, frozenCopy.IsFrozen);
         }
     }
 }

@@ -129,6 +129,16 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsTrue(n2 == n3);
             Assert.IsTrue(n3 == n1);
             Assert.IsTrue(n3 == n2);
+
+            var v1 = (BsonValue) new BsonInt32(1);
+            var v2 = (BsonValue) new BsonInt64(1);
+            var v3 = (BsonValue) new BsonDouble(1.0);
+            Assert.IsTrue(v1 == v2);
+            Assert.IsTrue(v1 == v3);
+            Assert.IsTrue(v2 == v1);
+            Assert.IsTrue(v2 == v3);
+            Assert.IsTrue(v3 == v1);
+            Assert.IsTrue(v3 == v2);
         }
     }
 }

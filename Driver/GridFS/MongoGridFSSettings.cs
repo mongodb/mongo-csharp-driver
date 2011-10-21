@@ -47,6 +47,18 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Initializes a new instance of the MongoGridFSSettings class.
         /// </summary>
+        /// <param name="database">The database from which to inherit some of the settings.</param>
+        public MongoGridFSSettings(
+            MongoDatabase database
+        ) {
+            this.chunkSize = MongoGridFSSettings.Defaults.ChunkSize;
+            this.root = MongoGridFSSettings.Defaults.Root;
+            this.SafeMode = database.Settings.SafeMode;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MongoGridFSSettings class.
+        /// </summary>
         /// <param name="chunkSize">The chunk size.</param>
         /// <param name="root">The root collection name.</param>
         /// <param name="safeMode">The safe mode.</param>
@@ -144,7 +156,7 @@ namespace MongoDB.Driver.GridFS {
         }
 
         /// <summary>
-        /// Compares two MongoGridFSSettingss.
+        /// Compares two MongoGridFSSettings.
         /// </summary>
         /// <param name="lhs">The first MongoGridFSSettings.</param>
         /// <param name="rhs">The other MongoGridFSSettings.</param>
@@ -178,7 +190,7 @@ namespace MongoDB.Driver.GridFS {
         public bool Equals(
             MongoGridFSSettings rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return 
                 this.chunkSize == rhs.chunkSize &&
                 this.root == rhs.root && 
@@ -191,16 +203,31 @@ namespace MongoDB.Driver.GridFS {
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other objects is a MongoGridFSSettings and is equal to this one.</returns>
         public override bool Equals(object obj) {
-            return Equals(obj as MongoGridFSSettings); // works even if obj is null
+            return Equals(obj as MongoGridFSSettings); // works even if obj is null or of a different type
         }
 
         /// <summary>
         /// Freezes the settings.
         /// </summary>
-        /// <returns>The settings.</returns>
+        /// <returns>The frozen settings.</returns>
         public MongoGridFSSettings Freeze() {
-            isFrozen = true;
+            if (!isFrozen) {
+                safeMode = safeMode.FrozenCopy();
+                isFrozen = true;
+            }
             return this;
+        }
+
+        /// <summary>
+        /// Returns a frozen copy of the settings.
+        /// </summary>
+        /// <returns>A frozen copy of the settings.</returns>
+        public MongoGridFSSettings FrozenCopy() {
+            if (isFrozen) {
+                return this;
+            } else {
+                return Clone().Freeze();
+            }
         }
 
         /// <summary>

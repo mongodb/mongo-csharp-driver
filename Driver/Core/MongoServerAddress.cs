@@ -129,10 +129,7 @@ namespace MongoDB.Driver {
             MongoServerAddress lhs,
             MongoServerAddress rhs
         ) {
-            if (object.ReferenceEquals(lhs, rhs)) { return true; } // both null or same object
-            if (object.ReferenceEquals(lhs, null) || object.ReferenceEquals(rhs, null)) { return false; }
-            if (lhs.GetType() != rhs.GetType()) { return false; }
-            return lhs.host.Equals(rhs.host, StringComparison.OrdinalIgnoreCase) && lhs.port == rhs.port;
+            return object.Equals(lhs, rhs);
         }
 
         /// <summary>
@@ -149,21 +146,6 @@ namespace MongoDB.Driver {
         }
         #endregion
 
-        #region public static methods
-        /// <summary>
-        /// Compares two server addresses.
-        /// </summary>
-        /// <param name="lhs">The first server address.</param>
-        /// <param name="rhs">The other server address.</param>
-        /// <returns>True if the two server addresses are equal (or both are null).</returns>
-        public static bool Equals(
-            MongoServerAddress lhs,
-            MongoServerAddress rhs
-        ) {
-            return lhs == rhs;
-        }
-        #endregion
-
         #region public methods
         /// <summary>
         /// Compares two server addresses.
@@ -173,7 +155,8 @@ namespace MongoDB.Driver {
         public bool Equals(
             MongoServerAddress rhs
         ) {
-            return this == rhs;
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return host.Equals(rhs.host, StringComparison.OrdinalIgnoreCase) && port == rhs.port;
         }
 
         /// <summary>
@@ -182,7 +165,7 @@ namespace MongoDB.Driver {
         /// <param name="obj">The other server address.</param>
         /// <returns>True if the two server addresses are equal.</returns>
         public override bool Equals(object obj) {
-            return this == obj as MongoServerAddress; // works even if obj is null or of a different type
+            return Equals(obj as MongoServerAddress); // works even if obj is null or of a different type
         }
 
         /// <summary>
@@ -208,6 +191,7 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Returns the server address as an IPEndPoint (does a DNS lookup).
         /// </summary>
+        /// <param name="addressFamily">The address family of the returned IPEndPoint.</param>
         /// <returns>The IPEndPoint of the server.</returns>
         public IPEndPoint ToIPEndPoint(
             AddressFamily addressFamily

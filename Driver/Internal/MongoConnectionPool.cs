@@ -154,6 +154,7 @@ namespace MongoDB.Driver.Internal {
                     connection.Close();
                 }
                 availableConnections.Clear();
+                poolSize = 0;
                 generationId += 1;
                 Monitor.Pulse(connectionPoolLock);
             }

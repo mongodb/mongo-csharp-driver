@@ -413,5 +413,32 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(true, url.SlaveOk);
             Assert.AreEqual(connectionString, url.ToString());
         }
+
+        [Test]
+        public void TestEquals() {
+            var a = new MongoUrl("mongodb://host1");
+            var b = new MongoUrl("mongodb://host1");
+            var c = new MongoUrl("mongodb://host2");
+            var n = (MongoUrl) null;
+
+            Assert.IsTrue(object.Equals(a, b));
+            Assert.IsFalse(object.Equals(a, c));
+            Assert.IsFalse(a.Equals(n));
+            Assert.IsFalse(a.Equals(null));
+
+            Assert.IsTrue(a == b);
+            Assert.IsFalse(a == c);
+            Assert.IsFalse(a == null);
+            Assert.IsFalse(null == a);
+            Assert.IsTrue(n == null);
+            Assert.IsTrue(null == n);
+
+            Assert.IsFalse(a != b);
+            Assert.IsTrue(a != c);
+            Assert.IsTrue(a != null);
+            Assert.IsTrue(null != a);
+            Assert.IsFalse(n != null);
+            Assert.IsFalse(null != n);
+        }
     }
 }

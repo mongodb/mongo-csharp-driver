@@ -79,44 +79,21 @@ namespace MongoDB.Driver.Builders {
         /// <summary>
         /// Tests that all the subqueries are true (see $and in newer versions of the server).
         /// </summary>
-        /// <param name="queries">A list of subqueries.</param>
+        /// <param name="clauses">A list of subqueries.</param>
         /// <returns>A query.</returns>
         public static QueryComplete And(
-            params IMongoQuery[] queries
+            params IMongoQuery[] clauses
         ) {
-            var document = new BsonDocument();
-            foreach (var query in queries) {
-                if (query != null) {
-                    foreach (var queryElement in query.ToBsonDocument()) {
-                        // if result document has existing operations for same field append the new ones
-                        if (document.Contains(queryElement.Name)) {
-                            var existingOperations = document[queryElement.Name] as BsonDocument;
-                            var newOperations = queryElement.Value as BsonDocument;
-
-                            // make sure that no conditions are Query.EQ, because duplicates aren't allowed
-                            if (existingOperations == null || newOperations == null) {
-                                var message = string.Format("Query.And does not support combining equality comparisons with other operators (field '{0}').", queryElement.Name);
-                                throw new InvalidOperationException(message);
-                            }
-
-                            // add each new operation to the existing operations
-                            foreach (var operation in newOperations) {
-                                // make sure that there are no duplicate $operators
-                                if (existingOperations.Contains(operation.Name)) {
-                                    var message = string.Format("Query.And does not support using the same operator more than once (field '{0}', operator '{1}').", queryElement.Name, operation.Name);
-                                    throw new InvalidOperationException(message);
-                                } else {
-                                    existingOperations.Add(operation);
-                                }
-                            }
-                        } else {
-                            document.Add(queryElement);
-                        }
+            var query = new BsonDocument();
+            foreach (var clause in clauses) {
+                if (clause != null) {
+                    foreach (var clauseElement in clause.ToBsonDocument()) {
+                        AddAndClause(query, clauseElement);
                     }
                 }
             }
 
-            return document.ElementCount > 0 ? new QueryComplete(document) : null;
+            return query.ElementCount > 0 ? new QueryComplete(query) : null;
         }
 
         /// <summary>
@@ -506,6 +483,19 @@ namespace MongoDB.Driver.Builders {
         }
 
         /// <summary>
+        /// Tests that the value of the named element is within a polygon (see $within and $polygon).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="points">An array of points that defines the polygon (the second dimension must be of length 2).</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList WithinPolygon(
+            string name,
+            double[,] points
+        ) {
+            return new QueryConditionList(name).WithinPolygon(points);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is within a rectangle (see $within and $box).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
@@ -524,6 +514,54 @@ namespace MongoDB.Driver.Builders {
             return new QueryConditionList(name).WithinRectangle(lowerLeftX, lowerLeftY, upperRightX, upperRightY);
         }
         #endregion
+
+        #region private static methods
+        // try to keey the query in simple form and only promote to $and form if necessary
+        private static void AddAndClause(
+            BsonDocument query,
+            BsonElement clause
+        ) {
+            if (query.ElementCount == 1 && query.GetElement(0).Name == "$and") {
+                query[0].AsBsonArray.Add(new BsonDocument(clause));
+            } else {
+                if (clause.Name == "$and") {
+                    PromoteQueryToDollarAndForm(query, clause);
+                } else {
+                    if (query.Contains(clause.Name)) {
+                        var existingClause = query.GetElement(clause.Name);
+                        if (existingClause.Value.IsBsonDocument && clause.Value.IsBsonDocument) {
+                            var clauseValue = clause.Value.AsBsonDocument;
+                            var existingClauseValue = existingClause.Value.AsBsonDocument;
+                            if (clauseValue.Names.Any(op => existingClauseValue.Contains(op))) {
+                                PromoteQueryToDollarAndForm(query, clause);
+                            } else {
+                                foreach (var element in clauseValue) {
+                                    existingClauseValue.Add(element);
+                                }
+                            }
+                        } else {
+                            PromoteQueryToDollarAndForm(query, clause);
+                        }
+                    } else {
+                        query.Add(clause);
+                    }
+                }
+            }
+        }
+
+        private static void PromoteQueryToDollarAndForm(
+            BsonDocument query,
+            BsonElement clause
+        ) {
+            var clauses = new BsonArray();
+            foreach (var queryElement in query) {
+                clauses.Add(new BsonDocument(queryElement));
+            }
+            clauses.Add(new BsonDocument(clause));
+            query.Clear();
+            query.Add("$and", clauses);
+        }
+        #endregion
     }
 
     /// <summary>
@@ -532,9 +570,10 @@ namespace MongoDB.Driver.Builders {
     [Serializable]
     public abstract class QueryBuilder : BuilderBase {
         #region private fields
-#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)
+        /// <summary>
+        /// A BSON document containing the query being built.
+        /// </summary>
         protected BsonDocument document;
-#pragma warning restore
         #endregion
 
         #region constructors
@@ -928,6 +967,27 @@ namespace MongoDB.Driver.Builders {
         ) {
             var shape = spherical ? "$centerSphere" : "$center";
             conditions.Add("$within", new BsonDocument(shape, new BsonArray { new BsonArray { x, y }, radius }));
+            return this;
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is within a polygon (see $within and $polygon).
+        /// </summary>
+        /// <param name="points">An array of points that defines the polygon (the second dimension must be of length 2).</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList WithinPolygon(
+            double[,] points
+        ) {
+            if (points.GetLength(1) != 2) {
+                var message = string.Format("The second dimension of the points array must be of length 2, not {0}.", points.GetLength(1));
+                throw new ArgumentOutOfRangeException("points", message);
+            }
+
+            var arrayOfPoints = new BsonArray(points.GetLength(0));
+            for (var i = 0; i < points.GetLength(0); i++) {
+                arrayOfPoints.Add(new BsonArray(2) { points[i, 0], points[i, 1] });
+            }
+            conditions.Add("$within", new BsonDocument("$polygon", arrayOfPoints));
             return this;
         }
 

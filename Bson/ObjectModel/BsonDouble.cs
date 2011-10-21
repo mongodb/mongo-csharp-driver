@@ -70,6 +70,33 @@ namespace MongoDB.Bson {
         ) {
             return new BsonDouble(value);
         }
+
+        /// <summary>
+        /// Compares two BsonDouble values.
+        /// </summary>
+        /// <param name="lhs">The first BsonDouble.</param>
+        /// <param name="rhs">The other BsonDouble.</param>
+        /// <returns>True if the two BsonDouble values are not equal according to ==.</returns>
+        public static bool operator !=(
+            BsonDouble lhs,
+            BsonDouble rhs
+        ) {
+            return !(lhs == rhs);
+        }
+
+        /// <summary>
+        /// Compares two BsonDouble values.
+        /// </summary>
+        /// <param name="lhs">The first BsonDouble.</param>
+        /// <param name="rhs">The other BsonDouble.</param>
+        /// <returns>True if the two BsonDouble values are equal according to ==.</returns>
+        public static bool operator ==(
+            BsonDouble lhs,
+            BsonDouble rhs
+        ) {
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            return lhs.OperatorEqualsImplementation(rhs);
+        }
         #endregion
 
         #region public static methods
@@ -145,8 +172,8 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonDouble rhs
         ) {
-            if (rhs == null) { return false; }
-            return this.value == rhs.value;
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return this.value.Equals(rhs.value); // use Equals instead of == so NaN is handled correctly
         }
 
         /// <summary>
@@ -157,20 +184,7 @@ namespace MongoDB.Bson {
         public override bool Equals(
             object obj
         ) {
-            if (obj == null) { return false; }
-            var rhsDouble = obj as BsonDouble;
-            if (rhsDouble != null) {
-                return value == rhsDouble.value;
-            }
-            var rhsInt32 = obj as BsonInt32;
-            if (rhsInt32 != null) {
-                return value == (double) rhsInt32.Value;
-            }
-            var rhsInt64 = obj as BsonInt64;
-            if (rhsInt64 != null) {
-                return value == (double) rhsInt64.Value;
-            }
-            return false;
+            return Equals(obj as BsonDouble); // works even if obj is null or of a different type
         }
 
         /// <summary>
@@ -191,6 +205,34 @@ namespace MongoDB.Bson {
         /// <returns>A string representation of the value.</returns>
         public override string ToString() {
             return value.ToString("R", NumberFormatInfo.InvariantInfo);
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Compares this BsonDouble against another BsonValue.
+        /// </summary>
+        /// <param name="rhs">The other BsonValue.</param>
+        /// <returns>True if this BsonDouble and the other BsonValue are equal according to ==.</returns>
+        protected override bool OperatorEqualsImplementation(
+            BsonValue rhs
+        ) {
+            var rhsDouble = rhs as BsonDouble;
+            if (rhsDouble != null) {
+                return this.value == rhsDouble.value; // use == instead of Equals so NaN is handled correctly
+            }
+
+            var rhsInt32 = rhs as BsonInt32;
+            if (rhsInt32 != null) {
+                return this.value == (double) rhsInt32.Value;
+            }
+
+            var rhsInt64 = rhs as BsonInt64;
+            if (rhsInt64 != null) {
+                return this.value == (double) rhsInt64.Value;
+            }
+
+            return this.Equals(rhs);
         }
         #endregion
     }

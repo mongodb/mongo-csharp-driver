@@ -42,25 +42,74 @@ namespace MongoDB.Bson.Serialization {
         #endregion
 
         #region protected fields
-#pragma warning disable 1591 // missing XML comment (it's warning about protected members also)
+        /// <summary>
+        /// Whether the class map has been frozen.
+        /// </summary>
         protected bool frozen; // once a class map has been frozen no further changes are allowed
+        /// <summary>
+        /// The class map for the base class.
+        /// </summary>
         protected BsonClassMap baseClassMap; // null for class object and interfaces
+        /// <summary>
+        /// The class that this class map is for.
+        /// </summary>
         protected Type classType;
+        /// <summary>
+        /// A function that creates a new instance of the class.
+        /// </summary>
         private Func<object> creator;
+        /// <summary>
+        /// The convention profile used by this class map.
+        /// </summary>
         protected ConventionProfile conventions;
+        /// <summary>
+        /// The discriminator value.
+        /// </summary>
         protected string discriminator;
+        /// <summary>
+        /// Whether a discriminator is required.
+        /// </summary>
         protected bool discriminatorIsRequired;
+        /// <summary>
+        /// Whether this class is descended from a root class.
+        /// </summary>
         protected bool hasRootClass;
+        /// <summary>
+        /// Whether this class is a root class.
+        /// </summary>
         protected bool isRootClass;
+        /// <summary>
+        /// Whether this class is an anonymous class.
+        /// </summary>
         protected bool isAnonymous;
+        /// <summary>
+        /// The member map for the id property or field.
+        /// </summary>
         protected BsonMemberMap idMemberMap;
+        /// <summary>
+        /// A list of all the member maps for this class map (including member maps for inherited properties and fields).
+        /// </summary>
         protected List<BsonMemberMap> allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
+        /// <summary>
+        /// A list of member maps for properties or fields declared in this class.
+        /// </summary>
         protected List<BsonMemberMap> declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
+        /// <summary>
+        /// A dictionary mapping element names to the corresponding member map.
+        /// </summary>
         protected Dictionary<string, BsonMemberMap> elementDictionary = new Dictionary<string, BsonMemberMap>();
+        /// <summary>
+        /// Whether to ignore extra elements during deserialization.
+        /// </summary>
         protected bool ignoreExtraElements = true;
+        /// <summary>
+        /// The member map for the property or field (if any) used to hold any extra elements found during deserialization.
+        /// </summary>
         protected BsonMemberMap extraElementsMemberMap;
+        /// <summary>
+        /// A list of known types derived from this class.
+        /// </summary>
         protected List<Type> knownTypes = new List<Type>();
-#pragma warning restore
         #endregion
 
         #region constructors
@@ -385,7 +434,7 @@ namespace MongoDB.Bson.Serialization {
         /// <summary>
         /// Freezes the class map.
         /// </summary>
-        /// <returns>The class map.</returns>
+        /// <returns>The frozen class map.</returns>
         public BsonClassMap Freeze() {
             BsonSerializer.ConfigLock.EnterReadLock();
             try {

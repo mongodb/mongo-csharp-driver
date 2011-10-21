@@ -147,6 +147,19 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
+        public void TestGetProfilingInfo() {
+            var collection = database["testcollection"];
+            if (collection.Exists()) { collection.Drop(); }
+            collection.Insert(new BsonDocument("x", 1));
+            database.SetProfilingLevel(ProfilingLevel.All);
+            var count = collection.Count();
+            database.SetProfilingLevel(ProfilingLevel.None);
+            var info = database.GetProfilingInfo(Query.Null).SetSortOrder(SortBy.Descending("$natural")).SetLimit(1).First();
+            Assert.IsTrue(info.Timestamp >= new DateTime(2011, 10, 6, 0, 0, 0, DateTimeKind.Utc));
+            Assert.IsTrue(info.Duration >= TimeSpan.Zero);
+        }
+
+        [Test]
         public void TestRenameCollection() {
             var collectionName1 = "testrenamecollection1";
             var collectionName2 = "testrenamecollection2";
@@ -178,6 +191,39 @@ namespace MongoDB.DriverOnlineTests {
             database.RenameCollection(collectionName1, collectionName2, true);
             Assert.IsFalse(database.CollectionExists(collectionName1));
             Assert.IsTrue(database.CollectionExists(collectionName2));
+        }
+
+        [Test]
+        public void TestSetProfilingLevel() {
+            database.SetProfilingLevel(ProfilingLevel.None, TimeSpan.FromMilliseconds(100));
+            var result = database.GetProfilingLevel();
+            Assert.AreEqual(ProfilingLevel.None, result.Level);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
+
+            database.SetProfilingLevel(ProfilingLevel.Slow);
+            result = database.GetProfilingLevel();
+            Assert.AreEqual(ProfilingLevel.Slow, result.Level);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
+
+            database.SetProfilingLevel(ProfilingLevel.Slow, TimeSpan.FromMilliseconds(200));
+            result = database.GetProfilingLevel();
+            Assert.AreEqual(ProfilingLevel.Slow, result.Level);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(200), result.Slow);
+
+            database.SetProfilingLevel(ProfilingLevel.Slow, TimeSpan.FromMilliseconds(100));
+            result = database.GetProfilingLevel();
+            Assert.AreEqual(ProfilingLevel.Slow, result.Level);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
+
+            database.SetProfilingLevel(ProfilingLevel.All);
+            result = database.GetProfilingLevel();
+            Assert.AreEqual(ProfilingLevel.All, result.Level);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
+
+            database.SetProfilingLevel(ProfilingLevel.None);
+            result = database.GetProfilingLevel();
+            Assert.AreEqual(ProfilingLevel.None, result.Level);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(100), result.Slow);
         }
 
         [Test]

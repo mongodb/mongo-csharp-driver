@@ -234,7 +234,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonElement rhs
         ) {
-            if (rhs == null) { return false; }
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.name == rhs.name && this.value == rhs.value;
         }
 

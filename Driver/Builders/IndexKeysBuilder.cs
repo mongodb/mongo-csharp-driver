@@ -61,6 +61,30 @@ namespace MongoDB.Driver.Builders {
         ) {
             return new IndexKeysBuilder().GeoSpatial(name);
         }
+
+        /// <summary>
+        /// Sets the key name to create a geospatial haystack index on.
+        /// </summary>
+        /// <param name="name">The key name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder GeoSpatialHaystack(
+            string name
+        ) {
+            return new IndexKeysBuilder().GeoSpatialHaystack(name);
+        }
+
+        /// <summary>
+        /// Sets the key name and additional field name to create a geospatial haystack index on.
+        /// </summary>
+        /// <param name="name">The key name.</param>
+        /// <param name="additionalName">The name of an additional field to index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder GeoSpatialHaystack(
+            string name,
+            string additionalName
+        ) {
+            return new IndexKeysBuilder().GeoSpatialHaystack(name, additionalName);
+        }
         #endregion
     }
 
@@ -120,6 +144,32 @@ namespace MongoDB.Driver.Builders {
             string name
         ) {
             document.Add(name, "2d");
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the key name to create a geospatial haystack index on.
+        /// </summary>
+        /// <param name="name">The key name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder GeoSpatialHaystack(
+            string name
+        ) {
+            return GeoSpatialHaystack(name, null);
+        }
+
+        /// <summary>
+        /// Sets the key name and additional field name to create a geospatial haystack index on.
+        /// </summary>
+        /// <param name="name">The key name.</param>
+        /// <param name="additionalName">The name of an additional field to index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder GeoSpatialHaystack(
+            string name,
+            string additionalName
+        ) {
+            document.Add(name, "geoHaystack");
+            document.Add(additionalName, 1, additionalName != null);
             return this;
         }
 

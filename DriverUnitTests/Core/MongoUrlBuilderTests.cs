@@ -381,6 +381,24 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
+        public void TestSafeModeJTrue() {
+            var connectionString = "mongodb://localhost/?safe=true;j=true";
+            var builder = new MongoUrlBuilder("mongodb://localhost") { SafeMode = new SafeMode(true) { J = true } };
+            Assert.AreEqual(true, builder.SafeMode.J);
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestSafeModeWMajority() {
+            var connectionString = "mongodb://localhost/?safe=true;w=majority";
+            var builder = new MongoUrlBuilder("mongodb://localhost") { SafeMode = new SafeMode(true) { WMode = "majority" } };
+            Assert.AreEqual("majority", builder.SafeMode.WMode);
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
         public void TestSafeModeW2() {
             var connectionString = "mongodb://localhost/?safe=true;w=2";
             var builder = new MongoUrlBuilder("mongodb://localhost") { SafeMode = SafeMode.W2 };

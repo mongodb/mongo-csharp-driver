@@ -23,7 +23,7 @@ namespace MongoDB.Driver {
     /// Represents the different safe modes that can be used.
     /// </summary>
     [Serializable]
-    public class SafeMode {
+    public class SafeMode : IEquatable<SafeMode> {
         #region private static fields
         private static SafeMode @false = new SafeMode(false);
         private static SafeMode fsyncTrue = new SafeMode(true, true);
@@ -36,13 +36,17 @@ namespace MongoDB.Driver {
         #region private fields
         private bool enabled;
         private bool fsync;
+        private bool j;
         private int w;
+        private string wmode;
         private TimeSpan wtimeout;
+        private bool isFrozen;
+        private int frozenHashCode;
         #endregion
 
         #region constructors
         /// <summary>
-        /// Creates a new instance of SafeMode.
+        /// Creates a new instance of the SafeMode class.
         /// </summary>
         /// <param name="enabled">Whether safe mode is enabled.</param>
         public SafeMode(
@@ -52,7 +56,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Creates a new instance of SafeMode.
+        /// Creates a new instance of the SafeMode class.
         /// </summary>
         /// <param name="enabled">Whether safe mode is enabled.</param>
         /// <param name="fsync">Whether the server should call fsync after each operation.</param>
@@ -64,7 +68,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Creates a new instance of SafeMode.
+        /// Creates a new instance of the SafeMode class.
         /// </summary>
         /// <param name="enabled">Whether safe mode is enabled.</param>
         /// <param name="fsync">Whether the server should call fsync after each operation.</param>
@@ -78,7 +82,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Creates a new instance of SafeMode.
+        /// Creates a new instance of the SafeMode class.
         /// </summary>
         /// <param name="enabled">Whether safe mode is enabled.</param>
         /// <param name="fsync">Whether the server should call fsync after each operation.</param>
@@ -107,7 +111,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Creates a new instance of SafeMode.
+        /// Creates a new instance of the SafeMode class.
         /// </summary>
         /// <param name="w">The number of write replications that should be completed before server returns.</param>
         public SafeMode(
@@ -117,7 +121,7 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Creates a new instance of SafeMode.
+        ///Creates a new instance of the SafeMode class.
         /// </summary>
         /// <param name="w">The number of write replications that should be completed before server returns.</param>
         /// <param name="wtimeout">The timeout for each operation.</param>
@@ -126,6 +130,24 @@ namespace MongoDB.Driver {
             TimeSpan wtimeout
         )
             : this(true, false, w, wtimeout) {
+        }
+
+        /// <summary>
+        ///Creates a new instance of the SafeMode class.
+        /// </summary>
+        /// <param name="other">Another SafeMode to initialize this one from.</param>
+        public SafeMode(
+            SafeMode other
+        ) 
+            : this(false) {
+            if (other != null) {
+                this.enabled = other.enabled;
+                this.fsync = other.fsync;
+                this.j = other.j;
+                this.w = other.w;
+                this.wmode = other.wmode;
+                this.wtimeout = other.wtimeout;
+            }
         }
         #endregion
 
@@ -179,6 +201,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public bool Enabled {
             get { return enabled; }
+            set {
+                if (isFrozen) { ThrowFrozenException(); }
+                enabled = value;
+            }
         }
 
         /// <summary>
@@ -186,6 +212,23 @@ namespace MongoDB.Driver {
         /// </summary>
         public bool FSync {
             get { return fsync; }
+            set {
+                if (isFrozen) { ThrowFrozenException(); }
+                fsync = value;
+                enabled |= value;
+            }
+        }
+
+        /// <summary>
+        /// Gets whether wait for journal commit is true.
+        /// </summary>
+        public bool J {
+            get { return j; }
+            set {
+                if (isFrozen) { ThrowFrozenException(); }
+                j = value;
+                enabled |= value;
+            }
         }
 
         /// <summary>
@@ -193,6 +236,25 @@ namespace MongoDB.Driver {
         /// </summary>
         public int W {
             get { return w; }
+            set {
+                if (isFrozen) { ThrowFrozenException(); }
+                w = value;
+                wmode = null;
+                enabled |= (value != 0);
+            }
+        }
+
+        /// <summary>
+        /// Gets the w mode (the w mode determines which write replications must complete before the server returns).
+        /// </summary>
+        public string WMode {
+            get { return wmode; }
+            set {
+                if (isFrozen) { ThrowFrozenException(); }
+                w = 0;
+                wmode = value;
+                enabled |= (value != null);
+            }
         }
 
         /// <summary>
@@ -200,6 +262,10 @@ namespace MongoDB.Driver {
         /// </summary>
         public TimeSpan WTimeout {
             get { return wtimeout; }
+            set {
+                if (isFrozen) { ThrowFrozenException(); }
+                wtimeout = value;
+            }
         }
         #endregion
 
@@ -327,6 +393,14 @@ namespace MongoDB.Driver {
 
         #region public methods
         /// <summary>
+        /// Creates a clone of the SafeMode.
+        /// </summary>
+        /// <returns>A clone of the SafeMode.</returns>
+        public SafeMode Clone() {
+            return new SafeMode(this);
+        }
+
+        /// <summary>
         /// Compares two SafeMode values.
         /// </summary>
         /// <param name="obj">The other SafeMode value.</param>
@@ -334,7 +408,7 @@ namespace MongoDB.Driver {
         public override bool Equals(
             object obj
         ) {
-            return Equals(obj as SafeMode); // works even if obj is null
+            return Equals(obj as SafeMode); // works even if obj is null or of a different type
         }
 
         /// <summary>
@@ -345,8 +419,38 @@ namespace MongoDB.Driver {
         public bool Equals(
             SafeMode rhs
         ) {
-            if (rhs == null) { return false; }
-            return this.enabled == rhs.enabled && this.fsync == rhs.fsync && this.w == rhs.w && this.wtimeout == rhs.wtimeout;
+            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return 
+                this.enabled == rhs.enabled &&
+                this.fsync == rhs.fsync &&
+                this.j == rhs.j &&
+                this.w == rhs.w &&
+                this.wmode == rhs.wmode &&
+                this.wtimeout == rhs.wtimeout;
+        }
+
+        /// <summary>
+        /// Freezes the SafeMode.
+        /// </summary>
+        /// <returns>The frozen SafeMode.</returns>
+        public SafeMode Freeze() {
+            if (!isFrozen) {
+                frozenHashCode = GetHashCodeHelper();
+                isFrozen = true;
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Returns a frozen copy of the SafeMode.
+        /// </summary>
+        /// <returns>A frozen copy of the SafeMode.</returns>
+        public SafeMode FrozenCopy() {
+            if (isFrozen) {
+                return this;
+            } else {
+                return Clone().Freeze();
+            }
         }
 
         /// <summary>
@@ -354,13 +458,11 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <returns>The hash code.</returns>
         public override int GetHashCode() {
-            // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + enabled.GetHashCode();
-            hash = 37 * hash + fsync.GetHashCode();
-            hash = 37 * hash + w.GetHashCode();
-            hash = 37 * hash + wtimeout.GetHashCode();
-            return hash;
+            if (isFrozen) {
+                return frozenHashCode;
+            } else {
+                return GetHashCodeHelper();
+            }
         }
 
         /// <summary>
@@ -373,8 +475,16 @@ namespace MongoDB.Driver {
                 if (fsync) {
                     sb.Append(",fsync=true");
                 }
-                if (w != 0) {
-                    sb.AppendFormat(",w={0}", w);
+                if (j) {
+                    sb.Append(",j=true");
+                }
+                if (w != 0 || wmode != null) {
+                    if (w != 0) {
+                        sb.AppendFormat(",w={0}", w);
+                    }
+                    if (wmode != null) {
+                        sb.AppendFormat(",wmode=\"{0}\"", wmode);
+                    }
                     if (wtimeout != TimeSpan.Zero) {
                         sb.AppendFormat(",wtimeout={0}", wtimeout);
                     }
@@ -383,6 +493,24 @@ namespace MongoDB.Driver {
             } else {
                 return "safe=false";
             }
+        }
+        #endregion
+
+        #region private methods
+        private int GetHashCodeHelper() {
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + enabled.GetHashCode();
+            hash = 37 * hash + fsync.GetHashCode();
+            hash = 37 * hash + j.GetHashCode();
+            hash = 37 * hash + w.GetHashCode();
+            hash = 37 * hash + ((wmode == null) ? 0 : wmode.GetHashCode());
+            hash = 37 * hash + wtimeout.GetHashCode();
+            return hash;
+        }
+
+        private void ThrowFrozenException() {
+            throw new InvalidOperationException("SafeMode has been frozen and no further changes are allowed.");
         }
         #endregion
     }

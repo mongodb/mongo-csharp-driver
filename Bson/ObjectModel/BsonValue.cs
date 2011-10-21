@@ -894,7 +894,7 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="lhs">The first BsonValue.</param>
         /// <param name="rhs">The other BsonValue.</param>
-        /// <returns>True if the two BsonValues are not equal (or one is null and the other is not).</returns>
+        /// <returns>True if the two BsonValues are not equal according to ==.</returns>
         public static bool operator !=(
             BsonValue lhs,
             BsonValue rhs
@@ -907,12 +907,14 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="lhs">The first BsonValue.</param>
         /// <param name="rhs">The other BsonValue.</param>
-        /// <returns>True if the two BsonValues are equal (or both null).</returns>
+        /// <returns>True if the two BsonValues are equal according to ==.</returns>
         public static bool operator ==(
             BsonValue lhs,
             BsonValue rhs
         ) {
-            return object.Equals(lhs, rhs);
+            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (object.ReferenceEquals(rhs, null)) { return false; } // don't check type because sometimes different types can be ==
+            return lhs.OperatorEqualsImplementation(rhs); // some subclasses override OperatorEqualsImplementation
         }
 
         /// <summary>
@@ -1094,7 +1096,7 @@ namespace MongoDB.Bson {
         public bool Equals(
             BsonValue rhs
         ) {
-            return object.Equals(this, rhs);
+            return Equals((object) rhs);
         }
 
         /// <summary>
@@ -1270,6 +1272,19 @@ namespace MongoDB.Bson {
                     bsonWriter.WriteUndefined();
                     break;
             }
+        }
+        #endregion
+
+        #region protected methods
+        /// <summary>
+        /// Implementation of operator ==.
+        /// </summary>
+        /// <param name="rhs">The other BsonValue.</param>
+        /// <returns>True if the two BsonValues are equal according to ==.</returns>
+        protected virtual bool OperatorEqualsImplementation(
+            BsonValue rhs
+        ) {
+            return Equals(rhs); // default implementation of == is to call Equals
         }
         #endregion
 
