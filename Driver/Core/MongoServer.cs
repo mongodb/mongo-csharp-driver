@@ -181,14 +181,26 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
+        /// Unregisters all servers from the dictionary used by Create to remember which servers have already been created.
+        /// </summary>
+        public static void UnregisterAllServers() {
+            lock (staticLock) {
+                var serverList = servers.Values.ToList();
+                foreach (var server in serverList) {
+                    UnregisterServer(server);
+                }
+            }
+        }
+
+        /// <summary>
         /// Unregisters a server from the dictionary used by Create to remember which servers have already been created.
         /// </summary>
         /// <param name="server">The server to unregister.</param>
         public static void UnregisterServer(
             MongoServer server
         ) {
-            try { server.Disconnect(); } catch { } // ignore exceptions
             lock (staticLock) {
+                try { server.Disconnect(); } catch { } // ignore exceptions
                 servers.Remove(server.settings);
             }
         }
