@@ -87,7 +87,7 @@ namespace MongoDB.Driver {
             out MongoServerAddress address
         ) {
             if (value != null) {
-                Match match = Regex.Match(value, @"^(?<host>[^:]+)(:(?<port>\d+))?$");
+                Match match = Regex.Match(value, @"^(?<host>(\[[^]]+?\]|[^:]+))(:(?<port>\d+))?$");
                 if (match.Success) {
                     string host = match.Groups["host"].Value;
                     string portString = match.Groups["port"].Value;

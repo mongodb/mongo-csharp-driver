@@ -387,10 +387,11 @@ namespace MongoDB.Driver {
             string url
         ) {
             ResetValues();
+            const string serverPattern = @"((\[[^]]+?\]|[^:,/]+)(:\d+)?)";
             const string pattern =
                 @"^mongodb://" +
                 @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
-                @"(?<servers>[^:,/]+(:\d+)?(,[^:,/]+(:\d+)?)*)" +
+                @"(?<servers>" + serverPattern + "(," + serverPattern + ")*)" +
                 @"(/(?<database>[^?]+)?(\?(?<query>.*))?)?$";
             Match match = Regex.Match(url, pattern);
             if (match.Success) {
