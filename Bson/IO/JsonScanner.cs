@@ -63,7 +63,7 @@ namespace MongoDB.Bson.IO {
                 default:
                     if (c == '-' || char.IsDigit((char) c)) {
                         return GetNumberToken(buffer, c);
-                    } else if (c == '$' || char.IsLetter((char) c)) {
+                    } else if (c == '$' || c == '_' || char.IsLetter((char) c)) {
                         return GetUnquotedStringToken(buffer);
                     } else {
                         buffer.UnRead(c);
@@ -425,7 +425,7 @@ namespace MongoDB.Bson.IO {
             // opening letter or $ has already been read
             var start = buffer.Position - 1;
             var c = buffer.Read();
-            while (c == '$' || char.IsLetterOrDigit((char) c)) {
+            while (c == '$' || c == '_' || char.IsLetterOrDigit((char) c)) {
                 c = buffer.Read();
             }
             buffer.UnRead(c);
