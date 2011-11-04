@@ -60,7 +60,15 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
             collection.RemoveAll();
             var c = new C { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             collection.Insert(c);
-            Assert.Throws<BsonSerializationException>(() => collection.FindOneAs<C>());
+            try {
+                collection.FindOneAs<C>();
+                Assert.Fail("Expected an exception to be thrown.");
+            } catch (Exception ex) {
+                var expectedMessage = "An error occurred while deserializing the P field of class MongoDB.DriverOnlineTests.Jira.CSharp218.CSharp218Tests+C: Value class MongoDB.DriverOnlineTests.Jira.CSharp218.CSharp218Tests+P cannot be deserialized.";
+                Assert.IsInstanceOf<FileFormatException>(ex);
+                Assert.IsInstanceOf<BsonSerializationException>(ex.InnerException);
+                Assert.AreEqual(expectedMessage, ex.Message);
+            }
         }
 
         [Test]

@@ -112,6 +112,11 @@ namespace MongoDB.Bson.Serialization {
                 }
                 var obj = classMap.CreateInstance();
 
+                if (bsonReader.CurrentBsonType != BsonType.Document) {
+                    var message = string.Format("Expected a nested document representing the serialized form of a {0} value, but found a value of type {1} instead.", actualType.FullName, bsonReader.CurrentBsonType);
+                    throw new FileFormatException(message);
+                }
+
                 bsonReader.ReadStartDocument();
                 var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.MemberMaps); // make a copy!
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
@@ -294,17 +299,28 @@ namespace MongoDB.Bson.Serialization {
             object obj,
             BsonMemberMap memberMap
         ) {
-            var nominalType = memberMap.MemberType;
-            Type actualType;
-            if (bsonReader.CurrentBsonType == BsonType.Null) {
-                actualType = nominalType;
-            } else {
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
-                actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
+            try {
+                var nominalType = memberMap.MemberType;
+                Type actualType;
+                if (bsonReader.CurrentBsonType == BsonType.Null) {
+                    actualType = nominalType;
+                } else {
+                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                    actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
+                }
+                var serializer = memberMap.GetSerializer(actualType);
+                var value = serializer.Deserialize(bsonReader, nominalType, actualType, memberMap.SerializationOptions);
+                memberMap.Setter(obj, value);
+            } catch (Exception ex) {
+                var message = string.Format(
+                    "An error occurred while deserializing the {0} {1} of class {2}: {3}", // terminating period provided by nested message
+                    memberMap.MemberName,
+                    (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property",
+                    obj.GetType().FullName,
+                    ex.Message
+                );
+                throw new FileFormatException(message, ex);
             }
-            var serializer = memberMap.GetSerializer(actualType);
-            var value = serializer.Deserialize(bsonReader, nominalType, actualType, memberMap.SerializationOptions);
-            memberMap.Setter(obj, value);
         }
 
         private void SerializeExtraElements(

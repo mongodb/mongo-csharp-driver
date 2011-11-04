@@ -30,7 +30,7 @@ namespace MongoDB.Bson {
         /// Initializes a new instance of the TruncationException class.
         /// </summary>
         public TruncationException()
-            : base() {
+            : this("Truncation resulted in data loss.") {
         }
 
         /// <summary>
