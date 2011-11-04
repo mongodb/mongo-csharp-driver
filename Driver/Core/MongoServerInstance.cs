@@ -188,17 +188,6 @@ namespace MongoDB.Driver {
         /// </summary>
         public MongoServerState State {
             get { return state; }
-            internal set {
-                lock (serverInstanceLock) {
-                    if (state != value) {
-                        // Console.WriteLine("MongoServerInstance[{0}]: State changed: state={1}{2}", sequentialId, value, isPrimary ? " (Primary)" : "");
-                        state = value;
-                        if (StateChanged != null) {
-                            try { StateChanged(this, null); } catch { } // ignore exceptions
-                        }
-                    }
-                }
-            }
         }
         #endregion
 
@@ -282,7 +271,7 @@ namespace MongoDB.Driver {
                 // note: don't check that state is Disconnected here
                 // when reconnecting to a replica set state can transition from Connected -> Connecting -> Connected
 
-                State = MongoServerState.Connecting;
+                SetState(MongoServerState.Connecting);
                 connectException = null;
                 try {
                     endPoint = address.ToIPEndPoint(server.Settings.AddressFamily);
@@ -302,9 +291,9 @@ namespace MongoDB.Driver {
                         throw;
                     }
 
-                    State = MongoServerState.Connected;
+                    SetState(MongoServerState.Connected);
                 } catch (Exception ex) {
-                    State = MongoServerState.Disconnected;
+                    SetState(MongoServerState.Disconnected);
                     connectException = ex;
                     throw;
                 }
@@ -319,10 +308,10 @@ namespace MongoDB.Driver {
                 }
                 if (state != MongoServerState.Disconnected) {
                     try {
-                        State = MongoServerState.Disconnecting;
+                        SetState(MongoServerState.Disconnecting);
                         connectionPool.Clear();
                     } finally {
-                        State = MongoServerState.Disconnected;
+                        SetState(MongoServerState.Disconnected);
                     }
                 }
             }
@@ -333,6 +322,36 @@ namespace MongoDB.Driver {
         ) {
             lock (serverInstanceLock) {
                 connectionPool.ReleaseConnection(connection);
+            }
+        }
+
+        internal void SetState(
+            MongoServerState state
+        ) {
+            lock (serverInstanceLock) {
+                if (this.state != state) {
+                    this.state = state;
+                    OnStateChanged();
+                }
+            }
+        }
+
+        internal void SetState(
+            MongoServerState state,
+            bool isPrimary,
+            bool isSecondary,
+            bool isPassive,
+            bool isArbiter
+        ) {
+            lock (serverInstanceLock) {
+                if (this.state != state || this.isPrimary != isPrimary || this.isSecondary != isSecondary || this.isPassive != isPassive || this.isArbiter != isArbiter) {
+                    this.state = state;
+                    this.isPrimary = isPrimary;
+                    this.isSecondary = isSecondary;
+                    this.isPassive = isPassive;
+                    this.isArbiter = isArbiter;
+                    OnStateChanged();
+                }
             }
         }
 
@@ -379,25 +398,25 @@ namespace MongoDB.Driver {
                 }
 
                 this.isMasterResult = isMasterResult;
-                this.isPrimary = isPrimary;
-                this.isSecondary = isSecondary;
-                this.isPassive = isPassive;
-                this.isArbiter = isArbiter;
                 this.maxDocumentSize = maxDocumentSize;
                 this.maxMessageLength = maxMessageLength;
                 this.buildInfo = buildInfo;
-                this.State = MongoServerState.Connected;
+                this.SetState(MongoServerState.Connected, isPrimary, isSecondary, isPassive, isArbiter);
             } catch {
                 this.isMasterResult = isMasterResult;
-                this.isPrimary = false;
-                this.isSecondary = false;
-                this.isPassive = false;
-                this.isArbiter = false;
                 this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
                 this.maxMessageLength = MongoDefaults.MaxMessageLength;
                 this.buildInfo = null;
-                this.State = MongoServerState.Disconnected;
+                this.SetState(MongoServerState.Disconnected, false, false, false, false);
                 throw;
+            }
+        }
+        #endregion
+
+        #region private methods
+        private void OnStateChanged() {
+            if (StateChanged != null) {
+                try { StateChanged(this, null); } catch { } // ignore exceptions
             }
         }
         #endregion

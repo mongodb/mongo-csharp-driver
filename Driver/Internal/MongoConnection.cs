@@ -488,7 +488,7 @@ namespace MongoDB.Driver.Internal {
 
             // forces a call to VerifyState before the next message is sent to this server instance
             // this is a bit drastic but at least it's safe (and perhaps we can optimize a bit in the future)
-            serverInstance.State = MongoServerState.Unknown;
+            serverInstance.SetState(MongoServerState.Unknown);
         }
 
         private enum HandleExceptionAction {
