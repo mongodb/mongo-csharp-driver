@@ -645,7 +645,9 @@ namespace MongoDB.Driver {
         ) {
             MongoDatabase database = GetDatabase(databaseName);
             var command = new CommandDocument("dropDatabase", 1);
-            return database.RunCommand(command);
+            var result = database.RunCommand(command);
+            indexCache.Reset(databaseName);
+            return result;
         }
 
         /// <summary>
