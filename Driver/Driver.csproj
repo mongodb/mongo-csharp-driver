@@ -121,6 +121,7 @@
     <Compile Include="Core\MongoDatabaseSettings.cs" />
     <Compile Include="Core\MongoDBRef.cs" />
     <Compile Include="Core\MongoInsertOptions.cs" />
+    <Compile Include="Core\MongoQueryProvider.cs" />
     <Compile Include="Core\MongoServerBuildInfo.cs" />
     <Compile Include="Core\MongoServerInstance.cs" />
     <Compile Include="Core\MongoServerSettings.cs" />

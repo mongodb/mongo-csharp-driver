@@ -18,8 +18,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
-
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -27,12 +28,15 @@ using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
 using MongoDB.Driver.Wrappers;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a MongoDB collection and the settings used to access it. This class is thread-safe.
     /// </summary>
-    public abstract class MongoCollection {
+    public abstract class MongoCollection : IQueryable, IEnumerable, IOrderedQueryable
+    {
         #region private fields
         private MongoServer server;
         private MongoDatabase database;
@@ -49,7 +53,8 @@ namespace MongoDB.Driver {
         protected MongoCollection(
             MongoDatabase database,
             MongoCollectionSettings settings
-        ) {
+        )
+        {
             ValidateCollectionName(settings.CollectionName);
             this.server = database.Server;
             this.database = database;
@@ -62,28 +67,32 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the database that contains this collection.
         /// </summary>
-        public virtual MongoDatabase Database {
+        public virtual MongoDatabase Database
+        {
             get { return database; }
         }
 
         /// <summary>
         /// Gets the fully qualified name of this collection.
         /// </summary>
-        public virtual string FullName {
+        public virtual string FullName
+        {
             get { return database.Name + "." + name; }
         }
 
         /// <summary>
         /// Gets the name of this collection.
         /// </summary>
-        public virtual string Name {
+        public virtual string Name
+        {
             get { return name; }
         }
 
         /// <summary>
         /// Gets the settings being used to access this collection.
         /// </summary>
-        public virtual MongoCollectionSettings Settings {
+        public virtual MongoCollectionSettings Settings
+        {
             get { return settings; }
         }
         #endregion
@@ -93,7 +102,8 @@ namespace MongoDB.Driver {
         /// Counts the number of documents in this collection.
         /// </summary>
         /// <returns>The number of documents in this collection.</returns>
-        public virtual long Count() {
+        public virtual long Count()
+        {
             return Count(Query.Null);
         }
 
@@ -104,7 +114,8 @@ namespace MongoDB.Driver {
         /// <returns>The number of documents in this collection that match the query.</returns>
         public virtual long Count(
             IMongoQuery query
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "count", name },
                 { "query", BsonDocumentWrapper.Create(query) } // query is optional
@@ -122,7 +133,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult CreateIndex(
             IMongoIndexKeys keys,
             IMongoIndexOptions options
-        ) {
+        )
+        {
             var keysDocument = keys.ToBsonDocument();
             var optionsDocument = options.ToBsonDocument();
             var indexes = database.GetCollection("system.indexes");
@@ -133,7 +145,8 @@ namespace MongoDB.Driver {
                 { "key", keysDocument }
             };
             index.Merge(optionsDocument);
-            var insertOptions = new MongoInsertOptions(this) {
+            var insertOptions = new MongoInsertOptions(this)
+            {
                 CheckElementNames = false,
                 SafeMode = SafeMode.True
             };
@@ -148,7 +161,8 @@ namespace MongoDB.Driver {
         /// <returns>A SafeModeResult.</returns>
         public virtual SafeModeResult CreateIndex(
             IMongoIndexKeys keys
-        ) {
+        )
+        {
             return CreateIndex(keys, IndexOptions.Null);
         }
 
@@ -159,7 +173,8 @@ namespace MongoDB.Driver {
         /// <returns>A SafeModeResult.</returns>
         public virtual SafeModeResult CreateIndex(
             params string[] keyNames
-        ) {
+        )
+        {
             return CreateIndex(IndexKeys.Ascending(keyNames));
         }
 
@@ -170,7 +185,8 @@ namespace MongoDB.Driver {
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<BsonValue> Distinct(
             string key
-        ) {
+        )
+        {
             return Distinct(key, Query.Null);
         }
 
@@ -183,7 +199,8 @@ namespace MongoDB.Driver {
         public virtual IEnumerable<BsonValue> Distinct(
             string key,
             IMongoQuery query
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "distinct", name },
                 { "key", key },
@@ -197,7 +214,8 @@ namespace MongoDB.Driver {
         /// Drops this collection.
         /// </summary>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult Drop() {
+        public virtual CommandResult Drop()
+        {
             return database.DropCollection(name);
         }
 
@@ -205,7 +223,8 @@ namespace MongoDB.Driver {
         /// Drops all indexes on this collection.
         /// </summary>
         /// <returns>A <see cref="CommandResult"/>.</returns>
-        public virtual CommandResult DropAllIndexes() {
+        public virtual CommandResult DropAllIndexes()
+        {
             return DropIndexByName("*");
         }
 
@@ -216,7 +235,8 @@ namespace MongoDB.Driver {
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndex(
             IMongoIndexKeys keys
-        ) {
+        )
+        {
             string indexName = GetIndexName(keys.ToBsonDocument(), null);
             return DropIndexByName(indexName);
         }
@@ -228,7 +248,8 @@ namespace MongoDB.Driver {
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndex(
             params string[] keyNames
-        ) {
+        )
+        {
             string indexName = GetIndexName(keyNames);
             return DropIndexByName(indexName);
         }
@@ -240,11 +261,15 @@ namespace MongoDB.Driver {
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndexByName(
             string indexName
-        ) {
+        )
+        {
             // remove from cache first (even if command ends up failing)
-            if (indexName == "*") {
+            if (indexName == "*")
+            {
                 server.IndexCache.Reset(this);
-            } else {
+            }
+            else
+            {
                 server.IndexCache.Remove(this, indexName);
             }
             var command = new CommandDocument {
@@ -262,11 +287,13 @@ namespace MongoDB.Driver {
         public virtual void EnsureIndex(
            IMongoIndexKeys keys,
            IMongoIndexOptions options
-        ) {
+        )
+        {
             var keysDocument = keys.ToBsonDocument();
             var optionsDocument = options.ToBsonDocument();
             var indexName = GetIndexName(keysDocument, optionsDocument);
-            if (!server.IndexCache.Contains(this, indexName)) {
+            if (!server.IndexCache.Contains(this, indexName))
+            {
                 CreateIndex(keys, options);
                 server.IndexCache.Add(this, indexName);
             }
@@ -278,7 +305,8 @@ namespace MongoDB.Driver {
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         public virtual void EnsureIndex(
             IMongoIndexKeys keys
-        ) {
+        )
+        {
             EnsureIndex(keys, IndexOptions.Null);
         }
 
@@ -288,9 +316,11 @@ namespace MongoDB.Driver {
         /// <param name="keyNames">The names of the indexed fields.</param>
         public virtual void EnsureIndex(
             params string[] keyNames
-        ) {
+        )
+        {
             string indexName = GetIndexName(keyNames);
-            if (!server.IndexCache.Contains(this, indexName)) {
+            if (!server.IndexCache.Contains(this, indexName))
+            {
                 CreateIndex(IndexKeys.Ascending(keyNames), IndexOptions.SetName(indexName));
                 server.IndexCache.Add(this, indexName);
             }
@@ -300,7 +330,8 @@ namespace MongoDB.Driver {
         /// Tests whether this collection exists.
         /// </summary>
         /// <returns>True if this collection exists.</returns>
-        public virtual bool Exists() {
+        public virtual bool Exists()
+        {
             return database.CollectionExists(name);
         }
 
@@ -309,7 +340,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <typeparam name="TDocument">The nominal type of the documents.</typeparam>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
-        public virtual MongoCursor<TDocument> FindAllAs<TDocument>() {
+        public virtual MongoCursor<TDocument> FindAllAs<TDocument>()
+        {
             return FindAs<TDocument>(Query.Null);
         }
 
@@ -320,7 +352,8 @@ namespace MongoDB.Driver {
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor FindAllAs(
             Type documentType
-        ) {
+        )
+        {
             return FindAs(documentType, Query.Null);
         }
 
@@ -335,7 +368,8 @@ namespace MongoDB.Driver {
             IMongoQuery query,
             IMongoSortBy sortBy,
             IMongoUpdate update
-        ) {
+        )
+        {
             return FindAndModify(query, sortBy, update, false);
         }
 
@@ -352,7 +386,8 @@ namespace MongoDB.Driver {
             IMongoSortBy sortBy,
             IMongoUpdate update,
             bool returnNew
-        ) {
+        )
+        {
             return FindAndModify(query, sortBy, update, returnNew, false);
         }
 
@@ -371,7 +406,8 @@ namespace MongoDB.Driver {
             IMongoUpdate update,
             bool returnNew,
             bool upsert
-        ) {
+        )
+        {
             return FindAndModify(query, sortBy, update, Fields.Null, returnNew, upsert);
         }
 
@@ -392,7 +428,8 @@ namespace MongoDB.Driver {
             IMongoFields fields,
             bool returnNew,
             bool upsert
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "findAndModify", name },
                 { "query", BsonDocumentWrapper.Create(query) },
@@ -402,10 +439,14 @@ namespace MongoDB.Driver {
                 { "new", true, returnNew },
                 { "upsert", true, upsert}
             };
-            try {
+            try
+            {
                 return database.RunCommandAs<FindAndModifyResult>(command);
-            } catch (MongoCommandException ex) {
-                if (ex.CommandResult.ErrorMessage == "No matching object found") {
+            }
+            catch (MongoCommandException ex)
+            {
+                if (ex.CommandResult.ErrorMessage == "No matching object found")
+                {
                     // create a new command result with what the server should have responded
                     var response = new BsonDocument {
                         { "value", BsonNull.Value },
@@ -428,17 +469,22 @@ namespace MongoDB.Driver {
         public virtual FindAndModifyResult FindAndRemove(
             IMongoQuery query,
             IMongoSortBy sortBy
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "findAndModify", name },
                 { "query", BsonDocumentWrapper.Create(query) },
                 { "sort", BsonDocumentWrapper.Create(sortBy) },
                 { "remove", true }
             };
-            try {
+            try
+            {
                 return database.RunCommandAs<FindAndModifyResult>(command);
-            } catch (MongoCommandException ex) {
-                if (ex.CommandResult.ErrorMessage == "No matching object found") {
+            }
+            catch (MongoCommandException ex)
+            {
+                if (ex.CommandResult.ErrorMessage == "No matching object found")
+                {
                     // create a new command result with what the server should have responded
                     var response = new BsonDocument {
                         { "value", BsonNull.Value },
@@ -460,7 +506,8 @@ namespace MongoDB.Driver {
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDocument> FindAs<TDocument>(
             IMongoQuery query
-        ) {
+        )
+        {
             return new MongoCursor<TDocument>(this, query);
         }
 
@@ -473,7 +520,8 @@ namespace MongoDB.Driver {
         public virtual MongoCursor FindAs(
             Type documentType,
             IMongoQuery query
-        ) {
+        )
+        {
             return MongoCursor.Create(documentType, this, query);
         }
 
@@ -482,7 +530,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
         /// <returns>A TDocument (or null if not found).</returns>
-        public virtual TDocument FindOneAs<TDocument>() {
+        public virtual TDocument FindOneAs<TDocument>()
+        {
             return FindAllAs<TDocument>().SetLimit(1).FirstOrDefault();
         }
 
@@ -494,7 +543,8 @@ namespace MongoDB.Driver {
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(
             IMongoQuery query
-        ) {
+        )
+        {
             return FindAs<TDocument>(query).SetLimit(1).FirstOrDefault();
         }
 
@@ -505,7 +555,8 @@ namespace MongoDB.Driver {
         /// <returns>A document (or null if not found).</returns>
         public virtual object FindOneAs(
             Type documentType
-        ) {
+        )
+        {
             return FindAllAs(documentType).SetLimit(1).OfType<object>().FirstOrDefault();
         }
 
@@ -518,7 +569,8 @@ namespace MongoDB.Driver {
         public virtual object FindOneAs(
             Type documentType,
             IMongoQuery query
-        ) {
+        )
+        {
             return FindAs(documentType, query).SetLimit(1).OfType<object>().FirstOrDefault();
         }
 
@@ -530,7 +582,8 @@ namespace MongoDB.Driver {
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneByIdAs<TDocument>(
             BsonValue id
-        ) {
+        )
+        {
             return FindOneAs<TDocument>(Query.EQ("_id", id));
         }
 
@@ -543,7 +596,8 @@ namespace MongoDB.Driver {
         public virtual object FindOneByIdAs(
             Type documentType,
             BsonValue id
-        ) {
+        )
+        {
             return FindOneAs(documentType, Query.EQ("_id", id));
         }
 
@@ -559,8 +613,9 @@ namespace MongoDB.Driver {
             double x,
             double y,
             IMongoGeoHaystackSearchOptions options
-        ) {
-            return (GeoHaystackSearchResult<TDocument>) GeoHaystackSearchAs(typeof(TDocument), x, y, options);
+        )
+        {
+            return (GeoHaystackSearchResult<TDocument>)GeoHaystackSearchAs(typeof(TDocument), x, y, options);
         }
 
         /// <summary>
@@ -576,7 +631,8 @@ namespace MongoDB.Driver {
             double x,
             double y,
             IMongoGeoHaystackSearchOptions options
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "geoSearch", name },
                 { "near", new BsonArray { x, y } }
@@ -584,7 +640,7 @@ namespace MongoDB.Driver {
             command.Merge(options.ToBsonDocument());
             var geoHaystackSearchResultDefinition = typeof(GeoHaystackSearchResult<>);
             var geoHaystackSearchResultType = geoHaystackSearchResultDefinition.MakeGenericType(documentType);
-            return (GeoHaystackSearchResult) database.RunCommandAs(geoHaystackSearchResultType, command);
+            return (GeoHaystackSearchResult)database.RunCommandAs(geoHaystackSearchResultType, command);
         }
 
         /// <summary>
@@ -601,7 +657,8 @@ namespace MongoDB.Driver {
             double x,
             double y,
             int limit
-        ) {
+        )
+        {
             return GeoNearAs<TDocument>(query, x, y, limit, GeoNearOptions.Null);
         }
 
@@ -621,7 +678,8 @@ namespace MongoDB.Driver {
             double y,
             int limit,
             IMongoGeoNearOptions options
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "geoNear", name },
                 { "near", new BsonArray { x, y } },
@@ -647,7 +705,8 @@ namespace MongoDB.Driver {
             double x,
             double y,
             int limit
-        ) {
+        )
+        {
             return GeoNearAs(documentType, query, x, y, limit, GeoNearOptions.Null);
         }
 
@@ -668,7 +727,8 @@ namespace MongoDB.Driver {
             double y,
             int limit,
             IMongoGeoNearOptions options
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "geoNear", name },
                 { "near", new BsonArray { x, y } },
@@ -678,14 +738,15 @@ namespace MongoDB.Driver {
             command.Merge(options.ToBsonDocument());
             var geoNearResultDefinition = typeof(GeoNearResult<>);
             var geoNearResultType = geoNearResultDefinition.MakeGenericType(documentType);
-            return (GeoNearResult) database.RunCommandAs(geoNearResultType, command);
+            return (GeoNearResult)database.RunCommandAs(geoNearResultType, command);
         }
 
         /// <summary>
         /// Gets the indexes for this collection.
         /// </summary>
         /// <returns>A list of BsonDocuments that describe the indexes.</returns>
-        public virtual GetIndexesResult GetIndexes() {
+        public virtual GetIndexesResult GetIndexes()
+        {
             var indexes = database.GetCollection("system.indexes");
             var query = Query.EQ("ns", FullName);
             return new GetIndexesResult(indexes.Find(query).ToArray()); // ToArray forces execution of the query
@@ -695,7 +756,8 @@ namespace MongoDB.Driver {
         /// Gets the stats for this collection.
         /// </summary>
         /// <returns>The stats for this collection as a <see cref="CollectionStatsResult"/>.</returns>
-        public virtual CollectionStatsResult GetStats() {
+        public virtual CollectionStatsResult GetStats()
+        {
             var command = new CommandDocument("collstats", name);
             return database.RunCommandAs<CollectionStatsResult>(command);
         }
@@ -704,9 +766,11 @@ namespace MongoDB.Driver {
         /// Gets the total data size for this collection (data + indexes).
         /// </summary>
         /// <returns>The total data size.</returns>
-        public virtual long GetTotalDataSize() {
+        public virtual long GetTotalDataSize()
+        {
             var totalSize = GetStats().DataSize;
-            foreach (var index in GetIndexes()) {
+            foreach (var index in GetIndexes())
+            {
                 var indexCollectionName = string.Format("{0}.${1}", name, index.Name);
                 var indexCollection = database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.GetStats().DataSize;
@@ -718,9 +782,11 @@ namespace MongoDB.Driver {
         /// Gets the total storage size for this collection (data + indexes + overhead).
         /// </summary>
         /// <returns>The total storage size.</returns>
-        public virtual long GetTotalStorageSize() {
+        public virtual long GetTotalStorageSize()
+        {
             var totalSize = GetStats().StorageSize;
-            foreach (var index in GetIndexes()) {
+            foreach (var index in GetIndexes())
+            {
                 var indexCollectionName = string.Format("{0}.${1}", name, index.Name);
                 var indexCollection = database.GetCollection(indexCollectionName);
                 totalSize += indexCollection.GetStats().StorageSize;
@@ -743,7 +809,8 @@ namespace MongoDB.Driver {
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "group", new BsonDocument {
                     { "ns", name },
@@ -773,7 +840,8 @@ namespace MongoDB.Driver {
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "group", new BsonDocument {
                     { "ns", name },
@@ -803,7 +871,8 @@ namespace MongoDB.Driver {
             BsonDocument initial,
             BsonJavaScript reduce,
             BsonJavaScript finalize
-        ) {
+        )
+        {
             return Group(query, GroupBy.Keys(key), initial, reduce, finalize);
         }
 
@@ -814,7 +883,8 @@ namespace MongoDB.Driver {
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExists(
             IMongoIndexKeys keys
-        ) {
+        )
+        {
             string indexName = GetIndexName(keys.ToBsonDocument(), null);
             return IndexExistsByName(indexName);
         }
@@ -826,7 +896,8 @@ namespace MongoDB.Driver {
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExists(
             params string[] keyNames
-        ) {
+        )
+        {
             string indexName = GetIndexName(keyNames);
             return IndexExistsByName(indexName);
         }
@@ -838,7 +909,8 @@ namespace MongoDB.Driver {
         /// <returns>True if the index exists.</returns>
         public virtual bool IndexExistsByName(
             string indexName
-        ) {
+        )
+        {
             var indexes = database.GetCollection("system.indexes");
             var query = Query.And(
                 Query.EQ("name", indexName),
@@ -859,7 +931,8 @@ namespace MongoDB.Driver {
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Insert<TNominalType>(
             TNominalType document
-        ) {
+        )
+        {
             return Insert(typeof(TNominalType), document);
         }
 
@@ -873,7 +946,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Insert<TNominalType>(
             TNominalType document,
             MongoInsertOptions options
-        ) {
+        )
+        {
             return Insert(typeof(TNominalType), document, options);
         }
 
@@ -887,7 +961,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Insert<TNominalType>(
             TNominalType document,
             SafeMode safeMode
-        ) {
+        )
+        {
             return Insert(typeof(TNominalType), document, safeMode);
         }
 
@@ -900,7 +975,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Insert(
             Type nominalType,
             object document
-        ) {
+        )
+        {
             return Insert(nominalType, document, settings.SafeMode);
         }
 
@@ -915,8 +991,10 @@ namespace MongoDB.Driver {
             Type nominalType,
             object document,
             MongoInsertOptions options
-        ) {
-            if (document == null) {
+        )
+        {
+            if (document == null)
+            {
                 throw new ArgumentNullException("document");
             }
             var results = InsertBatch(nominalType, new object[] { document }, options);
@@ -934,7 +1012,8 @@ namespace MongoDB.Driver {
             Type nominalType,
             object document,
             SafeMode safeMode
-        ) {
+        )
+        {
             var options = new MongoInsertOptions(this) { SafeMode = safeMode };
             return Insert(nominalType, document, options);
         }
@@ -947,8 +1026,10 @@ namespace MongoDB.Driver {
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
         public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
             IEnumerable<TNominalType> documents
-        ) {
-            if (documents == null) {
+        )
+        {
+            if (documents == null)
+            {
                 throw new ArgumentNullException("documents");
             }
             return InsertBatch(typeof(TNominalType), documents.Cast<object>());
@@ -964,8 +1045,10 @@ namespace MongoDB.Driver {
         public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
             IEnumerable<TNominalType> documents,
             MongoInsertOptions options
-        ) {
-            if (documents == null) {
+        )
+        {
+            if (documents == null)
+            {
                 throw new ArgumentNullException("documents");
             }
             return InsertBatch(typeof(TNominalType), documents.Cast<object>(), options);
@@ -981,8 +1064,10 @@ namespace MongoDB.Driver {
         public virtual IEnumerable<SafeModeResult> InsertBatch<TNominalType>(
             IEnumerable<TNominalType> documents,
             SafeMode safeMode
-        ) {
-            if (documents == null) {
+        )
+        {
+            if (documents == null)
+            {
                 throw new ArgumentNullException("documents");
             }
             return InsertBatch(typeof(TNominalType), documents.Cast<object>(), safeMode);
@@ -997,7 +1082,8 @@ namespace MongoDB.Driver {
         public virtual IEnumerable<SafeModeResult> InsertBatch(
             Type nominalType,
             IEnumerable documents
-        ) {
+        )
+        {
             return InsertBatch(nominalType, documents, settings.SafeMode);
         }
 
@@ -1012,7 +1098,8 @@ namespace MongoDB.Driver {
             Type nominalType,
             IEnumerable documents,
             SafeMode safeMode
-        ) {
+        )
+        {
             var options = new MongoInsertOptions(this) { SafeMode = safeMode };
             return InsertBatch(nominalType, documents, options);
         }
@@ -1028,30 +1115,39 @@ namespace MongoDB.Driver {
             Type nominalType,
             IEnumerable documents,
             MongoInsertOptions options
-        ) {
-            if (documents == null) {
+        )
+        {
+            if (documents == null)
+            {
                 throw new ArgumentNullException("documents");
             }
             var connection = server.AcquireConnection(database, false); // not slaveOk
-            try {
+            try
+            {
                 var safeMode = options.SafeMode;
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames, options.Flags)) {
+                using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames, options.Flags))
+                {
                     message.WriteToBuffer(); // must be called before AddDocument
 
-                    foreach (var document in documents) {
-                        if (document == null) {
+                    foreach (var document in documents)
+                    {
+                        if (document == null)
+                        {
                             throw new ArgumentException("Batch contains one or more null documents.");
                         }
-                        if (settings.AssignIdOnInsert) {
+                        if (settings.AssignIdOnInsert)
+                        {
                             var serializer = BsonSerializer.LookupSerializer(document.GetType());
                             object id;
                             Type idNominalType;
                             IIdGenerator idGenerator;
-                            if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
-                                if (idGenerator != null && idGenerator.IsEmpty(id)) {
+                            if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator))
+                            {
+                                if (idGenerator != null && idGenerator.IsEmpty(id))
+                                {
                                     id = idGenerator.GenerateId(this, document);
                                     serializer.SetDocumentId(document, id);
                                 }
@@ -1059,7 +1155,8 @@ namespace MongoDB.Driver {
                         }
                         message.AddDocument(nominalType, document);
 
-                        if (message.MessageLength > connection.ServerInstance.MaxMessageLength) {
+                        if (message.MessageLength > connection.ServerInstance.MaxMessageLength)
+                        {
                             byte[] lastDocument = message.RemoveLastDocument();
                             var intermediateResult = connection.SendMessage(message, safeMode);
                             if (safeMode.Enabled) { results.Add(intermediateResult); }
@@ -1072,7 +1169,9 @@ namespace MongoDB.Driver {
 
                     return results;
                 }
-            } finally {
+            }
+            finally
+            {
                 server.ReleaseConnection(connection);
             }
         }
@@ -1081,7 +1180,8 @@ namespace MongoDB.Driver {
         /// Tests whether this collection is capped.
         /// </summary>
         /// <returns>True if this collection is capped.</returns>
-        public virtual bool IsCapped() {
+        public virtual bool IsCapped()
+        {
             return GetStats().IsCapped;
         }
 
@@ -1096,7 +1196,8 @@ namespace MongoDB.Driver {
             BsonJavaScript map,
             BsonJavaScript reduce,
             IMongoMapReduceOptions options
-        ) {
+        )
+        {
             var command = new CommandDocument {
                 { "mapreduce", name },
                 { "map", map },
@@ -1121,7 +1222,8 @@ namespace MongoDB.Driver {
             BsonJavaScript map,
             BsonJavaScript reduce,
             IMongoMapReduceOptions options
-        ) {
+        )
+        {
             // create a new set of options because we don't want to modify caller's data
             options = MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument());
             return MapReduce(map, reduce, options);
@@ -1138,7 +1240,8 @@ namespace MongoDB.Driver {
             IMongoQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce
-        ) {
+        )
+        {
             var options = MapReduceOptions.SetQuery(query).SetOutput(MapReduceOutput.Inline);
             return MapReduce(map, reduce, options);
         }
@@ -1152,7 +1255,8 @@ namespace MongoDB.Driver {
         public virtual MapReduceResult MapReduce(
             BsonJavaScript map,
             BsonJavaScript reduce
-        ) {
+        )
+        {
             var options = MapReduceOptions.SetOutput(MapReduceOutput.Inline);
             return MapReduce(map, reduce, options);
         }
@@ -1161,7 +1265,8 @@ namespace MongoDB.Driver {
         /// Runs the ReIndex command on this collection.
         /// </summary>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult ReIndex() {
+        public virtual CommandResult ReIndex()
+        {
             var command = new CommandDocument("reIndex", name);
             return database.RunCommand(command);
         }
@@ -1173,7 +1278,8 @@ namespace MongoDB.Driver {
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Remove(
             IMongoQuery query
-        ) {
+        )
+        {
             return Remove(query, RemoveFlags.None, settings.SafeMode);
         }
 
@@ -1186,7 +1292,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Remove(
             IMongoQuery query,
             SafeMode safeMode
-        ) {
+        )
+        {
             return Remove(query, RemoveFlags.None, safeMode);
         }
 
@@ -1199,7 +1306,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Remove(
             IMongoQuery query,
             RemoveFlags flags
-        ) {
+        )
+        {
             return Remove(query, flags, settings.SafeMode);
         }
 
@@ -1214,14 +1322,19 @@ namespace MongoDB.Driver {
            IMongoQuery query,
            RemoveFlags flags,
            SafeMode safeMode
-        ) {
+        )
+        {
             var connection = server.AcquireConnection(database, false); // not slaveOk
-            try {
+            try
+            {
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoDeleteMessage(writerSettings, FullName, flags, query)) {
+                using (var message = new MongoDeleteMessage(writerSettings, FullName, flags, query))
+                {
                     return connection.SendMessage(message, safeMode);
                 }
-            } finally {
+            }
+            finally
+            {
                 server.ReleaseConnection(connection);
             }
         }
@@ -1230,7 +1343,8 @@ namespace MongoDB.Driver {
         /// Removes all documents from this collection (see also <see cref="Drop"/>).
         /// </summary>
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
-        public virtual SafeModeResult RemoveAll() {
+        public virtual SafeModeResult RemoveAll()
+        {
             return Remove(Query.Null, RemoveFlags.None, settings.SafeMode);
         }
 
@@ -1241,7 +1355,8 @@ namespace MongoDB.Driver {
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult RemoveAll(
            SafeMode safeMode
-        ) {
+        )
+        {
             return Remove(Query.Null, RemoveFlags.None, safeMode);
         }
 
@@ -1250,7 +1365,8 @@ namespace MongoDB.Driver {
         /// when you know (or suspect) that a process other than this one may have dropped one or
         /// more indexes.
         /// </summary>
-        public virtual void ResetIndexCache() {
+        public virtual void ResetIndexCache()
+        {
             server.IndexCache.Reset(this);
         }
 
@@ -1263,7 +1379,8 @@ namespace MongoDB.Driver {
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Save<TNominalType>(
             TNominalType document
-        ) {
+        )
+        {
             return Save(typeof(TNominalType), document);
         }
 
@@ -1278,7 +1395,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Save<TNominalType>(
             TNominalType document,
             MongoInsertOptions options
-        ) {
+        )
+        {
             return Save(typeof(TNominalType), document, options);
         }
 
@@ -1293,7 +1411,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Save<TNominalType>(
             TNominalType document,
             SafeMode safeMode
-        ) {
+        )
+        {
             return Save(typeof(TNominalType), document, safeMode);
         }
 
@@ -1307,7 +1426,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Save(
             Type nominalType,
             object document
-        ) {
+        )
+        {
             return Save(nominalType, document, settings.SafeMode);
         }
 
@@ -1323,32 +1443,42 @@ namespace MongoDB.Driver {
             Type nominalType,
             object document,
             MongoInsertOptions options
-        ) {
-            if (document == null) {
+        )
+        {
+            if (document == null)
+            {
                 throw new ArgumentNullException("document");
             }
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
             object id;
             Type idNominalType;
             IIdGenerator idGenerator;
-            if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator)) {
-                if (id == null && idGenerator == null) {
+            if (serializer.GetDocumentId(document, out id, out idNominalType, out idGenerator))
+            {
+                if (id == null && idGenerator == null)
+                {
                     throw new InvalidOperationException("No IdGenerator found.");
                 }
 
-                if (idGenerator != null && idGenerator.IsEmpty(id)) {
+                if (idGenerator != null && idGenerator.IsEmpty(id))
+                {
                     id = idGenerator.GenerateId(this, document);
                     serializer.SetDocumentId(document, id);
                     return Insert(nominalType, document, options);
-                } else {
+                }
+                else
+                {
                     BsonValue idBsonValue;
-                    if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue)) {
+                    if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue))
+                    {
                         idBsonValue = BsonDocumentWrapper.Create(idNominalType, id);
                     }
-                    if (idBsonValue.IsString && BsonClassMap.IsClassMapRegistered(document.GetType())) {
+                    if (idBsonValue.IsString && BsonClassMap.IsClassMapRegistered(document.GetType()))
+                    {
                         var classMap = BsonClassMap.LookupClassMap(document.GetType());
-                        var serializationOptions = (RepresentationSerializationOptions) classMap.IdMemberMap.SerializationOptions;
-                        if (serializationOptions != null && serializationOptions.Representation == BsonType.ObjectId) {
+                        var serializationOptions = (RepresentationSerializationOptions)classMap.IdMemberMap.SerializationOptions;
+                        if (serializationOptions != null && serializationOptions.Representation == BsonType.ObjectId)
+                        {
                             idBsonValue = ObjectId.Parse(idBsonValue.AsString);
                         }
                     }
@@ -1356,7 +1486,9 @@ namespace MongoDB.Driver {
                     var update = Builders.Update.Replace(nominalType, document);
                     return Update(query, update, UpdateFlags.Upsert, options.SafeMode);
                 }
-            } else {
+            }
+            else
+            {
                 throw new InvalidOperationException("Save can only be used with documents that have an Id.");
             }
         }
@@ -1373,7 +1505,8 @@ namespace MongoDB.Driver {
             Type nominalType,
             object document,
             SafeMode safeMode
-        ) {
+        )
+        {
             var options = new MongoInsertOptions(this) { SafeMode = safeMode };
             return Save(nominalType, document, options);
         }
@@ -1382,8 +1515,9 @@ namespace MongoDB.Driver {
         /// Gets a canonical string representation for this database.
         /// </summary>
         /// <returns>A canonical string representation for this database.</returns>
-        public override string ToString() {
- 	        return FullName;
+        public override string ToString()
+        {
+            return FullName;
         }
 
         /// <summary>
@@ -1395,7 +1529,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Update(
             IMongoQuery query,
             IMongoUpdate update
-        ) {
+        )
+        {
             return Update(query, update, UpdateFlags.None, settings.SafeMode);
         }
 
@@ -1410,7 +1545,8 @@ namespace MongoDB.Driver {
             IMongoQuery query,
             IMongoUpdate update,
             SafeMode safeMode
-        ) {
+        )
+        {
             return Update(query, update, UpdateFlags.None, safeMode);
         }
 
@@ -1425,7 +1561,8 @@ namespace MongoDB.Driver {
             IMongoQuery query,
             IMongoUpdate update,
             UpdateFlags flags
-        ) {
+        )
+        {
             return Update(query, update, flags, settings.SafeMode);
         }
 
@@ -1442,21 +1579,28 @@ namespace MongoDB.Driver {
             IMongoUpdate update,
             UpdateFlags flags,
             SafeMode safeMode
-        ) {
+        )
+        {
             var updateBuilder = update as UpdateBuilder;
-            if (updateBuilder != null) {
-                if (updateBuilder.Document.ElementCount == 0) {
+            if (updateBuilder != null)
+            {
+                if (updateBuilder.Document.ElementCount == 0)
+                {
                     throw new ArgumentException("Update called with an empty UpdateBuilder that has no update operations.");
                 }
             }
 
             var connection = server.AcquireConnection(database, false); // not slaveOk
-            try {
+            try
+            {
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoUpdateMessage(writerSettings, FullName, flags, query, update)) {
+                using (var message = new MongoUpdateMessage(writerSettings, FullName, flags, query, update))
+                {
                     return connection.SendMessage(message, safeMode);
                 }
-            } finally {
+            }
+            finally
+            {
                 server.ReleaseConnection(connection);
             }
         }
@@ -1465,7 +1609,8 @@ namespace MongoDB.Driver {
         /// Validates the integrity of this collection.
         /// </summary>
         /// <returns>A <see cref="ValidateCollectionResult"/>.</returns>
-        public virtual ValidateCollectionResult Validate() {
+        public virtual ValidateCollectionResult Validate()
+        {
             var command = new CommandDocument("validate", name);
             return database.RunCommandAs<ValidateCollectionResult>(command);
         }
@@ -1474,8 +1619,10 @@ namespace MongoDB.Driver {
         #region internal methods
         internal BsonBinaryReaderSettings GetReaderSettings(
             MongoConnection connection
-        ) {
-            return new BsonBinaryReaderSettings {
+        )
+        {
+            return new BsonBinaryReaderSettings
+            {
                 GuidRepresentation = settings.GuidRepresentation,
                 MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
             };
@@ -1483,8 +1630,10 @@ namespace MongoDB.Driver {
 
         internal BsonBinaryWriterSettings GetWriterSettings(
             MongoConnection connection
-        ) {
-            return new BsonBinaryWriterSettings {
+        )
+        {
+            return new BsonBinaryWriterSettings
+            {
                 GuidRepresentation = settings.GuidRepresentation,
                 MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
             };
@@ -1495,16 +1644,21 @@ namespace MongoDB.Driver {
         private string GetIndexName(
             BsonDocument keys,
             BsonDocument options
-        ) {
-            if (options != null) {
-                if (options.Contains("name")) {
+        )
+        {
+            if (options != null)
+            {
+                if (options.Contains("name"))
+                {
                     return options["name"].AsString;
                 }
             }
 
             StringBuilder sb = new StringBuilder();
-            foreach (var element in keys) {
-                if (sb.Length > 0) {
+            foreach (var element in keys)
+            {
+                if (sb.Length > 0)
+                {
                     sb.Append("_");
                 }
                 sb.Append(element.Name);
@@ -1515,7 +1669,8 @@ namespace MongoDB.Driver {
                     value.BsonType == BsonType.Int64 ||
                     value.BsonType == BsonType.Double ||
                     value.BsonType == BsonType.String
-                ) {
+                )
+                {
                     sb.Append(value.RawValue.ToString().Replace(' ', '_'));
                 }
             }
@@ -1524,10 +1679,13 @@ namespace MongoDB.Driver {
 
         private string GetIndexName(
             string[] keyNames
-        ) {
+        )
+        {
             StringBuilder sb = new StringBuilder();
-            foreach (string name in keyNames) {
-                if (sb.Length > 0) {
+            foreach (string name in keyNames)
+            {
+                if (sb.Length > 0)
+                {
                     sb.Append("_");
                 }
                 sb.Append(name);
@@ -1538,19 +1696,43 @@ namespace MongoDB.Driver {
 
         private void ValidateCollectionName(
             string name
-        ) {
-            if (name == null) {
+        )
+        {
+            if (name == null)
+            {
                 throw new ArgumentNullException("name");
             }
             if (
                 name == "" ||
                 name.Contains('\0') ||
                 Encoding.UTF8.GetBytes(name).Length > 121
-            ) {
+            )
+            {
                 throw new ArgumentException("Invalid collection name", "name");
             }
         }
         #endregion
+
+        public abstract Type ElementType
+        {
+            get;
+        }
+
+        public abstract System.Linq.Expressions.Expression Expression
+        {
+            get;
+        }
+
+        public abstract IQueryProvider Provider
+        {
+            get;
+        }
+
+        public abstract IEnumerator GetEnumerator();
+
+
+
+
     }
 
     // this subclass provides a default document type for Find methods
@@ -1560,7 +1742,8 @@ namespace MongoDB.Driver {
     /// Represents a MongoDB collection and the settings used to access it as well as a default document type. This class is thread-safe.
     /// </summary>
     /// <typeparam name="TDefaultDocument">The default document type of the collection.</typeparam>
-    public class MongoCollection<TDefaultDocument> : MongoCollection {
+    public class MongoCollection<TDefaultDocument> : MongoCollection, IQueryable<TDefaultDocument>, IEnumerable<TDefaultDocument>, IOrderedQueryable, IOrderedQueryable<TDefaultDocument>
+    {
         #region constructors
         /// <summary>
         /// Creates a new instance of MongoCollection. Normally you would call one of the indexers or GetCollection methods
@@ -1572,8 +1755,25 @@ namespace MongoDB.Driver {
             MongoDatabase database,
             MongoCollectionSettings<TDefaultDocument> settings
         )
-            : base(database, settings) {
+            : base(database, settings)
+        {
+            provider = new MongoQueryProvider(this);
+            expression = Expression.Constant(this);
         }
+
+        public MongoCollection(
+          MongoDatabase database,
+          MongoCollectionSettings<TDefaultDocument> settings,
+          MongoQueryProvider provider,
+          Expression expression
+      )
+            : base(database, settings)
+        {
+            this.provider = provider;
+            this.expression = expression;
+        }
+
+
         #endregion
 
         #region public methods
@@ -1584,7 +1784,8 @@ namespace MongoDB.Driver {
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDefaultDocument> Find(
             IMongoQuery query
-        ) {
+        )
+        {
             return FindAs<TDefaultDocument>(query);
         }
 
@@ -1592,7 +1793,8 @@ namespace MongoDB.Driver {
         /// Returns a cursor that can be used to find all documents in this collection as TDefaultDocuments.
         /// </summary>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
-        public virtual MongoCursor<TDefaultDocument> FindAll() {
+        public virtual MongoCursor<TDefaultDocument> FindAll()
+        {
             return FindAllAs<TDefaultDocument>();
         }
 
@@ -1600,7 +1802,8 @@ namespace MongoDB.Driver {
         /// Returns a cursor that can be used to find one document in this collection as a TDefaultDocument.
         /// </summary>
         /// <returns>A TDefaultDocument (or null if not found).</returns>
-        public virtual TDefaultDocument FindOne() {
+        public virtual TDefaultDocument FindOne()
+        {
             return FindOneAs<TDefaultDocument>();
         }
 
@@ -1611,7 +1814,8 @@ namespace MongoDB.Driver {
         /// <returns>A TDefaultDocument (or null if not found).</returns>
         public virtual TDefaultDocument FindOne(
             IMongoQuery query
-        ) {
+        )
+        {
             return FindOneAs<TDefaultDocument>(query);
         }
 
@@ -1622,7 +1826,8 @@ namespace MongoDB.Driver {
         /// <returns>A TDefaultDocument (or null if not found).</returns>
         public virtual TDefaultDocument FindOneById(
             BsonValue id
-        ) {
+        )
+        {
             return FindOneByIdAs<TDefaultDocument>(id);
         }
 
@@ -1637,7 +1842,8 @@ namespace MongoDB.Driver {
             double x,
             double y,
             IMongoGeoHaystackSearchOptions options
-        ) {
+        )
+        {
             return GeoHaystackSearchAs<TDefaultDocument>(x, y, options);
         }
 
@@ -1654,7 +1860,8 @@ namespace MongoDB.Driver {
             double x,
             double y,
             int limit
-        ) {
+        )
+        {
             return GeoNearAs<TDefaultDocument>(query, x, y, limit);
         }
 
@@ -1673,7 +1880,8 @@ namespace MongoDB.Driver {
             double y,
             int limit,
             IMongoGeoNearOptions options
-        ) {
+        )
+        {
             return GeoNearAs<TDefaultDocument>(query, x, y, limit, options);
         }
 
@@ -1684,7 +1892,8 @@ namespace MongoDB.Driver {
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Insert(
             TDefaultDocument document
-        ) {
+        )
+        {
             return Insert<TDefaultDocument>(document);
         }
 
@@ -1697,7 +1906,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Insert(
             TDefaultDocument document,
             MongoInsertOptions options
-        ) {
+        )
+        {
             return Insert<TDefaultDocument>(document, options);
         }
 
@@ -1710,7 +1920,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Insert(
             TDefaultDocument document,
             SafeMode safeMode
-        ) {
+        )
+        {
             return Insert<TDefaultDocument>(document, safeMode);
         }
 
@@ -1721,7 +1932,8 @@ namespace MongoDB.Driver {
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
         public virtual IEnumerable<SafeModeResult> InsertBatch(
             IEnumerable<TDefaultDocument> documents
-        ) {
+        )
+        {
             return InsertBatch<TDefaultDocument>(documents);
         }
 
@@ -1734,7 +1946,8 @@ namespace MongoDB.Driver {
         public virtual IEnumerable<SafeModeResult> InsertBatch(
             IEnumerable<TDefaultDocument> documents,
             MongoInsertOptions options
-        ) {
+        )
+        {
             return InsertBatch<TDefaultDocument>(documents, options);
         }
 
@@ -1747,7 +1960,8 @@ namespace MongoDB.Driver {
         public virtual IEnumerable<SafeModeResult> InsertBatch(
             IEnumerable<TDefaultDocument> documents,
             SafeMode safeMode
-        ) {
+        )
+        {
             return InsertBatch<TDefaultDocument>(documents, safeMode);
         }
 
@@ -1759,7 +1973,8 @@ namespace MongoDB.Driver {
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Save(
             TDefaultDocument document
-        ) {
+        )
+        {
             return Save<TDefaultDocument>(document);
         }
 
@@ -1773,7 +1988,8 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Save(
             TDefaultDocument document,
             MongoInsertOptions options
-        ) {
+        )
+        {
             return Save<TDefaultDocument>(document, options);
         }
 
@@ -1787,9 +2003,66 @@ namespace MongoDB.Driver {
         public virtual SafeModeResult Save(
             TDefaultDocument document,
             SafeMode safeMode
-        ) {
+        )
+        {
             return Save<TDefaultDocument>(document, safeMode);
         }
         #endregion
+
+
+        #region "IQueryable"
+        public override Type ElementType
+        {
+            get { return typeof(TDefaultDocument); }
+        }
+
+        public override System.Linq.Expressions.Expression Expression
+        {
+            get { return expression; }
+        }
+
+        public override IQueryProvider Provider
+        {
+            get { return provider; }
+        }
+
+
+        public override IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)this.provider.Execute(this.expression)).GetEnumerator();
+        }
+
+
+        IEnumerator<TDefaultDocument> IEnumerable<TDefaultDocument>.GetEnumerator()
+        {
+            return ((IEnumerable<TDefaultDocument>)this.provider.Execute(this.expression)).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+
+        Type IQueryable.ElementType
+        {
+            get { return typeof(TDefaultDocument); }
+        }
+
+        Expression IQueryable.Expression
+        {
+            get { return expression; }
+        }
+
+        IQueryProvider IQueryable.Provider
+        {
+            get { return provider; }
+        }
+
+        private MongoQueryProvider provider;
+        private Expression expression;
+
+        #endregion
     }
+
 }

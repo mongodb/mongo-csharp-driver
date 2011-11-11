@@ -133,5 +133,14 @@ namespace MongoDB.Driver.Builders {
             document.Serialize(bsonWriter, nominalType, options);
         }
         #endregion
+
+
+
+
+
+        internal bool ElementExists(string key)
+        {
+            return document[key, null] != null;
+        }
     }
 }
