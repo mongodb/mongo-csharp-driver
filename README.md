@@ -13,8 +13,8 @@ This is a branch of the original driver however this additionally supports opera
 
 
             var items =  from item in db.GetCollection(settings)
-            where item.ID == 123 || item.Name == "Hi"
-            select item;
+                        where item.ID == 123 || item.Name == "Hi"
+                        select item;
 
 Also certain operations such as:
 
