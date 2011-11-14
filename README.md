@@ -12,7 +12,9 @@ apidoc: http://api.mongodb.org/csharp/ (coming soon)
 This is a branch of the original driver however this additionally supports operations on collections such as:
 
 var items = from item in db.GetCollection(settings)
+
             where item.ID == 123 || item.Name == "Hi"
+
             select item;
 
 Also certain operations such as:
@@ -35,7 +37,8 @@ Also certain operations such as:
 ### Maintainers:
 * Vlad Shlosberg            vshlos@gmail.com
 
-### Contributors:
+
+### Original Contributors to mongo csharp driver:
 * Bit Diffusion Limited     code@bitdiff.com
 * Justin Dearing            zippy1981@gmail.com
 * Teun Duynstee             teun@duynstee.com
@@ -49,5 +52,3 @@ Also certain operations such as:
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Testo                     test1@doramail.com   
 * Craig Wilson              craiggwilson@gmail.com
-
-If you have contributed and I have neglected to add you to this list please contact me at robert@10gen.com to be added to the list (with apologies).
