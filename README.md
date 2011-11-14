@@ -16,12 +16,19 @@ var items = from item in db.GetCollection(settings)
             select item;
 
 Also certain operations such as:
+
 db.GetCollection(settings).Count()
+
 db.GetCollection(settings).LongCount()
+
 db.GetCollection(settings).Take(10).Skip(10);
+
 db.GetCollection(settings).OrderBy(k=>k.ID)
+
 db.GetCollection(settings).OrderByDescending(k=>k.Order);
+
 db.GetCollection(settings).Select(k => new {Name=k.Name + k.ID})
+
 
 
 
