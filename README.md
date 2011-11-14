@@ -11,10 +11,9 @@ apidoc: http://api.mongodb.org/csharp/ (coming soon)
 
 This is a branch of the original driver however this additionally supports operations on collections such as:
 
-var items = from item in db.GetCollection(settings)
 
+            var items =  from item in db.GetCollection(settings)
             where item.ID == 123 || item.Name == "Hi"
-
             select item;
 
 Also certain operations such as:
