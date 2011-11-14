@@ -23,6 +23,10 @@ Also certain operations such as:
 * db.GetCollection(settings).OrderBy(k=>k.ID)
 * db.GetCollection(settings).OrderByDescending(k=>k.Order);
 * db.GetCollection(settings).Select(k => new {Name=k.Name + k.ID})
+* db.GetCollection(settings).Where(k => k.ID == 1 && k.Price > 10.00)
+* db.GetCollection(settings).FirstOrDefault();
+* db.GetCollection(settings).LastOrDefault();
+* db.GetCollection(settings).Reverse();
 
 
 
