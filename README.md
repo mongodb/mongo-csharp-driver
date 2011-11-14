@@ -9,6 +9,21 @@ apidoc: http://api.mongodb.org/csharp/ (coming soon)
 
 *Note this is not the official mongo c# driver. This is a branch of the current release of the mongo driver which supports LINQ 
 
+This is a branch of the original driver however this additionally supports operations on collections such as:
+
+var items = from item in db.GetCollection(settings)
+            where item.ID == 123 || item.Name == "Hi"
+            select item;
+
+Also certain operations such as:
+db.GetCollection(settings).Count()
+db.GetCollection(settings).LongCount()
+db.GetCollection(settings).Take(10).Skip(10);
+db.GetCollection(settings).OrderBy(k=>k.ID)
+db.GetCollection(settings).OrderByDescending(k=>k.Order);
+db.GetCollection(settings).Select(k => new {Name=k.Name + k.ID})
+
+
 
 
 ### Maintainers:
