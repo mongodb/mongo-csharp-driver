@@ -1,4 +1,4 @@
-## MongoDB C# Driver
+## MongoDB C# Driver LINQ Version
 
 driver home: http://github.com/mongodb/mongo-csharp-driver
 
@@ -6,18 +6,13 @@ mongodb home: http://www.mongodb.org/
 
 apidoc: http://api.mongodb.org/csharp/ (coming soon)
 
-### Questions and Bug Reports
 
- * mailing list: http://groups.google.com/group/mongodb-user
- * jira: http://jira.mongodb.org/
+*Note this is not the official mongo c# driver. This is a branch of the current release of the mongo driver which supports LINQ 
 
-### Change Log
 
-http://jira.mongodb.org/browse/CSHARP
 
 ### Maintainers:
-* Robert Stam               robert@10gen.com
-* Sridhar Nanjundeswaran    sridhar@10gen.com
+* Vlad Shlosberg            vshlos@gmail.com
 
 ### Contributors:
 * Bit Diffusion Limited     code@bitdiff.com
