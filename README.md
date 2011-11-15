@@ -1,4 +1,4 @@
-## MongoDB C# Driver
+## MongoDB C# Driver LINQ Version
 
 driver home: http://github.com/mongodb/mongo-csharp-driver
 
@@ -6,20 +6,38 @@ mongodb home: http://www.mongodb.org/
 
 apidoc: http://api.mongodb.org/csharp/ (coming soon)
 
-### Questions and Bug Reports
 
- * mailing list: http://groups.google.com/group/mongodb-user
- * jira: http://jira.mongodb.org/
+*Note this is not the official mongo c# driver. This is a branch of the current release of the mongo driver which supports LINQ 
 
-### Change Log
+This is a branch of the original driver however this additionally supports operations on collections such as:
 
-http://jira.mongodb.org/browse/CSHARP
+
+            var items =  from item in db.GetCollection(settings)
+                        where item.ID == 123 || item.Name == "Hi"
+                        select item;
+
+Also certain operations such as:
+
+* db.GetCollection(settings).Count()
+* db.GetCollection(settings).LongCount()
+* db.GetCollection(settings).Take(10).Skip(10);
+* db.GetCollection(settings).OrderBy(k=>k.ID)
+* db.GetCollection(settings).OrderByDescending(k=>k.Order);
+* db.GetCollection(settings).Select(k => new {Name=k.Name + k.ID})
+* db.GetCollection(settings).Where(k => k.ID == 1 && k.Price > 10.00)
+* db.GetCollection(settings).FirstOrDefault();
+* db.GetCollection(settings).LastOrDefault();
+* db.GetCollection(settings).Reverse();
+
+
+
+
 
 ### Maintainers:
-* Robert Stam               robert@10gen.com
-* Sridhar Nanjundeswaran    sridhar@10gen.com
+* Vlad Shlosberg            vshlos@gmail.com
 
-### Contributors:
+
+### Original Contributors to mongo csharp driver:
 * Bit Diffusion Limited     code@bitdiff.com
 * Justin Dearing            zippy1981@gmail.com
 * Teun Duynstee             teun@duynstee.com
@@ -33,5 +51,3 @@ http://jira.mongodb.org/browse/CSHARP
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Testo                     test1@doramail.com   
 * Craig Wilson              craiggwilson@gmail.com
-
-If you have contributed and I have neglected to add you to this list please contact me at robert@10gen.com to be added to the list (with apologies).
