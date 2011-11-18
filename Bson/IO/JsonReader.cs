@@ -692,13 +692,13 @@ namespace MongoDB.Bson.IO {
         private string FormatJavaScriptDateTimeString(
             DateTime dateTime
         ) {
-            var utc = dateTime.ToUniversalTime();
-            var local = utc.ToLocalTime();
-            var offsetSign = "+";
+            var utc = BsonUtils.ToUniversalTime(dateTime);
+            var local = BsonUtils.ToLocalTime(utc, DateTimeKind.Local);
             var offset = local - utc;
+            var offsetSign = "+";
             if (offset < TimeSpan.Zero) {
-                offsetSign = "-";
                 offset = -offset;
+                offsetSign = "-";
             }
             var timeZone = TimeZone.CurrentTimeZone;
             var timeZoneName = local.IsDaylightSavingTime() ? timeZone.DaylightName : timeZone.StandardName;
