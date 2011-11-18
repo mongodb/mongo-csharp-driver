@@ -1031,17 +1031,19 @@ namespace MongoDB.Bson.Serialization {
 
         private Func<object> GetCreator() {
             if (creator == null) {
-                Expression expression;
+                Expression body;
                 var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                 var defaultConstructor = classType.GetConstructor(bindingFlags, null, new Type[0], null);
                 if (defaultConstructor != null) {
-                    expression = Expression.New(defaultConstructor);
+                    // lambdaExpression = () => (object) new TClass()
+                    body = Expression.New(defaultConstructor);
                 } else {
-                    var getUnitializedObjectInfo = typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Public | BindingFlags.Static);
-                    expression = Expression.Call(getUnitializedObjectInfo, Expression.Constant(classType));
+                    // lambdaExpression = () => FormatterServices.GetUninitializedObject(classType)
+                    var getUnitializedObjectMethodInfo = typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Public | BindingFlags.Static);
+                    body = Expression.Call(getUnitializedObjectMethodInfo, Expression.Constant(classType));
                 }
-                var lambda = Expression.Lambda<Func<object>>(expression);
-                creator = lambda.Compile();
+                var lambdaExpression = Expression.Lambda<Func<object>>(body);
+                creator = lambdaExpression.Compile();
             }
             return creator;
         }
@@ -1056,14 +1058,15 @@ namespace MongoDB.Bson.Serialization {
                 shouldSerializeMethodInfo.IsPublic &&
                 shouldSerializeMethodInfo.ReturnType == typeof(bool)
             ) {
-                // we need to construct a lambda wich does the following
-                // (obj) => obj.ShouldSerializeXyz()
-                var parameter = Expression.Parameter(typeof(object), "obj");
-                var body = Expression.Call(
-                    Expression.Convert(parameter, classType),
-                    shouldSerializeMethodInfo
+                // lambdaExpression = (obj) => ((TClass) obj).ShouldSerializeXyz()
+                var objParameter = Expression.Parameter(typeof(object), "obj");
+                var lambdaExpression = Expression.Lambda<Func<object, bool>>(
+                    Expression.Call(
+                        Expression.Convert(objParameter, classType),
+                        shouldSerializeMethodInfo
+                    ),
+                    objParameter
                 );
-                var lambdaExpression = Expression.Lambda<Func<object, bool>>(body, parameter);
                 return lambdaExpression.Compile();
             } else {
                 return null;

@@ -420,19 +420,20 @@ namespace MongoDB.Bson.Serialization {
                 }
             }
 
-            var instance = Expression.Parameter(typeof(object), "obj");
-            var lambda = Expression.Lambda<Func<object, object>>(
+            // lambdaExpression = (obj) => (object) ((TClass) obj).Member
+            var objParameter = Expression.Parameter(typeof(object), "obj");
+            var lambdaExpression = Expression.Lambda<Func<object, object>>(
                 Expression.Convert(
                     Expression.MakeMemberAccess(
-                        Expression.Convert(instance, memberInfo.DeclaringType),
+                        Expression.Convert(objParameter, memberInfo.DeclaringType),
                         memberInfo
                     ),
                     typeof(object)
                 ),
-                instance
+                objParameter
             );
 
-            return lambda.Compile();
+            return lambdaExpression.Compile();
         }
 
         private Action<object, object> GetPropertySetter() {
@@ -443,19 +444,20 @@ namespace MongoDB.Bson.Serialization {
                 throw new BsonSerializationException(message);
             }
 
-            var instance = Expression.Parameter(typeof(object), "obj");
-            var argument = Expression.Parameter(typeof(object), "a");
-            var lambda = Expression.Lambda<Action<object, object>>(
+            // lambdaExpression = (obj, value) => ((TClass) obj).SetMethod((TMember) value)
+            var objParameter = Expression.Parameter(typeof(object), "obj");
+            var valueParameter = Expression.Parameter(typeof(object), "value");
+            var lambdaExpression = Expression.Lambda<Action<object, object>>(
                 Expression.Call(
-                    Expression.Convert(instance, memberInfo.DeclaringType),
+                    Expression.Convert(objParameter, memberInfo.DeclaringType),
                     setMethodInfo,
-                    Expression.Convert(argument, memberType)
+                    Expression.Convert(valueParameter, memberType)
                 ),
-                instance,
-                argument
+                objParameter,
+                valueParameter
             );
 
-            return lambda.Compile();
+            return lambdaExpression.Compile();
         }
         #endregion
     }

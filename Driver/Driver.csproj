@@ -179,6 +179,13 @@
     <Compile Include="Internal\MongoReplyMessage.cs" />
     <Compile Include="Internal\MongoUpdateMessage.cs" />
     <Compile Include="Internal\ReplicaSetConnector.cs" />
+    <Compile Include="Linq\MongoLinqFindQuery.cs" />
+    <Compile Include="Linq\MongoLinqExtensionMethods.cs" />
+    <Compile Include="Linq\MongoQueryable.cs" />
+    <Compile Include="Linq\MongoQueryProvider.cs" />
+    <Compile Include="Linq\MongoLinqTranslator.cs" />
+    <Compile Include="Linq\MongoLinqQuery.cs" />
+    <Compile Include="Linq\TypeSystem.cs" />
     <Compile Include="MongoUtils.cs" />
     <Compile Include="MongoDefaults.cs" />
     <Compile Include="GridFS\MongoGridFS.cs" />
