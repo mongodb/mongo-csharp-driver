@@ -22,32 +22,32 @@ using System.Text;
 
 namespace MongoDB.Driver {
     /// <summary>
-    /// Represents the options to use for an Insert or InsertBatch operation.
+    /// Represents the options to use for an Update operation.
     /// </summary>
-    public class MongoInsertOptions {
+    public class MongoUpdateOptions {
         #region private fields
         private bool checkElementNames;
-        private InsertFlags flags;
+        private UpdateFlags flags;
         private SafeMode safeMode;
         #endregion
 
         #region constructors
         /// <summary>
-        /// Initializes a new instance of the MongoInsertOptions class.
+        /// Initializes a new instance of the MongoUpdateOptions class.
         /// </summary>
         /// <param name="collection">The collection from which to get default settings for the options.</param>
-        public MongoInsertOptions(
+        public MongoUpdateOptions(
             MongoCollection collection
         ) {
             this.checkElementNames = true;
-            this.flags = InsertFlags.None;
+            this.flags = UpdateFlags.None;
             this.safeMode = collection.Settings.SafeMode;
         }
         #endregion
 
         #region public properties
         /// <summary>
-        /// Gets or sets whether to check element names before proceeding with the Insert.
+        /// Gets or sets whether to check element names before proceeding with the Update.
         /// </summary>
         public bool CheckElementNames {
             get { return checkElementNames; }
@@ -55,15 +55,15 @@ namespace MongoDB.Driver {
         }
 
         /// <summary>
-        /// Gets or sets the insert flags.
+        /// Gets or sets the update flags.
         /// </summary>
-        public InsertFlags Flags {
+        public UpdateFlags Flags {
             get { return flags; }
             set { flags = value; }
         }
 
         /// <summary>
-        /// Gets or sets the SafeMode to use for the Insert.
+        /// Gets or sets the SafeMode to use for the Update.
         /// </summary>
         public SafeMode SafeMode {
             get { return safeMode; }

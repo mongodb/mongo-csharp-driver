@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Internal {
     internal class MongoUpdateMessage : MongoRequestMessage {
         #region private fields
         private string collectionFullName;
+        private bool checkUpdateDocument;
         private UpdateFlags flags;
         private IMongoQuery query;
         private IMongoUpdate update;
@@ -37,12 +38,14 @@ namespace MongoDB.Driver.Internal {
         internal MongoUpdateMessage(
             BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
+            bool checkUpdateDocument,
             UpdateFlags flags,
             IMongoQuery query,
             IMongoUpdate update
         ) :
             base(MessageOpcode.Update, null, writerSettings) {
             this.collectionFullName = collectionFullName;
+            this.checkUpdateDocument = checkUpdateDocument;
             this.flags = flags;
             this.query = query;
             this.update = update;
@@ -62,7 +65,7 @@ namespace MongoDB.Driver.Internal {
                 } else {
                     BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 }
-                bsonWriter.CheckUpdateDocument = true;
+                bsonWriter.CheckUpdateDocument = checkUpdateDocument;
                 BsonSerializer.Serialize(bsonWriter, update.GetType(), update, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
         }

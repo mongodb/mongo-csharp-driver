@@ -1354,7 +1354,12 @@ namespace MongoDB.Driver {
                     }
                     var query = Query.EQ("_id", idBsonValue);
                     var update = Builders.Update.Replace(nominalType, document);
-                    return Update(query, update, UpdateFlags.Upsert, options.SafeMode);
+                    var updateOptions = new MongoUpdateOptions(this) {
+                        CheckElementNames = options.CheckElementNames,
+                        Flags = UpdateFlags.Upsert,
+                        SafeMode = options.SafeMode
+                    };
+                    return Update(query, update, updateOptions);
                 }
             } else {
                 throw new InvalidOperationException("Save can only be used with documents that have an Id.");
@@ -1397,6 +1402,36 @@ namespace MongoDB.Driver {
             IMongoUpdate update
         ) {
             return Update(query, update, UpdateFlags.None, settings.SafeMode);
+        }
+
+        /// <summary>
+        /// Updates one or more matching documents in this collection (for multiple updates use UpdateFlags.Multi).
+        /// </summary>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <param name="update">The update to perform on the matching document.</param>
+        /// <param name="options">The update options.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult Update(
+            IMongoQuery query,
+            IMongoUpdate update,
+            MongoUpdateOptions options
+        ) {
+            var updateBuilder = update as UpdateBuilder;
+            if (updateBuilder != null) {
+                if (updateBuilder.Document.ElementCount == 0) {
+                    throw new ArgumentException("Update called with an empty UpdateBuilder that has no update operations.");
+                }
+            }
+
+            var connection = server.AcquireConnection(database, false); // not slaveOk
+            try {
+                var writerSettings = GetWriterSettings(connection);
+                using (var message = new MongoUpdateMessage(writerSettings, FullName, options.CheckElementNames, options.Flags, query, update)) {
+                    return connection.SendMessage(message, options.SafeMode);
+                }
+            } finally {
+                server.ReleaseConnection(connection);
+            }
         }
 
         /// <summary>
@@ -1443,22 +1478,11 @@ namespace MongoDB.Driver {
             UpdateFlags flags,
             SafeMode safeMode
         ) {
-            var updateBuilder = update as UpdateBuilder;
-            if (updateBuilder != null) {
-                if (updateBuilder.Document.ElementCount == 0) {
-                    throw new ArgumentException("Update called with an empty UpdateBuilder that has no update operations.");
-                }
-            }
-
-            var connection = server.AcquireConnection(database, false); // not slaveOk
-            try {
-                var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoUpdateMessage(writerSettings, FullName, flags, query, update)) {
-                    return connection.SendMessage(message, safeMode);
-                }
-            } finally {
-                server.ReleaseConnection(connection);
-            }
+            var options = new MongoUpdateOptions(this) {
+                Flags = flags,
+                SafeMode = safeMode
+            };
+            return Update(query, update, options);
         }
 
         /// <summary>
