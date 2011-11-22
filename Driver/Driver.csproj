@@ -124,6 +124,7 @@
     <Compile Include="Core\MongoServerBuildInfo.cs" />
     <Compile Include="Core\MongoServerInstance.cs" />
     <Compile Include="Core\MongoServerSettings.cs" />
+    <Compile Include="Core\MongoUpdateOptions.cs" />
     <Compile Include="Core\MongoUrlBuilder.cs" />
     <Compile Include="Core\MongoUser.cs" />
     <Compile Include="Core\ProfilingLevel.cs" />
