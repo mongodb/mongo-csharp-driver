@@ -842,7 +842,7 @@ namespace MongoDB.DriverOnlineTests {
             // try the batch again with ContinueOnError
             if (server.BuildInfo.Version >= new Version(2, 0, 0)) {
                 try {
-                    var options = new MongoInsertOptions(collection) { Flags = InsertFlags.ContinueOnError };
+                    var options = new MongoInsertOptions() { Flags = InsertFlags.ContinueOnError };
                     collection.InsertBatch(batch, options);
                 } catch (MongoSafeModeException) {
                     Assert.AreEqual(3, collection.Count());

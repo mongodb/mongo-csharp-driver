@@ -35,13 +35,9 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Initializes a new instance of the MongoInsertOptions class.
         /// </summary>
-        /// <param name="collection">The collection from which to get default settings for the options.</param>
-        public MongoInsertOptions(
-            MongoCollection collection
-        ) {
+        public MongoInsertOptions() {
             this.checkElementNames = true;
             this.flags = InsertFlags.None;
-            this.safeMode = collection.Settings.SafeMode;
         }
         #endregion
 
