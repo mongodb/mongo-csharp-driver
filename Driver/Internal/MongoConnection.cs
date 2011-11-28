@@ -142,14 +142,15 @@ namespace MongoDB.Driver.Internal {
             lock (connectionLock) {
                 var nonceCommand = new CommandDocument("getnonce", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
-                string nonce;
-                try {
-                    var nonceResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand);
-                    nonce = nonceResult.Response["nonce"].AsString;
-                } catch (MongoCommandException ex) {
-                    throw new MongoAuthenticationException("Error getting nonce for authentication.", ex);
+                
+                var commandResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand, false);
+                if (!commandResult.Ok) {
+                    throw new MongoAuthenticationException(
+                        "Error getting nonce for authentication.",
+                        new MongoCommandException(commandResult));
                 }
 
+                string nonce = commandResult.Response["nonce"].AsString;
                 var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
                 var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
                 var authenticateCommand = new CommandDocument {
@@ -158,11 +159,13 @@ namespace MongoDB.Driver.Internal {
                     { "nonce", nonce },
                     { "key", digest }
                 };
-                try {
-                    RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand);
-                } catch (MongoCommandException ex) {
+                
+                commandResult = RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand, false);
+                if (!commandResult.Ok) {
                     var message = string.Format("Invalid credentials for database '{0}'.", databaseName);
-                    throw new MongoAuthenticationException(message, ex);
+                    throw new MongoAuthenticationException(
+                        message,
+                        new MongoCommandException(commandResult));
                 }
 
                 var authentication = new Authentication(credentials);
@@ -292,10 +295,12 @@ namespace MongoDB.Driver.Internal {
             lock (connectionLock) {
                 var logoutCommand = new CommandDocument("logout", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
-                try {
-                    RunCommand(commandCollectionName, QueryFlags.None, logoutCommand);
-                } catch (MongoCommandException ex) {
-                    throw new MongoAuthenticationException("Error logging off.", ex);
+                
+                var commandResult = RunCommand(commandCollectionName, QueryFlags.None, logoutCommand, false);
+                if (!commandResult.Ok) {
+                    throw new MongoAuthenticationException(
+                        "Error logging off.",
+                        new MongoCommandException(commandResult));
                 }
 
                 authentications.Remove(databaseName);
@@ -323,7 +328,8 @@ namespace MongoDB.Driver.Internal {
         internal CommandResult RunCommand(
             string collectionName,
             QueryFlags queryFlags,
-            CommandDocument command
+            CommandDocument command,
+            bool throwOnError
         ) {
             var commandName = command.GetElement(0).Name;
 
@@ -356,7 +362,7 @@ namespace MongoDB.Driver.Internal {
             }
 
             var commandResult = new CommandResult(command, reply.Documents[0]);
-            if (!commandResult.Ok) {
+            if (throwOnError && !commandResult.Ok) {
                 throw new MongoCommandException(commandResult);
             }
 

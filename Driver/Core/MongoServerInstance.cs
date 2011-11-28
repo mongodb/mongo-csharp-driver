@@ -199,7 +199,7 @@ namespace MongoDB.Driver {
             var connection = connectionPool.AcquireConnection(null);
             try {
                 var pingCommand = new CommandDocument("ping", 1);
-                connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand);
+                connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand, true);
             } finally {
                 connectionPool.ReleaseConnection(connection);
             }
@@ -359,13 +359,13 @@ namespace MongoDB.Driver {
             MongoConnection connection
         ) {
             CommandResult isMasterResult = null;
-            try {
-                try {
-                    var isMasterCommand = new CommandDocument("ismaster", 1);
-                    isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
-                } catch (MongoCommandException ex) {
-                    isMasterResult = ex.CommandResult;
-                    throw;
+            bool ok = false;
+            try
+            {
+                var isMasterCommand = new CommandDocument("ismaster", 1);
+                isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand, false);
+                if (!isMasterResult.Ok) {
+                    throw new MongoCommandException(isMasterResult);
                 }
 
                 var isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
@@ -375,26 +375,25 @@ namespace MongoDB.Driver {
                 // workaround for CSHARP-273
                 if (isPassive && isArbiter) { isPassive = false; }
 
-                var maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
-                var maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
+                int maxDocumentSize = isMasterResult.Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32();
+                int maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
 
                 MongoServerBuildInfo buildInfo;
-                try {
-                    var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                    var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
+                var buildInfoCommand = new CommandDocument("buildinfo", 1);
+                var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand, false);
+                if (!buildInfoResult.Ok) {
+                    // short term fix: if buildInfo fails due to auth we don't know the server version; see CSHARP-324
+                    if (buildInfoResult.ErrorMessage != "need to login") {
+                        throw new MongoCommandException(buildInfoResult);
+                    }
+                    buildInfo = null;
+                } else {
                     buildInfo = new MongoServerBuildInfo(
                         buildInfoResult.Response["bits"].ToInt32(), // bits
                         buildInfoResult.Response["gitVersion"].AsString, // gitVersion
                         buildInfoResult.Response["sysInfo"].AsString, // sysInfo
                         buildInfoResult.Response["version"].AsString // versionString
                     );
-                } catch (MongoCommandException ex) {
-                    // short term fix: if buildInfo fails due to auth we don't know the server version
-                    if (ex.CommandResult.ErrorMessage == "need to login") {
-                        buildInfo = null;
-                    } else {
-                        throw;
-                    }
                 }
 
                 this.isMasterResult = isMasterResult;
@@ -402,13 +401,15 @@ namespace MongoDB.Driver {
                 this.maxMessageLength = maxMessageLength;
                 this.buildInfo = buildInfo;
                 this.SetState(MongoServerState.Connected, isPrimary, isSecondary, isPassive, isArbiter);
-            } catch {
-                this.isMasterResult = isMasterResult;
-                this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
-                this.maxMessageLength = MongoDefaults.MaxMessageLength;
-                this.buildInfo = null;
-                this.SetState(MongoServerState.Disconnected, false, false, false, false);
-                throw;
+                ok = true;
+            } finally {
+                if (!ok) {
+                    this.isMasterResult = isMasterResult;
+                    this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
+                    this.maxMessageLength = MongoDefaults.MaxMessageLength;
+                    this.buildInfo = null;
+                    this.SetState(MongoServerState.Disconnected, false, false, false, false);
+                }
             }
         }
         #endregion
