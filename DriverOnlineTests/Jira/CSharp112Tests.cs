@@ -172,10 +172,10 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112 {
                     collection.FindOneAs<I>(query);
                     Assert.Fail("Expected an exception to be thrown.");
                 } catch (Exception ex) {
-                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverOnlineTests.Jira.CSharp112.CSharp112Tests+I: Arithmetic operation resulted in an overflow.";
+                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverOnlineTests.Jira.CSharp112.CSharp112Tests+I";
                     Assert.IsInstanceOf<FileFormatException>(ex);
                     Assert.IsInstanceOf<OverflowException>(ex.InnerException);
-                    Assert.AreEqual(expectedMessage, ex.Message);
+                    Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
                 }
             }
 
@@ -262,10 +262,10 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112 {
                     collection.FindOneAs<L>(query);
                     Assert.Fail("Expected an exception to be thrown.");
                 } catch (Exception ex) {
-                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverOnlineTests.Jira.CSharp112.CSharp112Tests+L: Arithmetic operation resulted in an overflow.";
+                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverOnlineTests.Jira.CSharp112.CSharp112Tests+L";
                     Assert.IsInstanceOf<FileFormatException>(ex);
                     Assert.IsInstanceOf<OverflowException>(ex.InnerException);
-                    Assert.AreEqual(expectedMessage, ex.Message);
+                    Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
                 }
             }
 

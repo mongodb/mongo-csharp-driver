@@ -439,10 +439,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 BsonSerializer.Deserialize<TestClass>(bson);
                 Assert.Fail("Expected an exception to be thrown.");
             } catch (Exception ex) {
-                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass: Specified method is not supported.";
+                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
-                Assert.AreEqual(expectedMessage, ex.Message);
+                Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
             }
         }
 
@@ -458,10 +458,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 BsonSerializer.Deserialize<TestClass>(bson);
                 Assert.Fail("Expected an exception to be thrown.");
             } catch (Exception ex) {
-                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass: Specified method is not supported.";
+                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
-                Assert.AreEqual(expectedMessage, ex.Message);
+                Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
             }
         }
 
@@ -484,10 +484,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
                 BsonSerializer.Deserialize<TestClass>(bson);
                 Assert.Fail("Expected an exception to be thrown.");
             } catch (Exception ex) {
-                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass: Specified method is not supported.";
+                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
-                Assert.AreEqual(expectedMessage, ex.Message);
+                Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
             }
         }
     }
