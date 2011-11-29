@@ -24,5 +24,37 @@ namespace MongoDB.Bson.Serialization.Attributes {
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonIgnoreIfDefaultAttribute : Attribute {
+        #region private fields
+        private bool value;
+        #endregion
+
+        #region constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonIgnoreIfDefaultAttribute class.
+        /// </summary>
+        public BsonIgnoreIfDefaultAttribute()
+        {
+            this.value = true;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonIgnoreIfDefaultAttribute class.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public BsonIgnoreIfDefaultAttribute(
+            bool value
+        ) {
+            this.value = value;
+        }
+        #endregion
+
+        #region public properties
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        public bool Value {
+            get { return value; }
+        }
+        #endregion
     }
 }

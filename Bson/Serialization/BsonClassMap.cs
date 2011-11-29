@@ -969,7 +969,7 @@ namespace MongoDB.Bson.Serialization {
 
                 var ignoreIfDefaultAttribute = attribute as BsonIgnoreIfDefaultAttribute;
                 if (ignoreIfDefaultAttribute != null) {
-                    memberMap.SetIgnoreIfDefault(true);
+                    memberMap.SetIgnoreIfDefault(ignoreIfDefaultAttribute.Value);
                 }
 
                 var requiredAttribute = attribute as BsonRequiredAttribute;
