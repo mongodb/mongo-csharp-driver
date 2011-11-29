@@ -21,27 +21,27 @@ using System.Reflection;
 
 namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
-    /// Represents a serialize default value convention.
+    /// Represents an ignore if null convention.
     /// </summary>
-    public interface ISerializeDefaultValueConvention {
+    public interface IIgnoreIfDefaultConvention {
         /// <summary>
-        /// Determines whether to serialize the default value for a member.
+        /// Determines whether to ignore nulls for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
-        /// <returns>Whether to serialize the default value.</returns>
-        bool SerializeDefaultValue(MemberInfo memberInfo);
+        /// <returns>Whether to ignore nulls.</returns>
+        bool IgnoreIfDefault(MemberInfo memberInfo);
     }
 
     /// <summary>
-    /// Represents a serialize default value convention where default values are never serialized.
+    /// Represents an ignore if null convention where nulls are never ignored.
     /// </summary>
-    public class NeverSerializeDefaultValueConvention : ISerializeDefaultValueConvention {
+    public class NeverIgnoreIfDefaultConvention : IIgnoreIfDefaultConvention {
         /// <summary>
-        /// Determines whether to serialize the default value for a member.
+        /// Determines whether to ignore nulls for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
-        /// <returns>Whether to serialize the default value.</returns>
-        public bool SerializeDefaultValue(
+        /// <returns>Whether to ignore nulls.</returns>
+        public bool IgnoreIfDefault(
             MemberInfo memberInfo
         ) {
             return false;
@@ -49,15 +49,15 @@ namespace MongoDB.Bson.Serialization.Conventions {
     }
 
     /// <summary>
-    /// Represents a serialize default value convention where default values are always serialized.
+    /// Represents an ignore if null convention where nulls are always ignored.
     /// </summary>
-    public class AlwaysSerializeDefaultValueConvention : ISerializeDefaultValueConvention {
+    public class AlwaysIgnoreIfDefaultConvention : IIgnoreIfDefaultConvention {
         /// <summary>
-        /// Determines whether to serialize the default value for a member.
+        /// Determines whether to ignore nulls for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
-        /// <returns>Whether to serialize the default value.</returns>
-        public bool SerializeDefaultValue(
+        /// <returns>Whether to ignore nulls.</returns>
+        public bool IgnoreIfDefault(
             MemberInfo memberInfo
         ) {
             return true;

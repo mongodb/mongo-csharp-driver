@@ -922,8 +922,7 @@ namespace MongoDB.Bson.Serialization {
             var memberMap = MapMember(memberInfo);
 
             memberMap.SetElementName(conventions.ElementNameConvention.GetElementName(memberInfo));
-            memberMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(memberInfo));
-            memberMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberInfo));
+            memberMap.SetIgnoreIfDefault(conventions.IgnoreIfDefaultConvention.IgnoreIfDefault(memberInfo));
 
             var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(memberInfo);
             if (defaultValue != null) {
@@ -940,7 +939,6 @@ namespace MongoDB.Bson.Serialization {
                 var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
                 if (defaultValueAttribute != null) {
                     memberMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
-                    memberMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
                 }
 
                 var elementAttribute = attribute as BsonElementAttribute;
@@ -969,9 +967,9 @@ namespace MongoDB.Bson.Serialization {
                     continue;
                 }
 
-                var ignoreIfNullAttribute = attribute as BsonIgnoreIfNullAttribute;
-                if (ignoreIfNullAttribute != null) {
-                    memberMap.SetIgnoreIfNull(true);
+                var ignoreIfDefaultAttribute = attribute as BsonIgnoreIfDefaultAttribute;
+                if (ignoreIfDefaultAttribute != null) {
+                    memberMap.SetIgnoreIfDefault(true);
                 }
 
                 var requiredAttribute = attribute as BsonRequiredAttribute;

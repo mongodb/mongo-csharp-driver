@@ -54,20 +54,15 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         public IIgnoreExtraElementsConvention IgnoreExtraElementsConvention { get; private set; }
 
-        /// <summary>
-        /// Gets the ignore if null convention.
-        /// </summary>
-        public IIgnoreIfNullConvention IgnoreIfNullConvention { get; private set; }
+         /// <summary>
+         /// Gets the ignore if default convention.
+         /// </summary>
+         public IIgnoreIfDefaultConvention IgnoreIfDefaultConvention { get; private set; }
 
         /// <summary>
         /// Gets the member finder convention.
         /// </summary>
         public IMemberFinderConvention MemberFinderConvention { get; private set; }
-
-        /// <summary>
-        /// Gets the default value convention.
-        /// </summary>
-        public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
         #endregion
 
         #region public static methods
@@ -83,9 +78,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
                 .SetExtraElementsMemberConvention(new NamedExtraElementsMemberConvention("ExtraElements"))
                 .SetIdMemberConvention(new NamedIdMemberConvention("Id", "id", "_id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
-                .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
-                .SetMemberFinderConvention(new PublicMemberFinderConvention())
-                .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention());
+                .SetIgnoreIfDefaultConvention(new NeverIgnoreIfDefaultConvention())
+                .SetMemberFinderConvention(new PublicMemberFinderConvention());
         }
         #endregion
 
@@ -115,14 +109,11 @@ namespace MongoDB.Bson.Serialization.Conventions {
             if (IgnoreExtraElementsConvention == null) {
                 IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
             }
-            if (IgnoreIfNullConvention == null) {
-                IgnoreIfNullConvention = other.IgnoreIfNullConvention;
+            if (IgnoreIfDefaultConvention == null) {
+                IgnoreIfDefaultConvention = other.IgnoreIfDefaultConvention;
             }
             if(MemberFinderConvention == null) {
                 MemberFinderConvention = other.MemberFinderConvention;
-            }
-            if (SerializeDefaultValueConvention == null) {
-                SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
             }
         }
 
@@ -198,18 +189,18 @@ namespace MongoDB.Bson.Serialization.Conventions {
             return this;
         }
 
-        /// <summary>
-        /// Sets the ignore if null convention.
-        /// </summary>
-        /// <param name="convention">An ignore if null convention.</param>
-        /// <returns>The convention profile.</returns>
-        public ConventionProfile SetIgnoreIfNullConvention(
-            IIgnoreIfNullConvention convention
-        ) {
-            IgnoreIfNullConvention = convention;
-            return this;
-        }
-
+         /// <summary>
+         /// Sets the ignore if default convention.
+         /// </summary>
+         /// <param name="convention">An ignore if default convention.</param>
+         /// <returns>The convention profile.</returns>
+         public ConventionProfile SetIgnoreIfDefaultConvention(
+             IIgnoreIfDefaultConvention convention
+         ) {
+             IgnoreIfDefaultConvention = convention;
+             return this;
+         }
+ 
         /// <summary>
         /// Sets the member finder convention.
         /// </summary>
@@ -219,18 +210,6 @@ namespace MongoDB.Bson.Serialization.Conventions {
             IMemberFinderConvention convention
         ) {
             MemberFinderConvention = convention;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the serialize default value convention.
-        /// </summary>
-        /// <param name="convention">A serialize default value convention.</param>
-        /// <returns>The convention profile.</returns>
-        public ConventionProfile SetSerializeDefaultValueConvention(
-            ISerializeDefaultValueConvention convention
-        ) {
-            SerializeDefaultValueConvention = convention;
             return this;
         }
         #endregion

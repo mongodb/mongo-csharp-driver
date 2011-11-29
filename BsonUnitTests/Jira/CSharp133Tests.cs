@@ -29,9 +29,10 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace MongoDB.BsonUnitTests.Jira.CSharp133 {
     public class C {
         public string S;
-        [BsonIgnoreIfNull]
+        [BsonIgnoreIfDefault]
         public string I;
-        [BsonDefaultValue(null, SerializeDefaultValue = false)] // works the same as [BsonIgnoreIfNull]
+        [BsonDefaultValue(null)]
+        [BsonIgnoreIfDefault]
         public string D;
     }
 

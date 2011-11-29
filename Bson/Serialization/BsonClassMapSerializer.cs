@@ -342,14 +342,8 @@ namespace MongoDB.Bson.Serialization {
             BsonMemberMap memberMap
         ) {
             var value = memberMap.Getter(obj);
-            if (value == null && memberMap.IgnoreIfNull) {
-                return; // don't serialize null value
-            }
-            if (memberMap.HasDefaultValue && !memberMap.SerializeDefaultValue && object.Equals(value, memberMap.DefaultValue)) {
+            if (!memberMap.ShouldSerialize(obj, value)) {
                 return; // don't serialize default value
-            }
-            if (!memberMap.ShouldSerializeMethod(obj)) {
-                return; // the ShouldSerializeMethod determined that the member shouldn't be serialized
             }
 
             bsonWriter.WriteName(memberMap.ElementName);
