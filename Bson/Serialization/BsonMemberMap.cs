@@ -511,14 +511,28 @@ namespace MongoDB.Bson.Serialization {
                     return Expression.Constant('\0', type);
 
                 case TypeCode.SByte:
+                    return Expression.Constant((sbyte)0, type);
+
                 case TypeCode.Byte:
+                    return Expression.Constant((byte)0, type);
+
                 case TypeCode.Int16:
+                    return Expression.Constant((short)0, type);
+
                 case TypeCode.UInt16:
+                    return Expression.Constant((ushort)0, type);
+
                 case TypeCode.Int32:
-                case TypeCode.UInt32:
-                case TypeCode.Int64:
-                case TypeCode.UInt64:
                     return Expression.Constant(0, type);
+
+                case TypeCode.UInt32:
+                    return Expression.Constant(0U, type);
+
+                case TypeCode.Int64:
+                    return Expression.Constant(0L, type);
+
+                case TypeCode.UInt64:
+                    return Expression.Constant(0UL, type);
 
                 case TypeCode.Single:
                     return Expression.Constant(0F, type);
