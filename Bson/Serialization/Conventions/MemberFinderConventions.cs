@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
@@ -33,9 +34,31 @@ namespace MongoDB.Bson.Serialization.Conventions {
     }
 
     /// <summary>
-    /// Represents a member finder convention where all public read/write fields and properties are serialized.
+    /// Represents a base member finder convention where all read/write fields and properties are serialized based on binding flags.
     /// </summary>
-    public class PublicMemberFinderConvention : IMemberFinderConvention {
+    public abstract class BindingFlagsMemberFinderConvention : IMemberFinderConvention
+    {
+        #region private fields
+        private const BindingFlags ValidMemberBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+
+        private readonly BindingFlags memberBindingFlags;
+        #endregion
+
+        /// <summary>
+        /// Initializes an instance of the BindingFlagsMemberFinderConvention class.
+        /// </summary>
+        /// <param name="memberBindingFlags">The member binding flags.</param>
+        protected BindingFlagsMemberFinderConvention(
+            BindingFlags memberBindingFlags
+        ) {
+            if ((memberBindingFlags & ~ValidMemberBindingFlags) != 0)
+            {
+                throw new ArgumentException("Invalid binding flags '" + memberBindingFlags + "'", "memberBindingFlags");
+            }
+
+            this.memberBindingFlags = memberBindingFlags;
+        }
+
         /// <summary>
         /// Finds the members of a class that are serialized.
         /// </summary>
@@ -44,16 +67,20 @@ namespace MongoDB.Bson.Serialization.Conventions {
         public IEnumerable<MemberInfo> FindMembers(
             Type type
         ) {
-            foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)) {
+            foreach (var fieldInfo in type.GetFields(memberBindingFlags | BindingFlags.DeclaredOnly)) {
                 if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) { // we can't write
+                    continue;
+                }
+
+                if (fieldInfo.IsPrivate && fieldInfo.IsDefined(typeof(CompilerGeneratedAttribute), false)) { // skip private compiler generated backing fields
                     continue;
                 }
 
                 yield return fieldInfo;
             }
 
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)) {
-                if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && type.Namespace != null)) { // we can't write or it is anonymous...
+            foreach (var propertyInfo in type.GetProperties(memberBindingFlags | BindingFlags.DeclaredOnly)) {
+                if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && type.Namespace != null)) { // we can't read, or we can't write and it is not anonymous
                     continue;
                 }
 
@@ -70,6 +97,30 @@ namespace MongoDB.Bson.Serialization.Conventions {
 
                 yield return propertyInfo;
             }
+        }
+    }
+
+    /// <summary>
+    /// Represents a member finder convention where all public read/write fields and properties are serialized.
+    /// </summary>
+    public class PublicMemberFinderConvention : BindingFlagsMemberFinderConvention {
+        /// <summary>
+        /// Initializes an instance of the PublicMemberFinderConvention class.
+        /// </summary>
+        public PublicMemberFinderConvention()
+            : base(BindingFlags.Public | BindingFlags.Instance) {
+        }
+    }
+
+    /// <summary>
+    /// Represents a member finder convention where all public, internal, and private read/write fields and properties are serialized.
+    /// </summary>
+    public class PrivateMemberFinderConvention : BindingFlagsMemberFinderConvention {
+        /// <summary>
+        /// Initializes an instance of the PrivateMemberFinderConvention class.
+        /// </summary>
+        public PrivateMemberFinderConvention()
+            : base(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) {
         }
     }
 }
