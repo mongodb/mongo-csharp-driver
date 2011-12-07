@@ -131,6 +131,7 @@
     <Compile Include="Serialization\Serializers\CollectionSerializers.cs" />
     <Compile Include="Serialization\Serializers\DictionaryGenericSerializer.cs" />
     <Compile Include="Serialization\Serializers\DictionarySerializer.cs" />
+    <Compile Include="Serialization\Serializers\ImageSerializers.cs" />
     <Compile Include="Serialization\Serializers\NullableGenericSerializer.cs" />
     <Compile Include="Serialization\Serializers\ObjectSerializer.cs" />
     <Compile Include="Exceptions\BsonInternalException.cs" />

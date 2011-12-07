@@ -18,6 +18,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -51,6 +53,7 @@ namespace MongoDB.Bson.Serialization {
             serializers = new Dictionary<Type, IBsonSerializer> {
                 { typeof(ArrayList), EnumerableSerializer.Instance },
                 { typeof(BitArray), BitArraySerializer.Instance },
+                { typeof(Bitmap), BitmapSerializer.Instance },
                 { typeof(Boolean), BooleanSerializer.Instance },
                 { typeof(BsonArray), BsonArraySerializer.Instance },
                 { typeof(BsonBinaryData), BsonBinaryDataSerializer.Instance },
@@ -89,6 +92,7 @@ namespace MongoDB.Bson.Serialization {
                 { typeof(IDictionary), DictionarySerializer.Instance },
                 { typeof(IEnumerable), EnumerableSerializer.Instance },
                 { typeof(IList), EnumerableSerializer.Instance },
+                { typeof(Image), ImageSerializer.Instance },
                 { typeof(Int16), Int16Serializer.Instance },
                 { typeof(Int32), Int32Serializer.Instance },
                 { typeof(Int64), Int64Serializer.Instance },
