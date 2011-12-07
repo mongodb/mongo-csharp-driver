@@ -1560,7 +1560,7 @@ namespace MongoDB.Driver {
             return sb.ToString();
         }
 
-        private void ValidateCollectionName(
+        internal static void ValidateCollectionName(
             string name
         ) {
             if (name == null) {

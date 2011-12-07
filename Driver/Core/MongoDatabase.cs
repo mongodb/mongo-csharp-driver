@@ -782,6 +782,7 @@ namespace MongoDB.Driver {
             string newCollectionName,
             bool dropTarget
         ) {
+            MongoCollection.ValidateCollectionName(newCollectionName);
             var command = new CommandDocument {
                 { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
                 { "to", string.Format("{0}.{1}", name, newCollectionName) },
