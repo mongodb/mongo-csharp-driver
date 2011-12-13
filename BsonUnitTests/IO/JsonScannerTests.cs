@@ -23,11 +23,14 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.BsonUnitTests.IO {
+namespace MongoDB.BsonUnitTests.IO
+{
     [TestFixture]
-    public class JsonScannerTests {
+    public class JsonScannerTests
+    {
         [Test]
-        public void TestEndOfFile() {
+        public void TestEndOfFile()
+        {
             var json = "\t ";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -37,7 +40,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestBeginObject() {
+        public void TestBeginObject()
+        {
             var json = "\t {x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -47,7 +51,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestEndObject() {
+        public void TestEndObject()
+        {
             var json = "\t }x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -57,7 +62,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestBeginArray() {
+        public void TestBeginArray()
+        {
             var json = "\t [x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -67,7 +73,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestEndArray() {
+        public void TestEndArray()
+        {
             var json = "\t ]x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -77,7 +84,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestNameSeparator() {
+        public void TestNameSeparator()
+        {
             var json = "\t :x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -87,7 +95,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestValueSeparator() {
+        public void TestValueSeparator()
+        {
             var json = "\t ,x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -97,7 +106,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestEmptyString() {
+        public void TestEmptyString()
+        {
             var json = "\t \"\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -107,7 +117,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void Test1CharacterString() {
+        public void Test1CharacterString()
+        {
             var json = "\t \"1\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -117,7 +128,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void Test2CharacterString() {
+        public void Test2CharacterString()
+        {
             var json = "\t \"12\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -127,7 +139,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void Test3CharacterString() {
+        public void Test3CharacterString()
+        {
             var json = "\t \"123\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -137,7 +150,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestEscapeSequences() {
+        public void TestEscapeSequences()
+        {
             var json = "\t \"x\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0030y\"x";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -147,7 +161,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestTrue() {
+        public void TestTrue()
+        {
             var json = "\t true,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -157,7 +172,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestFalse() {
+        public void TestFalse()
+        {
             var json = "\t false,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -167,7 +183,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var json = "\t null,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -177,7 +194,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestUndefined() {
+        public void TestUndefined()
+        {
             var json = "\t undefined,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -187,7 +205,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestUnquotedString() {
+        public void TestUnquotedString()
+        {
             var json = "\t name123:1";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -197,7 +216,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestZero() {
+        public void TestZero()
+        {
             var json = "\t 0,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -207,7 +227,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusZero() {
+        public void TestMinusZero()
+        {
             var json = "\t -0,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -217,7 +238,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestOne() {
+        public void TestOne()
+        {
             var json = "\t 1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -227,7 +249,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusOne() {
+        public void TestMinusOne()
+        {
             var json = "\t -1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -237,7 +260,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestTwelve() {
+        public void TestTwelve()
+        {
             var json = "\t 12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -247,7 +271,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusTwelve() {
+        public void TestMinusTwelve()
+        {
             var json = "\t -12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -257,7 +282,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestZeroPointZero() {
+        public void TestZeroPointZero()
+        {
             var json = "\t 0.0,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -267,7 +293,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusZeroPointZero() {
+        public void TestMinusZeroPointZero()
+        {
             var json = "\t -0.0,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -277,7 +304,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestZeroExponentOne() {
+        public void TestZeroExponentOne()
+        {
             var json = "\t 0e1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -287,7 +315,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusZeroExponentOne() {
+        public void TestMinusZeroExponentOne()
+        {
             var json = "\t -0e1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -297,7 +326,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestZeroExponentMinusOne() {
+        public void TestZeroExponentMinusOne()
+        {
             var json = "\t 0e-1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -307,7 +337,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusZeroExponentMinusOne() {
+        public void TestMinusZeroExponentMinusOne()
+        {
             var json = "\t -0e-1,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -317,7 +348,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestOnePointTwo() {
+        public void TestOnePointTwo()
+        {
             var json = "\t 1.2,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -327,7 +359,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusOnePointTwo() {
+        public void TestMinusOnePointTwo()
+        {
             var json = "\t -1.2,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -337,7 +370,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestOneExponentTwelve() {
+        public void TestOneExponentTwelve()
+        {
             var json = "\t 1e12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -347,7 +381,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusZeroExponentTwelve() {
+        public void TestMinusZeroExponentTwelve()
+        {
             var json = "\t -1e12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -357,7 +392,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestOneExponentMinuesTwelve() {
+        public void TestOneExponentMinuesTwelve()
+        {
             var json = "\t 1e-12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -367,7 +403,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestMinusZeroExponentMinusTwelve() {
+        public void TestMinusZeroExponentMinusTwelve()
+        {
             var json = "\t -1e-12,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -377,7 +414,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestRegularExpressionEmpty() {
+        public void TestRegularExpressionEmpty()
+        {
             var json = "\t //,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -387,7 +425,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestRegularExpressionPattern() {
+        public void TestRegularExpressionPattern()
+        {
             var json = "\t /pattern/,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);
@@ -397,7 +436,8 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestRegularExpressionPatternAndOptions() {
+        public void TestRegularExpressionPatternAndOptions()
+        {
             var json = "\t /pattern/imxs,";
             var buffer = new JsonBuffer(json);
             var token = JsonScanner.GetNextToken(buffer);

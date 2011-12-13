@@ -23,20 +23,21 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.Driver.Builders {
+namespace MongoDB.Driver.Builders
+{
     /// <summary>
     /// A builder for specifying what the GroupBy command should group by.
     /// </summary>
-    public static class GroupBy {
-        #region public static methods
+    public static class GroupBy
+    {
+        // public static methods
         /// <summary>
         /// Sets a key function.
         /// </summary>
         /// <param name="keyFunction">The key function.</param>
         /// <returns>A BsonJavaScript.</returns>
-        public static BsonJavaScript Function(
-            BsonJavaScript keyFunction
-        ) {
+        public static BsonJavaScript Function(BsonJavaScript keyFunction)
+        {
             return keyFunction;
         }
 
@@ -45,62 +46,55 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="names">One or more key names.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static GroupByBuilder Keys(
-            params string[] names
-        ) {
+        public static GroupByBuilder Keys(params string[] names)
+        {
             return new GroupByBuilder(names);
         }
-        #endregion
     }
 
     /// <summary>
     /// A builder for specifying what the GroupBy command should group by.
     /// </summary>
     [Serializable]
-    public class GroupByBuilder : BuilderBase, IMongoGroupBy {
-        #region private fields
+    public class GroupByBuilder : BuilderBase, IMongoGroupBy
+    {
+        // private fields
         private BsonDocument document;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GroupByBuilder class.
         /// </summary>
         /// <param name="names">One or more key names.</param>
-        public GroupByBuilder(
-            string[] names
-        ) {
+        public GroupByBuilder(string[] names)
+        {
             document = new BsonDocument();
-            foreach (var name in names) {
+            foreach (var name in names)
+            {
                 document.Add(name, 1);
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Returns the result of the builder as a BsonDocument.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
-        public override BsonDocument ToBsonDocument() {
+        public override BsonDocument ToBsonDocument()
+        {
             return document;
         }
-        #endregion
 
-        #region explicit interface implementations
+        // explicit interface implementations
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="options">The serialization options.</param>
-        protected override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             document.Serialize(bsonWriter, nominalType, options);
         }
-        #endregion
     }
 }

@@ -29,8 +29,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp270 {
-    public class C {
+namespace MongoDB.BsonUnitTests.Jira.CSharp270
+{
+    public class C
+    {
         public ObjectId Id;
         [BsonRequired]
         [BsonElement("field")]
@@ -41,9 +43,11 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp270 {
     }
 
     [TestFixture]
-    public class CSharp270Tests {
+    public class CSharp270Tests
+    {
         [Test]
-        public void TestBogusElement() {
+        public void TestBogusElement()
+        {
             var document = new BsonDocument("bogus", 0);
             var message = "Element 'bogus' does not match any field or property of class MongoDB.BsonUnitTests.Jira.CSharp270.C.";
             var ex = Assert.Throws<FileFormatException>(() => { BsonSerializer.Deserialize<C>(document); });
@@ -51,8 +55,10 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp270 {
         }
 
         [Test]
-        public void TestMissingElementForField() {
-            var document = new BsonDocument {
+        public void TestMissingElementForField()
+        {
+            var document = new BsonDocument
+            {
                 { "_id", ObjectId.GenerateNewId() },
                 { "property", 0 }
             };
@@ -62,8 +68,10 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp270 {
         }
 
         [Test]
-        public void TestMissingElementForProperty() {
-            var document = new BsonDocument {
+        public void TestMissingElementForProperty()
+        {
+            var document = new BsonDocument
+            {
                 { "_id", ObjectId.GenerateNewId() },
                 { "field", 0 }
             };

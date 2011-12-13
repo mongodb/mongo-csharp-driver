@@ -25,11 +25,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Internal {
+namespace MongoDB.Driver.Internal
+{
     /// <summary>
     /// Represents the state of a connection.
     /// </summary>
-    public enum MongoConnectionState {
+    public enum MongoConnectionState
+    {
         /// <summary>
         /// The connection has not yet been initialized.
         /// </summary>
@@ -47,8 +49,9 @@ namespace MongoDB.Driver.Internal {
     /// <summary>
     /// Represents a connection to a MongoServerInstance.
     /// </summary>
-    public class MongoConnection {
-        #region private fields
+    public class MongoConnection
+    {
+        // private fields
         private object connectionLock = new object();
         private MongoServerInstance serverInstance;
         private MongoConnectionPool connectionPool;
@@ -60,46 +63,47 @@ namespace MongoDB.Driver.Internal {
         private int messageCounter;
         private int requestId;
         private Dictionary<string, Authentication> authentications = new Dictionary<string, Authentication>();
-        #endregion
 
-        #region constructors
-        internal MongoConnection(
-            MongoConnectionPool connectionPool
-        ) {
+        // constructors
+        internal MongoConnection(MongoConnectionPool connectionPool)
+        {
             this.serverInstance = connectionPool.ServerInstance;
             this.connectionPool = connectionPool;
             this.generationId = connectionPool.GenerationId;
             this.createdAt = DateTime.UtcNow;
             this.state = MongoConnectionState.Initial;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the connection pool that this connection belongs to.
         /// </summary>
-        public MongoConnectionPool ConnectionPool {
+        public MongoConnectionPool ConnectionPool
+        {
             get { return connectionPool; }
         }
 
         /// <summary>
         /// Gets the DateTime that this connection was created at.
         /// </summary>
-        public DateTime CreatedAt {
+        public DateTime CreatedAt
+        {
             get { return createdAt; }
         }
 
         /// <summary>
         /// Gets the generation of the connection pool that this connection belongs to.
         /// </summary>
-        public int GenerationId {
+        public int GenerationId
+        {
             get { return generationId; }
         }
 
         /// <summary>
         /// Gets the DateTime that this connection was last used at.
         /// </summary>
-        public DateTime LastUsedAt {
+        public DateTime LastUsedAt
+        {
             get { return lastUsedAt; }
             internal set { lastUsedAt = value; }
         }
@@ -107,60 +111,69 @@ namespace MongoDB.Driver.Internal {
         /// <summary>
         /// Gets a count of the number of messages that have been sent using this connection.
         /// </summary>
-        public int MessageCounter {
+        public int MessageCounter
+        {
             get { return messageCounter; }
         }
 
         /// <summary>
         /// Gets the RequestId of the last message sent on this connection.
         /// </summary>
-        public int RequestId {
+        public int RequestId
+        {
             get { return requestId; }
         }
 
         /// <summary>
         /// Gets the server instance this connection is connected to.
         /// </summary>
-        public MongoServerInstance ServerInstance {
+        public MongoServerInstance ServerInstance
+        {
             get { return serverInstance; }
         }
 
         /// <summary>
         /// Gets the state of this connection.
         /// </summary>
-        public MongoConnectionState State {
+        public MongoConnectionState State
+        {
             get { return state; }
         }
-        #endregion
 
-        #region internal methods
-        internal void Authenticate(
-            string databaseName,
-            MongoCredentials credentials
-        ) {
+        // internal methods
+        internal void Authenticate(string databaseName, MongoCredentials credentials)
+        {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            lock (connectionLock) {
+            lock (connectionLock)
+            {
                 var nonceCommand = new CommandDocument("getnonce", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
                 string nonce;
-                try {
+                try
+                {
                     var nonceResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand);
                     nonce = nonceResult.Response["nonce"].AsString;
-                } catch (MongoCommandException ex) {
+                }
+                catch (MongoCommandException ex)
+                {
                     throw new MongoAuthenticationException("Error getting nonce for authentication.", ex);
                 }
 
                 var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
                 var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
-                var authenticateCommand = new CommandDocument {
+                var authenticateCommand = new CommandDocument
+                {
                     { "authenticate", 1 },
                     { "user", credentials.Username },
                     { "nonce", nonce },
                     { "key", digest }
                 };
-                try {
+                try
+                {
                     RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand);
-                } catch (MongoCommandException ex) {
+                }
+                catch (MongoCommandException ex)
+                {
                     var message = string.Format("Invalid credentials for database '{0}'.", databaseName);
                     throw new MongoAuthenticationException(message, ex);
                 }
@@ -178,35 +191,42 @@ namespace MongoDB.Driver.Internal {
         //    (with the restriction that a particular database can only be authenticated against once and therefore with only one set of credentials)
 
         // assume that IsAuthenticated was called first and returned false
-        internal bool CanAuthenticate(
-            MongoDatabase database
-        ) {
+        internal bool CanAuthenticate(MongoDatabase database)
+        {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            if (database == null) {
+            if (database == null)
+            {
                 return true;
             }
 
-            if (authentications.Count == 0) {
+            if (authentications.Count == 0)
+            {
                 // a connection with no existing authentications can authenticate anything
                 return true;
-            } else {
+            }
+            else
+            {
                 // a connection with existing authentications can't be used without credentials
-                if (database.Credentials == null) {
+                if (database.Credentials == null)
+                {
                     return false;
                 }
 
                 // a connection with existing authentications can't be used with new admin credentials
-                if (database.Credentials.Admin) {
+                if (database.Credentials.Admin)
+                {
                     return false;
                 }
 
                 // a connection with an existing authentication to the admin database can't be used with any other credentials
-                if (authentications.ContainsKey("admin")) {
+                if (authentications.ContainsKey("admin"))
+                {
                     return false;
                 }
 
                 // a connection with an existing authentication to a database can't authenticate for the same database again
-                if (authentications.ContainsKey(database.Name)) {
+                if (authentications.ContainsKey(database.Name))
+                {
                     return false;
                 }
 
@@ -214,30 +234,41 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
-        internal void CheckAuthentication(
-            MongoDatabase database
-        ) {
+        internal void CheckAuthentication(MongoDatabase database)
+        {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            if (database.Credentials == null) {
-                if (authentications.Count != 0) {
+            if (database.Credentials == null)
+            {
+                if (authentications.Count != 0)
+                {
                     throw new InvalidOperationException("Connection requires credentials.");
                 }
-            } else {
+            }
+            else
+            {
                 var credentials = database.Credentials;
                 var authenticationDatabaseName = credentials.Admin ? "admin" : database.Name;
                 Authentication authentication;
-                if (authentications.TryGetValue(authenticationDatabaseName, out authentication)) {
-                    if (authentication.Credentials != database.Credentials) {
+                if (authentications.TryGetValue(authenticationDatabaseName, out authentication))
+                {
+                    if (authentication.Credentials != database.Credentials)
+                    {
                         // this shouldn't happen because a connection would have been chosen from the connection pool only if it was viable
-                        if (authenticationDatabaseName == "admin") {
+                        if (authenticationDatabaseName == "admin")
+                        {
                             throw new MongoInternalException("Connection already authenticated to the admin database with different credentials.");
-                        } else {
+                        }
+                        else
+                        {
                             throw new MongoInternalException("Connection already authenticated to the database with different credentials.");
                         }
                     }
                     authentication.LastUsed = DateTime.UtcNow;
-                } else {
-                    if (authenticationDatabaseName == "admin" && authentications.Count != 0) {
+                }
+                else
+                {
+                    if (authenticationDatabaseName == "admin" && authentications.Count != 0)
+                    {
                         // this shouldn't happen because a connection would have been chosen from the connection pool only if it was viable
                         throw new MongoInternalException("The connection cannot be authenticated against the admin database because it is already authenticated against other databases.");
                     }
@@ -246,11 +277,16 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
-        internal void Close() {
-            lock (connectionLock) {
-                if (state != MongoConnectionState.Closed) {
-                    if (tcpClient != null) {
-                        if (tcpClient.Connected) {
+        internal void Close()
+        {
+            lock (connectionLock)
+            {
+                if (state != MongoConnectionState.Closed)
+                {
+                    if (tcpClient != null)
+                    {
+                        if (tcpClient.Connected)
+                        {
                             // even though MSDN says TcpClient.Close doesn't close the underlying socket
                             // it actually does (as proven by disassembling TcpClient and by experimentation)
                             try { tcpClient.Close(); } catch { } // ignore exceptions
@@ -262,39 +298,49 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
-        internal bool IsAuthenticated(
-            MongoDatabase database
-        ) {
+        internal bool IsAuthenticated(MongoDatabase database)
+        {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            if (database == null) {
+            if (database == null)
+            {
                 return true;
             }
 
-            lock (connectionLock) {
-                if (database.Credentials == null) {
+            lock (connectionLock)
+            {
+                if (database.Credentials == null)
+                {
                     return authentications.Count == 0;
-                } else {
+                }
+                else
+                {
                     var authenticationDatabaseName = database.Credentials.Admin ? "admin" : database.Name;
                     Authentication authentication;
-                    if (authentications.TryGetValue(authenticationDatabaseName, out authentication)) {
+                    if (authentications.TryGetValue(authenticationDatabaseName, out authentication))
+                    {
                         return database.Credentials == authentication.Credentials;
-                    } else {
+                    }
+                    else
+                    {
                         return false;
                     }
                 }
             }
         }
 
-        internal void Logout(
-            string databaseName
-        ) {
+        internal void Logout(string databaseName)
+        {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            lock (connectionLock) {
+            lock (connectionLock)
+            {
                 var logoutCommand = new CommandDocument("logout", 1);
                 var commandCollectionName = string.Format("{0}.$cmd", databaseName);
-                try {
+                try
+                {
                     RunCommand(commandCollectionName, QueryFlags.None, logoutCommand);
-                } catch (MongoCommandException ex) {
+                }
+                catch (MongoCommandException ex)
+                {
                     throw new MongoAuthenticationException("Error logging off.", ex);
                 }
 
@@ -302,8 +348,10 @@ namespace MongoDB.Driver.Internal {
             }
         }
 
-        internal void Open() {
-            if (state != MongoConnectionState.Initial) {
+        internal void Open()
+        {
+            if (state != MongoConnectionState.Initial)
+            {
                 throw new InvalidOperationException("Open called more than once.");
             }
 
@@ -320,83 +368,79 @@ namespace MongoDB.Driver.Internal {
 
         // this is a low level method that doesn't require a MongoServer
         // so it can be used while connecting to a MongoServer
-        internal CommandResult RunCommand(
-            string collectionName,
-            QueryFlags queryFlags,
-            CommandDocument command
-        ) {
+        internal CommandResult RunCommand(string collectionName, QueryFlags queryFlags, CommandDocument command)
+        {
             var commandName = command.GetElement(0).Name;
 
-            var writerSettings = new BsonBinaryWriterSettings {
+            var writerSettings = new BsonBinaryWriterSettings
+            {
                 GuidRepresentation = GuidRepresentation.Unspecified,
                 MaxDocumentSize = serverInstance.MaxDocumentSize
             };
-            using (
-                var message = new MongoQueryMessage(
-                    writerSettings,
-                    collectionName,
-                    queryFlags,
-                    0, // numberToSkip
-                    1, // numberToReturn (must be 1 or -1 for commands)
-                    command,
-                    null // fields
-                )
-            ) {
+            using (var message = new MongoQueryMessage(writerSettings, collectionName, queryFlags, 0, 1, command, null))
+            {
                 SendMessage(message, SafeMode.False);
             }
 
-            var readerSettings = new BsonBinaryReaderSettings {
-                    GuidRepresentation = GuidRepresentation.Unspecified,
-                    MaxDocumentSize = serverInstance.MaxDocumentSize
+            var readerSettings = new BsonBinaryReaderSettings
+            {
+                GuidRepresentation = GuidRepresentation.Unspecified,
+                MaxDocumentSize = serverInstance.MaxDocumentSize
             };
             var reply = ReceiveMessage<BsonDocument>(readerSettings, null);
-            if (reply.NumberReturned == 0) {
+            if (reply.NumberReturned == 0)
+            {
                 var message = string.Format("Command '{0}' failed. No response returned.", commandName);
                 throw new MongoCommandException(message);
             }
 
             var commandResult = new CommandResult(command, reply.Documents[0]);
-            if (!commandResult.Ok) {
+            if (!commandResult.Ok)
+            {
                 throw new MongoCommandException(commandResult);
             }
 
             return commandResult;
         }
 
-        internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(
-            BsonBinaryReaderSettings readerSettings,
-            IBsonSerializationOptions serializationOptions
-        ) {
+        internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(BsonBinaryReaderSettings readerSettings, IBsonSerializationOptions serializationOptions)
+        {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            lock (connectionLock) {
-                try {
-                    using (var buffer = new BsonBuffer()) {
+            lock (connectionLock)
+            {
+                try
+                {
+                    using (var buffer = new BsonBuffer())
+                    {
                         var networkStream = GetNetworkStream();
-                        networkStream.ReadTimeout = (int) serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
+                        networkStream.ReadTimeout = (int)serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
                         buffer.LoadFrom(networkStream);
                         var reply = new MongoReplyMessage<TDocument>(readerSettings);
                         reply.ReadFrom(buffer, serializationOptions);
                         return reply;
                     }
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     HandleException(ex);
                     throw;
                 }
             }
         }
 
-        internal SafeModeResult SendMessage(
-            MongoRequestMessage message,
-            SafeMode safeMode
-        ) {
+        internal SafeModeResult SendMessage(MongoRequestMessage message, SafeMode safeMode)
+        {
             if (state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
-            lock (connectionLock) {
+            lock (connectionLock)
+            {
                 requestId = message.RequestId;
 
                 message.WriteToBuffer();
                 CommandDocument safeModeCommand = null;
-                if (safeMode.Enabled) {
-                    safeModeCommand = new CommandDocument {
+                if (safeMode.Enabled)
+                {
+                    safeModeCommand = new CommandDocument
+                    {
                         { "getlasterror", 1 }, // use all lowercase for backward compatibility
                         { "fsync", true, safeMode.FSync },
                         { "j", true, safeMode.J },
@@ -404,35 +448,31 @@ namespace MongoDB.Driver.Internal {
                         { "w", safeMode.WMode, safeMode.WMode != null },
                         { "wtimeout", (int) safeMode.WTimeout.TotalMilliseconds, safeMode.W > 1 && safeMode.WTimeout != TimeSpan.Zero }
                     };
-                    using (
-                        var getLastErrorMessage = new MongoQueryMessage(
-                            message.Buffer, // piggy back on network transmission for message
-                            message.WriterSettings,
-                            "admin.$cmd", // collectionFullName
-                            QueryFlags.None,
-                            0, // numberToSkip
-                            1, // numberToReturn
-                            safeModeCommand,
-                            null // fields
-                        )
-                    ) {
+                    // piggy back on network transmission for message
+                    using (var getLastErrorMessage = new MongoQueryMessage(message.Buffer, message.WriterSettings, "admin.$cmd", QueryFlags.None, 0, 1, safeModeCommand, null))
+                    {
                         getLastErrorMessage.WriteToBuffer();
                     }
                 }
 
-                try {
+                try
+                {
                     var networkStream = GetNetworkStream();
-                    networkStream.WriteTimeout = (int) serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
+                    networkStream.WriteTimeout = (int)serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
                     message.Buffer.WriteTo(networkStream);
                     messageCounter++;
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     HandleException(ex);
                     throw;
                 }
 
                 SafeModeResult safeModeResult = null;
-                if (safeMode.Enabled) {
-                    var readerSettings = new BsonBinaryReaderSettings {
+                if (safeMode.Enabled)
+                {
+                    var readerSettings = new BsonBinaryReaderSettings
+                    {
                         GuidRepresentation = message.WriterSettings.GuidRepresentation,
                         MaxDocumentSize = serverInstance.MaxDocumentSize
                     };
@@ -441,12 +481,18 @@ namespace MongoDB.Driver.Internal {
                     safeModeResult = new SafeModeResult();
                     safeModeResult.Initialize(safeModeCommand, safeModeResponse);
 
-                    if (!safeModeResult.Ok) {
-                        var errorMessage = string.Format("Safemode detected an error '{0}'. (response was {1}).", safeModeResult.ErrorMessage, safeModeResponse.ToJson());
+                    if (!safeModeResult.Ok)
+                    {
+                        var errorMessage = string.Format(
+                            "Safemode detected an error '{0}'. (response was {1}).",
+                            safeModeResult.ErrorMessage, safeModeResponse.ToJson());
                         throw new MongoSafeModeException(errorMessage, safeModeResult);
                     }
-                    if (safeModeResult.HasLastErrorMessage) {
-                        var errorMessage = string.Format("Safemode detected an error '{0}'. (Response was {1}).", safeModeResult.LastErrorMessage, safeModeResponse.ToJson());
+                    if (safeModeResult.HasLastErrorMessage)
+                    {
+                        var errorMessage = string.Format(
+                            "Safemode detected an error '{0}'. (Response was {1}).",
+                            safeModeResult.LastErrorMessage, safeModeResponse.ToJson());
                         throw new MongoSafeModeException(errorMessage, safeModeResult);
                     }
                 }
@@ -454,25 +500,26 @@ namespace MongoDB.Driver.Internal {
                 return safeModeResult;
             }
         }
-        #endregion
 
-        #region private methods
-        private NetworkStream GetNetworkStream() {
-            if (state == MongoConnectionState.Initial) {
+        // private methods
+        private NetworkStream GetNetworkStream()
+        {
+            if (state == MongoConnectionState.Initial)
+            {
                 Open();
             }
             return tcpClient.GetStream();
         }
 
-        private void HandleException(
-            Exception ex
-        ) {
+        private void HandleException(Exception ex)
+        {
             // there are three possible situations:
             // 1. we can keep using the connection
             // 2. just this one connection needs to be closed
             // 3. the whole connection pool needs to be cleared
 
-            switch (DetermineAction(ex)) {
+            switch (DetermineAction(ex))
+            {
                 case HandleExceptionAction.KeepConnection:
                     break;
                 case HandleExceptionAction.CloseConnection:
@@ -491,15 +538,13 @@ namespace MongoDB.Driver.Internal {
             serverInstance.SetState(MongoServerState.Unknown);
         }
 
-        private enum HandleExceptionAction {
-            KeepConnection,
-            CloseConnection,
-            ClearConnectionPool
+        private enum HandleExceptionAction
+        {
+            KeepConnection, CloseConnection, ClearConnectionPool
         }
 
-        private HandleExceptionAction DetermineAction(
-            Exception ex
-        ) {
+        private HandleExceptionAction DetermineAction(Exception ex)
+        {
             // TODO: figure out when to return KeepConnection or ClearConnectionPool (if ever)
 
             // don't return ClearConnectionPool unless you are *sure* it is the right action
@@ -508,35 +553,33 @@ namespace MongoDB.Driver.Internal {
 
             return HandleExceptionAction.CloseConnection; // this should always be the default action
         }
-        #endregion
 
-        #region private nested classes
+        // private nested classes
         // keeps track of what credentials were used with a given database
         // and when that database was last used on this connection
-        private class Authentication {
-            #region private fields
+        private class Authentication
+        {
+            // private fields
             private MongoCredentials credentials;
             private DateTime lastUsed;
-            #endregion
 
-            #region constructors
-            public Authentication(
-                MongoCredentials credentials
-            ) {
+            // constructors
+            public Authentication(MongoCredentials credentials)
+            {
                 this.credentials = credentials;
                 this.lastUsed = DateTime.UtcNow;
             }
-            #endregion
 
-            public MongoCredentials Credentials {
+            public MongoCredentials Credentials
+            {
                 get { return credentials; }
             }
 
-            public DateTime LastUsed {
+            public DateTime LastUsed
+            {
                 get { return lastUsed; }
                 set { lastUsed = value; }
             }
         }
-        #endregion
     }
 }

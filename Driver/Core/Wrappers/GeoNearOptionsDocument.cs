@@ -23,16 +23,19 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a BSON document that can be used where an IMongoGeoNearOptions is expected.
     /// </summary>
-    public class GeoNearOptionsDocument : BsonDocument, IMongoGeoNearOptions {
-        #region constructors
+    public class GeoNearOptionsDocument : BsonDocument, IMongoGeoNearOptions
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GeoNearOptionsDocument class.
         /// </summary>
-        public GeoNearOptionsDocument() {
+        public GeoNearOptionsDocument()
+        {
         }
 
         /// <summary>
@@ -40,52 +43,27 @@ namespace MongoDB.Driver {
         /// (allowing duplicate element names is not recommended).
         /// </summary>
         /// <param name="allowDuplicateNames">Whether duplicate element names are allowed.</param>
-        public GeoNearOptionsDocument(
-            bool allowDuplicateNames
-        )
-            : base(allowDuplicateNames) {
+        public GeoNearOptionsDocument(bool allowDuplicateNames)
+            : base(allowDuplicateNames)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the GeoNearOptionsDocument class and adds one element.
         /// </summary>
         /// <param name="element">An element to add to the document.</param>
-        public GeoNearOptionsDocument(
-            BsonElement element
-        )
-            : base(element) {
+        public GeoNearOptionsDocument(BsonElement element)
+            : base(element)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the GeoNearOptionsDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public GeoNearOptionsDocument(
-            Dictionary<string, object> dictionary
-        )
-            : base(dictionary) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the GeoNearOptionsDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public GeoNearOptionsDocument(
-            Dictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        )
-            : base(dictionary, keys) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the GeoNearOptionsDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public GeoNearOptionsDocument(
-            IDictionary<string, object> dictionary
-        )
-            : base(dictionary) {
+        public GeoNearOptionsDocument(Dictionary<string, object> dictionary)
+            : base(dictionary)
+        {
         }
 
         /// <summary>
@@ -93,21 +71,18 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public GeoNearOptionsDocument(
-            IDictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        )
-            : base(dictionary, keys) {
+        public GeoNearOptionsDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
+            : base(dictionary, keys)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the GeoNearOptionsDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public GeoNearOptionsDocument(
-            IDictionary dictionary
-        )
-            : base(dictionary) {
+        public GeoNearOptionsDocument(IDictionary<string, object> dictionary)
+            : base(dictionary)
+        {
         }
 
         /// <summary>
@@ -115,31 +90,46 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public GeoNearOptionsDocument(
-            IDictionary dictionary,
-            IEnumerable keys
-        )
-            : base(dictionary, keys) {
+        public GeoNearOptionsDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
+            : base(dictionary, keys)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the GeoNearOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public GeoNearOptionsDocument(IDictionary dictionary)
+            : base(dictionary)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the GeoNearOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public GeoNearOptionsDocument(IDictionary dictionary, IEnumerable keys)
+            : base(dictionary, keys)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the GeoNearOptionsDocument class and adds new elements from a list of elements.
         /// </summary>
         /// <param name="elements">A list of elements to add to the document.</param>
-        public GeoNearOptionsDocument(
-            IEnumerable<BsonElement> elements
-        )
-            : base(elements) {
+        public GeoNearOptionsDocument(IEnumerable<BsonElement> elements)
+            : base(elements)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the GeoNearOptionsDocument class and adds one or more elements.
         /// </summary>
         /// <param name="elements">One or more elements to add to the document.</param>
-        public GeoNearOptionsDocument(
-            params BsonElement[] elements
-        )
-            : base(elements) {
+        public GeoNearOptionsDocument(params BsonElement[] elements)
+            : base(elements)
+        {
         }
 
         /// <summary>
@@ -147,12 +137,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="name">The name of the element to add to the document.</param>
         /// <param name="value">The value of the element to add to the document.</param>
-        public GeoNearOptionsDocument(
-            string name,
-            BsonValue value
-        )
-            : base(name, value) {
+        public GeoNearOptionsDocument(string name, BsonValue value)
+            : base(name, value)
+        {
         }
-        #endregion
     }
 }

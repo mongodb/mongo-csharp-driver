@@ -26,10 +26,13 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp172 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp172
+{
     [TestFixture]
-    public class CSharp172Tests {
-        public class C {
+    public class CSharp172Tests
+    {
+        public class C
+        {
             [BsonRepresentation(BsonType.ObjectId)]
             public string Id;
             public int N;
@@ -40,14 +43,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp172 {
         private MongoCollection<C> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database.GetCollection<C>("csharp172");
         }
 
         [Test]
-        public void TestRoundtrip() {
+        public void TestRoundtrip()
+        {
             var obj1 = new C { N = 1 };
             Assert.IsNullOrEmpty(obj1.Id);
             collection.RemoveAll();

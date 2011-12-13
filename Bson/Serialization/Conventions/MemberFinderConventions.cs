@@ -19,11 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents a member finder convention.
     /// </summary>
-    public interface IMemberFinderConvention {
+    public interface IMemberFinderConvention
+    {
         /// <summary>
         /// Finds the members of a class that are serialized.
         /// </summary>
@@ -35,36 +37,44 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents a member finder convention where all public read/write fields and properties are serialized.
     /// </summary>
-    public class PublicMemberFinderConvention : IMemberFinderConvention {
+    public class PublicMemberFinderConvention : IMemberFinderConvention
+    {
         /// <summary>
         /// Finds the members of a class that are serialized.
         /// </summary>
         /// <param name="type">The class.</param>
         /// <returns>The members that are serialized.</returns>
-        public IEnumerable<MemberInfo> FindMembers(
-            Type type
-        ) {
-            foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)) {
-                if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) { // we can't write
+        public IEnumerable<MemberInfo> FindMembers(Type type)
+        {
+            foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            {
+                if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+                {
+                    // we can't write
                     continue;
                 }
 
                 yield return fieldInfo;
             }
 
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)) {
-                if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && type.Namespace != null)) { // we can't write or it is anonymous...
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            {
+                if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && type.Namespace != null))
+                {
+                    // we can't write or it is anonymous...
                     continue;
                 }
 
                 // skip indexers
-                if (propertyInfo.GetIndexParameters().Length != 0) {
+                if (propertyInfo.GetIndexParameters().Length != 0)
+                {
                     continue;
                 }
 
                 // skip overridden properties (they are already included by the base class)
                 var getMethodInfo = propertyInfo.GetGetMethod(true);
-                if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != type) {
+                if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != type)
+                {
                     continue;
                 }
 

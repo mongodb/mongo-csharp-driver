@@ -24,20 +24,22 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a DBRef (a convenient way to refer to a document).
     /// </summary>
-    public class MongoDBRef : IBsonSerializable {
-        #region private fields
+    public class MongoDBRef : IBsonSerializable
+    {
+        // private fields
         private string databaseName;
         private string collectionName;
         private BsonValue id;
-        #endregion
 
-        #region constructors
+        // constructors
         // default constructor is private and only used for deserialization
-        private MongoDBRef() {
+        private MongoDBRef()
+        {
         }
 
         /// <summary>
@@ -45,10 +47,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="collectionName">The name of the collection that contains the document.</param>
         /// <param name="id">The Id of the document.</param>
-        public MongoDBRef(
-            string collectionName,
-            BsonValue id
-        ) {
+        public MongoDBRef(string collectionName, BsonValue id)
+        {
             this.collectionName = collectionName;
             this.id = id;
         }
@@ -59,61 +59,61 @@ namespace MongoDB.Driver {
         /// <param name="databaseName">The name of the database that contains the document.</param>
         /// <param name="collectionName">The name of the collection that contains the document.</param>
         /// <param name="id">The Id of the document.</param>
-        public MongoDBRef(
-            string databaseName,
-            string collectionName,
-            BsonValue id
-        ) {
+        public MongoDBRef(string databaseName, string collectionName, BsonValue id)
+        {
             this.databaseName = databaseName;
             this.collectionName = collectionName;
             this.id = id;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the name of the database that contains the document.
         /// </summary>
-        public string DatabaseName {
+        public string DatabaseName
+        {
             get { return databaseName; }
         }
 
         /// <summary>
         /// Gets the name of the collection that contains the document.
         /// </summary>
-        public string CollectionName {
+        public string CollectionName
+        {
             get { return collectionName; }
         }
 
         /// <summary>
         /// Gets the Id of the document.
         /// </summary>
-        public BsonValue Id {
-           get { return id; }
+        public BsonValue Id
+        {
+            get { return id; }
         }
-        #endregion
 
-        #region explicit interface implementations
-        object IBsonSerializable.Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
-            if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
+        // explicit interface implementations
+        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        {
+            if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else {
+            }
+            else
+            {
                 bsonReader.ReadStartDocument();
                 string message;
                 BsonType bsonType;
-                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument) {
+                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
+                {
                     var name = bsonReader.ReadName();
-                    switch (name) {
+                    switch (name)
+                    {
                         case "$ref":
                             collectionName = bsonReader.ReadString();
                             break;
                         case "$id":
-                            id = BsonValue.ReadFrom(bsonReader);;
+                            id = BsonValue.ReadFrom(bsonReader); ;
                             break;
                         case "$db":
                             databaseName = bsonReader.ReadString();
@@ -128,34 +128,27 @@ namespace MongoDB.Driver {
             }
         }
 
-        bool IBsonSerializable.GetDocumentId(
-            out object id,
-            out Type idNominalType,
-            out IIdGenerator idGenerator
-        ) {
+        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        {
             throw new NotSupportedException();
         }
 
-        void IBsonSerializable.Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteString("$ref", collectionName);
             bsonWriter.WriteName("$id");
             id.WriteTo(bsonWriter);
-            if (databaseName != null) {
+            if (databaseName != null)
+            {
                 bsonWriter.WriteString("$db", databaseName);
             }
             bsonWriter.WriteEndDocument();
         }
 
-        void IBsonSerializable.SetDocumentId(
-            object id
-        ) {
+        void IBsonSerializable.SetDocumentId(object id)
+        {
             throw new NotSupportedException();
         }
-        #endregion
     }
 }

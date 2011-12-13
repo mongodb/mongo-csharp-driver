@@ -19,28 +19,30 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a BSON serialization exception.
     /// </summary>
     [Serializable]
-    public class BsonSerializationException : BsonException {
-        #region constructors
+    public class BsonSerializationException : BsonException
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonSerializationException class.
         /// </summary>
         public BsonSerializationException()
-            : base() {
+            : base()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonSerializationException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public BsonSerializationException(
-            string message
-        )
-            : base(message) {
+        public BsonSerializationException(string message)
+            : base(message)
+        {
         }
 
         /// <summary>
@@ -48,11 +50,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public BsonSerializationException(
-            string message,
-            Exception innerException
-        )
-            : base(message, innerException) {
+        public BsonSerializationException(string message, Exception innerException)
+            : base(message, innerException)
+        {
         }
 
         /// <summary>
@@ -60,12 +60,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public BsonSerializationException(
-            SerializationInfo info,
-            StreamingContext context
-        )
-            : base(info, context) {
+        public BsonSerializationException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
-        #endregion
     }
 }

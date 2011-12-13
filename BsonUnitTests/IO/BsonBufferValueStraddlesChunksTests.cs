@@ -24,16 +24,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.IO {
+namespace MongoDB.BsonUnitTests.IO
+{
     [TestFixture]
-    public class BsonBufferValueStraddlesChunksTests {
+    public class BsonBufferValueStraddlesChunksTests
+    {
         private static int chunkSize = 16 * 1024; // 16KiB
         private static int used = 16;
         private static int filler = chunkSize - used;
 
         [Test]
-        public void TestNameStraddles() {
-            var document = new BsonDocument {
+        public void TestNameStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "yyyyyyyy", 1 }
             };
@@ -44,8 +48,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestArrayLengthStraddles() {
-            var document = new BsonDocument {
+        public void TestArrayLengthStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", new BsonArray { 1, 2, 3, 4 } }
             };
@@ -56,8 +62,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestBinaryLengthStraddles() {
-            var document = new BsonDocument {
+        public void TestBinaryLengthStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", new BsonBinaryData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }) }
             };
@@ -68,8 +76,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestBinaryDataStraddles() {
-            var document = new BsonDocument {
+        public void TestBinaryDataStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler - 4) },
                 { "y", new BsonBinaryData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }) }
             };
@@ -80,8 +90,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestDateTimeStraddles() {
-            var document = new BsonDocument {
+        public void TestDateTimeStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", DateTime.UtcNow }
             };
@@ -92,8 +104,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestDocumentLengthStraddles() {
-            var document = new BsonDocument {
+        public void TestDocumentLengthStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
@@ -104,8 +118,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestDoubleStraddles() {
-            var document = new BsonDocument {
+        public void TestDoubleStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", 1.0 }
             };
@@ -116,8 +132,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestInt32Straddles() {
-            var document = new BsonDocument {
+        public void TestInt32Straddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", 1 }
             };
@@ -128,8 +146,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestInt64Straddles() {
-            var document = new BsonDocument {
+        public void TestInt64Straddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", 1L }
             };
@@ -140,8 +160,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestJavaScriptCodeLengthStraddles() {
-            var document = new BsonDocument {
+        public void TestJavaScriptCodeLengthStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", new BsonJavaScript("adsfasdf") }
             };
@@ -152,8 +174,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestJavaScriptCodeValueStraddles() {
-            var document = new BsonDocument {
+        public void TestJavaScriptCodeValueStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler - 4) },
                 { "y", new BsonJavaScript("adsfasdf") }
             };
@@ -164,8 +188,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestJavaScriptWithScopeLengthStraddles() {
-            var document = new BsonDocument {
+        public void TestJavaScriptWithScopeLengthStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", new BsonJavaScriptWithScope("adsfasdf", new BsonDocument("a", 1)) }
             };
@@ -176,8 +202,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestJavaScriptWithScopeCodeLengthStraddles() {
-            var document = new BsonDocument {
+        public void TestJavaScriptWithScopeCodeLengthStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler - 4) },
                 { "y", new BsonJavaScriptWithScope("adsfasdf", new BsonDocument("a", 1)) }
             };
@@ -188,8 +216,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestJavaScriptWithScopeCodeValueStraddles() {
-            var document = new BsonDocument {
+        public void TestJavaScriptWithScopeCodeValueStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler - 8) },
                 { "y", new BsonJavaScriptWithScope("adsfasdf", new BsonDocument("a", 1)) }
             };
@@ -200,8 +230,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestObjectIdStraddles() {
-            var document = new BsonDocument {
+        public void TestObjectIdStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", new ObjectId(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }) }
             };
@@ -212,8 +244,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestStringLengthStraddles() {
-            var document = new BsonDocument {
+        public void TestStringLengthStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", "yyyyyyyy" }
             };
@@ -224,8 +258,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestStringValueStraddles() {
-            var document = new BsonDocument {
+        public void TestStringValueStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler - 4) },
                 { "y", "yyyyyyyy" }
             };
@@ -236,8 +272,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestSymbolLengthStraddles() {
-            var document = new BsonDocument {
+        public void TestSymbolLengthStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", "yyyyyyyy" }
             };
@@ -248,8 +286,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestSymbolValueStraddles() {
-            var document = new BsonDocument {
+        public void TestSymbolValueStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler - 4) },
                 { "y", "yyyyyyyy" }
             };
@@ -260,8 +300,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestTimestampStraddles() {
-            var document = new BsonDocument {
+        public void TestTimestampStraddles()
+        {
+            var document = new BsonDocument
+            {
                 { "x", new string('x', filler) },
                 { "y", new BsonTimestamp(123456789012345678L) }
             };

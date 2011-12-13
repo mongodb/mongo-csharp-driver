@@ -20,54 +20,53 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a BSON double value.
     /// </summary>
     [Serializable]
-    public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble> {
-        #region private fields
+    public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble>
+    {
+        // private fields
         private double value;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDouble class.
         /// </summary>
         /// <param name="value">The value.</param>
-        public BsonDouble(
-            double value
-        )
-            : base(BsonType.Double) {
+        public BsonDouble(double value)
+            : base(BsonType.Double)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the BsonDouble as a double.
         /// </summary>
-        public override object RawValue {
+        public override object RawValue
+        {
             get { return value; }
         }
 
         /// <summary>
         /// Gets the value of this BsonDouble.
         /// </summary>
-        public double Value {
+        public double Value
+        {
             get { return value; }
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Converts a double to a BsonDouble.
         /// </summary>
         /// <param name="value">A double.</param>
         /// <returns>A BsonDouble.</returns>
-        public static implicit operator BsonDouble(
-            double value
-        ) {
+        public static implicit operator BsonDouble(double value)
+        {
             return new BsonDouble(value);
         }
 
@@ -77,10 +76,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonDouble.</param>
         /// <param name="rhs">The other BsonDouble.</param>
         /// <returns>True if the two BsonDouble values are not equal according to ==.</returns>
-        public static bool operator !=(
-            BsonDouble lhs,
-            BsonDouble rhs
-        ) {
+        public static bool operator !=(BsonDouble lhs, BsonDouble rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -90,24 +87,20 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonDouble.</param>
         /// <param name="rhs">The other BsonDouble.</param>
         /// <returns>True if the two BsonDouble values are equal according to ==.</returns>
-        public static bool operator ==(
-            BsonDouble lhs,
-            BsonDouble rhs
-        ) {
+        public static bool operator ==(BsonDouble lhs, BsonDouble rhs)
+        {
             if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
             return lhs.OperatorEqualsImplementation(rhs);
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the BsonDouble class.
         /// </summary>
         /// <param name="value">A double.</param>
         /// <returns>A BsonDouble.</returns>
-        public static BsonDouble Create(
-            double value
-        ) {
+        public static BsonDouble Create(double value)
+        {
             return new BsonDouble(value);
         }
 
@@ -116,26 +109,26 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonDouble.</param>
         /// <returns>A BsonDouble.</returns>
-        public new static BsonDouble Create(
-            object value
-        ) {
-            if (value != null) {
-                return (BsonDouble) BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
-            } else {
+        public new static BsonDouble Create(object value)
+        {
+            if (value != null)
+            {
+                return (BsonDouble)BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+            }
+            else
+            {
                 return null;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Compares this BsonDouble to another BsonDouble.
         /// </summary>
         /// <param name="other">The other BsonDouble.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonDouble is less than, equal to, or greather than the other.</returns>
-        public int CompareTo(
-            BsonDouble other
-        ) {
+        public int CompareTo(BsonDouble other)
+        {
             if (other == null) { return 1; }
             return value.CompareTo(other.value);
         }
@@ -145,21 +138,23 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonDouble is less than, equal to, or greather than the other BsonValue.</returns>
-        public override int CompareTo(
-            BsonValue other
-        ) {
+        public override int CompareTo(BsonValue other)
+        {
             if (other == null) { return 1; }
             var otherDouble = other as BsonDouble;
-            if (otherDouble != null) {
+            if (otherDouble != null)
+            {
                 return value.CompareTo(otherDouble.value);
             }
             var otherInt32 = other as BsonInt32;
-            if (otherInt32 != null) {
-                return value.CompareTo((double) otherInt32.Value);
+            if (otherInt32 != null)
+            {
+                return value.CompareTo((double)otherInt32.Value);
             }
             var otherInt64 = other as BsonInt64;
-            if (otherInt64 != null) {
-                return value.CompareTo((double) otherInt64.Value);
+            if (otherInt64 != null)
+            {
+                return value.CompareTo((double)otherInt64.Value);
             }
             return CompareTypeTo(other);
         }
@@ -169,9 +164,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="rhs">The other BsonDouble.</param>
         /// <returns>True if the two BsonDouble values are equal.</returns>
-        public bool Equals(
-            BsonDouble rhs
-        ) {
+        public bool Equals(BsonDouble rhs)
+        {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.value.Equals(rhs.value); // use Equals instead of == so NaN is handled correctly
         }
@@ -181,9 +175,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonDouble and equal to this one.</returns>
-        public override bool Equals(
-            object obj
-        ) {
+        public override bool Equals(object obj)
+        {
             return Equals(obj as BsonDouble); // works even if obj is null or of a different type
         }
 
@@ -191,7 +184,8 @@ namespace MongoDB.Bson {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + bsonType.GetHashCode();
@@ -203,37 +197,38 @@ namespace MongoDB.Bson {
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return value.ToString("R", NumberFormatInfo.InvariantInfo);
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Compares this BsonDouble against another BsonValue.
         /// </summary>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if this BsonDouble and the other BsonValue are equal according to ==.</returns>
-        protected override bool OperatorEqualsImplementation(
-            BsonValue rhs
-        ) {
+        protected override bool OperatorEqualsImplementation(BsonValue rhs)
+        {
             var rhsDouble = rhs as BsonDouble;
-            if (rhsDouble != null) {
+            if (rhsDouble != null)
+            {
                 return this.value == rhsDouble.value; // use == instead of Equals so NaN is handled correctly
             }
 
             var rhsInt32 = rhs as BsonInt32;
-            if (rhsInt32 != null) {
-                return this.value == (double) rhsInt32.Value;
+            if (rhsInt32 != null)
+            {
+                return this.value == (double)rhsInt32.Value;
             }
 
             var rhsInt64 = rhs as BsonInt64;
-            if (rhsInt64 != null) {
-                return this.value == (double) rhsInt64.Value;
+            if (rhsInt64 != null)
+            {
+                return this.value == (double)rhsInt64.Value;
             }
 
             return this.Equals(rhs);
         }
-        #endregion
     }
 }

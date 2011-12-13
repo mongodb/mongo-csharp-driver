@@ -27,26 +27,28 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a BSON document.
     /// </summary>
     [Serializable]
-    public class BsonDocument : BsonValue, IBsonSerializable, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument> {
-        #region private fields
+    public class BsonDocument : BsonValue, IBsonSerializable, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
+    {
+        // private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
         // if duplicate names are present only the first one will be in the dictionary (the others can only be accessed by index)
         private List<BsonElement> elements = new List<BsonElement>();
         private Dictionary<string, int> indexes = new Dictionary<string, int>(); // maps names to indexes into elements list
         private bool allowDuplicateNames;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDocument class.
         /// </summary>
         public BsonDocument()
-            : base(BsonType.Document) {
+            : base(BsonType.Document)
+        {
         }
 
         /// <summary>
@@ -54,10 +56,9 @@ namespace MongoDB.Bson {
         /// (allowing duplicate element names is not recommended).
         /// </summary>
         /// <param name="allowDuplicateNames">Whether duplicate element names are allowed.</param>
-        public BsonDocument(
-            bool allowDuplicateNames
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(bool allowDuplicateNames)
+            : base(BsonType.Document)
+        {
             this.allowDuplicateNames = allowDuplicateNames;
         }
 
@@ -65,10 +66,9 @@ namespace MongoDB.Bson {
         /// Initializes a new instance of the BsonDocument class and adds one element.
         /// </summary>
         /// <param name="element">An element to add to the document.</param>
-        public BsonDocument(
-            BsonElement element
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(BsonElement element)
+            : base(BsonType.Document)
+        {
             Add(element);
         }
 
@@ -76,10 +76,9 @@ namespace MongoDB.Bson {
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public BsonDocument(
-            Dictionary<string, object> dictionary
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(Dictionary<string, object> dictionary)
+            : base(BsonType.Document)
+        {
             Add(dictionary);
         }
 
@@ -88,11 +87,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public BsonDocument(
-            Dictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
+            : base(BsonType.Document)
+        {
             Add(dictionary, keys);
         }
 
@@ -100,10 +97,9 @@ namespace MongoDB.Bson {
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public BsonDocument(
-            IDictionary<string, object> dictionary
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(IDictionary<string, object> dictionary)
+            : base(BsonType.Document)
+        {
             Add(dictionary);
         }
 
@@ -112,11 +108,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public BsonDocument(
-            IDictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
+            : base(BsonType.Document)
+        {
             Add(dictionary, keys);
         }
 
@@ -124,10 +118,9 @@ namespace MongoDB.Bson {
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public BsonDocument(
-            IDictionary dictionary
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(IDictionary dictionary)
+            : base(BsonType.Document)
+        {
             Add(dictionary);
         }
 
@@ -136,11 +129,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public BsonDocument(
-            IDictionary dictionary,
-            IEnumerable keys
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(IDictionary dictionary, IEnumerable keys)
+            : base(BsonType.Document)
+        {
             Add(dictionary, keys);
         }
 
@@ -148,10 +139,9 @@ namespace MongoDB.Bson {
         /// Initializes a new instance of the BsonDocument class and adds new elements from a list of elements.
         /// </summary>
         /// <param name="elements">A list of elements to add to the document.</param>
-        public BsonDocument(
-            IEnumerable<BsonElement> elements
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(IEnumerable<BsonElement> elements)
+            : base(BsonType.Document)
+        {
             Add(elements);
         }
 
@@ -159,10 +149,9 @@ namespace MongoDB.Bson {
         /// Initializes a new instance of the BsonDocument class and adds one or more elements.
         /// </summary>
         /// <param name="elements">One or more elements to add to the document.</param>
-        public BsonDocument(
-            params BsonElement[] elements
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(params BsonElement[] elements)
+            : base(BsonType.Document)
+        {
             Add(elements);
         }
 
@@ -171,26 +160,21 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="name">The name of the element to add to the document.</param>
         /// <param name="value">The value of the element to add to the document.</param>
-        public BsonDocument(
-            string name,
-            BsonValue value
-        )
-            : base(BsonType.Document) {
+        public BsonDocument(string name, BsonValue value)
+            : base(BsonType.Document)
+        {
             Add(name, value);
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Compares two BsonDocument values.
         /// </summary>
         /// <param name="lhs">The first BsonDocument.</param>
         /// <param name="rhs">The other BsonDocument.</param>
         /// <returns>True if the two BsonDocument values are not equal according to ==.</returns>
-        public static bool operator !=(
-            BsonDocument lhs,
-            BsonDocument rhs
-        ) {
+        public static bool operator !=(BsonDocument lhs, BsonDocument rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -200,20 +184,18 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonDocument.</param>
         /// <param name="rhs">The other BsonDocument.</param>
         /// <returns>True if the two BsonDocument values are equal according to ==.</returns>
-        public static bool operator ==(
-            BsonDocument lhs,
-            BsonDocument rhs
-        ) {
+        public static bool operator ==(BsonDocument lhs, BsonDocument rhs)
+        {
             if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether to allow duplicate names (allowing duplicate names is not recommended).
         /// </summary>
-        public bool AllowDuplicateNames {
+        public bool AllowDuplicateNames
+        {
             get { return allowDuplicateNames; }
             set { allowDuplicateNames = value; }
         }
@@ -222,40 +204,44 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Gets the number of elements.
         /// </summary>
-        public int ElementCount {
+        public int ElementCount
+        {
             get { return elements.Count; }
         }
 
         /// <summary>
         /// Gets the elements.
         /// </summary>
-        public IEnumerable<BsonElement> Elements {
+        public IEnumerable<BsonElement> Elements
+        {
             get { return elements; }
         }
 
         /// <summary>
         /// Gets the element names.
         /// </summary>
-        public IEnumerable<string> Names {
+        public IEnumerable<string> Names
+        {
             get { return elements.Select(e => e.Name); }
         }
 
         /// <summary>
         /// Gets the raw values (see BsonValue.RawValue).
         /// </summary>
-        public IEnumerable<object> RawValues {
+        public IEnumerable<object> RawValues
+        {
             get { return elements.Select(e => e.Value.RawValue); }
         }
 
         /// <summary>
         /// Gets the values.
         /// </summary>
-        public IEnumerable<BsonValue> Values {
+        public IEnumerable<BsonValue> Values
+        {
             get { return elements.Select(e => e.Value); }
         }
-        #endregion
 
-        #region public indexers
+        // public indexers
         // note: the return type of the indexers is BsonValue and NOT BsonElement so that we can write code like:
         //     BsonDocument car;
         //     car["color"] = "red"; // changes value of existing element or adds new element
@@ -283,9 +269,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="index">The zero based index of the element.</param>
         /// <returns>The value of the element.</returns>
-        public BsonValue this[
-            int index
-        ] {
+        public BsonValue this[int index]
+        {
             get { return elements[index].Value; }
             set { elements[index].Value = value; }
         }
@@ -296,15 +281,17 @@ namespace MongoDB.Bson {
         /// <param name="name">The name of the element.</param>
         /// <param name="defaultValue">The default value to return if the element is not found.</param>
         /// <returns>Teh value of the element or a default value if the element is not found.</returns>
-        public BsonValue this[
-            string name,
-            BsonValue defaultValue
-        ] {
-            get {
+        public BsonValue this[string name, BsonValue defaultValue]
+        {
+            get
+            {
                 int index;
-                if (indexes.TryGetValue(name, out index)) {
+                if (indexes.TryGetValue(name, out index))
+                {
                     return elements[index].Value;
-                } else {
+                }
+                else
+                {
                     return defaultValue;
                 }
             }
@@ -315,41 +302,49 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>The value of the element.</returns>
-        public BsonValue this[
-            string name
-        ] {
-            get {
+        public BsonValue this[string name]
+        {
+            get
+            {
                 int index;
-                if (indexes.TryGetValue(name, out index)) {
+                if (indexes.TryGetValue(name, out index))
+                {
                     return elements[index].Value;
-                } else {
+                }
+                else
+                {
                     string message = string.Format("Element '{0}' not found.", name);
                     throw new KeyNotFoundException(message);
                 }
             }
-            set {
+            set
+            {
                 int index;
-                if (indexes.TryGetValue(name, out index)) {
+                if (indexes.TryGetValue(name, out index))
+                {
                     elements[index].Value = value;
-                } else {
+                }
+                else
+                {
                     Add(new BsonElement(name, value));
                 }
             }
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new BsonDocument by mapping an object to a BsonDocument.
         /// </summary>
         /// <param name="value">The object to be mapped to a BsonDocument.</param>
         /// <returns>A BsonDocument.</returns>
-        public new static BsonDocument Create(
-            object value
-        ) {
-            if (value != null) {
-                return (BsonDocument) BsonTypeMapper.MapToBsonValue(value, BsonType.Document);
-            } else {
+        public new static BsonDocument Create(object value)
+        {
+            if (value != null)
+            {
+                return (BsonDocument)BsonTypeMapper.MapToBsonValue(value, BsonType.Document);
+            }
+            else
+            {
                 return null;
             }
         }
@@ -359,12 +354,12 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument Parse(
-            string json
-        ) {
-            using (var bsonReader = BsonReader.Create(json)) {
+        public static BsonDocument Parse(string json)
+        {
+            using (var bsonReader = BsonReader.Create(json))
+            {
                 var document = new BsonDocument();
-                return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument), null);
+                return (BsonDocument)document.Deserialize(bsonReader, typeof(BsonDocument), null);
             }
         }
 
@@ -373,10 +368,10 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="buffer">The BsonBuffer.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ReadFrom(
-            BsonBuffer buffer
-        ) {
-            using (BsonReader bsonReader = BsonReader.Create(buffer)) {
+        public static BsonDocument ReadFrom(BsonBuffer buffer)
+        {
+            using (BsonReader bsonReader = BsonReader.Create(buffer))
+            {
                 return ReadFrom(bsonReader);
             }
         }
@@ -386,11 +381,10 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="bsonReader">The BsonReader.</param>
         /// <returns>A BsonDocument.</returns>
-        public static new BsonDocument ReadFrom(
-            BsonReader bsonReader
-        ) {
+        public static new BsonDocument ReadFrom(BsonReader bsonReader)
+        {
             BsonDocument document = new BsonDocument();
-            return (BsonDocument) document.Deserialize(bsonReader, typeof(BsonDocument), null);
+            return (BsonDocument)document.Deserialize(bsonReader, typeof(BsonDocument), null);
         }
 
         /// <summary>
@@ -398,11 +392,11 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="bytes">The byte array.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ReadFrom(
-            byte[] bytes
-        ) {
+        public static BsonDocument ReadFrom(byte[] bytes)
+        {
             MemoryStream stream = new MemoryStream(bytes);
-            using (BsonReader bsonReader = BsonReader.Create(stream)) {
+            using (BsonReader bsonReader = BsonReader.Create(stream))
+            {
                 return ReadFrom(bsonReader);
             }
         }
@@ -412,10 +406,10 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ReadFrom(
-            Stream stream
-        ) {
-            using (BsonReader bsonReader = BsonReader.Create(stream)) {
+        public static BsonDocument ReadFrom(Stream stream)
+        {
+            using (BsonReader bsonReader = BsonReader.Create(stream))
+            {
                 return ReadFrom(bsonReader);
             }
         }
@@ -425,34 +419,37 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="filename">The name of the file.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ReadFrom(
-            string filename
-        ) {
+        public static BsonDocument ReadFrom(string filename)
+        {
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-            using (BsonReader bsonReader = BsonReader.Create(stream)) {
+            using (BsonReader bsonReader = BsonReader.Create(stream))
+            {
                 return ReadFrom(bsonReader);
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Adds an element to the document.
         /// </summary>
         /// <param name="element">The element to add.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            BsonElement element
-        ) {
-            if (element != null) {
+        public BsonDocument Add(BsonElement element)
+        {
+            if (element != null)
+            {
                 bool found;
                 int index;
-                if ((found = indexes.TryGetValue(element.Name, out index)) && !allowDuplicateNames) {
+                if ((found = indexes.TryGetValue(element.Name, out index)) && !allowDuplicateNames)
+                {
                     var message = string.Format("Duplicate element name '{0}'.", element.Name);
                     throw new InvalidOperationException(message);
-                } else {
+                }
+                else
+                {
                     elements.Add(element);
-                    if (!found) {
+                    if (!found)
+                    {
                         indexes.Add(element.Name, elements.Count - 1); // index of the newly added element
                     }
                 }
@@ -465,10 +462,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dictionary">The dictionary.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            Dictionary<string, object> dictionary
-        ) {
-            return Add((IDictionary<string, object>) dictionary);
+        public BsonDocument Add(Dictionary<string, object> dictionary)
+        {
+            return Add((IDictionary<string, object>)dictionary);
         }
 
         /// <summary>
@@ -477,11 +473,9 @@ namespace MongoDB.Bson {
         /// <param name="dictionary">The dictionary.</param>
         /// <param name="keys">Which keys of the hash table to add.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            Dictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        ) {
-            return Add((IDictionary<string, object>) dictionary, keys);
+        public BsonDocument Add(Dictionary<string, object> dictionary, IEnumerable<string> keys)
+        {
+            return Add((IDictionary<string, object>)dictionary, keys);
         }
 
         /// <summary>
@@ -489,10 +483,10 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dictionary">The dictionary.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            IDictionary<string, object> dictionary
-        ) {
-            if (dictionary != null) {
+        public BsonDocument Add(IDictionary<string, object> dictionary)
+        {
+            if (dictionary != null)
+            {
                 Add(dictionary, dictionary.Keys);
             }
             return this;
@@ -504,12 +498,12 @@ namespace MongoDB.Bson {
         /// <param name="dictionary">The dictionary.</param>
         /// <param name="keys">Which keys of the hash table to add.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            IDictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        ) {
-            if (dictionary != null) {
-                foreach (var key in keys) {
+        public BsonDocument Add(IDictionary<string, object> dictionary, IEnumerable<string> keys)
+        {
+            if (dictionary != null)
+            {
+                foreach (var key in keys)
+                {
                     Add(key, BsonValue.Create(dictionary[key]));
                 }
             }
@@ -521,10 +515,10 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dictionary">The dictionary.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            IDictionary dictionary
-        ) {
-            if (dictionary != null) {
+        public BsonDocument Add(IDictionary dictionary)
+        {
+            if (dictionary != null)
+            {
                 Add(dictionary, dictionary.Keys);
             }
             return this;
@@ -536,12 +530,12 @@ namespace MongoDB.Bson {
         /// <param name="dictionary">The dictionary.</param>
         /// <param name="keys">Which keys of the hash table to add.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            IDictionary dictionary,
-            IEnumerable keys
-        ) {
-            if (dictionary != null) {
-                foreach (string key in keys) {
+        public BsonDocument Add(IDictionary dictionary, IEnumerable keys)
+        {
+            if (dictionary != null)
+            {
+                foreach (string key in keys)
+                {
                     Add(key, BsonValue.Create(dictionary[key]));
                 }
             }
@@ -553,11 +547,12 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="elements">The list of elements.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            IEnumerable<BsonElement> elements
-        ) {
-            if (elements != null) {
-                foreach (var element in elements) {
+        public BsonDocument Add(IEnumerable<BsonElement> elements)
+        {
+            if (elements != null)
+            {
+                foreach (var element in elements)
+                {
                     Add(element);
                 }
             }
@@ -569,10 +564,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="elements">The list of elements.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            params BsonElement[] elements
-        ) {
-            return Add((IEnumerable<BsonElement>) elements);
+        public BsonDocument Add(params BsonElement[] elements)
+        {
+            return Add((IEnumerable<BsonElement>)elements);
         }
 
         /// <summary>
@@ -581,11 +575,10 @@ namespace MongoDB.Bson {
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The value of the element.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            string name,
-            BsonValue value
-        ) {
-            if (value != null) {
+        public BsonDocument Add(string name, BsonValue value)
+        {
+            if (value != null)
+            {
                 Add(new BsonElement(name, value));
             }
             return this;
@@ -598,12 +591,10 @@ namespace MongoDB.Bson {
         /// <param name="value">The value of the element.</param>
         /// <param name="condition">Whether to add the element to the document.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Add(
-            string name,
-            BsonValue value,
-            bool condition
-        ) {
-            if (condition) {
+        public BsonDocument Add(string name, BsonValue value, bool condition)
+        {
+            if (condition)
+            {
                 Add(name, value);
             }
             return this;
@@ -612,7 +603,8 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Clears the document (removes all elements).
         /// </summary>
-        public void Clear() {
+        public void Clear()
+        {
             elements.Clear();
             indexes.Clear();
         }
@@ -621,9 +613,11 @@ namespace MongoDB.Bson {
         /// Creates a shallow clone of the document (see also DeepClone).
         /// </summary>
         /// <returns>A shallow clone of the document.</returns>
-        public override BsonValue Clone() {
+        public override BsonValue Clone()
+        {
             BsonDocument clone = new BsonDocument();
-            foreach (BsonElement element in elements) {
+            foreach (BsonElement element in elements)
+            {
                 clone.Add(element.Clone());
             }
             return clone;
@@ -634,11 +628,11 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other document.</param>
         /// <returns>A 32-bit signed integer that indicates whether this document is less than, equal to, or greather than the other.</returns>
-        public int CompareTo(
-            BsonDocument other
-        ) {
+        public int CompareTo(BsonDocument other)
+        {
             if (other == null) { return 1; }
-            for (int i = 0; i < elements.Count && i < other.elements.Count; i++) {
+            for (int i = 0; i < elements.Count && i < other.elements.Count; i++)
+            {
                 int r = elements[i].Name.CompareTo(other.elements[i].Name);
                 if (r != 0) { return r; }
                 r = elements[i].Value.CompareTo(other.elements[i].Value);
@@ -652,12 +646,12 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonDocument is less than, equal to, or greather than the other BsonValue.</returns>
-        public override int CompareTo(
-            BsonValue other
-        ) {
+        public override int CompareTo(BsonValue other)
+        {
             if (other == null) { return 1; }
             var otherDocument = other as BsonDocument;
-            if (otherDocument != null) {
+            if (otherDocument != null)
+            {
                 return CompareTo(otherDocument);
             }
             return CompareTypeTo(other);
@@ -668,9 +662,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="name">The name of the element to look for.</param>
         /// <returns>True if the document contains an element with the specified name.</returns>
-        public bool Contains(
-            string name
-        ) {
+        public bool Contains(string name)
+        {
             return indexes.ContainsKey(name);
         }
 
@@ -679,9 +672,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The value of the element to look for.</param>
         /// <returns>True if the document contains an element with the specified value.</returns>
-        public bool ContainsValue(
-            BsonValue value
-        ) {
+        public bool ContainsValue(BsonValue value)
+        {
             return elements.Any(e => e.Value == value);
         }
 
@@ -689,9 +681,11 @@ namespace MongoDB.Bson {
         /// Creates a deep clone of the document (see also Clone).
         /// </summary>
         /// <returns>A deep clone of the document.</returns>
-        public override BsonValue DeepClone() {
+        public override BsonValue DeepClone()
+        {
             BsonDocument clone = new BsonDocument();
-            foreach (BsonElement element in elements) {
+            foreach (BsonElement element in elements)
+            {
                 clone.Add(element.DeepClone());
             }
             return clone;
@@ -704,19 +698,20 @@ namespace MongoDB.Bson {
         /// <param name="nominalType">The nominal type of the object (ignored, but should be BsonDocument).</param>
         /// <param name="options">The serialization options (ignored).</param>
         /// <returns>The document (which has now been initialized by deserialization), or null.</returns>
-        public object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
-            if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
+        public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        {
+            if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else {
+            }
+            else
+            {
                 bsonReader.ReadStartDocument();
                 Clear();
                 BsonElement element;
-                while (BsonElement.ReadFrom(bsonReader, out element)) {
+                while (BsonElement.ReadFrom(bsonReader, out element))
+                {
                     Add(element);
                 }
                 bsonReader.ReadEndDocument();
@@ -731,20 +726,21 @@ namespace MongoDB.Bson {
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
         /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
-        public bool GetDocumentId(
-            out object id,
-            out Type idNominalType,
-            out IIdGenerator idGenerator
-        ) {
+        public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        {
             BsonElement idElement;
-            if (TryGetElement("_id", out idElement)) {
+            if (TryGetElement("_id", out idElement))
+            {
                 id = idElement.Value.RawValue;
-                if (id == null) {
+                if (id == null)
+                {
                     id = idElement.Value;
                 }
 
                 idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
-            } else {
+            }
+            else
+            {
                 id = null;
                 idGenerator = ObjectIdGenerator.Instance;
             }
@@ -758,9 +754,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="rhs">The other document.</param>
         /// <returns>True if the two documents are equal.</returns>
-        public bool Equals(
-            BsonDocument rhs
-        ) {
+        public bool Equals(BsonDocument rhs)
+        {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return object.ReferenceEquals(this, rhs) || this.elements.SequenceEqual(rhs.elements);
         }
@@ -770,9 +765,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonDocument and equal to this one.</returns>
-        public override bool Equals(
-            object obj
-        ) {
+        public override bool Equals(object obj)
+        {
             return Equals(obj as BsonDocument); // works even if obj is null or of a different type
         }
 
@@ -781,9 +775,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="index">The zero based index of the element.</param>
         /// <returns>The element.</returns>
-        public BsonElement GetElement(
-            int index
-        ) {
+        public BsonElement GetElement(int index)
+        {
             return elements[index];
         }
 
@@ -792,13 +785,15 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>A BsonElement.</returns>
-        public BsonElement GetElement(
-            string name
-        ) {
+        public BsonElement GetElement(string name)
+        {
             int index;
-            if (indexes.TryGetValue(name, out index)) {
+            if (indexes.TryGetValue(name, out index))
+            {
                 return elements[index];
-            } else {
+            }
+            else
+            {
                 string message = string.Format("Element '{0}' not found.", name);
                 throw new KeyNotFoundException(message);
             }
@@ -808,7 +803,8 @@ namespace MongoDB.Bson {
         /// Gets an enumerator that can be used to enumerate the elements of this document.
         /// </summary>
         /// <returns>An enumerator.</returns>
-        public IEnumerator<BsonElement> GetEnumerator() {
+        public IEnumerator<BsonElement> GetEnumerator()
+        {
             return elements.GetEnumerator();
         }
 
@@ -816,11 +812,13 @@ namespace MongoDB.Bson {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * bsonType.GetHashCode();
-            foreach (BsonElement element in elements) {
+            foreach (BsonElement element in elements)
+            {
                 hash = 37 * hash + element.GetHashCode();
             }
             return hash;
@@ -831,9 +829,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="index">The zero based index of the element.</param>
         /// <returns>The value of the element.</returns>
-        public BsonValue GetValue(
-            int index
-        ) {
+        public BsonValue GetValue(int index)
+        {
             return this[index];
         }
 
@@ -842,9 +839,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>The value of the element.</returns>
-        public BsonValue GetValue(
-            string name
-        ) {
+        public BsonValue GetValue(string name)
+        {
             return this[name];
         }
 
@@ -854,10 +850,8 @@ namespace MongoDB.Bson {
         /// <param name="name">The name of the element.</param>
         /// <param name="defaultValue">The default value returned if the element is not found.</param>
         /// <returns>The value of the element or the default value if the element is not found.</returns>
-        public BsonValue GetValue(
-            string name,
-            BsonValue defaultValue
-        ) {
+        public BsonValue GetValue(string name, BsonValue defaultValue)
+        {
             return this[name, defaultValue];
         }
 
@@ -866,15 +860,17 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="index">The position of the new element.</param>
         /// <param name="element">The element.</param>
-        public void InsertAt(
-            int index,
-            BsonElement element
-        ) {
-            if (element != null) {
-                if (indexes.ContainsKey(element.Name) && !allowDuplicateNames) {
+        public void InsertAt(int index, BsonElement element)
+        {
+            if (element != null)
+            {
+                if (indexes.ContainsKey(element.Name) && !allowDuplicateNames)
+                {
                     var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
                     throw new InvalidOperationException(message);
-                } else {
+                }
+                else
+                {
                     elements.Insert(index, element);
                     RebuildDictionary();
                 }
@@ -886,9 +882,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="document">The other document.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Merge(
-            BsonDocument document
-        ) {
+        public BsonDocument Merge(BsonDocument document)
+        {
             Merge(document, false); // don't overwriteExistingElements
             return this;
         }
@@ -899,13 +894,14 @@ namespace MongoDB.Bson {
         /// <param name="document">The other document.</param>
         /// <param name="overwriteExistingElements">Whether to overwrite existing elements.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Merge(
-            BsonDocument document,
-            bool overwriteExistingElements
-        ) {
-            if (document != null) {
-                foreach (BsonElement element in document) {
-                    if (overwriteExistingElements || !Contains(element.Name)) {
+        public BsonDocument Merge(BsonDocument document, bool overwriteExistingElements)
+        {
+            if (document != null)
+            {
+                foreach (BsonElement element in document)
+                {
+                    if (overwriteExistingElements || !Contains(element.Name))
+                    {
                         this[element.Name] = element.Value;
                     }
                 }
@@ -918,10 +914,10 @@ namespace MongoDB.Bson {
         /// then all elements with this name will be removed).
         /// </summary>
         /// <param name="name">The name of the element to remove.</param>
-        public void Remove(
-            string name
-        ) {
-            if (indexes.ContainsKey(name)) {
+        public void Remove(string name)
+        {
+            if (indexes.ContainsKey(name))
+            {
                 elements.RemoveAll(e => e.Name == name);
                 RebuildDictionary();
             }
@@ -931,9 +927,8 @@ namespace MongoDB.Bson {
         /// Removes an element from this document.
         /// </summary>
         /// <param name="index">The zero based index of the element to remove.</param>
-        public void RemoveAt(
-            int index
-        ) {
+        public void RemoveAt(int index)
+        {
             elements.RemoveAt(index);
             RebuildDictionary();
         }
@@ -942,9 +937,8 @@ namespace MongoDB.Bson {
         /// Removes an element from this document.
         /// </summary>
         /// <param name="element">The element to remove.</param>
-        public void RemoveElement(
-            BsonElement element
-        ) {
+        public void RemoveElement(BsonElement element)
+        {
             elements.Remove(element);
             RebuildDictionary();
         }
@@ -955,24 +949,26 @@ namespace MongoDB.Bson {
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominalType.</param>
         /// <param name="options">The serialization options (can be null).</param>
-        public void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             bsonWriter.WriteStartDocument();
 
-            var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions) options;
+            var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions)options;
             int idIndex;
-            if (documentOptions.SerializeIdFirst && indexes.TryGetValue("_id", out idIndex)) {
+            if (documentOptions.SerializeIdFirst && indexes.TryGetValue("_id", out idIndex))
+            {
                 elements[idIndex].WriteTo(bsonWriter);
-            } else {
+            }
+            else
+            {
                 idIndex = -1; // remember that when TryGetValue returns false it sets idIndex to 0
             }
 
-            for (int i = 0; i < elements.Count; i++) {
+            for (int i = 0; i < elements.Count; i++)
+            {
                 // if serializeIdFirst is false then idIndex will be -1 and no elements will be skipped
-                if (i != idIndex) {
+                if (i != idIndex)
+                {
                     elements[i].WriteTo(bsonWriter);
                 }
             }
@@ -986,10 +982,8 @@ namespace MongoDB.Bson {
         /// <param name="index">The zero based index of the element whose value is to be set.</param>
         /// <param name="value">The new value.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Set(
-            int index,
-            BsonValue value
-        ) {
+        public BsonDocument Set(int index, BsonValue value)
+        {
             this[index] = value;
             return this;
         }
@@ -1000,10 +994,8 @@ namespace MongoDB.Bson {
         /// <param name="name">The name of the element whose value is to be set.</param>
         /// <param name="value">The new value.</param>
         /// <returns>The document (so method calls can be chained).</returns>
-        public BsonDocument Set(
-            string name,
-            BsonValue value
-        ) {
+        public BsonDocument Set(string name, BsonValue value)
+        {
             this[name] = value;
             return this;
         }
@@ -1012,13 +1004,15 @@ namespace MongoDB.Bson {
         /// Sets the document Id.
         /// </summary>
         /// <param name="id">The value of the Id.</param>
-        public void SetDocumentId(
-            object id
-        ) {
+        public void SetDocumentId(object id)
+        {
             BsonElement idElement;
-            if (TryGetElement("_id", out idElement)) {
+            if (TryGetElement("_id", out idElement))
+            {
                 idElement.Value = BsonValue.Create(id);
-            } else {
+            }
+            else
+            {
                 idElement = new BsonElement("_id", BsonValue.Create(id));
                 InsertAt(0, idElement);
             }
@@ -1030,10 +1024,8 @@ namespace MongoDB.Bson {
         /// <param name="index">The zero based index of the element to replace.</param>
         /// <param name="element">The new element.</param>
         /// <returns>The document.</returns>
-        public BsonDocument SetElement(
-            int index,
-            BsonElement element
-        ) {
+        public BsonDocument SetElement(int index, BsonElement element)
+        {
             elements[index] = element;
             RebuildDictionary();
             return this;
@@ -1044,13 +1036,15 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="element">The new element.</param>
         /// <returns>The document.</returns>
-        public BsonDocument SetElement(
-            BsonElement element
-        ) {
+        public BsonDocument SetElement(BsonElement element)
+        {
             int index;
-            if (indexes.TryGetValue(element.Name, out index)) {
+            if (indexes.TryGetValue(element.Name, out index))
+            {
                 elements[index] = element;
-            } else {
+            }
+            else
+            {
                 Add(element);
             }
             return this;
@@ -1060,9 +1054,11 @@ namespace MongoDB.Bson {
         /// Converts the BsonDocument to a Dictionary&lt;string, object&gt;.
         /// </summary>
         /// <returns>A dictionary.</returns>
-        public Dictionary<string, object> ToDictionary() {
+        public Dictionary<string, object> ToDictionary()
+        {
             var dictionary = new Dictionary<string, object>(elements.Count);
-            foreach (var element in elements) {
+            foreach (var element in elements)
+            {
                 dictionary.Add(element.Name, ToDictionaryHelper(element.Value));
             }
             return dictionary;
@@ -1072,9 +1068,11 @@ namespace MongoDB.Bson {
         /// Converts the BsonDocument to a Hashtable.
         /// </summary>
         /// <returns>A hashtable.</returns>
-        public Hashtable ToHashtable() {
+        public Hashtable ToHashtable()
+        {
             var hashtable = new Hashtable(elements.Count);
-            foreach (var element in elements) {
+            foreach (var element in elements)
+            {
                 hashtable.Add(element.Name, ToHashtableHelper(element.Value));
             }
             return hashtable;
@@ -1084,7 +1082,8 @@ namespace MongoDB.Bson {
         /// Returns a string representation of the document.
         /// </summary>
         /// <returns>A string representation of the document.</returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return this.ToJson();
         }
 
@@ -1094,15 +1093,16 @@ namespace MongoDB.Bson {
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The element.</param>
         /// <returns>True if an element with that name was found.</returns>
-        public bool TryGetElement(
-            string name,
-            out BsonElement value
-        ) {
+        public bool TryGetElement(string name, out BsonElement value)
+        {
             int index;
-            if (indexes.TryGetValue(name, out index)) {
+            if (indexes.TryGetValue(name, out index))
+            {
                 value = elements[index];
                 return true;
-            } else {
+            }
+            else
+            {
                 value = null;
                 return false;
             }
@@ -1114,15 +1114,16 @@ namespace MongoDB.Bson {
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The value of the element.</param>
         /// <returns>True if an element with that name was found.</returns>
-        public bool TryGetValue(
-            string name,
-            out BsonValue value
-        ) {
+        public bool TryGetValue(string name, out BsonValue value)
+        {
             int index;
-            if (indexes.TryGetValue(name, out index)) {
+            if (indexes.TryGetValue(name, out index))
+            {
                 value = elements[index].Value;
                 return true;
-            } else {
+            }
+            else
+            {
                 value = null;
                 return false;
             }
@@ -1132,9 +1133,8 @@ namespace MongoDB.Bson {
         /// Writes the document to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
-        public new void WriteTo(
-            BsonWriter bsonWriter
-        ) {
+        public new void WriteTo(BsonWriter bsonWriter)
+        {
             Serialize(bsonWriter, typeof(BsonDocument), null);
         }
 
@@ -1142,10 +1142,10 @@ namespace MongoDB.Bson {
         /// Writes the document to a BsonBuffer.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
-        public void WriteTo(
-            BsonBuffer buffer
-        ) {
-            using (BsonWriter bsonWriter = BsonWriter.Create(buffer)) {
+        public void WriteTo(BsonBuffer buffer)
+        {
+            using (BsonWriter bsonWriter = BsonWriter.Create(buffer))
+            {
                 WriteTo(bsonWriter);
             }
         }
@@ -1154,10 +1154,10 @@ namespace MongoDB.Bson {
         /// Writes the document to a Stream.
         /// </summary>
         /// <param name="stream">The stream.</param>
-        public void WriteTo(
-            Stream stream
-        ) {
-            using (BsonWriter bsonWriter = BsonWriter.Create(stream)) {
+        public void WriteTo(Stream stream)
+        {
+            using (BsonWriter bsonWriter = BsonWriter.Create(stream))
+            {
                 WriteTo(bsonWriter);
             }
         }
@@ -1166,30 +1166,32 @@ namespace MongoDB.Bson {
         /// Writes the document to a file.
         /// </summary>
         /// <param name="filename">The name of the file.</param>
-        public void WriteTo(
-            string filename
-        ) {
-            using (FileStream stream = new FileStream(filename, FileMode.Create, FileAccess.Write)) {
+        public void WriteTo(string filename)
+        {
+            using (FileStream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
+            {
                 WriteTo(stream);
             }
         }
-        #endregion
 
-        #region private methods
-        private void RebuildDictionary() {
+        // private methods
+        private void RebuildDictionary()
+        {
             indexes.Clear();
-            for (int index = 0; index < elements.Count; index++) {
+            for (int index = 0; index < elements.Count; index++)
+            {
                 BsonElement element = elements[index];
-                if (!indexes.ContainsKey(element.Name)) {
+                if (!indexes.ContainsKey(element.Name))
+                {
                     indexes.Add(element.Name, index);
                 }
             }
         }
 
-        private object ToDictionaryHelper(
-            BsonValue value
-        ) {
-            switch (value.BsonType) {
+        private object ToDictionaryHelper(BsonValue value)
+        {
+            switch (value.BsonType)
+            {
                 case BsonType.Array:
                     var array = new object[value.AsBsonArray.Count];
                     value.AsBsonArray.CopyTo(array, 0);
@@ -1203,10 +1205,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        private object ToHashtableHelper(
-            BsonValue value
-        ) {
-            switch (value.BsonType) {
+        private object ToHashtableHelper(BsonValue value)
+        {
+            switch (value.BsonType)
+            {
                 case BsonType.Array:
                     var array = new object[value.AsBsonArray.Count];
                     value.AsBsonArray.CopyTo(array, 0);
@@ -1219,16 +1221,16 @@ namespace MongoDB.Bson {
                     return value.RawValue;
             }
         }
-        #endregion
 
-        #region explicit interface implementations
-        BsonDocument IConvertibleToBsonDocument.ToBsonDocument() {
+        // explicit interface implementations
+        BsonDocument IConvertibleToBsonDocument.ToBsonDocument()
+        {
             return this;
         }
 
-        IEnumerator IEnumerable.GetEnumerator() {
+        IEnumerator IEnumerable.GetEnumerator()
+        {
             return elements.GetEnumerator();
         }
-        #endregion
     }
 }

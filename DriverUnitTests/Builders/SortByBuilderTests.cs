@@ -23,60 +23,70 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverUnitTests.Builders {
+namespace MongoDB.DriverUnitTests.Builders
+{
     [TestFixture]
-    public class SortByBuilderTests {
+    public class SortByBuilderTests
+    {
         [Test]
-        public void TestAscending1() {
+        public void TestAscending1()
+        {
             var sortBy = SortBy.Ascending("a");
             string expected = "{ \"a\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
-        public void TestAscending2() {
+        public void TestAscending2()
+        {
             var sortBy = SortBy.Ascending("a", "b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
-        public void TestAscendingAscending() {
+        public void TestAscendingAscending()
+        {
             var sortBy = SortBy.Ascending("a").Ascending("b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
-        public void TestAscendingDescending() {
+        public void TestAscendingDescending()
+        {
             var sortBy = SortBy.Ascending("a").Descending("b");
             string expected = "{ \"a\" : 1, \"b\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
-        public void TestDescending1() {
+        public void TestDescending1()
+        {
             var sortBy = SortBy.Descending("a");
             string expected = "{ \"a\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
-        public void TestDescending2() {
+        public void TestDescending2()
+        {
             var sortBy = SortBy.Descending("a", "b");
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
-        public void TestDescendingAscending() {
+        public void TestDescendingAscending()
+        {
             var sortBy = SortBy.Descending("a").Ascending("b");
             string expected = "{ \"a\" : -1, \"b\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
-        public void TestDescendingDescending() {
+        public void TestDescendingDescending()
+        {
             var sortBy = SortBy.Descending("a").Descending("b");
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());

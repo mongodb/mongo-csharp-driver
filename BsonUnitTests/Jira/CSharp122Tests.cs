@@ -26,15 +26,18 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp122 {
-    public abstract class B {
+namespace MongoDB.BsonUnitTests.Jira.CSharp122
+{
+    public abstract class B
+    {
         [BsonElement("B.N")]
         public int N { get; set; }
         public abstract int A { get; set; }
         public virtual int V { get; set; }
     }
 
-    public class C : B {
+    public class C : B
+    {
         [BsonElement("C.N")]
         public new int N { get; set; }
         public override int A { get; set; }
@@ -42,11 +45,13 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp122 {
     }
 
     [TestFixture]
-    public class CSharp122Tests {
+    public class CSharp122Tests
+    {
         [Test]
-        public void TestTwoPropertiesWithSameName() {
+        public void TestTwoPropertiesWithSameName()
+        {
             var c = new C { N = 4, A = 2, V = 3 };
-            ((B) c).N = 1;
+            ((B)c).N = 1;
             var json = c.ToJson();
             var expected = "{ 'B.N' : 1, 'A' : 2, 'V' : 3, 'C.N' : 4 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);

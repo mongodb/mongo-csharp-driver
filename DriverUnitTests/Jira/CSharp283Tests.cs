@@ -27,9 +27,11 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
+namespace MongoDB.DriverUnitTests.Jira.CSharp283
+{
     [TestFixture]
-    public class CSharp283Tests {
+    public class CSharp283Tests
+    {
         private BsonArray bsonArray = new BsonArray { 1, 2, 3 };
         private BsonValue bsonValue = 1;
         private BsonValue[] bsonValueArray = new BsonValue[] { 1, 2, 3 };
@@ -37,7 +39,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         private IEnumerable<BsonValue> ienumerableBsonValue = new BsonValue[] { 1, 2, 3 };
 
         [Test]
-        public void TestQueryAll() {
+        public void TestQueryAll()
+        {
             var query1 = Query.All("name", bsonValue);
             var query2 = Query.All("name", bsonArray);
             var query3 = Query.All("name", bsonValueArray);
@@ -55,7 +58,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryIn() {
+        public void TestQueryIn()
+        {
             var query1 = Query.In("name", bsonValue);
             var query2 = Query.In("name", bsonArray);
             var query3 = Query.In("name", bsonValueArray);
@@ -73,7 +77,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryNin() {
+        public void TestQueryNin()
+        {
             var query1 = Query.NotIn("name", bsonValue);
             var query2 = Query.NotIn("name", bsonArray);
             var query3 = Query.NotIn("name", bsonValueArray);
@@ -91,7 +96,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryNotAll() {
+        public void TestQueryNotAll()
+        {
             var query1 = Query.Not("name").All(bsonValue);
             var query2 = Query.Not("name").All(bsonArray);
             var query3 = Query.Not("name").All(bsonValueArray);
@@ -109,7 +115,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryNotIn() {
+        public void TestQueryNotIn()
+        {
             var query1 = Query.Not("name").In(bsonValue);
             var query2 = Query.Not("name").In(bsonArray);
             var query3 = Query.Not("name").In(bsonValueArray);
@@ -127,7 +134,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryNotNin() {
+        public void TestQueryNotNin()
+        {
             var query1 = Query.Not("name").NotIn(bsonValue);
             var query2 = Query.Not("name").NotIn(bsonArray);
             var query3 = Query.Not("name").NotIn(bsonValueArray);
@@ -145,7 +153,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestUpdateAddToSetEach() {
+        public void TestUpdateAddToSetEach()
+        {
             var update1 = Update.AddToSetEach("name", bsonValue);
             var update2 = Update.AddToSetEach("name", bsonArray);
             var update3 = Update.AddToSetEach("name", bsonValueArray);
@@ -163,7 +172,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestUpdatePullAll() {
+        public void TestUpdatePullAll()
+        {
             var update1 = Update.PullAll("name", bsonValue);
             var update2 = Update.PullAll("name", bsonArray);
             var update3 = Update.PullAll("name", bsonValueArray);
@@ -181,7 +191,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestUpdatePushAll() {
+        public void TestUpdatePushAll()
+        {
             var update1 = Update.PushAll("name", bsonValue);
             var update2 = Update.PushAll("name", bsonArray);
             var update3 = Update.PushAll("name", bsonValueArray);

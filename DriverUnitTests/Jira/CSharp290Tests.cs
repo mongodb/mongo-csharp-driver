@@ -27,16 +27,19 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
+namespace MongoDB.DriverUnitTests.Jira.CSharp290
+{
     [TestFixture]
-    public class CSharp290Tests {
+    public class CSharp290Tests
+    {
         private Dictionary<string, object> dictionary = new Dictionary<string, object> { { "type", "Dictionary<string, object>" } };
         private Hashtable hashtable = new Hashtable { { "type", "Hashtable" } };
         private IDictionary idictionaryNonGeneric = new Hashtable() { { "type", "IDictionary" } };
         private IDictionary<string, object> idictionary = new Dictionary<string, object> { { "type", "IDictionary<string, object>" } };
 
         [Test]
-        public void TestBsonDocumentConstructor() {
+        public void TestBsonDocumentConstructor()
+        {
             var document1 = new BsonDocument(dictionary);
             var document2 = new BsonDocument(hashtable);
             var document3 = new BsonDocument(idictionaryNonGeneric);
@@ -49,7 +52,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestBsonDocumentAdd() {
+        public void TestBsonDocumentAdd()
+        {
             var document1 = new BsonDocument().Add(dictionary);
             var document2 = new BsonDocument().Add(hashtable);
             var document3 = new BsonDocument().Add(idictionaryNonGeneric);
@@ -62,11 +66,12 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestBsonTypeMapperMapToBsonValue() {
-            var document1 = (BsonDocument) BsonTypeMapper.MapToBsonValue(dictionary, BsonType.Document);
-            var document2 = (BsonDocument) BsonTypeMapper.MapToBsonValue(hashtable, BsonType.Document);
-            var document3 = (BsonDocument) BsonTypeMapper.MapToBsonValue(idictionaryNonGeneric, BsonType.Document);
-            var document4 = (BsonDocument) BsonTypeMapper.MapToBsonValue(idictionary, BsonType.Document);
+        public void TestBsonTypeMapperMapToBsonValue()
+        {
+            var document1 = (BsonDocument)BsonTypeMapper.MapToBsonValue(dictionary, BsonType.Document);
+            var document2 = (BsonDocument)BsonTypeMapper.MapToBsonValue(hashtable, BsonType.Document);
+            var document3 = (BsonDocument)BsonTypeMapper.MapToBsonValue(idictionaryNonGeneric, BsonType.Document);
+            var document4 = (BsonDocument)BsonTypeMapper.MapToBsonValue(idictionary, BsonType.Document);
 
             Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
             Assert.AreEqual("Hashtable", document2["type"].AsString);
@@ -75,21 +80,23 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestBsonTypeMapperTryMapToBsonValue() {
+        public void TestBsonTypeMapperTryMapToBsonValue()
+        {
             BsonValue document1, document2, document3, document4;
             Assert.IsTrue(BsonTypeMapper.TryMapToBsonValue(dictionary, out document1));
             Assert.IsTrue(BsonTypeMapper.TryMapToBsonValue(hashtable, out document2));
             Assert.IsTrue(BsonTypeMapper.TryMapToBsonValue(idictionaryNonGeneric, out document3));
             Assert.IsTrue(BsonTypeMapper.TryMapToBsonValue(idictionary, out document4));
 
-            Assert.AreEqual("Dictionary<string, object>", ((BsonDocument) document1)["type"].AsString);
-            Assert.AreEqual("Hashtable", ((BsonDocument) document2)["type"].AsString);
-            Assert.AreEqual("IDictionary", ((BsonDocument) document3)["type"].AsString);
-            Assert.AreEqual("IDictionary<string, object>", ((BsonDocument) document4)["type"].AsString);
+            Assert.AreEqual("Dictionary<string, object>", ((BsonDocument)document1)["type"].AsString);
+            Assert.AreEqual("Hashtable", ((BsonDocument)document2)["type"].AsString);
+            Assert.AreEqual("IDictionary", ((BsonDocument)document3)["type"].AsString);
+            Assert.AreEqual("IDictionary<string, object>", ((BsonDocument)document4)["type"].AsString);
         }
 
         [Test]
-        public void TestCollectionOptionsDocumentConstructor() {
+        public void TestCollectionOptionsDocumentConstructor()
+        {
             var document1 = new CollectionOptionsDocument(dictionary);
             var document2 = new CollectionOptionsDocument(hashtable);
             var document3 = new CollectionOptionsDocument(idictionaryNonGeneric);
@@ -102,7 +109,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestCommandDocumentConstructor() {
+        public void TestCommandDocumentConstructor()
+        {
             var document1 = new CommandDocument(dictionary);
             var document2 = new CommandDocument(hashtable);
             var document3 = new CommandDocument(idictionaryNonGeneric);
@@ -115,7 +123,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestFieldsDocumentConstructor() {
+        public void TestFieldsDocumentConstructor()
+        {
             var document1 = new FieldsDocument(dictionary);
             var document2 = new FieldsDocument(hashtable);
             var document3 = new FieldsDocument(idictionaryNonGeneric);
@@ -128,7 +137,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestGeoNearOptionsDocumentConstructor() {
+        public void TestGeoNearOptionsDocumentConstructor()
+        {
             var document1 = new GeoNearOptionsDocument(dictionary);
             var document2 = new GeoNearOptionsDocument(hashtable);
             var document3 = new GeoNearOptionsDocument(idictionaryNonGeneric);
@@ -141,7 +151,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestGroupByDocumentConstructor() {
+        public void TestGroupByDocumentConstructor()
+        {
             var document1 = new GroupByDocument(dictionary);
             var document2 = new GroupByDocument(hashtable);
             var document3 = new GroupByDocument(idictionaryNonGeneric);
@@ -154,7 +165,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestIndexKeysDocumentConstructor() {
+        public void TestIndexKeysDocumentConstructor()
+        {
             var document1 = new IndexKeysDocument(dictionary);
             var document2 = new IndexKeysDocument(hashtable);
             var document3 = new IndexKeysDocument(idictionaryNonGeneric);
@@ -167,7 +179,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestIndexOptionsDocumentConstructor() {
+        public void TestIndexOptionsDocumentConstructor()
+        {
             var document1 = new IndexOptionsDocument(dictionary);
             var document2 = new IndexOptionsDocument(hashtable);
             var document3 = new IndexOptionsDocument(idictionaryNonGeneric);
@@ -180,7 +193,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestMapReduceOptionsDocumentConstructor() {
+        public void TestMapReduceOptionsDocumentConstructor()
+        {
             var document1 = new MapReduceOptionsDocument(dictionary);
             var document2 = new MapReduceOptionsDocument(hashtable);
             var document3 = new MapReduceOptionsDocument(idictionaryNonGeneric);
@@ -193,7 +207,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestQueryDocumentConstructor() {
+        public void TestQueryDocumentConstructor()
+        {
             var document1 = new QueryDocument(dictionary);
             var document2 = new QueryDocument(hashtable);
             var document3 = new QueryDocument(idictionaryNonGeneric);
@@ -206,7 +221,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestScopeDocumentConstructor() {
+        public void TestScopeDocumentConstructor()
+        {
             var document1 = new ScopeDocument(dictionary);
             var document2 = new ScopeDocument(hashtable);
             var document3 = new ScopeDocument(idictionaryNonGeneric);
@@ -219,7 +235,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestSortByDocumentConstructor() {
+        public void TestSortByDocumentConstructor()
+        {
             var document1 = new SortByDocument(dictionary);
             var document2 = new SortByDocument(hashtable);
             var document3 = new SortByDocument(idictionaryNonGeneric);
@@ -232,7 +249,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290 {
         }
 
         [Test]
-        public void TestUpdateDocumentConstructor() {
+        public void TestUpdateDocumentConstructor()
+        {
             var document1 = new UpdateDocument(dictionary);
             var document2 = new UpdateDocument(hashtable);
             var document3 = new UpdateDocument(idictionaryNonGeneric);

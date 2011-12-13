@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoScope is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class ScopeWrapper : BaseWrapper, IMongoScope {
-        #region constructors
+    public class ScopeWrapper : BaseWrapper, IMongoScope
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the ScopeWrapper class.
         /// </summary>
         /// <param name="scope">The wrapped object.</param>
-        public ScopeWrapper(
-            object scope
-        )
-            : base(scope) {
+        public ScopeWrapper(object scope)
+            : base(scope)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the ScopeWrapper class.
         /// </summary>
         /// <param name="scope">The wrapped object.</param>
         /// <returns>A new instance of ScopeWrapper or null.</returns>
-        public static ScopeWrapper Create(
-            object scope
-        ) {
-            if (scope == null) {
+        public static ScopeWrapper Create(object scope)
+        {
+            if (scope == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new ScopeWrapper(scope);
             }
         }
-        #endregion
     }
 }

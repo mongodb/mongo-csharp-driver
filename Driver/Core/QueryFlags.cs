@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Flags used with queries (see the SetQueryFlags method of MongoCursor).
     /// </summary>
     [Flags]
-    public enum QueryFlags {
+    public enum QueryFlags
+    {
         /// <summary>
         /// No flags.
         /// </summary>

@@ -21,11 +21,14 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonBinaryDataTests {
+    public class BsonBinaryDataTests
+    {
         [Test]
-        public void TestGuidCSharpLegacy() {
+        public void TestGuidCSharpLegacy()
+        {
             var guid = new Guid("01020304-0506-0708-090a-0b0c0d0e0f10");
             var binaryData = new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy);
             var expected = new byte[] { 4, 3, 2, 1, 6, 5, 8, 7, 9, 10, 11, 12, 13, 14, 15, 16 };
@@ -37,7 +40,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestGuidPythonLegacy() {
+        public void TestGuidPythonLegacy()
+        {
             var guid = new Guid("01020304-0506-0708-090a-0b0c0d0e0f10");
             var binaryData = new BsonBinaryData(guid, GuidRepresentation.PythonLegacy);
             var expected = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
@@ -49,7 +53,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestGuidJavaLegacy() {
+        public void TestGuidJavaLegacy()
+        {
             var guid = new Guid("01020304-0506-0708-090a-0b0c0d0e0f10");
             var binaryData = new BsonBinaryData(guid, GuidRepresentation.JavaLegacy);
             var expected = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1, 16, 15, 14, 13, 12, 11, 10, 9 };

@@ -29,10 +29,13 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp355 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp355
+{
     [TestFixture]
-    public class CSharp355Tests {
-        public class C {
+    public class CSharp355Tests
+    {
+        public class C
+        {
             public ObjectId Id { get; set; }
             public Image I { get; set; }
             public Bitmap B { get; set; }
@@ -44,7 +47,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355 {
         private MongoCollection<C> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
             database = server["onlinetests"];
             collection = database.GetCollection<C>("test");
@@ -52,7 +56,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355 {
         }
 
         [Test]
-        public void TestBitmap() {
+        public void TestBitmap()
+        {
             var bitmap = new Bitmap(1, 2);
             var c = new C { I = bitmap, B = bitmap };
             collection.RemoveAll();
@@ -66,7 +71,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355 {
         }
 
         [Test]
-        public void TestImageNull() {
+        public void TestImageNull()
+        {
             var c = new C { I = null, B = null };
             collection.RemoveAll();
             collection.Insert(c);
@@ -77,10 +83,10 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355 {
             // Assert.IsNull(r.M);
         }
 
-        private byte[] GetBytes(
-            Bitmap bitmap
-        ) {
-            using (var stream = new MemoryStream()) {
+        private byte[] GetBytes(Bitmap bitmap)
+        {
+            using (var stream = new MemoryStream())
+            {
                 bitmap.Save(stream, ImageFormat.Bmp);
                 return stream.ToArray();
             }

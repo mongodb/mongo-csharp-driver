@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// An interface implemented by objects that convert themselves to a BsonDocument.
     /// </summary>
-    public interface IConvertibleToBsonDocument {
+    public interface IConvertibleToBsonDocument
+    {
         /// <summary>
         /// Converts this object to a BsonDocument.
         /// </summary>

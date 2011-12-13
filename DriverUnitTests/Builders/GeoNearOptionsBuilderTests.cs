@@ -23,11 +23,14 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverUnitTests.Builders {
+namespace MongoDB.DriverUnitTests.Builders
+{
     [TestFixture]
-    public class GeoNearOptionsBuilderTests {
+    public class GeoNearOptionsBuilderTests
+    {
         [Test]
-        public void TestSetAll() {
+        public void TestSetAll()
+        {
             var options = GeoNearOptions
                 .SetDistanceMultiplier(1.5)
                 .SetMaxDistance(2.5)
@@ -37,35 +40,40 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
-        public void TestSetDistanceMultiplier() {
+        public void TestSetDistanceMultiplier()
+        {
             var options = GeoNearOptions.SetDistanceMultiplier(1.5);
             var expected = "{ 'distanceMultiplier' : 1.5 }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetMaxDistance() {
+        public void TestSetMaxDistance()
+        {
             var options = GeoNearOptions.SetMaxDistance(1.5);
             var expected = "{ 'maxDistance' : 1.5 }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetSphericalFalse() {
+        public void TestSetSphericalFalse()
+        {
             var options = GeoNearOptions.SetSpherical(false);
             var expected = "{ }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetSphericalTrue() {
+        public void TestSetSphericalTrue()
+        {
             var options = GeoNearOptions.SetSpherical(true);
             var expected = "{ 'spherical' : true }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetSphericalTrueThenFalse() {
+        public void TestSetSphericalTrueThenFalse()
+        {
             var options = GeoNearOptions.SetSpherical(true);
             var expected = "{ 'spherical' : true }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());

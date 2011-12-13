@@ -24,19 +24,24 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp293Tests {
-        public class C {
+    public class CSharp293Tests
+    {
+        public class C
+        {
             public ObjectId Id;
             public int N;
         }
 
-        public class D : C {
+        public class D : C
+        {
             public new int N { get; set; }
         }
 
-        public class E {
+        public class E
+        {
             public ObjectId Id;
             [BsonElement("n")]
             public int N1;
@@ -45,13 +50,15 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestDuplicateElementInDerivedClass() {
+        public void TestDuplicateElementInDerivedClass()
+        {
             var message = "The property 'N' of class 'MongoDB.BsonUnitTests.Jira.D' cannot use element name 'N' because it already being used by field 'N' of class 'MongoDB.BsonUnitTests.Jira.C'.";
             Assert.Throws<BsonSerializationException>(() => BsonClassMap.LookupClassMap(typeof(D)), message);
         }
 
         [Test]
-        public void TestDuplicateElementInSameClass() {
+        public void TestDuplicateElementInSameClass()
+        {
             var message = "The property 'N2' of class 'MongoDB.BsonUnitTests.Jira.E' cannot use element name 'n' because it already being used by field 'N1'.";
             Assert.Throws<BsonSerializationException>(() => BsonClassMap.LookupClassMap(typeof(E)), message);
         }

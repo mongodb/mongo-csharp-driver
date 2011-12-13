@@ -26,18 +26,22 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDB.DriverOnlineTests.GridFS {
+namespace MongoDB.DriverOnlineTests.GridFS
+{
     [TestFixture]
-    public class MongoGridFSStreamTests {
+    public class MongoGridFSStreamTests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoGridFS gridFS;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
-            var settings = new MongoGridFSSettings {
+            var settings = new MongoGridFSSettings
+            {
                 ChunkSize = 16,
                 SafeMode = SafeMode.True
             };
@@ -45,7 +49,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestCreateZeroLengthFile() {
+        public void TestCreateZeroLengthFile()
+        {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
             gridFS.Chunks.ResetIndexCache();
@@ -53,7 +58,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var fileInfo = gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test")) {
+            using (var stream = gridFS.Create("test"))
+            {
                 Assert.IsTrue(stream.CanRead);
                 Assert.IsTrue(stream.CanSeek);
                 Assert.IsFalse(stream.CanTimeout);
@@ -79,7 +85,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestCreate1ByteFile() {
+        public void TestCreate1ByteFile()
+        {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
             gridFS.Chunks.ResetIndexCache();
@@ -87,7 +94,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var fileInfo = gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test")) {
+            using (var stream = gridFS.Create("test"))
+            {
                 stream.WriteByte(1);
             }
 
@@ -96,7 +104,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             Assert.AreEqual(1, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
 
-            using (var stream = gridFS.OpenRead("test")) {
+            using (var stream = gridFS.OpenRead("test"))
+            {
                 var b = stream.ReadByte();
                 Assert.AreEqual(1, b);
                 b = stream.ReadByte();
@@ -105,7 +114,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestCreate3ChunkFile() {
+        public void TestCreate3ChunkFile()
+        {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
             gridFS.Chunks.ResetIndexCache();
@@ -113,7 +123,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var fileInfo = gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test")) {
+            using (var stream = gridFS.Create("test"))
+            {
                 fileInfo = gridFS.FindOne("test");
                 var bytes = new byte[fileInfo.ChunkSize * 3];
                 stream.Write(bytes, 0, bytes.Length);
@@ -124,7 +135,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
 
-            using (var stream = gridFS.OpenRead("test")) {
+            using (var stream = gridFS.OpenRead("test"))
+            {
                 var bytes = new byte[fileInfo.ChunkSize * 3];
                 var bytesRead = stream.Read(bytes, 0, fileInfo.ChunkSize * 3);
                 Assert.AreEqual(bytesRead, fileInfo.ChunkSize * 3);
@@ -136,7 +148,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestCreate3ChunkFile1ByteAtATime() {
+        public void TestCreate3ChunkFile1ByteAtATime()
+        {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
             gridFS.Chunks.ResetIndexCache();
@@ -144,11 +157,13 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var fileInfo = gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test")) {
+            using (var stream = gridFS.Create("test"))
+            {
                 fileInfo = gridFS.FindOne("test");
 
-                for (int i = 0; i < fileInfo.ChunkSize * 3; i++) {
-                    stream.WriteByte((byte) i);
+                for (int i = 0; i < fileInfo.ChunkSize * 3; i++)
+                {
+                    stream.WriteByte((byte)i);
                 }
             }
 
@@ -157,10 +172,12 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
 
-            using (var stream = gridFS.OpenRead("test")) {
-                for (int i = 0; i < fileInfo.ChunkSize * 3; i++) {
+            using (var stream = gridFS.OpenRead("test"))
+            {
+                for (int i = 0; i < fileInfo.ChunkSize * 3; i++)
+                {
                     var b = stream.ReadByte();
-                    Assert.AreEqual((byte) i, b);
+                    Assert.AreEqual((byte)i, b);
                 }
                 var eof = stream.ReadByte();
                 Assert.AreEqual(-1, eof);
@@ -168,7 +185,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestCreate3ChunkFile14BytesAtATime() {
+        public void TestCreate3ChunkFile14BytesAtATime()
+        {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
             gridFS.Chunks.ResetIndexCache();
@@ -176,11 +194,13 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var fileInfo = gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test")) {
+            using (var stream = gridFS.Create("test"))
+            {
                 fileInfo = gridFS.FindOne("test");
 
                 var bytes = new byte[] { 1, 2, 3, 4 };
-                for (int i = 0; i < fileInfo.ChunkSize * 3; i += 4) {
+                for (int i = 0; i < fileInfo.ChunkSize * 3; i += 4)
+                {
                     stream.Write(bytes, 0, 4);
                 }
             }
@@ -190,10 +210,12 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
 
-            using (var stream = gridFS.OpenRead("test")) {
+            using (var stream = gridFS.OpenRead("test"))
+            {
                 var expected = new byte[] { 1, 2, 3, 4 };
                 var bytes = new byte[4];
-                for (int i = 0; i < fileInfo.ChunkSize * 3; i += 4) {
+                for (int i = 0; i < fileInfo.ChunkSize * 3; i += 4)
+                {
                     var bytesRead = stream.Read(bytes, 0, 4);
                     Assert.AreEqual(4, bytesRead);
                     Assert.IsTrue(expected.SequenceEqual(bytes));
@@ -204,15 +226,18 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestOpenCreateWithId() {
+        public void TestOpenCreateWithId()
+        {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
             gridFS.Chunks.ResetIndexCache();
 
-            var createOptions = new MongoGridFSCreateOptions {
+            var createOptions = new MongoGridFSCreateOptions
+            {
                 Id = 1
             };
-            using (var stream = gridFS.Create("test", createOptions)) {
+            using (var stream = gridFS.Create("test", createOptions))
+            {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
             }
@@ -222,16 +247,19 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestOpenCreateWithMetadata() {
+        public void TestOpenCreateWithMetadata()
+        {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
             gridFS.Chunks.ResetIndexCache();
 
             var metadata = new BsonDocument("author", "John Doe");
-            var createOptions = new MongoGridFSCreateOptions {
+            var createOptions = new MongoGridFSCreateOptions
+            {
                 Metadata = metadata
             };
-            using (var stream = gridFS.Create("test", createOptions)) {
+            using (var stream = gridFS.Create("test", createOptions))
+            {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
             }
@@ -241,7 +269,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestUpdateMD5() {
+        public void TestUpdateMD5()
+        {
             gridFS.Files.RemoveAll();
             gridFS.Chunks.RemoveAll();
             gridFS.Chunks.ResetIndexCache();
@@ -249,7 +278,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var fileInfo = gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test")) {
+            using (var stream = gridFS.Create("test"))
+            {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
                 stream.UpdateMD5 = false;
@@ -260,7 +290,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             Assert.AreEqual(4, fileInfo.Length);
             Assert.IsNull(fileInfo.MD5);
 
-            using (var stream = gridFS.Open("test", FileMode.Append, FileAccess.Write)) {
+            using (var stream = gridFS.Open("test", FileMode.Append, FileAccess.Write))
+            {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
             }

@@ -23,29 +23,30 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.Driver.Builders {
+namespace MongoDB.Driver.Builders
+{
     /// <summary>
     /// A builder for the options of the GeoHaystackSearch command.
     /// </summary>
-    public static class GeoHaystackSearchOptions {
-        #region public static properties
+    public static class GeoHaystackSearchOptions
+    {
+        // public static properties
         /// <summary>
         /// Gets a null value with a type of IMongoGeoHaystackSearchOptions.
         /// </summary>
-        public static IMongoGeoHaystackSearchOptions Null {
+        public static IMongoGeoHaystackSearchOptions Null
+        {
             get { return null; }
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Sets the maximum number of results to return.
         /// </summary>
         /// <param name="value">The maximum number of results to return.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static GeoHaystackSearchOptionsBuilder SetLimit(
-            int value
-        ) {
+        public static GeoHaystackSearchOptionsBuilder SetLimit(int value)
+        {
             return new GeoHaystackSearchOptionsBuilder().SetLimit(value);
         }
 
@@ -54,9 +55,8 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="value">The max distance.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static GeoHaystackSearchOptionsBuilder SetMaxDistance(
-            double value
-        ) {
+        public static GeoHaystackSearchOptionsBuilder SetMaxDistance(double value)
+        {
             return new GeoHaystackSearchOptionsBuilder().SetMaxDistance(value);
         }
 
@@ -66,42 +66,38 @@ namespace MongoDB.Driver.Builders {
         /// <param name="additionalFieldName">The name of the additional field.</param>
         /// <param name="value">The value fo the additional field.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static GeoHaystackSearchOptionsBuilder SetQuery(
-            string additionalFieldName,
-            BsonValue value
-        ) {
+        public static GeoHaystackSearchOptionsBuilder SetQuery(string additionalFieldName, BsonValue value)
+        {
             return new GeoHaystackSearchOptionsBuilder().SetQuery(additionalFieldName, value);
         }
-        #endregion
     }
 
     /// <summary>
     /// A builder for the options of the GeoHaystackSearch command.
     /// </summary>
     [Serializable]
-    public class GeoHaystackSearchOptionsBuilder : BuilderBase, IMongoGeoHaystackSearchOptions {
-        #region private fields
+    public class GeoHaystackSearchOptionsBuilder : BuilderBase, IMongoGeoHaystackSearchOptions
+    {
+        // private fields
         private BsonDocument document;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GeoHaystackSearchOptionsBuilder class.
         /// </summary>
-        public GeoHaystackSearchOptionsBuilder() {
+        public GeoHaystackSearchOptionsBuilder()
+        {
             document = new BsonDocument();
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Sets the maximum number of results to return.
         /// </summary>
         /// <param name="value">The maximum number of results to return.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public GeoHaystackSearchOptionsBuilder SetLimit(
-            int value
-        ) {
+        public GeoHaystackSearchOptionsBuilder SetLimit(int value)
+        {
             document["limit"] = value;
             return this;
         }
@@ -111,9 +107,8 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="value">The max distance.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public GeoHaystackSearchOptionsBuilder SetMaxDistance(
-            double value
-        ) {
+        public GeoHaystackSearchOptionsBuilder SetMaxDistance(double value)
+        {
             document["maxDistance"] = value;
             return this;
         }
@@ -124,10 +119,8 @@ namespace MongoDB.Driver.Builders {
         /// <param name="additionalFieldName">The name of the additional field.</param>
         /// <param name="value">The value fo the additional field.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public GeoHaystackSearchOptionsBuilder SetQuery(
-            string additionalFieldName,
-            BsonValue value
-        ) {
+        public GeoHaystackSearchOptionsBuilder SetQuery(string additionalFieldName, BsonValue value)
+        {
             document["search"] = new BsonDocument(additionalFieldName, value);
             return this;
         }
@@ -136,25 +129,21 @@ namespace MongoDB.Driver.Builders {
         /// Returns the result of the builder as a BsonDocument.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
-        public override BsonDocument ToBsonDocument() {
+        public override BsonDocument ToBsonDocument()
+        {
             return document;
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="options">The serialization options.</param>
-        protected override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             document.Serialize(bsonWriter, nominalType, options);
         }
-        #endregion
     }
 }

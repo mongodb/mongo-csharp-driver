@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoQuery is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class QueryWrapper : BaseWrapper, IMongoQuery {
-        #region constructors
+    public class QueryWrapper : BaseWrapper, IMongoQuery
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the QueryWrapper class.
         /// </summary>
         /// <param name="query">The wrapped object.</param>
-        public QueryWrapper(
-            object query
-        )
-            : base(query) {
+        public QueryWrapper(object query)
+            : base(query)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the QueryWrapper class.
         /// </summary>
         /// <param name="query">The wrapped object.</param>
         /// <returns>A new instance of QueryWrapper or null.</returns>
-        public static QueryWrapper Create(
-            object query
-        ) {
-            if (query == null) {
+        public static QueryWrapper Create(object query)
+        {
+            if (query == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new QueryWrapper(query);
             }
         }
-        #endregion
     }
 }

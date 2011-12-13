@@ -22,40 +22,44 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the result of a FindAndModify command.
     /// </summary>
     [Serializable]
-    public class FindAndModifyResult : CommandResult {
-        #region constructors
+    public class FindAndModifyResult : CommandResult
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the FindAndModifyResult class.
         /// </summary>
-        public FindAndModifyResult() {
+        public FindAndModifyResult()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the modified document.
         /// </summary>
-        public BsonDocument ModifiedDocument {
-            get {
+        public BsonDocument ModifiedDocument
+        {
+            get
+            {
                 var value = response["value"];
                 return (value.IsBsonNull) ? null : value.AsBsonDocument;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Gets the modified document as a TDocument.
         /// </summary>
         /// <typeparam name="TDocument">The nominal type of the modified document.</typeparam>
         /// <returns>The modified document.</returns>
-        public TDocument GetModifiedDocumentAs<TDocument>() {
-            return (TDocument) GetModifiedDocumentAs(typeof(TDocument));
+        public TDocument GetModifiedDocumentAs<TDocument>()
+        {
+            return (TDocument)GetModifiedDocumentAs(typeof(TDocument));
         }
 
         /// <summary>
@@ -63,12 +67,10 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="documentType">The nominal type of the modified document.</param>
         /// <returns>The modified document.</returns>
-        public object GetModifiedDocumentAs(
-            Type documentType
-        ) {
+        public object GetModifiedDocumentAs(Type documentType)
+        {
             var document = ModifiedDocument;
             return (document == null) ? null : BsonSerializer.Deserialize(document, documentType);
         }
-        #endregion
     }
 }

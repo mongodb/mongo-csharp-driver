@@ -23,74 +23,86 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverUnitTests.Builders {
+namespace MongoDB.DriverUnitTests.Builders
+{
     [TestFixture]
-    public class IndexOptionsBuilderTests {
+    public class IndexOptionsBuilderTests
+    {
         [Test]
-        public void TestBackground() {
+        public void TestBackground()
+        {
             var options = IndexOptions.SetBackground(true);
             string expected = "{ \"background\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestDropDups() {
+        public void TestDropDups()
+        {
             var options = IndexOptions.SetDropDups(true);
             string expected = "{ \"dropDups\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestGeoSpatialRange() {
+        public void TestGeoSpatialRange()
+        {
             var options = IndexOptions.SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"min\" : 1.1, \"max\" : 2.2 }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestName() {
+        public void TestName()
+        {
             var options = IndexOptions.SetName("custom");
             string expected = "{ \"name\" : \"custom\" }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSparse() {
+        public void TestSparse()
+        {
             var options = IndexOptions.SetSparse(true);
             string expected = "{ \"sparse\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestUnique() {
+        public void TestUnique()
+        {
             var options = IndexOptions.SetUnique(true);
             string expected = "{ \"unique\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestNameBackground() {
+        public void TestNameBackground()
+        {
             var options = IndexOptions.SetName("custom").SetBackground(true);
             string expected = "{ \"name\" : \"custom\", \"background\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestNameDropDups() {
+        public void TestNameDropDups()
+        {
             var options = IndexOptions.SetName("custom").SetDropDups(true);
             string expected = "{ \"name\" : \"custom\", \"dropDups\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestNameGeoSpatialRange() {
+        public void TestNameGeoSpatialRange()
+        {
             var options = IndexOptions.SetName("custom").SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"name\" : \"custom\", \"min\" : 1.1, \"max\" : 2.2 }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestNameUnique() {
+        public void TestNameUnique()
+        {
             var options = IndexOptions.SetName("custom").SetUnique(true);
             string expected = "{ \"name\" : \"custom\", \"unique\" : true }";
             Assert.AreEqual(expected, options.ToJson());

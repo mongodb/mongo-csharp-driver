@@ -24,29 +24,37 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class SerializeInterfaceTests {
-        private interface IX {
+    public class SerializeInterfaceTests
+    {
+        private interface IX
+        {
             string FX { get; set; }
         }
 
-        private class A : IX {
-            static A() {
+        private class A : IX
+        {
+            static A()
+            {
                 BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Instance);
             }
             public string FX { get; set; }
         }
 
-        private class B : IX {
-            static B() {
+        private class B : IX
+        {
+            static B()
+            {
                 BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Instance);
             }
             public string FX { get; set; }
         }
 
         [Test]
-        public void TestSerializeAasA() {
+        public void TestSerializeAasA()
+        {
             A a = new A { FX = "a" };
             var json = a.ToJson();
             var expected = ("{ 'FX' : 'a' }").Replace("'", "\""); // no discriminator
@@ -58,7 +66,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeAasIX() {
+        public void TestSerializeAasIX()
+        {
             IX a = new A { FX = "a" };
             var json = a.ToJson();
             var expected = ("{ '_t' : 'A', 'FX' : 'a' }").Replace("'", "\"");
@@ -70,7 +79,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeBasB() {
+        public void TestSerializeBasB()
+        {
             B b = new B { FX = "b" };
             var json = b.ToJson();
             var expected = ("{ 'FX' : 'b' }").Replace("'", "\""); // no discriminator
@@ -82,7 +92,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeBasIX() {
+        public void TestSerializeBasIX()
+        {
             IX b = new B { FX = "b" };
             var json = b.ToJson();
             var expected = ("{ '_t' : 'B', 'FX' : 'b' }").Replace("'", "\"");

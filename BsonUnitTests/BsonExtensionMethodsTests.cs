@@ -23,16 +23,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonExtensionMethodsTests {
-        private class C {
+    public class BsonExtensionMethodsTests
+    {
+        private class C
+        {
             public int N;
             public ObjectId Id; // deliberately not the first element
         }
 
         [Test]
-        public void TestToBsonEmptyDocument() {
+        public void TestToBsonEmptyDocument()
+        {
             var document = new BsonDocument();
             var bson = document.ToBson();
             var expected = new byte[] { 5, 0, 0, 0, 0 };
@@ -40,7 +44,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToBson() {
+        public void TestToBson()
+        {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var bson = c.ToBson();
             var expected = new byte[] { 29, 0, 0, 0, 16, 78, 0, 1, 0, 0, 0, 7, 95, 105, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -48,7 +53,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToBsonIdFirst() {
+        public void TestToBsonIdFirst()
+        {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var bson = c.ToBson(DocumentSerializationOptions.SerializeIdFirstInstance);
             var expected = new byte[] { 29, 0, 0, 0, 7, 95, 105, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 78, 0, 1, 0, 0, 0, 0 };
@@ -56,14 +62,16 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToBsonDocumentEmptyDocument() {
+        public void TestToBsonDocumentEmptyDocument()
+        {
             var empty = new BsonDocument();
             var document = empty.ToBsonDocument();
             Assert.AreEqual(0, document.ElementCount);
         }
 
         [Test]
-        public void TestToBsonDocument() {
+        public void TestToBsonDocument()
+        {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var document = c.ToBsonDocument();
             Assert.AreEqual(2, document.ElementCount);
@@ -76,7 +84,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToBsonDocumentIdFirst() {
+        public void TestToBsonDocumentIdFirst()
+        {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var document = c.ToBsonDocument(DocumentSerializationOptions.SerializeIdFirstInstance);
             Assert.AreEqual(2, document.ElementCount);
@@ -89,7 +98,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToJsonEmptyDocument() {
+        public void TestToJsonEmptyDocument()
+        {
             var document = new BsonDocument();
             var json = document.ToJson();
             var expected = "{ }";
@@ -97,7 +107,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToJson() {
+        public void TestToJson()
+        {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var json = c.ToJson();
             var expected = "{ 'N' : 1, '_id' : ObjectId('000000000000000000000000') }".Replace("'", "\"");
@@ -105,7 +116,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToJsonIdFirst() {
+        public void TestToJsonIdFirst()
+        {
             var c = new C { N = 1, Id = ObjectId.Empty };
             var json = c.ToJson(DocumentSerializationOptions.SerializeIdFirstInstance);
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'N' : 1 }".Replace("'", "\"");

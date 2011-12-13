@@ -26,23 +26,28 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp230 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp230
+{
     [TestFixture]
-    public class CSharp230Tests {
+    public class CSharp230Tests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database.GetCollection("testcollection");
         }
 
         [Test]
-        public void TestEnsureIndexAfterDropCollection() {
-            if (collection.Exists()) {
+        public void TestEnsureIndexAfterDropCollection()
+        {
+            if (collection.Exists())
+            {
                 collection.Drop();
             }
             server.ResetIndexCache();

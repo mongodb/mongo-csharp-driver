@@ -23,16 +23,19 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a BSON document that can be used where an IMongoCollectionOptions is expected.
     /// </summary>
-    public class CollectionOptionsDocument : BsonDocument, IMongoCollectionOptions {
-        #region constructors
+    public class CollectionOptionsDocument : BsonDocument, IMongoCollectionOptions
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the CollectionOptionsDocument class.
         /// </summary>
-        public CollectionOptionsDocument() {
+        public CollectionOptionsDocument()
+        {
         }
 
         /// <summary>
@@ -40,52 +43,27 @@ namespace MongoDB.Driver {
         /// (allowing duplicate element names is not recommended).
         /// </summary>
         /// <param name="allowDuplicateNames">Whether duplicate element names are allowed.</param>
-        public CollectionOptionsDocument(
-            bool allowDuplicateNames
-        )
-            : base(allowDuplicateNames) {
+        public CollectionOptionsDocument(bool allowDuplicateNames)
+            : base(allowDuplicateNames)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the CollectionOptionsDocument class and adds one element.
         /// </summary>
         /// <param name="element">An element to add to the document.</param>
-        public CollectionOptionsDocument(
-            BsonElement element
-        )
-            : base(element) {
+        public CollectionOptionsDocument(BsonElement element)
+            : base(element)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the CollectionOptionsDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public CollectionOptionsDocument(
-            Dictionary<string, object> dictionary
-        )
-            : base(dictionary) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the CollectionOptionsDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public CollectionOptionsDocument(
-            Dictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        )
-            : base(dictionary, keys) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the CollectionOptionsDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public CollectionOptionsDocument(
-            IDictionary<string, object> dictionary
-        )
-            : base(dictionary) {
+        public CollectionOptionsDocument(Dictionary<string, object> dictionary)
+            : base(dictionary)
+        {
         }
 
         /// <summary>
@@ -93,21 +71,18 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public CollectionOptionsDocument(
-            IDictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        )
-            : base(dictionary, keys) {
+        public CollectionOptionsDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
+            : base(dictionary, keys)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the CollectionOptionsDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public CollectionOptionsDocument(
-            IDictionary dictionary
-        )
-            : base(dictionary) {
+        public CollectionOptionsDocument(IDictionary<string, object> dictionary)
+            : base(dictionary)
+        {
         }
 
         /// <summary>
@@ -115,31 +90,46 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public CollectionOptionsDocument(
-            IDictionary dictionary,
-            IEnumerable keys
-        )
-            : base(dictionary, keys) {
+        public CollectionOptionsDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
+            : base(dictionary, keys)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the CollectionOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public CollectionOptionsDocument(IDictionary dictionary)
+            : base(dictionary)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the CollectionOptionsDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public CollectionOptionsDocument(IDictionary dictionary, IEnumerable keys)
+            : base(dictionary, keys)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the CollectionOptionsDocument class and adds new elements from a list of elements.
         /// </summary>
         /// <param name="elements">A list of elements to add to the document.</param>
-        public CollectionOptionsDocument(
-            IEnumerable<BsonElement> elements
-        )
-            : base(elements) {
+        public CollectionOptionsDocument(IEnumerable<BsonElement> elements)
+            : base(elements)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the CollectionOptionsDocument class and adds one or more elements.
         /// </summary>
         /// <param name="elements">One or more elements to add to the document.</param>
-        public CollectionOptionsDocument(
-            params BsonElement[] elements
-        )
-            : base(elements) {
+        public CollectionOptionsDocument(params BsonElement[] elements)
+            : base(elements)
+        {
         }
 
         /// <summary>
@@ -147,12 +137,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="name">The name of the element to add to the document.</param>
         /// <param name="value">The value of the element to add to the document.</param>
-        public CollectionOptionsDocument(
-            string name,
-            BsonValue value
-        )
-            : base(name, value) {
+        public CollectionOptionsDocument(string name, BsonValue value)
+            : base(name, value)
+        {
         }
-        #endregion
     }
 }

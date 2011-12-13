@@ -19,74 +19,70 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class BsonDocumentWriterContext {
-        #region private fields
+namespace MongoDB.Bson.IO
+{
+    internal class BsonDocumentWriterContext
+    {
+        // private fields
         private BsonDocumentWriterContext parentContext;
         private ContextType contextType;
         private BsonDocument document;
         private BsonArray array;
         private string code;
         private string name;
-        #endregion
 
-        #region constructors
-        internal BsonDocumentWriterContext(
-            BsonDocumentWriterContext parentContext,
-            ContextType contextType,
-            BsonDocument document
-        ) {
+        // constructors
+        internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, BsonDocument document)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.document = document;
         }
 
-        internal BsonDocumentWriterContext(
-            BsonDocumentWriterContext parentContext,
-            ContextType contextType,
-            BsonArray array
-        ) {
+        internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, BsonArray array)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.array = array;
         }
 
-        internal BsonDocumentWriterContext(
-            BsonDocumentWriterContext parentContext,
-            ContextType contextType,
-            string code
-        ) {
+        internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, string code)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.code = code;
         }
-        #endregion
 
-        #region internal properties
-        internal BsonDocumentWriterContext ParentContext {
+        // internal properties
+        internal BsonDocumentWriterContext ParentContext
+        {
             get { return parentContext; }
         }
 
-        internal string Name {
+        internal string Name
+        {
             get { return name; }
             set { name = value; }
         }
 
-        internal ContextType ContextType {
+        internal ContextType ContextType
+        {
             get { return contextType; }
         }
 
-        internal BsonDocument Document {
+        internal BsonDocument Document
+        {
             get { return document; }
         }
 
-        internal BsonArray Array {
+        internal BsonArray Array
+        {
             get { return array; }
         }
 
-        internal string Code {
+        internal string Code
+        {
             get { return code; }
         }
-        #endregion
     }
 }

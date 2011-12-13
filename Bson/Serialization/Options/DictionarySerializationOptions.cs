@@ -17,11 +17,13 @@ using System;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization.Options {
+namespace MongoDB.Bson.Serialization.Options
+{
     /// <summary>
     /// Represents the representation to use for dictionaries.
     /// </summary>
-    public enum DictionaryRepresentation {
+    public enum DictionaryRepresentation
+    {
         /// <summary>
         /// Represent the dictionary as a document if the keys are strings and valid element names, otherwise as an array of arrays.
         /// </summary>
@@ -43,57 +45,58 @@ namespace MongoDB.Bson.Serialization.Options {
     /// <summary>
     /// Represents serialization options for a Dictionary value.
     /// </summary>
-    public class DictionarySerializationOptions : IBsonSerializationOptions {
-        #region private static fields
+    public class DictionarySerializationOptions : IBsonSerializationOptions
+    {
+        // private static fields
         private static DictionarySerializationOptions defaults = new DictionarySerializationOptions();
         private static DictionarySerializationOptions dynamic = new DictionarySerializationOptions(DictionaryRepresentation.Dynamic);
         private static DictionarySerializationOptions document = new DictionarySerializationOptions(DictionaryRepresentation.Document);
         private static DictionarySerializationOptions arrayOfArrays = new DictionarySerializationOptions(DictionaryRepresentation.ArrayOfArrays);
         private static DictionarySerializationOptions arrayOfDocuments = new DictionarySerializationOptions(DictionaryRepresentation.ArrayOfDocuments);
-        #endregion
 
-        #region private fields
+        // private fields
         private DictionaryRepresentation representation = DictionaryRepresentation.Dynamic;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the DictionarySerializationOptions class.
         /// </summary>
-        public DictionarySerializationOptions() {
+        public DictionarySerializationOptions()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the DictionarySerializationOptions class.
         /// </summary>
         /// <param name="representation">The representation to use for a Dictionary.</param>
-        public DictionarySerializationOptions(
-            DictionaryRepresentation representation
-        ) {
+        public DictionarySerializationOptions(DictionaryRepresentation representation)
+        {
             this.representation = representation;
         }
 
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of DictionarySerializationOptions with Representation=ArrayOfArrays.
         /// </summary>
-        public static DictionarySerializationOptions ArrayOfArrays {
+        public static DictionarySerializationOptions ArrayOfArrays
+        {
             get { return arrayOfArrays; }
         }
 
         /// <summary>
         /// Gets an instance of DictionarySerializationOptions with Representation=ArrayOfDocuments.
         /// </summary>
-        public static DictionarySerializationOptions ArrayOfDocuments {
+        public static DictionarySerializationOptions ArrayOfDocuments
+        {
             get { return arrayOfDocuments; }
         }
 
         /// <summary>
         /// Gets or sets the default Dictionary serialization options.
         /// </summary>
-        public static DictionarySerializationOptions Defaults {
+        public static DictionarySerializationOptions Defaults
+        {
             get { return defaults; }
             set { defaults = value; }
         }
@@ -101,25 +104,26 @@ namespace MongoDB.Bson.Serialization.Options {
         /// <summary>
         /// Gets an instance of DictionarySerializationOptions with Representation=Document.
         /// </summary>
-        public static DictionarySerializationOptions Document {
+        public static DictionarySerializationOptions Document
+        {
             get { return document; }
         }
 
         /// <summary>
         /// Gets an instance of DictionarySerializationOptions with Representation=Dynamic.
         /// </summary>
-        public static DictionarySerializationOptions Dynamic {
+        public static DictionarySerializationOptions Dynamic
+        {
             get { return dynamic; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the representation to use for a Dictionary.
         /// </summary>
-        public DictionaryRepresentation Representation {
+        public DictionaryRepresentation Representation
+        {
             get { return representation; }
         }
-        #endregion
     }
 }

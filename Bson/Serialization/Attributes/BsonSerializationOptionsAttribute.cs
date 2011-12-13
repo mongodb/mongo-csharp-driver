@@ -20,26 +20,27 @@ using System.Text;
 
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the serialization options for this class (see derived attributes).
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public abstract class BsonSerializationOptionsAttribute : Attribute {
-        #region constructors
+    public abstract class BsonSerializationOptionsAttribute : Attribute
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonSerializationOptionsAttribute class.
         /// </summary>
-        protected  BsonSerializationOptionsAttribute() {
+        protected BsonSerializationOptionsAttribute()
+        {
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Gets the serialization options specified by this attribute.
         /// </summary>
         /// <returns>The serialization options.</returns>
         public abstract IBsonSerializationOptions GetOptions();
-        #endregion
     }
 }

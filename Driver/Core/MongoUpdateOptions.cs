@@ -20,36 +20,36 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the options to use for an Update operation.
     /// </summary>
-    public class MongoUpdateOptions {
-        #region private fields
+    public class MongoUpdateOptions
+    {
+        // private fields
         private bool checkElementNames;
         private UpdateFlags flags;
         private SafeMode safeMode;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoUpdateOptions class.
         /// </summary>
         /// <param name="collection">The collection from which to get default settings for the options.</param>
-        public MongoUpdateOptions(
-            MongoCollection collection
-        ) {
+        public MongoUpdateOptions(MongoCollection collection)
+        {
             this.checkElementNames = true;
             this.flags = UpdateFlags.None;
             this.safeMode = collection.Settings.SafeMode;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether to check element names before proceeding with the Update.
         /// </summary>
-        public bool CheckElementNames {
+        public bool CheckElementNames
+        {
             get { return checkElementNames; }
             set { checkElementNames = value; }
         }
@@ -57,7 +57,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the update flags.
         /// </summary>
-        public UpdateFlags Flags {
+        public UpdateFlags Flags
+        {
             get { return flags; }
             set { flags = value; }
         }
@@ -65,10 +66,10 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the SafeMode to use for the Update.
         /// </summary>
-        public SafeMode SafeMode {
+        public SafeMode SafeMode
+        {
             get { return safeMode; }
             set { safeMode = value; }
         }
-        #endregion
     }
 }

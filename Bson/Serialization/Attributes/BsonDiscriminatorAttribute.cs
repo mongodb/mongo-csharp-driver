@@ -18,48 +18,50 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the discriminator and related options for a class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonDiscriminatorAttribute : Attribute {
-        #region private fields
+    public class BsonDiscriminatorAttribute : Attribute
+    {
+        // private fields
         private string discriminator;
         private bool required;
         private bool rootClass;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDiscriminatorAttribute class.
         /// </summary>
-        public BsonDiscriminatorAttribute() {
+        public BsonDiscriminatorAttribute()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonDiscriminatorAttribute class.
         /// </summary>
         /// <param name="discriminator">The discriminator.</param>
-        public BsonDiscriminatorAttribute(
-            string discriminator
-        ) {
+        public BsonDiscriminatorAttribute(string discriminator)
+        {
             this.discriminator = discriminator;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the discriminator.
         /// </summary>
-        public string Discriminator {
+        public string Discriminator
+        {
             get { return discriminator; }
         }
 
         /// <summary>
         /// Gets or sets whether the discriminator is required.
         /// </summary>
-        public bool Required {
+        public bool Required
+        {
             get { return required; }
             set { required = value; }
         }
@@ -67,10 +69,10 @@ namespace MongoDB.Bson.Serialization.Attributes {
         /// <summary>
         /// Gets or sets whether this is a root class.
         /// </summary>
-        public bool RootClass {
+        public bool RootClass
+        {
             get { return rootClass; }
             set { rootClass = value; }
         }
-        #endregion
     }
 }

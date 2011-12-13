@@ -26,120 +26,145 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp231
+{
     [TestFixture]
-    public class CSharp231Tests {
-        public class ClassWithArrayId {
+    public class CSharp231Tests
+    {
+        public class ClassWithArrayId
+        {
             public int[] Id;
             public int X;
         }
 
-        public class ClassWithBooleanId {
+        public class ClassWithBooleanId
+        {
             public bool Id;
             public int X;
         }
 
-        public class ClassWithBsonArrayId {
+        public class ClassWithBsonArrayId
+        {
             public BsonArray Id;
             public int X;
         }
 
-        public class ClassWithBsonBinaryDataId {
+        public class ClassWithBsonBinaryDataId
+        {
             public BsonBinaryData Id;
             public int X;
         }
 
-        public class ClassWithBsonBooleanId {
+        public class ClassWithBsonBooleanId
+        {
             public BsonBoolean Id;
             public int X;
         }
 
-        public class ClassWithBsonDateTimeId {
+        public class ClassWithBsonDateTimeId
+        {
             public BsonDateTime Id;
             public int X;
         }
 
-        public class ClassWithBsonDocumentId {
+        public class ClassWithBsonDocumentId
+        {
             public BsonDocument Id;
             public int X;
         }
 
-        public class ClassWithBsonDoubleId {
+        public class ClassWithBsonDoubleId
+        {
             public BsonDouble Id;
             public int X;
         }
 
-        public class ClassWithBsonInt32Id {
+        public class ClassWithBsonInt32Id
+        {
             public BsonInt32 Id;
             public int X;
         }
 
-        public class ClassWithBsonInt64Id {
+        public class ClassWithBsonInt64Id
+        {
             public BsonInt64 Id;
             public int X;
         }
 
-        public class ClassWithBsonMaxKeyId {
+        public class ClassWithBsonMaxKeyId
+        {
             public BsonMaxKey Id;
             public int X;
         }
 
-        public class ClassWithBsonMinKeyId {
+        public class ClassWithBsonMinKeyId
+        {
             public BsonMinKey Id;
             public int X;
         }
 
-        public class ClassWithBsonNullId {
+        public class ClassWithBsonNullId
+        {
             public BsonNull Id;
             public int X;
         }
 
-        public class ClassWithBsonObjectId {
+        public class ClassWithBsonObjectId
+        {
             public BsonObjectId Id;
             public int X;
         }
 
-        public class ClassWithBsonStringId {
+        public class ClassWithBsonStringId
+        {
             public BsonString Id;
             public int X;
         }
 
-        public class ClassWithBsonTimestampId {
+        public class ClassWithBsonTimestampId
+        {
             public BsonTimestamp Id;
             public int X;
         }
 
-        public class ClassWithBsonValueId {
+        public class ClassWithBsonValueId
+        {
             public BsonValue Id;
             public int X;
         }
 
-        public class ClassWithDateTimeId {
+        public class ClassWithDateTimeId
+        {
             public DateTime Id;
             public int X;
         }
 
-        public class ClassWithDoubleId {
+        public class ClassWithDoubleId
+        {
             public double Id;
             public int X;
         }
 
-        public class ClassWithInt32Id {
+        public class ClassWithInt32Id
+        {
             public int Id;
             public int X;
         }
 
-        public class ClassWithInt64Id {
+        public class ClassWithInt64Id
+        {
             public long Id;
             public int X;
         }
 
-        public class ClassWithObjectId {
+        public class ClassWithObjectId
+        {
             public ObjectId Id;
             public int X;
         }
 
-        public class ClassWithStringId {
+        public class ClassWithStringId
+        {
             public string Id;
             public int X;
         }
@@ -149,14 +174,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database.GetCollection("testcollection");
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonArrayId() {
+        public void TestBsonDocumentWithBsonArrayId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", new BsonArray() }, { "X", 1 } };
@@ -167,7 +194,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonBinaryDataId() {
+        public void TestBsonDocumentWithBsonBinaryDataId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonBinaryData.Create(new byte[] { }) }, { "X", 1 } };
@@ -178,7 +206,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonBooleanId() {
+        public void TestBsonDocumentWithBsonBooleanId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonBoolean.Create(false) }, { "X", 1 } };
@@ -189,7 +218,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonDateTimeId() {
+        public void TestBsonDocumentWithBsonDateTimeId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonDateTime.Create(DateTime.MinValue) }, { "X", 1 } };
@@ -198,23 +228,25 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
             doc = new BsonDocument { { "_id", BsonDateTime.Create(DateTime.UtcNow) }, { "X", 1 } };
             collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id",BsonDateTime.Create( DateTime.MaxValue) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", BsonDateTime.Create(DateTime.MaxValue) }, { "X", 1 } };
             collection.Insert(doc);
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonDocumentId() {
+        public void TestBsonDocumentWithBsonDocumentId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", new BsonDocument() }, { "X", 1 } };
             collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id", new BsonDocument { { "A", 1 }, { "B", 2} } }, { "X", 3 } };
+            doc = new BsonDocument { { "_id", new BsonDocument { { "A", 1 }, { "B", 2 } } }, { "X", 3 } };
             collection.Insert(doc);
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonDoubleId() {
+        public void TestBsonDocumentWithBsonDoubleId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonDouble.Create(0.0) }, { "X", 1 } };
@@ -225,7 +257,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonInt32Id() {
+        public void TestBsonDocumentWithBsonInt32Id()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonInt32.Create(0) }, { "X", 1 } };
@@ -236,7 +269,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonInt64Id() {
+        public void TestBsonDocumentWithBsonInt64Id()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonInt64.Create(0) }, { "X", 1 } };
@@ -247,7 +281,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonMaxKeyId() {
+        public void TestBsonDocumentWithBsonMaxKeyId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonMaxKey.Value }, { "X", 1 } };
@@ -255,7 +290,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonMinKeyId() {
+        public void TestBsonDocumentWithBsonMinKeyId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonMinKey.Value }, { "X", 1 } };
@@ -263,7 +299,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonNullId() {
+        public void TestBsonDocumentWithBsonNullId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonNull.Value }, { "X", 1 } };
@@ -272,7 +309,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonObjectId() {
+        public void TestBsonDocumentWithBsonObjectId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonNull.Value }, { "X", 1 } };
@@ -288,10 +326,11 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonStringId() {
+        public void TestBsonDocumentWithBsonStringId()
+        {
             collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonString.Create("")}, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", BsonString.Create("") }, { "X", 1 } };
             collection.Insert(doc);
             Assert.AreEqual("", doc["_id"].AsString);
 
@@ -300,7 +339,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithBsonTimestampId() {
+        public void TestBsonDocumentWithBsonTimestampId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "_id", BsonTimestamp.Create(0, 0) }, { "X", 1 } };
@@ -312,7 +352,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestBsonDocumentWithNoId() {
+        public void TestBsonDocumentWithNoId()
+        {
             collection.RemoveAll();
 
             var doc = new BsonDocument { { "X", 1 } };
@@ -322,7 +363,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithArrayId() {
+        public void TestClassWithArrayId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithArrayId { Id = null, X = 1 };
@@ -336,7 +378,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBooleanId() {
+        public void TestClassWithBooleanId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBooleanId { Id = false, X = 1 };
@@ -347,7 +390,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonArrayId() {
+        public void TestClassWithBsonArrayId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonArrayId { Id = null, X = 1 };
@@ -361,7 +405,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClastWithBsonBinaryDataId() {
+        public void TestClastWithBsonBinaryDataId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonBinaryDataId { Id = null, X = 1 };
@@ -375,7 +420,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonBooleanId() {
+        public void TestClassWithBsonBooleanId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonBooleanId { Id = null, X = 1 };
@@ -389,7 +435,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonDocumentId() {
+        public void TestClassWithBsonDocumentId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonDocumentId { Id = null, X = 1 };
@@ -403,7 +450,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonDateTimeId() {
+        public void TestClassWithBsonDateTimeId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonDateTimeId { Id = null, X = 1 };
@@ -420,7 +468,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonDoubleId() {
+        public void TestClassWithBsonDoubleId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonDoubleId { Id = null, X = 1 };
@@ -434,7 +483,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonInt32Id() {
+        public void TestClassWithBsonInt32Id()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonInt32Id { Id = null, X = 1 };
@@ -448,7 +498,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonInt64Id() {
+        public void TestClassWithBsonInt64Id()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonInt64Id { Id = null, X = 1 };
@@ -462,7 +513,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonMaxKeyId() {
+        public void TestClassWithBsonMaxKeyId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonMaxKeyId { Id = null, X = 1 };
@@ -474,7 +526,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonMinKeyId() {
+        public void TestClassWithBsonMinKeyId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonMinKeyId { Id = null, X = 1 };
@@ -486,7 +539,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonNullId() {
+        public void TestClassWithBsonNullId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonNullId { Id = null, X = 1 };
@@ -499,7 +553,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonObjectId() {
+        public void TestClassWithBsonObjectId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonObjectId { Id = null, X = 1 };
@@ -516,7 +571,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonStringId() {
+        public void TestClassWithBsonStringId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonStringId { Id = null, X = 1 };
@@ -532,7 +588,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonTimestampId() {
+        public void TestClassWithBsonTimestampId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithBsonTimestampId { Id = null, X = 1 };
@@ -548,7 +605,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithBsonValueId() {
+        public void TestClassWithBsonValueId()
+        {
             // repeats all tee TestClassWithBsonXyzId tests using ClassWithBsonValueId
             {
                 // same as TestClassWithBonArrayId
@@ -751,7 +809,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithDateTimeId() {
+        public void TestClassWithDateTimeId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithDateTimeId { Id = DateTime.MinValue, X = 1 };
@@ -765,7 +824,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithDoubleId() {
+        public void TestClassWithDoubleId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithDoubleId { Id = 0.0, X = 1 };
@@ -776,7 +836,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithInt32Id() {
+        public void TestClassWithInt32Id()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithInt32Id { Id = 0, X = 1 };
@@ -787,7 +848,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithInt64Id() {
+        public void TestClassWithInt64Id()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithInt64Id { Id = 0, X = 1 };
@@ -798,7 +860,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithObjectId() {
+        public void TestClassWithObjectId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithObjectId { Id = ObjectId.Empty, X = 1 };
@@ -810,7 +873,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp231 {
         }
 
         [Test]
-        public void TestClassWithStringId() {
+        public void TestClassWithStringId()
+        {
             collection.RemoveAll();
 
             var doc = new ClassWithStringId { Id = null, X = 1 };

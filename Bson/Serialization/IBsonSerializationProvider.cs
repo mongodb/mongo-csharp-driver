@@ -17,11 +17,13 @@ using System;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization {
+namespace MongoDB.Bson.Serialization
+{
     /// <summary>
     /// An interface implemented by serialization providers.
     /// </summary>
-    public interface IBsonSerializationProvider {
+    public interface IBsonSerializationProvider
+    {
         /// <summary>
         /// Gets a serializer for a type.
         /// </summary>

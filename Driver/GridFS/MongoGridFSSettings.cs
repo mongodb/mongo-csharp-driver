@@ -18,39 +18,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver.GridFS {
+namespace MongoDB.Driver.GridFS
+{
     /// <summary>
     /// Represents setting for GridFS.
     /// </summary>
     [Serializable]
-    public class MongoGridFSSettings : IEquatable<MongoGridFSSettings> {
-        #region private static fields
+    public class MongoGridFSSettings : IEquatable<MongoGridFSSettings>
+    {
+        // private static fields
         private static MongoGridFSSettings defaults = new MongoGridFSSettings();
-        #endregion
 
-        #region private fields
+        // private fields
         private bool isFrozen;
         private string chunksCollectionName = "fs.chunks";
         private int chunkSize = 256 * 1024; // 256KiB
         private string filesCollectionName = "fs.files";
         private string root = "fs";
         private SafeMode safeMode = SafeMode.False;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoGridFSSettings class.
         /// </summary>
-        public MongoGridFSSettings() {
+        public MongoGridFSSettings()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the MongoGridFSSettings class.
         /// </summary>
         /// <param name="database">The database from which to inherit some of the settings.</param>
-        public MongoGridFSSettings(
-            MongoDatabase database
-        ) {
+        public MongoGridFSSettings(MongoDatabase database)
+        {
             this.chunkSize = MongoGridFSSettings.Defaults.ChunkSize;
             this.root = MongoGridFSSettings.Defaults.Root;
             this.SafeMode = database.Settings.SafeMode;
@@ -62,41 +62,40 @@ namespace MongoDB.Driver.GridFS {
         /// <param name="chunkSize">The chunk size.</param>
         /// <param name="root">The root collection name.</param>
         /// <param name="safeMode">The safe mode.</param>
-        public MongoGridFSSettings(
-            int chunkSize,
-            string root,
-            SafeMode safeMode
-        ) {
+        public MongoGridFSSettings(int chunkSize, string root, SafeMode safeMode)
+        {
             this.chunkSize = chunkSize;
             this.Root = root; // use property not field
             this.safeMode = safeMode;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default GridFS settings.
         /// </summary>
-        public static MongoGridFSSettings Defaults {
+        public static MongoGridFSSettings Defaults
+        {
             get { return defaults; }
             set { defaults = value; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the chunks collection name.
         /// </summary>
-        public string ChunksCollectionName {
+        public string ChunksCollectionName
+        {
             get { return chunksCollectionName; }
         }
 
         /// <summary>
         /// Gets or sets the chunk size.
         /// </summary>
-        public int ChunkSize {
+        public int ChunkSize
+        {
             get { return chunkSize; }
-            set {
+            set
+            {
                 if (isFrozen) { ThrowFrozen(); }
                 chunkSize = value;
             }
@@ -105,23 +104,27 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Gets the files collection name.
         /// </summary>
-        public string FilesCollectionName {
+        public string FilesCollectionName
+        {
             get { return filesCollectionName; }
         }
 
         /// <summary>
         /// Gets whether the settings are frozen.
         /// </summary>
-        public bool IsFrozen {
+        public bool IsFrozen
+        {
             get { return isFrozen; }
         }
 
         /// <summary>
         /// Gets or sets the root collection name (the files and chunks collection names are derived from the root).
         /// </summary>
-        public string Root {
+        public string Root
+        {
             get { return root; }
-            set {
+            set
+            {
                 if (isFrozen) { ThrowFrozen(); }
                 root = value;
                 filesCollectionName = value + ".files";
@@ -132,26 +135,25 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Gets or sets the safe mode.
         /// </summary>
-        public SafeMode SafeMode {
+        public SafeMode SafeMode
+        {
             get { return safeMode; }
-            set {
+            set
+            {
                 if (isFrozen) { ThrowFrozen(); }
                 safeMode = value;
             }
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Compares two MongoGridFSSettings.
         /// </summary>
         /// <param name="lhs">The first MongoGridFSSettings.</param>
         /// <param name="rhs">The other MongoGridFSSettings.</param>
         /// <returns>True if the two MongoGridFSSettings are not equal (or one is null and the other is not).</returns>
-        public static bool operator !=(
-            MongoGridFSSettings lhs,
-            MongoGridFSSettings rhs
-        ) {
+        public static bool operator !=(MongoGridFSSettings lhs, MongoGridFSSettings rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -161,25 +163,19 @@ namespace MongoDB.Driver.GridFS {
         /// <param name="lhs">The first MongoGridFSSettings.</param>
         /// <param name="rhs">The other MongoGridFSSettings.</param>
         /// <returns>True if the two MongoGridFSSettings are equal (or both null).</returns>
-        public static bool operator ==(
-            MongoGridFSSettings lhs,
-            MongoGridFSSettings rhs
-        ) {
+        public static bool operator ==(MongoGridFSSettings lhs, MongoGridFSSettings rhs)
+        {
             return object.Equals(lhs, rhs);
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public MongoGridFSSettings Clone() {
-            return new MongoGridFSSettings(
-                chunkSize,
-                root,
-                safeMode
-            );
+        public MongoGridFSSettings Clone()
+        {
+            return new MongoGridFSSettings(chunkSize, root, safeMode);
         }
 
         /// <summary>
@@ -187,13 +183,12 @@ namespace MongoDB.Driver.GridFS {
         /// </summary>
         /// <param name="rhs">The other MongoGridFSSettings.</param>
         /// <returns>True if the two settings are equal.</returns>
-        public bool Equals(
-            MongoGridFSSettings rhs
-        ) {
+        public bool Equals(MongoGridFSSettings rhs)
+        {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return 
+            return
                 this.chunkSize == rhs.chunkSize &&
-                this.root == rhs.root && 
+                this.root == rhs.root &&
                 this.safeMode == rhs.safeMode;
         }
 
@@ -202,7 +197,8 @@ namespace MongoDB.Driver.GridFS {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other objects is a MongoGridFSSettings and is equal to this one.</returns>
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             return Equals(obj as MongoGridFSSettings); // works even if obj is null or of a different type
         }
 
@@ -210,8 +206,10 @@ namespace MongoDB.Driver.GridFS {
         /// Freezes the settings.
         /// </summary>
         /// <returns>The frozen settings.</returns>
-        public MongoGridFSSettings Freeze() {
-            if (!isFrozen) {
+        public MongoGridFSSettings Freeze()
+        {
+            if (!isFrozen)
+            {
                 safeMode = safeMode.FrozenCopy();
                 isFrozen = true;
             }
@@ -222,10 +220,14 @@ namespace MongoDB.Driver.GridFS {
         /// Returns a frozen copy of the settings.
         /// </summary>
         /// <returns>A frozen copy of the settings.</returns>
-        public MongoGridFSSettings FrozenCopy() {
-            if (isFrozen) {
+        public MongoGridFSSettings FrozenCopy()
+        {
+            if (isFrozen)
+            {
                 return this;
-            } else {
+            }
+            else
+            {
                 return Clone().Freeze();
             }
         }
@@ -234,7 +236,8 @@ namespace MongoDB.Driver.GridFS {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + chunkSize.GetHashCode();
@@ -242,12 +245,11 @@ namespace MongoDB.Driver.GridFS {
             hash = 37 * hash + safeMode.GetHashCode();
             return hash;
         }
-        #endregion
 
-        #region private methods
-        private void ThrowFrozen() {
+        // private methods
+        private void ThrowFrozen()
+        {
             throw new InvalidOperationException("A MongoGridFSSettings object cannot be modified once it has been frozen.");
         }
-        #endregion
     }
 }

@@ -27,17 +27,21 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp358 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp358
+{
     [TestFixture]
-    public class CSharp358Tests {
+    public class CSharp358Tests
+    {
         [Test]
-        public void TestInsertUpdateAndSaveWithElementNameStartingWithDollarSign() {
+        public void TestInsertUpdateAndSaveWithElementNameStartingWithDollarSign()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
             var database = server["onlinetests"];
             var collection = database["test"];
             collection.Drop();
 
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", 1 },
                 { "v", new BsonDocument("$x", 1) } // server doesn't allow "$" at top level
             };

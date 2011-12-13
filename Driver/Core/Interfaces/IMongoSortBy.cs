@@ -18,10 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// A marker interface that represents a sort order (see SortByDocument and the SortBy builder).
     /// </summary>
-    public interface IMongoSortBy {
+    public interface IMongoSortBy
+    {
     }
 }

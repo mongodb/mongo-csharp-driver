@@ -27,11 +27,14 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp361 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp361
+{
     [TestFixture]
-    public class CSharp361Tests {
+    public class CSharp361Tests
+    {
         [Test]
-        public void TestInsertUpdateAndSaveWithElementNameStartingWithDollarSign() {
+        public void TestInsertUpdateAndSaveWithElementNameStartingWithDollarSign()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
             var database = server["onlinetests"];
             var collection = database["test"];

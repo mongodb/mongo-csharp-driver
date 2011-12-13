@@ -27,12 +27,16 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class BsonDefaultSerializerTests {
+    public class BsonDefaultSerializerTests
+    {
         [Test]
-        public void TestAnonymousClass() {
-            var obj = new {
+        public void TestAnonymousClass()
+        {
+            var obj = new
+            {
                 I = 1,
                 D = 1.1,
                 S = "Hello"
@@ -45,37 +49,31 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.Throws<InvalidOperationException>(() => BsonSerializer.Deserialize(bson, obj.GetType()));
         }
 
-        public class Employee {
-            private class DateOfBirthSerializer : BsonBaseSerializer {
-                public override object Deserialize(
-                    BsonReader bsonReader,
-                    Type nominalType,
-                    Type actualType,
-                    IBsonSerializationOptions options
-                ) {
+        public class Employee
+        {
+            private class DateOfBirthSerializer : BsonBaseSerializer
+            {
+                public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+                {
                     return XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
                 }
 
-                public override void Serialize(
-                    BsonWriter bsonWriter,
-                    Type nominalType,
-                    object value,
-                    IBsonSerializationOptions options
-                ) {
-                    var dateTime = (DateTime) value;
+                public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+                {
+                    var dateTime = (DateTime)value;
                     bsonWriter.WriteString(dateTime.ToString("yyyy-MM-dd"));
                 }
             }
 
-            static Employee() {
-                BsonClassMap.RegisterClassMap<Employee>(
-                    cm => {
-                        cm.MapIdProperty(e => e.EmployeeId);
-                        cm.MapProperty(e => e.FirstName).SetElementName("fn");
-                        cm.MapProperty(e => e.LastName).SetElementName("ln");
-                        cm.MapProperty(e => e.DateOfBirth).SetElementName("dob").SetSerializer(new DateOfBirthSerializer());
-                    }
-                );
+            static Employee()
+            {
+                BsonClassMap.RegisterClassMap<Employee>(cm =>
+                {
+                    cm.MapIdProperty(e => e.EmployeeId);
+                    cm.MapProperty(e => e.FirstName).SetElementName("fn");
+                    cm.MapProperty(e => e.LastName).SetElementName("ln");
+                    cm.MapProperty(e => e.DateOfBirth).SetElementName("dob").SetSerializer(new DateOfBirthSerializer());
+                });
             }
 
             public ObjectId EmployeeId { get; set; }
@@ -85,7 +83,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeEmployee() {
+        public void TestSerializeEmployee()
+        {
             var employee = new Employee { FirstName = "John", LastName = "Smith", DateOfBirth = new DateTime(2001, 2, 3) };
             var json = employee.ToJson();
 
@@ -94,13 +93,15 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        public class Account {
+        public class Account
+        {
             public DateTimeOffset Opened { get; set; }
             public decimal Balance { get; set; }
         }
 
         [Test]
-        public void TestSerializeAccount() {
+        public void TestSerializeAccount()
+        {
             var account = new Account { Opened = DateTimeOffset.Now, Balance = 12345.67M };
             var json = account.ToJson();
 
@@ -109,21 +110,26 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        public class Order {
+        public class Order
+        {
             public string Customer { get; set; }
             public OrderDetail[] OrderDetails { get; set; }
         }
 
-        public class OrderDetail {
+        public class OrderDetail
+        {
             public string Product { get; set; }
             public int Quantity { get; set; }
         }
 
         [Test]
-        public void TestSerializeOrder() {
-            var order = new Order {
+        public void TestSerializeOrder()
+        {
+            var order = new Order
+            {
                 Customer = "John",
-                OrderDetails = new[] {
+                OrderDetails = new[]
+                {
                     new OrderDetail { Product = "Pen", Quantity = 1 },
                     new OrderDetail { Product = "Ruler", Quantity = 2 }
                 }

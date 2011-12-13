@@ -18,9 +18,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver.Internal {
+namespace MongoDB.Driver.Internal
+{
     [Flags]
-    internal enum ResponseFlags {
+    internal enum ResponseFlags
+    {
         CursorNotFound = 1,
         QueryFailure = 2,
         AwaitCapable = 8

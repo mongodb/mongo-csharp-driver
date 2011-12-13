@@ -19,44 +19,44 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class BsonBinaryWriterContext {
-        #region private fields
+namespace MongoDB.Bson.IO
+{
+    internal class BsonBinaryWriterContext
+    {
+        // private fields
         private BsonBinaryWriterContext parentContext;
         private ContextType contextType;
         private int startPosition;
         private int index; // used when contextType is Array
-        #endregion
 
-        #region constructors
-        internal BsonBinaryWriterContext(
-            BsonBinaryWriterContext parentContext,
-            ContextType contextType,
-            int startPosition
-        ) {
+        // constructors
+        internal BsonBinaryWriterContext(BsonBinaryWriterContext parentContext, ContextType contextType, int startPosition)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.startPosition = startPosition;
         }
-        #endregion
 
-        #region internal properties
-        internal BsonBinaryWriterContext ParentContext {
+        // internal properties
+        internal BsonBinaryWriterContext ParentContext
+        {
             get { return parentContext; }
         }
 
-        internal ContextType ContextType {
+        internal ContextType ContextType
+        {
             get { return contextType; }
         }
 
-        internal int StartPosition {
+        internal int StartPosition
+        {
             get { return startPosition; }
         }
 
-        internal int Index {
+        internal int Index
+        {
             get { return index; }
             set { index = value; }
         }
-        #endregion
     }
 }

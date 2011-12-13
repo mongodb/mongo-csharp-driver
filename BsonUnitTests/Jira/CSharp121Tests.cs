@@ -26,16 +26,20 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp121 {
-    public class C {
+namespace MongoDB.BsonUnitTests.Jira.CSharp121
+{
+    public class C
+    {
         [BsonRepresentation(BsonType.String)]
         public Guid PhotoId { get; set; }
     }
 
     [TestFixture]
-    public class CSharp121Tests {
+    public class CSharp121Tests
+    {
         [Test]
-        public void TestGuidStringRepresentation() {
+        public void TestGuidStringRepresentation()
+        {
             var c = new C { PhotoId = Guid.Empty };
             var json = c.ToJson();
             var expected = "{ 'PhotoId' : #S }";

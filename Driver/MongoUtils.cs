@@ -19,20 +19,21 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Various static utility methods.
     /// </summary>
-    public static class MongoUtils {
-        #region public static methods
+    public static class MongoUtils
+    {
+        // public static methods
         /// <summary>
         /// Gets the MD5 hash of a string.
         /// </summary>
         /// <param name="text">The string to get the MD5 hash of.</param>
         /// <returns>The MD5 hash.</returns>
-        public static string Hash(
-            string text
-        ) {
+        public static string Hash(string text)
+        {
             var md5 = MD5.Create();
             var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
             var hash = BitConverter.ToString(bytes).Replace("-", "").ToLower();
@@ -44,11 +45,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="value">The string to camel case.</param>
         /// <returns>The camel cased string.</returns>
-        public static string ToCamelCase(
-            string value
-        ) {
+        public static string ToCamelCase(string value)
+        {
             return value.Substring(0, 1).ToLower() + value.Substring(1);
         }
-        #endregion
     }
 }

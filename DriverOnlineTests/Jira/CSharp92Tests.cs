@@ -25,17 +25,21 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp92 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp92
+{
     [TestFixture]
-    public class CSharp92Tests {
-        private class C {
+    public class CSharp92Tests
+    {
+        private class C
+        {
             [BsonId]
             public int Id { get; set; }
             public string P { get; set; }
         }
 
         [Test]
-        public void TestSaveDocument() {
+        public void TestSaveDocument()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection("csharp92");
@@ -51,7 +55,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp92 {
         }
 
         [Test]
-        public void TestSaveClass() {
+        public void TestSaveClass()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection<C>("csharp92");

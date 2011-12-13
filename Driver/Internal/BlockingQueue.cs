@@ -19,41 +19,46 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Internal {
+namespace MongoDB.Driver.Internal
+{
     /// <summary>
     /// Represents a thread-safe queue.
     /// </summary>
     /// <typeparam name="T">The type of elements.</typeparam>
-    internal class BlockingQueue<T> {
-        #region private fields
+    internal class BlockingQueue<T>
+    {
+        // private fields
         private object syncRoot = new object();
         private Queue<T> queue = new Queue<T>();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BlockingQueue class.
         /// </summary>
-        internal BlockingQueue() {
+        internal BlockingQueue()
+        {
         }
-        #endregion
 
-        #region internal methods
+        // internal methods
         /// <summary>
         /// Dequeues one item from the queue. Will block waiting for an item if the queue is empty.
         /// </summary>
         /// <param name="timeout">The timeout for waiting for an item to appear in the queue.</param>
         /// <returns>The first item in the queue (null if it timed out).</returns>
-        internal T Dequeue(
-            TimeSpan timeout
-        ) {
-            lock (syncRoot) {
+        internal T Dequeue(TimeSpan timeout)
+        {
+            lock (syncRoot)
+            {
                 var timeoutAt = DateTime.UtcNow + timeout;
-                while (queue.Count == 0) {
+                while (queue.Count == 0)
+                {
                     var timeRemaining = timeoutAt - DateTime.UtcNow;
-                    if (timeRemaining > TimeSpan.Zero) {
+                    if (timeRemaining > TimeSpan.Zero)
+                    {
                         Monitor.Wait(syncRoot, timeRemaining);
-                    } else {
+                    }
+                    else
+                    {
                         return default(T);
                     }
                 }
@@ -65,14 +70,13 @@ namespace MongoDB.Driver.Internal {
         /// Enqueues an item on to the queue.
         /// </summary>
         /// <param name="item">The item to be queued.</param>
-        internal void Enqueue(
-            T item
-        ) {
-            lock (syncRoot) {
+        internal void Enqueue(T item)
+        {
+            lock (syncRoot)
+            {
                 queue.Enqueue(item);
                 Monitor.Pulse(syncRoot);
             }
         }
-        #endregion
     }
 }

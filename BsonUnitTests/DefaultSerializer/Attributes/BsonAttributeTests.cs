@@ -24,21 +24,24 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 
-namespace MongoDB.BsonUnitTests.Serialization.Attributes {
+namespace MongoDB.BsonUnitTests.Serialization.Attributes
+{
     [TestFixture]
-    public class BsonAttributeTests {
-        [BsonDiscriminator("discriminator", Required=true)]
+    public class BsonAttributeTests
+    {
+        [BsonDiscriminator("discriminator", Required = true)]
         [BsonIgnoreExtraElements(false)]
-        public class Test {
+        public class Test
+        {
             [BsonDefaultValue("default1")]
             public string SerializedDefaultValue1 { get; set; }
-            [BsonDefaultValue("default2", SerializeDefaultValue=true)]
+            [BsonDefaultValue("default2", SerializeDefaultValue = true)]
             public string SerializedDefaultValue2 { get; set; }
-            [BsonDefaultValue("default3", SerializeDefaultValue=false)]
+            [BsonDefaultValue("default3", SerializeDefaultValue = false)]
             public string NotSerializedDefaultValue { get; set; }
             public string NoDefaultValue { get; set; }
 
-            [BsonId(IdGenerator=typeof(ObjectIdGenerator))]
+            [BsonId(IdGenerator = typeof(ObjectIdGenerator))]
             public ObjectId IsId { get; set; }
             public ObjectId IsNotId { get; set; }
 
@@ -56,26 +59,29 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
 
             [BsonElement("notordered")]
             public string NotOrdered { get; set; }
-            [BsonElement("ordered", Order=1)]
+            [BsonElement("ordered", Order = 1)]
             public string Ordered { get; set; }
             public string NoElement { get; set; }
         }
 
         [Test]
-        public void TestDiscriminator() {
+        public void TestDiscriminator()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.AreEqual("discriminator", classMap.Discriminator);
             Assert.AreEqual(true, classMap.DiscriminatorIsRequired);
         }
 
         [Test]
-        public void TestIgnoreExtraElements() {
+        public void TestIgnoreExtraElements()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.AreEqual(false, classMap.IgnoreExtraElements);
         }
 
         [Test]
-        public void TestDefaultValue() {
+        public void TestDefaultValue()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var serializedDefaultValue1 = classMap.GetMemberMap("SerializedDefaultValue1");
@@ -100,7 +106,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestId() {
+        public void TestId()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var isId = classMap.GetMemberMap("IsId");
@@ -113,7 +120,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestIgnored() {
+        public void TestIgnored()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var ignored = classMap.GetMemberMap("Ignored");
@@ -124,7 +132,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestIgnoredIfNull() {
+        public void TestIgnoredIfNull()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var ignoredIfNull = classMap.GetMemberMap("IgnoredIfNull");
@@ -135,7 +144,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestRequired() {
+        public void TestRequired()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var required = classMap.GetMemberMap("Required");
@@ -146,7 +156,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestElement() {
+        public void TestElement()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var notOrdered = classMap.GetMemberMap("NotOrdered");

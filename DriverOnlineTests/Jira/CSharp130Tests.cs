@@ -26,11 +26,14 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp130 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp130
+{
     [TestFixture]
-    public class CSharp130Tests {
+    public class CSharp130Tests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public ObjectId Id;
             public IList<int> List;
         }
@@ -41,15 +44,18 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp130 {
         private MongoCollection collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost"); // not safe=true
             database = server["onlinetests"];
             collection = database.GetCollection<C>("csharp130");
         }
 
         [Test]
-        public void TestLastErrorMessage() {
-            using (server.RequestStart(database)) {
+        public void TestLastErrorMessage()
+        {
+            using (server.RequestStart(database))
+            {
                 var c = new C { List = new List<int>() };
 
                 // insert it once

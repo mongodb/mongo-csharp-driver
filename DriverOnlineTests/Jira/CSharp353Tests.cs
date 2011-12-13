@@ -27,22 +27,26 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp353 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp353
+{
     [TestFixture]
-    public class CSharp353Tests {
+    public class CSharp353Tests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
             database = server["onlinetests"];
             collection = database["test"];
         }
 
         [Test]
-        public void TestDropDatabaseClearsIndexCache() {
+        public void TestDropDatabaseClearsIndexCache()
+        {
             server.IndexCache.Reset();
             collection.EnsureIndex("x");
             Assert.IsTrue(server.IndexCache.Contains(collection, "x_1"));

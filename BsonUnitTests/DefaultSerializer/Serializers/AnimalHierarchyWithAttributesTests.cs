@@ -26,33 +26,42 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class AnimalHierarchyWithAttributesTests {
+    public class AnimalHierarchyWithAttributesTests
+    {
         [BsonDiscriminator(RootClass = true)]
         [BsonKnownTypes(typeof(Bear), typeof(Cat))]
-        public abstract class Animal {
+        public abstract class Animal
+        {
             public ObjectId Id { get; set; }
             public int Age { get; set; }
             public string Name { get; set; }
         }
 
-        public class Bear : Animal {
+        public class Bear : Animal
+        {
         }
 
         [BsonKnownTypes(typeof(Tiger), typeof(Lion))]
-        public abstract class Cat : Animal {
+        public abstract class Cat : Animal
+        {
         }
 
-        public class Tiger : Cat {
+        public class Tiger : Cat
+        {
         }
 
-        public class Lion : Cat {
+        public class Lion : Cat
+        {
         }
 
         [Test]
-        public void TestDeserializeBear() {
-            var document = new BsonDocument {
+        public void TestDeserializeBear()
+        {
+            var document = new BsonDocument
+            {
                 { "_id", ObjectId.Empty },
                 { "_t", new BsonArray { "Animal", "Bear" } },
                 { "Age", 123 },
@@ -60,7 +69,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
 
             var bson = document.ToBson();
-            var rehydrated = (Bear) BsonSerializer.Deserialize<Animal>(bson);
+            var rehydrated = (Bear)BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Bear>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance);
@@ -70,8 +79,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeTiger() {
-            var document = new BsonDocument {
+        public void TestDeserializeTiger()
+        {
+            var document = new BsonDocument
+            {
                 { "_id", ObjectId.Empty },
                 { "_t", new BsonArray { "Animal", "Cat", "Tiger" } },
                 { "Age", 234 },
@@ -79,7 +90,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
 
             var bson = document.ToBson();
-            var rehydrated = (Tiger) BsonSerializer.Deserialize<Animal>(bson);
+            var rehydrated = (Tiger)BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Tiger>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance);
@@ -89,8 +100,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeLion() {
-            var document = new BsonDocument {
+        public void TestDeserializeLion()
+        {
+            var document = new BsonDocument
+            {
                 { "_id", ObjectId.Empty },
                 { "_t", new BsonArray { "Animal", "Cat", "Lion" } },
                 { "Age", 234 },
@@ -98,7 +111,7 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
 
             var bson = document.ToBson();
-            var rehydrated = (Lion) BsonSerializer.Deserialize<Animal>(bson);
+            var rehydrated = (Lion)BsonSerializer.Deserialize<Animal>(bson);
             Assert.IsInstanceOf<Lion>(rehydrated);
 
             var json = rehydrated.ToJson<Animal>(DocumentSerializationOptions.SerializeIdFirstInstance);

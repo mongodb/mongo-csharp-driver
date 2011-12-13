@@ -18,10 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// A marker interface that represents a command (see CommandDocument).
     /// </summary>
-    public interface IMongoCommand : IMongoQuery {
+    public interface IMongoCommand : IMongoQuery
+    {
     }
 }

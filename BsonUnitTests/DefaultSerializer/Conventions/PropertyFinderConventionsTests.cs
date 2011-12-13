@@ -23,10 +23,13 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 
-namespace MongoDB.BsonUnitTests.Serialization.Conventions {
+namespace MongoDB.BsonUnitTests.Serialization.Conventions
+{
     [TestFixture]
-    public class PropertyFinderConventionsTests {
-        private class TestClass {
+    public class PropertyFinderConventionsTests
+    {
+        private class TestClass
+        {
             public string Public { get; set; }
             public string PrivateWrite { get; private set; }
             public string PrivateRead { private get; set; }
@@ -34,7 +37,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions {
         }
 
         [Test]
-        public void TestPublicPropertyFinderConvention() {
+        public void TestPublicPropertyFinderConvention()
+        {
             var convention = new PublicMemberFinderConvention();
 
             var properties = convention.FindMembers(typeof(TestClass)).ToList();

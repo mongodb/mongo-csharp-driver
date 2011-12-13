@@ -18,61 +18,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a bookmark that can be used to return a reader to the current position and state.
     /// </summary>
-    public class JsonReaderBookmark : BsonReaderBookmark {
-        #region private fields
+    public class JsonReaderBookmark : BsonReaderBookmark
+    {
+        // private fields
         private JsonReaderContext context;
         private JsonToken currentToken;
         private BsonValue currentValue;
         private JsonToken pushedToken;
         private int position;
-        #endregion
 
-        #region constructors
-        internal JsonReaderBookmark(
-            BsonReaderState state,
-            BsonType currentBsonType,
-            string currentName,
-            JsonReaderContext context,
-            JsonToken currentToken,
-            BsonValue currentValue,
-            JsonToken pushedToken,
-            int position
-        )
-            : base(state, currentBsonType, currentName) {
+        // constructors
+        internal JsonReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName, JsonReaderContext context, JsonToken currentToken, BsonValue currentValue, JsonToken pushedToken, int position)
+            : base(state, currentBsonType, currentName)
+        {
             this.context = context.Clone();
             this.currentToken = currentToken;
             this.currentValue = currentValue;
             this.pushedToken = pushedToken;
             this.position = position;
         }
-        #endregion
 
-        #region internal properties
-        internal JsonToken CurrentToken {
+        // internal properties
+        internal JsonToken CurrentToken
+        {
             get { return currentToken; }
         }
 
-        internal BsonValue CurrentValue {
+        internal BsonValue CurrentValue
+        {
             get { return currentValue; }
         }
 
-        internal int Position {
+        internal int Position
+        {
             get { return position; }
         }
 
-        internal JsonToken PushedToken {
+        internal JsonToken PushedToken
+        {
             get { return pushedToken; }
         }
-        #endregion
 
-        #region internal methods
-        internal JsonReaderContext CloneContext() {
+        // internal methods
+        internal JsonReaderContext CloneContext()
+        {
             return context.Clone();
         }
-        #endregion
     }
 }

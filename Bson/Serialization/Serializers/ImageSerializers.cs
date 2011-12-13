@@ -25,33 +25,34 @@ using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.Serialization.Serializers {
+namespace MongoDB.Bson.Serialization.Serializers
+{
     /// <summary>
     /// Represents a serializer for Images.
     /// </summary>
-    public class ImageSerializer : BsonBaseSerializer {
-        #region private static fields
+    public class ImageSerializer : BsonBaseSerializer
+    {
+        // private static fields
         private static ImageSerializer instance = new ImageSerializer();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the ImageSerializer class.
         /// </summary>
-        public ImageSerializer() {
+        public ImageSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the ImageSerializer class.
         /// </summary>
-        public static ImageSerializer Instance {
+        public static ImageSerializer Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an Image from a BsonReader.
         /// </summary>
@@ -59,19 +60,18 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="nominalType">The nominal type of the Image.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An Image.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
-            if (nominalType != typeof(Image)) {
+        public override object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        {
+            if (nominalType != typeof(Image))
+            {
                 var message = string.Format("Nominal type must be Image, not {0}.", nominalType.FullName);
                 throw new ArgumentException(message, "nominalType");
             }
 
             var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(Image));
             var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(Image));
-            if (actualType == typeof(Image)) {
+            if (actualType == typeof(Image))
+            {
                 var message = string.Format("Unable to determine actual type of Image to deserialize.");
                 throw new FileFormatException(message);
             }
@@ -88,26 +88,27 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="actualType">The actual type of the Image.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An Image.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options
-        ) {
-            if (nominalType != typeof(Image)) {
+        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        {
+            if (nominalType != typeof(Image))
+            {
                 var message = string.Format("Nominal type must be Image, not {0}.", nominalType.FullName);
                 throw new ArgumentException(message, "nominalType");
             }
 
-            if (actualType != typeof(Image)) {
+            if (actualType != typeof(Image))
+            {
                 var message = string.Format("Actual type must be Image, not {0}.", actualType.FullName);
                 throw new ArgumentException(message, "actualType");
             }
 
-            if (bsonReader.CurrentBsonType == BsonType.Null) {
+            if (bsonReader.CurrentBsonType == BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else {
+            }
+            else
+            {
                 var message = string.Format("BsonType must be Null, not {0}.", bsonReader.CurrentBsonType);
                 throw new FileFormatException(message);
             }
@@ -120,59 +121,58 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The Image.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options
-        ) {
-            if (nominalType != typeof(Image)) {
+        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        {
+            if (nominalType != typeof(Image))
+            {
                 var message = string.Format("Nominal type must be Image, not {0}.", nominalType.FullName);
                 throw new ArgumentException(message, "nominalType");
             }
 
-            if (value == null) {
+            if (value == null)
+            {
                 bsonWriter.WriteNull();
-            } else {
+            }
+            else
+            {
                 var message = string.Format("Value must be null.");
                 throw new ArgumentException(message, "value");
             }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a serializer for Bitmaps.
     /// </summary>
-    public class BitmapSerializer : BsonBaseSerializer {
-        #region private static fields
+    public class BitmapSerializer : BsonBaseSerializer
+    {
+        // private static fields
         private static BitmapSerializer instance = new BitmapSerializer();
-        #endregion
 
-        #region static constructor
-        static BitmapSerializer() {
+        // static constructor
+        static BitmapSerializer()
+        {
             BsonDefaultSerializer.RegisterDiscriminator(typeof(Bitmap), "Bitmap");
         }
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BitmapSerializer class.
         /// </summary>
-        public BitmapSerializer() {
+        public BitmapSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the BitmapSerializer class.
         /// </summary>
-        public static BitmapSerializer Instance {
+        public static BitmapSerializer Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an Bitmap from a BsonReader.
         /// </summary>
@@ -181,18 +181,16 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="actualType">The actual type of the Bitmap.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A Bitmap.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options
-        ) {
-            if (nominalType != typeof(Image) && nominalType != typeof(Bitmap)) {
+        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        {
+            if (nominalType != typeof(Image) && nominalType != typeof(Bitmap))
+            {
                 var message = string.Format("Nominal type must be Image or Bitmap, not {0}.", nominalType.FullName);
                 throw new ArgumentException(message, "nominalType");
             }
 
-            if (actualType != typeof(Bitmap)) {
+            if (actualType != typeof(Bitmap))
+            {
                 var message = string.Format("Actual type must be Bitmap, not {0}.", actualType.FullName);
                 throw new ArgumentException(message, "actualType");
             }
@@ -200,7 +198,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
             var bsonType = bsonReader.CurrentBsonType;
             byte[] bytes;
             BsonBinarySubType subType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
@@ -221,7 +220,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new FileFormatException(message);
             }
 
-            if (subType != BsonBinarySubType.Binary) {
+            if (subType != BsonBinarySubType.Binary)
+            {
                 var message = string.Format("Binary sub type must be Binary, not {0}.", subType);
                 throw new FileFormatException(message);
             }
@@ -237,41 +237,44 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The Bitmap.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options
-        ) {
-            if (nominalType != typeof(Image) && nominalType != typeof(Bitmap)) {
+        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        {
+            if (nominalType != typeof(Image) && nominalType != typeof(Bitmap))
+            {
                 var message = string.Format("Nominal type must be Image or Bitmap, not {0}.", nominalType.FullName);
                 throw new ArgumentException(message, "nominalType");
             }
 
-            if (value == null) {
+            if (value == null)
+            {
                 bsonWriter.WriteNull();
-            } else {
+            }
+            else
+            {
                 var actualType = value.GetType();
-                if (actualType != typeof(Bitmap)) {
+                if (actualType != typeof(Bitmap))
+                {
                     var message = string.Format("Actual type must be Bitmap, not {0}.", actualType.FullName);
                     throw new ArgumentException(message, "actualType");
                 }
 
-                var bitmap = (Bitmap) value;
+                var bitmap = (Bitmap)value;
                 var stream = new MemoryStream();
                 bitmap.Save(stream, ImageFormat.Bmp);
                 var bytes = stream.ToArray();
 
-                if (nominalType == typeof(Image)) {
+                if (nominalType == typeof(Image))
+                {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteString("_t", "Bitmap");
                     bsonWriter.WriteBinaryData("bitmap", bytes, BsonBinarySubType.Binary);
                     bsonWriter.WriteEndDocument();
-                } else {
+                }
+                else
+                {
                     bsonWriter.WriteBinaryData(bytes, BsonBinarySubType.Binary);
                 }
             }
         }
-        #endregion
     }
 }

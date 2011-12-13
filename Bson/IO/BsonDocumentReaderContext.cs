@@ -19,106 +19,101 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class BsonDocumentReaderContext {
-        #region private fields
+namespace MongoDB.Bson.IO
+{
+    internal class BsonDocumentReaderContext
+    {
+        // private fields
         private BsonDocumentReaderContext parentContext;
         private ContextType contextType;
         private BsonDocument document;
         private BsonArray array;
         private int index;
-        #endregion
 
-        #region constructors
-        internal BsonDocumentReaderContext(
-            BsonDocumentReaderContext parentContext,
-            ContextType contextType,
-            BsonArray array
-        ) {
+        // constructors
+        internal BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonArray array)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.array = array;
         }
 
-        internal BsonDocumentReaderContext(
-            BsonDocumentReaderContext parentContext,
-            ContextType contextType,
-            BsonDocument document
-        ) {
+        internal BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonDocument document)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.document = document;
         }
 
         // used by Clone
-        private BsonDocumentReaderContext(
-            BsonDocumentReaderContext parentContext,
-            ContextType contextType,
-            BsonDocument document,
-            BsonArray array,
-            int index
-        ) {
+        private BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonDocument document, BsonArray array, int index)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.document = document;
             this.array = array;
             this.index = index;
         }
-        #endregion
 
-        #region internal properties
-        internal BsonArray Array {
+        // internal properties
+        internal BsonArray Array
+        {
             get { return array; }
         }
 
-        internal ContextType ContextType {
+        internal ContextType ContextType
+        {
             get { return contextType; }
         }
 
-        internal BsonDocument Document {
+        internal BsonDocument Document
+        {
             get { return document; }
         }
 
-        internal int Index {
+        internal int Index
+        {
             get { return index; }
             set { index = value; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the context.
         /// </summary>
         /// <returns>A clone of the context.</returns>
-        public BsonDocumentReaderContext Clone() {
-            return new BsonDocumentReaderContext(
-                parentContext,
-                contextType,
-                document,
-                array,
-                index
-            );
+        public BsonDocumentReaderContext Clone()
+        {
+            return new BsonDocumentReaderContext(parentContext, contextType, document, array, index);
         }
 
-        public BsonElement GetNextElement() {
-            if (index < document.ElementCount) {
+        public BsonElement GetNextElement()
+        {
+            if (index < document.ElementCount)
+            {
                 return document.GetElement(index++);
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
 
-        public BsonValue GetNextValue() {
-            if (index < array.Count) {
+        public BsonValue GetNextValue()
+        {
+            if (index < array.Count)
+            {
                 return array[index++];
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
 
-        public BsonDocumentReaderContext PopContext() {
+        public BsonDocumentReaderContext PopContext()
+        {
             return parentContext;
         }
-        #endregion
     }
 }

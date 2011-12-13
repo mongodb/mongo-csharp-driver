@@ -29,11 +29,14 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
+namespace MongoDB.BsonUnitTests.Jira.CSharp261
+{
     [TestFixture]
-    public class CSharp261Tests {
+    public class CSharp261Tests
+    {
         [Test]
-        public void TestDate() {
+        public void TestDate()
+        {
             var json = "{ date : Date() }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.String, document["date"].BsonType);
@@ -41,7 +44,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
         }
 
         [Test]
-        public void TestNewDateZero() {
+        public void TestNewDateZero()
+        {
             var json = "{ date : new Date(0) }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
@@ -49,7 +53,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
         }
 
         [Test]
-        public void TestNewDateMillisecondsSinceEpoch() {
+        public void TestNewDateMillisecondsSinceEpoch()
+        {
             var utcNow = DateTime.UtcNow;
             var millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(utcNow);
             var json = string.Format("{{ date : new Date({0}) }}", millisecondsSinceEpoch);
@@ -59,7 +64,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
         }
 
         [Test]
-        public void TestNewDateString() {
+        public void TestNewDateString()
+        {
             var dateTimeString = "Thu, 07 Jul 2011 14:58:59 EDT";
             var json = string.Format("{{ date : new Date('{0}') }}", dateTimeString);
             var document = BsonDocument.Parse(json);
@@ -68,7 +74,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
         }
 
         [Test]
-        public void TestNewDateYMD() {
+        public void TestNewDateYMD()
+        {
             var json = "{ date : new Date(2011, 6, 7) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
@@ -76,7 +83,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
         }
 
         [Test]
-        public void TestNewDateYMDH() {
+        public void TestNewDateYMDH()
+        {
             var json = "{ date : new Date(2011, 6, 7, 1) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
@@ -84,7 +92,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
         }
 
         [Test]
-        public void TestNewDateYMDHM() {
+        public void TestNewDateYMDHM()
+        {
             var json = "{ date : new Date(2011, 6, 7, 1, 2) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
@@ -92,7 +101,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
         }
 
         [Test]
-        public void TestNewDateYMDHMS() {
+        public void TestNewDateYMDHMS()
+        {
             var json = "{ date : new Date(2011, 6, 7, 1, 2, 33) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
@@ -100,7 +110,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261 {
         }
 
         [Test]
-        public void TestNewDateYMDHMSms() {
+        public void TestNewDateYMDHMSms()
+        {
             var json = "{ date : new Date(2011, 6, 7, 1, 2, 33, 456) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);

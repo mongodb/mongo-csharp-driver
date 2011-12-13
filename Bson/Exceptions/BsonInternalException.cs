@@ -19,28 +19,30 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a BSON internal exception (almost surely the result of a bug).
     /// </summary>
     [Serializable]
-    public class BsonInternalException : BsonException {
-        #region constructors
+    public class BsonInternalException : BsonException
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonInternalException class.
         /// </summary>
         public BsonInternalException()
-            : base() {
+            : base()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonInternalException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public BsonInternalException(
-            string message
-        )
-            : base(message) {
+        public BsonInternalException(string message)
+            : base(message)
+        {
         }
 
         /// <summary>
@@ -48,11 +50,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public BsonInternalException(
-            string message,
-            Exception innerException
-        )
-            : base(message, innerException) {
+        public BsonInternalException(string message, Exception innerException)
+            : base(message, innerException)
+        {
         }
 
         /// <summary>
@@ -60,12 +60,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public BsonInternalException(
-            SerializationInfo info,
-            StreamingContext context
-        )
-            : base(info, context) {
+        public BsonInternalException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
-        #endregion
     }
 }

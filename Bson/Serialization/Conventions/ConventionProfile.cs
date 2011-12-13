@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents a set of conventions.
     /// </summary>
-    public sealed class ConventionProfile {
-        #region public properties
+    public sealed class ConventionProfile
+    {
+        // public properties
         /// <summary>
         /// Gets the Id generator convention.
         /// </summary>
@@ -68,14 +70,14 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// Gets the default value convention.
         /// </summary>
         public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Gets the default convention profile.
         /// </summary>
         /// <returns>The default convention profile.</returns>
-        public static ConventionProfile GetDefault() {
+        public static ConventionProfile GetDefault()
+        {
             return new ConventionProfile() // The default profile always matches...
                 .SetIdGeneratorConvention(new LookupIdGeneratorConvention())
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
@@ -87,41 +89,48 @@ namespace MongoDB.Bson.Serialization.Conventions {
                 .SetMemberFinderConvention(new PublicMemberFinderConvention())
                 .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention());
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Merges another convention profile into this one (only missing conventions are merged).
         /// </summary>
         /// <param name="other">The other convention profile.</param>
-        public void Merge(
-            ConventionProfile other
-        ) {
-            if (IdGeneratorConvention == null) {
+        public void Merge(ConventionProfile other)
+        {
+            if (IdGeneratorConvention == null)
+            {
                 IdGeneratorConvention = other.IdGeneratorConvention;
             }
-            if (DefaultValueConvention == null) {
+            if (DefaultValueConvention == null)
+            {
                 DefaultValueConvention = other.DefaultValueConvention;
             }
-            if (ElementNameConvention == null) {
+            if (ElementNameConvention == null)
+            {
                 ElementNameConvention = other.ElementNameConvention;
             }
-            if (ExtraElementsMemberConvention == null) {
+            if (ExtraElementsMemberConvention == null)
+            {
                 ExtraElementsMemberConvention = other.ExtraElementsMemberConvention;
             }
-            if (IdMemberConvention == null) {
+            if (IdMemberConvention == null)
+            {
                 IdMemberConvention = other.IdMemberConvention;
             }
-            if (IgnoreExtraElementsConvention == null) {
+            if (IgnoreExtraElementsConvention == null)
+            {
                 IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
             }
-            if (IgnoreIfNullConvention == null) {
+            if (IgnoreIfNullConvention == null)
+            {
                 IgnoreIfNullConvention = other.IgnoreIfNullConvention;
             }
-            if(MemberFinderConvention == null) {
+            if (MemberFinderConvention == null)
+            {
                 MemberFinderConvention = other.MemberFinderConvention;
             }
-            if (SerializeDefaultValueConvention == null) {
+            if (SerializeDefaultValueConvention == null)
+            {
                 SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
             }
         }
@@ -131,9 +140,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">An Id generator convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetIdGeneratorConvention(
-            IIdGeneratorConvention convention
-        ) {
+        public ConventionProfile SetIdGeneratorConvention(IIdGeneratorConvention convention)
+        {
             IdGeneratorConvention = convention;
             return this;
         }
@@ -143,9 +151,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">A default value convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetDefaultValueConvention(
-            IDefaultValueConvention convention
-        ) {
+        public ConventionProfile SetDefaultValueConvention(IDefaultValueConvention convention)
+        {
             DefaultValueConvention = convention;
             return this;
         }
@@ -155,9 +162,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">An element name convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetElementNameConvention(
-            IElementNameConvention convention
-        ) {
+        public ConventionProfile SetElementNameConvention(IElementNameConvention convention)
+        {
             ElementNameConvention = convention;
             return this;
         }
@@ -167,9 +173,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">An extra elements member convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetExtraElementsMemberConvention(
-            IExtraElementsMemberConvention convention
-        ) {
+        public ConventionProfile SetExtraElementsMemberConvention(IExtraElementsMemberConvention convention)
+        {
             ExtraElementsMemberConvention = convention;
             return this;
         }
@@ -179,9 +184,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">An Id member convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetIdMemberConvention(
-            IIdMemberConvention convention
-        ) {
+        public ConventionProfile SetIdMemberConvention(IIdMemberConvention convention)
+        {
             IdMemberConvention = convention;
             return this;
         }
@@ -191,9 +195,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">An ignore extra elements convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetIgnoreExtraElementsConvention(
-            IIgnoreExtraElementsConvention convention
-        ) {
+        public ConventionProfile SetIgnoreExtraElementsConvention(IIgnoreExtraElementsConvention convention)
+        {
             IgnoreExtraElementsConvention = convention;
             return this;
         }
@@ -203,9 +206,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">An ignore if null convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetIgnoreIfNullConvention(
-            IIgnoreIfNullConvention convention
-        ) {
+        public ConventionProfile SetIgnoreIfNullConvention(IIgnoreIfNullConvention convention)
+        {
             IgnoreIfNullConvention = convention;
             return this;
         }
@@ -215,9 +217,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">A member finder convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetMemberFinderConvention(
-            IMemberFinderConvention convention
-        ) {
+        public ConventionProfile SetMemberFinderConvention(IMemberFinderConvention convention)
+        {
             MemberFinderConvention = convention;
             return this;
         }
@@ -227,12 +228,10 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="convention">A serialize default value convention.</param>
         /// <returns>The convention profile.</returns>
-        public ConventionProfile SetSerializeDefaultValueConvention(
-            ISerializeDefaultValueConvention convention
-        ) {
+        public ConventionProfile SetSerializeDefaultValueConvention(ISerializeDefaultValueConvention convention)
+        {
             SerializeDefaultValueConvention = convention;
             return this;
         }
-        #endregion
     }
 }

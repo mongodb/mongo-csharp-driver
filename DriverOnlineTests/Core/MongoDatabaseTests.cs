@@ -23,14 +23,17 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests {
+namespace MongoDB.DriverOnlineTests
+{
     [TestFixture]
-    public class MongoDatabaseTests {
+    public class MongoDatabaseTests
+    {
         private MongoServer server;
         private MongoDatabase database;
 
         [TestFixtureSetUp]
-        public void Setup() {
+        public void Setup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
             server.DropDatabase("onlinetests");
@@ -40,7 +43,8 @@ namespace MongoDB.DriverOnlineTests {
         // TODO: more tests for MongoDatabase
 
         [Test]
-        public void TestCollectionExists() {
+        public void TestCollectionExists()
+        {
             var collectionName = "testcollectionexists";
             Assert.IsFalse(database.CollectionExists(collectionName));
 
@@ -49,7 +53,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestCreateCollection() {
+        public void TestCreateCollection()
+        {
             var collectionName = "testcreatecollection";
             Assert.IsFalse(database.CollectionExists(collectionName));
 
@@ -58,7 +63,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestDropCollection() {
+        public void TestDropCollection()
+        {
             var collectionName = "testdropcollection";
             Assert.IsFalse(database.CollectionExists(collectionName));
 
@@ -70,35 +76,40 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestEvalNoArgs() {
+        public void TestEvalNoArgs()
+        {
             var code = "function() { return 1; }";
             var result = database.Eval(code);
             Assert.AreEqual(1, result.ToInt32());
         }
 
         [Test]
-        public void TestEvalNoArgsNoLock() {
+        public void TestEvalNoArgsNoLock()
+        {
             var code = "function() { return 1; }";
             var result = database.Eval(EvalFlags.NoLock, code);
             Assert.AreEqual(1, result.ToInt32());
         }
 
         [Test]
-        public void TestEvalWithArgs() {
+        public void TestEvalWithArgs()
+        {
             var code = "function(x, y) { return x / y; }";
             var result = database.Eval(code, 6, 2);
             Assert.AreEqual(3, result.ToInt32());
         }
 
         [Test]
-        public void TestEvalWithArgsNoLock() {
+        public void TestEvalWithArgsNoLock()
+        {
             var code = "function(x, y) { return x / y; }";
             var result = database.Eval(EvalFlags.NoLock, code, 6, 2);
             Assert.AreEqual(3, result.ToInt32());
         }
 
         [Test]
-        public void TestFetchDBRef() {
+        public void TestFetchDBRef()
+        {
             var collectionName = "testdbref";
             var collection = database.GetCollection(collectionName);
             var document = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "P", "x" } };
@@ -117,7 +128,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGetCollection() {
+        public void TestGetCollection()
+        {
             var collectionName = "testgetcollection";
             var collection = database.GetCollection(typeof(BsonDocument), collectionName);
             Assert.AreSame(database, collection.Database);
@@ -127,7 +139,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGetCollectionGeneric() {
+        public void TestGetCollectionGeneric()
+        {
             var collectionName = "testgetcollection";
             var collection = database.GetCollection(collectionName);
             Assert.AreSame(database, collection.Database);
@@ -137,7 +150,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGetCollectionNames() {
+        public void TestGetCollectionNames()
+        {
             server.DropDatabase("onlinetests");
             database["a"].Insert(new BsonDocument("a", 1));
             database["b"].Insert(new BsonDocument("b", 1));
@@ -147,7 +161,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGetProfilingInfo() {
+        public void TestGetProfilingInfo()
+        {
             var collection = database["testcollection"];
             if (collection.Exists()) { collection.Drop(); }
             collection.Insert(new BsonDocument("x", 1));
@@ -160,7 +175,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestRenameCollection() {
+        public void TestRenameCollection()
+        {
             var collectionName1 = "testrenamecollection1";
             var collectionName2 = "testrenamecollection2";
             Assert.IsFalse(database.CollectionExists(collectionName1));
@@ -176,7 +192,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestRenameCollectionDropTarget() {
+        public void TestRenameCollectionDropTarget()
+        {
             const string collectionName1 = "testrenamecollectiondroptarget1";
             const string collectionName2 = "testrenamecollectiondroptarget2";
             Assert.IsFalse(database.CollectionExists(collectionName1));
@@ -194,7 +211,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestSetProfilingLevel() {
+        public void TestSetProfilingLevel()
+        {
             database.SetProfilingLevel(ProfilingLevel.None, TimeSpan.FromMilliseconds(100));
             var result = database.GetProfilingLevel();
             Assert.AreEqual(ProfilingLevel.None, result.Level);
@@ -227,7 +245,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestUserMethods() {
+        public void TestUserMethods()
+        {
             var collection = database["system.users"];
             collection.RemoveAll();
             database.AddUser(new MongoCredentials("username", "password"), true);

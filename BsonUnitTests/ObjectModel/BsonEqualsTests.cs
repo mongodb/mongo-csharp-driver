@@ -21,11 +21,14 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonEqualsTests {
+    public class BsonEqualsTests
+    {
         [Test]
-        public void TestBsonArrayEquals() {
+        public void TestBsonArrayEquals()
+        {
             BsonArray lhs = new BsonArray { 1, 2, 3 };
             BsonArray rhs = new BsonArray().Add(1).Add(2).Add(3);
             Assert.AreNotSame(lhs, rhs);
@@ -34,7 +37,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonBinaryDataEquals() {
+        public void TestBsonBinaryDataEquals()
+        {
             BsonBinaryData lhs = new BsonBinaryData(new byte[] { 1, 2, 3 }, BsonBinarySubType.Binary);
             BsonBinaryData rhs = new BsonBinaryData(new byte[] { 1, 2, 3 }, BsonBinarySubType.Binary);
             Assert.AreNotSame(lhs, rhs);
@@ -43,8 +47,10 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonDocumentEquals() {
-            BsonDocument lhs = new BsonDocument {
+        public void TestBsonDocumentEquals()
+        {
+            BsonDocument lhs = new BsonDocument
+            {
                 { "Hello", "World" },
                 { "Foo", "Bar" }
             };
@@ -58,7 +64,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonElementEquals() {
+        public void TestBsonElementEquals()
+        {
             BsonElement lhs = new BsonElement("Hello", "World");
             BsonElement rhs = new BsonElement("Hello", "World");
             Assert.AreNotSame(lhs, rhs);
@@ -67,7 +74,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonJavaScriptEquals() {
+        public void TestBsonJavaScriptEquals()
+        {
             BsonJavaScript lhs = new BsonJavaScript("n = 1");
             BsonJavaScript rhs = new BsonJavaScript("n = 1");
             Assert.AreNotSame(lhs, rhs);
@@ -76,7 +84,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonJavaScriptWithScopeEquals() {
+        public void TestBsonJavaScriptWithScopeEquals()
+        {
             BsonJavaScriptWithScope lhs = new BsonJavaScriptWithScope("n = 1", new BsonDocument { { "x", "2" } });
             BsonJavaScriptWithScope rhs = new BsonJavaScriptWithScope("n = 1", new BsonDocument { { "x", "2" } });
             Assert.AreNotSame(lhs, rhs);
@@ -85,7 +94,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonObjectIdEquals() {
+        public void TestBsonObjectIdEquals()
+        {
             BsonObjectId lhs = BsonObjectId.Create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
             BsonObjectId rhs = BsonObjectId.Create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
             Assert.AreNotSame(lhs, rhs);
@@ -94,7 +104,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonRegularExpressionEquals() {
+        public void TestBsonRegularExpressionEquals()
+        {
             BsonRegularExpression lhs = new BsonRegularExpression("pattern", "options");
             BsonRegularExpression rhs = new BsonRegularExpression("pattern", "options");
             Assert.AreNotSame(lhs, rhs);
@@ -103,7 +114,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonSymbolEquals() {
+        public void TestBsonSymbolEquals()
+        {
             BsonSymbol lhs = BsonSymbol.Create("name");
             BsonSymbol rhs = BsonSymbol.Create("name");
             Assert.AreSame(lhs, rhs);
@@ -112,7 +124,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonTimestampEquals() {
+        public void TestBsonTimestampEquals()
+        {
             BsonTimestamp lhs = new BsonTimestamp(1L);
             BsonTimestamp rhs = new BsonTimestamp(1L);
             Assert.AreNotSame(lhs, rhs);

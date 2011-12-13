@@ -25,21 +25,26 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp98 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp98
+{
     [TestFixture]
-    public class CSharp98Tests {
-        private class A {
+    public class CSharp98Tests
+    {
+        private class A
+        {
             [BsonId]
             public ObjectId Id { get; set; }
             public int PA { get; set; }
         }
 
-        private class B : A {
+        private class B : A
+        {
             public int PB { get; set; }
         }
 
         [Test]
-        public void TestDeserializationOfTwoBs() {
+        public void TestDeserializationOfTwoBs()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection<A>("csharp98");

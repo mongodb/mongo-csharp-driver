@@ -20,11 +20,13 @@ using System.Text;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization {
+namespace MongoDB.Bson.Serialization
+{
     /// <summary>
     /// An interface implemented by classes that handle their own BSON serialization.
     /// </summary>
-    public interface IBsonSerializable {
+    public interface IBsonSerializable
+    {
         /// <summary>
         /// Deserializes this object from a BsonReader.
         /// </summary>

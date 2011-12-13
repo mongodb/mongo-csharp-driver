@@ -27,14 +27,17 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp269 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp269
+{
     [TestFixture]
-    public class CSharp269Tests {
+    public class CSharp269Tests
+    {
         private MongoServer server;
         private MongoDatabase database;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
             database = server["onlinetests"];
             database.GridFS.Files.Drop();
@@ -42,14 +45,17 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp269 {
         }
 
         [Test]
-        public void TestUploadAndDownload() {
+        public void TestUploadAndDownload()
+        {
             var text = "HelloWorld";
             var bytes = Encoding.UTF8.GetBytes(text);
-            using (var stream = new MemoryStream(bytes)) {
+            using (var stream = new MemoryStream(bytes))
+            {
                 database.GridFS.Upload(stream, "HelloWorld.txt");
             }
 
-            using (var stream = new MemoryStream()) {
+            using (var stream = new MemoryStream())
+            {
                 database.GridFS.Download(stream, "HelloWorld.txt");
                 var downloadedBytes = stream.ToArray();
                 var downloadedText = Encoding.UTF8.GetString(downloadedBytes);

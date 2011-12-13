@@ -18,22 +18,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// A static class containing BSON defaults.
     /// </summary>
-    public static class BsonDefaults {
-        #region private static fields
+    public static class BsonDefaults
+    {
+        // private static fields
         private static GuidRepresentation guidRepresentation = GuidRepresentation.CSharpLegacy;
         private static int initialBsonBufferSize = 4 * 1024; // 4KiB
         private static int maxDocumentSize = 4 * 1024 * 1024; // 4MiB
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default Guid representation.
         /// </summary>
-        public static GuidRepresentation GuidRepresentation {
+        public static GuidRepresentation GuidRepresentation
+        {
             get { return guidRepresentation; }
             set { guidRepresentation = value; }
         }
@@ -41,7 +43,8 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Gets or sets the default initial BSON buffer size.
         /// </summary>
-        public static int InitialBsonBufferSize {
+        public static int InitialBsonBufferSize
+        {
             get { return initialBsonBufferSize; }
             set { initialBsonBufferSize = value; }
         }
@@ -49,10 +52,10 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Gets or sets the default max document size.
         /// </summary>
-        public static int MaxDocumentSize {
+        public static int MaxDocumentSize
+        {
             get { return maxDocumentSize; }
             set { maxDocumentSize = value; }
         }
-        #endregion
     }
 }

@@ -18,13 +18,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a BsonReader.
     /// </summary>
     [Serializable]
-    public abstract class BsonReaderSettings {
-        #region protected fields
+    public abstract class BsonReaderSettings
+    {
+        // protected fields
         /// <summary>
         /// The representation for Guids.
         /// </summary>
@@ -33,33 +35,33 @@ namespace MongoDB.Bson.IO {
         /// Whether the settings are frozen.
         /// </summary>
         protected bool isFrozen;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonReaderSettings class.
         /// </summary>
-        protected BsonReaderSettings() {
+        protected BsonReaderSettings()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonReaderSettings class.
         /// </summary>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        protected BsonReaderSettings(
-            GuidRepresentation guidRepresentation
-        ) {
+        protected BsonReaderSettings(GuidRepresentation guidRepresentation)
+        {
             this.guidRepresentation = guidRepresentation;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the representation for Guids.
         /// </summary>
-        public GuidRepresentation GuidRepresentation {
+        public GuidRepresentation GuidRepresentation
+        {
             get { return guidRepresentation; }
-            set {
+            set
+            {
                 if (isFrozen) { ThrowFrozenException(); }
                 guidRepresentation = value;
             }
@@ -68,17 +70,18 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets whether the settings are frozen.
         /// </summary>
-        public bool IsFrozen {
+        public bool IsFrozen
+        {
             get { return isFrozen; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public BsonReaderSettings Clone() {
+        public BsonReaderSettings Clone()
+        {
             return CloneImplementation();
         }
 
@@ -86,7 +89,8 @@ namespace MongoDB.Bson.IO {
         /// Freezes the settings.
         /// </summary>
         /// <returns>The frozen settings.</returns>
-        public BsonReaderSettings Freeze() {
+        public BsonReaderSettings Freeze()
+        {
             isFrozen = true;
             return this;
         }
@@ -95,16 +99,19 @@ namespace MongoDB.Bson.IO {
         /// Returns a frozen copy of the settings.
         /// </summary>
         /// <returns>A frozen copy of the settings.</returns>
-        public BsonReaderSettings FrozenCopy() {
-            if (isFrozen) {
+        public BsonReaderSettings FrozenCopy()
+        {
+            if (isFrozen)
+            {
                 return this;
-            } else {
+            }
+            else
+            {
                 return Clone().Freeze();
             }
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
@@ -114,10 +121,10 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Throws an InvalidOperationException when an attempt is made to change a setting after the settings are frozen.
         /// </summary>
-        protected void ThrowFrozenException() {
+        protected void ThrowFrozenException()
+        {
             var message = string.Format("{0} is frozen.", this.GetType().Name);
             throw new InvalidOperationException(message);
         }
-        #endregion
     }
 }

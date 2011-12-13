@@ -25,14 +25,18 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp199 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp199
+{
     [TestFixture]
-    public class CSharp199Tests {
+    public class CSharp199Tests
+    {
         [Test]
-        public void TestSingleRename() {
+        public void TestSingleRename()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            {
                 var database = server["onlinetests"];
                 var collection = database.GetCollection("CSharp199");
 
@@ -52,10 +56,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199 {
         }
 
         [Test]
-        public void TestMultipleRenames() {
+        public void TestMultipleRenames()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            {
                 var database = server["onlinetests"];
                 var collection = database.GetCollection("CSharp199");
 
@@ -75,10 +81,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199 {
         }
 
         [Test]
-        public void TestRenameWithSet() {
+        public void TestRenameWithSet()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            {
                 var database = server["onlinetests"];
                 var collection = database.GetCollection("CSharp199");
 

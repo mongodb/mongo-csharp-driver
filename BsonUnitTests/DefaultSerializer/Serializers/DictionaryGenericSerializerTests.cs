@@ -23,15 +23,19 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
+namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers
+{
     [BsonDiscriminator("DictionaryGenericSerializers.C")] // "C" is an ambiguous discriminator when nominalType is System.Object
-    public class C {
+    public class C
+    {
         public string P { get; set; }
     }
 
     [TestFixture]
-    public class DictionaryGenericSerializerTests {
-        public class T {
+    public class DictionaryGenericSerializerTests
+    {
+        public class T
+        {
             public Dictionary<object, object> D { get; set; }
             public IDictionary<object, object> ID { get; set; }
             public SortedDictionary<object, object> SD { get; set; }
@@ -39,7 +43,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new T { D = null, ID = null, SD = null, SL = null };
             var json = obj.ToJson();
             var rep = "null";
@@ -56,7 +61,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestEmpty() {
+        public void TestEmpty()
+        {
             var d = new Dictionary<object, object>();
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
@@ -76,7 +82,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestOneC() {
+        public void TestOneC()
+        {
             var d = new Dictionary<object, object> { { "A", new C { P = "x" } } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
@@ -96,7 +103,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestOneInt() {
+        public void TestOneInt()
+        {
             var d = new Dictionary<object, object> { { "A", 1 } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
@@ -116,7 +124,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestOneIntWithIntKey() {
+        public void TestOneIntWithIntKey()
+        {
             var d = new Dictionary<object, object> { { 1, 2 } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
@@ -136,7 +145,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestOneString() {
+        public void TestOneString()
+        {
             var d = new Dictionary<object, object> { { "A", "x" } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
@@ -156,7 +166,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestOneStringWithIntKey() {
+        public void TestOneStringWithIntKey()
+        {
             var d = new Dictionary<object, object> { { 1, "x" } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
@@ -176,13 +187,15 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestTwoCs() {
+        public void TestTwoCs()
+        {
             var d = new Dictionary<object, object> { { "A", new C { P = "x" } }, { "B", new C { P = "y" } } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { "A", "{ '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' }"},
                 { "B", "{ '_t' : 'DictionaryGenericSerializers.C', 'P' : 'y' }"}
             };
@@ -206,13 +219,15 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestTwoCsWithIntKeys() {
+        public void TestTwoCsWithIntKeys()
+        {
             var d = new Dictionary<object, object> { { 1, new C { P = "x" } }, { 2, new C { P = "y" } } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { 1, "[1, { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' }]"},
                 { 2, "[2, { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'y' }]"}
             };
@@ -236,13 +251,15 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestTwoInts() {
+        public void TestTwoInts()
+        {
             var d = new Dictionary<object, object> { { "A", 1 }, { "B", 2 } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { "A", "1"},
                 { "B", "2"}
             };
@@ -266,13 +283,15 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestTwoIntsWithIntKeys() {
+        public void TestTwoIntsWithIntKeys()
+        {
             var d = new Dictionary<object, object> { { 1, 2 }, { 3, 4 } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { 1, "[1, 2]"},
                 { 3, "[3, 4]"}
             };
@@ -296,13 +315,15 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestTwoStrings() {
+        public void TestTwoStrings()
+        {
             var d = new Dictionary<object, object> { { "A", "x" }, { "B", "y" } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { "A", "'x'"},
                 { "B", "'y'"}
             };
@@ -326,13 +347,15 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestTwoStringsWithIntKeys() {
+        public void TestTwoStringsWithIntKeys()
+        {
             var d = new Dictionary<object, object> { { 1, "x" }, { 2, "y" } };
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { 1, "[1, 'x']"},
                 { 2, "[2, 'y']"}
             };
@@ -356,12 +379,14 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestMixedPrimitiveTypes() {
+        public void TestMixedPrimitiveTypes()
+        {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
             var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
-            var d = new Dictionary<object, object> {
+            var d = new Dictionary<object, object>
+            {
                 { "A", true }, 
                 { "B", dateTime },
                 { "C", 1.5 }, 
@@ -375,7 +400,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { "A", "true" }, 
                 { "B", string.Format("ISODate('{0}')", isoDate) },
                 { "C", "1.5" }, 
@@ -405,12 +431,14 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestMixedPrimitiveTypesWithIntKeys() {
+        public void TestMixedPrimitiveTypesWithIntKeys()
+        {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
             var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
-            var d = new Dictionary<object, object> {
+            var d = new Dictionary<object, object>
+            {
                 { 1, true }, 
                 { 2, dateTime },
                 { 3, 1.5 }, 
@@ -424,7 +452,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { 1, "[1, true]" }, 
                 { 2, "[2, ISODate('#')]".Replace("#", isoDate) },
                 { 3, "[3, 1.5]" }, 
@@ -454,13 +483,15 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
         }
 
         [Test]
-        public void TestMixedPrimitiveTypesWithMixedKeys() {
+        public void TestMixedPrimitiveTypesWithMixedKeys()
+        {
             // note: no SortedDictionary or SortedList in this test because you can't sort a set of keys that have mixed types
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
             var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
-            var d = new Dictionary<object, object> {
+            var d = new Dictionary<object, object>
+            {
                 { "A", true }, 
                 { "B", dateTime },
                 { "C", 1.5 }, 
@@ -472,7 +503,8 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
             };
             var obj = new T { D = d, ID = d, SD = null, SL = null };
             var json = obj.ToJson();
-            var reps = new Dictionary<object, object> {
+            var reps = new Dictionary<object, object>
+            {
                 { "A", "['A', true]" }, 
                 { "B", "['B', ISODate('#')]".Replace("#", isoDate) },
                 { "C", "['C', 1.5]" }, 
@@ -497,32 +529,31 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        private SortedDictionary<object, object> CreateSortedDictionary(
-            Dictionary<object, object> d
-        ) {
+        private SortedDictionary<object, object> CreateSortedDictionary(Dictionary<object, object> d)
+        {
             var sd = new SortedDictionary<object, object>();
-            foreach (KeyValuePair<object, object> entry in d) {
+            foreach (KeyValuePair<object, object> entry in d)
+            {
                 sd.Add(entry.Key, entry.Value);
             }
             return sd;
         }
 
-        private SortedList<object, object> CreateSortedList(
-            Dictionary<object, object> d
-        ) {
+        private SortedList<object, object> CreateSortedList(Dictionary<object, object> d)
+        {
             var sl = new SortedList<object, object>();
-            foreach (KeyValuePair<object, object> entry in d) {
+            foreach (KeyValuePair<object, object> entry in d)
+            {
                 sl.Add(entry.Key, entry.Value);
             }
             return sl;
         }
 
-        private string GetArrayRepresentationInKeyOrder(
-            IDictionary<object, object> dictionary,
-            IDictionary<object, object> representations
-        ) {
+        private string GetArrayRepresentationInKeyOrder(IDictionary<object, object> dictionary, IDictionary<object, object> representations)
+        {
             var sb = new StringBuilder();
-            foreach (var key in dictionary.Keys) {
+            foreach (var key in dictionary.Keys)
+            {
                 sb.Append((sb.Length == 0) ? "[" : ", ");
                 sb.Append(representations[key]);
             }
@@ -530,12 +561,11 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers {
             return sb.ToString();
         }
 
-        private string GetDocumentRepresentationInKeyOrder(
-            IDictionary<object, object> dictionary,
-            IDictionary<object, object> representations
-        ) {
+        private string GetDocumentRepresentationInKeyOrder(IDictionary<object, object> dictionary, IDictionary<object, object> representations)
+        {
             var sb = new StringBuilder();
-            foreach (var key in dictionary.Keys) {
+            foreach (var key in dictionary.Keys)
+            {
                 sb.Append((sb.Length == 0) ? "{ " : ", ");
                 sb.AppendFormat("'{0}' : {1}", key, representations[key]);
             }

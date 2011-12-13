@@ -20,26 +20,25 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Linq {
+namespace MongoDB.Driver.Linq
+{
     /// <summary>
     /// A translator from LINQ expression queries to Mongo queries.
     /// </summary>
-    public static class MongoLinqTranslator {
-        #region public static methods
+    public static class MongoLinqTranslator
+    {
+        // public static methods
         /// <summary>
         /// A translator from LINQ queries to MongoDB queries.
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
         /// <param name="expression">The LINQ query.</param>
         /// <returns>An instance of MongoLinqQuery.</returns>
-        public static MongoLinqQuery Translate(
-            MongoCollection collection,
-            Expression expression
-        ) {
+        public static MongoLinqQuery Translate(MongoCollection collection, Expression expression)
+        {
             // total hack just to test the initial LINQ framework
             var query = MongoDB.Driver.Builders.Query.EQ("X", 1);
             return new MongoLinqFindQuery(collection, query);
         }
-        #endregion
     }
 }

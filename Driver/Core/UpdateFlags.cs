@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Flags used with the Update method in MongoCollection.
     /// </summary>
     [Flags]
-    public enum UpdateFlags {
+    public enum UpdateFlags
+    {
         /// <summary>
         /// No flags.
         /// </summary>

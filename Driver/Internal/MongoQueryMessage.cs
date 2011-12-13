@@ -24,41 +24,27 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoQueryMessage : MongoRequestMessage {
-        #region private fields
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoQueryMessage : MongoRequestMessage
+    {
+        // private fields
         private string collectionFullName;
         private QueryFlags flags;
         private int numberToSkip;
         private int numberToReturn;
         private IMongoQuery query;
         private IMongoFields fields;
-        #endregion
 
-        #region constructors
-        internal MongoQueryMessage(
-            BsonBinaryWriterSettings writerSettings,
-            string collectionFullName,
-            QueryFlags flags,
-            int numberToSkip,
-            int numberToReturn,
-            IMongoQuery query,
-            IMongoFields fields
-        ) :
-            this(null, writerSettings, collectionFullName, flags, numberToSkip, numberToReturn, query, fields) {
+        // constructors
+        internal MongoQueryMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, QueryFlags flags, int numberToSkip, int numberToReturn, IMongoQuery query, IMongoFields fields)
+            : this(null, writerSettings, collectionFullName, flags, numberToSkip, numberToReturn, query, fields)
+        {
         }
 
-        internal MongoQueryMessage(
-            BsonBuffer buffer,
-            BsonBinaryWriterSettings writerSettings,
-            string collectionFullName,
-            QueryFlags flags,
-            int numberToSkip,
-            int numberToReturn,
-            IMongoQuery query,
-            IMongoFields fields
-        ) :
-            base(MessageOpcode.Query, buffer, writerSettings) {
+        internal MongoQueryMessage(BsonBuffer buffer, BsonBinaryWriterSettings writerSettings, string collectionFullName, QueryFlags flags, int numberToSkip, int numberToReturn, IMongoQuery query, IMongoFields fields)
+            : base(MessageOpcode.Query, buffer, writerSettings)
+        {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.numberToSkip = numberToSkip;
@@ -66,27 +52,31 @@ namespace MongoDB.Driver.Internal {
             this.query = query;
             this.fields = fields;
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
-            buffer.WriteInt32((int) flags);
+        // protected methods
+        protected override void WriteBody()
+        {
+            buffer.WriteInt32((int)flags);
             buffer.WriteCString(collectionFullName);
             buffer.WriteInt32(numberToSkip);
             buffer.WriteInt32(numberToReturn);
 
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
-                if (query == null) {
+            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings))
+            {
+                if (query == null)
+                {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteEndDocument();
-                } else {
+                }
+                else
+                {
                     BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 }
-                if (fields != null) {
+                if (fields != null)
+                {
                     BsonSerializer.Serialize(bsonWriter, fields);
                 }
             }
         }
-        #endregion
     }
 }

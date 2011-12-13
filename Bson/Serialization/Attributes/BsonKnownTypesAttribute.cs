@@ -18,35 +18,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the known types for this class (the derived classes).
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
-    public class BsonKnownTypesAttribute : Attribute {
-        #region private fields
+    public class BsonKnownTypesAttribute : Attribute
+    {
+        // private fields
         private Type[] knownTypes;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonKnownTypesAttribute class.
         /// </summary>
         /// <param name="knownTypes">One or more known types.</param>
-        public BsonKnownTypesAttribute(
-            params Type[] knownTypes
-        ) {
+        public BsonKnownTypesAttribute(params Type[] knownTypes)
+        {
             this.knownTypes = knownTypes;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets a list of the known types.
         /// </summary>
-        public Type[] KnownTypes {
+        public Type[] KnownTypes
+        {
             get { return knownTypes; }
         }
-        #endregion
     }
 }

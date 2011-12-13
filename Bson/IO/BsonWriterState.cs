@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents the state of a BsonWriter.
     /// </summary>
-    public enum BsonWriterState {
+    public enum BsonWriterState
+    {
         /// <summary>
         /// The initial state.
         /// </summary>

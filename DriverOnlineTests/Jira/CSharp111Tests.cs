@@ -26,22 +26,27 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp111 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp111
+{
     [TestFixture]
-    public class CSharp111Tests {
+    public class CSharp111Tests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public ObjectId Id;
             public List<D> InnerObjects;
         }
 #pragma warning restore
 
-        private class D {
+        private class D
+        {
             public int X;
         }
 
         [Test]
-        public void TestAddToSetEach() {
+        public void TestAddToSetEach()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection<C>("csharp111");

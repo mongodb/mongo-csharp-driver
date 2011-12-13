@@ -25,10 +25,13 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp313Tests {
-        private static object[] scalarValues = new object[] {
+    public class CSharp313Tests
+    {
+        private static object[] scalarValues = new object[]
+        {
             new BsonBinaryData(new byte[] { 1, 2, 3 }),
             true,
             DateTime.UtcNow,
@@ -50,8 +53,10 @@ namespace MongoDB.BsonUnitTests.Jira {
         };
 
         [Test]
-        public void TestStringToBson() {
-            foreach (var scalarValue in scalarValues) {
+        public void TestStringToBson()
+        {
+            foreach (var scalarValue in scalarValues)
+            {
                 Assert.Throws<InvalidOperationException>(() => { var bson = scalarValue.ToBson(); });
                 Assert.Throws<InvalidOperationException>(() => { var bson = scalarValue.ToBsonDocument(); });
             }

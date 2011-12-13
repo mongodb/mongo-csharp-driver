@@ -24,100 +24,103 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the result of GetIndexes.
     /// </summary>
-    public class GetIndexesResult : IEnumerable<IndexInfo> {
-        #region private fields
+    public class GetIndexesResult : IEnumerable<IndexInfo>
+    {
+        // private fields
         private BsonDocument[] documents;
         private IndexInfo[] indexes;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GetIndexesResult class.
         /// </summary>
         /// <param name="documents">The raw documents containing the information about the indexes.</param>
-        public GetIndexesResult(
-            BsonDocument[] documents
-        ) {
+        public GetIndexesResult(BsonDocument[] documents)
+        {
             this.documents = documents;
             this.indexes = this.documents.Select(d => new IndexInfo(d)).ToArray();
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Gets the IndexInfo at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the IndexInfo to get.</param>
         /// <returns>An IndexInfo.</returns>
-        public IndexInfo this[int index] {
+        public IndexInfo this[int index]
+        {
             get { return indexes[index]; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the count of indexes.
         /// </summary>
-        public int Count {
+        public int Count
+        {
             get { return indexes.Length; }
         }
 
         /// <summary>
         /// Gets the raw BSON documents containing the information about the indexes.
         /// </summary>
-        public IEnumerable<BsonDocument> RawDocuments {
+        public IEnumerable<BsonDocument> RawDocuments
+        {
             get { return documents; }
         }
-        #endregion
 
-        #region public methods
-        #endregion
+        // public methods
 
-        #region explicit interface implementations
-        IEnumerator<IndexInfo> IEnumerable<IndexInfo>.GetEnumerator() {
-            return ((IEnumerable<IndexInfo>) indexes).GetEnumerator();
+        // explicit interface implementations
+        IEnumerator<IndexInfo> IEnumerable<IndexInfo>.GetEnumerator()
+        {
+            return ((IEnumerable<IndexInfo>)indexes).GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator() {
+        IEnumerator IEnumerable.GetEnumerator()
+        {
             return indexes.GetEnumerator();
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents information about an index.
     /// </summary>
-    public class IndexInfo {
-        #region private fields
+    public class IndexInfo
+    {
+        // private fields
         private BsonDocument document;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Creates a new instance of the IndexInfo class.
         /// </summary>
         /// <param name="document">The BSON document that contains information about the index.</param>
-        public IndexInfo(
-            BsonDocument document
-        ) {
+        public IndexInfo(BsonDocument document)
+        {
             this.document = document;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets whether the dups were dropped when the index was created.
         /// </summary>
-        public bool DroppedDups {
-            get {
+        public bool DroppedDups
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("dropDups", out value)) {
+                if (document.TryGetValue("dropDups", out value))
+                {
                     return value.ToBoolean();
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -126,12 +129,17 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets whether the index was created in the background.
         /// </summary>
-        public bool IsBackground {
-            get {
+        public bool IsBackground
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("background", out value)) {
+                if (document.TryGetValue("background", out value))
+                {
                     return value.ToBoolean();
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -140,12 +148,17 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets whether the index is sparse.
         /// </summary>
-        public bool IsSparse {
-            get {
+        public bool IsSparse
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("sparse", out value)) {
+                if (document.TryGetValue("sparse", out value))
+                {
                     return value.ToBoolean();
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -154,12 +167,17 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets whether the index is unique.
         /// </summary>
-        public bool IsUnique {
-            get {
+        public bool IsUnique
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("unique", out value)) {
+                if (document.TryGetValue("unique", out value))
+                {
                     return value.ToBoolean();
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -168,8 +186,10 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the key of the index.
         /// </summary>
-        public IndexKeysDocument Key {
-            get {
+        public IndexKeysDocument Key
+        {
+            get
+            {
                 return new IndexKeysDocument(document["key"].AsBsonDocument.Elements);
             }
         }
@@ -177,8 +197,10 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the name of the index.
         /// </summary>
-        public string Name {
-            get {
+        public string Name
+        {
+            get
+            {
                 return document["name"].AsString;
             }
         }
@@ -186,8 +208,10 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the namespace of the collection that the index is for.
         /// </summary>
-        public string Namespace {
-            get {
+        public string Namespace
+        {
+            get
+            {
                 return document["ns"].AsString;
             }
         }
@@ -195,23 +219,28 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the raw BSON document containing the index information.
         /// </summary>
-        public BsonDocument RawDocument {
+        public BsonDocument RawDocument
+        {
             get { return document; }
         }
 
         /// <summary>
         /// Gets the version of the index.
         /// </summary>
-        public int Version {
-            get {
+        public int Version
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("v", out value)) {
+                if (document.TryGetValue("v", out value))
+                {
                     return value.ToInt32();
-                } else {
+                }
+                else
+                {
                     return 0;
                 }
             }
         }
-        #endregion
     }
 }

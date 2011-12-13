@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoFields is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class FieldsWrapper : BaseWrapper, IMongoFields {
-        #region constructors
+    public class FieldsWrapper : BaseWrapper, IMongoFields
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the FieldsWrapper class.
         /// </summary>
         /// <param name="fields">The wrapped object.</param>
-        public FieldsWrapper(
-            object fields
-        )
-            : base(fields) {
+        public FieldsWrapper(object fields)
+            : base(fields)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the FieldsWrapper class.
         /// </summary>
         /// <param name="fields">The wrapped object.</param>
         /// <returns>A new instance of FieldsWrapper or null.</returns>
-        public static FieldsWrapper Create(
-            object fields
-        ) {
-            if (fields == null) {
+        public static FieldsWrapper Create(object fields)
+        {
+            if (fields == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new FieldsWrapper(fields);
             }
         }
-        #endregion
     }
 }

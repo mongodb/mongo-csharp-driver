@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents the representation to use when converting a Guid to a BSON binary value.
     /// </summary>
-    public enum GuidRepresentation {
+    public enum GuidRepresentation
+    {
         /// <summary>
         /// The representation for Guids is unspecified, so conversion between Guids and Bson binary data is not possible.
         /// </summary>

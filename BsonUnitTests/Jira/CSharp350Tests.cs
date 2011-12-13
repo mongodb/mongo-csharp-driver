@@ -25,16 +25,21 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp350Tests {
+    public class CSharp350Tests
+    {
         [Test]
-        public void TestNamesWithUnderscoreAndDollar() {
-            var names = new string[] {
+        public void TestNamesWithUnderscoreAndDollar()
+        {
+            var names = new string[]
+            {
                 "_x", "x_", "x_x", "_x_",
                 "$x", "x$", "x$x", "$x$"
             };
-            foreach (var name in names) {
+            foreach (var name in names)
+            {
                 var json = string.Format("{{ {0} : 1 }}", name); ;
                 var document = BsonSerializer.Deserialize<BsonDocument>(json);
                 Assert.AreEqual(1, document[name].AsInt32);

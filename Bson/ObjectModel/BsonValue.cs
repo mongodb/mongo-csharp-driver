@@ -22,14 +22,17 @@ using System.Xml;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a BSON value (this is an abstract class, see the various subclasses).
     /// </summary>
     [Serializable]
-    public abstract class BsonValue : IComparable<BsonValue>, IConvertible, IEquatable<BsonValue> {
-        #region private static fields
-        private static Dictionary<BsonType, int> bsonTypeSortOrder = new Dictionary<BsonType, int> {
+    public abstract class BsonValue : IComparable<BsonValue>, IConvertible, IEquatable<BsonValue>
+    {
+        // private static fields
+        private static Dictionary<BsonType, int> bsonTypeSortOrder = new Dictionary<BsonType, int>
+        {
             { BsonType.MinKey, 1 },
             { BsonType.Undefined, 2 },
             { BsonType.Null, 3 },
@@ -48,375 +51,424 @@ namespace MongoDB.Bson {
             { BsonType.RegularExpression, 12 },
             { BsonType.JavaScript, 13 }, // TODO: confirm where JavaScript and JavaScriptWithScope are in the sort order
             { BsonType.JavaScriptWithScope, 14 },
-            { BsonType.MaxKey, 15 },
+            { BsonType.MaxKey, 15 }
         };
-        #endregion
 
-        #region protected fields
+        // protected fields
         /// <summary>
         /// The BsonType of this BsonValue.
         /// </summary>
         protected BsonType bsonType;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonValue class.
         /// </summary>
         /// <param name="bsonType">The BsonType of this BsonValue.</param>
-        protected BsonValue(
-            BsonType bsonType
-        ) {
+        protected BsonValue(BsonType bsonType)
+        {
             this.bsonType = bsonType;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Casts the BsonValue to a Boolean (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public bool AsBoolean {
-            get { return ((BsonBoolean) this).Value; }
+        public bool AsBoolean
+        {
+            get { return ((BsonBoolean)this).Value; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonArray (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonArray AsBsonArray {
-            get { return (BsonArray) this; }
+        public BsonArray AsBsonArray
+        {
+            get { return (BsonArray)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonBinaryData (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonBinaryData AsBsonBinaryData {
-            get { return (BsonBinaryData) this; }
+        public BsonBinaryData AsBsonBinaryData
+        {
+            get { return (BsonBinaryData)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonDateTime (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonDateTime AsBsonDateTime {
-            get { return (BsonDateTime) this; }
+        public BsonDateTime AsBsonDateTime
+        {
+            get { return (BsonDateTime)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonDocument (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonDocument AsBsonDocument {
-            get { return (BsonDocument) this; }
+        public BsonDocument AsBsonDocument
+        {
+            get { return (BsonDocument)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonJavaScript (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonJavaScript AsBsonJavaScript {
-            get { return (BsonJavaScript) this; }
+        public BsonJavaScript AsBsonJavaScript
+        {
+            get { return (BsonJavaScript)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonJavaScriptWithScope (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonJavaScriptWithScope AsBsonJavaScriptWithScope {
-            get { return (BsonJavaScriptWithScope) this; }
+        public BsonJavaScriptWithScope AsBsonJavaScriptWithScope
+        {
+            get { return (BsonJavaScriptWithScope)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonMaxKey (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonMaxKey AsBsonMaxKey {
-            get { return (BsonMaxKey) this; }
+        public BsonMaxKey AsBsonMaxKey
+        {
+            get { return (BsonMaxKey)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonMinKey (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonMinKey AsBsonMinKey {
-            get { return (BsonMinKey) this; }
+        public BsonMinKey AsBsonMinKey
+        {
+            get { return (BsonMinKey)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonNull (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonNull AsBsonNull {
-            get { return (BsonNull) this; }
+        public BsonNull AsBsonNull
+        {
+            get { return (BsonNull)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonRegularExpression (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonRegularExpression AsBsonRegularExpression {
-            get { return (BsonRegularExpression) this; }
+        public BsonRegularExpression AsBsonRegularExpression
+        {
+            get { return (BsonRegularExpression)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonSymbol (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonSymbol AsBsonSymbol {
-            get { return (BsonSymbol) this; }
+        public BsonSymbol AsBsonSymbol
+        {
+            get { return (BsonSymbol)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonTimestamp (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonTimestamp AsBsonTimestamp {
-            get { return (BsonTimestamp) this; }
+        public BsonTimestamp AsBsonTimestamp
+        {
+            get { return (BsonTimestamp)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonUndefined (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public BsonUndefined AsBsonUndefined {
-            get { return (BsonUndefined) this; }
+        public BsonUndefined AsBsonUndefined
+        {
+            get { return (BsonUndefined)this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a BsonValue (a way of upcasting subclasses of BsonValue to BsonValue at compile time).
         /// </summary>
-        public BsonValue AsBsonValue {
+        public BsonValue AsBsonValue
+        {
             get { return this; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Byte[] (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public byte[] AsByteArray {
-            get { return ((BsonBinaryData) this).Bytes; }
+        public byte[] AsByteArray
+        {
+            get { return ((BsonBinaryData)this).Bytes; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a DateTime (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public DateTime AsDateTime {
-            get { return ((BsonDateTime) this).Value; }
+        public DateTime AsDateTime
+        {
+            get { return ((BsonDateTime)this).Value; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Double (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public double AsDouble {
-            get { return ((BsonDouble) this).Value; }
+        public double AsDouble
+        {
+            get { return ((BsonDouble)this).Value; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Guid (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public Guid AsGuid {
-            get { return ((BsonBinaryData) this).ToGuid(); }
+        public Guid AsGuid
+        {
+            get { return ((BsonBinaryData)this).ToGuid(); }
         }
 
         /// <summary>
         /// Casts the BsonValue to an Int32 (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public int AsInt32 {
-            get { return ((BsonInt32) this).Value; }
+        public int AsInt32
+        {
+            get { return ((BsonInt32)this).Value; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Int64 (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public long AsInt64 {
-            get { return ((BsonInt64) this).Value; }
+        public long AsInt64
+        {
+            get { return ((BsonInt64)this).Value; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Nullable{Boolean} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public bool? AsNullableBoolean {
-            get { return (bsonType == BsonType.Null) ? null : (bool?) AsBoolean; }
+        public bool? AsNullableBoolean
+        {
+            get { return (bsonType == BsonType.Null) ? null : (bool?)AsBoolean; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Nullable{DateTime} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public DateTime? AsNullableDateTime {
-            get { return (bsonType == BsonType.Null) ? null : (DateTime?) AsDateTime; }
+        public DateTime? AsNullableDateTime
+        {
+            get { return (bsonType == BsonType.Null) ? null : (DateTime?)AsDateTime; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Nullable{Double} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public double? AsNullableDouble {
-            get { return (bsonType == BsonType.Null) ? null : (double?) AsDouble; }
+        public double? AsNullableDouble
+        {
+            get { return (bsonType == BsonType.Null) ? null : (double?)AsDouble; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Nullable{Guid} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public Guid? AsNullableGuid {
-            get { return (bsonType == BsonType.Null) ? null : (Guid?) AsGuid; }
+        public Guid? AsNullableGuid
+        {
+            get { return (bsonType == BsonType.Null) ? null : (Guid?)AsGuid; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Nullable{Int32} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public int? AsNullableInt32 {
-            get { return (bsonType == BsonType.Null) ? null : (int?) AsInt32; }
+        public int? AsNullableInt32
+        {
+            get { return (bsonType == BsonType.Null) ? null : (int?)AsInt32; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Nullable{Int64} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public long? AsNullableInt64 {
-            get { return (bsonType == BsonType.Null) ? null : (long?) AsInt64; }
+        public long? AsNullableInt64
+        {
+            get { return (bsonType == BsonType.Null) ? null : (long?)AsInt64; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Nullable{ObjectId} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public ObjectId? AsNullableObjectId {
-            get { return (bsonType == BsonType.Null) ? null : (ObjectId?) AsObjectId; }
+        public ObjectId? AsNullableObjectId
+        {
+            get { return (bsonType == BsonType.Null) ? null : (ObjectId?)AsObjectId; }
         }
 
         /// <summary>
         /// Casts the BsonValue to an ObjectId (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public ObjectId AsObjectId {
-            get { return ((BsonObjectId) this).Value; }
+        public ObjectId AsObjectId
+        {
+            get { return ((BsonObjectId)this).Value; }
         }
 
         /// <summary>
         /// Casts the BsonValue to a Regex (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public Regex AsRegex {
-            get { return ((BsonRegularExpression) this).ToRegex(); }
+        public Regex AsRegex
+        {
+            get { return ((BsonRegularExpression)this).ToRegex(); }
         }
 
         /// <summary>
         /// Casts the BsonValue to a String (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        public string AsString {
-            get { return ((BsonString) this).Value; }
+        public string AsString
+        {
+            get { return ((BsonString)this).Value; }
         }
 
         /// <summary>
         /// Gets the BsonType of this BsonValue.
         /// </summary>
-        public BsonType BsonType {
+        public BsonType BsonType
+        {
             get { return bsonType; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a Boolean.
         /// </summary>
-        public bool IsBoolean {
+        public bool IsBoolean
+        {
             get { return bsonType == BsonType.Boolean; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonArray.
         /// </summary>
-        public bool IsBsonArray {
+        public bool IsBsonArray
+        {
             get { return bsonType == BsonType.Array; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonBinaryData.
         /// </summary>
-        public bool IsBsonBinaryData {
+        public bool IsBsonBinaryData
+        {
             get { return bsonType == BsonType.Binary; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonDateTime.
         /// </summary>
-        public bool IsBsonDateTime {
+        public bool IsBsonDateTime
+        {
             get { return bsonType == BsonType.DateTime; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonDocument.
         /// </summary>
-        public bool IsBsonDocument {
+        public bool IsBsonDocument
+        {
             get { return bsonType == BsonType.Document; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonJavaScript.
         /// </summary>
-        public bool IsBsonJavaScript {
+        public bool IsBsonJavaScript
+        {
             get { return bsonType == BsonType.JavaScript || bsonType == BsonType.JavaScriptWithScope; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonJavaScriptWithScope.
         /// </summary>
-        public bool IsBsonJavaScriptWithScope {
+        public bool IsBsonJavaScriptWithScope
+        {
             get { return bsonType == BsonType.JavaScriptWithScope; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonMaxKey.
         /// </summary>
-        public bool IsBsonMaxKey {
+        public bool IsBsonMaxKey
+        {
             get { return bsonType == BsonType.MaxKey; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonMinKey.
         /// </summary>
-        public bool IsBsonMinKey {
+        public bool IsBsonMinKey
+        {
             get { return bsonType == BsonType.MinKey; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonNull.
         /// </summary>
-        public bool IsBsonNull {
+        public bool IsBsonNull
+        {
             get { return bsonType == BsonType.Null; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonRegularExpression.
         /// </summary>
-        public bool IsBsonRegularExpression {
+        public bool IsBsonRegularExpression
+        {
             get { return bsonType == BsonType.RegularExpression; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonSymbol .
         /// </summary>
-        public bool IsBsonSymbol {
+        public bool IsBsonSymbol
+        {
             get { return bsonType == BsonType.Symbol; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonTimestamp.
         /// </summary>
-        public bool IsBsonTimestamp {
+        public bool IsBsonTimestamp
+        {
             get { return bsonType == BsonType.Timestamp; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a BsonUndefined.
         /// </summary>
-        public bool IsBsonUndefined {
+        public bool IsBsonUndefined
+        {
             get { return bsonType == BsonType.Undefined; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a DateTime.
         /// </summary>
-        public bool IsDateTime {
-            get { return bsonType == BsonType.DateTime && ((BsonDateTime) this).IsValidDateTime; }
+        public bool IsDateTime
+        {
+            get { return bsonType == BsonType.DateTime && ((BsonDateTime)this).IsValidDateTime; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a Double.
         /// </summary>
-        public bool IsDouble {
+        public bool IsDouble
+        {
             get { return bsonType == BsonType.Double; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a Guid.
         /// </summary>
-        public bool IsGuid {
-            get {
-                if (bsonType == BsonType.Binary) {
-                    var subType = ((BsonBinaryData) this).SubType;
+        public bool IsGuid
+        {
+            get
+            {
+                if (bsonType == BsonType.Binary)
+                {
+                    var subType = ((BsonBinaryData)this).SubType;
                     return subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy;
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -425,22 +477,26 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Tests whether this BsonValue is an Int32.
         /// </summary>
-        public bool IsInt32 {
+        public bool IsInt32
+        {
             get { return bsonType == BsonType.Int32; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is an Int64.
         /// </summary>
-        public bool IsInt64 {
+        public bool IsInt64
+        {
             get { return bsonType == BsonType.Int64; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a numeric value.
         /// </summary>
-        public bool IsNumeric {
-            get {
+        public bool IsNumeric
+        {
+            get
+            {
                 return
                     bsonType == BsonType.Double ||
                     bsonType == BsonType.Int32 ||
@@ -451,14 +507,16 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Tests whether this BsonValue is an ObjectId .
         /// </summary>
-        public bool IsObjectId {
+        public bool IsObjectId
+        {
             get { return bsonType == BsonType.ObjectId; }
         }
 
         /// <summary>
         /// Tests whether this BsonValue is a String.
         /// </summary>
-        public bool IsString {
+        public bool IsString
+        {
             get { return bsonType == BsonType.String; }
         }
 
@@ -466,20 +524,19 @@ namespace MongoDB.Bson {
         /// Gets the raw value of this BsonValue (or null if this BsonValue doesn't have a single scalar value).
         /// </summary>
         // note: don't change return value to "this" or lots of things will break
-        public virtual object RawValue {
+        public virtual object RawValue
+        {
             get { return null; } // subclasses that have a single value (e.g. Int32) override this
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Casts a BsonValue to a bool.
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A bool.</returns>
-        public static explicit operator bool(
-            BsonValue value
-        ) {
+        public static explicit operator bool(BsonValue value)
+        {
             return value.AsBoolean;
         }
 
@@ -488,9 +545,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A bool?.</returns>
-        public static explicit operator bool?(
-            BsonValue value
-        ) {
+        public static explicit operator bool?(BsonValue value)
+        {
             return (value == null) ? null : value.AsNullableBoolean;
         }
 
@@ -499,9 +555,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A bool.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            bool value
-        ) {
+        public static implicit operator BsonValue(bool value)
+        {
             return BsonBoolean.Create(value);
         }
 
@@ -510,10 +565,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A bool?.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            bool? value
-        ) {
-            return value.HasValue ? (BsonValue) BsonBoolean.Create(value.Value) : BsonNull.Value;
+        public static implicit operator BsonValue(bool? value)
+        {
+            return value.HasValue ? (BsonValue)BsonBoolean.Create(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -521,9 +575,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A byte[].</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            byte[] value
-        ) {
+        public static implicit operator BsonValue(byte[] value)
+        {
             return BsonBinaryData.Create(value);
         }
 
@@ -532,9 +585,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A DateTime.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            DateTime value
-        ) {
+        public static implicit operator BsonValue(DateTime value)
+        {
             return new BsonDateTime(value);
         }
 
@@ -543,10 +595,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A DateTime?.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            DateTime? value
-        ) {
-            return value.HasValue ? (BsonValue) BsonDateTime.Create(value.Value) : BsonNull.Value;
+        public static implicit operator BsonValue(DateTime? value)
+        {
+            return value.HasValue ? (BsonValue)BsonDateTime.Create(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -554,9 +605,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A double.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            double value
-        ) {
+        public static implicit operator BsonValue(double value)
+        {
             return new BsonDouble(value);
         }
 
@@ -565,10 +615,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A double?.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            double? value
-        ) {
-            return value.HasValue ? (BsonValue) BsonDouble.Create(value.Value) : BsonNull.Value;
+        public static implicit operator BsonValue(double? value)
+        {
+            return value.HasValue ? (BsonValue)BsonDouble.Create(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -576,9 +625,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">An Enum.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            Enum value
-        ) {
+        public static implicit operator BsonValue(Enum value)
+        {
             return BsonTypeMapper.MapToBsonValue(value);
         }
 
@@ -587,9 +635,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A Guid.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            Guid value
-        ) {
+        public static implicit operator BsonValue(Guid value)
+        {
             return BsonBinaryData.Create(value);
         }
 
@@ -598,10 +645,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A Guid?.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            Guid? value
-        ) {
-            return value.HasValue ? (BsonValue) BsonBinaryData.Create(value.Value) : BsonNull.Value;
+        public static implicit operator BsonValue(Guid? value)
+        {
+            return value.HasValue ? (BsonValue)BsonBinaryData.Create(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -609,9 +655,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">An int.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            int value
-        ) {
+        public static implicit operator BsonValue(int value)
+        {
             return BsonInt32.Create(value);
         }
 
@@ -620,10 +665,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">An int?.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            int? value
-        ) {
-            return value.HasValue ? (BsonValue) BsonInt32.Create(value.Value) : BsonNull.Value;
+        public static implicit operator BsonValue(int? value)
+        {
+            return value.HasValue ? (BsonValue)BsonInt32.Create(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -631,9 +675,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A long.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            long value
-        ) {
+        public static implicit operator BsonValue(long value)
+        {
             return new BsonInt64(value);
         }
 
@@ -642,10 +685,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A long?.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            long? value
-        ) {
-            return value.HasValue ? (BsonValue) BsonInt64.Create(value.Value) : BsonNull.Value;
+        public static implicit operator BsonValue(long? value)
+        {
+            return value.HasValue ? (BsonValue)BsonInt64.Create(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -653,9 +695,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">An ObjectId.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            ObjectId value
-        ) {
+        public static implicit operator BsonValue(ObjectId value)
+        {
             return new BsonObjectId(value);
         }
 
@@ -664,10 +705,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">An ObjectId?.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            ObjectId? value
-        ) {
-            return value.HasValue ? (BsonValue) BsonObjectId.Create(value.Value) : BsonNull.Value;
+        public static implicit operator BsonValue(ObjectId? value)
+        {
+            return value.HasValue ? (BsonValue)BsonObjectId.Create(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -675,9 +715,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A Regex.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            Regex value
-        ) {
+        public static implicit operator BsonValue(Regex value)
+        {
             return BsonRegularExpression.Create(value);
         }
 
@@ -686,9 +725,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A string.</param>
         /// <returns>A BsonValue.</returns>
-        public static implicit operator BsonValue(
-            string value
-        ) {
+        public static implicit operator BsonValue(string value)
+        {
             return BsonString.Create(value);
         }
 
@@ -697,9 +735,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A byte[].</returns>
-        public static explicit operator byte[](
-            BsonValue value
-        ) {
+        public static explicit operator byte[](BsonValue value)
+        {
             return (value == null) ? null : value.AsByteArray;
         }
 
@@ -708,9 +745,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A DateTime.</returns>
-        public static explicit operator DateTime(
-            BsonValue value
-        ) {
+        public static explicit operator DateTime(BsonValue value)
+        {
             return value.AsDateTime;
         }
 
@@ -719,9 +755,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A DateTime?.</returns>
-        public static explicit operator DateTime?(
-            BsonValue value
-        ) {
+        public static explicit operator DateTime?(BsonValue value)
+        {
             return (value == null) ? null : value.AsNullableDateTime;
         }
 
@@ -730,9 +765,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A double.</returns>
-        public static explicit operator double(
-            BsonValue value
-        ) {
+        public static explicit operator double(BsonValue value)
+        {
             return value.AsDouble;
         }
 
@@ -741,9 +775,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A double?.</returns>
-        public static explicit operator double?(
-            BsonValue value
-        ) {
+        public static explicit operator double?(BsonValue value)
+        {
             return (value == null) ? null : value.AsNullableDouble;
         }
 
@@ -752,9 +785,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A Guid.</returns>
-        public static explicit operator Guid(
-            BsonValue value
-        ) {
+        public static explicit operator Guid(BsonValue value)
+        {
             return value.AsGuid;
         }
 
@@ -763,9 +795,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A Guid?.</returns>
-        public static explicit operator Guid?(
-            BsonValue value
-        ) {
+        public static explicit operator Guid?(BsonValue value)
+        {
             return (value == null) ? null : value.AsNullableGuid;
         }
 
@@ -774,9 +805,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An int.</returns>
-        public static explicit operator int(
-            BsonValue value
-        ) {
+        public static explicit operator int(BsonValue value)
+        {
             return value.AsInt32;
         }
 
@@ -785,9 +815,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An int?.</returns>
-        public static explicit operator int?(
-            BsonValue value
-        ) {
+        public static explicit operator int?(BsonValue value)
+        {
             return value == null ? null : value.AsNullableInt32;
         }
 
@@ -796,9 +825,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A long.</returns>
-        public static explicit operator long(
-            BsonValue value
-        ) {
+        public static explicit operator long(BsonValue value)
+        {
             return value.AsInt64;
         }
 
@@ -807,9 +835,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A long?.</returns>
-        public static explicit operator long?(
-            BsonValue value
-        ) {
+        public static explicit operator long?(BsonValue value)
+        {
             return (value == null) ? null : value.AsNullableInt64;
         }
 
@@ -818,9 +845,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An ObjectId.</returns>
-        public static explicit operator ObjectId(
-            BsonValue value
-        ) {
+        public static explicit operator ObjectId(BsonValue value)
+        {
             return value.AsObjectId;
         }
 
@@ -829,9 +855,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>An ObjectId?.</returns>
-        public static explicit operator ObjectId?(
-            BsonValue value
-        ) {
+        public static explicit operator ObjectId?(BsonValue value)
+        {
             return (value == null) ? null : value.AsNullableObjectId;
         }
 
@@ -840,9 +865,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A Regex.</returns>
-        public static explicit operator Regex(
-            BsonValue value
-        ) {
+        public static explicit operator Regex(BsonValue value)
+        {
             return (value == null) ? null : value.AsRegex;
         }
 
@@ -851,9 +875,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">The BsonValue.</param>
         /// <returns>A string.</returns>
-        public static explicit operator string(
-            BsonValue value
-        ) {
+        public static explicit operator string(BsonValue value)
+        {
             return (value == null) ? null : value.AsString;
         }
 
@@ -863,10 +886,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonValue.</param>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if the first BsonValue is less than the other one.</returns>
-        public static bool operator <(
-            BsonValue lhs,
-            BsonValue rhs
-        ) {
+        public static bool operator <(BsonValue lhs, BsonValue rhs)
+        {
             if (object.ReferenceEquals(lhs, null) && object.ReferenceEquals(rhs, null)) { return false; }
             if (object.ReferenceEquals(lhs, null)) { return true; }
             if (object.ReferenceEquals(rhs, null)) { return false; }
@@ -879,10 +900,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonValue.</param>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if the first BsonValue is less than or equal to the other one.</returns>
-        public static bool operator <=(
-            BsonValue lhs,
-            BsonValue rhs
-        ) {
+        public static bool operator <=(BsonValue lhs, BsonValue rhs)
+        {
             if (object.ReferenceEquals(lhs, null) && object.ReferenceEquals(rhs, null)) { return true; }
             if (object.ReferenceEquals(lhs, null)) { return true; }
             if (object.ReferenceEquals(rhs, null)) { return false; }
@@ -895,10 +914,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonValue.</param>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if the two BsonValues are not equal according to ==.</returns>
-        public static bool operator !=(
-            BsonValue lhs,
-            BsonValue rhs
-        ) {
+        public static bool operator !=(BsonValue lhs, BsonValue rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -908,10 +925,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonValue.</param>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if the two BsonValues are equal according to ==.</returns>
-        public static bool operator ==(
-            BsonValue lhs,
-            BsonValue rhs
-        ) {
+        public static bool operator ==(BsonValue lhs, BsonValue rhs)
+        {
             if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
             if (object.ReferenceEquals(rhs, null)) { return false; } // don't check type because sometimes different types can be ==
             return lhs.OperatorEqualsImplementation(rhs); // some subclasses override OperatorEqualsImplementation
@@ -923,10 +938,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonValue.</param>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if the first BsonValue is greater than the other one.</returns>
-        public static bool operator >(
-            BsonValue lhs,
-            BsonValue rhs
-        ) {
+        public static bool operator >(BsonValue lhs, BsonValue rhs)
+        {
             return !(lhs <= rhs);
         }
 
@@ -936,15 +949,12 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonValue.</param>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if the first BsonValue is greater than or equal to the other one.</returns>
-        public static bool operator >=(
-            BsonValue lhs,
-            BsonValue rhs
-        ) {
+        public static bool operator >=(BsonValue lhs, BsonValue rhs)
+        {
             return !(lhs < rhs);
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         // TODO: implement more Create methods for .NET types (int, string, etc...)? Not sure... already have implicit conversions
 
         /// <summary>
@@ -952,27 +962,43 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A value to be mapped to a BsonValue.</param>
         /// <returns>A BsonValue.</returns>
-        public static BsonValue Create(
-            object value
-        ) {
+        public static BsonValue Create(object value)
+        {
             // optimize away the call to MapToBsonValue for the most common cases
-            if (value == null) {
+            if (value == null)
+            {
                 return null;
-            } else if (value is BsonValue) {
-                return (BsonValue) value;
-            } else if (value is int) {
-                return BsonInt32.Create((int) value);
-            } else if (value is string) {
-                return new BsonString((string) value);
-            } else if (value is bool) {
-                return BsonBoolean.Create((bool) value);
-            } else if (value is DateTime) {
-                return new BsonDateTime((DateTime) value);
-            } else if (value is long) {
-                return new BsonInt64((long) value);
-            } else if (value is double) {
-                return new BsonDouble((double) value);
-            } else {
+            }
+            else if (value is BsonValue)
+            {
+                return (BsonValue)value;
+            }
+            else if (value is int)
+            {
+                return BsonInt32.Create((int)value);
+            }
+            else if (value is string)
+            {
+                return new BsonString((string)value);
+            }
+            else if (value is bool)
+            {
+                return BsonBoolean.Create((bool)value);
+            }
+            else if (value is DateTime)
+            {
+                return new BsonDateTime((DateTime)value);
+            }
+            else if (value is long)
+            {
+                return new BsonInt64((long)value);
+            }
+            else if (value is double)
+            {
+                return new BsonDouble((double)value);
+            }
+            else
+            {
                 return BsonTypeMapper.MapToBsonValue(value);
             }
         }
@@ -982,11 +1008,11 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="bsonReader">The reader.</param>
         /// <returns>A BsonValue.</returns>
-        public static BsonValue ReadFrom(
-            BsonReader bsonReader
-        ) {
+        public static BsonValue ReadFrom(BsonReader bsonReader)
+        {
             BsonType bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Array:
                     return BsonArray.ReadFrom(bsonReader);
                 case BsonType.Binary:
@@ -1048,14 +1074,14 @@ namespace MongoDB.Bson {
                     throw new BsonInternalException(message);
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a shallow clone of the BsonValue (see also DeepClone).
         /// </summary>
         /// <returns>A shallow clone of the BsonValue.</returns>
-        public virtual BsonValue Clone() {
+        public virtual BsonValue Clone()
+        {
             return this; // subclasses override Clone if necessary
         }
 
@@ -1064,18 +1090,15 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonValue is less than, equal to, or greather than the other BsonValue.</returns>
-        public abstract int CompareTo(
-            BsonValue other
-        );
+        public abstract int CompareTo(BsonValue other);
 
         /// <summary>
         /// Compares the type of this BsonValue to the type of another BsonValue.
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether the type of this BsonValue is less than, equal to, or greather than the type of the other BsonValue.</returns>
-        public int CompareTypeTo(
-            BsonValue other
-        ) {
+        public int CompareTypeTo(BsonValue other)
+        {
             if (object.ReferenceEquals(other, null)) { return 1; }
             return bsonTypeSortOrder[bsonType].CompareTo(bsonTypeSortOrder[other.bsonType]);
         }
@@ -1084,7 +1107,8 @@ namespace MongoDB.Bson {
         /// Creates a deep clone of the BsonValue (see also Clone).
         /// </summary>
         /// <returns>A deep clone of the BsonValue.</returns>
-        public virtual BsonValue DeepClone() {
+        public virtual BsonValue DeepClone()
+        {
             return this; // subclasses override DeepClone if necessary
         }
 
@@ -1093,10 +1117,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if the two BsonValue values are equal.</returns>
-        public bool Equals(
-            BsonValue rhs
-        ) {
-            return Equals((object) rhs);
+        public bool Equals(BsonValue rhs)
+        {
+            return Equals((object)rhs);
         }
 
         /// <summary>
@@ -1104,9 +1127,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonValue and equal to this one.</returns>
-        public override bool Equals(
-            object obj
-        ) {
+        public override bool Equals(object obj)
+        {
             throw new BsonInternalException("A subclass of BsonValue did not override Equals.");
         }
 
@@ -1114,7 +1136,8 @@ namespace MongoDB.Bson {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             throw new BsonInternalException("A subclass of BsonValue did not override GetHashCode.");
         }
 
@@ -1122,14 +1145,16 @@ namespace MongoDB.Bson {
         /// Converts this BsonValue to a Boolean (using the JavaScript definition of truthiness).
         /// </summary>
         /// <returns>A Boolean.</returns>
-        public bool ToBoolean() {
-            switch (bsonType) {
-                case BsonType.Boolean: return ((BsonBoolean) this).Value;
-                case BsonType.Double: var d = ((BsonDouble) this).Value; return !(double.IsNaN(d) || d == 0.0);
-                case BsonType.Int32: return ((BsonInt32) this).Value != 0;
-                case BsonType.Int64: return ((BsonInt64) this).Value != 0;
+        public bool ToBoolean()
+        {
+            switch (bsonType)
+            {
+                case BsonType.Boolean: return ((BsonBoolean)this).Value;
+                case BsonType.Double: var d = ((BsonDouble)this).Value; return !(double.IsNaN(d) || d == 0.0);
+                case BsonType.Int32: return ((BsonInt32)this).Value != 0;
+                case BsonType.Int64: return ((BsonInt64)this).Value != 0;
                 case BsonType.Null: return false;
-                case BsonType.String: return ((BsonString) this).Value != "";
+                case BsonType.String: return ((BsonString)this).Value != "";
                 case BsonType.Undefined: return false;
                 default: return true; // everything else is true
             }
@@ -1139,12 +1164,14 @@ namespace MongoDB.Bson {
         /// Converts this BsonValue to a Double.
         /// </summary>
         /// <returns>A Double.</returns>
-        public double ToDouble() {
-            switch (bsonType) {
-                case BsonType.Int32: return (double) ((BsonInt32) this).Value;
-                case BsonType.Int64: return (double) ((BsonInt64) this).Value;
-                case BsonType.String: return XmlConvert.ToDouble(((BsonString) this).Value);
-                default: return ((BsonDouble) this).Value;
+        public double ToDouble()
+        {
+            switch (bsonType)
+            {
+                case BsonType.Int32: return (double)((BsonInt32)this).Value;
+                case BsonType.Int64: return (double)((BsonInt64)this).Value;
+                case BsonType.String: return XmlConvert.ToDouble(((BsonString)this).Value);
+                default: return ((BsonDouble)this).Value;
             }
         }
 
@@ -1152,12 +1179,14 @@ namespace MongoDB.Bson {
         /// Converts this BsonValue to an Int32.
         /// </summary>
         /// <returns>An Int32.</returns>
-        public int ToInt32() {
-            switch (bsonType) {
-                case BsonType.Double: return (int) ((BsonDouble) this).Value;
-                case BsonType.Int64: return (int) ((BsonInt64) this).Value;
-                case BsonType.String: return XmlConvert.ToInt32(((BsonString) this).Value);
-                default: return ((BsonInt32) this).Value;
+        public int ToInt32()
+        {
+            switch (bsonType)
+            {
+                case BsonType.Double: return (int)((BsonDouble)this).Value;
+                case BsonType.Int64: return (int)((BsonInt64)this).Value;
+                case BsonType.String: return XmlConvert.ToInt32(((BsonString)this).Value);
+                default: return ((BsonInt32)this).Value;
             }
         }
 
@@ -1165,12 +1194,14 @@ namespace MongoDB.Bson {
         /// Converts this BsonValue to an Int64.
         /// </summary>
         /// <returns>An Int64.</returns>
-        public long ToInt64() {
-            switch (bsonType) {
-                case BsonType.Double: return (long) ((BsonDouble) this).Value;
-                case BsonType.Int32: return (long) ((BsonInt32) this).Value;
-                case BsonType.String: return XmlConvert.ToInt64(((BsonString) this).Value);
-                default: return ((BsonInt64) this).Value;
+        public long ToInt64()
+        {
+            switch (bsonType)
+            {
+                case BsonType.Double: return (long)((BsonDouble)this).Value;
+                case BsonType.Int32: return (long)((BsonInt32)this).Value;
+                case BsonType.String: return XmlConvert.ToInt64(((BsonString)this).Value);
+                default: return ((BsonInt64)this).Value;
             }
         }
 
@@ -1178,22 +1209,25 @@ namespace MongoDB.Bson {
         /// Writes the BsonValue to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
-        public void WriteTo(
-            BsonWriter bsonWriter
-        ) {
-            switch (bsonType) {
+        public void WriteTo(BsonWriter bsonWriter)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Array:
-                    ((BsonArray) this).WriteTo(bsonWriter);
+                    ((BsonArray)this).WriteTo(bsonWriter);
                     break;
                 case BsonType.Binary:
-                    var binaryData = (BsonBinaryData) this;
+                    var binaryData = (BsonBinaryData)this;
                     var bytes = binaryData.Bytes;
                     var subType = binaryData.SubType;
                     var guidRepresentation = binaryData.GuidRepresentation;
                     var writerGuidRepresentation = bsonWriter.Settings.GuidRepresentation;
-                    if (subType == BsonBinarySubType.UuidLegacy && writerGuidRepresentation != GuidRepresentation.Unspecified) {
-                        if (guidRepresentation != writerGuidRepresentation) {
-                            if (guidRepresentation == GuidRepresentation.Unspecified) {
+                    if (subType == BsonBinarySubType.UuidLegacy && writerGuidRepresentation != GuidRepresentation.Unspecified)
+                    {
+                        if (guidRepresentation != writerGuidRepresentation)
+                        {
+                            if (guidRepresentation == GuidRepresentation.Unspecified)
+                            {
                                 var message = string.Format("Cannot write binary data of sub type UuidLegacy and GuidRepresentation Unspecified to a collection with GuidRepresentation {0}.", writerGuidRepresentation);
                                 throw new BsonSerializationException(message);
                             }
@@ -1206,39 +1240,45 @@ namespace MongoDB.Bson {
                     bsonWriter.WriteBinaryData(bytes, subType, guidRepresentation);
                     break;
                 case BsonType.Boolean:
-                    bsonWriter.WriteBoolean(((BsonBoolean) this).Value);
+                    bsonWriter.WriteBoolean(((BsonBoolean)this).Value);
                     break;
                 case BsonType.DateTime:
-                    bsonWriter.WriteDateTime(((BsonDateTime) this).MillisecondsSinceEpoch);
+                    bsonWriter.WriteDateTime(((BsonDateTime)this).MillisecondsSinceEpoch);
                     break;
                 case BsonType.Document:
                     var document = this as BsonDocument;
-                    if (document != null) {
+                    if (document != null)
+                    {
                         document.WriteTo(bsonWriter);
-                    } else {
+                    }
+                    else
+                    {
                         var documentWrapper = this as BsonDocumentWrapper;
-                        if (documentWrapper != null) {
+                        if (documentWrapper != null)
+                        {
                             documentWrapper.Serialize(bsonWriter, typeof(BsonDocument), null);
-                        } else {
+                        }
+                        else
+                        {
                             var message = string.Format("BsonType Document can only be used with the classes BsonDocument or BsonDocumentWrapper, not with the class {0}.", this.GetType().FullName);
                             throw new BsonInternalException(message);
                         }
                     }
                     break;
                 case BsonType.Double:
-                    bsonWriter.WriteDouble(((BsonDouble) this).Value);
+                    bsonWriter.WriteDouble(((BsonDouble)this).Value);
                     break;
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32(((BsonInt32) this).Value);
+                    bsonWriter.WriteInt32(((BsonInt32)this).Value);
                     break;
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(((BsonInt64) this).Value);
+                    bsonWriter.WriteInt64(((BsonInt64)this).Value);
                     break;
                 case BsonType.JavaScript:
-                    bsonWriter.WriteJavaScript(((BsonJavaScript) this).Code);
+                    bsonWriter.WriteJavaScript(((BsonJavaScript)this).Code);
                     break;
                 case BsonType.JavaScriptWithScope:
-                    var script = (BsonJavaScriptWithScope) this;
+                    var script = (BsonJavaScriptWithScope)this;
                     bsonWriter.WriteJavaScriptWithScope(script.Code);
                     script.Scope.WriteTo(bsonWriter);
                     break;
@@ -1252,45 +1292,44 @@ namespace MongoDB.Bson {
                     bsonWriter.WriteNull();
                     break;
                 case BsonType.ObjectId:
-                    var objectId = ((BsonObjectId) this).Value;
+                    var objectId = ((BsonObjectId)this).Value;
                     bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
                     break;
                 case BsonType.RegularExpression:
-                    BsonRegularExpression regex = (BsonRegularExpression) this;
+                    BsonRegularExpression regex = (BsonRegularExpression)this;
                     bsonWriter.WriteRegularExpression(regex.Pattern, regex.Options);
                     break;
                 case BsonType.String:
-                    bsonWriter.WriteString(((BsonString) this).Value);
+                    bsonWriter.WriteString(((BsonString)this).Value);
                     break;
                 case BsonType.Symbol:
-                    bsonWriter.WriteSymbol(((BsonSymbol) this).Name);
+                    bsonWriter.WriteSymbol(((BsonSymbol)this).Name);
                     break;
                 case BsonType.Timestamp:
-                    bsonWriter.WriteTimestamp(((BsonTimestamp) this).Value);
+                    bsonWriter.WriteTimestamp(((BsonTimestamp)this).Value);
                     break;
                 case BsonType.Undefined:
                     bsonWriter.WriteUndefined();
                     break;
             }
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Implementation of operator ==.
         /// </summary>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if the two BsonValues are equal according to ==.</returns>
-        protected virtual bool OperatorEqualsImplementation(
-            BsonValue rhs
-        ) {
+        protected virtual bool OperatorEqualsImplementation(BsonValue rhs)
+        {
             return Equals(rhs); // default implementation of == is to call Equals
         }
-        #endregion
 
-        #region explicit IConvertible implementation
-        TypeCode IConvertible.GetTypeCode() {
-            switch (bsonType) {
+        // explicit IConvertible implementation
+        TypeCode IConvertible.GetTypeCode()
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return TypeCode.Boolean;
                 case BsonType.DateTime: return TypeCode.DateTime;
                 case BsonType.Double: return TypeCode.Double;
@@ -1301,10 +1340,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        bool IConvertible.ToBoolean(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        bool IConvertible.ToBoolean(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return this.AsBoolean;
                 case BsonType.Double: return Convert.ToBoolean(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToBoolean(this.AsInt32, provider);
@@ -1314,10 +1353,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        byte IConvertible.ToByte(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        byte IConvertible.ToByte(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToByte(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToByte(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToByte(this.AsInt32, provider);
@@ -1327,10 +1366,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        char IConvertible.ToChar(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        char IConvertible.ToChar(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Int32: return Convert.ToChar(this.AsInt32, provider);
                 case BsonType.Int64: return Convert.ToChar(this.AsInt64, provider);
                 case BsonType.String: return Convert.ToChar(this.AsString, provider);
@@ -1338,20 +1377,20 @@ namespace MongoDB.Bson {
             }
         }
 
-        DateTime IConvertible.ToDateTime(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        DateTime IConvertible.ToDateTime(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.DateTime: return this.AsDateTime;
                 case BsonType.String: return Convert.ToDateTime(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
         }
 
-        decimal IConvertible.ToDecimal(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        decimal IConvertible.ToDecimal(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToDecimal(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToDecimal(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToDecimal(this.AsInt32, provider);
@@ -1361,10 +1400,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        double IConvertible.ToDouble(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        double IConvertible.ToDouble(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToDouble(this.AsBoolean, provider);
                 case BsonType.Double: return this.AsDouble;
                 case BsonType.Int32: return Convert.ToDouble(this.AsInt32, provider);
@@ -1374,10 +1413,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        short IConvertible.ToInt16(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        short IConvertible.ToInt16(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToInt16(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToInt16(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToInt16(this.AsInt32, provider);
@@ -1387,10 +1426,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        int IConvertible.ToInt32(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        int IConvertible.ToInt32(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToInt32(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToInt32(this.AsDouble, provider);
                 case BsonType.Int32: return this.AsInt32;
@@ -1400,10 +1439,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        long IConvertible.ToInt64(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        long IConvertible.ToInt64(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToInt64(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToInt64(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToInt64(this.AsInt32, provider);
@@ -1413,10 +1452,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        sbyte IConvertible.ToSByte(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        sbyte IConvertible.ToSByte(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToSByte(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToSByte(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToSByte(this.AsInt32, provider);
@@ -1426,10 +1465,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        float IConvertible.ToSingle(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        float IConvertible.ToSingle(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToSingle(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToSingle(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToSingle(this.AsInt32, provider);
@@ -1439,10 +1478,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        string IConvertible.ToString(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        string IConvertible.ToString(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToString(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToString(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToString(this.AsInt32, provider);
@@ -1452,11 +1491,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        object IConvertible.ToType(
-            Type conversionType,
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        object IConvertible.ToType(Type conversionType, IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ChangeType(this.AsBoolean, conversionType, provider);
                 case BsonType.DateTime: return Convert.ChangeType(this.AsDateTime, conversionType, provider);
                 case BsonType.Double: return Convert.ChangeType(this.AsDouble, conversionType, provider);
@@ -1467,10 +1505,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        ushort IConvertible.ToUInt16(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        ushort IConvertible.ToUInt16(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToUInt16(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToUInt16(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToUInt16(this.AsInt32, provider);
@@ -1480,10 +1518,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        uint IConvertible.ToUInt32(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        uint IConvertible.ToUInt32(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToUInt32(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToUInt32(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToUInt16(this.AsInt32, provider);
@@ -1493,10 +1531,10 @@ namespace MongoDB.Bson {
             }
         }
 
-        ulong IConvertible.ToUInt64(
-            IFormatProvider provider
-        ) {
-            switch (bsonType) {
+        ulong IConvertible.ToUInt64(IFormatProvider provider)
+        {
+            switch (bsonType)
+            {
                 case BsonType.Boolean: return Convert.ToUInt64(this.AsBoolean, provider);
                 case BsonType.Double: return Convert.ToUInt64(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToUInt64(this.AsInt32, provider);
@@ -1505,6 +1543,5 @@ namespace MongoDB.Bson {
                 default: throw new InvalidCastException();
             }
         }
-        #endregion
     }
 }

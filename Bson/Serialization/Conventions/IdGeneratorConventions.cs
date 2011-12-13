@@ -21,31 +21,33 @@ using System.Reflection;
 
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents an Id generator convention.
     /// </summary>
-    public interface IIdGeneratorConvention {
+    public interface IIdGeneratorConvention
+    {
         /// <summary>
         /// Gets the Id generator for an Id member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>An Id generator.</returns>
-        IIdGenerator GetIdGenerator(MemberInfo memberInfo); 
+        IIdGenerator GetIdGenerator(MemberInfo memberInfo);
     }
 
     /// <summary>
     /// Represents an Id generator convention where the Id generator is looked up based on the member type.
     /// </summary>
-    public class LookupIdGeneratorConvention : IIdGeneratorConvention {
+    public class LookupIdGeneratorConvention : IIdGeneratorConvention
+    {
         /// <summary>
         /// Gets the Id generator for an Id member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>An Id generator.</returns>
-        public IIdGenerator GetIdGenerator(
-           MemberInfo memberInfo
-        ) {
+        public IIdGenerator GetIdGenerator(MemberInfo memberInfo)
+        {
             return BsonSerializer.LookupIdGenerator(BsonClassMap.GetMemberInfoType(memberInfo));
         }
     }

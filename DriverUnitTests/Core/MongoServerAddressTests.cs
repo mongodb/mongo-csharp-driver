@@ -23,29 +23,34 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoServerAddressTests {
+    public class MongoServerAddressTests
+    {
         [Test]
-        public void TestCreateWithHost() {
+        public void TestCreateWithHost()
+        {
             var credentials = new MongoServerAddress("host");
             Assert.AreEqual("host", credentials.Host);
             Assert.AreEqual(27017, credentials.Port);
         }
 
         [Test]
-        public void TestCreateWithHostAndPort() {
+        public void TestCreateWithHostAndPort()
+        {
             var credentials = new MongoServerAddress("host", 123);
             Assert.AreEqual("host", credentials.Host);
             Assert.AreEqual(123, credentials.Port);
         }
 
         [Test]
-        public void TestEquals() {
+        public void TestEquals()
+        {
             var a = new MongoServerAddress("host1");
             var b = new MongoServerAddress("host1");
             var c = new MongoServerAddress("host2");
-            var n = (MongoServerAddress) null;
+            var n = (MongoServerAddress)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -68,14 +73,16 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestParseWithHost() {
+        public void TestParseWithHost()
+        {
             var credentials = MongoServerAddress.Parse("host");
             Assert.AreEqual("host", credentials.Host);
             Assert.AreEqual(27017, credentials.Port);
         }
 
         [Test]
-        public void TestParseWithHostAndPort() {
+        public void TestParseWithHostAndPort()
+        {
             var credentials = MongoServerAddress.Parse("host:123");
             Assert.AreEqual("host", credentials.Host);
             Assert.AreEqual(123, credentials.Port);

@@ -28,10 +28,13 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp239 {
+namespace MongoDB.BsonUnitTests.Jira.CSharp239
+{
     [TestFixture]
-    public class CSharp239Tests {
-        public class Tree {
+    public class CSharp239Tests
+    {
+        public class Tree
+        {
             public string Node;
             [BsonIgnoreIfNull]
             public Tree Left;
@@ -41,8 +44,10 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp239 {
 
 
         [Test]
-        public void TestSerialization() {
-            var obj = new Tree {
+        public void TestSerialization()
+        {
+            var obj = new Tree
+            {
                 Node = "top",
                 Left = new Tree { Node = "left" },
                 Right = new Tree { Node = "right" }

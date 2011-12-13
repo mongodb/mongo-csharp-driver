@@ -26,20 +26,24 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp216 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp216
+{
     [TestFixture]
-    public class CSharp216Tests {
+    public class CSharp216Tests
+    {
         private MongoServer server;
         private MongoDatabase database;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
         }
 
         [Test]
-        public void TestAmbiguousEvalArguments() {
+        public void TestAmbiguousEvalArguments()
+        {
             var code = "function (x, y) { return y; }";
             var objectArrayArg = new object[] { 1, 2, 3 };
             var boolArg = true;
@@ -49,7 +53,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp216 {
         }
 
         [Test]
-        public void TestNoLock() {
+        public void TestNoLock()
+        {
             var code = "function (x, y) { return y; }";
             var objectArrayArg = new object[] { 1, 2, 3 };
             var boolArg = true;

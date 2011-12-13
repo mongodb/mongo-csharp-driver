@@ -18,10 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// A marker interface that represents options for creating a collection (see CollectionOptionsDocument and the CollectionOptions builder).
     /// </summary>
-    public interface IMongoCollectionOptions {
+    public interface IMongoCollectionOptions
+    {
     }
 }

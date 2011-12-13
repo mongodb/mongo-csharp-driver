@@ -24,19 +24,24 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp275Tests {
-        private class Test {
+    public class CSharp275Tests
+    {
+        private class Test
+        {
             public string Json;
             public string Iso;
-            public Test(string json, string iso) {
+            public Test(string json, string iso)
+            {
                 this.Json = json;
                 this.Iso = iso;
             }
         }
 
-        private Test[] tests = new Test[] {
+        private Test[] tests = new Test[]
+        {
             // note: use EST/EDT in all Json values to ensure DateTime.Parse doesn't work
             // test with dayOfWeek
             new Test("Mon, 10 Oct 2011 11:22:33 EDT", "2011-10-10T11:22:33-04:00"),
@@ -116,13 +121,18 @@ namespace MongoDB.BsonUnitTests.Jira {
         };
 
         [Test]
-        public void TestParseDates() {
-            foreach (var test in tests) {
+        public void TestParseDates()
+        {
+            foreach (var test in tests)
+            {
                 var json = string.Format("{{ date : new Date('{0}') }}", test.Json);
                 BsonDocument document = null;
-                try {
+                try
+                {
                     document = BsonDocument.Parse(json);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     var message = string.Format("Error parsing: new Date(\"{0}\"). Message: {1}.", test.Json, ex.Message);
                     Assert.Fail(message);
                 }
@@ -130,7 +140,8 @@ namespace MongoDB.BsonUnitTests.Jira {
                 var expected = DateTime.Parse(test.Iso).ToUniversalTime();
                 Assert.AreEqual(DateTimeKind.Utc, dateTime.Kind);
                 Assert.AreEqual(DateTimeKind.Utc, expected.Kind);
-                if (dateTime != expected) {
+                if (dateTime != expected)
+                {
                     var message = string.Format("Parsing new Date(\"{0}\") did not yield expected result {1}.", test.Json, expected.ToString("o"));
                     Assert.Fail(message);
                 }

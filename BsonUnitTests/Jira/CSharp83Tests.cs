@@ -26,16 +26,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp83Tests {
-        private class Student {
+    public class CSharp83Tests
+    {
+        private class Student
+        {
             public ObjectId Id { get; set; }
             public List<int> Scores { get; set; }
         }
 
         [Test]
-        public void TestSerialization() {
+        public void TestSerialization()
+        {
             var student = new Student { Id = ObjectId.Empty, Scores = new List<int> { 1, 2 } };
             var json = student.ToJson();
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'Scores' : [1, 2] }".Replace("'", "\"");

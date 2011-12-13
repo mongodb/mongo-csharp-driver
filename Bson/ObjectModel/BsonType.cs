@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents the type of a BSON element.
     /// </summary>
     [Serializable]
-    public enum BsonType {
+    public enum BsonType
+    {
         /// <summary>
         /// Not a real BSON type. Used to signal the end of a document.
         /// </summary>

@@ -18,10 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// A marker interface that represents what to group by (see GroupByDocument and the GroupBy builder).
     /// </summary>
-    public interface IMongoGroupBy {
+    public interface IMongoGroupBy
+    {
     }
 }

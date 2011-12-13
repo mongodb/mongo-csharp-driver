@@ -26,17 +26,21 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp78Tests {
-        private class C {
+    public class CSharp78Tests
+    {
+        private class C
+        {
             public short S { get; set; }
             public object O { get; set; }
         }
 
         [Test]
-        public void TestShortSerialization() {
-            var c = new C { S = 1, O = (short) 2 };
+        public void TestShortSerialization()
+        {
+            var c = new C { S = 1, O = (short)2 };
             var json = c.ToJson();
             var expected = "{ 'S' : 1, 'O' : 2 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);

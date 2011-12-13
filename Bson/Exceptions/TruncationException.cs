@@ -19,28 +19,30 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a truncation exception.
     /// </summary>
     [Serializable]
-    public class TruncationException : BsonException {
-        #region constructors
+    public class TruncationException : BsonException
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the TruncationException class.
         /// </summary>
         public TruncationException()
-            : this("Truncation resulted in data loss.") {
+            : this("Truncation resulted in data loss.")
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the TruncationException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public TruncationException(
-            string message
-        )
-            : base(message) {
+        public TruncationException(string message)
+            : base(message)
+        {
         }
 
         /// <summary>
@@ -48,11 +50,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public TruncationException(
-            string message,
-            Exception innerException
-        )
-            : base(message, innerException) {
+        public TruncationException(string message, Exception innerException)
+            : base(message, innerException)
+        {
         }
 
         /// <summary>
@@ -60,12 +60,9 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public TruncationException(
-            SerializationInfo info,
-            StreamingContext context
-        )
-            : base(info, context) {
+        public TruncationException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
-        #endregion
     }
 }

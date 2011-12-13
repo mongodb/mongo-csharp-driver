@@ -21,18 +21,22 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonElementTests {
+    public class BsonElementTests
+    {
         [Test]
-        public void TestNewBsonArray() {
+        public void TestNewBsonArray()
+        {
             BsonArray array;
             array = new BsonArray(new List<int>() { 1, 2, 3 });
             array = new BsonArray(new int[] { 4, 5, 6 });
         }
 
         [Test]
-        public void TestStringElement() {
+        public void TestStringElement()
+        {
             BsonElement element = new BsonElement("abc", "def");
             string value = element.Value.AsString;
             Assert.AreEqual("abc", element.Name);

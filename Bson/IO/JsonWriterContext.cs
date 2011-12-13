@@ -19,44 +19,44 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class JsonWriterContext {
-        #region private fields
+namespace MongoDB.Bson.IO
+{
+    internal class JsonWriterContext
+    {
+        // private fields
         private JsonWriterContext parentContext;
         private ContextType contextType;
         private string indentation;
         private bool hasElements = false;
-        #endregion
 
-        #region constructors
-        internal JsonWriterContext(
-            JsonWriterContext parentContext,
-            ContextType contextType,
-            string indentChars
-        ) {
+        // constructors
+        internal JsonWriterContext(JsonWriterContext parentContext, ContextType contextType, string indentChars)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.indentation = (parentContext == null) ? indentChars : parentContext.Indentation + indentChars;
         }
-        #endregion
 
-        #region internal properties
-        internal JsonWriterContext ParentContext {
+        // internal properties
+        internal JsonWriterContext ParentContext
+        {
             get { return parentContext; }
         }
 
-        internal ContextType ContextType {
+        internal ContextType ContextType
+        {
             get { return contextType; }
         }
 
-        internal string Indentation {
+        internal string Indentation
+        {
             get { return indentation; }
         }
 
-        internal bool HasElements {
+        internal bool HasElements
+        {
             get { return hasElements; }
             set { hasElements = value; }
         }
-        #endregion
     }
 }

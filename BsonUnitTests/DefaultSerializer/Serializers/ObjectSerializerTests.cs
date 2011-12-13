@@ -25,21 +25,28 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class ObjectSerializerTests {
-        public class C {
+    public class ObjectSerializerTests
+    {
+        public class C
+        {
             public object Obj;
         }
 
-        public class D {
+        public class D
+        {
             public object[] Array;
         }
 
         [Test]
-        public void TestArray() {
-            var d = new D {
-                Array = new object[] {
+        public void TestArray()
+        {
+            var d = new D
+            {
+                Array = new object[]
+                {
                     1.5,
                     "abc",
                     new object(),
@@ -52,16 +59,18 @@ namespace MongoDB.BsonUnitTests.Serialization {
             };
             var json = d.ToJson();
             var expected = "{ 'Array' : [#A] }";
-            expected = expected.Replace("#A", string.Join(", ", new string[] {
-                "1.5",
-                "'abc'",
-                "{ }",
-                "true",
-                "ISODate('1970-01-01T00:00:00Z')",
-                "null",
-                "123",
-                "NumberLong(123)"
-            }));
+            expected = expected.Replace("#A",
+                string.Join(", ", new string[]
+                    {
+                        "1.5",
+                        "'abc'",
+                        "{ }",
+                        "true",
+                        "ISODate('1970-01-01T00:00:00Z')",
+                        "null",
+                        "123",
+                        "NumberLong(123)"
+                    }));
             expected = expected.Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
@@ -71,7 +80,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestBoolean() {
+        public void TestBoolean()
+        {
             var c = new C { Obj = true };
             var json = c.ToJson();
             var expected = "{ 'Obj' : true }".Replace("'", "\"");
@@ -83,7 +93,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDateTime() {
+        public void TestDateTime()
+        {
             var c = new C { Obj = BsonConstants.UnixEpoch };
             var json = c.ToJson();
             var expected = "{ 'Obj' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
@@ -95,7 +106,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDouble() {
+        public void TestDouble()
+        {
             var c = new C { Obj = 1.5 };
             var json = c.ToJson();
             var expected = "{ 'Obj' : 1.5 }".Replace("'", "\"");
@@ -107,7 +119,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestInt32() {
+        public void TestInt32()
+        {
             var c = new C { Obj = 123 };
             var json = c.ToJson();
             var expected = "{ 'Obj' : 123 }".Replace("'", "\"");
@@ -119,7 +132,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestInt64() {
+        public void TestInt64()
+        {
             var c = new C { Obj = 123L };
             var json = c.ToJson();
             var expected = "{ 'Obj' : NumberLong(123) }".Replace("'", "\"");
@@ -131,7 +145,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var c = new C { Obj = null };
             var json = c.ToJson();
             var expected = "{ 'Obj' : null }".Replace("'", "\"");
@@ -143,7 +158,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestObject() {
+        public void TestObject()
+        {
             var c = new C { Obj = new object() };
             var json = c.ToJson();
             var expected = "{ 'Obj' : { } }".Replace("'", "\"");
@@ -155,7 +171,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestString() {
+        public void TestString()
+        {
             var c = new C { Obj = "abc" };
             var json = c.ToJson();
             var expected = "{ 'Obj' : 'abc' }".Replace("'", "\"");

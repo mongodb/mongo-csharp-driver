@@ -25,42 +25,52 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class KnownTypesTests {
+    public class KnownTypesTests
+    {
         [BsonKnownTypes(typeof(B), typeof(C))]
-        private class A {
+        private class A
+        {
             public string P { get; set; }
         }
 
         [BsonKnownTypes(typeof(D))]
-        private class B : A {
+        private class B : A
+        {
         }
 
         [BsonDiscriminator(RootClass = true)]
         [BsonKnownTypes(typeof(E))]
-        private class C : A {
+        private class C : A
+        {
         }
 
-        private class D : B {
+        private class D : B
+        {
         }
 
-        private class E : C {
+        private class E : C
+        {
         }
 
-        static KnownTypesTests() {
+        static KnownTypesTests()
+        {
             BsonClassMap.RegisterClassMap<A>();
         }
 
         [Test]
-        public void TestDeserializeDAsA() {
-            var document = new BsonDocument {
+        public void TestDeserializeDAsA()
+        {
+            var document = new BsonDocument
+            {
                 { "_t", "D" },
                 { "P", "x" }
             };
 
             var bson = document.ToBson();
-            var rehydrated = (D) BsonSerializer.Deserialize<A>(bson);
+            var rehydrated = (D)BsonSerializer.Deserialize<A>(bson);
             Assert.IsInstanceOf<D>(rehydrated);
 
             var json = rehydrated.ToJson<A>();
@@ -70,14 +80,16 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeEAsA() {
-            var document = new BsonDocument {
+        public void TestDeserializeEAsA()
+        {
+            var document = new BsonDocument
+            {
                 { "_t", new BsonArray { "C", "E" } },
                 { "P", "x" }
             };
 
             var bson = document.ToBson();
-            var rehydrated = (E) BsonSerializer.Deserialize<A>(bson);
+            var rehydrated = (E)BsonSerializer.Deserialize<A>(bson);
             Assert.IsInstanceOf<E>(rehydrated);
 
             var json = rehydrated.ToJson<A>();

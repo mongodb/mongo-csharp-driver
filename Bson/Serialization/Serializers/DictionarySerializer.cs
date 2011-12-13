@@ -24,33 +24,34 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson.Serialization.Serializers {
+namespace MongoDB.Bson.Serialization.Serializers
+{
     /// <summary>
     /// Represents a serializer for dictionaries.
     /// </summary>
-    public class DictionarySerializer : BsonBaseSerializer {
-        #region private static fields
+    public class DictionarySerializer : BsonBaseSerializer
+    {
+        // private static fields
         private static DictionarySerializer instance = new DictionarySerializer();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the DictionarySerializer class.
         /// </summary>
-        public DictionarySerializer() {
+        public DictionarySerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the DictionarySerializer class.
         /// </summary>
-        public static DictionarySerializer Instance {
+        public static DictionarySerializer Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -59,18 +60,18 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options
-        ) {
+        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        {
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
+            if (bsonType == BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else if (bsonType == BsonType.Document) {
-                if (nominalType == typeof(object)) {
+            }
+            else if (bsonType == BsonType.Document)
+            {
+                if (nominalType == typeof(object))
+                {
                     bsonReader.ReadStartDocument();
                     bsonReader.ReadString("_t"); // skip over discriminator
                     bsonReader.ReadName("_v");
@@ -82,7 +83,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 var dictionary = CreateInstance(nominalType);
                 bsonReader.ReadStartDocument();
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                {
                     var key = bsonReader.ReadName();
                     var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
@@ -91,12 +93,16 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 }
                 bsonReader.ReadEndDocument();
                 return dictionary;
-            } else if (bsonType == BsonType.Array) {
+            }
+            else if (bsonType == BsonType.Array)
+            {
                 var dictionary = CreateInstance(nominalType);
                 bsonReader.ReadStartArray();
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
-                    if (bsonReader.CurrentBsonType == BsonType.Array) {
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                {
+                    if (bsonReader.CurrentBsonType == BsonType.Array)
+                    {
                         bsonReader.ReadStartArray();
                         bsonReader.ReadBsonType();
                         var keyType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
@@ -108,14 +114,18 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType, null);
                         bsonReader.ReadEndArray();
                         dictionary.Add(key, value);
-                    } else if (bsonReader.CurrentBsonType == BsonType.Document) {
+                    }
+                    else if (bsonReader.CurrentBsonType == BsonType.Document)
+                    {
                         bsonReader.ReadStartDocument();
                         object key = null;
                         object value = null;
                         bool keyFound = false, valueFound = false;
-                        while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                        while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                        {
                             var name = bsonReader.ReadName();
-                            switch (name) {
+                            switch (name)
+                            {
                                 case "k":
                                     var keyType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                                     var keySerializer = BsonSerializer.LookupSerializer(keyType);
@@ -134,21 +144,27 @@ namespace MongoDB.Bson.Serialization.Serializers {
                             }
                         }
                         bsonReader.ReadEndDocument();
-                        if (!keyFound) {
+                        if (!keyFound)
+                        {
                             throw new FileFormatException("Dictionary item was missing the 'k' element.");
                         }
-                        if (!valueFound) {
+                        if (!valueFound)
+                        {
                             throw new FileFormatException("Dictionary item was missing the 'v' element.");
                         }
                         dictionary.Add(key, value);
-                    } else {
+                    }
+                    else
+                    {
                         var message = string.Format("Expected document or array for Dictionary item, not {0}.", bsonReader.CurrentBsonType);
                         throw new FileFormatException(message);
                     }
                 }
                 bsonReader.ReadEndArray();
                 return dictionary;
-            } else {
+            }
+            else
+            {
                 var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
             }
@@ -161,18 +177,18 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options
-        ) {
-            if (value == null) {
+        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        {
+            if (value == null)
+            {
                 bsonWriter.WriteNull();
-            } else {
-                var dictionary = (IDictionary) value;
+            }
+            else
+            {
+                var dictionary = (IDictionary)value;
 
-                if (nominalType == typeof(object)) {
+                if (nominalType == typeof(object))
+                {
                     var actualType = value.GetType();
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
@@ -183,11 +199,14 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 }
 
                 var dictionaryOptions = options as DictionarySerializationOptions;
-                if (dictionaryOptions == null) {
+                if (dictionaryOptions == null)
+                {
                     // support RepresentationSerializationOptions for backward compatibility
                     var representationOptions = options as RepresentationSerializationOptions;
-                    if (representationOptions != null) {
-                        switch (representationOptions.Representation) {
+                    if (representationOptions != null)
+                    {
+                        switch (representationOptions.Representation)
+                        {
                             case BsonType.Array:
                                 dictionaryOptions = DictionarySerializationOptions.ArrayOfArrays;
                                 break;
@@ -200,35 +219,42 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         }
                     }
 
-                    if (dictionaryOptions == null) {
+                    if (dictionaryOptions == null)
+                    {
                         dictionaryOptions = DictionarySerializationOptions.Defaults;
                     }
                 }
 
                 var representation = dictionaryOptions.Representation;
-                if (representation == DictionaryRepresentation.Dynamic) {
+                if (representation == DictionaryRepresentation.Dynamic)
+                {
                     representation = DictionaryRepresentation.Document;
-                    foreach (object key in dictionary.Keys) {
+                    foreach (object key in dictionary.Keys)
+                    {
                         var name = key as string; // check for null and type string at the same time
-                        if (name == null || name.StartsWith("$") || name.Contains(".")) {
+                        if (name == null || name.StartsWith("$") || name.Contains("."))
+                        {
                             representation = DictionaryRepresentation.ArrayOfArrays;
                             break;
                         }
                     }
                 }
 
-                switch (representation) {
+                switch (representation)
+                {
                     case DictionaryRepresentation.Document:
                         bsonWriter.WriteStartDocument();
-                        foreach (DictionaryEntry entry in dictionary) {
-                            bsonWriter.WriteName((string) entry.Key);
+                        foreach (DictionaryEntry entry in dictionary)
+                        {
+                            bsonWriter.WriteName((string)entry.Key);
                             BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
                         }
                         bsonWriter.WriteEndDocument();
                         break;
                     case DictionaryRepresentation.ArrayOfArrays:
                         bsonWriter.WriteStartArray();
-                        foreach (DictionaryEntry entry in dictionary) {
+                        foreach (DictionaryEntry entry in dictionary)
+                        {
                             bsonWriter.WriteStartArray();
                             BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
                             BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
@@ -238,7 +264,8 @@ namespace MongoDB.Bson.Serialization.Serializers {
                         break;
                     case DictionaryRepresentation.ArrayOfDocuments:
                         bsonWriter.WriteStartArray();
-                        foreach (DictionaryEntry entry in dictionary) {
+                        foreach (DictionaryEntry entry in dictionary)
+                        {
                             bsonWriter.WriteStartDocument();
                             bsonWriter.WriteName("k");
                             BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
@@ -254,27 +281,35 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 }
             }
         }
-        #endregion
 
-        #region private methods
-        private IDictionary CreateInstance(
-            Type nominalType
-        ) {
-            if (nominalType == typeof(Hashtable)) {
+        // private methods
+        private IDictionary CreateInstance(Type nominalType)
+        {
+            if (nominalType == typeof(Hashtable))
+            {
                 return new Hashtable();
-            } else if (nominalType == typeof(ListDictionary)) {
+            }
+            else if (nominalType == typeof(ListDictionary))
+            {
                 return new ListDictionary();
-            } else if (nominalType == typeof(IDictionary)) {
+            }
+            else if (nominalType == typeof(IDictionary))
+            {
                 return new Hashtable();
-            } else if (nominalType == typeof(OrderedDictionary)) {
+            }
+            else if (nominalType == typeof(OrderedDictionary))
+            {
                 return new OrderedDictionary();
-            } else if (nominalType == typeof(SortedList)) {
+            }
+            else if (nominalType == typeof(SortedList))
+            {
                 return new SortedList();
-            } else {
+            }
+            else
+            {
                 var message = string.Format("Invalid nominalType {0} for DictionarySerializer.", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }
         }
-        #endregion
     }
 }

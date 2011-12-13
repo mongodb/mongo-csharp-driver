@@ -24,10 +24,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class BsonMemberMapTests {
-        private class TestClass {
+    public class BsonMemberMapTests
+    {
+        private class TestClass
+        {
             public int Field;
 
             public int Property { get; set; }
@@ -41,7 +44,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestGettingAField() {
+        public void TestGettingAField()
+        {
             var instance = new TestClass { Field = 42 };
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("Field");
@@ -52,7 +56,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSettingAField() {
+        public void TestSettingAField()
+        {
             var instance = new TestClass();
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("Field");
@@ -63,7 +68,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestGettingAProperty() {
+        public void TestGettingAProperty()
+        {
             var instance = new TestClass { Property = 42 };
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("Property");
@@ -74,7 +80,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSettingAProperty() {
+        public void TestSettingAProperty()
+        {
             var instance = new TestClass();
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("Property");

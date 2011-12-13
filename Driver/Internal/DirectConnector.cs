@@ -21,37 +21,39 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Internal {
-    internal class DirectConnector {
-        #region private fields
+namespace MongoDB.Driver.Internal
+{
+    internal class DirectConnector
+    {
+        // private fields
         private MongoServer server;
         private int connectionAttempt;
-        #endregion
 
-        #region constructors
-        internal DirectConnector(
-            MongoServer server,
-            int connectionAttempt
-        ) {
+        // constructors
+        internal DirectConnector(MongoServer server, int connectionAttempt)
+        {
             this.server = server;
             this.connectionAttempt = connectionAttempt;
         }
-        #endregion
 
-        #region internal methods
-        internal void Connect(
-            TimeSpan timeout
-        ) {
+        // internal methods
+        internal void Connect(TimeSpan timeout)
+        {
             var exceptions = new List<Exception>();
-            foreach (var address in server.Settings.Servers) {
-                try {
+            foreach (var address in server.Settings.Servers)
+            {
+                try
+                {
                     var serverInstance = server.Instance;
-                    if (serverInstance.Address != address) {
+                    if (serverInstance.Address != address)
+                    {
                         serverInstance.Address = address;
                     }
                     serverInstance.Connect(server.Settings.SlaveOk); // TODO: what about timeout?
                     return;
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     exceptions.Add(ex);
                 }
             }
@@ -63,6 +65,5 @@ namespace MongoDB.Driver.Internal {
             connectionException.Data.Add("InnerExceptions", exceptions); // useful when there is more than one
             throw connectionException;
         }
-        #endregion
     }
 }

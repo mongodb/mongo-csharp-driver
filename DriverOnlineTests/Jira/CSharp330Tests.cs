@@ -23,20 +23,24 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira {
+namespace MongoDB.DriverOnlineTests.Jira
+{
     [TestFixture]
-    public class CSharp330Tests {
+    public class CSharp330Tests
+    {
         private MongoServer server;
         private MongoDatabase database;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
         }
 
         [Test]
-        public void TestMongoGridFSSettingsInheritsSafeModeFromDatabase() {
+        public void TestMongoGridFSSettingsInheritsSafeModeFromDatabase()
+        {
             var gridFS = database.GridFS;
             Assert.AreEqual(true, gridFS.Settings.SafeMode.Enabled);
         }

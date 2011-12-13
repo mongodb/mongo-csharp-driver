@@ -21,15 +21,18 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonValueEqualsTests {
+    public class BsonValueEqualsTests
+    {
         [Test]
-        public void TestBsonArrayEquals() {
+        public void TestBsonArrayEquals()
+        {
             var a = new BsonArray { "a", 1 };
             var b = new BsonArray { "a", 1 };
             var c = new BsonArray { "b", 1 };
-            var n = (BsonArray) null;
+            var n = (BsonArray)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -52,11 +55,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonBinaryDataEquals() {
+        public void TestBsonBinaryDataEquals()
+        {
             var a = new BsonBinaryData(new byte[] { 1, 2, 3 });
             var b = new BsonBinaryData(new byte[] { 1, 2, 3 });
             var c = new BsonBinaryData(new byte[] { 2, 3, 4 });
-            var n = (BsonBinaryData) null;
+            var n = (BsonBinaryData)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -82,11 +86,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonBooleanEquals() {
+        public void TestBsonBooleanEquals()
+        {
             var a = BsonBoolean.False;
             var b = BsonBoolean.False;
             var c = BsonBoolean.True;
-            var n = (BsonBoolean) null;
+            var n = (BsonBoolean)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -112,11 +117,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonDateTimeEquals() {
+        public void TestBsonDateTimeEquals()
+        {
             var a = new BsonDateTime(new DateTime(2011, 10, 12, 15, 13, 1, DateTimeKind.Utc));
             var b = new BsonDateTime(new DateTime(2011, 10, 12, 15, 13, 1, DateTimeKind.Utc));
             var c = new BsonDateTime(new DateTime(2011, 10, 12, 15, 13, 2, DateTimeKind.Utc));
-            var n = (BsonDateTime) null;
+            var n = (BsonDateTime)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -142,11 +148,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonDocumentEquals() {
+        public void TestBsonDocumentEquals()
+        {
             var a = new BsonDocument("a", 1);
             var b = new BsonDocument("a", 1);
             var c = new BsonDocument("b", 1);
-            var n = (BsonDocument) null;
+            var n = (BsonDocument)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -169,7 +176,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonDoubleEquals() {
+        public void TestBsonDoubleEquals()
+        {
             var a = new BsonDouble(1.0);
             var b = new BsonDouble(1.0);
             var c = new BsonInt32(1);
@@ -177,7 +185,7 @@ namespace MongoDB.BsonUnitTests {
             var e = new BsonDouble(2.0);
             var f = new BsonInt32(2);
             var g = new BsonInt64(2L);
-            var n = (BsonDouble) null;
+            var n = (BsonDouble)null;
             var nan = new BsonDouble(double.NaN);
 
             Assert.IsTrue(object.Equals(a, b));
@@ -226,16 +234,17 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonDoubleAsBsonValueEquals() {
-            var a = (BsonValue) new BsonDouble(1.0);
-            var b = (BsonValue) new BsonDouble(1.0);
-            var c = (BsonValue) new BsonInt32(1);
-            var d = (BsonValue) new BsonInt64(1L);
-            var e = (BsonValue) new BsonDouble(2.0);
-            var f = (BsonValue) new BsonInt32(2);
-            var g = (BsonValue) new BsonInt64(2L);
-            var n = (BsonValue) null;
-            var nan = (BsonValue) new BsonDouble(double.NaN);
+        public void TestBsonDoubleAsBsonValueEquals()
+        {
+            var a = (BsonValue)new BsonDouble(1.0);
+            var b = (BsonValue)new BsonDouble(1.0);
+            var c = (BsonValue)new BsonInt32(1);
+            var d = (BsonValue)new BsonInt64(1L);
+            var e = (BsonValue)new BsonDouble(2.0);
+            var f = (BsonValue)new BsonInt32(2);
+            var g = (BsonValue)new BsonInt64(2L);
+            var n = (BsonValue)null;
+            var nan = (BsonValue)new BsonDouble(double.NaN);
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -283,12 +292,13 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonElementEquals() {
+        public void TestBsonElementEquals()
+        {
             var a = new BsonElement("a", 1);
             var b = new BsonElement("a", 1);
             var c = new BsonElement("b", 1);
             var d = new BsonElement("b", 2);
-            var n = (BsonElement) null;
+            var n = (BsonElement)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -317,7 +327,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonInt32Equals() {
+        public void TestBsonInt32Equals()
+        {
             var a = new BsonInt32(1);
             var b = new BsonInt32(1);
             var c = new BsonInt64(1L);
@@ -325,7 +336,7 @@ namespace MongoDB.BsonUnitTests {
             var e = new BsonInt32(2);
             var f = new BsonInt64(2L);
             var g = new BsonDouble(2.0);
-            var n = (BsonInt32) null;
+            var n = (BsonInt32)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -363,7 +374,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonInt64Equals() {
+        public void TestBsonInt64Equals()
+        {
             var a = new BsonInt64(1L);
             var b = new BsonInt64(1L);
             var c = new BsonInt32(1);
@@ -371,7 +383,7 @@ namespace MongoDB.BsonUnitTests {
             var e = new BsonInt64(2L);
             var f = new BsonInt32(2);
             var g = new BsonDouble(2.0);
-            var n = (BsonInt64) null;
+            var n = (BsonInt64)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -409,11 +421,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonJavaScriptEquals() {
+        public void TestBsonJavaScriptEquals()
+        {
             var a = new BsonJavaScript("script 1");
             var b = new BsonJavaScript("script 1");
             var c = new BsonJavaScript("script 2");
-            var n = (BsonJavaScript) null;
+            var n = (BsonJavaScript)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -439,12 +452,13 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonJavaScriptWithScopeEquals() {
+        public void TestBsonJavaScriptWithScopeEquals()
+        {
             var a = new BsonJavaScriptWithScope("script 1", new BsonDocument("x", 1));
             var b = new BsonJavaScriptWithScope("script 1", new BsonDocument("x", 1));
             var c = new BsonJavaScriptWithScope("script 2", new BsonDocument("x", 1));
             var d = new BsonJavaScriptWithScope("script 2", new BsonDocument("x", 2));
-            var n = (BsonJavaScript) null;
+            var n = (BsonJavaScript)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -476,10 +490,11 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonMaxKeyEquals() {
+        public void TestBsonMaxKeyEquals()
+        {
             var a = BsonMaxKey.Value;
             var b = BsonMaxKey.Value;
-            var n = (BsonMaxKey) null;
+            var n = (BsonMaxKey)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, BsonNull.Value));
@@ -502,10 +517,11 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonMinKeyEquals() {
+        public void TestBsonMinKeyEquals()
+        {
             var a = BsonMinKey.Value;
             var b = BsonMinKey.Value;
-            var n = (BsonMinKey) null;
+            var n = (BsonMinKey)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, BsonNull.Value));
@@ -528,10 +544,11 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonNullEquals() {
+        public void TestBsonNullEquals()
+        {
             var a = BsonNull.Value;
             var b = BsonNull.Value;
-            var n = (BsonNull) null;
+            var n = (BsonNull)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, BsonMaxKey.Value));
@@ -554,11 +571,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonObjectIdEquals() {
+        public void TestBsonObjectIdEquals()
+        {
             var a = BsonObjectId.GenerateNewId();
             var b = new BsonObjectId(a.Value);
             var c = BsonObjectId.GenerateNewId();
-            var n = (BsonObjectId) null;
+            var n = (BsonObjectId)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -584,12 +602,13 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonRegularExpressionEquals() {
+        public void TestBsonRegularExpressionEquals()
+        {
             var a = new BsonRegularExpression("pattern 1", "options 1");
             var b = new BsonRegularExpression("pattern 1", "options 1");
             var c = new BsonRegularExpression("pattern 2", "options 1");
             var d = new BsonRegularExpression("pattern 2", "options 2");
-            var n = (BsonJavaScript) null;
+            var n = (BsonJavaScript)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -621,11 +640,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonStringEquals() {
+        public void TestBsonStringEquals()
+        {
             var a = new BsonString("string 1");
             var b = new BsonString("string 1");
             var c = new BsonString("string 2");
-            var n = (BsonString) null;
+            var n = (BsonString)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -651,11 +671,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonSymbolEquals() {
+        public void TestBsonSymbolEquals()
+        {
             var a = BsonSymbol.Create("symbol 1");
             var b = BsonSymbol.Create("symbol 1");
             var c = BsonSymbol.Create("symbol 2");
-            var n = (BsonString) null;
+            var n = (BsonString)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -681,11 +702,12 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonTimestampEquals() {
+        public void TestBsonTimestampEquals()
+        {
             var a = new BsonTimestamp(1);
             var b = new BsonTimestamp(1);
             var c = new BsonTimestamp(2);
-            var n = (BsonTimestamp) null;
+            var n = (BsonTimestamp)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -711,10 +733,11 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonUndefinedEquals() {
+        public void TestBsonUndefinedEquals()
+        {
             var a = BsonUndefined.Value;
             var b = BsonUndefined.Value;
-            var n = (BsonUndefined) null;
+            var n = (BsonUndefined)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, BsonNull.Value));
@@ -737,7 +760,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestObjectIdEquals() {
+        public void TestObjectIdEquals()
+        {
             var a = ObjectId.GenerateNewId();
             var b = new ObjectId(a.ToByteArray());
             var c = ObjectId.GenerateNewId();

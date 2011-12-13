@@ -26,10 +26,13 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp258 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp258
+{
     [TestFixture]
-    public class CSharp258Tests {
-        public class C {
+    public class CSharp258Tests
+    {
+        public class C
+        {
             public ObjectId Id { get; set; }
             public DateTime DateTime { get; set; }
         }
@@ -39,43 +42,53 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp258 {
         private MongoCollection<C> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database.GetCollection<C>("testcollection");
         }
 
         [Test]
-        public void TestDateTimePropertyWithNewMaxDateTimeRepresentation() {
+        public void TestDateTimePropertyWithNewMaxDateTimeRepresentation()
+        {
             collection.RemoveAll();
-            collection.Insert(new BsonDocument {
-                { "_id", ObjectId.GenerateNewId() },
-                { "DateTime", new BsonDateTime(253402300799999) }
-            });
+            collection.Insert(
+                new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "DateTime", new BsonDateTime(253402300799999) }
+                });
 
             var c = collection.FindOne();
             Assert.AreEqual(DateTime.MaxValue, c.DateTime);
         }
 
         [Test]
-        public void TestDateTimePropertyWithOldMaxDateTimeRepresentation() {
+        public void TestDateTimePropertyWithOldMaxDateTimeRepresentation()
+        {
             collection.RemoveAll();
-            collection.Insert(new BsonDocument {
-                { "_id", ObjectId.GenerateNewId() },
-                { "DateTime", new BsonDateTime(253402300800000) }
-            });
+            collection.Insert(
+                new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "DateTime", new BsonDateTime(253402300800000) }
+                });
 
             var c = collection.FindOne();
             Assert.AreEqual(DateTime.MaxValue, c.DateTime);
         }
 
         [Test]
-        public void TestDocumentWithNewMaxDateTimeRepresentation() {
+        public void TestDocumentWithNewMaxDateTimeRepresentation()
+        {
             collection.RemoveAll();
-            collection.Insert(new BsonDocument {
-                { "_id", ObjectId.GenerateNewId() },
-                { "DateTime", new BsonDateTime(253402300799999) }
-            });
+            collection.Insert(
+                new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "DateTime", new BsonDateTime(253402300799999) }
+                });
 
             var document = collection.FindOneAs<BsonDocument>();
             Assert.AreEqual(DateTime.MaxValue, document["DateTime"].AsDateTime);
@@ -83,12 +96,15 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp258 {
         }
 
         [Test]
-        public void TestDocumentWithOldMaxDateTimeRepresentation() {
+        public void TestDocumentWithOldMaxDateTimeRepresentation()
+        {
             collection.RemoveAll();
-            collection.Insert(new BsonDocument {
-                { "_id", ObjectId.GenerateNewId() },
-                { "DateTime", new BsonDateTime(253402300800000) }
-            });
+            collection.Insert(
+                new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "DateTime", new BsonDateTime(253402300800000) }
+                });
 
             var document = collection.FindOneAs<BsonDocument>();
             Assert.AreEqual(DateTime.MaxValue, document["DateTime"].AsDateTime);

@@ -22,14 +22,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// A static class that maps between .NET objects and BsonValues.
     /// </summary>
-    public static class BsonTypeMapper {
-        #region private static fields
+    public static class BsonTypeMapper
+    {
+        // private static fields
         // table of from mappings used by MapToBsonValue
-        private static Dictionary<Type, Conversion> fromMappings = new Dictionary<Type, Conversion> {
+        private static Dictionary<Type, Conversion> fromMappings = new Dictionary<Type, Conversion>
+        {
             { typeof(bool), Conversion.NewBsonBoolean },
             { typeof(BsonArray), Conversion.None },
             { typeof(BsonBinaryData), Conversion.None },
@@ -66,10 +69,11 @@ namespace MongoDB.Bson {
             { typeof(uint), Conversion.UInt32ToBsonInt64 },
             { typeof(ushort), Conversion.UInt16ToBsonInt32 },
             { typeof(ulong), Conversion.UInt64ToBsonInt64 }
-       };
+        };
 
         // table of from/to mappings used by MapToBsonValue
-        private static Dictionary<Mapping, Conversion> fromToMappings = new Dictionary<Mapping, Conversion>() {
+        private static Dictionary<Mapping, Conversion> fromToMappings = new Dictionary<Mapping, Conversion>()
+        {
             { Mapping.FromTo(typeof(bool), BsonType.Boolean), Conversion.NewBsonBoolean },
             { Mapping.FromTo(typeof(BsonArray), BsonType.Array), Conversion.None },
             { Mapping.FromTo(typeof(BsonBinaryData), BsonType.Binary), Conversion.None },
@@ -148,19 +152,18 @@ namespace MongoDB.Bson {
         };
 
         private static Dictionary<Type, ICustomBsonTypeMapper> customTypeMappers = new Dictionary<Type, ICustomBsonTypeMapper>();
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
-        /// Maps an object to a BsonValue.
+        /// Maps an object to an instance of the closest BsonValue class.
         /// </summary>
         /// <param name="value">An object.</param>
         /// <returns>A BsonValue.</returns>
-        public static BsonValue MapToBsonValue(
-            object value // will be mapped to an instance of the closest BsonValue class
-        ) {
+        public static BsonValue MapToBsonValue(object value)
+        {
             BsonValue bsonValue;
-            if (TryMapToBsonValue(value, out bsonValue)) {
+            if (TryMapToBsonValue(value, out bsonValue))
+            {
                 return bsonValue;
             }
 
@@ -174,48 +177,54 @@ namespace MongoDB.Bson {
         /// <param name="value">An object.</param>
         /// <param name="bsonType">The BsonType to map to.</param>
         /// <returns>A BsonValue.</returns>
-        public static BsonValue MapToBsonValue(
-            object value, // will be mapped to an instance of the BsonValue class for bsonType
-            BsonType bsonType
-        ) {
-            if (value == null) {
+        public static BsonValue MapToBsonValue(object value, BsonType bsonType)
+        {
+            if (value == null)
+            {
                 throw new ArgumentNullException("value");
             }
 
             var valueType = value.GetType();
-            if (valueType.IsEnum) {
+            if (valueType.IsEnum)
+            {
                 valueType = Enum.GetUnderlyingType(valueType);
-                switch (Type.GetTypeCode(valueType)) {
-                    case TypeCode.Byte: value = (int) (byte) value; break;
-                    case TypeCode.Int16: value = (int) (short) value; break;
-                    case TypeCode.Int32: value = (int) value; break;
-                    case TypeCode.Int64: value = (long) value; break;
-                    case TypeCode.SByte: value = (int) (sbyte) value; break;
-                    case TypeCode.UInt16: value = (int) (ushort) value; break;
-                    case TypeCode.UInt32: value = (long) (uint) value; break;
-                    case TypeCode.UInt64: value = (long) (ulong) value; break;
+                switch (Type.GetTypeCode(valueType))
+                {
+                    case TypeCode.Byte: value = (int)(byte)value; break;
+                    case TypeCode.Int16: value = (int)(short)value; break;
+                    case TypeCode.Int32: value = (int)value; break;
+                    case TypeCode.Int64: value = (long)value; break;
+                    case TypeCode.SByte: value = (int)(sbyte)value; break;
+                    case TypeCode.UInt16: value = (int)(ushort)value; break;
+                    case TypeCode.UInt32: value = (long)(uint)value; break;
+                    case TypeCode.UInt64: value = (long)(ulong)value; break;
                 }
                 valueType = value.GetType();
             }
 
             Conversion conversion; // the conversion (if it exists) that will convert value to bsonType
-            if (fromToMappings.TryGetValue(Mapping.FromTo(valueType, bsonType), out conversion)) {
+            if (fromToMappings.TryGetValue(Mapping.FromTo(valueType, bsonType), out conversion))
+            {
                 return Convert(value, conversion);
             }
 
             // these coercions can't be handled by the conversions table (because of the interfaces)
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Array:
-                    if (value is IEnumerable) {
-                        return new BsonArray((IEnumerable) value);
+                    if (value is IEnumerable)
+                    {
+                        return new BsonArray((IEnumerable)value);
                     }
                     break;
                 case BsonType.Document:
-                    if (value is IDictionary<string, object>) {
-                        return new BsonDocument((IDictionary<string, object>) value);
+                    if (value is IDictionary<string, object>)
+                    {
+                        return new BsonDocument((IDictionary<string, object>)value);
                     }
-                    if (value is IDictionary) {
-                        return new BsonDocument((IDictionary) value);
+                    if (value is IDictionary)
+                    {
+                        return new BsonDocument((IDictionary)value);
                     }
                     break;
             }
@@ -229,164 +238,162 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="customTypeMapper">A custom type mapper.</param>
-        public static void RegisterCustomTypeMapper(
-            Type type,
-            ICustomBsonTypeMapper customTypeMapper
-        ) {
+        public static void RegisterCustomTypeMapper(Type type, ICustomBsonTypeMapper customTypeMapper)
+        {
             customTypeMappers.Add(type, customTypeMapper);
         }
 
         /// <summary>
-        /// Tries to map an object to a BsonValue.
+        /// Tries to map an object to an instance of the closest BsonValue class.
         /// </summary>
         /// <param name="value">An object.</param>
         /// <param name="bsonValue">The BsonValue.</param>
         /// <returns>True if the mapping was successfull.</returns>
-        public static bool TryMapToBsonValue(
-            object value, // will be mapped to an instance of the closest BsonValue class
-            out BsonValue bsonValue
-        ) {
-            if (value == null) {
+        public static bool TryMapToBsonValue(object value, out BsonValue bsonValue)
+        {
+            if (value == null)
+            {
                 bsonValue = null;
                 return false;
             }
 
             var valueType = value.GetType();
-            if (valueType.IsEnum) {
+            if (valueType.IsEnum)
+            {
                 valueType = Enum.GetUnderlyingType(valueType);
-                switch (Type.GetTypeCode(valueType)) {
-                    case TypeCode.Byte: value = (int) (byte) value; break;
-                    case TypeCode.Int16: value = (int) (short) value; break;
-                    case TypeCode.Int32: value = (int) value; break;
-                    case TypeCode.Int64: value = (long) value; break;
-                    case TypeCode.SByte: value = (int) (sbyte) value; break;
-                    case TypeCode.UInt16: value = (int) (ushort) value; break;
-                    case TypeCode.UInt32: value = (long) (uint) value; break;
-                    case TypeCode.UInt64: value = (long) (ulong) value; break;
+                switch (Type.GetTypeCode(valueType))
+                {
+                    case TypeCode.Byte: value = (int)(byte)value; break;
+                    case TypeCode.Int16: value = (int)(short)value; break;
+                    case TypeCode.Int32: value = (int)value; break;
+                    case TypeCode.Int64: value = (long)value; break;
+                    case TypeCode.SByte: value = (int)(sbyte)value; break;
+                    case TypeCode.UInt16: value = (int)(ushort)value; break;
+                    case TypeCode.UInt32: value = (long)(uint)value; break;
+                    case TypeCode.UInt64: value = (long)(ulong)value; break;
                 }
                 valueType = value.GetType();
             }
 
             Conversion conversion;
-            if (fromMappings.TryGetValue(valueType, out conversion)) {
+            if (fromMappings.TryGetValue(valueType, out conversion))
+            {
                 bsonValue = Convert(value, conversion);
                 return true;
             }
 
             // these mappings can't be handled by the mappings table (because of the interfaces)
-            if (value is IDictionary<string, object>) {
-                bsonValue = new BsonDocument((IDictionary<string, object>) value);
+            if (value is IDictionary<string, object>)
+            {
+                bsonValue = new BsonDocument((IDictionary<string, object>)value);
                 return true;
             }
-            if (value is IDictionary) {
-                bsonValue = new BsonDocument((IDictionary) value);
+            if (value is IDictionary)
+            {
+                bsonValue = new BsonDocument((IDictionary)value);
                 return true;
             }
 
             // NOTE: the check for IEnumerable must be after the check for IDictionary
             // because IDictionary implements IEnumerable
-            if (value is IEnumerable) {
-                bsonValue = new BsonArray((IEnumerable) value);
+            if (value is IEnumerable)
+            {
+                bsonValue = new BsonArray((IEnumerable)value);
                 return true;
             }
 
             ICustomBsonTypeMapper customTypeMapper;
-            if (customTypeMappers.TryGetValue(valueType, out customTypeMapper)) {
+            if (customTypeMappers.TryGetValue(valueType, out customTypeMapper))
+            {
                 return customTypeMapper.TryMapToBsonValue(value, out bsonValue);
             }
 
             bsonValue = null;
             return false;
         }
-        #endregion
 
-        #region private static methods
-        private static BsonValue Convert(
-            object value,
-            Conversion conversion
-        ) {
+        // private static methods
+        private static BsonValue Convert(object value, Conversion conversion)
+        {
             // note: the ToBoolean conversions use the JavaScript definition of truthiness
-            switch (conversion) {
+            switch (conversion)
+            {
                 // note: I expect this switch statement to be compiled using a jump table and therefore to be very efficient
-                case Conversion.None: return (BsonValue) value;
-                case Conversion.ByteArrayToBsonBinary: return new BsonBinaryData((byte[]) value);
-                case Conversion.ByteArrayToBsonObjectId: return BsonObjectId.Create((byte[]) value);
-                case Conversion.ByteToBsonBoolean: return BsonBoolean.Create((byte) value != 0);
-                case Conversion.ByteToBsonDouble: return new BsonDouble((double) (byte) value);
-                case Conversion.ByteToBsonInt32: return BsonInt32.Create((int) (byte) value);
-                case Conversion.ByteToBsonInt64: return new BsonInt64((long) (byte) value);
-                case Conversion.CharToBsonBoolean: return BsonBoolean.Create((char) value != 0);
-                case Conversion.CharToBsonDouble: return new BsonDouble((double) (char) value);
-                case Conversion.CharToBsonInt32: return BsonInt32.Create((int) (char) value);
-                case Conversion.CharToBsonInt64: return new BsonInt64((long) (char) value);
-                case Conversion.DateTimeOffsetToBsonDateTime: return new BsonDateTime(((DateTimeOffset) value).UtcDateTime);
-                case Conversion.DateTimeToBsonDateTime: return new BsonDateTime((DateTime) value);
-                case Conversion.DoubleToBsonBoolean: var d = (double) value; return BsonBoolean.Create(!(double.IsNaN(d) || d == 0.0));
-                case Conversion.GuidToBsonBinary: return new BsonBinaryData((Guid) value);
-                case Conversion.Int16ToBsonBoolean: return BsonBoolean.Create((short) value != 0);
-                case Conversion.Int16ToBsonDouble: return new BsonDouble((double) (short) value);
-                case Conversion.Int16ToBsonInt32: return BsonInt32.Create((int) (short) value);
-                case Conversion.Int16ToBsonInt64: return new BsonInt64((long) (short) value);
-                case Conversion.Int32ToBsonBoolean: return BsonBoolean.Create((int) value != 0);
-                case Conversion.Int32ToBsonDouble: return new BsonDouble((double) (int) value);
-                case Conversion.Int32ToBsonInt64: return new BsonInt64((long) (int) value);
-                case Conversion.Int64ToBsonBoolean: return BsonBoolean.Create((long) value != 0);
-                case Conversion.Int64ToBsonDouble: return new BsonDouble((double) (long) value);
-                case Conversion.Int64ToBsonTimestamp: return new BsonTimestamp((long) value);
+                case Conversion.None: return (BsonValue)value;
+                case Conversion.ByteArrayToBsonBinary: return new BsonBinaryData((byte[])value);
+                case Conversion.ByteArrayToBsonObjectId: return BsonObjectId.Create((byte[])value);
+                case Conversion.ByteToBsonBoolean: return BsonBoolean.Create((byte)value != 0);
+                case Conversion.ByteToBsonDouble: return new BsonDouble((double)(byte)value);
+                case Conversion.ByteToBsonInt32: return BsonInt32.Create((int)(byte)value);
+                case Conversion.ByteToBsonInt64: return new BsonInt64((long)(byte)value);
+                case Conversion.CharToBsonBoolean: return BsonBoolean.Create((char)value != 0);
+                case Conversion.CharToBsonDouble: return new BsonDouble((double)(char)value);
+                case Conversion.CharToBsonInt32: return BsonInt32.Create((int)(char)value);
+                case Conversion.CharToBsonInt64: return new BsonInt64((long)(char)value);
+                case Conversion.DateTimeOffsetToBsonDateTime: return new BsonDateTime(((DateTimeOffset)value).UtcDateTime);
+                case Conversion.DateTimeToBsonDateTime: return new BsonDateTime((DateTime)value);
+                case Conversion.DoubleToBsonBoolean: var d = (double)value; return BsonBoolean.Create(!(double.IsNaN(d) || d == 0.0));
+                case Conversion.GuidToBsonBinary: return new BsonBinaryData((Guid)value);
+                case Conversion.Int16ToBsonBoolean: return BsonBoolean.Create((short)value != 0);
+                case Conversion.Int16ToBsonDouble: return new BsonDouble((double)(short)value);
+                case Conversion.Int16ToBsonInt32: return BsonInt32.Create((int)(short)value);
+                case Conversion.Int16ToBsonInt64: return new BsonInt64((long)(short)value);
+                case Conversion.Int32ToBsonBoolean: return BsonBoolean.Create((int)value != 0);
+                case Conversion.Int32ToBsonDouble: return new BsonDouble((double)(int)value);
+                case Conversion.Int32ToBsonInt64: return new BsonInt64((long)(int)value);
+                case Conversion.Int64ToBsonBoolean: return BsonBoolean.Create((long)value != 0);
+                case Conversion.Int64ToBsonDouble: return new BsonDouble((double)(long)value);
+                case Conversion.Int64ToBsonTimestamp: return new BsonTimestamp((long)value);
                 case Conversion.BsonMaxKeyToBsonBoolean: return BsonBoolean.True;
                 case Conversion.BsonMinKeyToBsonBoolean: return BsonBoolean.True;
-                case Conversion.NewBsonBoolean: return BsonBoolean.Create((bool) value);
-                case Conversion.NewBsonDouble: return new BsonDouble((double) value);
-                case Conversion.NewBsonInt32: return BsonInt32.Create((int) value);
-                case Conversion.NewBsonInt64: return new BsonInt64((long) value);
-                case Conversion.NewBsonObjectId: return new BsonObjectId((ObjectId) value);
-                case Conversion.NewBsonString: return new BsonString((string) value);
+                case Conversion.NewBsonBoolean: return BsonBoolean.Create((bool)value);
+                case Conversion.NewBsonDouble: return new BsonDouble((double)value);
+                case Conversion.NewBsonInt32: return BsonInt32.Create((int)value);
+                case Conversion.NewBsonInt64: return new BsonInt64((long)value);
+                case Conversion.NewBsonObjectId: return new BsonObjectId((ObjectId)value);
+                case Conversion.NewBsonString: return new BsonString((string)value);
                 case Conversion.BsonNullToBsonBoolean: return BsonBoolean.False;
-                case Conversion.RegexToBsonRegularExpression: return new BsonRegularExpression((Regex) value);
-                case Conversion.SByteToBsonBoolean: return BsonBoolean.Create((sbyte) value != 0);
-                case Conversion.SByteToBsonDouble: return new BsonDouble((double) (sbyte) value);
-                case Conversion.SByteToBsonInt32: return BsonInt32.Create((int) (sbyte) value);
-                case Conversion.SByteToBsonInt64: return new BsonInt64((long) (sbyte) value);
-                case Conversion.SingleToBsonBoolean: var f = (float) value; return BsonBoolean.Create(!(float.IsNaN(f) || f == 0.0f));
-                case Conversion.SingleToBsonDouble: return new BsonDouble((double) (float) value);
-                case Conversion.StringToBsonBoolean: return BsonBoolean.Create((string) value != "");
+                case Conversion.RegexToBsonRegularExpression: return new BsonRegularExpression((Regex)value);
+                case Conversion.SByteToBsonBoolean: return BsonBoolean.Create((sbyte)value != 0);
+                case Conversion.SByteToBsonDouble: return new BsonDouble((double)(sbyte)value);
+                case Conversion.SByteToBsonInt32: return BsonInt32.Create((int)(sbyte)value);
+                case Conversion.SByteToBsonInt64: return new BsonInt64((long)(sbyte)value);
+                case Conversion.SingleToBsonBoolean: var f = (float)value; return BsonBoolean.Create(!(float.IsNaN(f) || f == 0.0f));
+                case Conversion.SingleToBsonDouble: return new BsonDouble((double)(float)value);
+                case Conversion.StringToBsonBoolean: return BsonBoolean.Create((string)value != "");
                 case Conversion.StringToBsonDateTime:
-                    var formats = new string[] {
-                        "yyyy-MM-ddK",
-                        "yyyy-MM-ddTHH:mm:ssK",
-                        "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
-                    };
-                    var dt = DateTime.ParseExact((string) value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+                    var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
+                    var dt = DateTime.ParseExact((string)value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
                     return new BsonDateTime(dt);
-                case Conversion.StringToBsonDouble: return new BsonDouble(XmlConvert.ToDouble((string) value));
-                case Conversion.StringToBsonInt32: return BsonInt32.Create(XmlConvert.ToInt32((string) value));
-                case Conversion.StringToBsonInt64: return new BsonInt64(XmlConvert.ToInt64((string) value));
-                case Conversion.StringToBsonJavaScript: return new BsonJavaScript((string) value);
-                case Conversion.StringToBsonJavaScriptWithScope: return new BsonJavaScriptWithScope((string) value, new BsonDocument());
-                case Conversion.StringToBsonObjectId: return BsonObjectId.Create((string) value);
-                case Conversion.StringToBsonRegularExpression: return new BsonRegularExpression((string) value);
-                case Conversion.StringToBsonSymbol: return BsonSymbol.Create((string) value);
-                case Conversion.StringToBsonTimestamp: return new BsonTimestamp(XmlConvert.ToInt64((string) value));
-                case Conversion.UInt16ToBsonBoolean: return BsonBoolean.Create((ushort) value != 0);
-                case Conversion.UInt16ToBsonDouble: return new BsonDouble((double) (ushort) value);
-                case Conversion.UInt16ToBsonInt32: return BsonInt32.Create((int) (ushort) value);
-                case Conversion.UInt16ToBsonInt64: return new BsonInt64((long) (ushort) value);
-                case Conversion.UInt32ToBsonBoolean: return BsonBoolean.Create((uint) value != 0);
-                case Conversion.UInt32ToBsonDouble: return new BsonDouble((double) (uint) value);
-                case Conversion.UInt32ToBsonInt32: return BsonInt32.Create((int) (uint) value);
-                case Conversion.UInt32ToBsonInt64: return new BsonInt64((long) (uint) value);
-                case Conversion.UInt64ToBsonBoolean: return BsonBoolean.Create((ulong) value != 0);
-                case Conversion.UInt64ToBsonDouble: return new BsonDouble((double) (ulong) value);
-                case Conversion.UInt64ToBsonInt64: return new BsonInt64((long) (ulong) value);
-                case Conversion.UInt64ToBsonTimestamp: return new BsonTimestamp((long) (ulong) value);
+                case Conversion.StringToBsonDouble: return new BsonDouble(XmlConvert.ToDouble((string)value));
+                case Conversion.StringToBsonInt32: return BsonInt32.Create(XmlConvert.ToInt32((string)value));
+                case Conversion.StringToBsonInt64: return new BsonInt64(XmlConvert.ToInt64((string)value));
+                case Conversion.StringToBsonJavaScript: return new BsonJavaScript((string)value);
+                case Conversion.StringToBsonJavaScriptWithScope: return new BsonJavaScriptWithScope((string)value, new BsonDocument());
+                case Conversion.StringToBsonObjectId: return BsonObjectId.Create((string)value);
+                case Conversion.StringToBsonRegularExpression: return new BsonRegularExpression((string)value);
+                case Conversion.StringToBsonSymbol: return BsonSymbol.Create((string)value);
+                case Conversion.StringToBsonTimestamp: return new BsonTimestamp(XmlConvert.ToInt64((string)value));
+                case Conversion.UInt16ToBsonBoolean: return BsonBoolean.Create((ushort)value != 0);
+                case Conversion.UInt16ToBsonDouble: return new BsonDouble((double)(ushort)value);
+                case Conversion.UInt16ToBsonInt32: return BsonInt32.Create((int)(ushort)value);
+                case Conversion.UInt16ToBsonInt64: return new BsonInt64((long)(ushort)value);
+                case Conversion.UInt32ToBsonBoolean: return BsonBoolean.Create((uint)value != 0);
+                case Conversion.UInt32ToBsonDouble: return new BsonDouble((double)(uint)value);
+                case Conversion.UInt32ToBsonInt32: return BsonInt32.Create((int)(uint)value);
+                case Conversion.UInt32ToBsonInt64: return new BsonInt64((long)(uint)value);
+                case Conversion.UInt64ToBsonBoolean: return BsonBoolean.Create((ulong)value != 0);
+                case Conversion.UInt64ToBsonDouble: return new BsonDouble((double)(ulong)value);
+                case Conversion.UInt64ToBsonInt64: return new BsonInt64((long)(ulong)value);
+                case Conversion.UInt64ToBsonTimestamp: return new BsonTimestamp((long)(ulong)value);
             }
 
             throw new BsonInternalException("Unexpected Conversion.");
         }
-        #endregion
 
-        #region private nested types
-        private enum Conversion {
+        // private nested types
+        private enum Conversion
+        {
             None,
             ByteArrayToBsonBinary,
             ByteArrayToBsonObjectId,
@@ -454,22 +461,19 @@ namespace MongoDB.Bson {
             UInt64ToBsonTimestamp
         }
 
-        private struct Mapping {
+        private struct Mapping
+        {
             private Type netType;
             private BsonType bsonType;
 
-            public Mapping(
-                Type netType,
-                BsonType bsonType
-            ) {
+            public Mapping(Type netType, BsonType bsonType)
+            {
                 this.netType = netType;
                 this.bsonType = bsonType;
             }
 
-            public static Mapping FromTo(
-               Type netType,
-               BsonType bsonType
-           ) {
+            public static Mapping FromTo(Type netType, BsonType bsonType)
+            {
                 return new Mapping(netType, bsonType);
             }
 
@@ -481,10 +485,9 @@ namespace MongoDB.Bson {
             /// </summary>
             /// <param name="obj">The other object.</param>
             /// <returns>True if the other object is a Mapping and equal to this one.</returns>
-            public override bool Equals(
-                object obj
-            ) {
-                Mapping rhs = (Mapping) obj;
+            public override bool Equals(object obj)
+            {
+                Mapping rhs = (Mapping)obj;
                 return netType == rhs.netType && bsonType == rhs.bsonType;
             }
 
@@ -492,10 +495,10 @@ namespace MongoDB.Bson {
             /// Gets the hash code.
             /// </summary>
             /// <returns>The hash code.</returns>
-            public override int GetHashCode() {
-                return netType.GetHashCode() + (int) bsonType;
+            public override int GetHashCode()
+            {
+                return netType.GetHashCode() + (int)bsonType;
             }
         }
-        #endregion
     }
 }

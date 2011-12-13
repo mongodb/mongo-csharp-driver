@@ -23,31 +23,35 @@ using System.Xml;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// A static class that represents a JSON scanner.
     /// </summary>
-    public static class JsonScanner {
-        #region public static methods
+    public static class JsonScanner
+    {
+        // public static methods
         /// <summary>
         /// Gets the next JsonToken from a JsonBuffer.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <returns>The next token.</returns>
-        public static JsonToken GetNextToken(
-            JsonBuffer buffer
-        ) {
+        public static JsonToken GetNextToken(JsonBuffer buffer)
+        {
             // skip leading whitespace
             var c = buffer.Read();
-            while (c != -1 && char.IsWhiteSpace((char) c)) {
+            while (c != -1 && char.IsWhiteSpace((char)c))
+            {
                 c = buffer.Read();
             }
-            if (c == -1) {
+            if (c == -1)
+            {
                 return new JsonToken(JsonTokenType.EndOfFile, "<eof>");
             }
 
             // leading character determines token type
-            switch (c) {
+            switch (c)
+            {
                 case '{': return new JsonToken(JsonTokenType.BeginObject, "{");
                 case '}': return new JsonToken(JsonTokenType.EndObject, "}");
                 case '[': return new JsonToken(JsonTokenType.BeginArray, "[");
@@ -58,73 +62,85 @@ namespace MongoDB.Bson.IO {
                 case ',': return new JsonToken(JsonTokenType.Comma, ",");
                 case '\'':
                 case '"':
-                    return GetStringToken(buffer, (char) c);
+                    return GetStringToken(buffer, (char)c);
                 case '/': return GetRegularExpressionToken(buffer);
                 default:
-                    if (c == '-' || char.IsDigit((char) c)) {
+                    if (c == '-' || char.IsDigit((char)c))
+                    {
                         return GetNumberToken(buffer, c);
-                    } else if (c == '$' || c == '_' || char.IsLetter((char) c)) {
+                    }
+                    else if (c == '$' || c == '_' || char.IsLetter((char)c))
+                    {
                         return GetUnquotedStringToken(buffer);
-                    } else {
+                    }
+                    else
+                    {
                         buffer.UnRead(c);
                         throw new FileFormatException(FormatMessage("Invalid JSON input", buffer, buffer.Position));
                     }
             }
         }
-        #endregion
 
-        #region private methods
-        private static string FormatMessage(
-            string message,
-            JsonBuffer buffer,
-            int start
-        ) {
+        // private methods
+        private static string FormatMessage(string message, JsonBuffer buffer, int start)
+        {
             var length = 20;
             string snippet;
-            if (buffer.Position + length >= buffer.Length) {
+            if (buffer.Position + length >= buffer.Length)
+            {
                 snippet = buffer.Substring(start);
-            } else {
+            }
+            else
+            {
                 snippet = buffer.Substring(start, length) + "...";
             }
             return string.Format("{0} '{1}'.", message, snippet);
         }
 
-        private static JsonToken GetNumberToken(
-            JsonBuffer buffer,
-            int c // first character
-        ) {
+        private static JsonToken GetNumberToken(JsonBuffer buffer, int firstChar)
+        {
+            var c = firstChar;
+
             // leading digit or '-' has already been read
             var start = buffer.Position - 1;
             NumberState state;
-            switch (c) {
+            switch (c)
+            {
                 case '-': state = NumberState.SawLeadingMinus; break;
                 case '0': state = NumberState.SawLeadingZero; break;
                 default: state = NumberState.SawIntegerDigits; break;
             }
             var type = JsonTokenType.Int64; // assume integer until proved otherwise
 
-            while (true) {
+            while (true)
+            {
                 c = buffer.Read();
-                switch (state) {
+                switch (state)
+                {
                     case NumberState.SawLeadingMinus:
-                        switch (c) {
+                        switch (c)
+                        {
                             case '0':
-                                state = NumberState.SawLeadingZero; 
+                                state = NumberState.SawLeadingZero;
                                 break;
                             case 'I':
                                 state = NumberState.SawMinusI;
                                 break;
                             default:
-                                if (char.IsDigit((char) c)) {
+                                if (char.IsDigit((char)c))
+                                {
                                     state = NumberState.SawIntegerDigits;
-                                } else {
+                                }
+                                else
+                                {
                                     state = NumberState.Invalid;
                                 }
                                 break;
                         }
                         break;
                     case NumberState.SawLeadingZero:
-                        switch (c) {
+                        switch (c)
+                        {
                             case '.':
                                 state = NumberState.SawDecimalPoint;
                                 break;
@@ -140,16 +156,20 @@ namespace MongoDB.Bson.IO {
                                 state = NumberState.Done;
                                 break;
                             default:
-                                if (char.IsWhiteSpace((char) c)) {
+                                if (char.IsWhiteSpace((char)c))
+                                {
                                     state = NumberState.Done;
-                                } else {
+                                }
+                                else
+                                {
                                     state = NumberState.Invalid;
                                 }
                                 break;
                         }
                         break;
                     case NumberState.SawIntegerDigits:
-                        switch (c) {
+                        switch (c)
+                        {
                             case '.':
                                 state = NumberState.SawDecimalPoint;
                                 break;
@@ -165,11 +185,16 @@ namespace MongoDB.Bson.IO {
                                 state = NumberState.Done;
                                 break;
                             default:
-                                if (char.IsDigit((char) c)) {
+                                if (char.IsDigit((char)c))
+                                {
                                     state = NumberState.SawIntegerDigits;
-                                } else if (char.IsWhiteSpace((char) c)) {
+                                }
+                                else if (char.IsWhiteSpace((char)c))
+                                {
                                     state = NumberState.Done;
-                                } else {
+                                }
+                                else
+                                {
                                     state = NumberState.Invalid;
                                 }
                                 break;
@@ -177,14 +202,18 @@ namespace MongoDB.Bson.IO {
                         break;
                     case NumberState.SawDecimalPoint:
                         type = JsonTokenType.Double;
-                        if (char.IsDigit((char) c)) {
+                        if (char.IsDigit((char)c))
+                        {
                             state = NumberState.SawFractionDigits;
-                        } else {
+                        }
+                        else
+                        {
                             state = NumberState.Invalid;
                         }
                         break;
                     case NumberState.SawFractionDigits:
-                        switch (c) {
+                        switch (c)
+                        {
                             case 'e':
                             case 'E':
                                 state = NumberState.SawExponentLetter;
@@ -197,11 +226,16 @@ namespace MongoDB.Bson.IO {
                                 state = NumberState.Done;
                                 break;
                             default:
-                                if (char.IsDigit((char) c)) {
+                                if (char.IsDigit((char)c))
+                                {
                                     state = NumberState.SawFractionDigits;
-                                } else if (char.IsWhiteSpace((char) c)) {
+                                }
+                                else if (char.IsWhiteSpace((char)c))
+                                {
                                     state = NumberState.Done;
-                                } else {
+                                }
+                                else
+                                {
                                     state = NumberState.Invalid;
                                 }
                                 break;
@@ -209,29 +243,37 @@ namespace MongoDB.Bson.IO {
                         break;
                     case NumberState.SawExponentLetter:
                         type = JsonTokenType.Double;
-                        switch (c) {
+                        switch (c)
+                        {
                             case '+':
                             case '-':
                                 state = NumberState.SawExponentSign;
                                 break;
                             default:
-                                if (char.IsDigit((char) c)) {
+                                if (char.IsDigit((char)c))
+                                {
                                     state = NumberState.SawExponentDigits;
-                                } else {
+                                }
+                                else
+                                {
                                     state = NumberState.Invalid;
                                 }
                                 break;
                         }
                         break;
                     case NumberState.SawExponentSign:
-                        if (char.IsDigit((char) c)) {
+                        if (char.IsDigit((char)c))
+                        {
                             state = NumberState.SawExponentDigits;
-                        } else {
+                        }
+                        else
+                        {
                             state = NumberState.Invalid;
                         }
                         break;
                     case NumberState.SawExponentDigits:
-                        switch (c) {
+                        switch (c)
+                        {
                             case ',':
                             case '}':
                             case ']':
@@ -240,11 +282,16 @@ namespace MongoDB.Bson.IO {
                                 state = NumberState.Done;
                                 break;
                             default:
-                                if (char.IsDigit((char) c)) {
+                                if (char.IsDigit((char)c))
+                                {
                                     state = NumberState.SawExponentDigits;
-                                } else if (char.IsWhiteSpace((char) c)) {
+                                }
+                                else if (char.IsWhiteSpace((char)c))
+                                {
                                     state = NumberState.Done;
-                                } else {
+                                }
+                                else
+                                {
                                     state = NumberState.Invalid;
                                 }
                                 break;
@@ -253,16 +300,20 @@ namespace MongoDB.Bson.IO {
                     case NumberState.SawMinusI:
                         var sawMinusInfinity = true;
                         var nfinity = new char[] { 'n', 'f', 'i', 'n', 'i', 't', 'y' };
-                        for (var i = 0; i < nfinity.Length; i++) {
-                            if (c != nfinity[i]) {
+                        for (var i = 0; i < nfinity.Length; i++)
+                        {
+                            if (c != nfinity[i])
+                            {
                                 sawMinusInfinity = false;
                                 break;
                             }
                             c = buffer.Read();
                         }
-                        if (sawMinusInfinity) {
+                        if (sawMinusInfinity)
+                        {
                             type = JsonTokenType.Double;
-                            switch (c) {
+                            switch (c)
+                            {
                                 case ',':
                                 case '}':
                                 case ']':
@@ -271,32 +322,44 @@ namespace MongoDB.Bson.IO {
                                     state = NumberState.Done;
                                     break;
                                 default:
-                                    if (char.IsWhiteSpace((char) c)) {
+                                    if (char.IsWhiteSpace((char)c))
+                                    {
                                         state = NumberState.Done;
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         state = NumberState.Invalid;
                                     }
                                     break;
                             }
-                        } else {
+                        }
+                        else
+                        {
                             state = NumberState.Invalid;
                         }
                         break;
                 }
 
-                switch (state) {
+                switch (state)
+                {
                     case NumberState.Done:
                         buffer.UnRead(c);
                         var lexeme = buffer.Substring(start, buffer.Position - start);
-                        if (type == JsonTokenType.Double) {
+                        if (type == JsonTokenType.Double)
+                        {
                             var value = XmlConvert.ToDouble(lexeme);
                             return new DoubleJsonToken(lexeme, value);
-                        } else {
+                        }
+                        else
+                        {
                             var value = XmlConvert.ToInt64(lexeme);
-                            if (value < int.MinValue || value > int.MaxValue) {
+                            if (value < int.MinValue || value > int.MaxValue)
+                            {
                                 return new Int64JsonToken(lexeme, value);
-                            } else {
-                                return new Int32JsonToken(lexeme, (int) value);
+                            }
+                            else
+                            {
+                                return new Int32JsonToken(lexeme, (int)value);
                             }
                         }
                     case NumberState.Invalid:
@@ -305,17 +368,19 @@ namespace MongoDB.Bson.IO {
             }
         }
 
-        private static JsonToken GetRegularExpressionToken(
-            JsonBuffer buffer
-        ) {
+        private static JsonToken GetRegularExpressionToken(JsonBuffer buffer)
+        {
             // opening slash has already been read
             var start = buffer.Position - 1;
             var state = RegularExpressionState.InPattern;
-            while (true) {
+            while (true)
+            {
                 var c = buffer.Read();
-                switch (state) {
+                switch (state)
+                {
                     case RegularExpressionState.InPattern:
-                        switch (c) {
+                        switch (c)
+                        {
                             case '/': state = RegularExpressionState.InOptions; break;
                             case '\\': state = RegularExpressionState.InEscapeSequence; break;
                             default: state = RegularExpressionState.InPattern; break;
@@ -325,7 +390,8 @@ namespace MongoDB.Bson.IO {
                         state = RegularExpressionState.InPattern;
                         break;
                     case RegularExpressionState.InOptions:
-                        switch (c) {
+                        switch (c)
+                        {
                             case 'i':
                             case 'm':
                             case 'x':
@@ -340,9 +406,12 @@ namespace MongoDB.Bson.IO {
                                 state = RegularExpressionState.Done;
                                 break;
                             default:
-                                if (char.IsWhiteSpace((char) c)) {
+                                if (char.IsWhiteSpace((char)c))
+                                {
                                     state = RegularExpressionState.Done;
-                                } else {
+                                }
+                                else
+                                {
                                     state = RegularExpressionState.Invalid;
                                 }
                                 break;
@@ -350,7 +419,8 @@ namespace MongoDB.Bson.IO {
                         break;
                 }
 
-                switch (state) {
+                switch (state)
+                {
                     case RegularExpressionState.Done:
                         buffer.UnRead(c);
                         var lexeme = buffer.Substring(start, buffer.Position - start);
@@ -362,19 +432,20 @@ namespace MongoDB.Bson.IO {
             }
         }
 
-        private static JsonToken GetStringToken(
-            JsonBuffer buffer,
-            char quoteCharacter // either single or double quote
-        ) {
+        private static JsonToken GetStringToken(JsonBuffer buffer, char quoteCharacter)
+        {
             // opening quote has already been read
             var start = buffer.Position - 1;
             var sb = new StringBuilder();
-            while (true) {
+            while (true)
+            {
                 var c = buffer.Read();
-                switch (c) {
+                switch (c)
+                {
                     case '\\':
                         c = buffer.Read();
-                        switch (c) {
+                        switch (c)
+                        {
                             case '\'': sb.Append('\''); break;
                             case '"': sb.Append('"'); break;
                             case '\\': sb.Append('\\'); break;
@@ -389,53 +460,58 @@ namespace MongoDB.Bson.IO {
                                 var u2 = buffer.Read();
                                 var u3 = buffer.Read();
                                 var u4 = buffer.Read();
-                                if (u4 != -1) {
-                                    var hex = new string(new char[] { (char) u1, (char) u2, (char) u3, (char) u4 });
+                                if (u4 != -1)
+                                {
+                                    var hex = new string(new char[] { (char)u1, (char)u2, (char)u3, (char)u4 });
                                     var n = Convert.ToInt32(hex, 16);
-                                    sb.Append((char) n);
+                                    sb.Append((char)n);
                                 }
                                 break;
                             default:
-                                if (c != -1) {
-                                    var message = string.Format("Invalid escape sequence in JSON string '\\{0}'.", (char) c);
+                                if (c != -1)
+                                {
+                                    var message = string.Format("Invalid escape sequence in JSON string '\\{0}'.", (char)c);
                                     throw new FileFormatException(message);
                                 }
                                 break;
                         }
                         break;
                     default:
-                        if (c == quoteCharacter) {
+                        if (c == quoteCharacter)
+                        {
                             var lexeme = buffer.Substring(start, buffer.Position - start);
                             return new StringJsonToken(JsonTokenType.String, lexeme, sb.ToString());
                         }
-                        if (c != -1) {
-                            sb.Append((char) c);
+                        if (c != -1)
+                        {
+                            sb.Append((char)c);
                         }
                         break;
                 }
-                if (c == -1) {
+                if (c == -1)
+                {
                     throw new FileFormatException(FormatMessage("End of file in JSON string.", buffer, start));
                 }
             }
         }
 
-        private static JsonToken GetUnquotedStringToken(
-            JsonBuffer buffer
-        ) {
+        private static JsonToken GetUnquotedStringToken(JsonBuffer buffer)
+        {
             // opening letter or $ has already been read
             var start = buffer.Position - 1;
             var c = buffer.Read();
-            while (c == '$' || c == '_' || char.IsLetterOrDigit((char) c)) {
+            while (c == '$' || c == '_' || char.IsLetterOrDigit((char)c))
+            {
                 c = buffer.Read();
             }
             buffer.UnRead(c);
             var lexeme = buffer.Substring(start, buffer.Position - start);
             return new StringJsonToken(JsonTokenType.UnquotedString, lexeme, lexeme);
         }
-        #endregion
 
-        #region nested types
-        private enum NumberState {
+        // nested types
+        private enum NumberState
+        {
             SawLeadingMinus,
             SawLeadingZero,
             SawIntegerDigits,
@@ -449,13 +525,13 @@ namespace MongoDB.Bson.IO {
             Invalid
         }
 
-        private enum RegularExpressionState {
+        private enum RegularExpressionState
+        {
             InPattern,
             InEscapeSequence,
             InOptions,
             Done,
             Invalid
         }
-        #endregion
     }
 }

@@ -25,36 +25,45 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class SerializePolymorphicClassTests {
-        private abstract class A {
+    public class SerializePolymorphicClassTests
+    {
+        private abstract class A
+        {
             public string FA { get; set; }
         }
 
         [BsonDiscriminator(Required = true)]
-        private abstract class B : A {
+        private abstract class B : A
+        {
             public string FB { get; set; }
         }
 
-        private class C : A {
+        private class C : A
+        {
             public string FC { get; set; }
         }
 
-        private class D : B {
+        private class D : B
+        {
             public string FD { get; set; }
         }
 
-        private class E : B {
+        private class E : B
+        {
             public string FE { get; set; }
         }
 
-        private class T {
+        private class T
+        {
             public A FT { get; set; }
         }
 
         [Test]
-        public void TestSerializeCasA() {
+        public void TestSerializeCasA()
+        {
             A a = new C { FA = "a", FC = "c" };
             var json = a.ToJson();
             var expected = ("{ '_t' : 'C', 'FA' : 'a', 'FC' : 'c' }").Replace("'", "\"");
@@ -66,7 +75,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeCasC() {
+        public void TestSerializeCasC()
+        {
             C c = new C { FA = "a", FC = "c" };
             var json = c.ToJson();
             var expected = ("{ 'FA' : 'a', 'FC' : 'c' }").Replace("'", "\""); // no discriminator
@@ -78,7 +88,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeDasA() {
+        public void TestSerializeDasA()
+        {
             A a = new D { FA = "a", FB = "b", FD = "d" };
             var json = a.ToJson();
             var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\"");
@@ -90,7 +101,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeDasB() {
+        public void TestSerializeDasB()
+        {
             B b = new D { FA = "a", FB = "b", FD = "d" };
             var json = b.ToJson();
             var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\"");
@@ -102,7 +114,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeDasD() {
+        public void TestSerializeDasD()
+        {
             D d = new D { FA = "a", FB = "b", FD = "d" };
             var json = d.ToJson();
             var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\""); // has discriminator because B has DiscriminatorIsRequired true
@@ -114,7 +127,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeEasA() {
+        public void TestSerializeEasA()
+        {
             A a = new E { FA = "a", FB = "b", FE = "e" };
             var json = a.ToJson();
             var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\"");
@@ -126,7 +140,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeEasB() {
+        public void TestSerializeEasB()
+        {
             B b = new E { FA = "a", FB = "b", FE = "e" };
             var json = b.ToJson();
             var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\"");
@@ -138,7 +153,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeEasE() {
+        public void TestSerializeEasE()
+        {
             E e = new E { FA = "a", FB = "b", FE = "e" };
             var json = e.ToJson();
             var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\""); // has discriminator because B has DiscriminatorIsRequired true
@@ -150,7 +166,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeTNull() {
+        public void TestSerializeTNull()
+        {
             T t = new T { FT = null };
             var json = t.ToJson();
             var expected = ("{ 'FT' : null }").Replace("'", "\"");
@@ -163,7 +180,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeTC() {
+        public void TestSerializeTC()
+        {
             T t = new T { FT = new C { FA = "a", FC = "c" } };
             var json = t.ToJson();
             var expected = ("{ 'FT' : { '_t' : 'C', 'FA' : 'a', 'FC' : 'c' } }").Replace("'", "\"");
@@ -176,7 +194,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeTD() {
+        public void TestSerializeTD()
+        {
             T t = new T { FT = new D { FA = "a", FB = "b", FD = "d" } };
             var json = t.ToJson();
             var expected = ("{ 'FT' : { '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' } }").Replace("'", "\"");
@@ -189,7 +208,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeTE() {
+        public void TestSerializeTE()
+        {
             T t = new T { FT = new E { FA = "a", FB = "b", FE = "e" } };
             var json = t.ToJson();
             var expected = ("{ 'FT' : { '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' } }").Replace("'", "\"");

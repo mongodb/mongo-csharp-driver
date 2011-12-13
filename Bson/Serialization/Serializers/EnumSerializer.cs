@@ -24,33 +24,34 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson.Serialization.Serializers {
+namespace MongoDB.Bson.Serialization.Serializers
+{
     /// <summary>
     /// Represents a serializer for enums.
     /// </summary>
-    public class EnumSerializer : BsonBaseSerializer {
-        #region private static fields
+    public class EnumSerializer : BsonBaseSerializer
+    {
+        // private static fields
         private static EnumSerializer instance = new EnumSerializer();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the EnumSerializer class.
         /// </summary>
-        public EnumSerializer() {
+        public EnumSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the EnumSerializer class.
         /// </summary>
-        public static EnumSerializer Instance {
+        public static EnumSerializer Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -59,18 +60,16 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType, // ignored
-            IBsonSerializationOptions options
-        ) {
+        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, // ignored
+            IBsonSerializationOptions options)
+        {
             VerifyDeserializeType(nominalType);
             var bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Int32: return Enum.ToObject(nominalType, bsonReader.ReadInt32());
                 case BsonType.Int64: return Enum.ToObject(nominalType, bsonReader.ReadInt64());
-                case BsonType.Double: return Enum.ToObject(nominalType, (long) bsonReader.ReadDouble());
+                case BsonType.Double: return Enum.ToObject(nominalType, (long)bsonReader.ReadDouble());
                 case BsonType.String: return Enum.Parse(nominalType, bsonReader.ReadString());
                 default:
                     var message = string.Format("Cannot deserialize {0} from BsonType {1}.", nominalType.FullName, bsonType);
@@ -85,21 +84,21 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options
-        ) {
+        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        {
             var actualType = value.GetType();
             VerifySerializeTypes(nominalType, actualType);
-            var representation = (options == null) ? 0 : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            var representation = (options == null) ? 0 : ((RepresentationSerializationOptions)options).Representation;
+            switch (representation)
+            {
                 case 0:
                     var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(actualType));
-                    if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64) {
+                    if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64)
+                    {
                         goto case BsonType.Int64;
-                    } else {
+                    }
+                    else
+                    {
                         goto case BsonType.Int32;
                     }
                 case BsonType.Int32:
@@ -115,39 +114,35 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new BsonInternalException("Unexpected EnumRepresentation.");
             }
         }
-        #endregion
 
-        #region private methods
-        private void VerifyDeserializeType(
-            Type nominalType
-        ) {
-            if (!nominalType.IsEnum) {
+        // private methods
+        private void VerifyDeserializeType(Type nominalType)
+        {
+            if (!nominalType.IsEnum)
+            {
                 var message = string.Format("EnumSerializer.Deserialize cannot be used with nominal type {0}.", nominalType.FullName);
                 throw new BsonSerializationException(message);
             }
         }
 
-        private void VerifySerializeTypes(
-            Type nominalType,
-            Type actualType
-        ) {
+        private void VerifySerializeTypes(Type nominalType, Type actualType)
+        {
             // problem is that the actual type of a nullable type that is not null will appear as the non-nullable type
             // we want to allow both Enum and Nullable<Enum> here 
-            bool isNullableOfActual = (
-                nominalType.IsGenericType &&
+            bool isNullableOfActual = (nominalType.IsGenericType &&
                 nominalType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                nominalType.GetGenericArguments().Single() == actualType
-            );
-            if (nominalType != typeof(object) && nominalType != actualType && !isNullableOfActual) {
+                nominalType.GetGenericArguments().Single() == actualType);
+            if (nominalType != typeof(object) && nominalType != actualType && !isNullableOfActual)
+            {
                 var message = string.Format("EnumSerializer.Serialize cannot be used with nominal type {0}.", nominalType.FullName);
                 throw new BsonSerializationException(message);
-            }           
-            
-            if (!actualType.IsEnum) {
+            }
+
+            if (!actualType.IsEnum)
+            {
                 var message = string.Format("EnumSerializer.Serialize cannot be used with actual type {0}.", actualType.FullName);
                 throw new BsonSerializationException(message);
             }
         }
-        #endregion
     }
 }

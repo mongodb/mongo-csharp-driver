@@ -22,29 +22,32 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// A static class containing methods to convert to and from Guids and byte arrays in various byte orders.
     /// </summary>
-    public static class GuidConverter {
+    public static class GuidConverter
+    {
         /// <summary>
         /// Converts a byte array to a Guid.
         /// </summary>
         /// <param name="bytes">The byte array.</param>
         /// <param name="representation">The representation of the Guid in the byte array.</param>
         /// <returns>A Guid.</returns>
-        public static Guid FromBytes(
-            byte[] bytes,
-            GuidRepresentation representation
-        ) {
-            if (bytes.Length != 16) {
+        public static Guid FromBytes(byte[] bytes, GuidRepresentation representation)
+        {
+            if (bytes.Length != 16)
+            {
                 var message = string.Format("Length of byte array must be 16, not {0}.", bytes.Length);
                 throw new ArgumentException(message);
             }
-            bytes = (byte[]) bytes.Clone();
-            switch (representation) {
+            bytes = (byte[])bytes.Clone();
+            switch (representation)
+            {
                 case GuidRepresentation.CSharpLegacy:
-                    if (!BitConverter.IsLittleEndian) {
+                    if (!BitConverter.IsLittleEndian)
+                    {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
                         Array.Reverse(bytes, 6, 2);
@@ -53,7 +56,8 @@ namespace MongoDB.Bson {
                 case GuidRepresentation.JavaLegacy:
                     Array.Reverse(bytes, 0, 8);
                     Array.Reverse(bytes, 8, 8);
-                    if (BitConverter.IsLittleEndian) {
+                    if (BitConverter.IsLittleEndian)
+                    {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
                         Array.Reverse(bytes, 6, 2);
@@ -61,7 +65,8 @@ namespace MongoDB.Bson {
                     break;
                 case GuidRepresentation.PythonLegacy:
                 case GuidRepresentation.Standard:
-                    if (BitConverter.IsLittleEndian) {
+                    if (BitConverter.IsLittleEndian)
+                    {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
                         Array.Reverse(bytes, 6, 2);
@@ -81,21 +86,22 @@ namespace MongoDB.Bson {
         /// <param name="guid">The Guid.</param>
         /// <param name="representation">The representation of the Guid in the byte array.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ToBytes(
-            Guid guid,
-            GuidRepresentation representation
-        ) {
-            var bytes = (byte[]) guid.ToByteArray().Clone();
-            switch (representation) {
-                 case GuidRepresentation.CSharpLegacy:
-                    if (!BitConverter.IsLittleEndian) {
+        public static byte[] ToBytes(Guid guid, GuidRepresentation representation)
+        {
+            var bytes = (byte[])guid.ToByteArray().Clone();
+            switch (representation)
+            {
+                case GuidRepresentation.CSharpLegacy:
+                    if (!BitConverter.IsLittleEndian)
+                    {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
                         Array.Reverse(bytes, 6, 2);
                     }
                     break;
                 case GuidRepresentation.JavaLegacy:
-                    if (BitConverter.IsLittleEndian) {
+                    if (BitConverter.IsLittleEndian)
+                    {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
                         Array.Reverse(bytes, 6, 2);
@@ -103,14 +109,15 @@ namespace MongoDB.Bson {
                     Array.Reverse(bytes, 0, 8);
                     Array.Reverse(bytes, 8, 8);
                     break;
-               case GuidRepresentation.PythonLegacy:
-               case GuidRepresentation.Standard:
-                    if (BitConverter.IsLittleEndian) {
+                case GuidRepresentation.PythonLegacy:
+                case GuidRepresentation.Standard:
+                    if (BitConverter.IsLittleEndian)
+                    {
                         Array.Reverse(bytes, 0, 4);
                         Array.Reverse(bytes, 4, 2);
                         Array.Reverse(bytes, 6, 2);
                     }
-                   break;
+                    break;
                 case GuidRepresentation.Unspecified:
                     throw new InvalidOperationException("Unable to convert Guid to byte array because GuidRepresentation is Unspecified.");
                 default:

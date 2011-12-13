@@ -27,21 +27,26 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp238 {
+namespace MongoDB.BsonUnitTests.Jira.CSharp238
+{
     [TestFixture]
-    public class CSharp238Tests {
-        public class Point {
+    public class CSharp238Tests
+    {
+        public class Point
+        {
             public int X;
             public int Y;
         }
 
-        public class C {
+        public class C
+        {
             public Dictionary<Point, Point> Points;
         }
 
         [Test]
-        public void TestDeserializeDictionary() {
-            var obj = new C { Points = new Dictionary<Point,Point>() };
+        public void TestDeserializeDictionary()
+        {
+            var obj = new C { Points = new Dictionary<Point, Point>() };
             obj.Points.Add(new Point { X = 1, Y = 1 }, new Point { X = 2, Y = 2 });
             obj.Points.Add(new Point { X = 2, Y = 2 }, new Point { X = 3, Y = 3 });
             var json = obj.ToJson();

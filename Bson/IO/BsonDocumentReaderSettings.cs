@@ -18,69 +18,69 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a BsonDocumentReader.
     /// </summary>
     [Serializable]
-    public class BsonDocumentReaderSettings : BsonReaderSettings {
-        #region private static fields
+    public class BsonDocumentReaderSettings : BsonReaderSettings
+    {
+        // private static fields
         private static BsonDocumentReaderSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDocumentReaderSettings class.
         /// </summary>
-        public BsonDocumentReaderSettings() {
+        public BsonDocumentReaderSettings()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonDocumentReaderSettings class.
         /// </summary>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public BsonDocumentReaderSettings(
-            GuidRepresentation guidRepresentation
-        ) 
-            : base(guidRepresentation) {
+        public BsonDocumentReaderSettings(GuidRepresentation guidRepresentation)
+            : base(guidRepresentation)
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default settings for a BsonDocumentReader.
         /// </summary>
-        public static BsonDocumentReaderSettings Defaults {
-            get {
-                if (defaults == null) {
+        public static BsonDocumentReaderSettings Defaults
+        {
+            get
+            {
+                if (defaults == null)
+                {
                     defaults = new BsonDocumentReaderSettings();
                 }
                 return defaults;
             }
             set { defaults = value; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new BsonDocumentReaderSettings Clone() {
-            return (BsonDocumentReaderSettings) CloneImplementation();
+        public new BsonDocumentReaderSettings Clone()
+        {
+            return (BsonDocumentReaderSettings)CloneImplementation();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonReaderSettings CloneImplementation() {
-            return new BsonDocumentReaderSettings(
-                guidRepresentation
-            );
+        protected override BsonReaderSettings CloneImplementation()
+        {
+            return new BsonDocumentReaderSettings(guidRepresentation);
         }
-        #endregion
     }
 }

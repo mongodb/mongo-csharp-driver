@@ -24,34 +24,42 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp101
+{
     [TestFixture]
-    public class CSharp101Tests {
-        private class CNoId {
+    public class CSharp101Tests
+    {
+        private class CNoId
+        {
             public int A;
         }
 
-        private class CObjectId {
+        private class CObjectId
+        {
             public ObjectId Id;
             public int A;
         }
 
-        private class CGuid {
+        private class CGuid
+        {
             public Guid Id;
             public int A;
         }
 
-        private class CInt32Id {
+        private class CInt32Id
+        {
             public int Id;
             public int A;
         }
 
-        private class CInt64Id {
+        private class CInt64Id
+        {
             public long Id;
             public int A;
         }
 
-        private class CStringId {
+        private class CStringId
+        {
             public string Id;
             public int A;
         }
@@ -61,17 +69,20 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         private MongoCollection collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetUpAttribute() {
+        public void TestFixtureSetUpAttribute()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database["csharp101"];
         }
 
         [Test]
-        public void TestBsonDocumentNoId() {
+        public void TestBsonDocumentNoId()
+        {
             collection.RemoveAll();
 
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "A", 1 }
             };
             collection.Save(document);
@@ -94,10 +105,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestBsonDocumentBsonNullId() {
+        public void TestBsonDocumentBsonNullId()
+        {
             collection.RemoveAll();
 
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", BsonNull.Value },
                 { "A", 1 }
             };
@@ -115,10 +128,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestBsonDocumentEmptyObjectId() {
+        public void TestBsonDocumentEmptyObjectId()
+        {
             collection.RemoveAll();
 
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", ObjectId.Empty },
                 { "A", 1 }
             };
@@ -142,11 +157,13 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestBsonDocumentGeneratedObjectId() {
+        public void TestBsonDocumentGeneratedObjectId()
+        {
             collection.RemoveAll();
 
             var id = ObjectId.GenerateNewId();
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", id },
                 { "A", 1 }
             };
@@ -169,10 +186,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestBsonDocumentEmptyGuid() {
+        public void TestBsonDocumentEmptyGuid()
+        {
             collection.RemoveAll();
 
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", Guid.Empty },
                 { "A", 1 }
             };
@@ -196,11 +215,13 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestBsonDocumentGeneratedGuid() {
+        public void TestBsonDocumentGeneratedGuid()
+        {
             collection.RemoveAll();
 
             var guid = Guid.NewGuid();
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", guid },
                 { "A", 1 }
             };
@@ -224,11 +245,13 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestBsonDocumentInt32Id() {
+        public void TestBsonDocumentInt32Id()
+        {
             collection.RemoveAll();
 
             var id = 123;
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", id },
                 { "A", 1 }
             };
@@ -251,11 +274,13 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestBsonDocumentInt64Id() {
+        public void TestBsonDocumentInt64Id()
+        {
             collection.RemoveAll();
 
             var id = 123L;
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", id },
                 { "A", 1 }
             };
@@ -278,11 +303,13 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestBsonDocumentStringId() {
+        public void TestBsonDocumentStringId()
+        {
             collection.RemoveAll();
 
             var id = "123";
-            var document = new BsonDocument {
+            var document = new BsonDocument
+            {
                 { "_id", id },
                 { "A", 1 }
             };
@@ -305,7 +332,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestCNoId() {
+        public void TestCNoId()
+        {
             collection.RemoveAll();
 
             var document = new CNoId { A = 1 };
@@ -313,7 +341,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestCObjectIdEmpty() {
+        public void TestCObjectIdEmpty()
+        {
             collection.RemoveAll();
 
             var document = new CObjectId { A = 1 };
@@ -334,7 +363,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestCObjectIdGenerated() {
+        public void TestCObjectIdGenerated()
+        {
             collection.RemoveAll();
 
             var id = ObjectId.GenerateNewId();
@@ -354,7 +384,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestCGuidEmpty() {
+        public void TestCGuidEmpty()
+        {
             collection.RemoveAll();
 
             var document = new CGuid { A = 1 };
@@ -375,7 +406,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestCGuidGenerated() {
+        public void TestCGuidGenerated()
+        {
             collection.RemoveAll();
 
             var id = Guid.NewGuid();
@@ -395,7 +427,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestCInt32Id() {
+        public void TestCInt32Id()
+        {
             collection.RemoveAll();
 
             var id = 123;
@@ -415,7 +448,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestCInt64Id() {
+        public void TestCInt64Id()
+        {
             collection.RemoveAll();
 
             var id = 123L;
@@ -435,7 +469,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101 {
         }
 
         [Test]
-        public void TestCStringId() {
+        public void TestCStringId()
+        {
             collection.RemoveAll();
 
             var document = new CStringId { Id = null, A = 1 };

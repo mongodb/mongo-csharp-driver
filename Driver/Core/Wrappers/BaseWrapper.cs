@@ -21,24 +21,24 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Abstract base class for wrapper classes.
     /// </summary>
-    public abstract class BaseWrapper : IBsonSerializable {
-        #region private fields
+    public abstract class BaseWrapper : IBsonSerializable
+    {
+        // private fields
         private Type nominalType;
         private object obj;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BaseWrapper class.
         /// </summary>
         /// <param name="obj">The wrapped object.</param>
-        protected BaseWrapper(
-            object obj
-        ) {
+        protected BaseWrapper(object obj)
+        {
             this.nominalType = obj.GetType();
             this.obj = obj;
         }
@@ -48,16 +48,13 @@ namespace MongoDB.Driver.Wrappers {
         /// </summary>
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="obj">The wrapped object.</param>
-        protected BaseWrapper(
-            Type nominalType,
-            object obj
-        ) {
+        protected BaseWrapper(Type nominalType, object obj)
+        {
             this.nominalType = nominalType;
             this.obj = obj;
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserialize is an invalid operation for wrapper classes.
         /// </summary>
@@ -65,11 +62,8 @@ namespace MongoDB.Driver.Wrappers {
         /// <param name="nominalType">Not applicable.</param>
         /// <param name="options">Not applicable.</param>
         /// <returns>Not applicable.</returns>
-        public object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        {
             var message = string.Format("Deserialize method cannot be called on a {0}.", this.GetType().Name);
             throw new NotSupportedException(message);
         }
@@ -81,11 +75,8 @@ namespace MongoDB.Driver.Wrappers {
         /// <param name="idNominalType">Not applicable.</param>
         /// <param name="idGenerator">Not applicable.</param>
         /// <returns>Not applicable.</returns>
-        public bool GetDocumentId(
-            out object id,
-            out Type idNominalType,
-            out IIdGenerator idGenerator
-        ) {
+        public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        {
             var message = string.Format("GetDocumentId method cannot be called on a {0}.", this.GetType().Name);
             throw new NotSupportedException(message);
         }
@@ -96,11 +87,8 @@ namespace MongoDB.Driver.Wrappers {
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type (ignored).</param>
         /// <param name="options">The serialization options.</param>
-        public void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType, // ignored
-            IBsonSerializationOptions options
-        ) {
+        public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             BsonSerializer.Serialize(bsonWriter, this.nominalType, obj, options); // use wrapped nominalType
         }
 
@@ -109,12 +97,10 @@ namespace MongoDB.Driver.Wrappers {
         /// </summary>
         /// <param name="id">Not applicable.</param>
         /// <returns>Not applicable.</returns>
-        public void SetDocumentId(
-            object id
-        ) {
+        public void SetDocumentId(object id)
+        {
             var message = string.Format("SetDocumentId method cannot be called on a {0}.", this.GetType().Name);
             throw new NotSupportedException(message);
         }
-        #endregion
     }
 }

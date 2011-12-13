@@ -21,11 +21,14 @@ using NUnit.Framework;
 
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoServerTests {
+    public class MongoServerTests
+    {
         [Test]
-        public void TestCreateNoArgs() {
+        public void TestCreateNoArgs()
+        {
             var server = MongoServer.Create(); // no args!
             var expectedSeedList = new[] { new MongoServerAddress("localhost") };
             Assert.IsNull(server.Settings.DefaultCredentials);

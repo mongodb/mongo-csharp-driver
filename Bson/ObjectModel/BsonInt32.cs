@@ -19,106 +19,109 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a BSON int value.
     /// </summary>
     [Serializable]
-    public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32> {
-        #region private static fields
+    public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32>
+    {
+        // private static fields
         private static int firstInstance = -10;
         private static int lastInstance = 100;
         private static BsonInt32[] instances;
-        #endregion
 
-        #region private fields
+        // private fields
         private int value;
-        #endregion
 
-        #region static constructor
-        static BsonInt32() {
+        // static constructor
+        static BsonInt32()
+        {
             instances = new BsonInt32[lastInstance - firstInstance + 1];
-            for (int i = 0; i < instances.Length; i++) {
+            for (int i = 0; i < instances.Length; i++)
+            {
                 instances[i] = new BsonInt32(firstInstance + i);
             }
         }
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Creates a new instance of the BsonInt32 class.
         /// </summary>
         /// <param name="value">The value.</param>
-        public BsonInt32(
-            int value
-        )
-            : base(BsonType.Int32) {
+        public BsonInt32(int value)
+            : base(BsonType.Int32)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of BsonInt32 that represents -1.
         /// </summary>
-        public static BsonInt32 MinusOne {
+        public static BsonInt32 MinusOne
+        {
             get { return BsonInt32.Create(-1); }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents -0.
         /// </summary>
-        public static BsonInt32 Zero {
+        public static BsonInt32 Zero
+        {
             get { return BsonInt32.Create(0); }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 1.
         /// </summary>
-        public static BsonInt32 One {
+        public static BsonInt32 One
+        {
             get { return BsonInt32.Create(1); }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 2.
         /// </summary>
-        public static BsonInt32 Two {
+        public static BsonInt32 Two
+        {
             get { return BsonInt32.Create(2); }
         }
 
         /// <summary>
         /// Gets an instance of BsonInt32 that represents 3.
         /// </summary>
-        public static BsonInt32 Three {
+        public static BsonInt32 Three
+        {
             get { return BsonInt32.Create(3); }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the BsonInt32 as an int.
         /// </summary>
-        public override object RawValue {
+        public override object RawValue
+        {
             get { return value; }
         }
 
         /// <summary>
         /// Gets the value of this BsonInt32.
         /// </summary>
-        public int Value {
+        public int Value
+        {
             get { return value; }
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Converts an int to a BsonInt32.
         /// </summary>
         /// <param name="value">An int.</param>
         /// <returns>A BsonInt32.</returns>
-        public static implicit operator BsonInt32(
-            int value
-        ) {
+        public static implicit operator BsonInt32(int value)
+        {
             return BsonInt32.Create(value);
         }
 
@@ -128,10 +131,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonInt32.</param>
         /// <param name="rhs">The other BsonInt32.</param>
         /// <returns>True if the two BsonInt32 values are not equal according to ==.</returns>
-        public static bool operator !=(
-            BsonInt32 lhs,
-            BsonInt32 rhs
-        ) {
+        public static bool operator !=(BsonInt32 lhs, BsonInt32 rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -141,27 +142,26 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonInt32.</param>
         /// <param name="rhs">The other BsonInt32.</param>
         /// <returns>True if the two BsonInt32 values are equal according to ==.</returns>
-        public static bool operator ==(
-            BsonInt32 lhs,
-            BsonInt32 rhs
-        ) {
+        public static bool operator ==(BsonInt32 lhs, BsonInt32 rhs)
+        {
             if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
             return lhs.OperatorEqualsImplementation(rhs);
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the BsonInt32 class.
         /// </summary>
         /// <param name="value">An int.</param>
         /// <returns>A BsonInt32.</returns>
-        public static BsonInt32 Create(
-            int value
-        ) {
-            if (value >= firstInstance && value <= lastInstance) {
+        public static BsonInt32 Create(int value)
+        {
+            if (value >= firstInstance && value <= lastInstance)
+            {
                 return instances[value - firstInstance];
-            } else {
+            }
+            else
+            {
                 return new BsonInt32(value);
             }
         }
@@ -171,26 +171,26 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonInt32.</param>
         /// <returns>A BsonInt32 or null.</returns>
-        public new static BsonInt32 Create(
-            object value
-        ) {
-            if (value != null) {
-                return (BsonInt32) BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
-            } else {
+        public new static BsonInt32 Create(object value)
+        {
+            if (value != null)
+            {
+                return (BsonInt32)BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+            }
+            else
+            {
                 return null;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Compares this BsonInt32 to another BsonInt32.
         /// </summary>
         /// <param name="other">The other BsonInt32.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonInt32 is less than, equal to, or greather than the other.</returns>
-        public int CompareTo(
-            BsonInt32 other
-        ) {
+        public int CompareTo(BsonInt32 other)
+        {
             if (other == null) { return 1; }
             return value.CompareTo(other.value);
         }
@@ -200,21 +200,23 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonInt32 is less than, equal to, or greather than the other BsonValue.</returns>
-        public override int CompareTo(
-            BsonValue other
-        ) {
+        public override int CompareTo(BsonValue other)
+        {
             if (other == null) { return 1; }
             var otherInt32 = other as BsonInt32;
-            if (otherInt32 != null) {
+            if (otherInt32 != null)
+            {
                 return value.CompareTo(otherInt32.value);
             }
             var otherInt64 = other as BsonInt64;
-            if (otherInt64 != null) {
-                return ((long) value).CompareTo(otherInt64.Value);
+            if (otherInt64 != null)
+            {
+                return ((long)value).CompareTo(otherInt64.Value);
             }
             var otherDouble = other as BsonDouble;
-            if (otherDouble != null) {
-                return ((double) value).CompareTo(otherDouble.Value);
+            if (otherDouble != null)
+            {
+                return ((double)value).CompareTo(otherDouble.Value);
             }
             return CompareTypeTo(other);
         }
@@ -224,9 +226,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="rhs">The other BsonInt32.</param>
         /// <returns>True if the two BsonInt32 values are equal.</returns>
-        public bool Equals(
-            BsonInt32 rhs
-        ) {
+        public bool Equals(BsonInt32 rhs)
+        {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.value == rhs.value;
         }
@@ -236,9 +237,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonInt32 and equal to this one.</returns>
-        public override bool Equals(
-            object obj
-        ) {
+        public override bool Equals(object obj)
+        {
             return Equals(obj as BsonInt32); // works even if obj is null or of a different type
         }
 
@@ -246,7 +246,8 @@ namespace MongoDB.Bson {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + bsonType.GetHashCode();
@@ -258,37 +259,38 @@ namespace MongoDB.Bson {
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return XmlConvert.ToString(value);
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Compares this BsonInt32 against another BsonValue.
         /// </summary>
         /// <param name="rhs">The other BsonValue.</param>
         /// <returns>True if this BsonInt32 and the other BsonValue are equal according to ==.</returns>
-        protected override bool OperatorEqualsImplementation(
-            BsonValue rhs
-        ) {
+        protected override bool OperatorEqualsImplementation(BsonValue rhs)
+        {
             var rhsInt32 = rhs as BsonInt32;
-            if (rhsInt32 != null) {
+            if (rhsInt32 != null)
+            {
                 return this.value == rhsInt32.value;
             }
 
             var rhsInt64 = rhs as BsonInt64;
-            if (rhsInt64 != null) {
-                return (long) this.value == rhsInt64.Value;
+            if (rhsInt64 != null)
+            {
+                return (long)this.value == rhsInt64.Value;
             }
 
             var rhsDouble = rhs as BsonDouble;
-            if (rhsDouble != null) {
-                return (double) this.value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
+            if (rhsDouble != null)
+            {
+                return (double)this.value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
             }
 
             return this.Equals(rhs);
         }
-        #endregion
     }
 }

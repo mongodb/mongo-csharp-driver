@@ -21,29 +21,29 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoKillCursorsMessage : MongoRequestMessage {
-        #region private fields
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoKillCursorsMessage : MongoRequestMessage
+    {
+        // private fields
         private long[] cursorIds;
-        #endregion
 
-        #region constructors
-        internal MongoKillCursorsMessage(
-            params long[] cursorIds
-        )
-            : base(MessageOpcode.KillCursors, null, null) {
+        // constructors
+        internal MongoKillCursorsMessage(params long[] cursorIds)
+            : base(MessageOpcode.KillCursors, null, null)
+        {
             this.cursorIds = cursorIds;
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
+        // protected methods
+        protected override void WriteBody()
+        {
             buffer.WriteInt32(0); // reserved
             buffer.WriteInt32(cursorIds.Length);
-            foreach (long cursorId in cursorIds) {
+            foreach (long cursorId in cursorIds)
+            {
                 buffer.WriteInt64(cursorId);
             }
         }
-        #endregion
     }
 }

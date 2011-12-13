@@ -18,34 +18,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents the symbol table of BsonSymbols.
     /// </summary>
-    public static class BsonSymbolTable {
-        #region private static fields
+    public static class BsonSymbolTable
+    {
+        // private static fields
         private static object staticLock = new object();
         private static Dictionary<string, BsonSymbol> symbolTable = new Dictionary<string, BsonSymbol>();
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Looks up a symbol (and creates a new one if necessary).
         /// </summary>
         /// <param name="name">The name of the symbol.</param>
         /// <returns>The symbol.</returns>
-        public static BsonSymbol Lookup(
-            string name
-        ) {
-            lock (staticLock) {
+        public static BsonSymbol Lookup(string name)
+        {
+            lock (staticLock)
+            {
                 BsonSymbol symbol;
-                if (!symbolTable.TryGetValue(name, out symbol)) {
+                if (!symbolTable.TryGetValue(name, out symbol))
+                {
                     symbol = new BsonSymbol(name);
                     symbolTable[name] = symbol;
                 }
                 return symbol;
             }
         }
-        #endregion
     }
 }

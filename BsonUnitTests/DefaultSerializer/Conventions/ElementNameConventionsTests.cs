@@ -22,10 +22,13 @@ using NUnit.Framework;
 
 using MongoDB.Bson.Serialization.Conventions;
 
-namespace MongoDB.BsonUnitTests.Serialization.Conventions {
+namespace MongoDB.BsonUnitTests.Serialization.Conventions
+{
     [TestFixture]
-    public class ElementNameConventionsTests {
-        private class TestClass {
+    public class ElementNameConventionsTests
+    {
+        private class TestClass
+        {
             public string FirstName { get; set; }
             public int Age { get; set; }
             public string _DumbName { get; set; }
@@ -33,7 +36,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions {
         }
 
         [Test]
-        public void TestMemberNameElementNameConvention() {
+        public void TestMemberNameElementNameConvention()
+        {
             var convention = new MemberNameElementNameConvention();
             Assert.AreEqual("FirstName", convention.GetElementName(typeof(TestClass).GetProperty("FirstName")));
             Assert.AreEqual("Age", convention.GetElementName(typeof(TestClass).GetProperty("Age")));
@@ -42,7 +46,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions {
         }
 
         [Test]
-        public void TestCamelCaseElementNameConvention() {
+        public void TestCamelCaseElementNameConvention()
+        {
             var convention = new CamelCaseElementNameConvention();
             Assert.AreEqual("firstName", convention.GetElementName(typeof(TestClass).GetProperty("FirstName")));
             Assert.AreEqual("age", convention.GetElementName(typeof(TestClass).GetProperty("Age")));

@@ -23,15 +23,18 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira {
+namespace MongoDB.DriverOnlineTests.Jira
+{
     [TestFixture]
-    public class CSharp281Tests {
+    public class CSharp281Tests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database["testcollection"];
@@ -39,7 +42,8 @@ namespace MongoDB.DriverOnlineTests.Jira {
         }
 
         [Test]
-        public void TestPopFirst() {
+        public void TestPopFirst()
+        {
             var document = new BsonDocument("x", new BsonArray { 1, 2, 3 });
             collection.RemoveAll();
             collection.Insert(document);
@@ -56,7 +60,8 @@ namespace MongoDB.DriverOnlineTests.Jira {
         }
 
         [Test]
-        public void TestPopLast() {
+        public void TestPopLast()
+        {
             var document = new BsonDocument("x", new BsonArray { 1, 2, 3 });
             collection.RemoveAll();
             collection.Insert(document);

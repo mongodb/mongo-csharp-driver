@@ -20,40 +20,38 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Linq {
+namespace MongoDB.Driver.Linq
+{
     /// <summary>
     /// Represents a LINQ query that has been translated to an equivalent MongoDB Find query.
     /// </summary>
-    public class MongoLinqFindQuery : MongoLinqQuery {
-        #region private fields
+    public class MongoLinqFindQuery : MongoLinqQuery
+    {
+        // private fields
         private IMongoQuery query;
-        #endregion
 
-        #region constructor
+        // constructor
         /// <summary>
         /// Initializes a new instance of the MongoLinqFindQuery class.
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
         /// <param name="query">The query.</param>
-        public MongoLinqFindQuery(
-            MongoCollection collection,
-            IMongoQuery query
-        )
-            : base(collection) {
-                this.query = query;
+        public MongoLinqFindQuery(MongoCollection collection, IMongoQuery query)
+            : base(collection)
+        {
+            this.query = query;
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Executes the translated Find query.
         /// </summary>
         /// <returns>The result of executing the translated Find query.</returns>
-        public override IEnumerator<T> GetEnumerator<T>() {
+        public override IEnumerator<T> GetEnumerator<T>()
+        {
             var cursor = collection.FindAs<T>(query);
             // TODO: modify the cursor with things like sort order, skip and limit
             return cursor.GetEnumerator();
         }
-        #endregion
     }
 }

@@ -22,155 +22,197 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.BsonUnitTests.IO {
+namespace MongoDB.BsonUnitTests.IO
+{
     [TestFixture]
-    public class BsonDocumentReaderTests {
+    public class BsonDocumentReaderTests
+    {
         [Test]
-        public void TestEmptyDocument() {
+        public void TestEmptyDocument()
+        {
             BsonDocument document = new BsonDocument();
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestSingleString() {
+        public void TestSingleString()
+        {
             BsonDocument document = new BsonDocument() { { "abc", "xyz" } };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestEmbeddedDocument() {
-            BsonDocument document = new BsonDocument() {
+        public void TestEmbeddedDocument()
+        {
+            BsonDocument document = new BsonDocument
+            {
                 { "doc", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestArray() {
-            BsonDocument document = new BsonDocument() {
+        public void TestArray()
+        {
+            BsonDocument document = new BsonDocument
+            {
                 { "array", new BsonArray { 1, 2, 3 } }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestDateTime() {
+        public void TestDateTime()
+        {
             DateTime jan_1_2010 = DateTime.SpecifyKind(new DateTime(2010, 1, 1), DateTimeKind.Utc);
-            BsonDocument document = new BsonDocument() {
+            BsonDocument document = new BsonDocument
+            {
                 { "date", jan_1_2010 }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestBinary() {
-            var document = new BsonDocument {
+        public void TestBinary()
+        {
+            var document = new BsonDocument
+            {
                 { "bin", new BsonBinaryData(new byte[] { 1, 2, 3 }) }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestJavaScript() {
-            var document = new BsonDocument {
+        public void TestJavaScript()
+        {
+            var document = new BsonDocument
+            {
                 { "f", new BsonJavaScript("function f() { return 1; }") }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestJavaScriptWithScope() {
-            var document = new BsonDocument {
+        public void TestJavaScriptWithScope()
+        {
+            var document = new BsonDocument
+            {
                 { "f", new BsonJavaScriptWithScope("function f() { return n; }", new BsonDocument("n", 1)) }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestGuid() {
-            var document = new BsonDocument {
+        public void TestGuid()
+        {
+            var document = new BsonDocument
+            {
                 { "guid", new Guid("B5F21E0C2A0D42d6AD03D827008D8AB6") }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestMaxKey() {
-            var document = new BsonDocument {
+        public void TestMaxKey()
+        {
+            var document = new BsonDocument
+            {
                 { "maxkey", BsonMaxKey.Value }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestMinKey() {
-            var document = new BsonDocument {
+        public void TestMinKey()
+        {
+            var document = new BsonDocument
+            {
                 { "minkey", BsonMinKey.Value }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestNull() {
-            var document = new BsonDocument {
+        public void TestNull()
+        {
+            var document = new BsonDocument
+            {
                 { "maxkey", BsonNull.Value }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestSymbol() {
-            var document = new BsonDocument {
+        public void TestSymbol()
+        {
+            var document = new BsonDocument
+            {
                 { "symbol", BsonSymbol.Create("name") }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }
         }
 
         [Test]
-        public void TestTimestamp() {
-            var document = new BsonDocument {
+        public void TestTimestamp()
+        {
+            var document = new BsonDocument
+            {
                 { "timestamp", new BsonTimestamp(1234567890) }
             };
-            using (var bsonReader = BsonReader.Create(document)) {
+            using (var bsonReader = BsonReader.Create(document))
+            {
                 var rehydrated = BsonDocument.ReadFrom(bsonReader);
                 Assert.IsTrue(document.Equals(rehydrated));
             }

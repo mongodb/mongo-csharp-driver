@@ -22,14 +22,18 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoCollectionSettingsTests {
+    public class MongoCollectionSettingsTests
+    {
         [Test]
-        public void TestAll() {
+        public void TestAll()
+        {
             var server = MongoServer.Create();
             var database = server["test"];
-            var settings = new MongoCollectionSettings<BsonDocument>(database, "collection") {
+            var settings = new MongoCollectionSettings<BsonDocument>(database, "collection")
+            {
                 AssignIdOnInsert = true,
                 SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5)),
                 SlaveOk = true
@@ -54,7 +58,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestFrozenCopy() {
+        public void TestFrozenCopy()
+        {
             var server = MongoServer.Create();
             var database = server["test"];
             var settings = new MongoCollectionSettings<BsonDocument>(database, "collection");

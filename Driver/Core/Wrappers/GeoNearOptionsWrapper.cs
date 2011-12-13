@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoGeoNearOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class GeoNearOptionsWrapper : BaseWrapper, IMongoGeoNearOptions {
-        #region constructors
+    public class GeoNearOptionsWrapper : BaseWrapper, IMongoGeoNearOptions
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GeoNearOptionsWrapper class.
         /// </summary>
         /// <param name="options">The wrapped object.</param>
-        public GeoNearOptionsWrapper(
-            object options
-        )
-            : base(options) {
+        public GeoNearOptionsWrapper(object options)
+            : base(options)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the GeoNearOptionsWrapper class.
         /// </summary>
         /// <param name="options">The wrapped object.</param>
         /// <returns>A new instance of GeoNearOptionsWrapper or null.</returns>
-        public static GeoNearOptionsWrapper Create(
-            object options
-        ) {
-            if (options == null) {
+        public static GeoNearOptionsWrapper Create(object options)
+        {
+            if (options == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new GeoNearOptionsWrapper(options);
             }
         }
-        #endregion
     }
 }

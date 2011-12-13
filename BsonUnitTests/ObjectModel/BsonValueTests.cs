@@ -22,11 +22,14 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonValueTests {
+    public class BsonValueTests
+    {
         [Test]
-        public void TestAsBoolean() {
+        public void TestAsBoolean()
+        {
             BsonValue v = true;
             BsonValue s = "";
             var b = v.AsBoolean;
@@ -35,7 +38,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonArray() {
+        public void TestAsBsonArray()
+        {
             BsonValue v = new BsonArray { 1, 2 };
             BsonValue s = "";
             var a = v.AsBsonArray;
@@ -46,7 +50,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBinaryData() {
+        public void TestAsBinaryData()
+        {
             BsonValue v = new byte[] { 1, 2 };
             BsonValue s = "";
             var b = v.AsBsonBinaryData;
@@ -58,7 +63,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonDocument() {
+        public void TestAsBsonDocument()
+        {
             BsonValue v = new BsonDocument("x", 1);
             BsonValue s = "";
             var d = v.AsBsonDocument;
@@ -69,7 +75,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonJavaScript() {
+        public void TestAsBsonJavaScript()
+        {
             BsonValue v = new BsonJavaScript("code");
             BsonValue s = "";
             var js = v.AsBsonJavaScript;
@@ -78,7 +85,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonJavaScriptWithScode() {
+        public void TestAsBsonJavaScriptWithScode()
+        {
             var scope = new BsonDocument("x", 1);
             BsonValue s = "";
             BsonValue v = new BsonJavaScriptWithScope("code", scope);
@@ -92,7 +100,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonMaxKey() {
+        public void TestAsBsonMaxKey()
+        {
             BsonValue v = BsonMaxKey.Value;
             BsonValue s = "";
             var m = v.AsBsonMaxKey;
@@ -101,7 +110,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonMinKey() {
+        public void TestAsBsonMinKey()
+        {
             BsonValue v = BsonMinKey.Value;
             BsonValue s = "";
             var m = v.AsBsonMinKey;
@@ -110,7 +120,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonNull() {
+        public void TestAsBsonNull()
+        {
             BsonValue v = BsonNull.Value;
             BsonValue s = "";
             var n = v.AsBsonNull;
@@ -119,7 +130,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonRegularExpression() {
+        public void TestAsBsonRegularExpression()
+        {
             BsonValue v = new BsonRegularExpression("pattern", "options");
             BsonValue s = "";
             var r = v.AsBsonRegularExpression;
@@ -129,7 +141,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonSymbol() {
+        public void TestAsBsonSymbol()
+        {
             BsonValue v = BsonSymbol.Create("name");
             BsonValue s = "";
             var sym = v.AsBsonSymbol;
@@ -138,7 +151,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsBsonTimestamp() {
+        public void TestAsBsonTimestamp()
+        {
             BsonValue v = new BsonTimestamp(1234);
             BsonValue s = "";
             var ts = v.AsBsonTimestamp;
@@ -147,7 +161,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsByteArray() {
+        public void TestAsByteArray()
+        {
             BsonValue v = new byte[] { 1, 2 };
             BsonValue s = "";
             var a = v.AsByteArray;
@@ -158,7 +173,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsDateTime() {
+        public void TestAsDateTime()
+        {
             var utcNow = DateTime.UtcNow;
             BsonValue v = utcNow;
             BsonValue s = "";
@@ -168,7 +184,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsDouble() {
+        public void TestAsDouble()
+        {
             BsonValue v = 1.5;
             BsonValue s = "";
             var d = v.AsDouble;
@@ -177,7 +194,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsGuid() {
+        public void TestAsGuid()
+        {
             var guid = Guid.NewGuid();
             BsonValue v = guid;
             BsonValue s = "";
@@ -187,7 +205,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsInt32() {
+        public void TestAsInt32()
+        {
             BsonValue v = 1;
             BsonValue s = "";
             var i = v.AsInt32;
@@ -196,7 +215,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsInt64() {
+        public void TestAsInt64()
+        {
             BsonValue v = 1L;
             BsonValue s = "";
             var i = v.AsInt64;
@@ -205,7 +225,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsNullableBoolean() {
+        public void TestAsNullableBoolean()
+        {
             BsonValue v = true;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
@@ -215,7 +236,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsNullableDateTime() {
+        public void TestAsNullableDateTime()
+        {
             var utcNow = DateTime.UtcNow;
             BsonValue v = utcNow;
             BsonValue n = BsonNull.Value;
@@ -226,7 +248,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsNullableDouble() {
+        public void TestAsNullableDouble()
+        {
             BsonValue v = 1.5;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
@@ -236,7 +259,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsNullableGuid() {
+        public void TestAsNullableGuid()
+        {
             Guid guid = Guid.NewGuid();
             BsonValue v = guid;
             BsonValue n = BsonNull.Value;
@@ -247,7 +271,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsNullableInt32() {
+        public void TestAsNullableInt32()
+        {
             BsonValue v = 1;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
@@ -257,7 +282,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsNullableInt64() {
+        public void TestAsNullableInt64()
+        {
             BsonValue v = 1L;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
@@ -267,7 +293,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsNullableObjectId() {
+        public void TestAsNullableObjectId()
+        {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
             BsonValue n = BsonNull.Value;
@@ -278,7 +305,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsObjectId() {
+        public void TestAsObjectId()
+        {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
             BsonValue s = "";
@@ -288,7 +316,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsRegexOptionNone() {
+        public void TestAsRegexOptionNone()
+        {
             BsonValue v = new BsonRegularExpression("xyz");
             BsonValue s = "";
             var r = v.AsRegex;
@@ -297,7 +326,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsRegexOptionAll() {
+        public void TestAsRegexOptionAll()
+        {
             BsonValue v = new BsonRegularExpression("xyz", "imxs");
             BsonValue s = "";
             var r = v.AsRegex;
@@ -306,7 +336,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsRegexOptionI() {
+        public void TestAsRegexOptionI()
+        {
             BsonValue v = new BsonRegularExpression("xyz", "i");
             BsonValue s = "";
             var r = v.AsRegex;
@@ -315,7 +346,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsRegexOptionM() {
+        public void TestAsRegexOptionM()
+        {
             BsonValue v = new BsonRegularExpression("xyz", "m");
             BsonValue s = "";
             var r = v.AsRegex;
@@ -324,7 +356,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsRegexOptionX() {
+        public void TestAsRegexOptionX()
+        {
             BsonValue v = new BsonRegularExpression("xyz", "x");
             BsonValue s = "";
             var r = v.AsRegex;
@@ -333,7 +366,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsRegexOptionS() {
+        public void TestAsRegexOptionS()
+        {
             BsonValue v = new BsonRegularExpression("xyz", "s");
             BsonValue s = "";
             var r = v.AsRegex;
@@ -342,7 +376,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAsString() {
+        public void TestAsString()
+        {
             BsonValue v = "Hello";
             BsonValue i = 1;
             var s = v.AsString;
@@ -351,7 +386,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonRegularExpressionConstructors() {
+        public void TestBsonRegularExpressionConstructors()
+        {
             var regex = BsonRegularExpression.Create("pattern");
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
@@ -404,7 +440,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonValueEqualsFalse() {
+        public void TestBsonValueEqualsFalse()
+        {
             BsonValue a = false;
             Assert.IsTrue(a == false);
             Assert.IsFalse(a != false);
@@ -413,7 +450,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonValueEqualsTrue() {
+        public void TestBsonValueEqualsTrue()
+        {
             BsonValue a = true;
             Assert.IsTrue(a == true);
             Assert.IsFalse(a != true);
@@ -422,7 +460,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonValueEqualsDouble() {
+        public void TestBsonValueEqualsDouble()
+        {
             BsonValue a = 1;
             Assert.IsTrue(a == 1.0);
             Assert.IsFalse(a != 1.0);
@@ -431,7 +470,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonValueEqualsInt32() {
+        public void TestBsonValueEqualsInt32()
+        {
             BsonValue a = 1;
             Assert.IsTrue(a == 1);
             Assert.IsFalse(a != 1);
@@ -440,7 +480,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonValueEqualsInt64() {
+        public void TestBsonValueEqualsInt64()
+        {
             BsonValue a = 1;
             Assert.IsTrue(a == 1);
             Assert.IsFalse(a != 1);
@@ -449,266 +490,293 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestImplicitConversionFromBoolean() {
+        public void TestImplicitConversionFromBoolean()
+        {
             BsonValue v = true;
             Assert.IsInstanceOf<BsonBoolean>(v);
-            var b = (BsonBoolean) v;
+            var b = (BsonBoolean)v;
             Assert.AreEqual(true, b.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromByteArray() {
+        public void TestImplicitConversionFromByteArray()
+        {
             BsonValue v = new byte[] { 1, 2 };
-            BsonValue n = (byte[]) null;
+            BsonValue n = (byte[])null;
             Assert.IsInstanceOf<BsonBinaryData>(v);
             Assert.IsNull(n);
-            var b = (BsonBinaryData) v;
+            var b = (BsonBinaryData)v;
             Assert.AreEqual(BsonBinarySubType.Binary, b.SubType);
             Assert.AreEqual(1, b.AsByteArray[0]);
             Assert.AreEqual(2, b.AsByteArray[1]);
         }
 
         [Test]
-        public void TestImplicitConversionFromDateTime() {
+        public void TestImplicitConversionFromDateTime()
+        {
             var utcNow = DateTime.UtcNow;
             BsonValue v = utcNow;
             Assert.IsInstanceOf<BsonDateTime>(v);
-            var dt = (BsonDateTime) v;
+            var dt = (BsonDateTime)v;
             Assert.AreEqual(utcNow, dt.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromDouble() {
+        public void TestImplicitConversionFromDouble()
+        {
             BsonValue v = 1.5;
             Assert.IsInstanceOf<BsonDouble>(v);
-            var d = (BsonDouble) v;
+            var d = (BsonDouble)v;
             Assert.AreEqual(1.5, d.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromGuid() {
+        public void TestImplicitConversionFromGuid()
+        {
             var guid = Guid.NewGuid();
             BsonValue v = guid;
             Assert.IsInstanceOf<BsonBinaryData>(v);
-            var b = (BsonBinaryData) v;
+            var b = (BsonBinaryData)v;
             Assert.IsTrue(guid.ToByteArray().SequenceEqual(b.AsByteArray));
             Assert.AreEqual(BsonBinarySubType.UuidLegacy, b.SubType);
         }
 
         [Test]
-        public void TestImplicitConversionFromInt16Enum() {
+        public void TestImplicitConversionFromInt16Enum()
+        {
             BsonValue v = Int16Enum.A;
             Assert.IsInstanceOf<BsonInt32>(v);
-            var n = (BsonInt32) v;
-            Assert.AreEqual((int) Int16Enum.A, n.Value);
+            var n = (BsonInt32)v;
+            Assert.AreEqual((int)Int16Enum.A, n.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromInt32() {
+        public void TestImplicitConversionFromInt32()
+        {
             BsonValue v = 1;
             Assert.IsInstanceOf<BsonInt32>(v);
-            var i = (BsonInt32) v;
+            var i = (BsonInt32)v;
             Assert.AreEqual(1, i.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromInt32Enum() {
+        public void TestImplicitConversionFromInt32Enum()
+        {
             BsonValue v = Int32Enum.A;
             Assert.IsInstanceOf<BsonInt32>(v);
-            var n = (BsonInt32) v;
-            Assert.AreEqual((int) Int32Enum.A, n.Value);
+            var n = (BsonInt32)v;
+            Assert.AreEqual((int)Int32Enum.A, n.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromInt64() {
+        public void TestImplicitConversionFromInt64()
+        {
             BsonValue v = 1L;
             Assert.IsInstanceOf<BsonInt64>(v);
-            var i = (BsonInt64) v;
+            var i = (BsonInt64)v;
             Assert.AreEqual(1L, i.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromInt64Enum() {
+        public void TestImplicitConversionFromInt64Enum()
+        {
             BsonValue v = Int64Enum.A;
             Assert.IsInstanceOf<BsonInt64>(v);
-            var n = (BsonInt64) v;
-            Assert.AreEqual((int) Int64Enum.A, n.Value);
+            var n = (BsonInt64)v;
+            Assert.AreEqual((int)Int64Enum.A, n.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromNullableBoolean() {
-            BsonValue v = (bool?) true;
-            BsonValue n = (bool?) null;
+        public void TestImplicitConversionFromNullableBoolean()
+        {
+            BsonValue v = (bool?)true;
+            BsonValue n = (bool?)null;
             Assert.IsInstanceOf<BsonBoolean>(v);
             Assert.IsInstanceOf<BsonNull>(n);
-            var b = (BsonBoolean) v;
+            var b = (BsonBoolean)v;
             Assert.AreEqual(true, b.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromNullableDateTime() {
+        public void TestImplicitConversionFromNullableDateTime()
+        {
             var utcNow = DateTime.UtcNow;
-            BsonValue v = (DateTime?) utcNow;
-            BsonValue n = (DateTime?) null;
+            BsonValue v = (DateTime?)utcNow;
+            BsonValue n = (DateTime?)null;
             Assert.IsInstanceOf<BsonDateTime>(v);
             Assert.IsInstanceOf<BsonNull>(n);
-            var dt = (BsonDateTime) v;
+            var dt = (BsonDateTime)v;
             Assert.AreEqual(utcNow, dt.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromNullableDouble() {
-            BsonValue v = (double?) 1.5;
-            BsonValue n = (double?) null;
+        public void TestImplicitConversionFromNullableDouble()
+        {
+            BsonValue v = (double?)1.5;
+            BsonValue n = (double?)null;
             Assert.IsInstanceOf<BsonDouble>(v);
             Assert.IsInstanceOf<BsonNull>(n);
-            var d = (BsonDouble) v;
+            var d = (BsonDouble)v;
             Assert.AreEqual(1.5, d.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromNullableGuid() {
+        public void TestImplicitConversionFromNullableGuid()
+        {
             var guid = Guid.NewGuid();
-            BsonValue v = (Guid?) guid;
-            BsonValue n = (Guid?) null;
+            BsonValue v = (Guid?)guid;
+            BsonValue n = (Guid?)null;
             Assert.IsInstanceOf<BsonBinaryData>(v);
             Assert.IsInstanceOf<BsonNull>(n);
-            var b = (BsonBinaryData) v;
+            var b = (BsonBinaryData)v;
             Assert.IsTrue(guid.ToByteArray().SequenceEqual(b.AsByteArray));
             Assert.AreEqual(BsonBinarySubType.UuidLegacy, b.SubType);
         }
 
         [Test]
-        public void TestImplicitConversionFromNullableInt32() {
-            BsonValue v = (int?) 1;
-            BsonValue n = (int?) null;
+        public void TestImplicitConversionFromNullableInt32()
+        {
+            BsonValue v = (int?)1;
+            BsonValue n = (int?)null;
             Assert.IsInstanceOf<BsonInt32>(v);
             Assert.IsInstanceOf<BsonNull>(n);
-            var i = (BsonInt32) v;
+            var i = (BsonInt32)v;
             Assert.AreEqual(1, i.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromNullableInt64() {
-            BsonValue v = (long?) 1L;
-            BsonValue n = (long?) null;
+        public void TestImplicitConversionFromNullableInt64()
+        {
+            BsonValue v = (long?)1L;
+            BsonValue n = (long?)null;
             Assert.IsInstanceOf<BsonInt64>(v);
             Assert.IsInstanceOf<BsonNull>(n);
-            var i = (BsonInt64) v;
+            var i = (BsonInt64)v;
             Assert.AreEqual(1, i.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromNullableObjectId() {
+        public void TestImplicitConversionFromNullableObjectId()
+        {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
-            BsonValue n = (Guid?) null;
+            BsonValue n = (Guid?)null;
             Assert.IsInstanceOf<BsonObjectId>(v);
             Assert.IsInstanceOf<BsonNull>(n);
-            var o = (BsonObjectId) v;
+            var o = (BsonObjectId)v;
             Assert.AreEqual(objectId, o.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromObjectId() {
+        public void TestImplicitConversionFromObjectId()
+        {
             var objectId = ObjectId.GenerateNewId();
             BsonValue v = objectId;
             Assert.IsInstanceOf<BsonObjectId>(v);
-            var o = (BsonObjectId) v;
+            var o = (BsonObjectId)v;
             Assert.AreEqual(objectId, o.Value);
         }
 
         [Test]
-        public void TestImplicitConversionFromRegexOptionNone() {
+        public void TestImplicitConversionFromRegexOptionNone()
+        {
             BsonValue v = new Regex("xyz");
-            BsonValue n = (Regex) null;
+            BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
             Assert.IsNull(n);
-            var r = (BsonRegularExpression) v;
+            var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("", r.Options);
         }
 
         [Test]
-        public void TestImplicitConversionFromRegexOptionAll() {
+        public void TestImplicitConversionFromRegexOptionAll()
+        {
             BsonValue v = new Regex("xyz", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
-            BsonValue n = (Regex) null;
+            BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
             Assert.IsNull(n);
-            var r = (BsonRegularExpression) v;
+            var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("imxs", r.Options);
         }
 
         [Test]
-        public void TestImplicitConversionFromRegexOptionI() {
+        public void TestImplicitConversionFromRegexOptionI()
+        {
             BsonValue v = new Regex("xyz", RegexOptions.IgnoreCase);
-            BsonValue n = (Regex) null;
+            BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
             Assert.IsNull(n);
-            var r = (BsonRegularExpression) v;
+            var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("i", r.Options);
         }
 
         [Test]
-        public void TestImplicitConversionFromRegexOptionM() {
+        public void TestImplicitConversionFromRegexOptionM()
+        {
             BsonValue v = new Regex("xyz", RegexOptions.Multiline);
-            BsonValue n = (Regex) null;
+            BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
             Assert.IsNull(n);
-            var r = (BsonRegularExpression) v;
+            var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("m", r.Options);
         }
 
         [Test]
-        public void TestImplicitConversionFromRegexOptionX() {
+        public void TestImplicitConversionFromRegexOptionX()
+        {
             BsonValue v = new Regex("xyz", RegexOptions.IgnorePatternWhitespace);
-            BsonValue n = (Regex) null;
+            BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
             Assert.IsNull(n);
-            var r = (BsonRegularExpression) v;
+            var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("x", r.Options);
         }
 
         [Test]
-        public void TestImplicitConversionFromRegexOptionS() {
+        public void TestImplicitConversionFromRegexOptionS()
+        {
             BsonValue v = new Regex("xyz", RegexOptions.Singleline);
-            BsonValue n = (Regex) null;
+            BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
             Assert.IsNull(n);
-            var r = (BsonRegularExpression) v;
+            var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("s", r.Options);
         }
 
         [Test]
-        public void TestImplicitConversionFromString() {
+        public void TestImplicitConversionFromString()
+        {
             BsonValue v = "xyz";
-            BsonValue n = (string) null;
+            BsonValue n = (string)null;
             Assert.IsInstanceOf<BsonString>(v);
             Assert.IsNull(n);
-            var s = (BsonString) v;
+            var s = (BsonString)v;
             Assert.AreEqual("xyz", s.Value);
         }
 
-        #region nested types
-        public enum Int16Enum : short {
+        // nested types
+        public enum Int16Enum : short
+        {
             A = 1,
             B
         }
 
-        public enum Int32Enum {
+        public enum Int32Enum
+        {
             A = 1,
             B
         }
 
-        public enum Int64Enum : long {
+        public enum Int64Enum : long
+        {
             A = 1,
             B
         }
-        #endregion
     }
 }

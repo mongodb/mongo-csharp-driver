@@ -26,20 +26,24 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp163 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp163
+{
     [TestFixture]
-    public class CSharp163Tests {
+    public class CSharp163Tests
+    {
         private MongoServer server;
         private MongoDatabase database;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
         }
 
         [Test]
-        public void TestNullAliasesAndContentType() {
+        public void TestNullAliasesAndContentType()
+        {
             database.GridFS.Files.RemoveAll();
             database.GridFS.Chunks.RemoveAll();
 
