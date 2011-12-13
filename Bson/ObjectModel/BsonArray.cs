@@ -442,7 +442,11 @@ namespace MongoDB.Bson {
             IEnumerable<BsonValue> values
         ) {
             if (values != null) {
-                this.values.AddRange(values);
+                foreach (var value in values) {
+                    if (value != null) {
+                        this.values.Add(value);
+                    }
+                }
             }
             return this;
         }
@@ -553,7 +557,9 @@ namespace MongoDB.Bson {
         ) {
             if (values != null) {
                 foreach (var value in values) {
-                    this.values.Add(BsonValue.Create(value));
+                    if (value != null) {
+                        this.values.Add(BsonValue.Create(value));
+                    }
                 }
             }
             return this;

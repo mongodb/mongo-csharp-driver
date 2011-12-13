@@ -17,11 +17,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver {
@@ -330,7 +332,7 @@ namespace MongoDB.Driver {
             params string[] fields
         ) {
             if (isFrozen) { ThrowFrozen(); }
-            this.fields = Builders.Fields.Include(fields);
+            this.fields = Driver.Fields.Include(fields);
             return this;
         }
 
@@ -645,6 +647,17 @@ namespace MongoDB.Driver {
             params string[] fields
         ) {
             return (MongoCursor<TDocument>) base.SetFields(fields);
+        }
+
+        /// <summary>
+        /// Sets the fields that will be returned from the server.
+        /// </summary>
+        /// <param name="memberExpressions">The field member expressions specifying the fields that will be returned from the server.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public MongoCursor<TDocument> SetFields(
+            params Expression<Func<TDocument, object>>[] memberExpressions
+        ) {
+            return this.SetFields(memberExpressions.GetElementNames());
         }
 
         /// <summary>

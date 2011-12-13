@@ -23,40 +23,44 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.Builders;
+using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.Driver.Builders {
+namespace MongoDB.Driver {
     /// <summary>
-    /// A builder for creating sort by specifiers.
+    /// A helper class for creating sort by specifiers.
     /// </summary>
-    [Serializable]
-    public class SortByBuilder : BuilderBase, IMongoSortBy {
-        #region private fields
-        private BsonDocument document;
-        #endregion
-
-        #region constructors
+    public static class SortBy {
+        #region public static properties
         /// <summary>
-        /// Initializes a new instance of the SortByBuider class.
+        /// Gets a null value with a type of IMongoSortBy.
         /// </summary>
-        public SortByBuilder() {
-            document = new BsonDocument();
+        public static IMongoSortBy Null {
+            get { return null; }
         }
         #endregion
 
-        #region public methods
+        #region public static methods
+        /// <summary>
+        /// Creates a sort order specifier from an object.
+        /// </summary>
+        /// <param name="sortBy">The wrapped object.</param>
+        /// <returns>A new instance of SortByWrapper or null.</returns>
+        public static SortByWrapper Create(
+            object sortBy
+        ) {
+            return SortByWrapper.Create(sortBy);
+        }
+
         /// <summary>
         /// Adds keys to be sorted by in ascending order.
         /// </summary>
         /// <param name="keys">One or more key names.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public SortByBuilder Ascending(
+        public static SortByBuilder Ascending(
             params string[] keys
         ) {
-            foreach (var key in keys) {
-                document.Add(key, 1);
-            }
-            return this;
+            return new SortByBuilder().Ascending(keys);
         }
 
         /// <summary>
@@ -65,10 +69,10 @@ namespace MongoDB.Driver.Builders {
         /// <typeparam name="TDocument">The document type.</typeparam>
         /// <param name="memberExpressions">One or more lambda expressions specifying the members.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public SortByBuilder Ascending<TDocument>(
+        public static SortByBuilder Ascending<TDocument>(
             params Expression<Func<TDocument, object>>[] memberExpressions
         ) {
-            return this.Ascending(memberExpressions.GetElementNames());
+            return new SortByBuilder().Ascending(memberExpressions);
         }
 
         /// <summary>
@@ -76,13 +80,10 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="keys">One or more key names.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public SortByBuilder Descending(
+        public static SortByBuilder Descending(
             params string[] keys
         ) {
-            foreach (var key in keys) {
-                document.Add(key, -1);
-            }
-            return this;
+            return new SortByBuilder().Descending(keys);
         }
 
         /// <summary>
@@ -91,34 +92,10 @@ namespace MongoDB.Driver.Builders {
         /// <typeparam name="TDocument">The document type.</typeparam>
         /// <param name="memberExpressions">One or more lambda expressions specifying the members.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public SortByBuilder Descending<TDocument>(
+        public static SortByBuilder Descending<TDocument>(
             params Expression<Func<TDocument, object>>[] memberExpressions
         ) {
-            return this.Descending(memberExpressions.GetElementNames());
-        }
-
-        /// <summary>
-        /// Returns the result of the builder as a BsonDocument.
-        /// </summary>
-        /// <returns>A BsonDocument.</returns>
-        public override BsonDocument ToBsonDocument() {
-            return document;
-        }
-        #endregion
-
-        #region protected
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
-            document.Serialize(bsonWriter, nominalType, options);
+            return new SortByBuilder().Descending(memberExpressions);
         }
         #endregion
     }

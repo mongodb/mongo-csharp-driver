@@ -71,6 +71,40 @@ namespace MongoDB.Bson {
         }
         #endregion
 
+        #region public static properties
+        /// <summary>
+        /// Gets the singleton instance of BsonMinKey.
+        /// </summary>
+        public static BsonMinKey MinKey
+        {
+            get { return BsonMinKey.Value; }
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of BsonMaxKey.
+        /// </summary>
+        public static BsonMaxKey MaxKey
+        {
+            get { return BsonMaxKey.Value; }
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of BsonNull.
+        /// </summary>
+        public static BsonNull Null
+        {
+            get { return BsonNull.Value; }
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of BsonUndefined.
+        /// </summary>
+        public static BsonUndefined Undefined
+        {
+            get { return BsonUndefined.Value; }
+        }
+        #endregion
+
         #region public properties
         /// <summary>
         /// Casts the BsonValue to a Boolean (throws an InvalidCastException if the cast is not valid).
@@ -973,7 +1007,11 @@ namespace MongoDB.Bson {
             } else if (value is double) {
                 return new BsonDouble((double) value);
             } else {
-                return BsonTypeMapper.MapToBsonValue(value);
+                BsonValue bsonValue;
+                if (!BsonTypeMapper.TryMapToBsonValue(value, out bsonValue)) {
+                    bsonValue = BsonDocumentWrapper.Create(value.GetType(), value, false);
+                }
+                return bsonValue;
             }
         }
 

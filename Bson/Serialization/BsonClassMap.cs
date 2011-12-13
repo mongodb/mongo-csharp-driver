@@ -561,6 +561,19 @@ namespace MongoDB.Bson.Serialization {
         /// <summary>
         /// Gets a member map.
         /// </summary>
+        /// <param name="memberInfo">The MemberInfo.</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap GetMemberMap(
+            MemberInfo memberInfo
+        )
+        {
+            // can be called whether frozen or not
+            return declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
+        }
+
+        /// <summary>
+        /// Gets a member map.
+        /// </summary>
         /// <param name="memberName">The member name.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap GetMemberMap(
@@ -1298,13 +1311,6 @@ namespace MongoDB.Bson.Serialization {
         private MemberInfo GetMemberInfoFromLambda<TMember>(
             Expression<Func<TClass, TMember>> memberLambda
         ) {
-            var memberName = GetMemberNameFromLambda(memberLambda);
-            return classType.GetMember(memberName).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
-        }
-
-        private string GetMemberNameFromLambda<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
             var body = memberLambda.Body;
             MemberExpression memberExpression;
             switch (body.NodeType) {
@@ -1316,9 +1322,21 @@ namespace MongoDB.Bson.Serialization {
                     memberExpression = (MemberExpression) convertExpression.Operand;
                     break;
                 default:
-                    throw new BsonSerializationException("Invalid propertyLambda.");
+                    throw new BsonSerializationException("Invalid lambda expression");
             }
-            return memberExpression.Member.Name;
+            var memberInfo = memberExpression.Member;
+            if (memberInfo == null ||
+                (memberInfo.MemberType != MemberTypes.Field &&
+                memberInfo.MemberType != MemberTypes.Property)) {
+                throw new BsonSerializationException("Invalid lambda expression");
+            }
+            return memberInfo;
+        }
+
+        private string GetMemberNameFromLambda<TMember>(
+            Expression<Func<TClass, TMember>> memberLambda
+        ) {
+            return GetMemberInfoFromLambda(memberLambda).Name;
         }
         #endregion
     }
