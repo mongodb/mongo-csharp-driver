@@ -23,29 +23,30 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.Driver.Builders {
+namespace MongoDB.Driver.Builders
+{
     /// <summary>
     /// A builder for the options of the GeoNear command.
     /// </summary>
-    public static class GeoNearOptions {
-        #region public static properties
+    public static class GeoNearOptions
+    {
+        // public static properties
         /// <summary>
         /// Gets a null value with a type of IMongoGeoNearOptions.
         /// </summary>
-        public static IMongoGeoNearOptions Null {
+        public static IMongoGeoNearOptions Null
+        {
             get { return null; }
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Sets the distance multiplier.
         /// </summary>
         /// <param name="value">The distance multiplier.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static GeoNearOptionsBuilder SetDistanceMultiplier(
-            double value
-        ) {
+        public static GeoNearOptionsBuilder SetDistanceMultiplier(double value)
+        {
             return new GeoNearOptionsBuilder().SetDistanceMultiplier(value);
         }
 
@@ -54,9 +55,8 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="value">The max distance.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static GeoNearOptionsBuilder SetMaxDistance(
-            double value
-        ) {
+        public static GeoNearOptionsBuilder SetMaxDistance(double value)
+        {
             return new GeoNearOptionsBuilder().SetMaxDistance(value);
         }
 
@@ -65,41 +65,38 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="value">Whether to use a spherical search.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static GeoNearOptionsBuilder SetSpherical(
-            bool value
-        ) {
+        public static GeoNearOptionsBuilder SetSpherical(bool value)
+        {
             return new GeoNearOptionsBuilder().SetSpherical(value);
         }
-        #endregion
     }
 
     /// <summary>
     /// A builder for the options of the GeoNear command.
     /// </summary>
     [Serializable]
-    public class GeoNearOptionsBuilder : BuilderBase, IMongoGeoNearOptions {
-        #region private fields
+    public class GeoNearOptionsBuilder : BuilderBase, IMongoGeoNearOptions
+    {
+        // private fields
         private BsonDocument document;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GeoNearOptionsBuilder class.
         /// </summary>
-        public GeoNearOptionsBuilder() {
+        public GeoNearOptionsBuilder()
+        {
             document = new BsonDocument();
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Sets the distance multiplier.
         /// </summary>
         /// <param name="value">The distance multiplier.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public GeoNearOptionsBuilder SetDistanceMultiplier(
-            double value
-        ) {
+        public GeoNearOptionsBuilder SetDistanceMultiplier(double value)
+        {
             document["distanceMultiplier"] = value;
             return this;
         }
@@ -109,9 +106,8 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="value">The max distance.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public GeoNearOptionsBuilder SetMaxDistance(
-            double value
-        ) {
+        public GeoNearOptionsBuilder SetMaxDistance(double value)
+        {
             document["maxDistance"] = value;
             return this;
         }
@@ -121,12 +117,14 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="value">Whether to use a spherical search.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public GeoNearOptionsBuilder SetSpherical(
-            bool value
-        ) {
-            if (value) {
+        public GeoNearOptionsBuilder SetSpherical(bool value)
+        {
+            if (value)
+            {
                 document["spherical"] = true;
-            } else {
+            }
+            else
+            {
                 document.Remove("spherical");
             }
             return this;
@@ -136,25 +134,21 @@ namespace MongoDB.Driver.Builders {
         /// Returns the result of the builder as a BsonDocument.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
-        public override BsonDocument ToBsonDocument() {
+        public override BsonDocument ToBsonDocument()
+        {
             return document;
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="options">The serialization options.</param>
-        protected override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             document.Serialize(bsonWriter, nominalType, options);
         }
-        #endregion
     }
 }

@@ -27,17 +27,21 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
+namespace MongoDB.DriverUnitTests.Jira.CSharp321
+{
     [TestFixture]
-    public class CSharp321Tests {
+    public class CSharp321Tests
+    {
         [Test]
-        public void TestNoArgs() {
+        public void TestNoArgs()
+        {
             var query = Query.And();
             Assert.IsNull(query);
         }
 
         [Test]
-        public void TestOneNestedAnd() {
+        public void TestOneNestedAnd()
+        {
             var query = Query.And(
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
             );
@@ -47,7 +51,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestOneClause() {
+        public void TestOneClause()
+        {
             var query = Query.And(
                 Query.EQ("x", 1)
             );
@@ -57,7 +62,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestTwoClauses() {
+        public void TestTwoClauses()
+        {
             var query = Query.And(
                 Query.EQ("x", 1),
                 Query.EQ("y", 2)
@@ -68,7 +74,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestCombineAndWithOneClause() {
+        public void TestCombineAndWithOneClause()
+        {
             var query = Query.And(
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) }),
                 Query.EQ("z", 3)
@@ -79,7 +86,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestCombineAndWithAnd() {
+        public void TestCombineAndWithAnd()
+        {
             var query = Query.And(
                 new QueryDocument("$and", new BsonArray { new BsonDocument("a", 1), new BsonDocument("b", 2) }),
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
@@ -90,7 +98,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestCombineTwoClausesWithAnd() {
+        public void TestCombineTwoClausesWithAnd()
+        {
             var query = Query.And(
                 Query.EQ("a", 1),
                 Query.EQ("b", 2),
@@ -102,7 +111,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestThreeClauses() {
+        public void TestThreeClauses()
+        {
             var query = Query.And(
                 Query.EQ("x", 1),
                 Query.EQ("y", 2),
@@ -114,7 +124,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestCombineTwoCombinableClausesForSameField() {
+        public void TestCombineTwoCombinableClausesForSameField()
+        {
             var query = Query.And(
                 Query.GTE("x", 1),
                 Query.LTE("x", 2)
@@ -125,7 +136,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestCombineTwoEQForSameField() {
+        public void TestCombineTwoEQForSameField()
+        {
             // never mind that this query can't match anything
             var query = Query.And(
                 Query.EQ("x", 1),
@@ -137,7 +149,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestCombineTwoNonCombinableClausesForSameField() {
+        public void TestCombineTwoNonCombinableClausesForSameField()
+        {
             // never mind that this query is somewhat redundant
             var query = Query.And(
                 Query.GT("x", 1),
@@ -149,7 +162,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321 {
         }
 
         [Test]
-        public void TestNestedAndClause() {
+        public void TestNestedAndClause()
+        {
             var query = Query.And(
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) }),
                 Query.EQ("z", 3)

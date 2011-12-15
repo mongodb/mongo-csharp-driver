@@ -23,11 +23,14 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverUnitTests.Builders {
+namespace MongoDB.DriverUnitTests.Builders
+{
     [TestFixture]
-    public class CollectionOptionsBuilderTests {
+    public class CollectionOptionsBuilderTests
+    {
         [Test]
-        public void TestSetAll() {
+        public void TestSetAll()
+        {
             var options = CollectionOptions
                 .SetAutoIndexId(true)
                 .SetCapped(true)
@@ -38,42 +41,48 @@ namespace MongoDB.DriverUnitTests.Builders {
         }
 
         [Test]
-        public void TestSetAutoIndexIdFalse() {
+        public void TestSetAutoIndexIdFalse()
+        {
             var options = CollectionOptions.SetAutoIndexId(false);
             var expected = "{ }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetAutoIndexIdTrue() {
+        public void TestSetAutoIndexIdTrue()
+        {
             var options = CollectionOptions.SetAutoIndexId(true);
             var expected = "{ 'autoIndexId' : true }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetCappedFalse() {
+        public void TestSetCappedFalse()
+        {
             var options = CollectionOptions.SetCapped(false);
             var expected = "{ }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetCappedTrue() {
+        public void TestSetCappedTrue()
+        {
             var options = CollectionOptions.SetCapped(true);
             var expected = "{ 'capped' : true }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetMaxDocuments() {
+        public void TestSetMaxDocuments()
+        {
             var options = CollectionOptions.SetMaxDocuments(100);
             var expected = "{ 'max' : NumberLong(100) }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
-        public void TestSetMaxSize() {
+        public void TestSetMaxSize()
+        {
             var options = CollectionOptions.SetMaxSize(2147483649);
             var expected = "{ 'size' : NumberLong('2147483649') }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());

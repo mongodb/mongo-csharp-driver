@@ -21,12 +21,16 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonValueCompareToTests {
+    public class BsonValueCompareToTests
+    {
         [Test]
-        public void TestCompareTypeTo() {
-            BsonValue[] values = {
+        public void TestCompareTypeTo()
+        {
+            BsonValue[] values =
+            {
                 BsonMinKey.Value,
                 BsonNull.Value,
                 BsonInt32.Zero,
@@ -39,7 +43,8 @@ namespace MongoDB.BsonUnitTests {
                 new BsonDateTime(DateTime.UtcNow),
                 new BsonRegularExpression("pattern")
             };
-            for (int i = 0; i < values.Length - 2; i++) {
+            for (int i = 0; i < values.Length - 2; i++)
+            {
                 Assert.AreEqual(-1, values[i].CompareTypeTo(values[i + 1]));
                 Assert.AreEqual(1, values[i + 1].CompareTypeTo(values[i]));
                 Assert.IsTrue(values[i] < values[i + 1]);
@@ -53,7 +58,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareTwoCsharpNulls() {
+        public void TestCompareTwoCsharpNulls()
+        {
             BsonValue null1 = null;
             BsonValue null2 = null;
             Assert.IsFalse(null1 < null2);
@@ -65,7 +71,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareTwoMaxKeys() {
+        public void TestCompareTwoMaxKeys()
+        {
             Assert.IsFalse(BsonMaxKey.Value < BsonMaxKey.Value);
             Assert.IsTrue(BsonMaxKey.Value <= BsonMaxKey.Value);
             Assert.IsFalse(BsonMaxKey.Value != BsonMaxKey.Value);
@@ -75,7 +82,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareTwoMinKeys() {
+        public void TestCompareTwoMinKeys()
+        {
             Assert.IsFalse(BsonMinKey.Value < BsonMinKey.Value);
             Assert.IsTrue(BsonMinKey.Value <= BsonMinKey.Value);
             Assert.IsFalse(BsonMinKey.Value != BsonMinKey.Value);
@@ -85,7 +93,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareTwoBsonNulls() {
+        public void TestCompareTwoBsonNulls()
+        {
             Assert.IsFalse(BsonNull.Value < BsonNull.Value);
             Assert.IsTrue(BsonNull.Value <= BsonNull.Value);
             Assert.IsFalse(BsonNull.Value != BsonNull.Value);
@@ -95,7 +104,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareTwoOnes() {
+        public void TestCompareTwoOnes()
+        {
             var n1 = new BsonInt32(1);
             var n2 = new BsonInt32(1);
             Assert.IsFalse(n1 < n2);
@@ -107,7 +117,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareOneAndTwo() {
+        public void TestCompareOneAndTwo()
+        {
             var n1 = new BsonInt32(1);
             var n2 = new BsonInt32(2);
             Assert.IsTrue(n1 < n2);
@@ -119,7 +130,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareDifferentTypeOnes() {
+        public void TestCompareDifferentTypeOnes()
+        {
             var n1 = new BsonInt32(1);
             var n2 = new BsonInt64(1);
             var n3 = new BsonDouble(1.0);
@@ -130,9 +142,9 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsTrue(n3 == n1);
             Assert.IsTrue(n3 == n2);
 
-            var v1 = (BsonValue) new BsonInt32(1);
-            var v2 = (BsonValue) new BsonInt64(1);
-            var v3 = (BsonValue) new BsonDouble(1.0);
+            var v1 = (BsonValue)new BsonInt32(1);
+            var v2 = (BsonValue)new BsonInt64(1);
+            var v3 = (BsonValue)new BsonDouble(1.0);
             Assert.IsTrue(v1 == v2);
             Assert.IsTrue(v1 == v3);
             Assert.IsTrue(v2 == v1);

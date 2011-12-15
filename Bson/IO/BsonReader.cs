@@ -19,12 +19,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a BSON reader for some external format (see subclasses).
     /// </summary>
-    public abstract class BsonReader : IDisposable {
-        #region protected fields
+    public abstract class BsonReader : IDisposable
+    {
+        // protected fields
         /// <summary>
         /// Whether the reader has been disposed.
         /// </summary>
@@ -45,31 +47,32 @@ namespace MongoDB.Bson.IO {
         /// The name of the current element.
         /// </summary>
         protected string currentName;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonReader class.
         /// </summary>
         /// <param name="settings">The reader settings.</param>
-        protected BsonReader(
-            BsonReaderSettings settings
-        ) {
+        protected BsonReader(BsonReaderSettings settings)
+        {
             this.settings = settings.FrozenCopy();
             this.state = BsonReaderState.Initial;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the current BsonType.
         /// </summary>
-        public BsonType CurrentBsonType {
-            get {
-                if (state == BsonReaderState.Initial || state == BsonReaderState.Done || state == BsonReaderState.ScopeDocument || state == BsonReaderState.Type) {
+        public BsonType CurrentBsonType
+        {
+            get
+            {
+                if (state == BsonReaderState.Initial || state == BsonReaderState.Done || state == BsonReaderState.ScopeDocument || state == BsonReaderState.Type)
+                {
                     ReadBsonType();
                 }
-                if (state != BsonReaderState.Value) {
+                if (state != BsonReaderState.Value)
+                {
                     ThrowInvalidState("CurrentBsonType", BsonReaderState.Value);
                 }
                 return currentBsonType;
@@ -79,27 +82,27 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets the settings of the reader.
         /// </summary>
-        public BsonReaderSettings Settings {
+        public BsonReaderSettings Settings
+        {
             get { return settings; }
         }
 
         /// <summary>
         /// Gets the current state of the reader.
         /// </summary>
-        public BsonReaderState State {
+        public BsonReaderState State
+        {
             get { return state; }
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a BsonReader for a BsonBuffer.
         /// </summary>
         /// <param name="buffer">The BsonBuffer.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            BsonBuffer buffer
-        ) {
+        public static BsonReader Create(BsonBuffer buffer)
+        {
             return Create(buffer, BsonBinaryReaderSettings.Defaults);
         }
 
@@ -109,10 +112,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="buffer">The BsonBuffer.</param>
         /// <param name="settings">Optional reader settings.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            BsonBuffer buffer,
-            BsonBinaryReaderSettings settings
-        ) {
+        public static BsonReader Create(BsonBuffer buffer, BsonBinaryReaderSettings settings)
+        {
             return new BsonBinaryReader(buffer, settings);
         }
 
@@ -121,9 +122,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="document">The BsonDocument.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            BsonDocument document
-        ) {
+        public static BsonReader Create(BsonDocument document)
+        {
             return Create(document, BsonDocumentReaderSettings.Defaults);
         }
 
@@ -133,10 +133,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="document">The BsonDocument.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            BsonDocument document,
-            BsonDocumentReaderSettings settings
-        ) {
+        public static BsonReader Create(BsonDocument document, BsonDocumentReaderSettings settings)
+        {
             return new BsonDocumentReader(document, settings);
         }
 
@@ -145,9 +143,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            JsonBuffer buffer
-        ) {
+        public static BsonReader Create(JsonBuffer buffer)
+        {
             return Create(buffer, JsonReaderSettings.Defaults);
         }
 
@@ -157,10 +154,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="buffer">The buffer.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            JsonBuffer buffer,
-            JsonReaderSettings settings
-        ) {
+        public static BsonReader Create(JsonBuffer buffer, JsonReaderSettings settings)
+        {
             return new JsonReader(buffer, settings);
         }
 
@@ -169,9 +164,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="stream">The BSON Stream.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            Stream stream
-        ) {
+        public static BsonReader Create(Stream stream)
+        {
             return Create(stream, BsonBinaryReaderSettings.Defaults);
         }
 
@@ -181,10 +175,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="stream">The BSON Stream.</param>
         /// <param name="settings">Optional reader settings.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            Stream stream,
-            BsonBinaryReaderSettings settings
-        ) {
+        public static BsonReader Create(Stream stream, BsonBinaryReaderSettings settings)
+        {
             var reader = new BsonBinaryReader(null, settings);
             reader.Buffer.LoadFrom(stream);
             return reader;
@@ -195,9 +187,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            string json
-        ) {
+        public static BsonReader Create(string json)
+        {
             var buffer = new JsonBuffer(json);
             return Create(buffer);
         }
@@ -207,15 +198,13 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="textReader">The JSON TextReader.</param>
         /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(
-            TextReader textReader
-        ) {
+        public static BsonReader Create(TextReader textReader)
+        {
             var json = textReader.ReadToEnd();
             return Create(json);
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Closes the reader.
         /// </summary>
@@ -224,8 +213,10 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Disposes of any resources used by the reader.
         /// </summary>
-        public void Dispose() {
-            if (!disposed) {
+        public void Dispose()
+        {
+            if (!disposed)
+            {
                 Dispose(true);
                 disposed = true;
             }
@@ -236,18 +227,20 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>True if the element was found.</returns>
-        public bool FindElement(
-            string name
-        ) {
+        public bool FindElement(string name)
+        {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReaderState.Type) {
+            if (state != BsonReaderState.Type)
+            {
                 ThrowInvalidState("FindElement", BsonReaderState.Type);
             }
 
             BsonType bsonType;
-            while ((bsonType = ReadBsonType()) != BsonType.EndOfDocument) {
+            while ((bsonType = ReadBsonType()) != BsonType.EndOfDocument)
+            {
                 var elementName = ReadName();
-                if (elementName == name) {
+                if (elementName == name)
+                {
                     return true;
                 }
                 SkipValue();
@@ -261,20 +254,24 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>True if the element was found.</returns>
-        public string FindStringElement(
-            string name
-        ) {
+        public string FindStringElement(string name)
+        {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReaderState.Type) {
+            if (state != BsonReaderState.Type)
+            {
                 ThrowInvalidState("FindStringElement", BsonReaderState.Type);
             }
 
             BsonType bsonType;
-            while ((bsonType = ReadBsonType()) != BsonType.EndOfDocument) {
+            while ((bsonType = ReadBsonType()) != BsonType.EndOfDocument)
+            {
                 var elementName = ReadName();
-                if (bsonType == BsonType.String && elementName == name) {
+                if (bsonType == BsonType.String && elementName == name)
+                {
                     return ReadString();
-                } else {
+                }
+                else
+                {
                     SkipValue();
                 }
             }
@@ -293,10 +290,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
-        public void ReadBinaryData(
-            out byte[] bytes,
-            out BsonBinarySubType subType
-        ) {
+        public void ReadBinaryData(out byte[] bytes, out BsonBinarySubType subType)
+        {
             GuidRepresentation guidRepresentation;
             ReadBinaryData(out bytes, out subType, out guidRepresentation);
         }
@@ -307,11 +302,7 @@ namespace MongoDB.Bson.IO {
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public abstract void ReadBinaryData(
-            out byte[] bytes,
-            out BsonBinarySubType subType,
-            out GuidRepresentation guidRepresentation
-        );
+        public abstract void ReadBinaryData(out byte[] bytes, out BsonBinarySubType subType, out GuidRepresentation guidRepresentation);
 
         /// <summary>
         /// Reads a BSON binary data element from the reader.
@@ -319,11 +310,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="name">The name of the element.</param>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
-        public void ReadBinaryData(
-            string name,
-            out byte[] bytes,
-            out BsonBinarySubType subType
-        ) {
+        public void ReadBinaryData(string name, out byte[] bytes, out BsonBinarySubType subType)
+        {
             GuidRepresentation guidRepresentation;
             ReadBinaryData(name, out bytes, out subType, out guidRepresentation);
         }
@@ -335,12 +323,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public void ReadBinaryData(
-            string name,
-            out byte[] bytes,
-            out BsonBinarySubType subType,
-            out GuidRepresentation guidRepresentation
-        ) {
+        public void ReadBinaryData(string name, out byte[] bytes, out BsonBinarySubType subType, out GuidRepresentation guidRepresentation)
+        {
             VerifyName(name);
             ReadBinaryData(out bytes, out subType, out guidRepresentation);
         }
@@ -356,9 +340,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>A Boolean.</returns>
-        public bool ReadBoolean(
-            string name
-        ) {
+        public bool ReadBoolean(string name)
+        {
             VerifyName(name);
             return ReadBoolean();
         }
@@ -380,9 +363,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>The number of milliseconds since the Unix epoch.</returns>
-        public long ReadDateTime(
-            string name
-        ) {
+        public long ReadDateTime(string name)
+        {
             VerifyName(name);
             return ReadDateTime();
         }
@@ -398,9 +380,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>A Double.</returns>
-        public double ReadDouble(
-            string name
-        ) {
+        public double ReadDouble(string name)
+        {
             VerifyName(name);
             return ReadDouble();
         }
@@ -426,9 +407,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>An Int32.</returns>
-        public int ReadInt32(
-            string name
-        ) {
+        public int ReadInt32(string name)
+        {
             VerifyName(name);
             return ReadInt32();
         }
@@ -444,9 +424,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>An Int64.</returns>
-        public long ReadInt64(
-            string name
-        ) {
+        public long ReadInt64(string name)
+        {
             VerifyName(name);
             return ReadInt64();
         }
@@ -462,9 +441,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>A string.</returns>
-        public string ReadJavaScript(
-            string name
-        ) {
+        public string ReadJavaScript(string name)
+        {
             VerifyName(name);
             return ReadJavaScript();
         }
@@ -480,9 +458,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>A string.</returns>
-        public string ReadJavaScriptWithScope(
-            string name
-        ) {
+        public string ReadJavaScriptWithScope(string name)
+        {
             VerifyName(name);
             return ReadJavaScriptWithScope();
         }
@@ -496,9 +473,8 @@ namespace MongoDB.Bson.IO {
         /// Reads a BSON MaxKey element from the reader.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public void ReadMaxKey(
-            string name
-        ) {
+        public void ReadMaxKey(string name)
+        {
             VerifyName(name);
             ReadMaxKey();
         }
@@ -512,9 +488,8 @@ namespace MongoDB.Bson.IO {
         /// Reads a BSON MinKey element from the reader.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public void ReadMinKey(
-            string name
-        ) {
+        public void ReadMinKey(string name)
+        {
             VerifyName(name);
             ReadMinKey();
         }
@@ -523,12 +498,15 @@ namespace MongoDB.Bson.IO {
         /// Reads the name of an element from the reader.
         /// </summary>
         /// <returns>The name of the element.</returns>
-        public string ReadName() {
+        public string ReadName()
+        {
             if (disposed) { ThrowObjectDisposedException(); }
-            if (state == BsonReaderState.Type) {
+            if (state == BsonReaderState.Type)
+            {
                 ReadBsonType();
             }
-            if (state != BsonReaderState.Name) {
+            if (state != BsonReaderState.Name)
+            {
                 ThrowInvalidState("ReadName", BsonReaderState.Name);
             }
 
@@ -540,9 +518,8 @@ namespace MongoDB.Bson.IO {
         /// Reads the name of an element from the reader.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public void ReadName(
-            string name
-        ) {
+        public void ReadName(string name)
+        {
             VerifyName(name);
         }
 
@@ -555,9 +532,8 @@ namespace MongoDB.Bson.IO {
         /// Reads a BSON null element from the reader.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public void ReadNull(
-            string name
-        ) {
+        public void ReadNull(string name)
+        {
             VerifyName(name);
             ReadNull();
         }
@@ -569,12 +545,7 @@ namespace MongoDB.Bson.IO {
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
-        public abstract void ReadObjectId(
-            out int timestamp,
-            out int machine,
-            out short pid,
-            out int increment
-        );
+        public abstract void ReadObjectId(out int timestamp, out int machine, out short pid, out int increment);
 
         /// <summary>
         /// Reads a BSON ObjectId element from the reader.
@@ -584,13 +555,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
-        public void ReadObjectId(
-            string name,
-            out int timestamp,
-            out int machine,
-            out short pid,
-            out int increment
-        ) {
+        public void ReadObjectId(string name, out int timestamp, out int machine, out short pid, out int increment)
+        {
             VerifyName(name);
             ReadObjectId(out timestamp, out machine, out pid, out increment);
         }
@@ -600,10 +566,7 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">A regular expression options.</param>
-        public abstract void ReadRegularExpression(
-            out string pattern,
-            out string options
-        );
+        public abstract void ReadRegularExpression(out string pattern, out string options);
 
         /// <summary>
         /// Reads a BSON regular expression element from the reader.
@@ -611,11 +574,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="name">The name of the element.</param>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">A regular expression options.</param>
-        public void ReadRegularExpression(
-            string name,
-            out string pattern,
-            out string options
-        ) {
+        public void ReadRegularExpression(string name, out string pattern, out string options)
+        {
             VerifyName(name);
             ReadRegularExpression(out pattern, out options);
         }
@@ -641,9 +601,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <returns>A String.</returns>
         /// <param name="name">The name of the element.</param>
-        public string ReadString(
-            string name
-         ) {
+        public string ReadString(string name)
+        {
             VerifyName(name);
             return ReadString();
         }
@@ -659,9 +618,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <returns>A string.</returns>
-        public string ReadSymbol(
-            string name
-         ) {
+        public string ReadSymbol(string name)
+        {
             VerifyName(name);
             return ReadSymbol();
         }
@@ -677,9 +635,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <returns>The combined timestamp/increment.</returns>
         /// <param name="name">The name of the element.</param>
-        public long ReadTimestamp(
-            string name
-         ) {
+        public long ReadTimestamp(string name)
+        {
             VerifyName(name);
             return ReadTimestamp();
         }
@@ -693,9 +650,8 @@ namespace MongoDB.Bson.IO {
         /// Reads a BSON undefined element from the reader.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public void ReadUndefined(
-            string name
-        ) {
+        public void ReadUndefined(string name)
+        {
             VerifyName(name);
             ReadUndefined();
         }
@@ -715,16 +671,14 @@ namespace MongoDB.Bson.IO {
         /// Skips the value (reader must be positioned on a value).
         /// </summary>
         public abstract void SkipValue();
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Disposes of any resources used by the reader.
         /// </summary>
         /// <param name="disposing">True if called from Dispose.</param>
-        protected virtual void Dispose(
-            bool disposing
-        ) {
+        protected virtual void Dispose(bool disposing)
+        {
         }
 
         /// <summary>
@@ -733,13 +687,12 @@ namespace MongoDB.Bson.IO {
         /// <param name="methodName">The name of the method.</param>
         /// <param name="actualContextType">The actual ContextType.</param>
         /// <param name="validContextTypes">The valid ContextTypes.</param>
-        protected void ThrowInvalidContextType(
-            string methodName,
-            ContextType actualContextType,
-            params ContextType[] validContextTypes
-        ) {
+        protected void ThrowInvalidContextType(string methodName, ContextType actualContextType, params ContextType[] validContextTypes)
+        {
             var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
-            var message = string.Format("{0} can only be called when ContextType is {1}, not when ContextType is {2}.", methodName, validContextTypesString, actualContextType);
+            var message = string.Format(
+                "{0} can only be called when ContextType is {1}, not when ContextType is {2}.",
+                methodName, validContextTypesString, actualContextType);
             throw new InvalidOperationException(message);
         }
 
@@ -748,19 +701,20 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="methodName">The name of the method.</param>
         /// <param name="validStates">The valid states.</param>
-        protected void ThrowInvalidState(
-            string methodName,
-            params BsonReaderState[] validStates
-        ) {
+        protected void ThrowInvalidState(string methodName, params BsonReaderState[] validStates)
+        {
             var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
-            var message = string.Format("{0} can only be called when State is {1}, not when State is {2}.", methodName, validStatesString, state);
+            var message = string.Format(
+                "{0} can only be called when State is {1}, not when State is {2}.",
+                methodName, validStatesString, state);
             throw new InvalidOperationException(message);
         }
 
         /// <summary>
         /// Throws an ObjectDisposedException.
         /// </summary>
-        protected void ThrowObjectDisposedException() {
+        protected void ThrowObjectDisposedException()
+        {
             throw new ObjectDisposedException(this.GetType().Name);
         }
 
@@ -769,22 +723,26 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="methodName">The name of the method calling this one.</param>
         /// <param name="requiredBsonType">The required BSON type.</param>
-        protected void VerifyBsonType(
-            string methodName,
-            BsonType requiredBsonType
-        ) {
-            if (state == BsonReaderState.Initial || state == BsonReaderState.ScopeDocument || state == BsonReaderState.Type) {
+        protected void VerifyBsonType(string methodName, BsonType requiredBsonType)
+        {
+            if (state == BsonReaderState.Initial || state == BsonReaderState.ScopeDocument || state == BsonReaderState.Type)
+            {
                 ReadBsonType();
             }
-            if (state == BsonReaderState.Name) {
+            if (state == BsonReaderState.Name)
+            {
                 // ignore name
                 state = BsonReaderState.Value;
             }
-            if (state != BsonReaderState.Value) {
+            if (state != BsonReaderState.Value)
+            {
                 ThrowInvalidState(methodName, BsonReaderState.Value);
             }
-            if (currentBsonType != requiredBsonType) {
-                var message = string.Format("{0} can only be called when CurrentBsonType is {1}, not when CurrentBsonType is {2}.", methodName, requiredBsonType, currentBsonType);
+            if (currentBsonType != requiredBsonType)
+            {
+                var message = string.Format(
+                    "{0} can only be called when CurrentBsonType is {1}, not when CurrentBsonType is {2}.",
+                    methodName, requiredBsonType, currentBsonType);
                 throw new InvalidOperationException(message);
             }
         }
@@ -793,16 +751,17 @@ namespace MongoDB.Bson.IO {
         /// Verifies the name of the current element.
         /// </summary>
         /// <param name="expectedName">The expected name.</param>
-        protected void VerifyName(
-            string expectedName
-        ) {
+        protected void VerifyName(string expectedName)
+        {
             ReadBsonType();
             var actualName = ReadName();
-            if (actualName != expectedName) {
-                var message = string.Format("Expected element name to be '{0}', not '{1}'.", expectedName, actualName);
+            if (actualName != expectedName)
+            {
+                var message = string.Format(
+                    "Expected element name to be '{0}', not '{1}'.",
+                    expectedName, actualName);
                 throw new FileFormatException(message);
             }
         }
-        #endregion
     }
 }

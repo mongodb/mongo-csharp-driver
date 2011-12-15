@@ -25,16 +25,17 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Internal;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a MongoDB database and the settings used to access it. This class is thread-safe.
     /// </summary>
-    public class MongoDatabase {
-        #region private static fields
+    public class MongoDatabase
+    {
+        // private static fields
         private static HashSet<char> invalidDatabaseNameChars;
-        #endregion
 
-        #region private fields
+        // private fields
         private object databaseLock = new object();
         private MongoServer server;
         private MongoDatabaseSettings settings;
@@ -42,45 +43,43 @@ namespace MongoDB.Driver {
         private Dictionary<MongoCollectionSettings, MongoCollection> collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
         private MongoCollection<BsonDocument> commandCollection;
         private MongoGridFS gridFS;
-        #endregion
 
-        #region static constructor
-        static MongoDatabase() {
+        // static constructor
+        static MongoDatabase()
+        {
             // MongoDB itself prohibits some characters and the rest are prohibited by the Windows restrictions on filenames
             invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
             foreach (var c in Path.GetInvalidPathChars()) { invalidDatabaseNameChars.Add(c); }
             foreach (var c in Path.GetInvalidFileNameChars()) { invalidDatabaseNameChars.Add(c); }
         }
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Creates a new instance of MongoDatabase. Normally you would call one of the indexers or GetDatabase methods
         /// of MongoServer instead.
         /// </summary>
         /// <param name="server">The server that contains this database.</param>
         /// <param name="settings">The settings to use to access this database.</param>
-        public MongoDatabase(
-            MongoServer server,
-            MongoDatabaseSettings settings
-        ) {
+        public MongoDatabase(MongoServer server, MongoDatabaseSettings settings)
+        {
             ValidateDatabaseName(settings.DatabaseName);
             this.server = server;
             this.settings = settings.FrozenCopy();
             this.name = settings.DatabaseName;
 
-            var commandCollectionSettings = new MongoCollectionSettings<BsonDocument>(this, "$cmd") {
+            var commandCollectionSettings = new MongoCollectionSettings<BsonDocument>(this, "$cmd")
+            {
                 AssignIdOnInsert = false
             };
-            if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet) {
+            if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
+            {
                 // make sure commands get routed to the primary server by using slaveOk false
                 commandCollectionSettings.SlaveOk = false;
             }
             commandCollection = GetCollection(commandCollectionSettings);
         }
-        #endregion
 
-        #region factory methods
+        // factory methods
         /// <summary>
         /// Creates a new instance or returns an existing instance of MongoDatabase. Only one instance
         /// is created for each combination of database settings. Automatically creates an instance
@@ -90,9 +89,8 @@ namespace MongoDB.Driver {
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
-        public static MongoDatabase Create(
-            MongoConnectionStringBuilder builder
-        ) {
+        public static MongoDatabase Create(MongoConnectionStringBuilder builder)
+        {
             var serverSettings = builder.ToServerSettings();
             var databaseName = builder.DatabaseName;
             return Create(serverSettings, databaseName);
@@ -108,11 +106,10 @@ namespace MongoDB.Driver {
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
-        public static MongoDatabase Create(
-            MongoServerSettings serverSettings,
-            string databaseName
-        ) {
-            if (databaseName == null) {
+        public static MongoDatabase Create(MongoServerSettings serverSettings, string databaseName)
+        {
+            if (databaseName == null)
+            {
                 throw new ArgumentException("Database name is missing.");
             }
             var server = MongoServer.Create(serverSettings);
@@ -128,9 +125,8 @@ namespace MongoDB.Driver {
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
-        public static MongoDatabase Create(
-            MongoUrl url
-        ) {
+        public static MongoDatabase Create(MongoUrl url)
+        {
             var serverSettings = url.ToServerSettings();
             var databaseName = url.DatabaseName;
             return Create(serverSettings, databaseName);
@@ -145,13 +141,15 @@ namespace MongoDB.Driver {
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
-        public static MongoDatabase Create(
-            string connectionString
-        ) {
-            if (connectionString.StartsWith("mongodb://")) {
+        public static MongoDatabase Create(string connectionString)
+        {
+            if (connectionString.StartsWith("mongodb://"))
+            {
                 MongoUrl url = MongoUrl.Create(connectionString);
                 return Create(url);
-            } else {
+            }
+            else
+            {
                 MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
                 return Create(builder);
             }
@@ -166,25 +164,25 @@ namespace MongoDB.Driver {
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
-        public static MongoDatabase Create(
-            Uri uri
-        ) {
+        public static MongoDatabase Create(Uri uri)
+        {
             return Create(MongoUrl.Create(uri.ToString()));
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the command collection for this database.
         /// </summary>
-        public virtual MongoCollection<BsonDocument> CommandCollection {
+        public virtual MongoCollection<BsonDocument> CommandCollection
+        {
             get { return commandCollection; }
         }
 
         /// <summary>
         /// Gets the credentials being used to access this database.
         /// </summary>
-        public virtual MongoCredentials Credentials {
+        public virtual MongoCredentials Credentials
+        {
             get { return settings.Credentials; }
         }
 
@@ -192,10 +190,14 @@ namespace MongoDB.Driver {
         /// Gets the default GridFS instance for this database. The default GridFS instance uses default GridFS
         /// settings. See also GetGridFS if you need to use GridFS with custom settings.
         /// </summary>
-        public virtual MongoGridFS GridFS {
-            get {
-                lock (databaseLock) {
-                    if (gridFS == null) {
+        public virtual MongoGridFS GridFS
+        {
+            get
+            {
+                lock (databaseLock)
+                {
+                    if (gridFS == null)
+                    {
                         gridFS = new MongoGridFS(this);
                     }
                     return gridFS;
@@ -206,35 +208,36 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the name of this database.
         /// </summary>
-        public virtual string Name {
+        public virtual string Name
+        {
             get { return name; }
         }
 
         /// <summary>
         /// Gets the server that contains this database.
         /// </summary>
-        public virtual MongoServer Server {
+        public virtual MongoServer Server
+        {
             get { return server; }
         }
 
         /// <summary>
         /// Gets the settings being used to access this database.
         /// </summary>
-        public virtual MongoDatabaseSettings Settings {
+        public virtual MongoDatabaseSettings Settings
+        {
             get { return settings; }
         }
-        #endregion
 
-        #region public indexers
+        // public indexers
         /// <summary>
         /// Gets a MongoCollection instance representing a collection on this database
         /// with a default document type of BsonDocument.
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> this[
-            string collectionName
-        ] {
+        public virtual MongoCollection<BsonDocument> this[string collectionName]
+        {
             get { return GetCollection(collectionName); }
         }
 
@@ -245,22 +248,18 @@ namespace MongoDB.Driver {
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> this[
-            string collectionName,
-            SafeMode safeMode
-        ] {
+        public virtual MongoCollection<BsonDocument> this[string collectionName, SafeMode safeMode]
+        {
             get { return GetCollection(collectionName, safeMode); }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Adds a user to this database.
         /// </summary>
         /// <param name="credentials">The user's credentials.</param>
-        public virtual void AddUser(
-            MongoCredentials credentials
-        ) {
+        public virtual void AddUser(MongoCredentials credentials)
+        {
             AddUser(credentials, false);
         }
 
@@ -269,10 +268,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="credentials">The user's credentials.</param>
         /// <param name="readOnly">True if the user is a read-only user.</param>
-        public virtual void AddUser(
-            MongoCredentials credentials,
-            bool readOnly
-        ) {
+        public virtual void AddUser(MongoCredentials credentials, bool readOnly)
+        {
             var user = new MongoUser(credentials, readOnly);
             AddUser(user);
         }
@@ -281,12 +278,12 @@ namespace MongoDB.Driver {
         /// Adds a user to this database.
         /// </summary>
         /// <param name="user">The user.</param>
-        public virtual void AddUser(
-            MongoUser user
-        ) {
+        public virtual void AddUser(MongoUser user)
+        {
             var users = GetCollection("system.users");
             var document = users.FindOne(Query.EQ("user", user.Username));
-            if (document == null) {
+            if (document == null)
+            {
                 document = new BsonDocument("user", user.Username);
             }
             document["readOnly"] = user.IsReadOnly;
@@ -299,9 +296,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>True if the collection exists.</returns>
-        public virtual bool CollectionExists(
-            string collectionName
-        ) {
+        public virtual bool CollectionExists(string collectionName)
+        {
             return GetCollectionNames().Contains(collectionName);
         }
 
@@ -311,9 +307,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult CreateCollection(
-            string collectionName
-        ) {
+        public virtual CommandResult CreateCollection(string collectionName)
+        {
             return CreateCollection(collectionName, null);
         }
 
@@ -324,12 +319,11 @@ namespace MongoDB.Driver {
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="options">Options for creating this collection (usually a CollectionOptionsDocument or constructed using the CollectionOptions builder).</param>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult CreateCollection(
-            string collectionName,
-            IMongoCollectionOptions options
-        ) {
+        public virtual CommandResult CreateCollection(string collectionName, IMongoCollectionOptions options)
+        {
             var command = new CommandDocument("create", collectionName);
-            if (options != null) {
+            if (options != null)
+            {
                 command.Merge(options.ToBsonDocument());
             }
             return RunCommand(command);
@@ -342,13 +336,9 @@ namespace MongoDB.Driver {
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of this collection.</param>
         /// <returns>A MongoCollectionSettings.</returns>
-        public virtual MongoCollectionSettings<TDefaultDocument> CreateCollectionSettings<TDefaultDocument>(
-            string collectionName
-        ) {
-            return new MongoCollectionSettings<TDefaultDocument>(
-                this,
-                collectionName
-            );
+        public virtual MongoCollectionSettings<TDefaultDocument> CreateCollectionSettings<TDefaultDocument>(string collectionName)
+        {
+            return new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
         }
 
         /// <summary>
@@ -358,25 +348,19 @@ namespace MongoDB.Driver {
         /// <param name="defaultDocumentType">The default document type for this collection.</param>
         /// <param name="collectionName">The name of this collection.</param>
         /// <returns>A MongoCollectionSettings.</returns>
-        public virtual MongoCollectionSettings CreateCollectionSettings(
-            Type defaultDocumentType,
-            string collectionName
-        ) {
+        public virtual MongoCollectionSettings CreateCollectionSettings(Type defaultDocumentType, string collectionName)
+        {
             var settingsDefinition = typeof(MongoCollectionSettings<>);
             var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
             var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string) });
-            return (MongoCollectionSettings) constructorInfo.Invoke(
-                new object[] {
-                    this,
-                    collectionName
-                }
-            );
+            return (MongoCollectionSettings)constructorInfo.Invoke(new object[] { this, collectionName });
         }
 
         /// <summary>
         /// Drops a database.
         /// </summary>
-        public virtual void Drop() {
+        public virtual void Drop()
+        {
             server.DropDatabase(name);
         }
 
@@ -385,16 +369,19 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="collectionName">The name of the collection to drop.</param>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult DropCollection(
-            string collectionName
-        ) {
-            try {
+        public virtual CommandResult DropCollection(string collectionName)
+        {
+            try
+            {
                 var command = new CommandDocument("drop", collectionName);
                 var result = RunCommand(command);
                 server.IndexCache.Reset(name, collectionName);
                 return result;
-            } catch (MongoCommandException ex) {
-                if (ex.CommandResult.ErrorMessage == "ns not found") {
+            }
+            catch (MongoCommandException ex)
+            {
+                if (ex.CommandResult.ErrorMessage == "ns not found")
+                {
                     return ex.CommandResult;
                 }
                 throw;
@@ -408,12 +395,10 @@ namespace MongoDB.Driver {
         /// <param name="code">The code to evaluate.</param>
         /// <param name="args">Optional arguments (only used when the code is a function with parameters).</param>
         /// <returns>The result of evaluating the code.</returns>
-        public virtual BsonValue Eval(
-            EvalFlags flags,
-            BsonJavaScript code,
-            params object[] args
-        ) {
-            var command = new CommandDocument {
+        public virtual BsonValue Eval(EvalFlags flags, BsonJavaScript code, params object[] args)
+        {
+            var command = new CommandDocument
+            {
                 { "$eval", code },
                 { "args", BsonArray.Create(args), args != null && args.Length > 0 },
                 { "nolock", true, (flags & EvalFlags.NoLock) != 0 }
@@ -428,10 +413,8 @@ namespace MongoDB.Driver {
         /// <param name="code">The code to evaluate.</param>
         /// <param name="args">Optional arguments (only used when the code is a function with parameters).</param>
         /// <returns>The result of evaluating the code.</returns>
-        public virtual BsonValue Eval(
-            BsonJavaScript code,
-            params object[] args
-        ) {
+        public virtual BsonValue Eval(BsonJavaScript code, params object[] args)
+        {
             return Eval(EvalFlags.None, code, args);
         }
 
@@ -440,9 +423,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dbRef">The <see cref="MongoDBRef"/> to fetch.</param>
         /// <returns>A BsonDocument (or null if the document was not found).</returns>
-        public virtual BsonDocument FetchDBRef(
-            MongoDBRef dbRef
-        ) {
+        public virtual BsonDocument FetchDBRef(MongoDBRef dbRef)
+        {
             return FetchDBRefAs<BsonDocument>(dbRef);
         }
 
@@ -452,10 +434,9 @@ namespace MongoDB.Driver {
         /// <typeparam name="TDocument">The nominal type of the document to fetch.</typeparam>
         /// <param name="dbRef">The <see cref="MongoDBRef"/> to fetch.</param>
         /// <returns>A <typeparamref name="TDocument"/> (or null if the document was not found).</returns>
-        public virtual TDocument FetchDBRefAs<TDocument>(
-            MongoDBRef dbRef
-        ) {
-            return (TDocument) FetchDBRefAs(typeof(TDocument), dbRef);
+        public virtual TDocument FetchDBRefAs<TDocument>(MongoDBRef dbRef)
+        {
+            return (TDocument)FetchDBRefAs(typeof(TDocument), dbRef);
         }
 
         /// <summary>
@@ -464,11 +445,10 @@ namespace MongoDB.Driver {
         /// <param name="documentType">The nominal type of the document to fetch.</param>
         /// <param name="dbRef">The <see cref="MongoDBRef"/> to fetch.</param>
         /// <returns>An instance of nominalType (or null if the document was not found).</returns>
-        public virtual object FetchDBRefAs(
-            Type documentType,
-            MongoDBRef dbRef
-        ) {
-            if (dbRef.DatabaseName != null && dbRef.DatabaseName != name) {
+        public virtual object FetchDBRefAs(Type documentType, MongoDBRef dbRef)
+        {
+            if (dbRef.DatabaseName != null && dbRef.DatabaseName != name)
+            {
                 return server.FetchDBRefAs(documentType, dbRef);
             }
 
@@ -481,10 +461,12 @@ namespace MongoDB.Driver {
         /// Finds all users of this database.
         /// </summary>
         /// <returns>An array of users.</returns>
-        public virtual MongoUser[] FindAllUsers() {
+        public virtual MongoUser[] FindAllUsers()
+        {
             var result = new List<MongoUser>();
             var users = GetCollection("system.users");
-            foreach (var document in users.FindAll()) {
+            foreach (var document in users.FindAll())
+            {
                 var username = document["user"].AsString;
                 var passwordHash = document["pwd"].AsString;
                 var readOnly = document["readOnly"].ToBoolean();
@@ -499,17 +481,19 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>The user.</returns>
-        public virtual MongoUser FindUser(
-            string username
-        ) {
+        public virtual MongoUser FindUser(string username)
+        {
             var users = GetCollection("system.users");
             var query = Query.EQ("user", username);
             var document = users.FindOne(query);
-            if (document != null) {
+            if (document != null)
+            {
                 var passwordHash = document["pwd"].AsString;
                 var readOnly = document["readOnly"].ToBoolean();
                 return new MongoUser(username, passwordHash, readOnly);
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
@@ -521,16 +505,17 @@ namespace MongoDB.Driver {
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
-            MongoCollectionSettings<TDefaultDocument> collectionSettings
-        ) {
-            lock (databaseLock) {
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(MongoCollectionSettings<TDefaultDocument> collectionSettings)
+        {
+            lock (databaseLock)
+            {
                 MongoCollection collection;
-                if (!collections.TryGetValue(collectionSettings, out collection)) {
+                if (!collections.TryGetValue(collectionSettings, out collection))
+                {
                     collection = new MongoCollection<TDefaultDocument>(this, collectionSettings);
                     collections.Add(collectionSettings, collection);
                 }
-                return (MongoCollection<TDefaultDocument>) collection;
+                return (MongoCollection<TDefaultDocument>)collection;
             }
         }
 
@@ -541,9 +526,8 @@ namespace MongoDB.Driver {
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
-            string collectionName
-        ) {
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName)
+        {
             var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
             return GetCollection(collectionSettings);
         }
@@ -556,11 +540,10 @@ namespace MongoDB.Driver {
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
-            string collectionName,
-            SafeMode safeMode
-        ) {
-            var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName) {
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName, SafeMode safeMode)
+        {
+            var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName)
+            {
                 SafeMode = safeMode
             };
             return GetCollection(collectionSettings);
@@ -572,16 +555,17 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection GetCollection(
-            MongoCollectionSettings collectionSettings
-        ) {
-            lock (databaseLock) {
+        public virtual MongoCollection GetCollection(MongoCollectionSettings collectionSettings)
+        {
+            lock (databaseLock)
+            {
                 MongoCollection collection;
-                if (!collections.TryGetValue(collectionSettings, out collection)) {
+                if (!collections.TryGetValue(collectionSettings, out collection))
+                {
                     var collectionDefinition = typeof(MongoCollection<>);
                     var collectionType = collectionDefinition.MakeGenericType(collectionSettings.DefaultDocumentType);
                     var constructorInfo = collectionType.GetConstructor(new Type[] { typeof(MongoDatabase), collectionSettings.GetType() });
-                    collection = (MongoCollection) constructorInfo.Invoke(new object[] { this, collectionSettings });
+                    collection = (MongoCollection)constructorInfo.Invoke(new object[] { this, collectionSettings });
                     collections.Add(collectionSettings, collection);
                 }
                 return collection;
@@ -594,9 +578,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> GetCollection(
-            string collectionName
-        ) {
+        public virtual MongoCollection<BsonDocument> GetCollection(string collectionName)
+        {
             var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName);
             return GetCollection(collectionSettings);
         }
@@ -608,11 +591,10 @@ namespace MongoDB.Driver {
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> GetCollection(
-            string collectionName,
-            SafeMode safeMode
-        ) {
-            var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName) {
+        public virtual MongoCollection<BsonDocument> GetCollection(string collectionName, SafeMode safeMode)
+        {
+            var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName)
+            {
                 SafeMode = safeMode
             };
             return GetCollection(collectionSettings);
@@ -625,10 +607,8 @@ namespace MongoDB.Driver {
         /// <param name="defaultDocumentType">The default document type.</param>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection GetCollection(
-            Type defaultDocumentType,
-            string collectionName
-        ) {
+        public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName)
+        {
             var collectionSettings = CreateCollectionSettings(defaultDocumentType, collectionName);
             return GetCollection(collectionSettings);
         }
@@ -641,11 +621,8 @@ namespace MongoDB.Driver {
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection GetCollection(
-            Type defaultDocumentType,
-            string collectionName,
-            SafeMode safeMode
-        ) {
+        public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName, SafeMode safeMode)
+        {
             var collectionSettings = CreateCollectionSettings(defaultDocumentType, collectionName);
             collectionSettings.SafeMode = safeMode;
             return GetCollection(collectionSettings);
@@ -655,11 +632,13 @@ namespace MongoDB.Driver {
         /// Gets a list of the names of all the collections in this database.
         /// </summary>
         /// <returns>A list of collection names.</returns>
-        public virtual IEnumerable<string> GetCollectionNames() {
+        public virtual IEnumerable<string> GetCollectionNames()
+        {
             List<string> collectionNames = new List<string>();
             var namespaces = GetCollection("system.namespaces");
             var prefix = name + ".";
-            foreach (var @namespace in namespaces.FindAll()) {
+            foreach (var @namespace in namespaces.FindAll())
+            {
                 string collectionName = @namespace["name"].AsString;
                 if (!collectionName.StartsWith(prefix)) { continue; }
                 if (collectionName.Contains('$')) { continue; }
@@ -673,7 +652,8 @@ namespace MongoDB.Driver {
         /// Gets the current operation.
         /// </summary>
         /// <returns>The current operation.</returns>
-        public virtual BsonDocument GetCurrentOp() {
+        public virtual BsonDocument GetCurrentOp()
+        {
             var collection = GetCollection("$cmd.sys.inprog");
             return collection.FindOne();
         }
@@ -683,9 +663,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="gridFSSettings">The GridFS settings to use.</param>
         /// <returns>An instance of MongoGridFS.</returns>
-        public virtual MongoGridFS GetGridFS(
-            MongoGridFSSettings gridFSSettings
-        ) {
+        public virtual MongoGridFS GetGridFS(MongoGridFSSettings gridFSSettings)
+        {
             return new MongoGridFS(this, gridFSSettings);
         }
 
@@ -698,9 +677,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="query">A query to select which documents to return.</param>
         /// <returns>A cursor.</returns>
-        public MongoCursor<SystemProfileInfo> GetProfilingInfo(
-            IMongoQuery query
-        ) {
+        public MongoCursor<SystemProfileInfo> GetProfilingInfo(IMongoQuery query)
+        {
             var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { SlaveOk = false };
             var collection = GetCollection<SystemProfileInfo>(collectionSettings);
             return collection.Find(query);
@@ -710,7 +688,8 @@ namespace MongoDB.Driver {
         /// Gets the current profiling level.
         /// </summary>
         /// <returns>The profiling level.</returns>
-        public GetProfilingLevelResult GetProfilingLevel() {
+        public GetProfilingLevelResult GetProfilingLevel()
+        {
             var command = new CommandDocument("profile", -1);
             return RunCommandAs<GetProfilingLevelResult>(command);
         }
@@ -720,9 +699,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="databaseName">The name of the sister database.</param>
         /// <returns>An instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetSisterDatabase(
-            string databaseName
-        ) {
+        public virtual MongoDatabase GetSisterDatabase(string databaseName)
+        {
             return server.GetDatabase(databaseName);
         }
 
@@ -730,7 +708,8 @@ namespace MongoDB.Driver {
         /// Gets the current database stats.
         /// </summary>
         /// <returns>An instance of DatabaseStatsResult.</returns>
-        public virtual DatabaseStatsResult GetStats() {
+        public virtual DatabaseStatsResult GetStats()
+        {
             return RunCommandAs<DatabaseStatsResult>("dbstats");
         }
 
@@ -740,9 +719,8 @@ namespace MongoDB.Driver {
         /// Removes a user from this database.
         /// </summary>
         /// <param name="user">The user to remove.</param>
-        public virtual void RemoveUser(
-            MongoUser user
-        ) {
+        public virtual void RemoveUser(MongoUser user)
+        {
             RemoveUser(user.Username);
         }
 
@@ -750,9 +728,8 @@ namespace MongoDB.Driver {
         /// Removes a user from this database.
         /// </summary>
         /// <param name="username">The username to remove.</param>
-        public virtual void RemoveUser(
-            string username
-        ) {
+        public virtual void RemoveUser(string username)
+        {
             var users = GetCollection("system.users");
             users.Remove(Query.EQ("user", username));
         }
@@ -763,10 +740,8 @@ namespace MongoDB.Driver {
         /// <param name="oldCollectionName">The old name for the collection.</param>
         /// <param name="newCollectionName">The new name for the collection.</param>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult RenameCollection(
-            string oldCollectionName,
-            string newCollectionName
-        ) {
+        public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName)
+        {
             return RenameCollection(oldCollectionName, newCollectionName, false); // dropTarget = false
         }
 
@@ -777,12 +752,11 @@ namespace MongoDB.Driver {
         /// <param name="newCollectionName">The new name for the collection.</param>
         /// <param name="dropTarget">Whether to drop the target collection first if it already exists.</param>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult RenameCollection(
-            string oldCollectionName,
-            string newCollectionName,
-            bool dropTarget
-        ) {
-            var command = new CommandDocument {
+        public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, bool dropTarget)
+        {
+            MongoCollection.ValidateCollectionName(newCollectionName);
+            var command = new CommandDocument
+            {
                 { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
                 { "to", string.Format("{0}.{1}", name, newCollectionName) },
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
@@ -794,7 +768,8 @@ namespace MongoDB.Driver {
         /// Lets the server know that this thread is done with a series of related operations. Instead of calling this method it is better
         /// to put the return value of RequestStart in a using statement.
         /// </summary>
-        public virtual void RequestDone() {
+        public virtual void RequestDone()
+        {
             server.RequestDone();
         }
 
@@ -804,7 +779,8 @@ namespace MongoDB.Driver {
         /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
         /// </summary>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart() {
+        public virtual IDisposable RequestStart()
+        {
             return RequestStart(false); // not slaveOk
         }
 
@@ -815,9 +791,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart(
-            bool slaveOk
-        ) {
+        public virtual IDisposable RequestStart(bool slaveOk)
+        {
             return server.RequestStart(this, slaveOk);
         }
 
@@ -828,7 +803,8 @@ namespace MongoDB.Driver {
         /// when you know (or suspect) that a process other than this one may have dropped one or
         /// more indexes.
         /// </summary>
-        public virtual void ResetIndexCache() {
+        public virtual void ResetIndexCache()
+        {
             server.IndexCache.Reset(this);
         }
 
@@ -837,9 +813,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="command">The command object.</param>
         /// <returns>A CommandResult</returns>
-        public virtual CommandResult RunCommand(
-            IMongoCommand command
-        ) {
+        public virtual CommandResult RunCommand(IMongoCommand command)
+        {
             return RunCommandAs<CommandResult>(command);
         }
 
@@ -848,9 +823,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="commandName">The name of the command.</param>
         /// <returns>A CommandResult</returns>
-        public virtual CommandResult RunCommand(
-            string commandName
-        ) {
+        public virtual CommandResult RunCommand(string commandName)
+        {
             return RunCommandAs<CommandResult>(commandName);
         }
 
@@ -860,10 +834,9 @@ namespace MongoDB.Driver {
         /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="command">The command object.</param>
         /// <returns>A TCommandResult</returns>
-        public virtual TCommandResult RunCommandAs<TCommandResult>(
-            IMongoCommand command
-        ) where TCommandResult : CommandResult, new() {
-            return (TCommandResult) RunCommandAs(typeof(TCommandResult), command);
+        public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult, new()
+        {
+            return (TCommandResult)RunCommandAs(typeof(TCommandResult), command);
         }
 
         /// <summary>
@@ -872,10 +845,9 @@ namespace MongoDB.Driver {
         /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="commandName">The name of the command.</param>
         /// <returns>A TCommandResult</returns>
-        public virtual TCommandResult RunCommandAs<TCommandResult>(
-            string commandName
-        ) where TCommandResult : CommandResult, new() {
-            return (TCommandResult) RunCommandAs(typeof(TCommandResult), commandName);
+        public virtual TCommandResult RunCommandAs<TCommandResult>(string commandName) where TCommandResult : CommandResult, new()
+        {
+            return (TCommandResult)RunCommandAs(typeof(TCommandResult), commandName);
         }
 
         /// <summary>
@@ -884,20 +856,21 @@ namespace MongoDB.Driver {
         /// <param name="commandResultType">The command result type.</param>
         /// <param name="command">The command object.</param>
         /// <returns>A TCommandResult</returns>
-        public virtual CommandResult RunCommandAs(
-            Type commandResultType,
-            IMongoCommand command
-        ) {
+        public virtual CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)
+        {
             var response = CommandCollection.FindOne(command);
-            if (response == null) {
+            if (response == null)
+            {
                 var commandName = command.ToBsonDocument().GetElement(0).Name;
                 var message = string.Format("Command '{0}' failed. No response returned.", commandName);
                 throw new MongoCommandException(message);
             }
-            var commandResult = (CommandResult) Activator.CreateInstance(commandResultType); // constructor can't have arguments
+            var commandResult = (CommandResult)Activator.CreateInstance(commandResultType); // constructor can't have arguments
             commandResult.Initialize(command, response); // so two phase construction required
-            if (!commandResult.Ok) {
-                if (commandResult.ErrorMessage == "not master") {
+            if (!commandResult.Ok)
+            {
+                if (commandResult.ErrorMessage == "not master")
+                {
                     // TODO: figure out which instance gave the error and set its state to Unknown
                     server.Disconnect();
                 }
@@ -912,10 +885,8 @@ namespace MongoDB.Driver {
         /// <param name="commandResultType">The command result type.</param>
         /// <param name="commandName">The name of the command.</param>
         /// <returns>A TCommandResult</returns>
-        public virtual CommandResult RunCommandAs(
-            Type commandResultType,
-            string commandName
-        ) {
+        public virtual CommandResult RunCommandAs(Type commandResultType, string commandName)
+        {
             var command = new CommandDocument(commandName, true);
             return RunCommandAs(commandResultType, command);
         }
@@ -925,9 +896,8 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="level">The profiling level.</param>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult SetProfilingLevel(
-            ProfilingLevel level
-        ) {
+        public virtual CommandResult SetProfilingLevel(ProfilingLevel level)
+        {
             return SetProfilingLevel(level, TimeSpan.Zero);
         }
 
@@ -937,11 +907,10 @@ namespace MongoDB.Driver {
         /// <param name="level">The profiling level.</param>
         /// <param name="slow">The threshold that defines a slow query.</param>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult SetProfilingLevel(
-            ProfilingLevel level,
-            TimeSpan slow
-        ) {
-            var command = new CommandDocument {
+        public virtual CommandResult SetProfilingLevel(ProfilingLevel level, TimeSpan slow)
+        {
+            var command = new CommandDocument
+            {
                 { "profile", (int) level },
                 { "slowms", slow.TotalMilliseconds, slow != TimeSpan.Zero } // optional
             };
@@ -952,34 +921,37 @@ namespace MongoDB.Driver {
         /// Gets a canonical string representation for this database.
         /// </summary>
         /// <returns>A canonical string representation for this database.</returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return name;
         }
-        #endregion
 
-        #region private methods
-        private void ValidateDatabaseName(
-            string name
-        ) {
-            if (name == null) {
+        // private methods
+        private void ValidateDatabaseName(string name)
+        {
+            if (name == null)
+            {
                 throw new ArgumentNullException("name");
             }
-            if (name == "") {
+            if (name == "")
+            {
                 throw new ArgumentException("Database name is empty.");
             }
-            foreach (var c in name) {
-                if (invalidDatabaseNameChars.Contains(c)) {
-                    var bytes = new byte[] { (byte) ((int) c >> 8), (byte) ((int) c & 255) };
+            foreach (var c in name)
+            {
+                if (invalidDatabaseNameChars.Contains(c))
+                {
+                    var bytes = new byte[] { (byte)((int)c >> 8), (byte)((int)c & 255) };
                     var hex = BsonUtils.ToHexString(bytes);
                     var message = string.Format("Database name '{0}' is not valid. The character 0x{1} '{2}' is not allowed in database names.", name, hex, c);
                     throw new ArgumentException(message);
                 }
             }
-            if (Encoding.UTF8.GetBytes(name).Length > 64) {
+            if (Encoding.UTF8.GetBytes(name).Length > 64)
+            {
                 var message = string.Format("Database name '{0}' exceeds 64 bytes (after encoding to UTF8).", name);
                 throw new ArgumentException(message);
             }
         }
-        #endregion
     }
 }

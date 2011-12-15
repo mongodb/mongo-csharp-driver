@@ -22,22 +22,24 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// A static class containing BSON utility methods.
     /// </summary>
-    public static class BsonUtils {
-        #region public static methods
+    public static class BsonUtils
+    {
+        // public static methods
         /// <summary>
         /// Parses a hex string to a byte array.
         /// </summary>
         /// <param name="s">The hex string.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ParseHexString(
-            string s
-        ) {
+        public static byte[] ParseHexString(string s)
+        {
             byte[] bytes;
-            if (!TryParseHexString(s, out bytes)) {
+            if (!TryParseHexString(s, out bytes))
+            {
                 var message = string.Format("'{0}' is not a valid hex string.", s);
                 throw new FormatException(message);
             }
@@ -49,13 +51,15 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="millisecondsSinceEpoch">The number of milliseconds since Unix epoch.</param>
         /// <returns>A DateTime.</returns>
-        public static DateTime ToDateTimeFromMillisecondsSinceEpoch(
-            long millisecondsSinceEpoch
-        ) {
+        public static DateTime ToDateTimeFromMillisecondsSinceEpoch(long millisecondsSinceEpoch)
+        {
             // MaxValue has to be handled specially to avoid rounding errors
-            if (millisecondsSinceEpoch == BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch) {
+            if (millisecondsSinceEpoch == BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
+            {
                 return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
-            } else {
+            }
+            else
+            {
                 return BsonConstants.UnixEpoch.AddTicks(millisecondsSinceEpoch * 10000);
             }
         }
@@ -65,11 +69,11 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="bytes">The byte array.</param>
         /// <returns>A hex string.</returns>
-        public static string ToHexString(
-            byte[] bytes
-        ) {
+        public static string ToHexString(byte[] bytes)
+        {
             var sb = new StringBuilder(bytes.Length * 2);
-            foreach (var b in bytes) {
+            foreach (var b in bytes)
+            {
                 sb.AppendFormat("{0:x2}", b);
             }
             return sb.ToString();
@@ -81,18 +85,24 @@ namespace MongoDB.Bson {
         /// <param name="dateTime">A DateTime.</param>
         /// <param name="kind">A DateTimeKind.</param>
         /// <returns>The DateTime in local time.</returns>
-        public static DateTime ToLocalTime(
-            DateTime dateTime,
-            DateTimeKind kind
-        ) {
-            if (dateTime.Kind == kind) {
+        public static DateTime ToLocalTime(DateTime dateTime, DateTimeKind kind)
+        {
+            if (dateTime.Kind == kind)
+            {
                 return dateTime;
-            } else {
-                if (dateTime == DateTime.MinValue) {
+            }
+            else
+            {
+                if (dateTime == DateTime.MinValue)
+                {
                     return DateTime.SpecifyKind(DateTime.MinValue, kind);
-                } else if (dateTime == DateTime.MaxValue) {
+                }
+                else if (dateTime == DateTime.MaxValue)
+                {
                     return DateTime.SpecifyKind(DateTime.MaxValue, kind);
-                } else {
+                }
+                else
+                {
                     return DateTime.SpecifyKind(dateTime.ToLocalTime(), kind);
                 }
             }
@@ -103,9 +113,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dateTime">A DateTime.</param>
         /// <returns>Number of seconds since Unix epoch.</returns>
-        public static long ToMillisecondsSinceEpoch(
-            DateTime dateTime
-        ) {
+        public static long ToMillisecondsSinceEpoch(DateTime dateTime)
+        {
             var utcDateTime = ToUniversalTime(dateTime);
             return (utcDateTime - BsonConstants.UnixEpoch).Ticks / 10000;
         }
@@ -115,17 +124,24 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="dateTime">A DateTime.</param>
         /// <returns>The DateTime in UTC.</returns>
-        public static DateTime ToUniversalTime(
-            DateTime dateTime
-        ) {
-            if (dateTime.Kind == DateTimeKind.Utc) {
+        public static DateTime ToUniversalTime(DateTime dateTime)
+        {
+            if (dateTime.Kind == DateTimeKind.Utc)
+            {
                 return dateTime;
-            } else {
-                if (dateTime == DateTime.MinValue) {
+            }
+            else
+            {
+                if (dateTime == DateTime.MinValue)
+                {
                     return DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
-                } else if (dateTime == DateTime.MaxValue) {
+                }
+                else if (dateTime == DateTime.MaxValue)
+                {
                     return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
-                } else {
+                }
+                else
+                {
                     return dateTime.ToUniversalTime();
                 }
             }
@@ -137,19 +153,22 @@ namespace MongoDB.Bson {
         /// <param name="s">The hex string.</param>
         /// <param name="bytes">A byte array.</param>
         /// <returns>True if the hex string was successfully parsed.</returns>
-        public static bool TryParseHexString(
-            string s,
-            out byte[] bytes
-        ) {
-            if (s != null) {
+        public static bool TryParseHexString(string s, out byte[] bytes)
+        {
+            if (s != null)
+            {
                 if ((s.Length & 1) != 0) { s = "0" + s; } // make length of s even
                 bytes = new byte[s.Length / 2];
-                for (int i = 0; i < bytes.Length; i++) {
+                for (int i = 0; i < bytes.Length; i++)
+                {
                     string hex = s.Substring(2 * i, 2);
-                    try {
+                    try
+                    {
                         byte b = Convert.ToByte(hex, 16);
                         bytes[i] = b;
-                    } catch (FormatException) {
+                    }
+                    catch (FormatException)
+                    {
                         bytes = null;
                         return false;
                     }
@@ -160,6 +179,5 @@ namespace MongoDB.Bson {
             bytes = null;
             return false;
         }
-        #endregion
     }
 }

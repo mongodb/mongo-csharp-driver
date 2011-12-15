@@ -23,15 +23,19 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.BsonUnitTests.IO {
+namespace MongoDB.BsonUnitTests.IO
+{
     [TestFixture]
-    public class BsonBinaryReaderTests {
+    public class BsonBinaryReaderTests
+    {
         [Test]
-        public void TestHelloWorld() {
+        public void TestHelloWorld()
+        {
             string byteString = @"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00";
             byte[] bytes = DecodeByteString(byteString);
             MemoryStream stream = new MemoryStream(bytes);
-            using (BsonReader bsonReader = BsonReader.Create(stream)) {
+            using (BsonReader bsonReader = BsonReader.Create(stream))
+            {
                 bsonReader.ReadStartDocument();
                 Assert.AreEqual(BsonType.String, bsonReader.ReadBsonType());
                 Assert.AreEqual("hello", bsonReader.ReadName());
@@ -41,11 +45,13 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestBsonAwesome() {
+        public void TestBsonAwesome()
+        {
             string byteString = @"1\x00\x00\x00\x04BSON\x00&\x00\x00\x00\x020\x00\x08\x00\x00\x00awesome\x00\x011\x00333333\x14@\x102\x00\xc2\x07\x00\x00\x00\x00";
             byte[] bytes = DecodeByteString(byteString);
             MemoryStream stream = new MemoryStream(bytes);
-            using (BsonReader bsonReader = BsonReader.Create(stream)) {
+            using (BsonReader bsonReader = BsonReader.Create(stream))
+            {
                 bsonReader.ReadStartDocument();
                 Assert.AreEqual(BsonType.Array, bsonReader.ReadBsonType());
                 Assert.AreEqual("BSON", bsonReader.ReadName());
@@ -63,18 +69,21 @@ namespace MongoDB.BsonUnitTests.IO {
 
         private static string hexDigits = "0123456789abcdef";
 
-        private byte[] DecodeByteString(
-            string byteString
-        ) {
+        private byte[] DecodeByteString(string byteString)
+        {
             List<byte> bytes = new List<byte>(byteString.Length);
-            for (int i = 0; i < byteString.Length; ) {
+            for (int i = 0; i < byteString.Length; )
+            {
                 char c = byteString[i++];
-                if (c == '\\' && ((c = byteString[i++]) != '\\')) {
+                if (c == '\\' && ((c = byteString[i++]) != '\\'))
+                {
                     int x = hexDigits.IndexOf(char.ToLower(byteString[i++]));
                     int y = hexDigits.IndexOf(char.ToLower(byteString[i++]));
-                    bytes.Add((byte) (16 * x + y));
-                } else {
-                    bytes.Add((byte) c);
+                    bytes.Add((byte)(16 * x + y));
+                }
+                else
+                {
+                    bytes.Add((byte)c);
                 }
             }
             return bytes.ToArray();

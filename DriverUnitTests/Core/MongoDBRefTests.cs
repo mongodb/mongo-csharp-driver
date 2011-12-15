@@ -23,16 +23,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoDBRefTests {
-        public class C {
+    public class MongoDBRefTests
+    {
+        public class C
+        {
             public ObjectId Id;
             public MongoDBRef DBRef;
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var id = ObjectId.GenerateNewId();
             var obj = new C { Id = id, DBRef = null };
             var json = obj.ToJson();
@@ -47,7 +51,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestDateTimeRefId() {
+        public void TestDateTimeRefId()
+        {
             var id = ObjectId.GenerateNewId();
             var dateTime = BsonConstants.UnixEpoch; ;
             var dbRef = new MongoDBRef("collection", dateTime);
@@ -64,7 +69,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestDocumentRefId() {
+        public void TestDocumentRefId()
+        {
             var id = ObjectId.GenerateNewId();
             var refId = new BsonDocument { { "x", 1 }, { "y", 2 } };
             var dbRef = new MongoDBRef("collection", refId);
@@ -81,7 +87,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestGuidRefId() {
+        public void TestGuidRefId()
+        {
             var id = ObjectId.GenerateNewId();
             var guid = Guid.NewGuid();
             var dbRef = new MongoDBRef("collection", guid);
@@ -99,7 +106,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestInt32RefId() {
+        public void TestInt32RefId()
+        {
             var id = ObjectId.GenerateNewId();
             var dbRef = new MongoDBRef("collection", 1);
             var obj = new C { Id = id, DBRef = dbRef };
@@ -115,7 +123,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestInt64RefId() {
+        public void TestInt64RefId()
+        {
             var id = ObjectId.GenerateNewId();
             var dbRef = new MongoDBRef("collection", 123456789012345L);
             var obj = new C { Id = id, DBRef = dbRef };
@@ -131,7 +140,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestObjectIdRefId() {
+        public void TestObjectIdRefId()
+        {
             var id = ObjectId.GenerateNewId();
             var refId = ObjectId.GenerateNewId();
             var dbRef = new MongoDBRef("collection", refId);
@@ -149,7 +159,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestStringRefId() {
+        public void TestStringRefId()
+        {
             var id = ObjectId.GenerateNewId();
             var dbRef = new MongoDBRef("collection", "abc");
             var obj = new C { Id = id, DBRef = dbRef };
@@ -165,7 +176,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestWithDatabase() {
+        public void TestWithDatabase()
+        {
             var id = ObjectId.GenerateNewId();
             var dbRef = new MongoDBRef("database", "collection", ObjectId.GenerateNewId());
             var obj = new C { Id = id, DBRef = dbRef };

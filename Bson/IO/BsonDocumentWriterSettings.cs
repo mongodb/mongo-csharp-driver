@@ -18,69 +18,69 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a BsonDocumentWriter.
     /// </summary>
     [Serializable]
-    public class BsonDocumentWriterSettings : BsonWriterSettings {
-        #region private static fields
+    public class BsonDocumentWriterSettings : BsonWriterSettings
+    {
+        // private static fields
         private static BsonDocumentWriterSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWriterSettings class.
         /// </summary>
-        public BsonDocumentWriterSettings() {
+        public BsonDocumentWriterSettings()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWriterSettings class.
         /// </summary>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public BsonDocumentWriterSettings(
-            GuidRepresentation guidRepresentation
-        ) 
-            : base(guidRepresentation) {
+        public BsonDocumentWriterSettings(GuidRepresentation guidRepresentation)
+            : base(guidRepresentation)
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default BsonDocumentWriter settings.
         /// </summary>
-        public static BsonDocumentWriterSettings Defaults {
-            get {
-                if (defaults == null) {
+        public static BsonDocumentWriterSettings Defaults
+        {
+            get
+            {
+                if (defaults == null)
+                {
                     defaults = new BsonDocumentWriterSettings();
                 }
                 return defaults;
             }
             set { defaults = value; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new BsonDocumentWriterSettings Clone() {
-            return (BsonDocumentWriterSettings) CloneImplementation();
+        public new BsonDocumentWriterSettings Clone()
+        {
+            return (BsonDocumentWriterSettings)CloneImplementation();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonWriterSettings CloneImplementation() {
-            return new BsonDocumentWriterSettings(
-                guidRepresentation
-            );
+        protected override BsonWriterSettings CloneImplementation()
+        {
+            return new BsonDocumentWriterSettings(guidRepresentation);
         }
-        #endregion
     }
 }

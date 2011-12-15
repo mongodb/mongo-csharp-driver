@@ -18,42 +18,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies whether extra elements should be ignored when this class is deserialized.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonIgnoreExtraElementsAttribute : Attribute {
-        #region private fields
+    public class BsonIgnoreExtraElementsAttribute : Attribute
+    {
+        // private fields
         private bool ignoreExtraElements;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonIgnoreExtraElementsAttribute class.
         /// </summary>
         public BsonIgnoreExtraElementsAttribute()
-            : this(true) {
+            : this(true)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonIgnoreExtraElementsAttribute class.
         /// </summary>
         /// <param name="ignoreExtraElements">Whether extra elements should be ignored when this class is deserialized.</param>
-        public BsonIgnoreExtraElementsAttribute(
-            bool ignoreExtraElements
-        ) {
+        public BsonIgnoreExtraElementsAttribute(bool ignoreExtraElements)
+        {
             this.ignoreExtraElements = ignoreExtraElements;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets whether extra elements should be ignored when this class is deserialized.
         /// </summary>
-        public bool IgnoreExtraElements {
+        public bool IgnoreExtraElements
+        {
             get { return ignoreExtraElements; }
         }
-        #endregion
     }
 }

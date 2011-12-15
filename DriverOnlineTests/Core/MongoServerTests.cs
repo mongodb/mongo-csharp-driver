@@ -22,14 +22,17 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverOnlineTests {
+namespace MongoDB.DriverOnlineTests
+{
     [TestFixture]
-    public class MongoServerTests {
+    public class MongoServerTests
+    {
         private MongoServer server;
         private MongoDatabase database;
 
         [TestFixtureSetUp]
-        public void Setup() {
+        public void Setup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
             server.DropDatabase("onlinetests");
@@ -39,7 +42,8 @@ namespace MongoDB.DriverOnlineTests {
         // TODO: more tests for MongoServer
 
         [Test]
-        public void TestDatabaseExists() {
+        public void TestDatabaseExists()
+        {
             var databaseName = "onlinetests-temp";
             var database = server[databaseName];
             database.Drop();
@@ -49,7 +53,8 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestDropDatabase() {
+        public void TestDropDatabase()
+        {
             var databaseName = "onlinetests-temp";
             var database = server[databaseName];
             var test = database["test"];
@@ -63,35 +68,41 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestPing() {
+        public void TestPing()
+        {
             server.Ping();
         }
 
         [Test]
-        public void TestGetDatabaseNames() {
+        public void TestGetDatabaseNames()
+        {
             var databaseNames = server.GetDatabaseNames();
         }
 
         [Test]
-        public void TestReconnect() {
+        public void TestReconnect()
+        {
             server.Reconnect();
             Assert.AreEqual(MongoServerState.Connected, server.State);
         }
 
         [Test]
-        public void TestRunAdminCommandAs() {
-            var result = (CommandResult) server.RunAdminCommandAs(typeof(CommandResult), "ping");
+        public void TestRunAdminCommandAs()
+        {
+            var result = (CommandResult)server.RunAdminCommandAs(typeof(CommandResult), "ping");
             Assert.AreEqual(true, result.Ok);
         }
 
         [Test]
-        public void TestRunAdminCommandAsGeneric() {
+        public void TestRunAdminCommandAsGeneric()
+        {
             var result = server.RunAdminCommandAs<CommandResult>("ping");
             Assert.AreEqual(true, result.Ok);
         }
 
         [Test]
-        public void TestVersion() {
+        public void TestVersion()
+        {
             var versionZero = new Version(0, 0, 0, 0);
             Assert.AreNotEqual(versionZero, server.BuildInfo.Version);
         }

@@ -26,15 +26,19 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
+namespace MongoDB.DriverUnitTests.Jira.CSharp140
+{
     [TestFixture]
-    public class CSharp140Tests {
-        private class C {
+    public class CSharp140Tests
+    {
+        private class C
+        {
             public int X;
         }
 
         [Test]
-        public void TestSerializeAnonymousClass() {
+        public void TestSerializeAnonymousClass()
+        {
             object a = new { X = 1 };
             var json = a.ToJson();
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
@@ -42,7 +46,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeCommandWrapped() {
+        public void TestSerializeCommandWrapped()
+        {
             object c = new C { X = 1 };
             object w = CommandWrapper.Create(c);
             var json = w.ToJson();
@@ -51,7 +56,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeFieldsWrapped() {
+        public void TestSerializeFieldsWrapped()
+        {
             object c = new C { X = 1 };
             object w = FieldsWrapper.Create(c);
             var json = w.ToJson();
@@ -60,7 +66,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeGeoNearOptionsWrapped() {
+        public void TestSerializeGeoNearOptionsWrapped()
+        {
             object c = new C { X = 1 };
             object w = GeoNearOptionsWrapper.Create(c);
             var json = w.ToJson();
@@ -69,7 +76,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeGroupByWrapped() {
+        public void TestSerializeGroupByWrapped()
+        {
             object c = new C { X = 1 };
             object w = GroupByWrapper.Create(c);
             var json = w.ToJson();
@@ -78,7 +86,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeIndexKeysWrapped() {
+        public void TestSerializeIndexKeysWrapped()
+        {
             object c = new C { X = 1 };
             object w = IndexKeysWrapper.Create(c);
             var json = w.ToJson();
@@ -87,7 +96,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeIndexOptionsWrapped() {
+        public void TestSerializeIndexOptionsWrapped()
+        {
             object c = new C { X = 1 };
             object w = IndexOptionsWrapper.Create(c);
             var json = w.ToJson();
@@ -96,7 +106,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeMapReduceOptionsWrapped() {
+        public void TestSerializeMapReduceOptionsWrapped()
+        {
             object c = new C { X = 1 };
             object w = MapReduceOptionsWrapper.Create(c);
             var json = w.ToJson();
@@ -105,7 +116,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeQueryWrapped() {
+        public void TestSerializeQueryWrapped()
+        {
             object c = new C { X = 1 };
             object w = QueryWrapper.Create(c);
             var json = w.ToJson();
@@ -114,7 +126,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeScopeWrapped() {
+        public void TestSerializeScopeWrapped()
+        {
             object c = new C { X = 1 };
             object w = ScopeWrapper.Create(c);
             var json = w.ToJson();
@@ -123,7 +136,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeSortByWrapped() {
+        public void TestSerializeSortByWrapped()
+        {
             object c = new C { X = 1 };
             object w = SortByWrapper.Create(c);
             var json = w.ToJson();
@@ -132,7 +146,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeUpdateWrapped() {
+        public void TestSerializeUpdateWrapped()
+        {
             var c = new C { X = 1 };
             var w = UpdateWrapper.Create(c);
             var json = w.ToJson();
@@ -141,7 +156,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140 {
         }
 
         [Test]
-        public void TestSerializeUpdateReplace() {
+        public void TestSerializeUpdateReplace()
+        {
             object c = new C { X = 1 };
             object w = Update.Replace<object>(c);
             var json = w.ToJson();

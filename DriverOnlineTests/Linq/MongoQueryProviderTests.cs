@@ -26,10 +26,13 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 
-namespace MongoDB.DriverOnlineTests.Linq {
+namespace MongoDB.DriverOnlineTests.Linq
+{
     [TestFixture]
-    public class MongoQueryProviderTests {
-        private class C {
+    public class MongoQueryProviderTests
+    {
+        private class C
+        {
             public ObjectId Id { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
@@ -40,7 +43,8 @@ namespace MongoDB.DriverOnlineTests.Linq {
         private MongoCollection collection;
 
         [TestFixtureSetUp]
-        public void Setup() {
+        public void Setup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
             database = server["onlinetests"];
@@ -48,12 +52,14 @@ namespace MongoDB.DriverOnlineTests.Linq {
         }
 
         [Test]
-        public void TestConstructor() {
+        public void TestConstructor()
+        {
             var provider = new MongoQueryProvider(collection);
         }
 
         [Test]
-        public void TestCreateQuery() {
+        public void TestCreateQuery()
+        {
             var expression = collection.AsQueryable<C>().Expression;
             var provider = new MongoQueryProvider(collection);
             var query = provider.CreateQuery<C>(expression);
@@ -63,7 +69,8 @@ namespace MongoDB.DriverOnlineTests.Linq {
         }
 
         [Test]
-        public void TestCreateQueryNonGeneric() {
+        public void TestCreateQueryNonGeneric()
+        {
             var expression = collection.AsQueryable<C>().Expression;
             var provider = new MongoQueryProvider(collection);
             var query = provider.CreateQuery(expression);

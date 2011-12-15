@@ -21,25 +21,25 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a MongoDB query exception.
     /// </summary>
     [Serializable]
-    public class MongoQueryException : MongoException {
-        #region private fields
+    public class MongoQueryException : MongoException
+    {
+        // private fields
         private BsonDocument queryResult;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public MongoQueryException(
-            string message
-        )
-            : base(message) {
+        public MongoQueryException(string message)
+            : base(message)
+        {
         }
 
         /// <summary>
@@ -47,11 +47,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public MongoQueryException(
-            string message,
-            Exception innerException
-        )
-            : base(message, innerException) {
+        public MongoQueryException(string message, Exception innerException)
+            : base(message, innerException)
+        {
         }
 
         /// <summary>
@@ -59,11 +57,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="queryResult">The error document returned by the server.</param>
-        public MongoQueryException(
-            string message,
-            BsonDocument queryResult
-        )
-            : base(message) {
+        public MongoQueryException(string message, BsonDocument queryResult)
+            : base(message)
+        {
             this.queryResult = queryResult;
         }
 
@@ -72,21 +68,18 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public MongoQueryException(
-            SerializationInfo info,
-            StreamingContext context
-        )
-            : base(info, context) {
+        public MongoQueryException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the error document returned by the server.
         /// </summary>
-        public BsonDocument QueryResult {
+        public BsonDocument QueryResult
+        {
             get { return queryResult; }
         }
-        #endregion
     }
 }

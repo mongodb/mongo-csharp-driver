@@ -23,15 +23,18 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira {
+namespace MongoDB.DriverOnlineTests.Jira
+{
     [TestFixture]
-    public class CSharp307Tests {
+    public class CSharp307Tests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database["testcollection"];
@@ -39,27 +42,31 @@ namespace MongoDB.DriverOnlineTests.Jira {
         }
 
         [Test]
-        public void TestInsertNullDocument() {
+        public void TestInsertNullDocument()
+        {
             BsonDocument document = null;
             var ex = Assert.Catch<ArgumentNullException>(() => collection.Insert(document));
             Assert.AreEqual("document", ex.ParamName);
         }
 
         [Test]
-        public void TestInsertNullBatch() {
+        public void TestInsertNullBatch()
+        {
             BsonDocument[] batch = null;
             var ex = Assert.Catch<ArgumentNullException>(() => collection.InsertBatch(batch));
             Assert.AreEqual("documents", ex.ParamName);
         }
 
         [Test]
-        public void TestInsertBatchWithNullDocument() {
+        public void TestInsertBatchWithNullDocument()
+        {
             BsonDocument[] batch = new BsonDocument[] { null };
             Assert.Throws<ArgumentException>(() => collection.InsertBatch(batch), "Batch contains one or more null documents.");
         }
 
         [Test]
-        public void TestSaveNullDocument() {
+        public void TestSaveNullDocument()
+        {
             BsonDocument document = null;
             var ex = Assert.Catch<ArgumentNullException>(() => collection.Save(document));
             Assert.AreEqual("document", ex.ParamName);

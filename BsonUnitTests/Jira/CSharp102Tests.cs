@@ -26,20 +26,25 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp102Tests {
-        private class Test {
+    public class CSharp102Tests
+    {
+        private class Test
+        {
             public ObjectId Id { get; set; }
             public string Normal { get; set; }
-            public string this[string item] {
+            public string this[string item]
+            {
                 get { return "ignored"; }
                 set { throw new InvalidOperationException(); }
             }
         }
 
         [Test]
-        public void TestClassMap() {
+        public void TestClassMap()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.AreEqual(2, classMap.MemberMaps.Count());
             Assert.IsTrue(classMap.MemberMaps.Any(m => m.MemberName == "Id"));

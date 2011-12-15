@@ -18,17 +18,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a JsonWriter.
     /// </summary>
     [Serializable]
-    public class JsonWriterSettings : BsonWriterSettings {
-        #region private static fields
+    public class JsonWriterSettings : BsonWriterSettings
+    {
+        // private static fields
         private static JsonWriterSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
 
-        #region private fields
+        // private fields
         private bool closeOutput = false;
         private Encoding encoding = Encoding.UTF8;
         private bool indent = false;
@@ -36,15 +37,15 @@ namespace MongoDB.Bson.IO {
         private string newLineChars = "\r\n";
         private JsonOutputMode outputMode = JsonOutputMode.Shell;
         private Version shellVersion = new Version(2, 0, 0);
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the JsonWriterSettings class.
         /// </summary>
-        public JsonWriterSettings() {
+        public JsonWriterSettings()
+        {
         }
-   
+
         /// <summary>
         /// Initializes a new instance of the JsonWriterSettings class.
         /// </summary>
@@ -56,17 +57,9 @@ namespace MongoDB.Bson.IO {
         /// <param name="newLineChars">The new line characters.</param>
         /// <param name="outputMode">The output mode.</param>
         /// <param name="shellVersion">The version of the shell to target.</param>
-        public JsonWriterSettings(
-            bool closeOutput,
-            Encoding encoding,
-            GuidRepresentation guidRepresentation,
-            bool indent,
-            string indentChars,
-            string newLineChars,
-            JsonOutputMode outputMode,
-            Version shellVersion
-        ) 
-            : base(guidRepresentation) {
+        public JsonWriterSettings(bool closeOutput, Encoding encoding, GuidRepresentation guidRepresentation, bool indent, string indentChars, string newLineChars, JsonOutputMode outputMode, Version shellVersion)
+            : base(guidRepresentation)
+        {
             this.closeOutput = closeOutput;
             this.encoding = encoding;
             this.indent = indent;
@@ -75,30 +68,33 @@ namespace MongoDB.Bson.IO {
             this.outputMode = outputMode;
             this.shellVersion = shellVersion;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default JsonWriterSettings.
         /// </summary>
-        public static JsonWriterSettings Defaults {
-            get {
-                if (defaults == null) {
+        public static JsonWriterSettings Defaults
+        {
+            get
+            {
+                if (defaults == null)
+                {
                     defaults = new JsonWriterSettings();
                 }
                 return defaults;
             }
             set { defaults = value; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether to close the output when the writer is closed.
         /// </summary>
-        public bool CloseOutput {
+        public bool CloseOutput
+        {
             get { return closeOutput; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 closeOutput = value;
             }
@@ -107,9 +103,11 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets or sets the output Encoding.
         /// </summary>
-        public Encoding Encoding {
+        public Encoding Encoding
+        {
             get { return encoding; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 encoding = value;
             }
@@ -118,9 +116,11 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets or sets whether to indent the output.
         /// </summary>
-        public bool Indent {
+        public bool Indent
+        {
             get { return indent; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 indent = value;
             }
@@ -129,9 +129,11 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets or sets the indent characters.
         /// </summary>
-        public string IndentChars {
+        public string IndentChars
+        {
             get { return indentChars; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 indentChars = value;
             }
@@ -140,9 +142,11 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets or sets the new line characters.
         /// </summary>
-        public string NewLineChars {
+        public string NewLineChars
+        {
             get { return newLineChars; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 newLineChars = value;
             }
@@ -151,9 +155,11 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets or sets the output mode.
         /// </summary>
-        public JsonOutputMode OutputMode {
+        public JsonOutputMode OutputMode
+        {
             get { return outputMode; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 outputMode = value;
             }
@@ -162,42 +168,34 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Gets or sets the shell version (used with OutputMode Shell).
         /// </summary>
-        public Version ShellVersion {
+        public Version ShellVersion
+        {
             get { return shellVersion; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 shellVersion = value;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new JsonWriterSettings Clone() {
-            return (JsonWriterSettings) CloneImplementation();
+        public new JsonWriterSettings Clone()
+        {
+            return (JsonWriterSettings)CloneImplementation();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonWriterSettings CloneImplementation() {
-            return new JsonWriterSettings(
-                closeOutput,
-                encoding,
-                guidRepresentation,
-                indent,
-                indentChars,
-                newLineChars,
-                outputMode,
-                shellVersion
-            );
+        protected override BsonWriterSettings CloneImplementation()
+        {
+            return new JsonWriterSettings(closeOutput, encoding, guidRepresentation, indent, indentChars, newLineChars, outputMode, shellVersion);
         }
-        #endregion
     }
 }

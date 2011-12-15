@@ -21,24 +21,28 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Linq {
+// adapted from Part 1 of Matt Warren's blogs on building a LINQ provider
+// see: http://blogs.msdn.com/b/mattwar/archive/2007/07/30/linq-building-an-iqueryable-provider-part-i.aspx
+
+namespace MongoDB.Driver.Linq
+{
     /// <summary>
     /// An implementation of IQueryable{{T}} for querying a MongoDB collection.
     /// </summary>
-    public class MongoQueryable<T> : IOrderedQueryable<T> {
-        #region private fields
+    public class MongoQueryable<T> : IOrderedQueryable<T>
+    {
+        // private fields
         private MongoQueryProvider provider;
         private Expression expression;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoQueryable class.
         /// </summary>
-        public MongoQueryable(
-            MongoQueryProvider provider
-        ) {
-            if (provider == null) {
+        public MongoQueryable(MongoQueryProvider provider)
+        {
+            if (provider == null)
+            {
                 throw new ArgumentNullException("provider");
             }
             this.provider = provider;
@@ -48,30 +52,31 @@ namespace MongoDB.Driver.Linq {
         /// <summary>
         /// Initializes a new instance of the MongoQueryable class.
         /// </summary>
-        public MongoQueryable(
-            MongoQueryProvider provider,
-            Expression expression
-        ) {
-            if (provider == null) {
+        public MongoQueryable(MongoQueryProvider provider, Expression expression)
+        {
+            if (provider == null)
+            {
                 throw new ArgumentNullException("provider");
             }
-            if (expression == null) {
+            if (expression == null)
+            {
                 throw new ArgumentNullException("expression");
             }
-            if (!typeof(IQueryable<T>).IsAssignableFrom(expression.Type)) {
+            if (!typeof(IQueryable<T>).IsAssignableFrom(expression.Type))
+            {
                 throw new ArgumentOutOfRangeException("expression");
             }
             this.provider = provider;
             this.expression = expression;
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Gets an enumerator for the results of a MongoDB LINQ query.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<T> GetEnumerator() {
+        public IEnumerator<T> GetEnumerator()
+        {
             return provider.GetEnumerator<T>(expression);
         }
 
@@ -79,29 +84,31 @@ namespace MongoDB.Driver.Linq {
         /// Gets a string representation of the MongoDB query obtained by translating the LINQ query.
         /// </summary>
         /// <returns></returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return provider.GetQueryText(expression);
         }
-        #endregion
 
-        #region explicit implementation of IEnumerable
-        IEnumerator IEnumerable.GetEnumerator() {
+        // explicit implementation of IEnumerable
+        IEnumerator IEnumerable.GetEnumerator()
+        {
             return GetEnumerator();
         }
-        #endregion
 
-        #region explicit implementation of IQueryable
-        Type IQueryable.ElementType {
+        // explicit implementation of IQueryable
+        Type IQueryable.ElementType
+        {
             get { return typeof(T); }
         }
 
-        Expression IQueryable.Expression {
+        Expression IQueryable.Expression
+        {
             get { return expression; }
         }
 
-        IQueryProvider IQueryable.Provider {
+        IQueryProvider IQueryable.Provider
+        {
             get { return provider; }
         }
-        #endregion
     }
 }

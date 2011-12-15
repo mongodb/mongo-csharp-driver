@@ -25,18 +25,22 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp110 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp110
+{
     [TestFixture]
-    public class CSharp110Tests {
+    public class CSharp110Tests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public ObjectId Id;
             public int X;
         }
 #pragma warning restore
 
         [Test]
-        public void TestFind() {
+        public void TestFind()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database.GetCollection<C>("csharp110");
@@ -48,7 +52,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp110 {
             collection.Insert(c);
 
             var query = Query.EQ("X", 2);
-            foreach (var document in collection.Find(query)) {
+            foreach (var document in collection.Find(query))
+            {
                 Assert.AreNotEqual(ObjectId.Empty, document.Id);
                 Assert.AreEqual(2, document.X);
             }

@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Flags used with the Remove method of MongoCollection.
     /// </summary>
     [Flags]
-    public enum RemoveFlags {
+    public enum RemoveFlags
+    {
         /// <summary>
         /// No flags.
         /// </summary>

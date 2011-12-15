@@ -22,11 +22,14 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp276Tests {
+    public class CSharp276Tests
+    {
         [Test]
-        public void TestConstructorWithNonGenericIEnumerable() {
+        public void TestConstructorWithNonGenericIEnumerable()
+        {
             IEnumerable values = new object[] { 1, "a" };
             var array = new BsonArray(values);
             Assert.AreEqual(2, array.Count);
@@ -37,7 +40,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestCreateWithNonGenericIEnumerable() {
+        public void TestCreateWithNonGenericIEnumerable()
+        {
             IEnumerable values = new object[] { 1, "a" };
             var array = BsonArray.Create(values);
             Assert.AreEqual(2, array.Count);

@@ -26,20 +26,25 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp218
+{
     [TestFixture]
-    public class CSharp218Tests {
-        public class C {
+    public class CSharp218Tests
+    {
+        public class C
+        {
             public ObjectId Id;
             public P P;
         }
 
-        public struct S {
+        public struct S
+        {
             public ObjectId Id;
             public P P;
         }
 
-        public struct P {
+        public struct P
+        {
             public int X;
             public int Y;
         }
@@ -49,21 +54,26 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database.GetCollection("testcollection");
         }
 
         [Test]
-        public void TestDeserializeClassWithStructPropertyFails() {
+        public void TestDeserializeClassWithStructPropertyFails()
+        {
             collection.RemoveAll();
             var c = new C { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             collection.Insert(c);
-            try {
+            try
+            {
                 collection.FindOneAs<C>();
                 Assert.Fail("Expected an exception to be thrown.");
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 var expectedMessage = "An error occurred while deserializing the P field of class MongoDB.DriverOnlineTests.Jira.CSharp218.CSharp218Tests+C: Value class MongoDB.DriverOnlineTests.Jira.CSharp218.CSharp218Tests+P cannot be deserialized.";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<BsonSerializationException>(ex.InnerException);
@@ -72,7 +82,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         }
 
         [Test]
-        public void TestDeserializeStructFails() {
+        public void TestDeserializeStructFails()
+        {
             collection.RemoveAll();
             var s = new S { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             collection.Insert(s);
@@ -80,7 +91,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         }
 
         [Test]
-        public void TestInsertForClassWithIdSucceeds() {
+        public void TestInsertForClassWithIdSucceeds()
+        {
             collection.RemoveAll();
             var c = new C { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             collection.Insert(c);
@@ -94,7 +106,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         }
 
         [Test]
-        public void TestInsertForClassWithoutIdSucceeds() {
+        public void TestInsertForClassWithoutIdSucceeds()
+        {
             collection.RemoveAll();
             var c = new C { P = new P { X = 1, Y = 2 } };
             collection.Insert(c);
@@ -108,7 +121,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         }
 
         [Test]
-        public void TestInsertForStructWithIdSucceeds() {
+        public void TestInsertForStructWithIdSucceeds()
+        {
             collection.RemoveAll();
             var s = new S { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             collection.Insert(s);
@@ -122,14 +136,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         }
 
         [Test]
-        public void TestInsertForStructWithoutIdFails() {
+        public void TestInsertForStructWithoutIdFails()
+        {
             collection.RemoveAll();
             var s = new S { P = new P { X = 1, Y = 2 } };
             Assert.Throws<BsonSerializationException>(() => collection.Insert(s));
         }
 
         [Test]
-        public void TestSaveForClassWithIdSucceeds() {
+        public void TestSaveForClassWithIdSucceeds()
+        {
             collection.RemoveAll();
             var c = new C { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             collection.Save(c);
@@ -143,7 +159,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         }
 
         [Test]
-        public void TestSaveForClassWithoutIdSucceeds() {
+        public void TestSaveForClassWithoutIdSucceeds()
+        {
             collection.RemoveAll();
             var c = new C { P = new P { X = 1, Y = 2 } };
             collection.Save(c);
@@ -157,7 +174,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         }
 
         [Test]
-        public void TestSaveForStructWithIdSucceeds() {
+        public void TestSaveForStructWithIdSucceeds()
+        {
             collection.RemoveAll();
             var s = new S { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
             collection.Save(s);
@@ -171,7 +189,8 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218 {
         }
 
         [Test]
-        public void TestSaveForStructWithoutIdFails() {
+        public void TestSaveForStructWithoutIdFails()
+        {
             collection.RemoveAll();
             var s = new S { P = new P { X = 1, Y = 2 } };
             Assert.Throws<BsonSerializationException>(() => collection.Save(s));

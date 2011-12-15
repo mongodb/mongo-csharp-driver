@@ -25,35 +25,36 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
-namespace MongoDB.Driver.Builders {
+namespace MongoDB.Driver.Builders
+{
     /// <summary>
     /// A builder for specifying which fields of a document the server should return.
     /// </summary>
     [Serializable]
-    public class FieldsBuilder : BuilderBase, IMongoFields {
-        #region private fields
+    public class FieldsBuilder : BuilderBase, IMongoFields
+    {
+        // private fields
         private BsonDocument document;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the FieldsBuilder class.
         /// </summary>
-        public FieldsBuilder() {
+        public FieldsBuilder()
+        {
             document = new BsonDocument();
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Adds one or more field names to be excluded from the results.
         /// </summary>
         /// <param name="names">One or more field names.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public FieldsBuilder Exclude(
-            params string[] names
-        ) {
-            foreach (var name in names) {
+        public FieldsBuilder Exclude(params string[] names)
+        {
+            foreach (var name in names)
+            {
                 document.Add(name, 0);
             }
             return this;
@@ -65,8 +66,8 @@ namespace MongoDB.Driver.Builders {
         /// <param name="memberExpressions">The member expressions specifying the fields.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder Exclude<TDocument>(
-            params Expression<Func<TDocument, object>>[] memberExpressions
-        ) {
+            params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
             return this.Exclude(memberExpressions.GetElementNames());
         }
 
@@ -75,10 +76,10 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="names">One or more field names.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public FieldsBuilder Include(
-            params string[] names
-        ) {
-            foreach (var name in names) {
+        public FieldsBuilder Include(params string[] names)
+        {
+            foreach (var name in names)
+            {
                 document.Add(name, 1);
             }
             return this;
@@ -90,8 +91,8 @@ namespace MongoDB.Driver.Builders {
         /// <param name="memberExpressions">The member expressions specifying the fields.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder Include<TDocument>(
-            params Expression<Func<TDocument, object>>[] memberExpressions
-        ) {
+            params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
             return this.Include(memberExpressions.GetElementNames());
         }
 
@@ -101,10 +102,8 @@ namespace MongoDB.Driver.Builders {
         /// <param name="name">The name of the field to slice.</param>
         /// <param name="size">The size of the slice (negative sizes are taken from the end).</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public FieldsBuilder Slice(
-            string name,
-            int size // negative sizes are from the end
-        ) {
+        public FieldsBuilder Slice(string name, int size)
+        {
             document.Add(name, new BsonDocument("$slice", size));
             return this;
         }
@@ -118,10 +117,9 @@ namespace MongoDB.Driver.Builders {
         /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder Slice<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            int size // negative sizes are from the end
-        ) {
-            this.Slice(memberExpression.GetElementName(), size);
-            return this;
+            int size)
+        {
+            return this.Slice(memberExpression.GetElementName(), size);
         }
 
         /// <summary>
@@ -131,11 +129,8 @@ namespace MongoDB.Driver.Builders {
         /// <param name="skip">The number of values to skip.</param>
         /// <param name="limit">The number of values to extract.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public FieldsBuilder Slice(
-            string name,
-            int skip,
-            int limit
-        ) {
+        public FieldsBuilder Slice(string name, int skip, int limit)
+        {
             document.Add(name, new BsonDocument("$slice", new BsonArray { skip, limit }));
             return this;
         }
@@ -151,35 +146,30 @@ namespace MongoDB.Driver.Builders {
         public FieldsBuilder Slice<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
             int skip,
-            int limit
-        ) {
-            this.Slice(memberExpression.GetElementName(), skip, limit);
-            return this;
+            int limit)
+        {
+            return this.Slice(memberExpression.GetElementName(), skip, limit);
         }
 
         /// <summary>
         /// Returns the result of the builder as a BsonDocument.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
-        public override BsonDocument ToBsonDocument() {
+        public override BsonDocument ToBsonDocument()
+        {
             return document;
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="options">The serialization options.</param>
-        protected override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             document.Serialize(bsonWriter, nominalType, options);
         }
-        #endregion
     }
 }

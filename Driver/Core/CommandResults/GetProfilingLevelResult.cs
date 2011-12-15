@@ -21,34 +21,37 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the results of a GetProfilingLevel command.
     /// </summary>
     [Serializable]
-    public class GetProfilingLevelResult : CommandResult {
-        #region constructors
+    public class GetProfilingLevelResult : CommandResult
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GetProfilingLevelResult class.
         /// </summary>
-        public GetProfilingLevelResult() {
+        public GetProfilingLevelResult()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the profiling level.
         /// </summary>
-        public ProfilingLevel Level {
-            get { return (ProfilingLevel) response["was"].ToInt32(); }
+        public ProfilingLevel Level
+        {
+            get { return (ProfilingLevel)response["was"].ToInt32(); }
         }
 
         /// <summary>
         /// Gets the threshold for a slow query.
         /// </summary>
-        public TimeSpan Slow {
+        public TimeSpan Slow
+        {
             get { return TimeSpan.FromMilliseconds(response["slowms"].ToInt32()); }
         }
-        #endregion
     }
 }

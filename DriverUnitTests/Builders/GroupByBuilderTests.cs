@@ -23,32 +23,38 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverUnitTests.Builders {
+namespace MongoDB.DriverUnitTests.Builders
+{
     [TestFixture]
-    public class GroupByBuilderTests {
+    public class GroupByBuilderTests
+    {
         [Test]
-        public void Test1Key() {
+        public void Test1Key()
+        {
             var groupBy = GroupBy.Keys("a");
             string expected = "{ \"a\" : 1 }";
             Assert.AreEqual(expected, groupBy.ToJson());
         }
 
         [Test]
-        public void Test2Keys() {
+        public void Test2Keys()
+        {
             var groupBy = GroupBy.Keys("a", "b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, groupBy.ToJson());
         }
 
         [Test]
-        public void Test3Keys() {
+        public void Test3Keys()
+        {
             var groupBy = GroupBy.Keys("a", "b", "c");
             string expected = "{ \"a\" : 1, \"b\" : 1, \"c\" : 1 }";
             Assert.AreEqual(expected, groupBy.ToJson());
         }
 
         [Test]
-        public void TestFunction() {
+        public void TestFunction()
+        {
             var groupBy = GroupBy.Function("this.age >= 21");
             string expected = "this.age >= 21";
             Assert.AreEqual(expected, groupBy.ToString());

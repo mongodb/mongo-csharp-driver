@@ -19,20 +19,21 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents build info about a server instance.
     /// </summary>
-    public class MongoServerBuildInfo {
-        #region private fields
+    public class MongoServerBuildInfo
+    {
+        // private fields
         private int bits;
         private string gitVersion;
         private string sysInfo;
         private Version version;
         private string versionString;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Creates a new instance of MongoServerBuildInfo.
         /// </summary>
@@ -40,80 +41,77 @@ namespace MongoDB.Driver {
         /// <param name="gitVersion">The GIT version.</param>
         /// <param name="sysInfo">The sysInfo.</param>
         /// <param name="versionString">The version string.</param>
-        public MongoServerBuildInfo(
-            int bits,
-            string gitVersion,
-            string sysInfo,
-            string versionString
-        ) {
+        public MongoServerBuildInfo(int bits, string gitVersion, string sysInfo, string versionString)
+        {
             this.bits = bits;
             this.gitVersion = gitVersion;
             this.sysInfo = sysInfo;
             this.version = ParseVersion(versionString);
             this.versionString = versionString;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the number of bits (32 or 64).
         /// </summary>
-        public int Bits {
+        public int Bits
+        {
             get { return bits; }
         }
 
         /// <summary>
         /// Gets the GIT version.
         /// </summary>
-        public string GitVersion {
+        public string GitVersion
+        {
             get { return gitVersion; }
         }
 
         /// <summary>
         /// Gets the sysInfo.
         /// </summary>
-        public string SysInfo {
+        public string SysInfo
+        {
             get { return sysInfo; }
         }
 
         /// <summary>
         /// Gets the version.
         /// </summary>
-        public Version Version {
+        public Version Version
+        {
             get { return version; }
         }
 
         /// <summary>
         /// Gets the version string.
         /// </summary>
-        public string VersionString {
+        public string VersionString
+        {
             get { return versionString; }
         }
-        #endregion
 
-        #region private methods
-        private Version ParseVersion(
-            string versionString
-        ) {
+        // private methods
+        private Version ParseVersion(string versionString)
+        {
             var match = Regex.Match(versionString, @"^(?<major>\d+)\.(?<minor>\d+)\.(?<build>\d+)(\.(?<revision>\d+))?(-.*)?$");
-            if (match.Success) {
+            if (match.Success)
+            {
                 var majorString = match.Groups["major"].Value;
                 var minorString = match.Groups["minor"].Value;
                 var buildString = match.Groups["build"].Value;
                 var revisionString = match.Groups["revision"].Value;
                 if (revisionString == "") { revisionString = "0"; }
                 int major, minor, build, revision;
-                if (
-                    int.TryParse(majorString, out major) &&
+                if (int.TryParse(majorString, out major) &&
                     int.TryParse(minorString, out minor) &&
                     int.TryParse(buildString, out build) &&
-                    int.TryParse(revisionString, out revision)
-                ) {
+                    int.TryParse(revisionString, out revision))
+                {
                     return new Version(major, minor, build, revision);
                 }
             }
             return new Version(0, 0, 0, 0);
         }
-        #endregion
     }
 }

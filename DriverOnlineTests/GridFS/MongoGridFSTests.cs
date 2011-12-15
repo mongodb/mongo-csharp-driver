@@ -26,15 +26,18 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDB.DriverOnlineTests.GridFS {
+namespace MongoDB.DriverOnlineTests.GridFS
+{
     [TestFixture]
-    public class MongoGridFSTests {
+    public class MongoGridFSTests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoGridFS gridFS;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             gridFS = database.GridFS;
@@ -44,7 +47,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestConstructorFeezesSettings() {
+        public void TestConstructorFeezesSettings()
+        {
             var settings = new MongoGridFSSettings();
             Assert.IsFalse(settings.IsFrozen);
             var gridFS = new MongoGridFS(database, settings);
@@ -52,7 +56,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestCopyTo() {
+        public void TestCopyTo()
+        {
             gridFS.Delete(Query.Null);
             Assert.AreEqual(0, gridFS.Chunks.Count());
             Assert.AreEqual(0, gridFS.Files.Count());
@@ -60,7 +65,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var contents = "Hello World";
             var bytes = Encoding.UTF8.GetBytes(contents);
             var uploadStream = new MemoryStream(bytes);
-            var createOptions = new MongoGridFSCreateOptions {
+            var createOptions = new MongoGridFSCreateOptions
+            {
                 Aliases = new[] { "HelloWorld", "HelloUniverse" },
                 ChunkSize = gridFS.Settings.ChunkSize,
                 ContentType = "text/plain",
@@ -84,16 +90,19 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestAppendText() {
+        public void TestAppendText()
+        {
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
-            using (var writer = gridFS.AppendText("HelloWorld.txt")) {
+            using (var writer = gridFS.AppendText("HelloWorld.txt"))
+            {
                 Assert.IsFalse(writer.BaseStream.CanRead);
                 Assert.IsTrue(writer.BaseStream.CanSeek);
                 Assert.IsTrue(writer.BaseStream.CanWrite);
                 writer.Write("Hello");
             }
             Assert.IsTrue(gridFS.Exists("HelloWorld.txt"));
-            using (var writer = gridFS.AppendText("HelloWorld.txt")) {
+            using (var writer = gridFS.AppendText("HelloWorld.txt"))
+            {
                 writer.Write(" World");
             }
             var memoryStream = new MemoryStream();
@@ -107,7 +116,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestDeleteByFileId() {
+        public void TestDeleteByFileId()
+        {
             gridFS.Delete(Query.Null);
             Assert.AreEqual(0, gridFS.Chunks.Count());
             Assert.AreEqual(0, gridFS.Files.Count());
@@ -122,7 +132,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestDeleteByFileName() {
+        public void TestDeleteByFileName()
+        {
             gridFS.Delete(Query.Null);
             Assert.AreEqual(0, gridFS.Chunks.Count());
             Assert.AreEqual(0, gridFS.Files.Count());
@@ -137,14 +148,16 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestDeleteAll() {
+        public void TestDeleteAll()
+        {
             gridFS.Delete(Query.Null);
             Assert.AreEqual(0, gridFS.Chunks.Count());
             Assert.AreEqual(0, gridFS.Files.Count());
         }
 
         [Test]
-        public void TestDownload() {
+        public void TestDownload()
+        {
             gridFS.Delete(Query.Null);
             var fileInfo = UploadHelloWord();
 
@@ -156,7 +169,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestDownloadTwoChunks() {
+        public void TestDownloadTwoChunks()
+        {
             gridFS.Delete(Query.Null);
             var contents = new string('x', 256 * 1024) + new string('y', 256 * 1024);
             var bytes = Encoding.UTF8.GetBytes(contents);
@@ -174,7 +188,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestExists() {
+        public void TestExists()
+        {
             gridFS.Delete(Query.Null);
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
 
@@ -184,29 +199,34 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestFindAll() {
+        public void TestFindAll()
+        {
             gridFS.Delete(Query.Null);
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo = UploadHelloWord();
-            foreach (var foundInfo in gridFS.FindAll()) {
+            foreach (var foundInfo in gridFS.FindAll())
+            {
                 Assert.AreEqual(fileInfo, foundInfo);
             }
         }
 
         [Test]
-        public void TestFindByName() {
+        public void TestFindByName()
+        {
             gridFS.Delete(Query.Null);
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo = UploadHelloWord();
-            foreach (var foundInfo in gridFS.Find("HelloWorld.txt")) {
+            foreach (var foundInfo in gridFS.Find("HelloWorld.txt"))
+            {
                 Assert.AreEqual(fileInfo, foundInfo);
             }
         }
 
         [Test]
-        public void TestFindOneById() {
+        public void TestFindOneById()
+        {
             gridFS.Delete(Query.Null);
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
 
@@ -216,7 +236,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestFindOneByName() {
+        public void TestFindOneByName()
+        {
             gridFS.Delete(Query.Null);
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
 
@@ -226,7 +247,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestFindOneNewest() {
+        public void TestFindOneNewest()
+        {
             gridFS.Delete(Query.Null);
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
 
@@ -238,7 +260,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestFindOneOldest() {
+        public void TestFindOneOldest()
+        {
             gridFS.Delete(Query.Null);
             Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
 
@@ -250,7 +273,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestMoveTo() {
+        public void TestMoveTo()
+        {
             gridFS.Delete(Query.Null);
             Assert.AreEqual(0, gridFS.Chunks.Count());
             Assert.AreEqual(0, gridFS.Files.Count());
@@ -271,7 +295,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestSetAliases() {
+        public void TestSetAliases()
+        {
             var fileInfo = UploadHelloWord();
             Assert.IsNull(fileInfo.Aliases);
 
@@ -286,7 +311,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestSetContentType() {
+        public void TestSetContentType()
+        {
             var fileInfo = UploadHelloWord();
             Assert.IsNull(fileInfo.ContentType);
 
@@ -300,7 +326,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestSetMetadata() {
+        public void TestSetMetadata()
+        {
             var fileInfo = UploadHelloWord();
             Assert.IsNull(fileInfo.Metadata);
 
@@ -315,7 +342,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestUpload() {
+        public void TestUpload()
+        {
             gridFS.Delete(Query.Null);
             Assert.AreEqual(0, gridFS.Chunks.Count());
             Assert.AreEqual(0, gridFS.Files.Count());
@@ -323,7 +351,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             var contents = "Hello World";
             var bytes = Encoding.UTF8.GetBytes(contents);
             var uploadStream = new MemoryStream(bytes);
-            var createOptions = new MongoGridFSCreateOptions {
+            var createOptions = new MongoGridFSCreateOptions
+            {
                 Aliases = new[] { "HelloWorld", "HelloUniverse" },
                 ChunkSize = gridFS.Settings.ChunkSize,
                 ContentType = "text/plain",
@@ -345,7 +374,8 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             Assert.AreEqual(createOptions.UploadDate.AddTicks(-(createOptions.UploadDate.Ticks % 10000)), fileInfo.UploadDate);
         }
 
-        private MongoGridFSFileInfo UploadHelloWord() {
+        private MongoGridFSFileInfo UploadHelloWord()
+        {
             var bytes = Encoding.UTF8.GetBytes("Hello World");
             var stream = new MemoryStream(bytes);
             return gridFS.Upload(stream, "HelloWorld.txt");

@@ -22,33 +22,35 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.Driver.GridFS {
+namespace MongoDB.Driver.GridFS
+{
     /// <summary>
     /// Represents options used when creating a GridFS file.
     /// </summary>
-    public class MongoGridFSCreateOptions {
-        #region private fields
+    public class MongoGridFSCreateOptions
+    {
+        // private fields
         private string[] aliases;
         private int chunkSize;
         private string contentType;
         private BsonValue id; // usually a BsonObjectId but not required to be
         private BsonDocument metadata;
         private DateTime uploadDate;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoGridFSCreateOptions class.
         /// </summary>
-        public MongoGridFSCreateOptions() {
+        public MongoGridFSCreateOptions()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the aliases.
         /// </summary>
-        public string[] Aliases {
+        public string[] Aliases
+        {
             get { return aliases; }
             set { aliases = value; }
         }
@@ -56,7 +58,8 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Gets or sets the chunk size.
         /// </summary>
-        public int ChunkSize {
+        public int ChunkSize
+        {
             get { return chunkSize; }
             set { chunkSize = value; }
         }
@@ -64,7 +67,8 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Gets or sets the content type.
         /// </summary>
-        public string ContentType {
+        public string ContentType
+        {
             get { return contentType; }
             set { contentType = value; }
         }
@@ -72,7 +76,8 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Gets or sets the file Id.
         /// </summary>
-        public BsonValue Id {
+        public BsonValue Id
+        {
             get { return id; }
             set { id = value; }
         }
@@ -80,7 +85,8 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Gets or sets the metadata.
         /// </summary>
-        public BsonDocument Metadata {
+        public BsonDocument Metadata
+        {
             get { return metadata; }
             set { metadata = value; }
         }
@@ -88,10 +94,10 @@ namespace MongoDB.Driver.GridFS {
         /// <summary>
         /// Gets or sets the upload date.
         /// </summary>
-        public DateTime UploadDate {
+        public DateTime UploadDate
+        {
             get { return uploadDate; }
             set { uploadDate = value; }
         }
-        #endregion
     }
 }

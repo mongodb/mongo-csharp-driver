@@ -23,26 +23,27 @@ using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.Serialization.Serializers {
+namespace MongoDB.Bson.Serialization.Serializers
+{
     /// <summary>
     /// Represents a serializer for nullable values.
     /// </summary>
     /// <typeparam name="T">The underlying type.</typeparam>
-    public class NullableSerializer<T> : BsonBaseSerializer where T : struct {
-        #region private fields
+    public class NullableSerializer<T> : BsonBaseSerializer where T : struct
+    {
+        // private fields
         private IBsonSerializer serializer;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the NullableSerializer class.
         /// </summary>
-        public NullableSerializer() {
+        public NullableSerializer()
+        {
             serializer = BsonSerializer.LookupSerializer(typeof(T));
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -51,19 +52,18 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options
-        ) {
+        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(Nullable<T>));
 
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
+            if (bsonType == BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else {
+            }
+            else
+            {
                 return serializer.Deserialize(bsonReader, typeof(T), options);
             }
         }
@@ -75,18 +75,16 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options
-        ) {
-            if (value == null) {
+        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        {
+            if (value == null)
+            {
                 bsonWriter.WriteNull();
-            } else {
+            }
+            else
+            {
                 serializer.Serialize(bsonWriter, typeof(T), value, options);
             }
         }
-        #endregion
     }
 }

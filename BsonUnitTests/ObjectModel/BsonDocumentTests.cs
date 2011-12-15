@@ -24,11 +24,14 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonDocumentTests {
+    public class BsonDocumentTests
+    {
         [Test]
-        public void TestBenchmarks() {
+        public void TestBenchmarks()
+        {
             int iterations;
             DateTime start;
             DateTime end;
@@ -36,7 +39,8 @@ namespace MongoDB.BsonUnitTests {
 
             iterations = 1;
             start = DateTime.UtcNow;
-            for (int i = 0; i < iterations; i++) {
+            for (int i = 0; i < iterations; i++)
+            {
                 // about 2.06 on my machine
                 //var doc = new BsonDocument {
                 //    { "a", 1 },
@@ -47,7 +51,8 @@ namespace MongoDB.BsonUnitTests {
                 // };
                 byte[] value = { 1, 2, 3, 4 };
                 MemoryStream stream = new MemoryStream();
-                for (int n = 0; n < 100000; n++) {
+                for (int n = 0; n < 100000; n++)
+                {
                     stream.Write(value, 0, 4);
                 }
             }
@@ -56,7 +61,8 @@ namespace MongoDB.BsonUnitTests {
             System.Diagnostics.Debug.WriteLine(duration);
 
             start = DateTime.UtcNow;
-            for (int i = 0; i < iterations; i++) {
+            for (int i = 0; i < iterations; i++)
+            {
                 // about 2.22 on my machine
                 //var doc = new BsonDocument {
                 //    { "a", BsonValue.Create((object) 1) },
@@ -66,8 +72,10 @@ namespace MongoDB.BsonUnitTests {
                 //    { "e", BsonValue.Create((object) true) }
                 //};
                 byte[] value = { 1, 2, 3, 4 };
-                using (var buffer = new BsonBuffer()) {
-                    for (int n = 0; n < 100000; n++) {
+                using (var buffer = new BsonBuffer())
+                {
+                    for (int n = 0; n < 100000; n++)
+                    {
                         buffer.WriteBytes(value);
                     }
                 }
@@ -78,9 +86,11 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestHelloWorldWithBsonWriter() {
+        public void TestHelloWorldWithBsonWriter()
+        {
             MemoryStream stream = new MemoryStream();
-            using (BsonWriter bsonWriter = BsonWriter.Create(stream)) {
+            using (BsonWriter bsonWriter = BsonWriter.Create(stream))
+            {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteString("hello", "world");
                 bsonWriter.WriteEndDocument();
@@ -90,8 +100,10 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestElementAccess() {
-            var book = new BsonDocument {
+        public void TestElementAccess()
+        {
+            var book = new BsonDocument
+            {
                 { "author", "Ernest Hemingway" },
                 { "title", "For Whom the Bell Tolls" },
                 { "pages", 123 },
@@ -108,25 +120,26 @@ namespace MongoDB.BsonUnitTests {
             book["err"] = "Error message.";
             Assert.AreEqual(true, book["err"].ToBoolean());
 
-            book["price"] = (double) book["price"] * 1.1;
+            book["price"] = (double)book["price"] * 1.1;
             double price = book["price"].AsDouble;
         }
 
         [Test]
-        public void TestHelloWorldWithBsonDocument() {
+        public void TestHelloWorldWithBsonDocument()
+        {
             // this test is from http://bsonspec.org/#/specification
-            BsonDocument document = new BsonDocument(
-                new BsonElement("hello", "world")
-            );
+            BsonDocument document = new BsonDocument("hello", "world");
             byte[] bson = document.ToBson();
             AssertAreEqual(@"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00", bson);
         }
 
         [Test]
         // this test is from http://bsonspec.org/#/specification
-        public void TestBsonAwesomeWithBsonWriter() {
+        public void TestBsonAwesomeWithBsonWriter()
+        {
             MemoryStream stream = new MemoryStream();
-            using (BsonWriter bsonWriter = BsonWriter.Create(stream)) {
+            using (BsonWriter bsonWriter = BsonWriter.Create(stream))
+            {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteStartArray("BSON");
                 bsonWriter.WriteString("awesome");
@@ -141,16 +154,16 @@ namespace MongoDB.BsonUnitTests {
 
         [Test]
         // this test is from http://bsonspec.org/#/specification
-        public void TestBsonAwesomeWithBsonDocument() {
-            BsonDocument document = new BsonDocument(
-                new BsonElement("BSON", new BsonArray { "awesome", 5.05, 1986 })
-            );
+        public void TestBsonAwesomeWithBsonDocument()
+        {
+            BsonDocument document = new BsonDocument("BSON", new BsonArray { "awesome", 5.05, 1986 });
             byte[] bson = document.ToBson();
             AssertAreEqual(@"1\x00\x00\x00\x04BSON\x00&\x00\x00\x00\x020\x00\x08\x00\x00\x00awesome\x00\x011\x00333333\x14@\x102\x00\xc2\x07\x00\x00\x00\x00", bson);
         }
 
         [Test]
-        public void TestMerge() {
+        public void TestMerge()
+        {
             var document = new BsonDocument();
             document.Merge(new BsonDocument("x", 1));
             Assert.AreEqual(1, document["x"].AsInt32);
@@ -161,128 +174,137 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestNullableBoolean() {
+        public void TestNullableBoolean()
+        {
             var document = new BsonDocument { { "v", true }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(true, (bool?) document["v"]);
-            Assert.AreEqual(null, (bool?) document["n"]);
-            Assert.AreEqual(null, (bool?) document["x", null]);
-            Assert.AreEqual(null, (bool?) document["x", (bool?) null]);
-            Assert.AreEqual(null, (bool?) document["x", BsonNull.Value]);
+            Assert.AreEqual(true, (bool?)document["v"]);
+            Assert.AreEqual(null, (bool?)document["n"]);
+            Assert.AreEqual(null, (bool?)document["x", null]);
+            Assert.AreEqual(null, (bool?)document["x", (bool?)null]);
+            Assert.AreEqual(null, (bool?)document["x", BsonNull.Value]);
             Assert.AreEqual(true, document["v"].AsNullableBoolean);
             Assert.AreEqual(null, document["n"].AsNullableBoolean);
-            Assert.AreEqual(null, document["x", (bool?) null].AsNullableBoolean);
+            Assert.AreEqual(null, document["x", (bool?)null].AsNullableBoolean);
             Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableBoolean);
-            Assert.Throws<InvalidCastException>(() => { var v = (bool?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = (bool?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableBoolean; });
         }
 
         [Test]
-        public void TestNullableDateTime() {
+        public void TestNullableDateTime()
+        {
             var utcNow = DateTime.UtcNow;
             var document = new BsonDocument { { "v", utcNow }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(utcNow, (DateTime?) document["v"]);
-            Assert.AreEqual(null, (DateTime?) document["n"]);
-            Assert.AreEqual(null, (DateTime?) document["x", null]);
-            Assert.AreEqual(null, (DateTime?) document["x", (DateTime?) null]);
-            Assert.AreEqual(null, (DateTime?) document["x", BsonNull.Value]);
+            Assert.AreEqual(utcNow, (DateTime?)document["v"]);
+            Assert.AreEqual(null, (DateTime?)document["n"]);
+            Assert.AreEqual(null, (DateTime?)document["x", null]);
+            Assert.AreEqual(null, (DateTime?)document["x", (DateTime?)null]);
+            Assert.AreEqual(null, (DateTime?)document["x", BsonNull.Value]);
             Assert.AreEqual(utcNow, document["v"].AsNullableDateTime);
             Assert.AreEqual(null, document["n"].AsNullableDateTime);
-            Assert.AreEqual(null, document["x", (DateTime?) null].AsNullableDateTime);
+            Assert.AreEqual(null, document["x", (DateTime?)null].AsNullableDateTime);
             Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableDateTime);
-            Assert.Throws<InvalidCastException>(() => { var v = (DateTime?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = (DateTime?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDateTime; });
         }
 
         [Test]
-        public void TestNullableDouble() {
+        public void TestNullableDouble()
+        {
             var document = new BsonDocument { { "v", 1.5 }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(1.5, (double?) document["v"]);
-            Assert.AreEqual(null, (double?) document["n"]);
-            Assert.AreEqual(null, (double?) document["x", null]);
-            Assert.AreEqual(null, (double?) document["x", (double?) null]);
-            Assert.AreEqual(null, (double?) document["x", BsonNull.Value]);
+            Assert.AreEqual(1.5, (double?)document["v"]);
+            Assert.AreEqual(null, (double?)document["n"]);
+            Assert.AreEqual(null, (double?)document["x", null]);
+            Assert.AreEqual(null, (double?)document["x", (double?)null]);
+            Assert.AreEqual(null, (double?)document["x", BsonNull.Value]);
             Assert.AreEqual(1.5, document["v"].AsNullableDouble);
             Assert.AreEqual(null, document["n"].AsNullableDouble);
-            Assert.AreEqual(null, document["x", (double?) null].AsNullableDouble);
+            Assert.AreEqual(null, document["x", (double?)null].AsNullableDouble);
             Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableDouble);
-            Assert.Throws<InvalidCastException>(() => { var v = (double?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = (double?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDouble; });
         }
 
         [Test]
-        public void TestNullableGuid() {
+        public void TestNullableGuid()
+        {
             var guid = Guid.NewGuid();
             var document = new BsonDocument { { "v", guid }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(guid, (Guid?) document["v"]);
-            Assert.AreEqual(null, (Guid?) document["n"]);
-            Assert.AreEqual(null, (Guid?) document["x", null]);
-            Assert.AreEqual(null, (Guid?) document["x", (Guid?) null]);
-            Assert.AreEqual(null, (Guid?) document["x", BsonNull.Value]);
+            Assert.AreEqual(guid, (Guid?)document["v"]);
+            Assert.AreEqual(null, (Guid?)document["n"]);
+            Assert.AreEqual(null, (Guid?)document["x", null]);
+            Assert.AreEqual(null, (Guid?)document["x", (Guid?)null]);
+            Assert.AreEqual(null, (Guid?)document["x", BsonNull.Value]);
             Assert.AreEqual(guid, document["v"].AsNullableGuid);
             Assert.AreEqual(null, document["n"].AsNullableGuid);
-            Assert.AreEqual(null, document["x", (Guid?) null].AsNullableGuid);
+            Assert.AreEqual(null, document["x", (Guid?)null].AsNullableGuid);
             Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableGuid);
-            Assert.Throws<InvalidCastException>(() => { var v = (Guid?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = (Guid?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableGuid; });
         }
 
         [Test]
-        public void TestNullableInt32() {
+        public void TestNullableInt32()
+        {
             var document = new BsonDocument { { "v", 1 }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(1, (int?) document["v"]);
-            Assert.AreEqual(null, (int?) document["n"]);
-            Assert.AreEqual(null, (int?) document["x", null]);
-            Assert.AreEqual(null, (int?) document["x", (int?) null]);
-            Assert.AreEqual(null, (int?) document["x", BsonNull.Value]);
+            Assert.AreEqual(1, (int?)document["v"]);
+            Assert.AreEqual(null, (int?)document["n"]);
+            Assert.AreEqual(null, (int?)document["x", null]);
+            Assert.AreEqual(null, (int?)document["x", (int?)null]);
+            Assert.AreEqual(null, (int?)document["x", BsonNull.Value]);
             Assert.AreEqual(1, document["v"].AsNullableInt32);
             Assert.AreEqual(null, document["n"].AsNullableInt32);
-            Assert.AreEqual(null, document["x", (int?) null].AsNullableInt32);
+            Assert.AreEqual(null, document["x", (int?)null].AsNullableInt32);
             Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableInt32);
-            Assert.Throws<InvalidCastException>(() => { var v = (int?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = (int?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableInt32; });
         }
 
         [Test]
-        public void TestNullableInt64() {
+        public void TestNullableInt64()
+        {
             var document = new BsonDocument { { "v", 1L }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(1L, (long?) document["v"]);
-            Assert.AreEqual(null, (long?) document["n"]);
-            Assert.AreEqual(null, (long?) document["x", null]);
-            Assert.AreEqual(null, (long?) document["x", (long?) null]);
-            Assert.AreEqual(null, (long?) document["x", BsonNull.Value]);
+            Assert.AreEqual(1L, (long?)document["v"]);
+            Assert.AreEqual(null, (long?)document["n"]);
+            Assert.AreEqual(null, (long?)document["x", null]);
+            Assert.AreEqual(null, (long?)document["x", (long?)null]);
+            Assert.AreEqual(null, (long?)document["x", BsonNull.Value]);
             Assert.AreEqual(1L, document["v"].AsNullableInt64);
             Assert.AreEqual(null, document["n"].AsNullableInt64);
-            Assert.AreEqual(null, document["x", (long?) null].AsNullableInt64);
+            Assert.AreEqual(null, document["x", (long?)null].AsNullableInt64);
             Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableInt64);
-            Assert.Throws<InvalidCastException>(() => { var v = (long?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = (long?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableInt64; });
         }
 
         [Test]
-        public void TestNullableObjectId() {
+        public void TestNullableObjectId()
+        {
             var objectId = ObjectId.GenerateNewId();
             var document = new BsonDocument { { "v", objectId }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(objectId, (ObjectId?) document["v"]);
-            Assert.AreEqual(null, (ObjectId?) document["n"]);
-            Assert.AreEqual(null, (ObjectId?) document["x", null]);
-            Assert.AreEqual(null, (ObjectId?) document["x", (ObjectId?) null]);
-            Assert.AreEqual(null, (ObjectId?) document["x", BsonNull.Value]);
+            Assert.AreEqual(objectId, (ObjectId?)document["v"]);
+            Assert.AreEqual(null, (ObjectId?)document["n"]);
+            Assert.AreEqual(null, (ObjectId?)document["x", null]);
+            Assert.AreEqual(null, (ObjectId?)document["x", (ObjectId?)null]);
+            Assert.AreEqual(null, (ObjectId?)document["x", BsonNull.Value]);
             Assert.AreEqual(objectId, document["v"].AsNullableObjectId);
             Assert.AreEqual(null, document["n"].AsNullableObjectId);
-            Assert.AreEqual(null, document["x", (ObjectId?) null].AsNullableObjectId);
+            Assert.AreEqual(null, document["x", (ObjectId?)null].AsNullableObjectId);
             Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableObjectId);
-            Assert.Throws<InvalidCastException>(() => { var v = (ObjectId?) document["s"]; });
+            Assert.Throws<InvalidCastException>(() => { var v = (ObjectId?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableObjectId; });
         }
 
         [Test]
-        public void TestZeroLengthElementName() {
+        public void TestZeroLengthElementName()
+        {
             var document = new BsonDocument("", "zero length");
             Assert.AreEqual(0, document.GetElement(0).Name.Length);
         }
 
         [Test]
-        public void TestAddArrayListWithOneEntry() {
+        public void TestAddArrayListWithOneEntry()
+        {
             var arrayList = new ArrayList { 1 };
             var array = new BsonArray(arrayList);
             var json = array.ToJson();
@@ -291,7 +313,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAddArrayListWithTwoEntries() {
+        public void TestAddArrayListWithTwoEntries()
+        {
             var arrayList = new ArrayList { 1, 2 };
             var array = new BsonArray(arrayList);
             var json = array.ToJson();
@@ -300,7 +323,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAddHashtableWithOneEntry() {
+        public void TestAddHashtableWithOneEntry()
+        {
             var hashtable = new Hashtable { { "A", 1 } };
             var document = new BsonDocument(hashtable);
             var json = document.ToJson();
@@ -309,7 +333,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAddHashtableWithTwoEntries() {
+        public void TestAddHashtableWithTwoEntries()
+        {
             var hashtable = new Hashtable { { "A", 1 }, { "B", 2 } };
             var document = new BsonDocument(hashtable);
             // note: can't test json against expected because the order of the keys in the hash table is not defined
@@ -319,8 +344,10 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestAddHashtableWithNestedHashtable() {
-            var hashtable = new Hashtable {
+        public void TestAddHashtableWithNestedHashtable()
+        {
+            var hashtable = new Hashtable
+            {
                 { "A", 1 },
                 { "B", new Hashtable { { "C", 2 }, { "D", 3 } } }
             };
@@ -333,21 +360,25 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestParse() {
+        public void TestParse()
+        {
             var json = "{ a : 1, b : 'abc' }";
             var document = BsonDocument.Parse(json);
         }
 
         [Test]
-        public void TestToDictionaryEmpty() {
+        public void TestToDictionaryEmpty()
+        {
             var document = new BsonDocument();
             var dictionary = document.ToDictionary();
             Assert.AreEqual(0, dictionary.Count);
         }
 
         [Test]
-        public void TestToDictionaryNestedArray() {
-            var document = new BsonDocument {
+        public void TestToDictionaryNestedArray()
+        {
+            var document = new BsonDocument
+            {
                 { "x", 1 },
                 { "array", new BsonArray { 1, "abc" } }
             };
@@ -356,7 +387,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsInstanceOf<int>(dictionary["x"]);
             Assert.AreEqual(1, dictionary["x"]);
             Assert.IsInstanceOf<object[]>(dictionary["array"]);
-            var nested = (object[]) dictionary["array"];
+            var nested = (object[])dictionary["array"];
             Assert.IsInstanceOf<int>(nested[0]);
             Assert.IsInstanceOf<string>(nested[1]);
             Assert.AreEqual(1, nested[0]);
@@ -364,8 +395,10 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToDictionaryNestedDocument() {
-            var document = new BsonDocument {
+        public void TestToDictionaryNestedDocument()
+        {
+            var document = new BsonDocument
+            {
                 { "x", 1 },
                 { "nested", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
@@ -374,7 +407,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsInstanceOf<int>(dictionary["x"]);
             Assert.AreEqual(1, dictionary["x"]);
             Assert.IsInstanceOf<Dictionary<string, object>>(dictionary["nested"]);
-            var nested = (Dictionary<string, object>) dictionary["nested"];
+            var nested = (Dictionary<string, object>)dictionary["nested"];
             Assert.IsInstanceOf<int>(nested["a"]);
             Assert.IsInstanceOf<int>(nested["b"]);
             Assert.AreEqual(1, nested["a"]);
@@ -382,7 +415,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToDictionaryOneInt32() {
+        public void TestToDictionaryOneInt32()
+        {
             var document = new BsonDocument("x", 1);
             var dictionary = document.ToDictionary();
             Assert.AreEqual(1, dictionary.Count);
@@ -391,7 +425,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToDictionaryOneInt64() {
+        public void TestToDictionaryOneInt64()
+        {
             var document = new BsonDocument("x", 1L);
             var dictionary = document.ToDictionary();
             Assert.AreEqual(1, dictionary.Count);
@@ -400,7 +435,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToDictionaryOneString() {
+        public void TestToDictionaryOneString()
+        {
             var document = new BsonDocument("x", "abc");
             var dictionary = document.ToDictionary();
             Assert.AreEqual(1, dictionary.Count);
@@ -409,15 +445,18 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToHashtableEmpty() {
+        public void TestToHashtableEmpty()
+        {
             var document = new BsonDocument();
             var hashtable = document.ToHashtable();
             Assert.AreEqual(0, hashtable.Count);
         }
 
         [Test]
-        public void TestToHashtableNestedArray() {
-            var document = new BsonDocument {
+        public void TestToHashtableNestedArray()
+        {
+            var document = new BsonDocument
+            {
                 { "x", 1 },
                 { "array", new BsonArray { 1, "abc" } }
             };
@@ -426,7 +465,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsInstanceOf<int>(hashtable["x"]);
             Assert.AreEqual(1, hashtable["x"]);
             Assert.IsInstanceOf<object[]>(hashtable["array"]);
-            var nested = (object[]) hashtable["array"];
+            var nested = (object[])hashtable["array"];
             Assert.IsInstanceOf<int>(nested[0]);
             Assert.IsInstanceOf<string>(nested[1]);
             Assert.AreEqual(1, nested[0]);
@@ -434,8 +473,10 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToHashtableNestedDocument() {
-            var document = new BsonDocument {
+        public void TestToHashtableNestedDocument()
+        {
+            var document = new BsonDocument
+            {
                 { "x", 1 },
                 { "nested", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
@@ -444,7 +485,7 @@ namespace MongoDB.BsonUnitTests {
             Assert.IsInstanceOf<int>(hashtable["x"]);
             Assert.AreEqual(1, hashtable["x"]);
             Assert.IsInstanceOf<Hashtable>(hashtable["nested"]);
-            var nested = (Hashtable) hashtable["nested"];
+            var nested = (Hashtable)hashtable["nested"];
             Assert.IsInstanceOf<int>(nested["a"]);
             Assert.IsInstanceOf<int>(nested["b"]);
             Assert.AreEqual(1, nested["a"]);
@@ -452,7 +493,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToHashtableOneInt32() {
+        public void TestToHashtableOneInt32()
+        {
             var document = new BsonDocument("x", 1);
             var hashtable = document.ToHashtable();
             Assert.AreEqual(1, hashtable.Count);
@@ -461,7 +503,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToHashtableOneInt64() {
+        public void TestToHashtableOneInt64()
+        {
             var document = new BsonDocument("x", 1L);
             var hashtable = document.ToHashtable();
             Assert.AreEqual(1, hashtable.Count);
@@ -470,7 +513,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestToHashtableOneString() {
+        public void TestToHashtableOneString()
+        {
             var document = new BsonDocument("x", "abc");
             var hashtable = document.ToHashtable();
             Assert.AreEqual(1, hashtable.Count);
@@ -478,15 +522,17 @@ namespace MongoDB.BsonUnitTests {
             Assert.AreEqual("abc", hashtable["x"]);
         }
 
-        private void AssertAreEqual(
-            string expected,
-            byte[] actual
-        ) {
+        private void AssertAreEqual(string expected, byte[] actual)
+        {
             StringBuilder sb = new StringBuilder();
-            foreach (byte b in actual) {
-                if (b >= 0x20 && b <= 0x7e) {
-                    sb.Append((char) b);
-                } else {
+            foreach (byte b in actual)
+            {
+                if (b >= 0x20 && b <= 0x7e)
+                {
+                    sb.Append((char)b);
+                }
+                else
+                {
                     string hex = "0123456789abcdef";
                     int x = b >> 4;
                     int y = b & 0x0f;

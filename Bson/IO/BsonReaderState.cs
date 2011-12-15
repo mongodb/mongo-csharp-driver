@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents the state of a reader.
     /// </summary>
-    public enum BsonReaderState {
+    public enum BsonReaderState
+    {
         /// <summary>
         /// The initial state.
         /// </summary>

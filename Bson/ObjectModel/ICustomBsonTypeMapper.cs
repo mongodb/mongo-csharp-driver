@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// An interface for custom mappers that map an object to a BsonValue.
     /// </summary>
-    public interface ICustomBsonTypeMapper {
+    public interface ICustomBsonTypeMapper
+    {
         /// <summary>
         /// Tries to map an object to a BsonValue.
         /// </summary>

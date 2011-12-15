@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Used with the Connect method when connecting to a replica set to specify what subset of the replica set must be connected before returning.
     /// </summary>
-    public enum ConnectWaitFor {
+    public enum ConnectWaitFor
+    {
         /// <summary>
         /// Wait for all members of the replica set to be connected.
         /// </summary>

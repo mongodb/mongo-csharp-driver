@@ -26,10 +26,13 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp215 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp215
+{
     [TestFixture]
-    public class CSharp215Tests {
-        public class C {
+    public class CSharp215Tests
+    {
+        public class C
+        {
             [BsonRepresentation(BsonType.ObjectId)]
             public string Id;
             public int X;
@@ -40,14 +43,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp215 {
         private MongoCollection<C> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database.GetCollection<C>("csharp215");
         }
 
         [Test]
-        public void TestSave() {
+        public void TestSave()
+        {
             collection.RemoveAll();
 
             var doc = new C { X = 1 };

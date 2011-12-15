@@ -18,10 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// A marker interface that represents options for a map/reduce operation (see MapReduceOptionsDocument and the MapReduceOptions builder).
     /// </summary>
-    public interface IMongoMapReduceOptions {
+    public interface IMongoMapReduceOptions
+    {
     }
 }

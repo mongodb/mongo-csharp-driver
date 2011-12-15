@@ -24,10 +24,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationOptions {
+namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationOptions
+{
     [TestFixture]
-    public class LocalTests {
-        public class C {
+    public class LocalTests
+    {
+        public class C
+        {
             [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
             public DateTime DT { get; set; }
             [BsonDateTimeOptions(Kind = DateTimeKind.Local, DateOnly = true)]
@@ -35,7 +38,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxLocal() {
+        public void TestMaxLocal()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
@@ -49,7 +53,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxUnspecified() {
+        public void TestMaxUnspecified()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
@@ -63,7 +68,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxUtc() {
+        public void TestMaxUtc()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
@@ -77,7 +83,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinLocal() {
+        public void TestMinLocal()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
@@ -91,7 +98,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinUnspecified() {
+        public void TestMinUnspecified()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
@@ -105,7 +113,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinUtc() {
+        public void TestMinUtc()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
@@ -119,7 +128,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestUnixEpoch() {
+        public void TestUnixEpoch()
+        {
             var c = new C { DT = BsonConstants.UnixEpoch };
             c.D = c.DT.Date;
 
@@ -133,7 +143,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestNow() {
+        public void TestNow()
+        {
             var c = new C { DT = DateTime.Now };
             c.D = c.DT.Date;
 
@@ -150,7 +161,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestUtcNow() {
+        public void TestUtcNow()
+        {
             var c = new C { DT = DateTime.UtcNow };
             c.D = c.DT.Date;
 
@@ -167,8 +179,10 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
     }
 
     [TestFixture]
-    public class StringRepresentationTests {
-        public class C {
+    public class StringRepresentationTests
+    {
+        public class C
+        {
             [BsonDateTimeOptions(Representation = BsonType.String)]
             public DateTime DT { get; set; }
             [BsonDateTimeOptions(Representation = BsonType.String, DateOnly = true)]
@@ -176,7 +190,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxLocal() {
+        public void TestMaxLocal()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
@@ -190,7 +205,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxUnspecified() {
+        public void TestMaxUnspecified()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
@@ -204,7 +220,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxUtc() {
+        public void TestMaxUtc()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
@@ -218,7 +235,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinLocal() {
+        public void TestMinLocal()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
@@ -232,7 +250,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinUnspecified() {
+        public void TestMinUnspecified()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
@@ -246,7 +265,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinUtc() {
+        public void TestMinUtc()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
@@ -260,7 +280,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestUnixEpoch() {
+        public void TestUnixEpoch()
+        {
             var c = new C { DT = BsonConstants.UnixEpoch };
             c.D = c.DT.Date;
 
@@ -274,7 +295,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestNow() {
+        public void TestNow()
+        {
             var c = new C { DT = DateTime.Now };
             c.D = c.DT.Date;
 
@@ -291,7 +313,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestUtcNow() {
+        public void TestUtcNow()
+        {
             var c = new C { DT = DateTime.UtcNow };
             c.D = c.DT.Date;
 
@@ -308,8 +331,10 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
     }
 
     [TestFixture]
-    public class UnspecifiedTests {
-        public class C {
+    public class UnspecifiedTests
+    {
+        public class C
+        {
             [BsonDateTimeOptions(Kind = DateTimeKind.Unspecified)]
             public DateTime DT { get; set; }
             [BsonDateTimeOptions(Kind = DateTimeKind.Unspecified, DateOnly = true)]
@@ -317,7 +342,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxLocal() {
+        public void TestMaxLocal()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
@@ -331,7 +357,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxUnspecified() {
+        public void TestMaxUnspecified()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
@@ -345,7 +372,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxUtc() {
+        public void TestMaxUtc()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
@@ -359,7 +387,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinLocal() {
+        public void TestMinLocal()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
@@ -373,7 +402,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinUnspecified() {
+        public void TestMinUnspecified()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
@@ -387,7 +417,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinUtc() {
+        public void TestMinUtc()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
@@ -401,7 +432,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestUnixEpoch() {
+        public void TestUnixEpoch()
+        {
             var c = new C { DT = BsonConstants.UnixEpoch };
             c.D = c.DT.Date;
 
@@ -415,7 +447,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestNow() {
+        public void TestNow()
+        {
             var c = new C { DT = DateTime.Now };
             c.D = c.DT.Date;
 
@@ -431,7 +464,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestUtcNow() {
+        public void TestUtcNow()
+        {
             var c = new C { DT = DateTime.UtcNow };
             c.D = c.DT.Date;
 
@@ -448,8 +482,10 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
     }
 
     [TestFixture]
-    public class UtcTests {
-        public class C {
+    public class UtcTests
+    {
+        public class C
+        {
             [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
             public DateTime DT { get; set; }
             [BsonDateTimeOptions(Kind = DateTimeKind.Utc, DateOnly = true)]
@@ -457,7 +493,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxLocal() {
+        public void TestMaxLocal()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
@@ -471,7 +508,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxUnspecified() {
+        public void TestMaxUnspecified()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
@@ -485,7 +523,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMaxUtc() {
+        public void TestMaxUtc()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
@@ -499,7 +538,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinLocal() {
+        public void TestMinLocal()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
@@ -513,7 +553,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinUnspecified() {
+        public void TestMinUnspecified()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
@@ -527,7 +568,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestMinUtc() {
+        public void TestMinUtc()
+        {
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
@@ -541,7 +583,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestUnixEpoch() {
+        public void TestUnixEpoch()
+        {
             var c = new C { DT = BsonConstants.UnixEpoch };
             c.D = c.DT.Date;
 
@@ -555,7 +598,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestNow() {
+        public void TestNow()
+        {
             var c = new C { DT = DateTime.Now };
             c.D = c.DT.Date;
 
@@ -572,7 +616,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationO
         }
 
         [Test]
-        public void TestUtcNow() {
+        public void TestUtcNow()
+        {
             var c = new C { DT = DateTime.UtcNow };
             c.D = c.DT.Date;
 

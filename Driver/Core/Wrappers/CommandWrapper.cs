@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoCommand is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class CommandWrapper : QueryWrapper, IMongoCommand {
-        #region constructors
+    public class CommandWrapper : QueryWrapper, IMongoCommand
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the CommandWrapper class.
         /// </summary>
         /// <param name="command">The wrapped object.</param>
-        public CommandWrapper(
-            object command
-        )
-            : base(command) {
+        public CommandWrapper(object command)
+            : base(command)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the CommandWrapper class.
         /// </summary>
         /// <param name="command">The wrapped object.</param>
         /// <returns>A new instance of CommandWrapper or null.</returns>
-        public static new CommandWrapper Create(
-            object command
-        ) {
-            if (command == null) {
+        public static new CommandWrapper Create(object command)
+        {
+            if (command == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new CommandWrapper(command);
             }
         }
-        #endregion
     }
 }

@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoSortBy is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class SortByWrapper : BaseWrapper, IMongoSortBy {
-        #region constructors
+    public class SortByWrapper : BaseWrapper, IMongoSortBy
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the SortByWrapper class.
         /// </summary>
         /// <param name="sortBy">The wrapped object.</param>
-        public SortByWrapper(
-            object sortBy
-        )
-            : base(sortBy) {
+        public SortByWrapper(object sortBy)
+            : base(sortBy)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the SortByWrapper class.
         /// </summary>
         /// <param name="sortBy">The wrapped object.</param>
         /// <returns>A new instance of SortByWrapper or null.</returns>
-        public static SortByWrapper Create(
-            object sortBy
-        ) {
-            if (sortBy == null) {
+        public static SortByWrapper Create(object sortBy)
+        {
+            if (sortBy == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new SortByWrapper(sortBy);
             }
         }
-        #endregion
     }
 }

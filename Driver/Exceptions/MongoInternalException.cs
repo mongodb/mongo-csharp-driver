@@ -19,21 +19,22 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a MongoDB internal exception (almost surely the result of a bug).
     /// </summary>
     [Serializable]
-    public class MongoInternalException : MongoException {
-        #region constructors
+    public class MongoInternalException : MongoException
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoInternalException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public MongoInternalException(
-            string message
-        )
-            : base(message) {
+        public MongoInternalException(string message)
+            : base(message)
+        {
         }
 
         /// <summary>
@@ -41,11 +42,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public MongoInternalException(
-            string message,
-            Exception innerException
-        )
-            : base(message, innerException) {
+        public MongoInternalException(string message, Exception innerException)
+            : base(message, innerException)
+        {
         }
 
         /// <summary>
@@ -53,12 +52,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public MongoInternalException(
-            SerializationInfo info,
-            StreamingContext context
-        )
-            : base(info, context) {
+        public MongoInternalException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
-        #endregion
     }
 }

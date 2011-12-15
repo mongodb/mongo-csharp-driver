@@ -26,10 +26,13 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 
-namespace MongoDB.DriverOnlineTests.Linq {
+namespace MongoDB.DriverOnlineTests.Linq
+{
     [TestFixture]
-    public class MongoQueryableTests {
-        private class C {
+    public class MongoQueryableTests
+    {
+        private class C
+        {
             public ObjectId Id { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
@@ -40,7 +43,8 @@ namespace MongoDB.DriverOnlineTests.Linq {
         private MongoCollection collection;
 
         [TestFixtureSetUp]
-        public void Setup() {
+        public void Setup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
             database = server["onlinetests"];
@@ -48,17 +52,19 @@ namespace MongoDB.DriverOnlineTests.Linq {
         }
 
         [Test]
-        public void TestConstructorWithOneArgument() {
+        public void TestConstructorWithOneArgument()
+        {
             var provider = new MongoQueryProvider(collection);
-            var iqueryable = (IQueryable) new MongoQueryable<C>(provider);
+            var iqueryable = (IQueryable)new MongoQueryable<C>(provider);
             Assert.AreSame(typeof(C), iqueryable.ElementType);
             Assert.AreSame(provider, iqueryable.Provider);
         }
 
         [Test]
-        public void TestConstructorWithTwoArguments() {
+        public void TestConstructorWithTwoArguments()
+        {
             var queryable = collection.AsQueryable<C>();
-            var iqueryable = (IQueryable) new MongoQueryable<C>((MongoQueryProvider) queryable.Provider, queryable.Expression);
+            var iqueryable = (IQueryable)new MongoQueryable<C>((MongoQueryProvider)queryable.Provider, queryable.Expression);
             Assert.AreSame(typeof(C), iqueryable.ElementType);
             Assert.AreSame(queryable.Provider, iqueryable.Provider);
             Assert.AreSame(queryable.Expression, iqueryable.Expression);

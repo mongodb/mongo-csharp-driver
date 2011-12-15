@@ -18,10 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// A marker interface that represents geo haystack search options (see GeoSearchHaystackOptionsDocument and the GeoHaystackSearchOptions builder).
     /// </summary>
-    public interface IMongoGeoHaystackSearchOptions {
+    public interface IMongoGeoHaystackSearchOptions
+    {
     }
 }

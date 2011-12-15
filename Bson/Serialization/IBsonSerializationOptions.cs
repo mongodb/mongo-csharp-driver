@@ -17,10 +17,12 @@ using System;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization {
+namespace MongoDB.Bson.Serialization
+{
     /// <summary>
     /// A marker interface that represents serialization options.
     /// </summary>
-    public interface IBsonSerializationOptions {
+    public interface IBsonSerializationOptions
+    {
     }
 }

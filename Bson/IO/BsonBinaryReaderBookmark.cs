@@ -18,40 +18,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a bookmark that can be used to return a reader to the current position and state.
     /// </summary>
-    public class BsonBinaryReaderBookmark : BsonReaderBookmark {
-        #region private fields
+    public class BsonBinaryReaderBookmark : BsonReaderBookmark
+    {
+        // private fields
         private BsonBinaryReaderContext context;
         private int position;
-        #endregion
 
-        #region constructors
-        internal BsonBinaryReaderBookmark(
-            BsonReaderState state,
-            BsonType currentBsonType,
-            string currentName,
-            BsonBinaryReaderContext context,
-            int position
-        )
-            : base(state, currentBsonType, currentName) {
+        // constructors
+        internal BsonBinaryReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName, BsonBinaryReaderContext context, int position)
+            : base(state, currentBsonType, currentName)
+        {
             this.context = context.Clone();
             this.position = position;
         }
-        #endregion
 
-        #region internal properties
-        internal int Position {
+        // internal properties
+        internal int Position
+        {
             get { return position; }
         }
-        #endregion
 
-        #region internal methods
-        internal BsonBinaryReaderContext CloneContext() {
+        // internal methods
+        internal BsonBinaryReaderContext CloneContext()
+        {
             return context.Clone();
         }
-        #endregion
     }
 }

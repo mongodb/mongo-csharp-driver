@@ -19,11 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents an extra elements member convention.
     /// </summary>
-    public interface IExtraElementsMemberConvention {
+    public interface IExtraElementsMemberConvention
+    {
         /// <summary>
         /// Finds the extra elements member of a class.
         /// </summary>
@@ -35,7 +37,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents an extra elements member convention where the extra elements member has a certain name.
     /// </summary>
-    public class NamedExtraElementsMemberConvention : IExtraElementsMemberConvention {
+    public class NamedExtraElementsMemberConvention : IExtraElementsMemberConvention
+    {
         /// <summary>
         /// Gets the name of the extra elements member.
         /// </summary>
@@ -45,9 +48,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// Initializes a new instance of the NamedExtraElementsMemberConvention class.
         /// </summary>
         /// <param name="name">The name of the extra elements member.</param>
-        public NamedExtraElementsMemberConvention(
-            string name
-        ) {
+        public NamedExtraElementsMemberConvention(string name)
+        {
             Name = name;
         }
 
@@ -56,9 +58,8 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="type">The class.</param>
         /// <returns>The extra elements member.</returns>
-        public string FindExtraElementsMember(
-            Type type
-        ) {
+        public string FindExtraElementsMember(Type type)
+        {
             var memberInfo = type.GetMember(Name).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
             return (memberInfo != null) ? Name : null;
         }

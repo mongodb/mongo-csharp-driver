@@ -28,11 +28,14 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp260 {
+namespace MongoDB.BsonUnitTests.Jira.CSharp260
+{
     [TestFixture]
-    public class CSharp260Tests {
+    public class CSharp260Tests
+    {
         [Test]
-        public void TestConstantPattern() {
+        public void TestConstantPattern()
+        {
             var json = "{ rx : /abc/ }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
@@ -42,7 +45,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp260 {
         }
 
         [Test]
-        public void TestConstantPatternWithOptions() {
+        public void TestConstantPatternWithOptions()
+        {
             var json = "{ rx : /abc/imxs }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
@@ -52,7 +56,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp260 {
         }
 
         [Test]
-        public void TestNewRegExpPattern() {
+        public void TestNewRegExpPattern()
+        {
             var json = "{ rx : new RegExp('abc') }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
@@ -62,7 +67,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp260 {
         }
 
         [Test]
-        public void TestNewRegExpPatternWithOptions() {
+        public void TestNewRegExpPatternWithOptions()
+        {
             var json = "{ rx : new RegExp('abc', 'imxs') }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
@@ -72,7 +78,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp260 {
         }
 
         [Test]
-        public void TestRegExpPattern() {
+        public void TestRegExpPattern()
+        {
             var json = "{ rx : RegExp('abc') }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
@@ -82,7 +89,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp260 {
         }
 
         [Test]
-        public void TestRegExpPatternWithOptions() {
+        public void TestRegExpPatternWithOptions()
+        {
             var json = "{ rx : RegExp('abc', 'imxs') }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
@@ -92,7 +100,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp260 {
         }
 
         [Test]
-        public void TestStrictPattern() {
+        public void TestStrictPattern()
+        {
             var json = "{ rx : { $regex : 'abc' } }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);
@@ -102,7 +111,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp260 {
         }
 
         [Test]
-        public void TestStrictPatternWithOptions() {
+        public void TestStrictPatternWithOptions()
+        {
             var json = "{ rx : { $regex : 'abc', $options : 'imxs' } }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.RegularExpression, document["rx"].BsonType);

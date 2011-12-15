@@ -23,11 +23,14 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonArrayTests {
+    public class BsonArrayTests
+    {
         [Test]
-        public void TestCapacity() {
+        public void TestCapacity()
+        {
             var array = new BsonArray(4);
             Assert.AreEqual(4, array.Capacity);
             array.Capacity = 8;
@@ -35,7 +38,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateBooleanArray() {
+        public void TestCreateBooleanArray()
+        {
             var values = new Boolean[] { true, false };
             var array = BsonArray.Create(values);
             Assert.AreEqual(2, array.Count);
@@ -46,7 +50,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateBsonValueArray() {
+        public void TestCreateBsonValueArray()
+        {
             var values = new BsonValue[] { true, 1, 1.5 };
             var array = BsonArray.Create(values);
             Assert.AreEqual(3, array.Count);
@@ -59,7 +64,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateDateTimeArray() {
+        public void TestCreateDateTimeArray()
+        {
             var value1 = DateTime.SpecifyKind(new DateTime(2011, 1, 18), DateTimeKind.Utc);
             var value2 = DateTime.SpecifyKind(new DateTime(2011, 1, 19), DateTimeKind.Utc);
             var values = new DateTime[] { value1, value2 };
@@ -72,7 +78,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateDoubleArray() {
+        public void TestCreateDoubleArray()
+        {
             var values = new double[] { 1.5, 2.5 };
             var array = BsonArray.Create(values);
             Assert.AreEqual(2, array.Count);
@@ -83,7 +90,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateInt32Array() {
+        public void TestCreateInt32Array()
+        {
             var values = new int[] { 1, 2 };
             var array = BsonArray.Create(values);
             Assert.AreEqual(2, array.Count);
@@ -94,7 +102,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateInt64Array() {
+        public void TestCreateInt64Array()
+        {
             var values = new long[] { 1, 2 };
             var array = BsonArray.Create(values);
             Assert.AreEqual(2, array.Count);
@@ -105,7 +114,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateObjectArray() {
+        public void TestCreateObjectArray()
+        {
             var values = new object[] { true, 1, 1.5 };
             var array = BsonArray.Create(values);
             Assert.AreEqual(3, array.Count);
@@ -118,7 +128,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateObjectIdArray() {
+        public void TestCreateObjectIdArray()
+        {
             var value1 = ObjectId.GenerateNewId();
             var value2 = ObjectId.GenerateNewId();
             var values = new ObjectId[] { value1, value2 };
@@ -131,7 +142,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateStringArray() {
+        public void TestCreateStringArray()
+        {
             var values = new string[] { "a", "b" };
             var array = BsonArray.Create(values);
             Assert.AreEqual(2, array.Count);
@@ -142,8 +154,10 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCreateFromObject() {
-            var values = (object) new object[] {
+        public void TestCreateFromObject()
+        {
+            var values = (object)new object[]
+            {
                 1,
                 1.5
             };

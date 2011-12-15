@@ -23,46 +23,55 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class TestIdGenerators {
-        private struct S : IEquatable<S> {
+    public class TestIdGenerators
+    {
+        private struct S : IEquatable<S>
+        {
             public int I;
-            public bool Equals(S other) {
+            public bool Equals(S other)
+            {
                 return this.I == other.I;
             }
         };
 
         [Test]
-        public void TestGuidIdChecker() {
+        public void TestGuidIdChecker()
+        {
             var idChecker = BsonSerializer.LookupIdGenerator(typeof(Guid));
             Assert.IsTrue(idChecker.IsEmpty(Guid.Empty));
             Assert.IsFalse(idChecker.IsEmpty(Guid.NewGuid()));
         }
 
         [Test]
-        public void TestIntZeroIdChecker() {
+        public void TestIntZeroIdChecker()
+        {
             var idChecker = new ZeroIdChecker<int>();
             Assert.IsTrue(idChecker.IsEmpty(0));
             Assert.IsFalse(idChecker.IsEmpty(1));
         }
 
         [Test]
-        public void TestNullIdChecker() {
+        public void TestNullIdChecker()
+        {
             var idChecker = new NullIdChecker();
             Assert.IsTrue(idChecker.IsEmpty(null));
             Assert.IsFalse(idChecker.IsEmpty(new object()));
         }
 
         [Test]
-        public void TestObjectIdChecker() {
+        public void TestObjectIdChecker()
+        {
             var idChecker = BsonSerializer.LookupIdGenerator(typeof(ObjectId));
             Assert.IsTrue(idChecker.IsEmpty(ObjectId.Empty));
             Assert.IsFalse(idChecker.IsEmpty(ObjectId.GenerateNewId()));
         }
 
         [Test]
-        public void TestStructZeroIdChecker() {
+        public void TestStructZeroIdChecker()
+        {
             var idChecker = new ZeroIdChecker<S>();
             Assert.IsTrue(idChecker.IsEmpty(default(S)));
             Assert.IsTrue(idChecker.IsEmpty(new S()));

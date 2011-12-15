@@ -22,11 +22,13 @@ using System.Xml;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a JSON token type.
     /// </summary>
-    public enum JsonTokenType {
+    public enum JsonTokenType
+    {
         /// <summary>
         /// An invalid token.
         /// </summary>
@@ -104,330 +106,314 @@ namespace MongoDB.Bson.IO {
     /// <summary>
     /// Represents a JSON token.
     /// </summary>
-    public class JsonToken {
-        #region private fields
+    public class JsonToken
+    {
+        // private fields
         private JsonTokenType type;
         private string lexeme;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the JsonToken class.
         /// </summary>
         /// <param name="type">The token type.</param>
         /// <param name="lexeme">The lexeme.</param>
-        public JsonToken(
-            JsonTokenType type,
-            string lexeme
-        ) {
+        public JsonToken(JsonTokenType type, string lexeme)
+        {
             this.type = type;
             this.lexeme = lexeme;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the token type.
         /// </summary>
-        public JsonTokenType Type {
+        public JsonTokenType Type
+        {
             get { return type; }
         }
 
         /// <summary>
         /// Gets the lexeme.
         /// </summary>
-        public string Lexeme {
+        public string Lexeme
+        {
             get { return lexeme; }
         }
 
         /// <summary>
         /// Gets the value of a DateTime token.
         /// </summary>
-        public virtual BsonDateTime DateTimeValue {
+        public virtual BsonDateTime DateTimeValue
+        {
             get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of a Double token.
         /// </summary>
-        public virtual double DoubleValue {
+        public virtual double DoubleValue
+        {
             get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of an Int32 token.
         /// </summary>
-        public virtual int Int32Value {
+        public virtual int Int32Value
+        {
             get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of an Int64 token.
         /// </summary>
-        public virtual long Int64Value {
+        public virtual long Int64Value
+        {
             get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of an ObjectId token.
         /// </summary>
-        public virtual ObjectId ObjectIdValue {
+        public virtual ObjectId ObjectIdValue
+        {
             get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of a regular expression token.
         /// </summary>
-        public virtual BsonRegularExpression RegularExpressionValue {
+        public virtual BsonRegularExpression RegularExpressionValue
+        {
             get { throw new NotSupportedException(); }
         }
 
         /// <summary>
         /// Gets the value of a string token.
         /// </summary>
-        public virtual string StringValue {
+        public virtual string StringValue
+        {
             get { throw new NotSupportedException(); }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a DateTime JSON token.
     /// </summary>
-    public class DateTimeJsonToken : JsonToken {
-        #region private fields
+    public class DateTimeJsonToken : JsonToken
+    {
+        // private fields
         private BsonDateTime value;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the DateTimeJsonToken class.
         /// </summary>
         /// <param name="lexeme">The lexeme.</param>
         /// <param name="value">The DateTime value.</param>
-        public DateTimeJsonToken(
-            string lexeme,
-            BsonDateTime value
-        )
-            : base(JsonTokenType.DateTime, lexeme) {
+        public DateTimeJsonToken(string lexeme, BsonDateTime value)
+            : base(JsonTokenType.DateTime, lexeme)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the value of a DateTime token.
         /// </summary>
-        public override BsonDateTime DateTimeValue {
+        public override BsonDateTime DateTimeValue
+        {
             get { return value; }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a Double JSON token.
     /// </summary>
-    public class DoubleJsonToken : JsonToken {
-        #region private fields
+    public class DoubleJsonToken : JsonToken
+    {
+        // private fields
         private double value;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the DoubleJsonToken class.
         /// </summary>
         /// <param name="lexeme">The lexeme.</param>
         /// <param name="value">The Double value.</param>
-        public DoubleJsonToken(
-            string lexeme,
-            double value
-        )
-            : base(JsonTokenType.Double, lexeme) {
+        public DoubleJsonToken(string lexeme, double value)
+            : base(JsonTokenType.Double, lexeme)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the value of a Double token.
         /// </summary>
-        public override double DoubleValue {
+        public override double DoubleValue
+        {
             get { return value; }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents an Int32 JSON token.
     /// </summary>
-    public class Int32JsonToken : JsonToken {
-        #region private fields
+    public class Int32JsonToken : JsonToken
+    {
+        // private fields
         private int value;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the Int32JsonToken class.
         /// </summary>
         /// <param name="lexeme">The lexeme.</param>
         /// <param name="value">The Int32 value.</param>
-        public Int32JsonToken(
-            string lexeme,
-            int value
-        )
-            : base(JsonTokenType.Int32, lexeme) {
+        public Int32JsonToken(string lexeme, int value)
+            : base(JsonTokenType.Int32, lexeme)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the value of an Int32 token.
         /// </summary>
-        public override int Int32Value {
+        public override int Int32Value
+        {
             get { return value; }
         }
 
         /// <summary>
         /// Gets the value of an Int32 token as an Int64.
         /// </summary>
-        public override long Int64Value {
+        public override long Int64Value
+        {
             get { return value; }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents an Int64 JSON token.
     /// </summary>
-    public class Int64JsonToken : JsonToken {
-        #region private fields
+    public class Int64JsonToken : JsonToken
+    {
+        // private fields
         private long value;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the Int64JsonToken class.
         /// </summary>
         /// <param name="lexeme">The lexeme.</param>
         /// <param name="value">The Int64 value.</param>
-        public Int64JsonToken(
-            string lexeme,
-            long value
-        )
-            : base(JsonTokenType.Int64, lexeme) {
+        public Int64JsonToken(string lexeme, long value)
+            : base(JsonTokenType.Int64, lexeme)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the value of an Int64 token.
         /// </summary>
-        public override long Int64Value {
+        public override long Int64Value
+        {
             get { return value; }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents an ObjectId JSON token.
     /// </summary>
-    public class ObjectIdJsonToken : JsonToken {
-        #region private fields
+    public class ObjectIdJsonToken : JsonToken
+    {
+        // private fields
         private ObjectId value;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the ObjectIdJsonToken class.
         /// </summary>
         /// <param name="lexeme">The lexeme.</param>
         /// <param name="value">The ObjectId value.</param>
-        public ObjectIdJsonToken(
-            string lexeme,
-            ObjectId value
-        )
-            : base(JsonTokenType.ObjectId, lexeme) {
+        public ObjectIdJsonToken(string lexeme, ObjectId value)
+            : base(JsonTokenType.ObjectId, lexeme)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the value of an ObjectId token.
         /// </summary>
-        public override ObjectId ObjectIdValue {
+        public override ObjectId ObjectIdValue
+        {
             get { return value; }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a regular expression JSON token.
     /// </summary>
-    public class RegularExpressionJsonToken : JsonToken {
-        #region private fields
+    public class RegularExpressionJsonToken : JsonToken
+    {
+        // private fields
         private BsonRegularExpression value;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the RegularExpressionJsonToken class.
         /// </summary>
         /// <param name="lexeme">The lexeme.</param>
         /// <param name="value">The BsonRegularExpression value.</param>
-        public RegularExpressionJsonToken(
-            string lexeme,
-            BsonRegularExpression value
-        )
-            : base(JsonTokenType.RegularExpression, lexeme) {
+        public RegularExpressionJsonToken(string lexeme, BsonRegularExpression value)
+            : base(JsonTokenType.RegularExpression, lexeme)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the value of a regular expression token.
         /// </summary>
-        public override BsonRegularExpression RegularExpressionValue {
+        public override BsonRegularExpression RegularExpressionValue
+        {
             get { return value; }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a String JSON token.
     /// </summary>
-    public class StringJsonToken : JsonToken {
-        #region private fields
+    public class StringJsonToken : JsonToken
+    {
+        // private fields
         private string value;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the StringJsonToken class.
         /// </summary>
         /// <param name="type">The token type.</param>
         /// <param name="lexeme">The lexeme.</param>
         /// <param name="value">The String value.</param>
-        public StringJsonToken(
-            JsonTokenType type,
-            string lexeme,
-            string value
-        )
-            : base(type, lexeme) {
+        public StringJsonToken(JsonTokenType type, string lexeme, string value)
+            : base(type, lexeme)
+        {
             this.value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the value of an String token.
         /// </summary>
-        public override string StringValue {
+        public override string StringValue
+        {
             get { return value; }
         }
-        #endregion
     }
 }

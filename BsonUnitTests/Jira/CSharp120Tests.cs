@@ -25,20 +25,25 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp120 {
-    public abstract class B {
+namespace MongoDB.BsonUnitTests.Jira.CSharp120
+{
+    public abstract class B
+    {
         public int X { get; set; }
         public abstract int Y { get; set; }
     }
 
-    public class C : B {
+    public class C : B
+    {
         public override int Y { get; set; }
     }
 
     [TestFixture]
-    public class CSharp120Tests {
+    public class CSharp120Tests
+    {
         [Test]
-        public void TestGuidStringRepresentation() {
+        public void TestGuidStringRepresentation()
+        {
             var c = new C { X = 1, Y = 2 };
             var json = c.ToJson();
             var expected = "{ 'X' : 1, 'Y' : 2 }".Replace("'", "\"");

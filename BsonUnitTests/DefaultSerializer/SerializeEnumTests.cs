@@ -25,15 +25,19 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class EnumSerializerByteTests {
-        private enum E : byte {
+    public class EnumSerializerByteTests
+    {
+        private enum E : byte
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             public E D { get; set; }
             [BsonRepresentation(BsonType.Int32)]
             public E I { get; set; }
@@ -44,7 +48,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
@@ -62,7 +67,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
@@ -74,7 +80,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
@@ -86,8 +93,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { D= (E) 123, I = (E) 123, L =(E) 123, S = (E) 123 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -98,12 +106,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var document = new BsonDocument {
+        public void TestDeserializeDouble()
+        {
+            var document = new BsonDocument
+            {
                 { "D", 1.0 },
                 { "I", 1.0 },
                 { "L", 1.0 },
-                { "S", 1.0 },
+                { "S", 1.0 }
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
@@ -115,13 +125,16 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class EnumSerializerInt16Tests {
-        private enum E : short {
+    public class EnumSerializerInt16Tests
+    {
+        private enum E : short
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             public E D { get; set; }
             [BsonRepresentation(BsonType.Int32)]
             public E I { get; set; }
@@ -132,7 +145,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
@@ -150,7 +164,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
@@ -162,7 +177,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
@@ -174,8 +190,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { D = (E) 123, I = (E) 123, L = (E) 123, S = (E) 123 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -186,12 +203,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var document = new BsonDocument {
+        public void TestDeserializeDouble()
+        {
+            var document = new BsonDocument
+            {
                 { "D", 1.0 },
                 { "I", 1.0 },
                 { "L", 1.0 },
-                { "S", 1.0 },
+                { "S", 1.0 }
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
@@ -203,13 +222,16 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class EnumSerializerInt32Tests {
-        private enum E : int {
+    public class EnumSerializerInt32Tests
+    {
+        private enum E : int
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             public E D { get; set; }
             [BsonRepresentation(BsonType.Int32)]
             public E I { get; set; }
@@ -220,7 +242,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
@@ -238,7 +261,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
@@ -250,7 +274,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
@@ -262,8 +287,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { D = (E) 123, I = (E) 123, L = (E) 123, S = (E) 123 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -274,12 +300,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var document = new BsonDocument {
+        public void TestDeserializeDouble()
+        {
+            var document = new BsonDocument
+            {
                 { "D", 1.0 },
                 { "I", 1.0 },
                 { "L", 1.0 },
-                { "S", 1.0 },
+                { "S", 1.0 }
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
@@ -291,13 +319,16 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class EnumSerializerInt64Tests {
-        private enum E : long {
+    public class EnumSerializerInt64Tests
+    {
+        private enum E : long
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             public E D { get; set; }
             [BsonRepresentation(BsonType.Int32)]
             public E I { get; set; }
@@ -308,7 +339,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(0), 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
@@ -326,7 +358,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(1), 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
@@ -338,7 +371,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(2), 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
@@ -350,8 +384,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { D = (E) 123, I = (E) 123, L = (E) 123, S = (E) 123 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(123), 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -362,12 +397,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var document = new BsonDocument {
+        public void TestDeserializeDouble()
+        {
+            var document = new BsonDocument
+            {
                 { "D", 1.0 },
                 { "I", 1.0 },
                 { "L", 1.0 },
-                { "S", 1.0 },
+                { "S", 1.0 }
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
@@ -379,13 +416,16 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class EnumSerializerSByteTests {
-        private enum E : sbyte {
+    public class EnumSerializerSByteTests
+    {
+        private enum E : sbyte
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             public E D { get; set; }
             [BsonRepresentation(BsonType.Int32)]
             public E I { get; set; }
@@ -396,7 +436,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
@@ -414,7 +455,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
@@ -426,7 +468,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
@@ -438,8 +481,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { D = (E) 123, I = (E) 123, L = (E) 123, S = (E) 123 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -450,12 +494,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var document = new BsonDocument {
+        public void TestDeserializeDouble()
+        {
+            var document = new BsonDocument
+            {
                 { "D", 1.0 },
                 { "I", 1.0 },
                 { "L", 1.0 },
-                { "S", 1.0 },
+                { "S", 1.0 }
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
@@ -467,13 +513,16 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class EnumSerializerUInt16Tests {
-        private enum E : ushort {
+    public class EnumSerializerUInt16Tests
+    {
+        private enum E : ushort
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             public E D { get; set; }
             [BsonRepresentation(BsonType.Int32)]
             public E I { get; set; }
@@ -484,7 +533,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
@@ -502,7 +552,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
@@ -514,7 +565,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
@@ -526,8 +578,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { D = (E) 123, I = (E) 123, L = (E) 123, S = (E) 123 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -538,12 +591,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var document = new BsonDocument {
+        public void TestDeserializeDouble()
+        {
+            var document = new BsonDocument
+            {
                 { "D", 1.0 },
                 { "I", 1.0 },
                 { "L", 1.0 },
-                { "S", 1.0 },
+                { "S", 1.0 }
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
@@ -555,13 +610,16 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class EnumSerializerUInt32Tests {
-        private enum E : uint {
+    public class EnumSerializerUInt32Tests
+    {
+        private enum E : uint
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             public E D { get; set; }
             [BsonRepresentation(BsonType.Int32)]
             public E I { get; set; }
@@ -572,7 +630,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
@@ -590,7 +649,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : 1, 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
@@ -602,7 +662,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : 2, 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
@@ -614,8 +675,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { D = (E) 123, I = (E) 123, L = (E) 123, S = (E) 123 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : 123, 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -626,12 +688,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var document = new BsonDocument {
+        public void TestDeserializeDouble()
+        {
+            var document = new BsonDocument
+            {
                 { "D", 1.0 },
                 { "I", 1.0 },
                 { "L", 1.0 },
-                { "S", 1.0 },
+                { "S", 1.0 }
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
@@ -643,13 +707,16 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class EnumSerializerUInt64Tests {
-        private enum E : ulong {
+    public class EnumSerializerUInt64Tests
+    {
+        private enum E : ulong
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             public E D { get; set; }
             [BsonRepresentation(BsonType.Int32)]
             public E I { get; set; }
@@ -660,7 +727,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { D = 0, I = 0, L = 0, S = 0 };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(0), 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }").Replace("'", "\"");
@@ -678,7 +746,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { D = E.A, I = E.A, L = E.A, S = E.A };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(1), 'I' : 1, 'L' : NumberLong(1), 'S' : 'A' }").Replace("'", "\"");
@@ -690,7 +759,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { D = E.B, I = E.B, L = E.B, S = E.B };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(2), 'I' : 2, 'L' : NumberLong(2), 'S' : 'B' }").Replace("'", "\"");
@@ -702,8 +772,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { D = (E) 123, I = (E) 123, L = (E) 123, S = (E) 123 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { D = (E)123, I = (E)123, L = (E)123, S = (E)123 };
             var json = c.ToJson();
             var expected = ("{ 'D' : NumberLong(123), 'I' : 123, 'L' : NumberLong(123), 'S' : '123' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -714,12 +785,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var document = new BsonDocument {
+        public void TestDeserializeDouble()
+        {
+            var document = new BsonDocument
+            {
                 { "D", 1.0 },
                 { "I", 1.0 },
                 { "L", 1.0 },
-                { "S", 1.0 },
+                { "S", 1.0 }
             };
             var bson = document.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);

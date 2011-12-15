@@ -22,11 +22,14 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoServerSettingsTests {
+    public class MongoServerSettingsTests
+    {
         [Test]
-        public void TestAll() {
+        public void TestAll()
+        {
             var settings = new MongoServerSettings();
             settings.ConnectionMode = ConnectionMode.ReplicaSet;
             settings.ConnectTimeout = TimeSpan.FromSeconds(1);
@@ -74,7 +77,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestDefaults() {
+        public void TestDefaults()
+        {
             var settings = new MongoServerSettings();
             Assert.AreEqual(ConnectionMode.Direct, settings.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
@@ -105,7 +109,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestOneServer() {
+        public void TestOneServer()
+        {
             var server = new MongoServerAddress("server");
             var servers = new[] { server };
 
@@ -120,8 +125,10 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestTwoServers() {
-            var servers = new[] {
+        public void TestTwoServers()
+        {
+            var servers = new MongoServerAddress[]
+            {
                 new MongoServerAddress("server1"),
                 new MongoServerAddress("server2")
             };
@@ -134,7 +141,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestFrozenCopy() {
+        public void TestFrozenCopy()
+        {
             var settings = new MongoServerSettings();
             var frozenCopy = settings.FrozenCopy();
             var secondFrozenCopy = frozenCopy.FrozenCopy();

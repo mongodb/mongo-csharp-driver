@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoMapReduceOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class MapReduceOptionsWrapper : BaseWrapper, IMongoMapReduceOptions {
-        #region constructors
+    public class MapReduceOptionsWrapper : BaseWrapper, IMongoMapReduceOptions
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MapReduceOptionsWrapper class.
         /// </summary>
         /// <param name="options">The wrapped object.</param>
-        public MapReduceOptionsWrapper(
-            object options
-        )
-            : base(options) {
+        public MapReduceOptionsWrapper(object options)
+            : base(options)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the MapReduceOptionsWrapper class.
         /// </summary>
         /// <param name="options">The wrapped object.</param>
         /// <returns>A new instance of MapReduceOptionsWrapper or null.</returns>
-        public static MapReduceOptionsWrapper Create(
-            object options
-        ) {
-            if (options == null) {
+        public static MapReduceOptionsWrapper Create(object options)
+        {
+            if (options == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new MapReduceOptionsWrapper(options);
             }
         }
-        #endregion
     }
 }

@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoGroupBy is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class GroupByWrapper : BaseWrapper, IMongoGroupBy {
-        #region constructors
+    public class GroupByWrapper : BaseWrapper, IMongoGroupBy
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GroupByWrapper class.
         /// </summary>
         /// <param name="groupBy">The wrapped object.</param>
-        public GroupByWrapper(
-            object groupBy
-        )
-            : base(groupBy) {
+        public GroupByWrapper(object groupBy)
+            : base(groupBy)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the GroupByWrapper class.
         /// </summary>
         /// <param name="groupBy">The wrapped object.</param>
         /// <returns>A new instance of GroupByWrapper or null.</returns>
-        public static GroupByWrapper Create(
-            object groupBy
-        ) {
-            if (groupBy == null) {
+        public static GroupByWrapper Create(object groupBy)
+        {
+            if (groupBy == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new GroupByWrapper(groupBy);
             }
         }
-        #endregion
     }
 }

@@ -26,25 +26,31 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp146 {
-    public class Doc {
+namespace MongoDB.BsonUnitTests.Jira.CSharp146
+{
+    public class Doc
+    {
         public Hashtable Values { get; set; }
     }
 
-    public enum E {
+    public enum E
+    {
         A,
         B
     }
 
-    public class C {
+    public class C
+    {
         public E E;
         public object O;
     }
 
     [TestFixture]
-    public class CSharp146Tests {
+    public class CSharp146Tests
+    {
         [Test]
-        public void TestClass() {
+        public void TestClass()
+        {
             var c = new C { E = E.B, O = E.B };
             var json = c.ToJson();
             var expected = "{ 'E' : 1, 'O' : 1 }".Replace("'", "\"");
@@ -58,7 +64,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp146 {
         }
 
         [Test]
-        public void TestDoc() {
+        public void TestDoc()
+        {
             var table = new Hashtable();
             table["Text"] = "hello";
             table["Enum"] = E.B;
@@ -67,11 +74,11 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp146 {
             var json = doc.ToJson();
             // var expected = "{ 'Values' : { 'Text' : 'hello', 'Enum' : 1 } }".Replace("'", "\"");
             // Assert.AreEqual(expected, json);
-			var rehydrated = BsonSerializer.Deserialize<Doc>(json);
-			Assert.IsNotNull(rehydrated.Values);
-			Assert.AreEqual(doc.Values.Count, rehydrated.Values.Count);
-			Assert.AreEqual(doc.Values["Text"], rehydrated.Values["Text"]);
-			Assert.AreEqual((int) doc.Values["Enum"], rehydrated.Values["Enum"]);
+            var rehydrated = BsonSerializer.Deserialize<Doc>(json);
+            Assert.IsNotNull(rehydrated.Values);
+            Assert.AreEqual(doc.Values.Count, rehydrated.Values.Count);
+            Assert.AreEqual(doc.Values["Text"], rehydrated.Values["Text"]);
+            Assert.AreEqual((int)doc.Values["Enum"], rehydrated.Values["Enum"]);
         }
     }
 }

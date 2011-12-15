@@ -26,14 +26,18 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp104Tests {
+    public class CSharp104Tests
+    {
         private static bool firstTime = true;
 
 #pragma warning disable 169 // never used
-        private class Test {
-            static Test() {
+        private class Test
+        {
+            static Test()
+            {
             }
 
             private const string literal = "constant";
@@ -41,9 +45,8 @@ namespace MongoDB.BsonUnitTests.Jira {
             private string getOnly;
             private string setOnly;
 
-            public Test(
-                string value
-            ) {
+            public Test(string value)
+            {
                 this.getOnly = value;
             }
 
@@ -54,13 +57,16 @@ namespace MongoDB.BsonUnitTests.Jira {
 #pragma warning restore
 
         [Test]
-        public void TestClassMap() {
+        public void TestClassMap()
+        {
             // this test passes normally when the Test class is automapped
             // uncomment all or parts of the class map initialization code to test
             // the exceptions thrown for each non-compliant field or property
 
-            if (firstTime) {
-                BsonClassMap.RegisterClassMap<Test>(cm => {
+            if (firstTime)
+            {
+                BsonClassMap.RegisterClassMap<Test>(cm =>
+                {
                     cm.AutoMap();
                     // cm.MapField("literal");
                     // cm.MapField("readOnly");

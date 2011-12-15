@@ -23,66 +23,70 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoReplyMessage<TDocument> : MongoMessage {
-        #region private fields
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoReplyMessage<TDocument> : MongoMessage
+    {
+        // private fields
         private BsonBinaryReaderSettings readerSettings;
         private ResponseFlags responseFlags;
         private long cursorId;
         private int startingFrom;
         private int numberReturned;
         private List<TDocument> documents;
-        #endregion
 
-        #region constructors
-        internal MongoReplyMessage(
-            BsonBinaryReaderSettings readerSettings
-        )
-            : base(MessageOpcode.Reply) {
+        // constructors
+        internal MongoReplyMessage(BsonBinaryReaderSettings readerSettings)
+            : base(MessageOpcode.Reply)
+        {
             this.readerSettings = readerSettings;
         }
-        #endregion
 
-        #region internal properties
-        internal ResponseFlags ResponseFlags {
+        // internal properties
+        internal ResponseFlags ResponseFlags
+        {
             get { return responseFlags; }
         }
 
-        internal long CursorId {
+        internal long CursorId
+        {
             get { return cursorId; }
         }
 
-        internal int StartingFrom {
+        internal int StartingFrom
+        {
             get { return startingFrom; }
         }
 
-        internal int NumberReturned {
+        internal int NumberReturned
+        {
             get { return numberReturned; }
         }
 
-        internal List<TDocument> Documents {
+        internal List<TDocument> Documents
+        {
             get { return documents; }
         }
-        #endregion
 
-        #region internal methods
-        internal void ReadFrom(
-            BsonBuffer buffer,
-            IBsonSerializationOptions serializationOptions
-        ) {
+        // internal methods
+        internal void ReadFrom(BsonBuffer buffer, IBsonSerializationOptions serializationOptions)
+        {
             var messageStartPosition = buffer.Position;
 
             ReadMessageHeaderFrom(buffer);
-            responseFlags = (ResponseFlags) buffer.ReadInt32();
+            responseFlags = (ResponseFlags)buffer.ReadInt32();
             cursorId = buffer.ReadInt64();
             startingFrom = buffer.ReadInt32();
             numberReturned = buffer.ReadInt32();
 
-            using (BsonReader bsonReader = BsonReader.Create(buffer, readerSettings)) {
-                if ((responseFlags & ResponseFlags.CursorNotFound) != 0) {
+            using (BsonReader bsonReader = BsonReader.Create(buffer, readerSettings))
+            {
+                if ((responseFlags & ResponseFlags.CursorNotFound) != 0)
+                {
                     throw new MongoQueryException("Cursor not found.");
                 }
-                if ((responseFlags & ResponseFlags.QueryFailure) != 0) {
+                if ((responseFlags & ResponseFlags.QueryFailure) != 0)
+                {
                     var document = BsonDocument.ReadFrom(bsonReader);
                     var err = document["$err", null].AsString ?? "Unknown error.";
                     var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
@@ -90,12 +94,12 @@ namespace MongoDB.Driver.Internal {
                 }
 
                 documents = new List<TDocument>(numberReturned);
-                while (buffer.Position - messageStartPosition < messageLength) {
-                    var document = (TDocument) BsonSerializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
+                while (buffer.Position - messageStartPosition < messageLength)
+                {
+                    var document = (TDocument)BsonSerializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
                     documents.Add(document);
                 }
             }
         }
-        #endregion
     }
 }

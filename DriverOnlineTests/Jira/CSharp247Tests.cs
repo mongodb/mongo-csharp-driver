@@ -26,31 +26,37 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp247 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp247
+{
     [TestFixture]
-    public class CSharp247Tests {
-        public interface I {
+    public class CSharp247Tests
+    {
+        public interface I
+        {
             int X { get; set; }
         }
 
-        public class C : I {
+        public class C : I
+        {
             public ObjectId Id { get; set; }
             public int X { get; set; }
-        } 
+        }
 
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database.GetCollection("testcollection");
         }
 
         [Test]
-        public void TestDeserializeInterface() {
+        public void TestDeserializeInterface()
+        {
             collection.RemoveAll();
 
             var c = new C { X = 1 };
@@ -59,7 +65,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp247 {
 
             var i = collection.FindOneAs<I>();
             Assert.IsInstanceOf<C>(i);
-            var r = (C) i;
+            var r = (C)i;
             Assert.AreEqual(id, r.Id);
             Assert.AreEqual(1, r.X);
         }

@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// The state of a MongoServer instance.
     /// </summary>
-    public enum MongoServerState {
+    public enum MongoServerState
+    {
         /// <summary>
         /// Disconnected from the server.
         /// </summary>

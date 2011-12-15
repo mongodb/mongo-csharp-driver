@@ -24,11 +24,14 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.BsonUnitTests.Serialization.Attributes {
+namespace MongoDB.BsonUnitTests.Serialization.Attributes
+{
     [TestFixture]
-    public class BsonRepresentationAttributeTests {
+    public class BsonRepresentationAttributeTests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public int I;
             [BsonRepresentation(BsonType.Int64)]
             public int IL;
@@ -44,87 +47,93 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
 #pragma warning restore
 
         [Test]
-        public void TestRepresentationAttributeForI() {
+        public void TestRepresentationAttributeForI()
+        {
             var fieldInfo = typeof(C).GetField("I");
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
             Assert.AreEqual(0, attributes.Length);
         }
 
         [Test]
-        public void TestRepresentationAttributeForIL() {
+        public void TestRepresentationAttributeForIL()
+        {
             var fieldInfo = typeof(C).GetField("IL");
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
             Assert.AreEqual(1, attributes.Length);
-            var attribute = (BsonRepresentationAttribute) attributes[0];
+            var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.AreEqual(BsonType.Int64, attribute.Representation);
             Assert.AreEqual(false, attribute.AllowOverflow);
             Assert.AreEqual(false, attribute.AllowTruncation);
 
-            var options = (RepresentationSerializationOptions) attribute.GetOptions();
+            var options = (RepresentationSerializationOptions)attribute.GetOptions();
             Assert.AreEqual(BsonType.Int64, options.Representation);
             Assert.AreEqual(false, options.AllowOverflow);
             Assert.AreEqual(false, options.AllowTruncation);
         }
 
         [Test]
-        public void TestRepresentationAttributeForLI() {
+        public void TestRepresentationAttributeForLI()
+        {
             var fieldInfo = typeof(C).GetField("LI");
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
             Assert.AreEqual(1, attributes.Length);
-            var attribute = (BsonRepresentationAttribute) attributes[0];
+            var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.AreEqual(BsonType.Int32, attribute.Representation);
             Assert.AreEqual(false, attribute.AllowOverflow);
             Assert.AreEqual(false, attribute.AllowTruncation);
 
-            var options = (RepresentationSerializationOptions) attribute.GetOptions();
+            var options = (RepresentationSerializationOptions)attribute.GetOptions();
             Assert.AreEqual(BsonType.Int32, options.Representation);
             Assert.AreEqual(false, options.AllowOverflow);
             Assert.AreEqual(false, options.AllowTruncation);
         }
 
         [Test]
-        public void TestRepresentationAttributeForLIO() {
+        public void TestRepresentationAttributeForLIO()
+        {
             var fieldInfo = typeof(C).GetField("LIO");
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
             Assert.AreEqual(1, attributes.Length);
-            var attribute = (BsonRepresentationAttribute) attributes[0];
+            var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.AreEqual(BsonType.Int32, attribute.Representation);
             Assert.AreEqual(true, attribute.AllowOverflow);
             Assert.AreEqual(false, attribute.AllowTruncation);
 
-            var options = (RepresentationSerializationOptions) attribute.GetOptions();
+            var options = (RepresentationSerializationOptions)attribute.GetOptions();
             Assert.AreEqual(BsonType.Int32, options.Representation);
             Assert.AreEqual(true, options.AllowOverflow);
             Assert.AreEqual(false, options.AllowTruncation);
         }
 
         [Test]
-        public void TestRepresentationAttributeForDIT() {
+        public void TestRepresentationAttributeForDIT()
+        {
             var fieldInfo = typeof(C).GetField("DIT");
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
             Assert.AreEqual(1, attributes.Length);
-            var attribute = (BsonRepresentationAttribute) attributes[0];
+            var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.AreEqual(BsonType.Int32, attribute.Representation);
             Assert.AreEqual(false, attribute.AllowOverflow);
             Assert.AreEqual(true, attribute.AllowTruncation);
 
-            var options = (RepresentationSerializationOptions) attribute.GetOptions();
+            var options = (RepresentationSerializationOptions)attribute.GetOptions();
             Assert.AreEqual(BsonType.Int32, options.Representation);
             Assert.AreEqual(false, options.AllowOverflow);
             Assert.AreEqual(true, options.AllowTruncation);
         }
 
         [Test]
-        public void TestRepresentationAttributeForDIOT() {
+        public void TestRepresentationAttributeForDIOT()
+        {
             var fieldInfo = typeof(C).GetField("DIOT");
             var attributes = fieldInfo.GetCustomAttributes(typeof(BsonRepresentationAttribute), false);
             Assert.AreEqual(1, attributes.Length);
-            var attribute = (BsonRepresentationAttribute) attributes[0];
+            var attribute = (BsonRepresentationAttribute)attributes[0];
             Assert.AreEqual(BsonType.Int32, attribute.Representation);
             Assert.AreEqual(true, attribute.AllowOverflow);
             Assert.AreEqual(true, attribute.AllowTruncation);
 
-            var options = (RepresentationSerializationOptions) attribute.GetOptions();
+            var options = (RepresentationSerializationOptions)attribute.GetOptions();
             Assert.AreEqual(BsonType.Int32, options.Representation);
             Assert.AreEqual(true, options.AllowOverflow);
             Assert.AreEqual(true, options.AllowTruncation);

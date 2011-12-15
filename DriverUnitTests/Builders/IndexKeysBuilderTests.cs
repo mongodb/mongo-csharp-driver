@@ -23,81 +23,94 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverUnitTests.Builders {
+namespace MongoDB.DriverUnitTests.Builders
+{
     [TestFixture]
-    public class IndexKeysBuilderTests {
+    public class IndexKeysBuilderTests
+    {
         [Test]
-        public void TestAscending1() {
+        public void TestAscending1()
+        {
             var keys = IndexKeys.Ascending("a");
             string expected = "{ \"a\" : 1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestAscending2() {
+        public void TestAscending2()
+        {
             var keys = IndexKeys.Ascending("a", "b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestAscendingAscending() {
+        public void TestAscendingAscending()
+        {
             var keys = IndexKeys.Ascending("a").Ascending("b");
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestAscendingDescending() {
+        public void TestAscendingDescending()
+        {
             var keys = IndexKeys.Ascending("a").Descending("b");
             string expected = "{ \"a\" : 1, \"b\" : -1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestDescending1() {
+        public void TestDescending1()
+        {
             var keys = IndexKeys.Descending("a");
             string expected = "{ \"a\" : -1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestDescending2() {
+        public void TestDescending2()
+        {
             var keys = IndexKeys.Descending("a", "b");
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestDescendingAscending() {
+        public void TestDescendingAscending()
+        {
             var keys = IndexKeys.Descending("a").Ascending("b");
             string expected = "{ \"a\" : -1, \"b\" : 1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestDescendingDescending() {
+        public void TestDescendingDescending()
+        {
             var keys = IndexKeys.Descending("a").Descending("b");
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestGeoSpatial() {
+        public void TestGeoSpatial()
+        {
             var keys = IndexKeys.GeoSpatial("a");
             string expected = "{ \"a\" : \"2d\" }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestGeoSpatialAscending() {
+        public void TestGeoSpatialAscending()
+        {
             var keys = IndexKeys.GeoSpatial("a").Ascending("b");
             string expected = "{ \"a\" : \"2d\", \"b\" : 1 }";
             Assert.AreEqual(expected, keys.ToJson());
         }
 
         [Test]
-        public void TestAscendingGeoSpatial() {
+        public void TestAscendingGeoSpatial()
+        {
             var keys = IndexKeys.Ascending("a").GeoSpatial("b");
             string expected = "{ \"a\" : 1, \"b\" : \"2d\" }";
             Assert.AreEqual(expected, keys.ToJson());

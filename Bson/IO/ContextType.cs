@@ -19,11 +19,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Used by BsonReaders and BsonWriters to represent the current context.
     /// </summary>
-    public enum ContextType {
+    public enum ContextType
+    {
         /// <summary>
         /// The top level of a BSON document.
         /// </summary>

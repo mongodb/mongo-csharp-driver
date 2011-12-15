@@ -18,44 +18,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the element name and related options for a field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonElementAttribute : Attribute {
-        #region private fields
+    public class BsonElementAttribute : Attribute
+    {
+        // private fields
         private string elementName;
         private int order = int.MaxValue;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonElementAttribute class.
         /// </summary>
         /// <param name="elementName">The name of the element.</param>
-        public BsonElementAttribute(
-            string elementName
-        ) {
+        public BsonElementAttribute(string elementName)
+        {
             this.elementName = elementName;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the element name.
         /// </summary>
-        public string ElementName {
+        public string ElementName
+        {
             get { return elementName; }
         }
 
         /// <summary>
         /// Gets the element serialization order.
         /// </summary>
-        public int Order {
+        public int Order
+        {
             get { return order; }
             set { order = value; }
         }
-        #endregion
     }
 }

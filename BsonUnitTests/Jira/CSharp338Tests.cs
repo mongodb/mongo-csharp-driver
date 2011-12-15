@@ -25,11 +25,14 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp338Tests {
+    public class CSharp338Tests
+    {
         [Test]
-        public void TestBsonDoubleEquals() {
+        public void TestBsonDoubleEquals()
+        {
             var left = new BsonDouble(double.NaN);
             var right = new BsonDouble(double.NaN);
             Assert.IsFalse(left == right);
@@ -38,9 +41,10 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestBsonValueEquals() {
-            var left = (BsonValue) new BsonDouble(double.NaN);
-            var right = (BsonValue) new BsonDouble(double.NaN);
+        public void TestBsonValueEquals()
+        {
+            var left = (BsonValue)new BsonDouble(double.NaN);
+            var right = (BsonValue)new BsonDouble(double.NaN);
             Assert.IsFalse(left == right);
             Assert.IsTrue(left != right);
             Assert.IsTrue(left.Equals(right));

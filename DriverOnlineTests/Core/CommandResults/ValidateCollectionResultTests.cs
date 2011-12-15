@@ -23,22 +23,26 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverOnlineTests.CommandResults {
+namespace MongoDB.DriverOnlineTests.CommandResults
+{
     [TestFixture]
-    public class ValidateCollectionResultTests {
+    public class ValidateCollectionResultTests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void Setup() {
+        public void Setup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["driveronlinetests"];
             collection = database["test"];
         }
 
         [Test]
-        public void Test() {
+        public void Test()
+        {
             // make sure collection exists and has exactly one document
             collection.RemoveAll();
             collection.Insert(new BsonDocument());

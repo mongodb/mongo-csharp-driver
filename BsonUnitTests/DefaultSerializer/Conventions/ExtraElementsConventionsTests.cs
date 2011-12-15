@@ -23,20 +23,25 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 
-namespace MongoDB.BsonUnitTests.Serialization.Conventions {
+namespace MongoDB.BsonUnitTests.Serialization.Conventions
+{
     [TestFixture]
-    public class ExtraElementsMemberConventionsTests {
-        private class TestClassA {
+    public class ExtraElementsMemberConventionsTests
+    {
+        private class TestClassA
+        {
             public Guid Id { get; set; }
             public BsonDocument ExtraElements { get; set; }
         }
 
-        private class TestClassB {
+        private class TestClassB
+        {
             public Guid Id { get; set; }
         }
 
         [Test]
-        public void TestNamedExtraElementsMemberConvention() {
+        public void TestNamedExtraElementsMemberConvention()
+        {
             var convention = new NamedExtraElementsMemberConvention("ExtraElements");
 
             var extraElementsMemberName = convention.FindExtraElementsMember(typeof(TestClassA));

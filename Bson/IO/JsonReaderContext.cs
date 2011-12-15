@@ -19,48 +19,45 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class JsonReaderContext {
-        #region private fields
+namespace MongoDB.Bson.IO
+{
+    internal class JsonReaderContext
+    {
+        // private fields
         private JsonReaderContext parentContext;
         private ContextType contextType;
-        #endregion
 
-        #region constructors
+        // constructors
         // used by Clone
-        private JsonReaderContext() {
+        private JsonReaderContext()
+        {
         }
 
-        internal JsonReaderContext(
-            JsonReaderContext parentContext,
-            ContextType contextType
-        ) {
+        internal JsonReaderContext(JsonReaderContext parentContext, ContextType contextType)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
         }
-        #endregion
 
-        #region internal properties
-        internal ContextType ContextType {
+        // internal properties
+        internal ContextType ContextType
+        {
             get { return contextType; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the context.
         /// </summary>
         /// <returns>A clone of the context.</returns>
-        public JsonReaderContext Clone() {
-            return new JsonReaderContext(
-                parentContext,
-                contextType
-            );
+        public JsonReaderContext Clone()
+        {
+            return new JsonReaderContext(parentContext, contextType);
         }
 
-        public JsonReaderContext PopContext() {
+        public JsonReaderContext PopContext()
+        {
             return parentContext;
         }
-        #endregion
     }
 }

@@ -23,13 +23,15 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a document from the system.profile collection.
     /// </summary>
     [Serializable]
-    public class SystemProfileInfo : IBsonSerializable {
-        #region private fields
+    public class SystemProfileInfo : IBsonSerializable
+    {
+        // private fields
         private string abbreviated;
         private string client;
         private BsonDocument command;
@@ -58,21 +60,21 @@ namespace MongoDB.Driver {
         private BsonDocument updateObject;
         private bool upsert;
         private string user;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the SystemProfileInfo class.
         /// </summary>
-        public SystemProfileInfo() {
+        public SystemProfileInfo()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the abbreviated profile info (only used when the profile info would have exceeded 100KB).
         /// </summary>
-        public string Abbreviated {
+        public string Abbreviated
+        {
             get { return abbreviated; }
             set { abbreviated = value; }
         }
@@ -80,7 +82,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the client.
         /// </summary>
-        public string Client {
+        public string Client
+        {
             get { return client; }
             set { client = value; }
         }
@@ -88,7 +91,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the command.
         /// </summary>
-        public BsonDocument Command {
+        public BsonDocument Command
+        {
             get { return command; }
             set { command = value; }
         }
@@ -96,7 +100,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the cursor Id.
         /// </summary>
-        public long CursorId {
+        public long CursorId
+        {
             get { return cursorId; }
             set { cursorId = value; }
         }
@@ -104,7 +109,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the duration.
         /// </summary>
-        public TimeSpan Duration {
+        public TimeSpan Duration
+        {
             get { return duration; }
             set { duration = value; }
         }
@@ -112,7 +118,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the error message.
         /// </summary>
-        public string Error {
+        public string Error
+        {
             get { return error; }
             set { error = value; }
         }
@@ -120,7 +127,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the exception message.
         /// </summary>
-        public string Exception {
+        public string Exception
+        {
             get { return exception; }
             set { exception = value; }
         }
@@ -128,7 +136,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the exception code.
         /// </summary>
-        public int ExceptionCode {
+        public int ExceptionCode
+        {
             get { return exceptionCode; }
             set { exceptionCode = value; }
         }
@@ -136,7 +145,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether exhaust was true.
         /// </summary>
-        public bool Exhaust {
+        public bool Exhaust
+        {
             get { return exhaust; }
             set { exhaust = value; }
         }
@@ -144,7 +154,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether fastMod was true.
         /// </summary>
-        public bool FastMod {
+        public bool FastMod
+        {
             get { return fastMod; }
             set { fastMod = value; }
         }
@@ -152,7 +163,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether fastModInsert was true.
         /// </summary>
-        public bool FastModInsert {
+        public bool FastModInsert
+        {
             get { return fastModInsert; }
             set { fastModInsert = value; }
         }
@@ -160,7 +172,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether idHack was true.
         /// </summary>
-        public bool IdHack {
+        public bool IdHack
+        {
             get { return idHack; }
             set { idHack = value; }
         }
@@ -168,7 +181,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the info string (only present with pre 2.0 servers).
         /// </summary>
-        public string Info {
+        public string Info
+        {
             get { return info; }
             set { info = value; }
         }
@@ -176,7 +190,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the number of key updates.
         /// </summary>
-        public int KeyUpdates {
+        public int KeyUpdates
+        {
             get { return keyUpdates; }
             set { keyUpdates = value; }
         }
@@ -184,7 +199,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether moved was true.
         /// </summary>
-        public bool Moved {
+        public bool Moved
+        {
             get { return moved; }
             set { moved = value; }
         }
@@ -192,7 +208,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the namespace.
         /// </summary>
-        public string Namespace {
+        public string Namespace
+        {
             get { return @namespace; }
             set { @namespace = value; }
         }
@@ -200,7 +217,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the number of documents returned.
         /// </summary>
-        public int NumberReturned {
+        public int NumberReturned
+        {
             get { return numberReturned; }
             set { numberReturned = value; }
         }
@@ -208,7 +226,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the number of documents scanned.
         /// </summary>
-        public int NumberScanned {
+        public int NumberScanned
+        {
             get { return numberScanned; }
             set { numberScanned = value; }
         }
@@ -216,7 +235,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the number of documents to return.
         /// </summary>
-        public int NumberToReturn {
+        public int NumberToReturn
+        {
             get { return numberToReturn; }
             set { numberToReturn = value; }
         }
@@ -224,7 +244,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the number of documents to skip.
         /// </summary>
-        public int NumberToSkip {
+        public int NumberToSkip
+        {
             get { return numberToSkip; }
             set { numberToSkip = value; }
         }
@@ -232,7 +253,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the operation.
         /// </summary>
-        public string Op {
+        public string Op
+        {
             get { return op; }
             set { op = value; }
         }
@@ -240,7 +262,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        public BsonDocument Query {
+        public BsonDocument Query
+        {
             get { return query; }
             set { query = value; }
         }
@@ -248,7 +271,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the response length.
         /// </summary>
-        public int ResponseLength {
+        public int ResponseLength
+        {
             get { return responseLength; }
             set { responseLength = value; }
         }
@@ -256,7 +280,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether scanAndOrder was true.
         /// </summary>
-        public bool ScanAndOrder {
+        public bool ScanAndOrder
+        {
             get { return scanAndOrder; }
             set { scanAndOrder = value; }
         }
@@ -264,7 +289,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the timestamp.
         /// </summary>
-        public DateTime Timestamp {
+        public DateTime Timestamp
+        {
             get { return timestamp; }
             set { timestamp = value; }
         }
@@ -272,7 +298,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the update object.
         /// </summary>
-        public BsonDocument UpdateObject {
+        public BsonDocument UpdateObject
+        {
             get { return updateObject; }
             set { updateObject = value; }
         }
@@ -280,7 +307,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether upsert was true.
         /// </summary>
-        public bool Upsert {
+        public bool Upsert
+        {
             get { return upsert; }
             set { upsert = value; }
         }
@@ -288,27 +316,29 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the user.
         /// </summary>
-        public string User {
+        public string User
+        {
             get { return user; }
             set { user = value; }
         }
-        #endregion
 
-        #region explicit interface implementation
-        object IBsonSerializable.Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
-            if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
+        // explicit interface implementation
+        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        {
+            if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else {
+            }
+            else
+            {
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;
-                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument) {
+                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
+                {
                     var name = bsonReader.ReadName();
-                    switch (name) {
+                    switch (name)
+                    {
                         case "abbreviated":
                             abbreviated = bsonReader.ReadString();
                             break;
@@ -402,111 +432,129 @@ namespace MongoDB.Driver {
             }
         }
 
-        bool IBsonSerializable.GetDocumentId(
-            out object id,
-            out Type idNominalType,
-            out IIdGenerator idGenerator
-        ) {
+        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        {
             throw new NotSupportedException();
         }
 
-        void IBsonSerializable.Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteDateTime("ts", BsonUtils.ToMillisecondsSinceEpoch(timestamp));
-            if (info != null) {
+            if (info != null)
+            {
                 bsonWriter.WriteString("info", info);
             }
-            if (op != null) {
+            if (op != null)
+            {
                 bsonWriter.WriteString("op", op);
             }
-            if (@namespace != null) {
+            if (@namespace != null)
+            {
                 bsonWriter.WriteString("ns", @namespace);
             }
-            if (command != null) {
+            if (command != null)
+            {
                 bsonWriter.WriteName("command");
                 command.WriteTo(bsonWriter);
             }
-            if (query != null) {
+            if (query != null)
+            {
                 bsonWriter.WriteName("query");
                 query.WriteTo(bsonWriter);
             }
-            if (updateObject != null) {
+            if (updateObject != null)
+            {
                 bsonWriter.WriteName("updateobj");
                 updateObject.WriteTo(bsonWriter);
             }
-            if (cursorId != 0) {
+            if (cursorId != 0)
+            {
                 bsonWriter.WriteInt64("cursorid", cursorId);
             }
-            if (numberToReturn != 0) {
+            if (numberToReturn != 0)
+            {
                 bsonWriter.WriteInt32("ntoreturn", numberToReturn);
             }
-            if (numberToSkip != 0) {
+            if (numberToSkip != 0)
+            {
                 bsonWriter.WriteInt32("ntoskip", numberToSkip);
             }
-            if (exhaust) {
+            if (exhaust)
+            {
                 bsonWriter.WriteBoolean("exhaust", exhaust);
             }
-            if (numberScanned != 0) {
+            if (numberScanned != 0)
+            {
                 bsonWriter.WriteInt32("nscanned", numberScanned);
             }
-            if (idHack) {
+            if (idHack)
+            {
                 bsonWriter.WriteBoolean("idhack", idHack);
             }
-            if (scanAndOrder) {
+            if (scanAndOrder)
+            {
                 bsonWriter.WriteBoolean("scanAndOrder", scanAndOrder);
             }
-            if (moved) {
+            if (moved)
+            {
                 bsonWriter.WriteBoolean("moved", moved);
             }
-            if (fastMod) {
+            if (fastMod)
+            {
                 bsonWriter.WriteBoolean("fastmod", fastMod);
             }
-            if (fastModInsert) {
+            if (fastModInsert)
+            {
                 bsonWriter.WriteBoolean("fastmodinsert", fastModInsert);
             }
-            if (upsert) {
+            if (upsert)
+            {
                 bsonWriter.WriteBoolean("upsert", upsert);
             }
-            if (keyUpdates != 0) {
+            if (keyUpdates != 0)
+            {
                 bsonWriter.WriteInt32("keyUpdates", keyUpdates);
             }
-            if (exception != null) {
+            if (exception != null)
+            {
                 bsonWriter.WriteString("exception", exception);
             }
-            if (exceptionCode != 0) {
+            if (exceptionCode != 0)
+            {
                 bsonWriter.WriteInt32("exceptionCode", exceptionCode);
             }
-            if (numberReturned != 0) {
+            if (numberReturned != 0)
+            {
                 bsonWriter.WriteInt32("nreturned", numberReturned);
             }
-            if (responseLength != 0) {
+            if (responseLength != 0)
+            {
                 bsonWriter.WriteInt32("responseLength", responseLength);
             }
             bsonWriter.WriteDouble("millis", duration.TotalMilliseconds);
-            if (client != null) {
+            if (client != null)
+            {
                 bsonWriter.WriteString("client", client);
             }
-            if (user != null) {
+            if (user != null)
+            {
                 bsonWriter.WriteString("user", user);
             }
-            if (error != null) {
+            if (error != null)
+            {
                 bsonWriter.WriteString("err", error);
             }
-            if (abbreviated != null) {
+            if (abbreviated != null)
+            {
                 bsonWriter.WriteString("abbreviated", abbreviated);
             }
             bsonWriter.WriteEndDocument();
         }
 
-        void IBsonSerializable.SetDocumentId(
-            object id
-        ) {
+        void IBsonSerializable.SetDocumentId(object id)
+        {
             throw new NotSupportedException();
         }
-        #endregion
     }
 }

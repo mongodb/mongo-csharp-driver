@@ -19,59 +19,50 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class BsonBinaryReaderContext {
-        #region private fields
+namespace MongoDB.Bson.IO
+{
+    internal class BsonBinaryReaderContext
+    {
+        // private fields
         private BsonBinaryReaderContext parentContext;
         private ContextType contextType;
         private int startPosition;
         private int size;
-        #endregion
 
-        #region constructors
-        internal BsonBinaryReaderContext(
-            BsonBinaryReaderContext parentContext,
-            ContextType contextType,
-            int startPosition,
-            int size
-        ) {
+        // constructors
+        internal BsonBinaryReaderContext(BsonBinaryReaderContext parentContext, ContextType contextType, int startPosition, int size)
+        {
             this.parentContext = parentContext;
             this.contextType = contextType;
             this.startPosition = startPosition;
             this.size = size;
         }
-        #endregion
 
-        #region internal properties
-        internal ContextType ContextType {
+        // internal properties
+        internal ContextType ContextType
+        {
             get { return contextType; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the context.
         /// </summary>
         /// <returns>A clone of the context.</returns>
-        public BsonBinaryReaderContext Clone() {
-            return new BsonBinaryReaderContext(
-                parentContext,
-                contextType,
-                startPosition,
-                size
-            );
+        public BsonBinaryReaderContext Clone()
+        {
+            return new BsonBinaryReaderContext(parentContext, contextType, startPosition, size);
         }
 
-        public BsonBinaryReaderContext PopContext(
-            int position
-        ) {
+        public BsonBinaryReaderContext PopContext(int position)
+        {
             int actualSize = position - startPosition;
-            if (actualSize != size) {
+            if (actualSize != size)
+            {
                 var message = string.Format("Expected size to be {0}, not {1}.", size, actualSize);
                 throw new FileFormatException(message);
             }
             return parentContext;
         }
-        #endregion
     }
 }

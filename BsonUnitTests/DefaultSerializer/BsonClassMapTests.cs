@@ -26,18 +26,21 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class BsonClassMapTests {
+    public class BsonClassMapTests
+    {
 #pragma warning disable 169 // never used
 #pragma warning disable 649 // never assigned to
-        private class A {
+        private class A
+        {
             private int fieldNotMapped;
             public readonly int FieldNotMapped2;
             public int FieldMapped;
             [BsonElement("FieldMappedByAttribute")]
             private int fieldMappedByAttribute;
-            
+
             public int PropertyMapped { get; set; }
             public int PropertyMapped2 { get; private set; }
             public int PropertyMapped3 { private get; set; }
@@ -50,23 +53,27 @@ namespace MongoDB.BsonUnitTests.Serialization {
 #pragma warning restore
 
         [Test]
-        public void TestMappingPicksUpAllMembersWithAttributes() {
+        public void TestMappingPicksUpAllMembersWithAttributes()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(A));
             Assert.AreEqual(6, classMap.MemberMaps.Count());
         }
     }
 
     [TestFixture]
-    public class BsonClassMapMapByNameTests {
+    public class BsonClassMapMapByNameTests
+    {
 #pragma warning disable 169 // never used
-        private class C {
+        private class C
+        {
             private string f;
             private string p { get; set; }
         }
 #pragma warning restore
 
         [Test]
-        public void TestMapField() {
+        public void TestMapField()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapField("f"));
             var memberMap = classMap.GetMemberMap("f");
             Assert.IsNotNull(memberMap);
@@ -75,7 +82,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapIdField() {
+        public void TestMapIdField()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapIdField("f"));
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
@@ -84,7 +92,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapIdMember() {
+        public void TestMapIdMember()
+        {
             var fieldInfo = typeof(C).GetField("f", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             var classMap = new BsonClassMap<C>(cm => cm.MapIdMember(fieldInfo));
             var idMemberMap = classMap.IdMemberMap;
@@ -94,7 +103,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapIdProperty() {
+        public void TestMapIdProperty()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty("p"));
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
@@ -103,7 +113,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapMember() {
+        public void TestMapMember()
+        {
             var fieldInfo = typeof(C).GetField("f", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             var classMap = new BsonClassMap<C>(cm => cm.MapMember(fieldInfo));
             var memberMap = classMap.GetMemberMap("f");
@@ -113,7 +124,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapProperty() {
+        public void TestMapProperty()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapProperty("p"));
             var memberMap = classMap.GetMemberMap("p");
             Assert.IsNotNull(memberMap);
@@ -123,16 +135,19 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonClassMapMapByLamdaTests {
+    public class BsonClassMapMapByLamdaTests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public string F;
             public string P { get; set; }
         }
 #pragma warning restore
 
         [Test]
-        public void TestMapField() {
+        public void TestMapField()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapField(c => c.F));
             var memberMap = classMap.GetMemberMap("F");
             Assert.IsNotNull(memberMap);
@@ -141,7 +156,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapIdField() {
+        public void TestMapIdField()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapIdField(c => c.F));
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
@@ -150,7 +166,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapIdMember() {
+        public void TestMapIdMember()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapIdMember(c => c.F));
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
@@ -159,7 +176,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapIdProperty() {
+        public void TestMapIdProperty()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty(c => c.P));
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
@@ -168,7 +186,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapMember() {
+        public void TestMapMember()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapMember(c => c.F));
             var memberMap = classMap.GetMemberMap("F");
             Assert.IsNotNull(memberMap);
@@ -177,7 +196,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMapProperty() {
+        public void TestMapProperty()
+        {
             var classMap = new BsonClassMap<C>(cm => cm.MapProperty(c => c.P));
             var memberMap = classMap.GetMemberMap("P");
             Assert.IsNotNull(memberMap);
@@ -187,8 +207,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonClassMapUnmapTests {
-        public class C {
+    public class BsonClassMapUnmapTests
+    {
+        public class C
+        {
             public ObjectId Id;
             public int X;
             public int FieldUnmappedByName;
@@ -198,8 +220,10 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestUnmap() {
-            var classMap = new BsonClassMap<C>(cm => {
+        public void TestUnmap()
+        {
+            var classMap = new BsonClassMap<C>(cm =>
+            {
                 cm.AutoMap();
                 cm.SetIdMember(cm.GetMemberMap("Id"));
                 cm.UnmapField("Id");
@@ -217,20 +241,26 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonClassMapIsClassMapRegisteredTests {
+    public class BsonClassMapIsClassMapRegisteredTests
+    {
         private static bool testAlreadyRan;
 
-        public class C {
+        public class C
+        {
             public ObjectId Id;
             public int X;
         }
 
         [Test]
-        public void TestIsClassMapRegistered() {
+        public void TestIsClassMapRegistered()
+        {
             // test can only be run once
-            if (testAlreadyRan) {
+            if (testAlreadyRan)
+            {
                 return;
-            } else {
+            }
+            else
+            {
                 testAlreadyRan = true;
             }
             Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(C)));
@@ -238,20 +268,24 @@ namespace MongoDB.BsonUnitTests.Serialization {
             Assert.IsTrue(BsonClassMap.IsClassMapRegistered(typeof(C)));
         }
     }
-    
+
     [TestFixture]
-    public class BsonShouldSerializeTests {
-        public class ClassA {
+    public class BsonShouldSerializeTests
+    {
+        public class ClassA
+        {
             public string LocalName { get; set; }
             public DateTime AsOfUtc { get; set; }
-    
-            public bool ShouldSerializeAsOfUtc() {
+
+            public bool ShouldSerializeAsOfUtc()
+            {
                 return this.AsOfUtc != DateTime.MinValue;
             }
         }
-        
+
         [Test]
-        public void TestShouldSerializeSuccess() {
+        public void TestShouldSerializeSuccess()
+        {
             // test that the value is not serialized
             var c = new ClassA();
             c.AsOfUtc = DateTime.MinValue;
@@ -259,14 +293,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
             var json = c.ToJson();
             var expected = "{ 'LocalName' : 'Saleem' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
-                        
+
             // test that the value is serialized
             var date = new DateTime(2011, 4, 24, 0, 0, 0, DateTimeKind.Utc);
-            c.AsOfUtc = date;			
+            c.AsOfUtc = date;
             expected = "{ 'LocalName' : 'Saleem', 'AsOfUtc' : ISODate('2011-04-24T00:00:00Z') }".Replace("'", "\"");
             json = c.ToJson();
-            Assert.AreEqual(expected, json);			
+            Assert.AreEqual(expected, json);
         }
-        
+
     }
 }

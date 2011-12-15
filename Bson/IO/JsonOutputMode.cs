@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents the output mode of a JsonWriter.
     /// </summary>
-    public enum JsonOutputMode {
+    public enum JsonOutputMode
+    {
         /// <summary>
         /// Output strict JSON.
         /// </summary>

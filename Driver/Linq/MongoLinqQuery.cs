@@ -20,36 +20,36 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Linq {
+namespace MongoDB.Driver.Linq
+{
     /// <summary>
     /// Represents a LINQ query that has been translated to a MongoDB query.
     /// </summary>
-    public abstract class MongoLinqQuery {
-        #region protected fields
+    public abstract class MongoLinqQuery
+    {
+        // protected fields
         /// <summary>
         /// The collection being queried.
         /// </summary>
         protected MongoCollection collection;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoLinqQuery class.
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
-        protected MongoLinqQuery(
-            MongoCollection collection
-        ) {
+        protected MongoLinqQuery(MongoCollection collection)
+        {
             this.collection = collection;
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Executes a query that returns a single result (overridden by subclasses).
         /// </summary>
         /// <returns>The result of executing the query.</returns>
-        public virtual object Execute() {
+        public virtual object Execute()
+        {
             throw new NotSupportedException();
         }
 
@@ -58,9 +58,9 @@ namespace MongoDB.Driver.Linq {
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public virtual IEnumerator<T> GetEnumerator<T>() {
+        public virtual IEnumerator<T> GetEnumerator<T>()
+        {
             throw new NotSupportedException();
         }
-        #endregion
     }
 }

@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a bookmark that can be used to return a reader to the current position and state.
     /// </summary>
-    public abstract class BsonReaderBookmark {
-        #region protected fields
+    public abstract class BsonReaderBookmark
+    {
+        // protected fields
         /// <summary>
         /// The state of the reader.
         /// </summary>
@@ -36,47 +38,44 @@ namespace MongoDB.Bson.IO {
         /// The name of the current element.
         /// </summary>
         protected string currentName;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonReaderBookmark class.
         /// </summary>
         /// <param name="state">The state of the reader.</param>
         /// <param name="currentBsonType">The current BSON type.</param>
         /// <param name="currentName">The name of the current element.</param>
-        protected BsonReaderBookmark(
-            BsonReaderState state,
-            BsonType currentBsonType,
-            string currentName
-        ) {
+        protected BsonReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName)
+        {
             this.state = state;
             this.currentBsonType = currentBsonType;
             this.currentName = currentName;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the current state of the reader.
         /// </summary>
-        public BsonReaderState State {
+        public BsonReaderState State
+        {
             get { return state; }
         }
 
         /// <summary>
         /// Gets the current BsonType;
         /// </summary>
-        public BsonType CurrentBsonType {
+        public BsonType CurrentBsonType
+        {
             get { return currentBsonType; }
         }
 
         /// <summary>
         /// Gets the name of the current element.
         /// </summary>
-        public string CurrentName {
+        public string CurrentName
+        {
             get { return currentName; }
         }
-        #endregion
     }
 }

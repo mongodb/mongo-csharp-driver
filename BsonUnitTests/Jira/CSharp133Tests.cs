@@ -26,8 +26,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp133 {
-    public class C {
+namespace MongoDB.BsonUnitTests.Jira.CSharp133
+{
+    public class C
+    {
         public string S;
         [BsonIgnoreIfDefault]
         public string I;
@@ -37,9 +39,11 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp133 {
     }
 
     [TestFixture]
-    public class CSharp133Tests {
+    public class CSharp133Tests
+    {
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var c = new C { S = null, I = null, D = null };
             var json = c.ToJson();
             var expected = "{ 'S' : null }".Replace("'", "\"");
@@ -55,7 +59,8 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp133 {
         }
 
         [Test]
-        public void TestNotNull() {
+        public void TestNotNull()
+        {
             var c = new C { S = "xyz", I = "xyz", D = "xyz" };
             var json = c.ToJson();
             var expected = "{ 'S' : 'xyz', 'I' : 'xyz', 'D' : 'xyz' }".Replace("'", "\"");

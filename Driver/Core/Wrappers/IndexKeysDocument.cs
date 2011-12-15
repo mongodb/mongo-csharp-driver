@@ -23,16 +23,19 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a BSON document that can be used where an IMongoIndexKeys is expected.
     /// </summary>
-    public class IndexKeysDocument : BsonDocument, IMongoIndexKeys {
-        #region constructors
+    public class IndexKeysDocument : BsonDocument, IMongoIndexKeys
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the IndexKeysDocument class.
         /// </summary>
-        public IndexKeysDocument() {
+        public IndexKeysDocument()
+        {
         }
 
         /// <summary>
@@ -40,52 +43,27 @@ namespace MongoDB.Driver {
         /// (allowing duplicate element names is not recommended).
         /// </summary>
         /// <param name="allowDuplicateNames">Whether duplicate element names are allowed.</param>
-        public IndexKeysDocument(
-            bool allowDuplicateNames
-        )
-            : base(allowDuplicateNames) {
+        public IndexKeysDocument(bool allowDuplicateNames)
+            : base(allowDuplicateNames)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the IndexKeysDocument class and adds one element.
         /// </summary>
         /// <param name="element">An element to add to the document.</param>
-        public IndexKeysDocument(
-            BsonElement element
-        )
-            : base(element) {
+        public IndexKeysDocument(BsonElement element)
+            : base(element)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the IndexKeysDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public IndexKeysDocument(
-            Dictionary<string, object> dictionary
-        )
-            : base(dictionary) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the IndexKeysDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public IndexKeysDocument(
-            Dictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        )
-            : base(dictionary, keys) {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the IndexKeysDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public IndexKeysDocument(
-            IDictionary<string, object> dictionary
-        )
-            : base(dictionary) {
+        public IndexKeysDocument(Dictionary<string, object> dictionary)
+            : base(dictionary)
+        {
         }
 
         /// <summary>
@@ -93,21 +71,18 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public IndexKeysDocument(
-            IDictionary<string, object> dictionary,
-            IEnumerable<string> keys
-        )
-            : base(dictionary, keys) {
+        public IndexKeysDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
+            : base(dictionary, keys)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the IndexKeysDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public IndexKeysDocument(
-            IDictionary dictionary
-        )
-            : base(dictionary) {
+        public IndexKeysDocument(IDictionary<string, object> dictionary)
+            : base(dictionary)
+        {
         }
 
         /// <summary>
@@ -115,31 +90,46 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public IndexKeysDocument(
-            IDictionary dictionary,
-            IEnumerable keys
-        )
-            : base(dictionary, keys) {
+        public IndexKeysDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
+            : base(dictionary, keys)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IndexKeysDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        public IndexKeysDocument(IDictionary dictionary)
+            : base(dictionary)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IndexKeysDocument class and adds new elements from a dictionary of key/value pairs.
+        /// </summary>
+        /// <param name="dictionary">A dictionary to initialize the document from.</param>
+        /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        public IndexKeysDocument(IDictionary dictionary, IEnumerable keys)
+            : base(dictionary, keys)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the IndexKeysDocument class and adds new elements from a list of elements.
         /// </summary>
         /// <param name="elements">A list of elements to add to the document.</param>
-        public IndexKeysDocument(
-            IEnumerable<BsonElement> elements
-        )
-            : base(elements) {
+        public IndexKeysDocument(IEnumerable<BsonElement> elements)
+            : base(elements)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the IndexKeysDocument class and adds one or more elements.
         /// </summary>
         /// <param name="elements">One or more elements to add to the document.</param>
-        public IndexKeysDocument(
-            params BsonElement[] elements
-        )
-            : base(elements) {
+        public IndexKeysDocument(params BsonElement[] elements)
+            : base(elements)
+        {
         }
 
         /// <summary>
@@ -147,12 +137,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="name">The name of the element to add to the document.</param>
         /// <param name="value">The value of the element to add to the document.</param>
-        public IndexKeysDocument(
-            string name,
-            BsonValue value
-        )
-            : base(name, value) {
+        public IndexKeysDocument(string name, BsonValue value)
+            : base(name, value)
+        {
         }
-        #endregion
     }
 }

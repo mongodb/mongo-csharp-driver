@@ -17,11 +17,13 @@ using System;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization {
+namespace MongoDB.Bson.Serialization
+{
     /// <summary>
     /// An interface implemented by Id generators.
     /// </summary>
-    public interface IIdGenerator {
+    public interface IIdGenerator
+    {
         /// <summary>
         /// Generates an Id for a document.
         /// </summary>

@@ -21,38 +21,39 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers {
+namespace MongoDB.Driver.Wrappers
+{
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoGeoHaystackSearchOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
-    public class GeoHaystackSearchOptionsWrapper : BaseWrapper, IMongoGeoHaystackSearchOptions {
-        #region constructors
+    public class GeoHaystackSearchOptionsWrapper : BaseWrapper, IMongoGeoHaystackSearchOptions
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GeoHaystackSearchOptionsWrapper class.
         /// </summary>
         /// <param name="options">The wrapped object.</param>
-        public GeoHaystackSearchOptionsWrapper(
-            object options
-        )
-            : base(options) {
+        public GeoHaystackSearchOptionsWrapper(object options)
+            : base(options)
+        {
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new instance of the GeoHaystackSearchOptionsWrapper class.
         /// </summary>
         /// <param name="options">The wrapped object.</param>
         /// <returns>A new instance of GeoHaystackSearchOptionsWrapper or null.</returns>
-        public static GeoHaystackSearchOptionsWrapper Create(
-            object options
-        ) {
-            if (options == null) {
+        public static GeoHaystackSearchOptionsWrapper Create(object options)
+        {
+            if (options == null)
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return new GeoHaystackSearchOptionsWrapper(options);
             }
         }
-        #endregion
     }
 }

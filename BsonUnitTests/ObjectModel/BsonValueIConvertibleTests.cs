@@ -23,11 +23,14 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonValueIConvertibleTests {
+    public class BsonValueIConvertibleTests
+    {
         [Test]
-        public void TestBsonArray() {
+        public void TestBsonArray()
+        {
             var value = new BsonArray();
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -47,7 +50,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonBinaryData() {
+        public void TestBsonBinaryData()
+        {
             var value = new BsonBinaryData(new byte[] { 1, 2 });
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -67,7 +71,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonBoolean() {
+        public void TestBsonBoolean()
+        {
             var value = BsonBoolean.Create(true);
             Assert.AreEqual(true, Convert.ToBoolean(value));
             Assert.AreEqual(1, Convert.ToByte(value));
@@ -87,7 +92,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonDateTime() {
+        public void TestBsonDateTime()
+        {
             var dateTime = DateTime.SpecifyKind(new DateTime(2011, 1, 20), DateTimeKind.Utc);
             var value = new BsonDateTime(dateTime);
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
@@ -108,7 +114,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonDocument() {
+        public void TestBsonDocument()
+        {
             var value = new BsonDocument();
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -128,7 +135,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonDouble() {
+        public void TestBsonDouble()
+        {
             var value = BsonDouble.Create(1.5);
             Assert.AreEqual(true, Convert.ToBoolean(value));
             Assert.AreEqual(2, Convert.ToByte(value));
@@ -148,7 +156,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonInt32() {
+        public void TestBsonInt32()
+        {
             var value = BsonInt32.Create(1);
             Assert.AreEqual(true, Convert.ToBoolean(value));
             Assert.AreEqual(1, Convert.ToByte(value));
@@ -168,7 +177,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonInt64() {
+        public void TestBsonInt64()
+        {
             var value = BsonInt64.Create(1);
             Assert.AreEqual(true, Convert.ToBoolean(value));
             Assert.AreEqual(1, Convert.ToByte(value));
@@ -188,7 +198,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonJavaScript() {
+        public void TestBsonJavaScript()
+        {
             var value = new BsonJavaScript("code");
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -208,7 +219,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonJavaScriptWithScope() {
+        public void TestBsonJavaScriptWithScope()
+        {
             var scope = new BsonDocument();
             var value = new BsonJavaScriptWithScope("code", scope);
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
@@ -229,7 +241,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonMaxKey() {
+        public void TestBsonMaxKey()
+        {
             var value = BsonMaxKey.Value;
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -249,7 +262,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonMinKey() {
+        public void TestBsonMinKey()
+        {
             var value = BsonMinKey.Value;
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -269,7 +283,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonNull() {
+        public void TestBsonNull()
+        {
             var value = BsonNull.Value;
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -289,7 +304,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonObjectId() {
+        public void TestBsonObjectId()
+        {
             var value = BsonObjectId.Empty;
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -309,7 +325,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonRegularExpression() {
+        public void TestBsonRegularExpression()
+        {
             var value = BsonRegularExpression.Create("pattern", "imxs");
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -329,7 +346,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonString() {
+        public void TestBsonString()
+        {
             var booleanString = BsonString.Create("true");
             var dateTimeString = BsonString.Create("2011-01-20");
             var doubleString = BsonString.Create("1.5");
@@ -352,7 +370,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonSymbol() {
+        public void TestBsonSymbol()
+        {
             var value = BsonSymbol.Create("name");
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
@@ -372,7 +391,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestBsonTimestamp() {
+        public void TestBsonTimestamp()
+        {
             var value = BsonTimestamp.Create(123);
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));

@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Flags used with the Insert method in MongoCollection.
     /// </summary>
     [Flags]
-    public enum InsertFlags {
+    public enum InsertFlags
+    {
         /// <summary>
         /// No flags.
         /// </summary>

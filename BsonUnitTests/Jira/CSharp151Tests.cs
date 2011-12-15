@@ -26,29 +26,35 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp151 {
+namespace MongoDB.BsonUnitTests.Jira.CSharp151
+{
     [TestFixture]
-    public class CSharp151Tests {
-        public class Doc {
+    public class CSharp151Tests
+    {
+        public class Doc
+        {
             public decimal Value { get; set; }
         }
 
         [Test]
-        public void TestDeserializeDouble() {
+        public void TestDeserializeDouble()
+        {
             var json = "{ 'Value' : 1.23 }".Replace("'", "\"");
             var doc = BsonSerializer.Deserialize<Doc>(json);
             Assert.AreEqual(1.23m, doc.Value);
         }
 
         [Test]
-        public void TestDeserializeInt32() {
+        public void TestDeserializeInt32()
+        {
             var json = "{ 'Value' : 123 }".Replace("'", "\"");
             var doc = BsonSerializer.Deserialize<Doc>(json);
             Assert.AreEqual(123m, doc.Value);
         }
 
         [Test]
-        public void TestDeserializeInt64() {
+        public void TestDeserializeInt64()
+        {
             var json = "{ 'Value' : 12345678900 }".Replace("'", "\"");
             var doc = BsonSerializer.Deserialize<Doc>(json);
             Assert.AreEqual(12345678900m, doc.Value);

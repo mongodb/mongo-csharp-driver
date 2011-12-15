@@ -18,42 +18,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a BSON JavaScript value with a scope.
     /// </summary>
     [Serializable]
-    public class BsonJavaScriptWithScope : BsonJavaScript, IComparable<BsonJavaScriptWithScope>, IEquatable<BsonJavaScriptWithScope> {
-        #region private fields
+    public class BsonJavaScriptWithScope : BsonJavaScript, IComparable<BsonJavaScriptWithScope>, IEquatable<BsonJavaScriptWithScope>
+    {
+        // private fields
         private BsonDocument scope;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonJavaScriptWithScope class.
         /// </summary>
         /// <param name="code">The JavaScript code.</param>
         /// <param name="scope">A scope (a set of variables with values).</param>
-        public BsonJavaScriptWithScope(
-            string code,
-            BsonDocument scope
-        )  
-            : base(code, BsonType.JavaScriptWithScope) {
+        public BsonJavaScriptWithScope(string code, BsonDocument scope)
+            : base(code, BsonType.JavaScriptWithScope)
+        {
             this.scope = scope;
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Compares two BsonJavaScriptWithScope values.
         /// </summary>
         /// <param name="lhs">The first BsonJavaScriptWithScope.</param>
         /// <param name="rhs">The other BsonJavaScriptWithScope.</param>
         /// <returns>True if the two BsonJavaScriptWithScope values are not equal according to ==.</returns>
-        public static bool operator !=(
-            BsonJavaScriptWithScope lhs,
-            BsonJavaScriptWithScope rhs
-        ) {
+        public static bool operator !=(BsonJavaScriptWithScope lhs, BsonJavaScriptWithScope rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -63,36 +59,35 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonJavaScriptWithScope.</param>
         /// <param name="rhs">The other BsonJavaScriptWithScope.</param>
         /// <returns>True if the two BsonJavaScriptWithScope values are equal according to ==.</returns>
-        public static bool operator ==(
-            BsonJavaScriptWithScope lhs,
-            BsonJavaScriptWithScope rhs
-        ) {
+        public static bool operator ==(BsonJavaScriptWithScope lhs, BsonJavaScriptWithScope rhs)
+        {
             if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the scope (a set of variables with values).
         /// </summary>
-        public BsonDocument Scope {
+        public BsonDocument Scope
+        {
             get { return scope; }
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new BsonJavaScriptWithScope.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonJavaScriptWithScope.</param>
         /// <returns>A BsonJavaScriptWithScope or null.</returns>
-        public new static BsonJavaScriptWithScope Create(
-            object value
-        ) {
-            if (value != null) {
-                return (BsonJavaScriptWithScope) BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
-            } else {
+        public new static BsonJavaScriptWithScope Create(object value)
+        {
+            if (value != null)
+            {
+                return (BsonJavaScriptWithScope)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
+            }
+            else
+            {
                 return null;
             }
         }
@@ -103,34 +98,37 @@ namespace MongoDB.Bson {
         /// <param name="code">A string containing JavaScript code.</param>
         /// <param name="scope">A scope (a set of variable with values).</param>
         /// <returns>A BsonJavaScript.</returns>
-        public static BsonJavaScriptWithScope Create(
-            string code,
-            BsonDocument scope
-        ) {
-            if (code != null) {
+        public static BsonJavaScriptWithScope Create(string code, BsonDocument scope)
+        {
+            if (code != null)
+            {
                 return new BsonJavaScriptWithScope(code, scope);
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a shallow clone of the BsonJavaScriptWithScope (see also DeepClone).
         /// </summary>
         /// <returns>A shallow clone of the BsonJavaScriptWithScope.</returns>
-        public override BsonValue Clone() {
-            return new BsonJavaScriptWithScope(code, (BsonDocument) scope.Clone());
+        public override BsonValue Clone()
+        {
+            return new BsonJavaScriptWithScope(code, (BsonDocument)scope.Clone());
         }
 
         /// <summary>
         /// Creates a deep clone of the BsonJavaScriptWithScope (see also Clone).
         /// </summary>
         /// <returns>A deep clone of the BsonJavaScriptWithScope.</returns>
-        public override BsonValue DeepClone() {
+        public override BsonValue DeepClone()
+        {
             BsonJavaScriptWithScope clone = new BsonJavaScriptWithScope(code, new BsonDocument());
-            foreach (BsonElement element in scope) {
+            foreach (BsonElement element in scope)
+            {
                 clone.scope.Add(element.DeepClone());
             }
             return clone;
@@ -141,9 +139,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonJavaScriptWithScope.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonJavaScriptWithScope is less than, equal to, or greather than the other.</returns>
-        public int CompareTo(
-            BsonJavaScriptWithScope other
-        ) {
+        public int CompareTo(BsonJavaScriptWithScope other)
+        {
             if (other == null) { return 1; }
             int r = code.CompareTo(other.code);
             if (r != 0) { return r; }
@@ -155,12 +152,12 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonJavaScriptWithScope is less than, equal to, or greather than the other BsonValue.</returns>
-        public override int CompareTo(
-            BsonValue other
-        ) {
+        public override int CompareTo(BsonValue other)
+        {
             if (other == null) { return 1; }
             var otherJavaScriptWithScope = other as BsonJavaScriptWithScope;
-            if (otherJavaScriptWithScope != null) {
+            if (otherJavaScriptWithScope != null)
+            {
                 return CompareTo(otherJavaScriptWithScope);
             }
             return CompareTypeTo(other);
@@ -171,9 +168,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="rhs">The other BsonJavaScriptWithScope.</param>
         /// <returns>True if the two BsonJavaScriptWithScope values are equal.</returns>
-        public bool Equals(
-            BsonJavaScriptWithScope rhs
-        ) {
+        public bool Equals(BsonJavaScriptWithScope rhs)
+        {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return this.code == rhs.code && this.scope == rhs.scope;
         }
@@ -183,9 +179,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonJavaScriptWithScope and equal to this one.</returns>
-        public override bool Equals(
-            object obj
-        ) {
+        public override bool Equals(object obj)
+        {
             return Equals(obj as BsonJavaScriptWithScope); // works even if obj is null or of a different type
         }
 
@@ -193,7 +188,8 @@ namespace MongoDB.Bson {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + base.GetHashCode();
@@ -205,9 +201,9 @@ namespace MongoDB.Bson {
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return string.Format("{0}, scope : {1}", code, scope.ToJson());
         }
-        #endregion
     }
 }

@@ -23,26 +23,31 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDB.DriverUnitTests.GridFS {
+namespace MongoDB.DriverUnitTests.GridFS
+{
     [TestFixture]
-    public class MongoGridFSFileInfoTests {
+    public class MongoGridFSFileInfoTests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoGridFS gridFS;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetUp() {
+        public void TestFixtureSetUp()
+        {
             server = MongoServer.Create();
             database = server["test"];
             gridFS = database.GridFS;
         }
 
         [Test]
-        public void TestCreateWithRemoteFileNameAndCreateOptions() {
+        public void TestCreateWithRemoteFileNameAndCreateOptions()
+        {
             var aliases = new string[] { "a", "b" };
             var uploadDate = new DateTime(2011, 11, 10, 19, 57, 0, DateTimeKind.Utc);
             var metadata = new BsonDocument("x", 1);
-            var createOptions = new MongoGridFSCreateOptions() {
+            var createOptions = new MongoGridFSCreateOptions()
+            {
                 Aliases = aliases,
                 ChunkSize = 123,
                 ContentType = "content",
@@ -64,12 +69,13 @@ namespace MongoDB.DriverUnitTests.GridFS {
         }
 
         [Test]
-        public void TestEquals() {
+        public void TestEquals()
+        {
             var createOptions = new MongoGridFSCreateOptions { ChunkSize = 123 };
             var a = new MongoGridFSFileInfo(gridFS, "f", createOptions);
             var b = new MongoGridFSFileInfo(gridFS, "f", createOptions);
             var c = new MongoGridFSFileInfo(gridFS, "g", createOptions);
-            var n = (MongoCredentials) null;
+            var n = (MongoCredentials)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));

@@ -26,11 +26,14 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp134 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp134
+{
     [TestFixture]
-    public class CSharp134Tests {
+    public class CSharp134Tests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public ObjectId Id;
             public MongoDBRef DbRef;
         }
@@ -41,14 +44,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp134 {
         private MongoCollection<C> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database.GetCollection<C>("csharp134");
         }
 
         [Test]
-        public void TestDeserializeMongoDBRef() {
+        public void TestDeserializeMongoDBRef()
+        {
             var dbRef = new MongoDBRef("test", ObjectId.GenerateNewId());
             var c = new C { DbRef = dbRef };
             collection.RemoveAll();

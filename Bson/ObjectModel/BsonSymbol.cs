@@ -18,44 +18,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     // TODO: [Serializable] // must have custom deserialization to do SymbolTable lookup
     /// <summary>
     /// Represents a BSON symbol value.
     /// </summary>
-    public class BsonSymbol : BsonValue, IComparable<BsonSymbol>, IEquatable<BsonSymbol> {
-        #region private fields
+    public class BsonSymbol : BsonValue, IComparable<BsonSymbol>, IEquatable<BsonSymbol>
+    {
+        // private fields
         private string name;
-        #endregion
 
-        #region constructors
+        // constructors
         // internal because only BsonSymbolTable should call this constructor
-        internal BsonSymbol(
-            string name
-        )
-            : base(BsonType.Symbol) {
+        internal BsonSymbol(string name)
+            : base(BsonType.Symbol)
+        {
             this.name = name;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the name of the symbol.
         /// </summary>
-        public string Name {
+        public string Name
+        {
             get { return name; }
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Converts a string to a BsonSymbol.
         /// </summary>
         /// <param name="name">A string.</param>
         /// <returns>A BsonSymbol.</returns>
-        public static implicit operator BsonSymbol(
-            string name
-        ) {
+        public static implicit operator BsonSymbol(string name)
+        {
             return BsonSymbol.Create(name);
         }
 
@@ -65,10 +63,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonSymbol.</param>
         /// <param name="rhs">The other BsonSymbol.</param>
         /// <returns>True if the two BsonSymbol values are not equal according to ==.</returns>
-        public static bool operator !=(
-            BsonSymbol lhs,
-            BsonSymbol rhs
-        ) {
+        public static bool operator !=(BsonSymbol lhs, BsonSymbol rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -78,27 +74,26 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonSymbol.</param>
         /// <param name="rhs">The other BsonSymbol.</param>
         /// <returns>True if the two BsonSymbol values are equal according to ==.</returns>
-        public static bool operator ==(
-            BsonSymbol lhs,
-            BsonSymbol rhs
-        ) {
+        public static bool operator ==(BsonSymbol lhs, BsonSymbol rhs)
+        {
             if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Creates a new BsonSymbol.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonSymbol.</param>
         /// <returns>A BsonSymbol or null.</returns>
-        public new static BsonSymbol Create(
-            object value
-        ) {
-            if (value != null) {
-                return (BsonSymbol) BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
-            } else {
+        public new static BsonSymbol Create(object value)
+        {
+            if (value != null)
+            {
+                return (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
+            }
+            else
+            {
                 return null;
             }
         }
@@ -108,18 +103,19 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="name">A string.</param>
         /// <returns>A BsonSymbol.</returns>
-        public static BsonSymbol Create(
-            string name
-        ) {
-            if (name != null) {
+        public static BsonSymbol Create(string name)
+        {
+            if (name != null)
+            {
                 return BsonSymbolTable.Lookup(name);
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         // note: a BsonSymbol is guaranteed to be unique because it must be looked up in BsonSymbolTable
         // therefore the implementations of Equals and GetHashCode are considerably more efficient
 
@@ -128,9 +124,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonSymbol.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonSymbol is less than, equal to, or greather than the other.</returns>
-        public int CompareTo(
-            BsonSymbol other
-        ) {
+        public int CompareTo(BsonSymbol other)
+        {
             if (other == null) { return 1; }
             return name.CompareTo(other.name);
         }
@@ -140,16 +135,17 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonSymbol is less than, equal to, or greather than the other BsonValue.</returns>
-        public override int CompareTo(
-            BsonValue other
-        ) {
+        public override int CompareTo(BsonValue other)
+        {
             if (other == null) { return 1; }
             var otherSymbol = other as BsonSymbol;
-            if (otherSymbol != null) {
+            if (otherSymbol != null)
+            {
                 return name.CompareTo(otherSymbol.Name);
             }
             var otherString = other as BsonString;
-            if (otherString != null) {
+            if (otherString != null)
+            {
                 return name.CompareTo(otherString.Value);
             }
             return CompareTypeTo(other);
@@ -160,9 +156,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="rhs">The other BsonSymbol.</param>
         /// <returns>True if the two BsonSymbol values are equal.</returns>
-        public bool Equals(
-            BsonSymbol rhs
-        ) {
+        public bool Equals(BsonSymbol rhs)
+        {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return object.ReferenceEquals(this, rhs); // symbols are guaranteed to be unique
         }
@@ -172,9 +167,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonSymbol and equal to this one.</returns>
-        public override bool Equals(
-            object obj
-        ) {
+        public override bool Equals(object obj)
+        {
             return Equals(obj as BsonSymbol); // works even if obj is null or of a different type
         }
 
@@ -182,7 +176,8 @@ namespace MongoDB.Bson {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return name.GetHashCode();
         }
 
@@ -190,9 +185,9 @@ namespace MongoDB.Bson {
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return name;
         }
-        #endregion
     }
 }

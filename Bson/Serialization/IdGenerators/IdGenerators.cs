@@ -23,43 +23,42 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization.IdGenerators {
+namespace MongoDB.Bson.Serialization.IdGenerators
+{
     /// <summary>
     /// Represents an Id generator for BsonObjectIds.
     /// </summary>
-    public class BsonObjectIdGenerator : IIdGenerator {
-        #region private static fields
+    public class BsonObjectIdGenerator : IIdGenerator
+    {
+        // private static fields
         private static BsonObjectIdGenerator instance = new BsonObjectIdGenerator();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonObjectIdGenerator class.
         /// </summary>
-        public BsonObjectIdGenerator() {
+        public BsonObjectIdGenerator()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of ObjectIdGenerator.
         /// </summary>
-        public static BsonObjectIdGenerator Instance {
+        public static BsonObjectIdGenerator Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Generates an Id for a document.
         /// </summary>
         /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
         /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
-        public object GenerateId(
-            object container,
-            object document
-        ) {
+        public object GenerateId(object container, object document)
+        {
             return BsonObjectId.GenerateNewId();
         }
 
@@ -68,54 +67,50 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         /// </summary>
         /// <param name="id">The Id.</param>
         /// <returns>True if the Id is empty.</returns>
-        public bool IsEmpty(
-            object id
-        ) {
-            return id == null || ((BsonValue) id).IsBsonNull || ((BsonObjectId) id).Value == ObjectId.Empty;
+        public bool IsEmpty(object id)
+        {
+            return id == null || ((BsonValue)id).IsBsonNull || ((BsonObjectId)id).Value == ObjectId.Empty;
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents an Id generator for Guids using the COMB algorithm.
     /// </summary>
-    public class CombGuidGenerator : IIdGenerator {
-        #region private static fields
+    public class CombGuidGenerator : IIdGenerator
+    {
+        // private static fields
         private static CombGuidGenerator instance = new CombGuidGenerator();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the CombGuidGenerator class.
         /// </summary>
-        public CombGuidGenerator() {
+        public CombGuidGenerator()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of CombGuidGenerator.
         /// </summary>
-        public static CombGuidGenerator Instance {
+        public static CombGuidGenerator Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Generates an Id for a document.
         /// </summary>
         /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
         /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
-        public object GenerateId(
-            object container,
-            object document
-        ) {
+        public object GenerateId(object container, object document)
+        {
             var baseDate = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             var now = DateTime.UtcNow;
-            var days = (ushort) (now - baseDate).TotalDays;
-            var milliseconds = (int) now.TimeOfDay.TotalMilliseconds;
+            var days = (ushort)(now - baseDate).TotalDays;
+            var milliseconds = (int)now.TimeOfDay.TotalMilliseconds;
 
             // replace last 6 bytes of a new Guid with 2 bytes from days and 4 bytes from milliseconds
             // see: The Cost of GUIDs as Primary Keys by Jimmy Nilson
@@ -124,7 +119,8 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
             var bytes = Guid.NewGuid().ToByteArray();
             Array.Copy(BitConverter.GetBytes(days), 0, bytes, 10, 2);
             Array.Copy(BitConverter.GetBytes(milliseconds), 0, bytes, 12, 4);
-            if (BitConverter.IsLittleEndian) {
+            if (BitConverter.IsLittleEndian)
+            {
                 Array.Reverse(bytes, 10, 2);
                 Array.Reverse(bytes, 12, 4);
             }
@@ -136,50 +132,46 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         /// </summary>
         /// <param name="id">The Id.</param>
         /// <returns>True if the Id is empty.</returns>
-        public bool IsEmpty(
-            object id
-        ) {
-            return id == null || (Guid) id == Guid.Empty;
+        public bool IsEmpty(object id)
+        {
+            return id == null || (Guid)id == Guid.Empty;
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents an Id generator for Guids.
     /// </summary>
-    public class GuidGenerator : IIdGenerator {
-        #region private static fields
+    public class GuidGenerator : IIdGenerator
+    {
+        // private static fields
         private static GuidGenerator instance = new GuidGenerator();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GuidGenerator class.
         /// </summary>
-        public GuidGenerator() {
+        public GuidGenerator()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of GuidGenerator.
         /// </summary>
-        public static GuidGenerator Instance {
+        public static GuidGenerator Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Generates an Id for a document.
         /// </summary>
         /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
         /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
-        public object GenerateId(
-            object container,
-            object document
-        ) {
+        public object GenerateId(object container, object document)
+        {
             return Guid.NewGuid();
         }
 
@@ -188,50 +180,46 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         /// </summary>
         /// <param name="id">The Id.</param>
         /// <returns>True if the Id is empty.</returns>
-        public bool IsEmpty(
-            object id
-        ) {
-            return id == null || (Guid) id == Guid.Empty;
+        public bool IsEmpty(object id)
+        {
+            return id == null || (Guid)id == Guid.Empty;
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents an Id generator that only checks that the Id is not null.
     /// </summary>
-    public class NullIdChecker : IIdGenerator {
-        #region private static fields
+    public class NullIdChecker : IIdGenerator
+    {
+        // private static fields
         private static NullIdChecker instance = new NullIdChecker();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the NullIdChecker class.
         /// </summary>
-        public NullIdChecker() {
+        public NullIdChecker()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of NullIdChecker.
         /// </summary>
-        public static NullIdChecker Instance {
+        public static NullIdChecker Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Generates an Id for a document.
         /// </summary>
         /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
         /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
-        public object GenerateId(
-            object container,
-            object document
-        ) {
+        public object GenerateId(object container, object document)
+        {
             throw new InvalidOperationException("Id cannot be null.");
         }
 
@@ -240,50 +228,46 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         /// </summary>
         /// <param name="id">The Id.</param>
         /// <returns>True if the Id is empty.</returns>
-        public bool IsEmpty(
-            object id
-        ) {
+        public bool IsEmpty(object id)
+        {
             return id == null;
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents an Id generator for ObjectIds.
     /// </summary>
-    public class ObjectIdGenerator : IIdGenerator {
-        #region private static fields
+    public class ObjectIdGenerator : IIdGenerator
+    {
+        // private static fields
         private static ObjectIdGenerator instance = new ObjectIdGenerator();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the ObjectIdGenerator class.
         /// </summary>
-        public ObjectIdGenerator() {
+        public ObjectIdGenerator()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of ObjectIdGenerator.
         /// </summary>
-        public static ObjectIdGenerator Instance {
+        public static ObjectIdGenerator Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Generates an Id for a document.
         /// </summary>
         /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
         /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
-        public object GenerateId(
-            object container,
-            object document
-        ) {
+        public object GenerateId(object container, object document)
+        {
             return ObjectId.GenerateNewId();
         }
 
@@ -292,50 +276,46 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         /// </summary>
         /// <param name="id">The Id.</param>
         /// <returns>True if the Id is empty.</returns>
-        public bool IsEmpty(
-            object id
-        ) {
-            return id == null || (ObjectId) id == ObjectId.Empty;
+        public bool IsEmpty(object id)
+        {
+            return id == null || (ObjectId)id == ObjectId.Empty;
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents an Id generator for ObjectIds represented internally as strings.
     /// </summary>
-    public class StringObjectIdGenerator : IIdGenerator {
-        #region private static fields
+    public class StringObjectIdGenerator : IIdGenerator
+    {
+        // private static fields
         private static StringObjectIdGenerator instance = new StringObjectIdGenerator();
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the StringObjectIdGenerator class.
         /// </summary>
-        public StringObjectIdGenerator() {
+        public StringObjectIdGenerator()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of StringObjectIdGenerator.
         /// </summary>
-        public static StringObjectIdGenerator Instance {
+        public static StringObjectIdGenerator Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Generates an Id for a document.
         /// </summary>
         /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
         /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
-        public object GenerateId(
-            object container,
-            object document
-        ) {
+        public object GenerateId(object container, object document)
+        {
             return ObjectId.GenerateNewId().ToString();
         }
 
@@ -344,12 +324,10 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         /// </summary>
         /// <param name="id">The Id.</param>
         /// <returns>True if the Id is empty.</returns>
-        public bool IsEmpty(
-            object id
-        ) {
-            return string.IsNullOrEmpty((string) id);
+        public bool IsEmpty(object id)
+        {
+            return string.IsNullOrEmpty((string)id);
         }
-        #endregion
     }
 
     /// <summary>
@@ -357,26 +335,25 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
     /// </summary>
     /// <typeparam name="T">The type of the Id.</typeparam>
     // TODO: is it worth trying to remove the dependency on IEquatable<T>?
-    public class ZeroIdChecker<T> : IIdGenerator where T : struct, IEquatable<T> {
-        #region constructors
+    public class ZeroIdChecker<T> : IIdGenerator where T : struct, IEquatable<T>
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the ZeroIdChecker class.
         /// </summary>
-        public ZeroIdChecker() {
+        public ZeroIdChecker()
+        {
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Generates an Id for a document.
         /// </summary>
         /// <param name="container">The container of the document (will be a MongoCollection when called from the C# driver). </param>
         /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
-        public object GenerateId(
-            object container,
-            object document
-        ) {
+        public object GenerateId(object container, object document)
+        {
             throw new InvalidOperationException("Id cannot be default value (all zeros).");
         }
 
@@ -385,11 +362,9 @@ namespace MongoDB.Bson.Serialization.IdGenerators {
         /// </summary>
         /// <param name="id">The Id.</param>
         /// <returns>True if the Id is empty.</returns>
-        public bool IsEmpty(
-            object id
-        ) {
-            return id == null || ((T) id).Equals(default(T));
+        public bool IsEmpty(object id)
+        {
+            return id == null || ((T)id).Equals(default(T));
         }
-        #endregion
     }
 }

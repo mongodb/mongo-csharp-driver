@@ -25,44 +25,55 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class DiscriminatorTests {
+    public class DiscriminatorTests
+    {
         [BsonDiscriminator("A~")] // make discriminators unique with respect to object
-        private class A {
+        private class A
+        {
             public string P { get; set; }
         }
 
         [BsonDiscriminator("B~")]
-        private class B : A {
+        private class B : A
+        {
         }
 
         [BsonDiscriminator("C~", Required = true)]
-        private class C : A {
+        private class C : A
+        {
         }
 
         [BsonDiscriminator("D~", RootClass = true)]
-        private class D : A {
+        private class D : A
+        {
         }
 
         [BsonDiscriminator("E~")]
-        private class E : B {
+        private class E : B
+        {
         }
 
         [BsonDiscriminator("F~")]
-        private class F : C {
+        private class F : C
+        {
         }
 
         [BsonDiscriminator("G~")]
-        private class G : D {
+        private class G : D
+        {
         }
 
         [BsonDiscriminator("H~")]
-        private class H : G {
+        private class H : G
+        {
         }
 
         [Test]
-        public void TestSerializeObjectasObject() {
+        public void TestSerializeObjectasObject()
+        {
             object o = new object();
             var json = o.ToJson<object>();
             Assert.AreEqual("{ }", json);
@@ -73,7 +84,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeAAsObject() {
+        public void TestSerializeAAsObject()
+        {
             A a = new A { P = "x" };
             var json = a.ToJson<object>();
             var expected = ("{ '_t' : 'A~', 'P' : 'x' }").Replace("'", "\"");
@@ -85,7 +97,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeAAsA() {
+        public void TestSerializeAAsA()
+        {
             A a = new A { P = "x" };
             var json = a.ToJson<A>();
             var expected = ("{ 'P' : 'x' }").Replace("'", "\"");
@@ -97,7 +110,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeBAsObject() {
+        public void TestSerializeBAsObject()
+        {
             B b = new B { P = "x" };
             var json = b.ToJson<object>();
             var expected = ("{ '_t' : 'B~', 'P' : 'x' }").Replace("'", "\"");
@@ -109,7 +123,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeBAsA() {
+        public void TestSerializeBAsA()
+        {
             B b = new B { P = "x" };
             var json = b.ToJson<A>();
             var expected = ("{ '_t' : 'B~', 'P' : 'x' }").Replace("'", "\"");
@@ -121,7 +136,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeBAsB() {
+        public void TestSerializeBAsB()
+        {
             B b = new B { P = "x" };
             var json = b.ToJson<B>();
             var expected = ("{ 'P' : 'x' }").Replace("'", "\"");
@@ -133,7 +149,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeCAsObject() {
+        public void TestSerializeCAsObject()
+        {
             C c = new C { P = "x" };
             var json = c.ToJson<object>();
             var expected = ("{ '_t' : 'C~', 'P' : 'x' }").Replace("'", "\"");
@@ -145,7 +162,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeCAsA() {
+        public void TestSerializeCAsA()
+        {
             C c = new C { P = "x" };
             var json = c.ToJson<A>();
             var expected = ("{ '_t' : 'C~', 'P' : 'x' }").Replace("'", "\"");
@@ -157,7 +175,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeCAsC() {
+        public void TestSerializeCAsC()
+        {
             C c = new C { P = "x" };
             var json = c.ToJson<C>();
             var expected = ("{ '_t' : 'C~', 'P' : 'x' }").Replace("'", "\""); // discriminator is required
@@ -169,7 +188,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeDAsObject() {
+        public void TestSerializeDAsObject()
+        {
             D d = new D { P = "x" };
             var json = d.ToJson<object>();
             var expected = ("{ '_t' : 'D~', 'P' : 'x' }").Replace("'", "\"");
@@ -181,7 +201,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeDAsA() {
+        public void TestSerializeDAsA()
+        {
             D d = new D { P = "x" };
             var json = d.ToJson<A>();
             var expected = ("{ '_t' : 'D~', 'P' : 'x' }").Replace("'", "\"");
@@ -193,7 +214,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeDAsD() {
+        public void TestSerializeDAsD()
+        {
             D d = new D { P = "x" };
             var json = d.ToJson<D>();
             var expected = ("{ '_t' : 'D~', 'P' : 'x' }").Replace("'", "\"");
@@ -205,7 +227,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeEAsObject() {
+        public void TestSerializeEAsObject()
+        {
             E e = new E { P = "x" };
             var json = e.ToJson<object>();
             var expected = ("{ '_t' : 'E~', 'P' : 'x' }").Replace("'", "\"");
@@ -217,7 +240,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeEAsA() {
+        public void TestSerializeEAsA()
+        {
             E e = new E { P = "x" };
             var json = e.ToJson<A>();
             var expected = ("{ '_t' : 'E~', 'P' : 'x' }").Replace("'", "\"");
@@ -229,7 +253,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeEAsB() {
+        public void TestSerializeEAsB()
+        {
             E e = new E { P = "x" };
             var json = e.ToJson<B>();
             var expected = ("{ '_t' : 'E~', 'P' : 'x' }").Replace("'", "\"");
@@ -241,7 +266,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeEAsE() {
+        public void TestSerializeEAsE()
+        {
             E e = new E { P = "x" };
             var json = e.ToJson<E>();
             var expected = ("{ 'P' : 'x' }").Replace("'", "\"");
@@ -253,7 +279,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeFAsObject() {
+        public void TestSerializeFAsObject()
+        {
             F f = new F { P = "x" };
             var json = f.ToJson<object>();
             var expected = ("{ '_t' : 'F~', 'P' : 'x' }").Replace("'", "\"");
@@ -265,7 +292,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeFAsA() {
+        public void TestSerializeFAsA()
+        {
             F f = new F { P = "x" };
             var json = f.ToJson<A>();
             var expected = ("{ '_t' : 'F~', 'P' : 'x' }").Replace("'", "\"");
@@ -277,7 +305,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeFAsC() {
+        public void TestSerializeFAsC()
+        {
             F f = new F { P = "x" };
             var json = f.ToJson<C>();
             var expected = ("{ '_t' : 'F~', 'P' : 'x' }").Replace("'", "\"");
@@ -289,7 +318,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeFAsF() {
+        public void TestSerializeFAsF()
+        {
             F f = new F { P = "x" };
             var json = f.ToJson<F>();
             var expected = ("{ '_t' : 'F~', 'P' : 'x' }").Replace("'", "\"");
@@ -301,7 +331,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeGAsObject() {
+        public void TestSerializeGAsObject()
+        {
             G g = new G { P = "x" };
             var json = g.ToJson<object>();
             var expected = ("{ '_t' : ['D~', 'G~'], 'P' : 'x' }").Replace("'", "\"");
@@ -313,7 +344,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeGAsA() {
+        public void TestSerializeGAsA()
+        {
             G g = new G { P = "x" };
             var json = g.ToJson<A>();
             var expected = ("{ '_t' : ['D~', 'G~'], 'P' : 'x' }").Replace("'", "\"");
@@ -325,7 +357,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeGAsD() {
+        public void TestSerializeGAsD()
+        {
             G g = new G { P = "x" };
             var json = g.ToJson<D>();
             var expected = ("{ '_t' : ['D~', 'G~'], 'P' : 'x' }").Replace("'", "\"");
@@ -337,7 +370,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeGAsG() {
+        public void TestSerializeGAsG()
+        {
             G g = new G { P = "x" };
             var json = g.ToJson<G>();
             var expected = ("{ '_t' : ['D~', 'G~'], 'P' : 'x' }").Replace("'", "\"");
@@ -349,7 +383,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeHAsObject() {
+        public void TestSerializeHAsObject()
+        {
             H h = new H { P = "x" };
             var json = h.ToJson<object>();
             var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
@@ -361,7 +396,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeHAsA() {
+        public void TestSerializeHAsA()
+        {
             H h = new H { P = "x" };
             var json = h.ToJson<A>();
             var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
@@ -373,7 +409,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeHAsD() {
+        public void TestSerializeHAsD()
+        {
             H h = new H { P = "x" };
             var json = h.ToJson<D>();
             var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
@@ -385,7 +422,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeHAsG() {
+        public void TestSerializeHAsG()
+        {
             H h = new H { P = "x" };
             var json = h.ToJson<G>();
             var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
@@ -397,7 +435,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeHAsH() {
+        public void TestSerializeHAsH()
+        {
             H h = new H { P = "x" };
             var json = h.ToJson<H>();
             var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");

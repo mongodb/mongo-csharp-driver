@@ -26,11 +26,14 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp74Tests {
+    public class CSharp74Tests
+    {
         [DataContract]
-        private class Employee {
+        private class Employee
+        {
             [DataMember]
             public ObjectId EmployeeId { get; set; }
             [DataMember]
@@ -38,19 +41,22 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestObjectIdSerialization() {
+        public void TestObjectIdSerialization()
+        {
             var employee = new Employee { EmployeeId = ObjectId.GenerateNewId(), Name = "John Smith" };
             var serializer = new DataContractSerializer(typeof(Employee));
             var sb = new StringBuilder();
             var settings = new XmlWriterSettings { Indent = true };
-            using (var xmlWriter = XmlWriter.Create(sb, settings)) {
+            using (var xmlWriter = XmlWriter.Create(sb, settings))
+            {
                 serializer.WriteObject(xmlWriter, employee);
             }
             var xml = sb.ToString();
 
             Employee rehydrated;
-            using (var xmlReader = XmlReader.Create(new StringReader(xml))) {
-                rehydrated = (Employee) serializer.ReadObject(xmlReader);
+            using (var xmlReader = XmlReader.Create(new StringReader(xml)))
+            {
+                rehydrated = (Employee)serializer.ReadObject(xmlReader);
             }
 
             Assert.AreEqual(employee.EmployeeId, rehydrated.EmployeeId);

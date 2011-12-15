@@ -25,35 +25,36 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
-namespace MongoDB.Driver.Builders {
+namespace MongoDB.Driver.Builders
+{
     /// <summary>
     /// A builder for specifying the keys for an index.
     /// </summary>
     [Serializable]
-    public class IndexKeysBuilder : BuilderBase, IMongoIndexKeys {
-        #region private fields
+    public class IndexKeysBuilder : BuilderBase, IMongoIndexKeys
+    {
+        // private fields
         private BsonDocument document;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the IndexKeysBuilder class.
         /// </summary>
-        public IndexKeysBuilder() {
+        public IndexKeysBuilder()
+        {
             document = new BsonDocument();
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Sets one or more key names to index in ascending order.
         /// </summary>
         /// <param name="names">One or more key names.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public IndexKeysBuilder Ascending(
-            params string[] names
-        ) {
-            foreach (var name in names) {
+        public IndexKeysBuilder Ascending(params string[] names)
+        {
+            foreach (var name in names)
+            {
                 document.Add(name, 1);
             }
             return this;
@@ -66,8 +67,8 @@ namespace MongoDB.Driver.Builders {
         /// <param name="memberExpressions">One or more lambda expressions specifying the members.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexKeysBuilder Ascending<TDocument>(
-            params Expression<Func<TDocument, object>>[] memberExpressions
-        ) {
+            params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
             return this.Ascending(memberExpressions.GetElementNames());
         }
 
@@ -76,10 +77,10 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="names">One or more key names.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public IndexKeysBuilder Descending(
-            params string[] names
-        ) {
-            foreach (var name in names) {
+        public IndexKeysBuilder Descending(params string[] names)
+        {
+            foreach (var name in names)
+            {
                 document.Add(name, -1);
             }
             return this;
@@ -92,8 +93,8 @@ namespace MongoDB.Driver.Builders {
         /// <param name="memberExpressions">One or more lambda expressions specifying the members.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexKeysBuilder Descending<TDocument>(
-            params Expression<Func<TDocument, object>>[] memberExpressions
-        ) {
+            params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
             return this.Descending(memberExpressions.GetElementNames());
         }
 
@@ -102,9 +103,8 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="name">The key name.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public IndexKeysBuilder GeoSpatial(
-            string name
-        ) {
+        public IndexKeysBuilder GeoSpatial(string name)
+        {
             document.Add(name, "2d");
             return this;
         }
@@ -116,10 +116,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexKeysBuilder GeoSpatial<TDocument>(
-            Expression<Func<TDocument, object>> memberExpression
-        ) {
-            this.GeoSpatial(memberExpression.GetElementName());
-            return this;
+            Expression<Func<TDocument, object>> memberExpression)
+        {
+            return this.GeoSpatial(memberExpression.GetElementName());
         }
 
         /// <summary>
@@ -127,9 +126,8 @@ namespace MongoDB.Driver.Builders {
         /// </summary>
         /// <param name="name">The key name.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public IndexKeysBuilder GeoSpatialHaystack(
-            string name
-        ) {
+        public IndexKeysBuilder GeoSpatialHaystack(string name)
+        {
             return GeoSpatialHaystack(name, null);
         }
 
@@ -140,10 +138,9 @@ namespace MongoDB.Driver.Builders {
         /// <param name="memberExpression">A lambda expression specifying the member to index.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexKeysBuilder GeoSpatialHaystack<TDocument>(
-            Expression<Func<TDocument, object>> memberExpression
-        ) {
-            this.GeoSpatialHaystack(memberExpression.GetElementName());
-            return this;
+            Expression<Func<TDocument, object>> memberExpression)
+        {
+            return this.GeoSpatialHaystack(memberExpression.GetElementName());
         }
 
         /// <summary>
@@ -152,10 +149,8 @@ namespace MongoDB.Driver.Builders {
         /// <param name="name">The key name.</param>
         /// <param name="additionalName">The name of an additional field to index.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public IndexKeysBuilder GeoSpatialHaystack(
-            string name,
-            string additionalName
-        ) {
+        public IndexKeysBuilder GeoSpatialHaystack(string name, string additionalName)
+        {
             document.Add(name, "geoHaystack");
             document.Add(additionalName, 1, additionalName != null);
             return this;
@@ -170,35 +165,30 @@ namespace MongoDB.Driver.Builders {
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexKeysBuilder GeoSpatialHaystack<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            Expression<Func<TDocument, object>> additionalMemberLambda
-        ) {
-            this.GeoSpatialHaystack(memberExpression.GetElementName(), additionalMemberLambda.GetElementName());
-            return this;
+            Expression<Func<TDocument, object>> additionalMemberLambda)
+        {
+            return this.GeoSpatialHaystack(memberExpression.GetElementName(), additionalMemberLambda.GetElementName());
         }
 
         /// <summary>
         /// Returns the result of the builder as a BsonDocument.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
-        public override BsonDocument ToBsonDocument() {
+        public override BsonDocument ToBsonDocument()
+        {
             return document;
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="options">The serialization options.</param>
-        protected override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             document.Serialize(bsonWriter, nominalType, options);
         }
-        #endregion
     }
 }

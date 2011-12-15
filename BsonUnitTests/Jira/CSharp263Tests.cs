@@ -24,16 +24,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp263Tests {
-        public class C {
+    public class CSharp263Tests
+    {
+        public class C
+        {
             public int Id;
             public object Obj;
         }
 
         [Test]
-        public void TestArrayEmpty() {
+        public void TestArrayEmpty()
+        {
             var c = new C { Id = 1, Obj = new int[] { } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[]', '_v' : [] } }".Replace("'", "\"");
@@ -45,7 +49,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestArrayOneElement() {
+        public void TestArrayOneElement()
+        {
             var c = new C { Id = 1, Obj = new int[] { 1 } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[]', '_v' : [1] } }".Replace("'", "\"");
@@ -57,7 +62,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestArrayTwoElements() {
+        public void TestArrayTwoElements()
+        {
             var c = new C { Id = 1, Obj = new int[] { 1, 2 } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[]', '_v' : [1, 2] } }".Replace("'", "\"");
@@ -69,8 +75,9 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestTwoDimensionalArrayEmpty() {
-            var c = new C { Id = 1, Obj = new int[0,0] };
+        public void TestTwoDimensionalArrayEmpty()
+        {
+            var c = new C { Id = 1, Obj = new int[0, 0] };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,]', '_v' : [] } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -81,7 +88,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestTwoDimensionalArrayOneElement() {
+        public void TestTwoDimensionalArrayOneElement()
+        {
             var c = new C { Id = 1, Obj = new int[,] { { 1, 2 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,]', '_v' : [[1, 2]] } }".Replace("'", "\"");
@@ -93,7 +101,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestTwoDimensionalArrayTwoElements() {
+        public void TestTwoDimensionalArrayTwoElements()
+        {
             var c = new C { Id = 1, Obj = new int[,] { { 1, 2 }, { 3, 4 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,]', '_v' : [[1, 2], [3, 4]] } }".Replace("'", "\"");
@@ -105,8 +114,9 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestThreeDimensionalArrayEmpty() {
-            var c = new C { Id = 1, Obj = new int[0,0,0] };
+        public void TestThreeDimensionalArrayEmpty()
+        {
+            var c = new C { Id = 1, Obj = new int[0, 0, 0] };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,,]', '_v' : [] } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -117,7 +127,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestThreeDimensionalArrayOneElement() {
+        public void TestThreeDimensionalArrayOneElement()
+        {
             var c = new C { Id = 1, Obj = new int[,,] { { { 1 }, { 2 } } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,,]', '_v' : [[[1], [2]]] } }".Replace("'", "\"");
@@ -129,7 +140,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestThreeDimensionalArrayTwoElements() {
+        public void TestThreeDimensionalArrayTwoElements()
+        {
             var c = new C { Id = 1, Obj = new int[,,] { { { 1 }, { 2 } }, { { 3 }, { 4 } } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Int32[,,]', '_v' : [[[1], [2]], [[3], [4]]] } }".Replace("'", "\"");

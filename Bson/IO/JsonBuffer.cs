@@ -18,52 +18,53 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// This class represents a JSON string buffer.
     /// </summary>
-    public class JsonBuffer {
-        #region private fields
+    public class JsonBuffer
+    {
+        // private fields
         private string buffer;
         private int position;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the JsonBuffer class.
         /// </summary>
         /// <param name="buffer">The string.</param>
-        public JsonBuffer(
-            string buffer
-        ) {
+        public JsonBuffer(string buffer)
+        {
             this.buffer = buffer;
             this.position = 0;
         }
-        #endregion
 
-        #region internal properties
+        // internal properties
         /// <summary>
         /// Gets the length of the JSON string.
         /// </summary>
-        public int Length {
+        public int Length
+        {
             get { return buffer.Length; }
         }
 
         /// <summary>
         /// Gets or sets the current position.
         /// </summary>
-        public int Position {
+        public int Position
+        {
             get { return position; }
             set { position = value; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Reads a character from the buffer.
         /// </summary>
         /// <returns>The next character (or -1 if at the end of the buffer).</returns>
-        public int Read() {
+        public int Read()
+        {
             return (position >= buffer.Length) ? -1 : buffer[position++];
         }
 
@@ -72,9 +73,8 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="start">The zero based index of the start of the substring.</param>
         /// <returns>The substring.</returns>
-        public string Substring(
-            int start
-        ) {
+        public string Substring(int start)
+        {
             return buffer.Substring(start);
         }
 
@@ -84,10 +84,8 @@ namespace MongoDB.Bson.IO {
         /// <param name="start">The zero based index of the start of the substring.</param>
         /// <param name="count">The number of characters in the substring.</param>
         /// <returns>The substring.</returns>
-        public string Substring(
-            int start,
-            int count
-        ) {
+        public string Substring(int start, int count)
+        {
             return buffer.Substring(start, count);
         }
 
@@ -95,13 +93,12 @@ namespace MongoDB.Bson.IO {
         /// Returns one character to the buffer (if the character matches the one at the current position the current position is moved back by one).
         /// </summary>
         /// <param name="c">The character to return.</param>
-        public void UnRead(
-            int c
-        ) {
-            if (c != -1 && buffer[position - 1] == c) {
+        public void UnRead(int c)
+        {
+            if (c != -1 && buffer[position - 1] == c)
+            {
                 position -= 1;
             }
         }
-        #endregion
     }
 }

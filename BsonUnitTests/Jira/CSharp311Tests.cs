@@ -25,49 +25,60 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.BsonUnitTests.Jira {
-    public class C1 {
+namespace MongoDB.BsonUnitTests.Jira
+{
+    public class C1
+    {
         public Dictionary<string, object> D;
     }
 
-    public class C2 {
+    public class C2
+    {
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
         public Dictionary<string, object> D;
     }
 
-    public class C3 {
+    public class C3
+    {
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
         public Dictionary<string, object> D;
     }
 
-    public class C4 {
+    public class C4
+    {
         [BsonRepresentation(BsonType.Array)]
         public Dictionary<string, object> D;
     }
 
-    public class D1 {
+    public class D1
+    {
         public Hashtable H;
     }
 
-    public class D2 {
+    public class D2
+    {
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
         public Hashtable H;
     }
 
-    public class D3 {
+    public class D3
+    {
         [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
         public Hashtable H;
     }
 
-    public class D4 {
+    public class D4
+    {
         [BsonRepresentation(BsonType.Array)]
         public Hashtable H;
     }
 
     [TestFixture]
-    public class CSharp311Tests {
+    public class CSharp311Tests
+    {
         [Test]
-        public void TestDictionarySerializedAsDocument() {
+        public void TestDictionarySerializedAsDocument()
+        {
             var c = new C1 { D = new Dictionary<string, object> { { "x", 1 } } };
             var json = c.ToJson();
             var expected = "{ 'D' : { 'x' : 1 } }".Replace("'", "\"");
@@ -79,7 +90,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestDictionarySerializedAsArrayOfArrays() {
+        public void TestDictionarySerializedAsArrayOfArrays()
+        {
             var c = new C2 { D = new Dictionary<string, object> { { "x", 1 } } };
             var json = c.ToJson();
             var expected = "{ 'D' : [['x', 1]] }".Replace("'", "\"");
@@ -91,7 +103,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestDictionarySerializedAsArrayOfDocuments() {
+        public void TestDictionarySerializedAsArrayOfDocuments()
+        {
             var c = new C3 { D = new Dictionary<string, object> { { "x", 1 } } };
             var json = c.ToJson();
             var expected = "{ 'D' : [{ 'k' : 'x', 'v' : 1 }] }".Replace("'", "\"");
@@ -103,7 +116,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestDictionarySerializedAsBsonArray() {
+        public void TestDictionarySerializedAsBsonArray()
+        {
             var c = new C4 { D = new Dictionary<string, object> { { "x", 1 } } };
             var json = c.ToJson();
             var expected = "{ 'D' : [['x', 1]] }".Replace("'", "\"");
@@ -115,7 +129,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestHashtableSerializedAsDocument() {
+        public void TestHashtableSerializedAsDocument()
+        {
             var d = new D1 { H = new Hashtable { { "x", 1 } } };
             var json = d.ToJson();
             var expected = "{ 'H' : { 'x' : 1 } }".Replace("'", "\"");
@@ -127,7 +142,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestHashtableSerializedAsArrayOfArrays() {
+        public void TestHashtableSerializedAsArrayOfArrays()
+        {
             var d = new D2 { H = new Hashtable { { "x", 1 } } };
             var json = d.ToJson();
             var expected = "{ 'H' : [['x', 1]] }".Replace("'", "\"");
@@ -139,7 +155,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestHashtableSerializedAsArrayOfDocuments() {
+        public void TestHashtableSerializedAsArrayOfDocuments()
+        {
             var d = new D3 { H = new Hashtable { { "x", 1 } } };
             var json = d.ToJson();
             var expected = "{ 'H' : [{ 'k' : 'x', 'v' : 1 }] }".Replace("'", "\"");
@@ -151,7 +168,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestHashtableSerializedAsBsonArray() {
+        public void TestHashtableSerializedAsBsonArray()
+        {
             var d = new D4 { H = new Hashtable { { "x", 1 } } };
             var json = d.ToJson();
             var expected = "{ 'H' : [['x', 1]] }".Replace("'", "\"");

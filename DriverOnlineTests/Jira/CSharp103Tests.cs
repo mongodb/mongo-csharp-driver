@@ -24,17 +24,22 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp103 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp103
+{
     [TestFixture]
-    public class CSharp103Tests {
+    public class CSharp103Tests
+    {
         [Test]
-        public void TestNullReferenceException() {
+        public void TestNullReferenceException()
+        {
             var server = MongoServer.Create("mongodb://localhost/?safe=true");
             var database = server["onlinetests"];
             var collection = database["csharp103"];
             collection.RemoveAll();
-            using (database.RequestStart()) {
-                for (int i = 0; i < 1; i++) {
+            using (database.RequestStart())
+            {
+                for (int i = 0; i < 1; i++)
+                {
                     collection.Insert(new BsonDocument { { "blah", i } }, SafeMode.True);
                 }
             }

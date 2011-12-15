@@ -24,45 +24,41 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoInsertMessage : MongoRequestMessage {
-        #region private fields
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoInsertMessage : MongoRequestMessage
+    {
+        // private fields
         private string collectionFullName;
         private bool checkElementNames;
         private InsertFlags flags;
         private int firstDocumentStartPosition;
         private int lastDocumentStartPosition;
-        #endregion
 
-        #region constructors
-        internal MongoInsertMessage(
-            BsonBinaryWriterSettings writerSettings,
-            string collectionFullName,
-            bool checkElementNames,
-            InsertFlags flags
-        )
-            : base(MessageOpcode.Insert, null, writerSettings) {
+        // constructors
+        internal MongoInsertMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, bool checkElementNames, InsertFlags flags)
+            : base(MessageOpcode.Insert, null, writerSettings)
+        {
             this.collectionFullName = collectionFullName;
             this.checkElementNames = checkElementNames;
             this.flags = flags;
         }
-        #endregion
 
-        #region internal methods
-        internal void AddDocument(
-            Type nominalType,
-            object document
-        ) {
+        // internal methods
+        internal void AddDocument(Type nominalType, object document)
+        {
             lastDocumentStartPosition = buffer.Position;
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
+            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings))
+            {
                 bsonWriter.CheckElementNames = checkElementNames;
                 BsonSerializer.Serialize(bsonWriter, nominalType, document, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
             BackpatchMessageLength();
         }
 
-        internal byte[] RemoveLastDocument() {
-            var lastDocumentLength = (int) (buffer.Position - lastDocumentStartPosition);
+        internal byte[] RemoveLastDocument()
+        {
+            var lastDocumentLength = (int)(buffer.Position - lastDocumentStartPosition);
             var lastDocument = new byte[lastDocumentLength];
             buffer.CopyTo(lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
             buffer.Position = lastDocumentStartPosition;
@@ -71,22 +67,20 @@ namespace MongoDB.Driver.Internal {
             return lastDocument;
         }
 
-        internal void ResetBatch(
-            byte[] lastDocument // as returned by RemoveLastDocument
-        ) {
+        internal void ResetBatch(byte[] lastDocument)
+        {
             buffer.Position = firstDocumentStartPosition;
             buffer.WriteBytes(lastDocument);
             BackpatchMessageLength();
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
-            buffer.WriteInt32((int) flags);
+        // protected methods
+        protected override void WriteBody()
+        {
+            buffer.WriteInt32((int)flags);
             buffer.WriteCString(collectionFullName);
             firstDocumentStartPosition = buffer.Position;
             // documents to be added later by calling AddDocument
         }
-        #endregion
     }
 }

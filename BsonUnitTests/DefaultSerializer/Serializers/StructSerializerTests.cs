@@ -24,7 +24,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     //[TestFixture]
     //public class StructSerializerTests {
     //    private struct S {

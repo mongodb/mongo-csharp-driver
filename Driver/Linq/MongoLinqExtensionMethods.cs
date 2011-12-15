@@ -21,20 +21,21 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Linq {
+namespace MongoDB.Driver.Linq
+{
     /// <summary>
     /// Static class that contains the Mongo Linq extension methods.
     /// </summary>
-    public static class MongoLinqExtensionMethods {
+    public static class MongoLinqExtensionMethods
+    {
         /// <summary>
         /// Returns an instance of IQueryable{{T}} for a MongoCollection.
         /// </summary>
         /// <typeparam name="T">The type of the returned documents.</typeparam>
         /// <param name="collection">The name of the collection.</param>
         /// <returns>An instance of IQueryable{{T}} for a MongoCollection.</returns>
-        public static IQueryable<T> AsQueryable<T>(
-            this MongoCollection collection
-        ) {
+        public static IQueryable<T> AsQueryable<T>(this MongoCollection collection)
+        {
             var provider = new MongoQueryProvider(collection);
             return new MongoQueryable<T>(provider);
         }

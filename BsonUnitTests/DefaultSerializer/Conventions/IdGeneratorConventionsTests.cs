@@ -25,16 +25,20 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 
-namespace MongoDB.BsonUnitTests.Serialization.Conventions {
+namespace MongoDB.BsonUnitTests.Serialization.Conventions
+{
     [TestFixture]
-    public class IdGeneratorConventionsTests {
-        private class TestClass {
+    public class IdGeneratorConventionsTests
+    {
+        private class TestClass
+        {
             public Guid GuidId { get; set; }
             public ObjectId ObjectId { get; set; }
         }
 
         [Test]
-        public void TestLookupIdGeneratorConvention() {
+        public void TestLookupIdGeneratorConvention()
+        {
             var convention = new LookupIdGeneratorConvention();
 
             var guidProperty = typeof(TestClass).GetProperty("GuidId");

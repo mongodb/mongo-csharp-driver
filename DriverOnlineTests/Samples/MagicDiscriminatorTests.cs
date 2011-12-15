@@ -27,12 +27,16 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverOnlineTests.Samples {
+namespace MongoDB.DriverOnlineTests.Samples
+{
     [TestFixture]
-    public class MagicDiscriminatorTests {
+    public class MagicDiscriminatorTests
+    {
         [BsonKnownTypes(typeof(B), typeof(C))]
-        private class A {
-            static A() {
+        private class A
+        {
+            static A()
+            {
                 BsonDefaultSerializer.RegisterDiscriminatorConvention(typeof(A), new MagicDiscriminatorConvention());
             }
 
@@ -40,31 +44,36 @@ namespace MongoDB.DriverOnlineTests.Samples {
         }
 
         [BsonIgnoreExtraElements] // ignore _id
-        private class B : A {
+        private class B : A
+        {
             public string OnlyInB { get; set; }
         }
 
         [BsonIgnoreExtraElements] // ignore _id
-        private class C : A {
+        private class C : A
+        {
             public string OnlyInC { get; set; }
         }
 
-        private class MagicDiscriminatorConvention : IDiscriminatorConvention {
+        private class MagicDiscriminatorConvention : IDiscriminatorConvention
+        {
             public string ElementName { get { return null; } }
 
-            public Type GetActualType(
-                BsonReader bsonReader,
-                Type nominalType
-            ) {
+            public Type GetActualType(BsonReader bsonReader, Type nominalType)
+            {
                 var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
                 var actualType = nominalType;
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                {
                     var name = bsonReader.ReadName();
-                    if (name == "OnlyInB") {
+                    if (name == "OnlyInB")
+                    {
                         actualType = typeof(B);
                         break;
-                    } else if (name == "OnlyInC") {
+                    }
+                    else if (name == "OnlyInC")
+                    {
                         actualType = typeof(C);
                         break;
                     }
@@ -74,10 +83,8 @@ namespace MongoDB.DriverOnlineTests.Samples {
                 return actualType;
             }
 
-            public BsonValue GetDiscriminator(
-                Type nominalType,
-                Type actualType
-            ) {
+            public BsonValue GetDiscriminator(Type nominalType, Type actualType)
+            {
                 return null;
             }
         }
@@ -87,14 +94,16 @@ namespace MongoDB.DriverOnlineTests.Samples {
         private MongoCollection<A> collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["test"];
             collection = database.GetCollection<A>("magicdiscriminator");
         }
 
         [Test]
-        public void TestBAsA() {
+        public void TestBAsA()
+        {
             var b = new B { InA = "a", OnlyInB = "b" };
 
             var json = b.ToJson();
@@ -103,14 +112,15 @@ namespace MongoDB.DriverOnlineTests.Samples {
 
             collection.RemoveAll();
             collection.Insert(b);
-            var copy = (B) collection.FindOne();
+            var copy = (B)collection.FindOne();
             Assert.IsInstanceOf<B>(copy);
             Assert.AreEqual("a", copy.InA);
             Assert.AreEqual("b", copy.OnlyInB);
         }
 
         [Test]
-        public void TestCAsA() {
+        public void TestCAsA()
+        {
             var c = new C { InA = "a", OnlyInC = "c" };
 
             var json = c.ToJson();
@@ -119,7 +129,7 @@ namespace MongoDB.DriverOnlineTests.Samples {
 
             collection.RemoveAll();
             collection.Insert(c);
-            var copy = (C) collection.FindOne();
+            var copy = (C)collection.FindOne();
             Assert.IsInstanceOf<C>(copy);
             Assert.AreEqual("a", copy.InA);
             Assert.AreEqual("c", copy.OnlyInC);

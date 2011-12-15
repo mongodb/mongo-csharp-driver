@@ -18,10 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// A marker interface that represents geo search options (see GeoNearOptionsDocument and the GeoNearOptions builder).
     /// </summary>
-    public interface IMongoGeoNearOptions {
+    public interface IMongoGeoNearOptions
+    {
     }
 }

@@ -18,25 +18,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a JsonReader.
     /// </summary>
     [Serializable]
-    public class JsonReaderSettings : BsonReaderSettings {
-        #region private static fields
+    public class JsonReaderSettings : BsonReaderSettings
+    {
+        // private static fields
         private static JsonReaderSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
 
-        #region private fields
+        // private fields
         private bool closeInput = false;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the JsonReaderSettings class.
         /// </summary>
-        public JsonReaderSettings() {
+        public JsonReaderSettings()
+        {
         }
 
         /// <summary>
@@ -44,64 +45,61 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public JsonReaderSettings(
-            bool closeInput,
-            GuidRepresentation guidRepresentation
-        )
-            : base(guidRepresentation) {
+        public JsonReaderSettings(bool closeInput, GuidRepresentation guidRepresentation)
+            : base(guidRepresentation)
+        {
             this.closeInput = closeInput;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default settings for a JsonReader.
         /// </summary>
-        public static JsonReaderSettings Defaults {
-            get {
-                if (defaults == null) {
+        public static JsonReaderSettings Defaults
+        {
+            get
+            {
+                if (defaults == null)
+                {
                     defaults = new JsonReaderSettings();
                 }
                 return defaults;
             }
             set { defaults = value; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether to close the input stream when the reader is closed.
         /// </summary>
-        public bool CloseInput {
+        public bool CloseInput
+        {
             get { return closeInput; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
                 closeInput = value;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new JsonReaderSettings Clone() {
-            return (JsonReaderSettings) CloneImplementation();
+        public new JsonReaderSettings Clone()
+        {
+            return (JsonReaderSettings)CloneImplementation();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonReaderSettings CloneImplementation() {
-            return new JsonReaderSettings(
-                closeInput,
-                guidRepresentation
-            );
+        protected override BsonReaderSettings CloneImplementation()
+        {
+            return new JsonReaderSettings(closeInput, guidRepresentation);
         }
-        #endregion
     }
 }

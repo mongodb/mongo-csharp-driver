@@ -24,43 +24,43 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoDeleteMessage : MongoRequestMessage {
-        #region private fields
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoDeleteMessage : MongoRequestMessage
+    {
+        // private fields
         private string collectionFullName;
         private RemoveFlags flags;
         private IMongoQuery query;
-        #endregion
 
-        #region constructors
-        internal MongoDeleteMessage(
-            BsonBinaryWriterSettings writerSettings,
-            string collectionFullName,
-            RemoveFlags flags,
-            IMongoQuery query
-        ) :
-            base(MessageOpcode.Delete, null, writerSettings) {
+        // constructors
+        internal MongoDeleteMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, RemoveFlags flags, IMongoQuery query)
+            : base(MessageOpcode.Delete, null, writerSettings)
+        {
             this.collectionFullName = collectionFullName;
             this.flags = flags;
             this.query = query;
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
+        // protected methods
+        protected override void WriteBody()
+        {
             buffer.WriteInt32(0); // reserved
             buffer.WriteCString(collectionFullName);
-            buffer.WriteInt32((int) flags);
+            buffer.WriteInt32((int)flags);
 
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
-                if (query == null) {
+            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings))
+            {
+                if (query == null)
+                {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteEndDocument();
-                } else {
+                }
+                else
+                {
                     BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 }
             }
         }
-        #endregion
     }
 }

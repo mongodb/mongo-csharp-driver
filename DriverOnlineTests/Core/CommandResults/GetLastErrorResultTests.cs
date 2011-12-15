@@ -24,23 +24,28 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.CommandResults {
+namespace MongoDB.DriverOnlineTests.CommandResults
+{
     [TestFixture]
-    public class GetLastErrorResultTests {
+    public class GetLastErrorResultTests
+    {
         private MongoServer server;
         private MongoDatabase database;
         private MongoCollection<BsonDocument> collection;
 
         [TestFixtureSetUp]
-        public void Setup() {
+        public void Setup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             database = server["onlinetests"];
             collection = database["test"];
         }
 
         [Test]
-        public void TestInsert() {
-            using (database.RequestStart()) {
+        public void TestInsert()
+        {
+            using (database.RequestStart())
+            {
                 collection.Insert(new BsonDocument());
                 var result = server.GetLastError();
                 Assert.IsFalse(result.HasLastErrorMessage);
@@ -50,10 +55,13 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         }
 
         [Test]
-        public void TestUpdate() {
-            using (database.RequestStart()) {
+        public void TestUpdate()
+        {
+            using (database.RequestStart())
+            {
                 var id = ObjectId.GenerateNewId();
-                var document = new BsonDocument {
+                var document = new BsonDocument
+                {
                     { "_id", id },
                     { "x", 1 }
                 };

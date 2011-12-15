@@ -21,15 +21,19 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests.IO {
+namespace MongoDB.BsonUnitTests.IO
+{
     // these tests use the BsonDocument object model to create a BSON document in memory
     // and then serialize it back and forth between byte arrays to make sure nothing is lost in serialization/deserialization
 
     [TestFixture]
-    public class BsonRoundTripTests {
+    public class BsonRoundTripTests
+    {
         [Test]
-        public void TestHelloWorld() {
-            BsonDocument document = new BsonDocument {
+        public void TestHelloWorld()
+        {
+            BsonDocument document = new BsonDocument
+            {
                 { "hello", "world" }
             };
             byte[] bytes1 = document.ToBson();
@@ -38,8 +42,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestBsonIsAwesome() {
-            BsonDocument document = new BsonDocument {
+        public void TestBsonIsAwesome()
+        {
+            BsonDocument document = new BsonDocument
+            {
                 { "BSON", new BsonArray { "awesome", 5.05, 1986} }
             };
             byte[] bytes1 = document.ToBson();
@@ -48,8 +54,10 @@ namespace MongoDB.BsonUnitTests.IO {
         }
 
         [Test]
-        public void TestAllTypes() {
-            BsonDocument document = new BsonDocument {
+        public void TestAllTypes()
+        {
+            BsonDocument document = new BsonDocument
+            {
                 { "double", 1.23 },
                 { "string", "rosebud" },
                 { "document", new BsonDocument { { "hello", "world" } } },

@@ -23,11 +23,14 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoCredentialsTests {
+    public class MongoCredentialsTests
+    {
         [Test]
-        public void TestCreateAdminCredentials() {
+        public void TestCreateAdminCredentials()
+        {
             var credentials = MongoCredentials.Create("username(admin)", "password");
             Assert.AreEqual("username", credentials.Username);
             Assert.AreEqual("password", credentials.Password);
@@ -45,7 +48,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestCreateCredentials() {
+        public void TestCreateCredentials()
+        {
             var credentials = new MongoCredentials("username", "password");
             Assert.AreEqual("username", credentials.Username);
             Assert.AreEqual("password", credentials.Password);
@@ -58,11 +62,12 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestEquals() {
+        public void TestEquals()
+        {
             var a = new MongoCredentials("user1", "password");
             var b = new MongoCredentials("user1", "password");
             var c = new MongoCredentials("user2", "password");
-            var n = (MongoCredentials) null;
+            var n = (MongoCredentials)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));

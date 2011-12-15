@@ -24,23 +24,28 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira {
+namespace MongoDB.DriverOnlineTests.Jira
+{
     [TestFixture]
-    public class CSharp325Tests {
+    public class CSharp325Tests
+    {
         private MongoServer server;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
+        public void TestFixtureSetup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
         }
 
         [Test]
-        public void TestValidateDatabaseName() {
+        public void TestValidateDatabaseName()
+        {
             var invalidChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
             foreach (var c in Path.GetInvalidPathChars()) { invalidChars.Add(c); }
             foreach (var c in Path.GetInvalidFileNameChars()) { invalidChars.Add(c); }
 
-            foreach (var c in invalidChars) {
+            foreach (var c in invalidChars)
+            {
                 var databaseName = new string(new char[] { 'x', c });
                 Assert.Throws<ArgumentException>(() => { var database = server[databaseName]; });
             }

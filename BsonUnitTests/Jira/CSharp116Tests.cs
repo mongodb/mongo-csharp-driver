@@ -25,13 +25,17 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp116 {
+namespace MongoDB.BsonUnitTests.Jira.CSharp116
+{
     [TestFixture]
-    public class CSharp116Tests {
+    public class CSharp116Tests
+    {
         [Test]
-        public void TestFlushAndClose() {
+        public void TestFlushAndClose()
+        {
             var stream = new MemoryStream();
-            using (var bsonWriter = BsonWriter.Create(stream)) {
+            using (var bsonWriter = BsonWriter.Create(stream))
+            {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
                 bsonWriter.Flush();
@@ -40,9 +44,11 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp116 {
         }
 
         [Test]
-        public void Test1Chunk() {
+        public void Test1Chunk()
+        {
             var stream = new MemoryStream();
-            using (var bsonWriter = BsonWriter.Create(stream)) {
+            using (var bsonWriter = BsonWriter.Create(stream))
+            {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteBinaryData("Data", new byte[16 * 1024 - 16], BsonBinarySubType.Binary);
                 bsonWriter.WriteEndDocument();
@@ -51,9 +57,11 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp116 {
         }
 
         [Test]
-        public void Test1ChunkMinus1() {
+        public void Test1ChunkMinus1()
+        {
             var stream = new MemoryStream();
-            using (var bsonWriter = BsonWriter.Create(stream)) {
+            using (var bsonWriter = BsonWriter.Create(stream))
+            {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteBinaryData("Data", new byte[16 * 1024 - 17], BsonBinarySubType.Binary);
                 bsonWriter.WriteEndDocument();
@@ -62,9 +70,11 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp116 {
         }
 
         [Test]
-        public void Test1ChunkPlus1() {
+        public void Test1ChunkPlus1()
+        {
             var stream = new MemoryStream();
-            using (var bsonWriter = BsonWriter.Create(stream)) {
+            using (var bsonWriter = BsonWriter.Create(stream))
+            {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteBinaryData("Data", new byte[16 * 1024 - 15], BsonBinarySubType.Binary);
                 bsonWriter.WriteEndDocument();

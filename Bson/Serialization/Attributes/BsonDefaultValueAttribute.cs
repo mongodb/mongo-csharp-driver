@@ -18,35 +18,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the default value for a field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonDefaultValueAttribute : Attribute {
-        #region private fields
+    public class BsonDefaultValueAttribute : Attribute
+    {
+        // private fields
         private object defaultValue;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDefaultValueAttribute class.
         /// </summary>
         /// <param name="defaultValue">The default value.</param>
-        public BsonDefaultValueAttribute(
-            object defaultValue
-        ) {
+        public BsonDefaultValueAttribute(object defaultValue)
+        {
             this.defaultValue = defaultValue;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the default value.
         /// </summary>
-        public object DefaultValue {
+        public object DefaultValue
+        {
             get { return defaultValue; }
         }
-        #endregion
     }
 }

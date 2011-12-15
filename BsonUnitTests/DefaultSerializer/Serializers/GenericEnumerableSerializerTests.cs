@@ -22,8 +22,10 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
-    public class Address {
+namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable
+{
+    public class Address
+    {
         public string Street { get; set; }
         public string City { get; set; }
         public string State { get; set; }
@@ -31,19 +33,21 @@ namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
     }
 
     [TestFixture]
-    public class HashSetSerializerTests {
-        public class TestClass {
-            static TestClass() {
-                BsonClassMap.RegisterClassMap<TestClass>(
-                    cm => { cm.AutoMap(); }
-                );
+    public class HashSetSerializerTests
+    {
+        public class TestClass
+        {
+            static TestClass()
+            {
+                BsonClassMap.RegisterClassMap<TestClass>(cm => { cm.AutoMap(); });
             }
 
             public HashSet<Address> Addresses { get; set; }
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass { Addresses = null };
             var json = obj.ToJson();
             var expected = "{ 'Addresses' : null }".Replace("'", "\"");
@@ -55,9 +59,12 @@ namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
         }
 
         [Test]
-        public void TestSerialization() {
-            var obj = new TestClass {
-                Addresses = new HashSet<Address>() {
+        public void TestSerialization()
+        {
+            var obj = new TestClass
+            {
+                Addresses = new HashSet<Address>
+                {
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 },
                     new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
                 }
@@ -77,13 +84,16 @@ namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
     }
 
     [TestFixture]
-    public class IEnumerableSerializerTests {
-        public class TestClass {
+    public class IEnumerableSerializerTests
+    {
+        public class TestClass
+        {
             public IEnumerable<Address> Addresses { get; set; }
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass { Addresses = null };
             var json = obj.ToJson();
             var expected = "{ 'Addresses' : null }".Replace("'", "\"");
@@ -95,9 +105,12 @@ namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
         }
 
         [Test]
-        public void TestSerialization() {
-            var obj = new TestClass {
-                Addresses = new List<Address>() {
+        public void TestSerialization()
+        {
+            var obj = new TestClass
+            {
+                Addresses = new List<Address>
+                {
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 },
                     new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
                 }
@@ -117,13 +130,16 @@ namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
     }
 
     [TestFixture]
-    public class IListSerializerTests {
-        public class TestClass {
+    public class IListSerializerTests
+    {
+        public class TestClass
+        {
             public IList<Address> Addresses { get; set; }
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass { Addresses = null };
             var json = obj.ToJson();
             var expected = "{ 'Addresses' : null }".Replace("'", "\"");
@@ -135,8 +151,10 @@ namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
         }
 
         [Test]
-        public void TestEmpty() {
-            var obj = new TestClass {
+        public void TestEmpty()
+        {
+            var obj = new TestClass
+            {
                 Addresses = new List<Address>()
             };
             var json = obj.ToJson();
@@ -150,9 +168,12 @@ namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
         }
 
         [Test]
-        public void TestOneAddress() {
-            var obj = new TestClass {
-                Addresses = new List<Address>() {
+        public void TestOneAddress()
+        {
+            var obj = new TestClass
+            {
+                Addresses = new List<Address>
+                {
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 }
                 }
             };
@@ -169,9 +190,12 @@ namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable {
         }
 
         [Test]
-        public void TestTwoAddresses() {
-            var obj = new TestClass {
-                Addresses = new List<Address>() {
+        public void TestTwoAddresses()
+        {
+            var obj = new TestClass
+            {
+                Addresses = new List<Address>
+                {
                     new Address { Street = "123 Main", City = "Smithtown", State = "PA", Zip = 12345 },
                     new Address { Street = "456 First", City = "Johnstown", State = "MD", Zip = 45678 }
                 }

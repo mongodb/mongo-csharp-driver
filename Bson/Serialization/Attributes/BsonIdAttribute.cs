@@ -18,30 +18,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies that this is the Id field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonIdAttribute : Attribute {
-        #region private fields
+    public class BsonIdAttribute : Attribute
+    {
+        // private fields
         private Type idGenerator;
         private int order = int.MaxValue;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonIdAttribute class.
         /// </summary>
-        public BsonIdAttribute() {
+        public BsonIdAttribute()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the Id generator for the Id.
         /// </summary>
-        public Type IdGenerator {
+        public Type IdGenerator
+        {
             get { return idGenerator; }
             set { idGenerator = value; }
         }
@@ -49,10 +51,10 @@ namespace MongoDB.Bson.Serialization.Attributes {
         /// <summary>
         /// Gets or sets the Id element serialization order.
         /// </summary>
-        public int Order {
+        public int Order
+        {
             get { return order; }
             set { order = value; }
         }
-        #endregion
     }
 }

@@ -24,16 +24,20 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp301Tests {
-        public class C {
+    public class CSharp301Tests
+    {
+        public class C
+        {
             public int Id;
             public object Obj;
         }
 
         [Test]
-        public void TestDictionaryEmpty() {
+        public void TestDictionaryEmpty()
+        {
             var c = new C { Id = 1, Obj = new Dictionary<string, int> { } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Generic.Dictionary`2[System.String,System.Int32]', '_v' : { } } }".Replace("'", "\"");
@@ -45,7 +49,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestDictionaryOneElement() {
+        public void TestDictionaryOneElement()
+        {
             var c = new C { Id = 1, Obj = new Dictionary<string, int> { { "x", 1 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Generic.Dictionary`2[System.String,System.Int32]', '_v' : { 'x' : 1 } } }".Replace("'", "\"");
@@ -57,7 +62,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestHashtableEmpty() {
+        public void TestHashtableEmpty()
+        {
             var c = new C { Id = 1, Obj = new Hashtable { } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Hashtable', '_v' : { } } }".Replace("'", "\"");
@@ -69,7 +75,8 @@ namespace MongoDB.BsonUnitTests.Jira {
         }
 
         [Test]
-        public void TestHashtableOneElement() {
+        public void TestHashtableOneElement()
+        {
             var c = new C { Id = 1, Obj = new Hashtable { { "x", 1 } } };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'Obj' : { '_t' : 'System.Collections.Hashtable', '_v' : { 'x' : 1 } } }".Replace("'", "\"");

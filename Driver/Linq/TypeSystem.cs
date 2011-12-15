@@ -19,42 +19,56 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Linq {
-    // taken from http://msdn.microsoft.com/en-us/library/bb546158.aspx
-    internal static class TypeSystem {
-        internal static Type GetElementType(Type seqType) {
+// taken from Part 1 of Matt Warren's blogs on building a LINQ provider
+// see: http://blogs.msdn.com/b/mattwar/archive/2007/07/30/linq-building-an-iqueryable-provider-part-i.aspx
+
+namespace MongoDB.Driver.Linq
+{
+    internal static class TypeSystem
+    {
+        internal static Type GetElementType(Type seqType)
+        {
             Type ienum = FindIEnumerable(seqType);
             if (ienum == null) { return seqType; }
             return ienum.GetGenericArguments()[0];
         }
 
-        private static Type FindIEnumerable(Type seqType) {
-            if (seqType == null || seqType == typeof(string)) {
+        private static Type FindIEnumerable(Type seqType)
+        {
+            if (seqType == null || seqType == typeof(string))
+            {
                 return null;
             }
 
-            if (seqType.IsArray) {
+            if (seqType.IsArray)
+            {
                 return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
             }
 
-            if (seqType.IsGenericType) {
-                foreach (Type arg in seqType.GetGenericArguments()) {
+            if (seqType.IsGenericType)
+            {
+                foreach (Type arg in seqType.GetGenericArguments())
+                {
                     Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
-                    if (ienum.IsAssignableFrom(seqType)) {
+                    if (ienum.IsAssignableFrom(seqType))
+                    {
                         return ienum;
                     }
                 }
             }
 
             Type[] ifaces = seqType.GetInterfaces();
-            if (ifaces != null && ifaces.Length > 0) {
-                foreach (Type iface in ifaces) {
+            if (ifaces != null && ifaces.Length > 0)
+            {
+                foreach (Type iface in ifaces)
+                {
                     Type ienum = FindIEnumerable(iface);
                     if (ienum != null) { return ienum; }
                 }
             }
 
-            if (seqType.BaseType != null && seqType.BaseType != typeof(object)) {
+            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
+            {
                 return FindIEnumerable(seqType.BaseType);
             }
 

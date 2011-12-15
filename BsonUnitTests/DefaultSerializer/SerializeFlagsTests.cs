@@ -25,17 +25,21 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class SerializeFlagsTests {
+    public class SerializeFlagsTests
+    {
         // TODO: add unit tests for other underlying types
         [Flags]
-        private enum F {
+        private enum F
+        {
             A = 1,
             B = 2
         }
 
-        private class C {
+        private class C
+        {
             [BsonRepresentation(BsonType.Int32)]
             public F IF { get; set; }
             [BsonRepresentation(BsonType.String)]
@@ -43,7 +47,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeZero() {
+        public void TestSerializeZero()
+        {
             C c = new C { IF = 0, SF = 0 };
             var json = c.ToJson();
             var expected = ("{ 'IF' : 0, 'SF' : '0' }").Replace("'", "\"");
@@ -55,7 +60,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeA() {
+        public void TestSerializeA()
+        {
             C c = new C { IF = F.A, SF = F.A };
             var json = c.ToJson();
             var expected = ("{ 'IF' : 1, 'SF' : 'A' }").Replace("'", "\"");
@@ -67,7 +73,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeB() {
+        public void TestSerializeB()
+        {
             C c = new C { IF = F.B, SF = F.B };
             var json = c.ToJson();
             var expected = ("{ 'IF' : 2, 'SF' : 'B' }").Replace("'", "\"");
@@ -79,7 +86,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeAB() {
+        public void TestSerializeAB()
+        {
             C c = new C { IF = F.A | F.B, SF = F.A | F.B };
             var json = c.ToJson();
             var expected = ("{ 'IF' : 3, 'SF' : 'A, B' }").Replace("'", "\"");
@@ -91,8 +99,9 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestSerializeInvalid() {
-            C c = new C { IF = (F) 127, SF = (F) 127 };
+        public void TestSerializeInvalid()
+        {
+            C c = new C { IF = (F)127, SF = (F)127 };
             var json = c.ToJson();
             var expected = ("{ 'IF' : 127, 'SF' : '127' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);

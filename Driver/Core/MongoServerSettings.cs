@@ -22,12 +22,14 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Internal;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// The settings used to access a MongoDB server.
     /// </summary>
-    public class MongoServerSettings {
-        #region private fields
+    public class MongoServerSettings
+    {
+        // private fields
         private ConnectionMode connectionMode;
         private TimeSpan connectTimeout;
         private MongoCredentials defaultCredentials;
@@ -48,13 +50,13 @@ namespace MongoDB.Driver {
         private bool isFrozen;
         private int frozenHashCode;
         private string frozenStringRepresentation;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Creates a new instance of MongoServerSettings. Usually you would use a connection string instead.
         /// </summary>
-        public MongoServerSettings() {
+        public MongoServerSettings()
+        {
             connectionMode = ConnectionMode.Direct;
             connectTimeout = MongoDefaults.ConnectTimeout;
             defaultCredentials = null;
@@ -92,24 +94,8 @@ namespace MongoDB.Driver {
         /// <param name="socketTimeout">The socket timeout.</param>
         /// <param name="waitQueueSize">The wait queue size.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
-        public MongoServerSettings(
-            ConnectionMode connectionMode,
-            TimeSpan connectTimeout,
-            MongoCredentials defaultCredentials,
-            GuidRepresentation guidRepresentation,
-            bool ipv6,
-            TimeSpan maxConnectionIdleTime,
-            TimeSpan maxConnectionLifeTime,
-            int maxConnectionPoolSize,
-            int minConnectionPoolSize,
-            string replicaSetName,
-            SafeMode safeMode,
-            IEnumerable<MongoServerAddress> servers,
-            bool slaveOk,
-            TimeSpan socketTimeout,
-            int waitQueueSize,
-            TimeSpan waitQueueTimeout
-        ) {
+        public MongoServerSettings(ConnectionMode connectionMode, TimeSpan connectTimeout, MongoCredentials defaultCredentials, GuidRepresentation guidRepresentation, bool ipv6, TimeSpan maxConnectionIdleTime, TimeSpan maxConnectionLifeTime, int maxConnectionPoolSize, int minConnectionPoolSize, string replicaSetName, SafeMode safeMode, IEnumerable<MongoServerAddress> servers, bool slaveOk, TimeSpan socketTimeout, int waitQueueSize, TimeSpan waitQueueTimeout)
+        {
             this.connectionMode = connectionMode;
             this.connectTimeout = connectTimeout;
             this.defaultCredentials = defaultCredentials;
@@ -127,22 +113,24 @@ namespace MongoDB.Driver {
             this.waitQueueSize = waitQueueSize;
             this.waitQueueTimeout = waitQueueTimeout;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the AddressFamily for the IPEndPoint (derived from the IPv6 setting).
         /// </summary>
-        public AddressFamily AddressFamily {
+        public AddressFamily AddressFamily
+        {
             get { return ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork; }
         }
 
         /// <summary>
         /// Gets or sets the connection mode.
         /// </summary>
-        public ConnectionMode ConnectionMode {
+        public ConnectionMode ConnectionMode
+        {
             get { return connectionMode; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 connectionMode = value;
             }
@@ -151,9 +139,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the connect timeout.
         /// </summary>
-        public TimeSpan ConnectTimeout {
+        public TimeSpan ConnectTimeout
+        {
             get { return connectTimeout; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 connectTimeout = value;
             }
@@ -162,9 +152,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the default credentials.
         /// </summary>
-        public MongoCredentials DefaultCredentials {
+        public MongoCredentials DefaultCredentials
+        {
             get { return defaultCredentials; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 defaultCredentials = value;
             }
@@ -173,9 +165,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the representation to use for Guids.
         /// </summary>
-        public GuidRepresentation GuidRepresentation {
+        public GuidRepresentation GuidRepresentation
+        {
             get { return guidRepresentation; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 guidRepresentation = value;
             }
@@ -184,16 +178,19 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets whether the settings have been frozen to prevent further changes.
         /// </summary>
-        public bool IsFrozen {
+        public bool IsFrozen
+        {
             get { return isFrozen; }
         }
 
         /// <summary>
         /// Gets or sets whether to use IPv6.
         /// </summary>
-        public bool IPv6 {
+        public bool IPv6
+        {
             get { return ipv6; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 ipv6 = value;
             }
@@ -202,9 +199,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the max connection idle time.
         /// </summary>
-        public TimeSpan MaxConnectionIdleTime {
+        public TimeSpan MaxConnectionIdleTime
+        {
             get { return maxConnectionIdleTime; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 maxConnectionIdleTime = value;
             }
@@ -213,9 +212,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the max connection life time.
         /// </summary>
-        public TimeSpan MaxConnectionLifeTime {
+        public TimeSpan MaxConnectionLifeTime
+        {
             get { return maxConnectionLifeTime; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 maxConnectionLifeTime = value;
             }
@@ -224,9 +225,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the max connection pool size.
         /// </summary>
-        public int MaxConnectionPoolSize {
+        public int MaxConnectionPoolSize
+        {
             get { return maxConnectionPoolSize; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 maxConnectionPoolSize = value;
             }
@@ -235,9 +238,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the min connection pool size.
         /// </summary>
-        public int MinConnectionPoolSize {
+        public int MinConnectionPoolSize
+        {
             get { return minConnectionPoolSize; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 minConnectionPoolSize = value;
             }
@@ -246,9 +251,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the name of the replica set.
         /// </summary>
-        public string ReplicaSetName {
+        public string ReplicaSetName
+        {
             get { return replicaSetName; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 replicaSetName = value;
             }
@@ -257,9 +264,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the SafeMode to use.
         /// </summary>
-        public SafeMode SafeMode {
+        public SafeMode SafeMode
+        {
             get { return safeMode; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 safeMode = value;
             }
@@ -268,9 +277,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the address of the server (see also Servers if using more than one address).
         /// </summary>
-        public MongoServerAddress Server {
+        public MongoServerAddress Server
+        {
             get { return (servers == null) ? null : servers.Single(); }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 servers = new MongoServerAddress[] { value };
             }
@@ -279,9 +290,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the list of server addresses (see also Server if using only one address).
         /// </summary>
-        public IEnumerable<MongoServerAddress> Servers {
+        public IEnumerable<MongoServerAddress> Servers
+        {
             get { return servers; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 servers = value;
             }
@@ -290,9 +303,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether queries should be sent to secondary servers.
         /// </summary>
-        public bool SlaveOk {
+        public bool SlaveOk
+        {
             get { return slaveOk; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 slaveOk = value;
             }
@@ -301,9 +316,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the socket timeout.
         /// </summary>
-        public TimeSpan SocketTimeout {
+        public TimeSpan SocketTimeout
+        {
             get { return socketTimeout; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 socketTimeout = value;
             }
@@ -312,9 +329,11 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the wait queue size.
         /// </summary>
-        public int WaitQueueSize {
+        public int WaitQueueSize
+        {
             get { return waitQueueSize; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 waitQueueSize = value;
             }
@@ -323,39 +342,24 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the wait queue timeout.
         /// </summary>
-        public TimeSpan WaitQueueTimeout {
+        public TimeSpan WaitQueueTimeout
+        {
             get { return waitQueueTimeout; }
-            set {
+            set
+            {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 waitQueueTimeout = value;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public MongoServerSettings Clone() {
-            return new MongoServerSettings(
-                connectionMode,
-                connectTimeout,
-                defaultCredentials,
-                guidRepresentation,
-                ipv6,
-                maxConnectionIdleTime,
-                maxConnectionLifeTime,
-                maxConnectionPoolSize,
-                minConnectionPoolSize,
-                replicaSetName,
-                safeMode,
-                servers,
-                slaveOk,
-                socketTimeout,
-                waitQueueSize,
-                waitQueueTimeout
-            );
+        public MongoServerSettings Clone()
+        {
+            return new MongoServerSettings(connectionMode, connectTimeout, defaultCredentials, guidRepresentation, ipv6, maxConnectionIdleTime, maxConnectionLifeTime, maxConnectionPoolSize, minConnectionPoolSize, replicaSetName, safeMode, servers, slaveOk, socketTimeout, waitQueueSize, waitQueueTimeout);
         }
 
         /// <summary>
@@ -363,14 +367,21 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="obj">The other instance.</param>
         /// <returns>True if the two instances are equal.</returns>
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var rhs = obj as MongoServerSettings;
-            if (rhs == null) {
+            if (rhs == null)
+            {
                 return false;
-            } else {
-                if (this.isFrozen && rhs.isFrozen) {
+            }
+            else
+            {
+                if (this.isFrozen && rhs.isFrozen)
+                {
                     return this.frozenStringRepresentation == rhs.frozenStringRepresentation;
-                } else {
+                }
+                else
+                {
                     return
                         this.connectionMode == rhs.connectionMode &&
                         this.connectTimeout == rhs.connectTimeout &&
@@ -396,8 +407,10 @@ namespace MongoDB.Driver {
         /// Freezes the settings.
         /// </summary>
         /// <returns>The frozen settings.</returns>
-        public MongoServerSettings Freeze() {
-            if (!isFrozen) {
+        public MongoServerSettings Freeze()
+        {
+            if (!isFrozen)
+            {
                 safeMode = safeMode.FrozenCopy();
                 frozenHashCode = GetHashCodeHelper();
                 frozenStringRepresentation = ToStringHelper();
@@ -410,10 +423,14 @@ namespace MongoDB.Driver {
         /// Returns a frozen copy of the settings.
         /// </summary>
         /// <returns>A frozen copy of the settings.</returns>
-        public MongoServerSettings FrozenCopy() {
-            if (isFrozen) {
+        public MongoServerSettings FrozenCopy()
+        {
+            if (isFrozen)
+            {
                 return this;
-            } else {
+            }
+            else
+            {
                 return Clone().Freeze();
             }
         }
@@ -422,10 +439,14 @@ namespace MongoDB.Driver {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
-            if (isFrozen) {
+        public override int GetHashCode()
+        {
+            if (isFrozen)
+            {
                 return frozenHashCode;
-            } else {
+            }
+            else
+            {
                 return GetHashCodeHelper();
             }
         }
@@ -434,17 +455,21 @@ namespace MongoDB.Driver {
         /// Returns a string representation of the settings.
         /// </summary>
         /// <returns>A string representation of the settings.</returns>
-        public override string ToString() {
-            if (isFrozen) {
+        public override string ToString()
+        {
+            if (isFrozen)
+            {
                 return frozenStringRepresentation;
-            } else {
+            }
+            else
+            {
                 return ToStringHelper();
             }
         }
-        #endregion
 
-        #region private methods
-        private int GetHashCodeHelper() {
+        // private methods
+        private int GetHashCodeHelper()
+        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + connectionMode.GetHashCode();
@@ -458,8 +483,10 @@ namespace MongoDB.Driver {
             hash = 37 * hash + minConnectionPoolSize.GetHashCode();
             hash = 37 * hash + (replicaSetName == null ? 0 : replicaSetName.GetHashCode());
             hash = 37 * hash + (safeMode == null ? 0 : safeMode.GetHashCode());
-            if (servers != null) {
-                foreach (var server in servers) {
+            if (servers != null)
+            {
+                foreach (var server in servers)
+                {
                     hash = 37 * hash + server.GetHashCode();
                 }
             }
@@ -470,10 +497,12 @@ namespace MongoDB.Driver {
             return hash;
         }
 
-        private string ToStringHelper() {
+        private string ToStringHelper()
+        {
             var sb = new StringBuilder();
             string serversString = null;
-            if (servers != null) {
+            if (servers != null)
+            {
                 serversString = string.Join(",", servers.Select(s => s.ToString()).ToArray());
             }
             sb.AppendFormat("ConnectionMode={0};", connectionMode);
@@ -494,6 +523,5 @@ namespace MongoDB.Driver {
             sb.AppendFormat("WaitQueueTimeout={0}", waitQueueTimeout);
             return sb.ToString();
         }
-        #endregion
     }
 }

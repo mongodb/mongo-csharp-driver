@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents what level of profile information to write.
     /// </summary>
-    public enum ProfilingLevel {
+    public enum ProfilingLevel
+    {
         /// <summary>
         /// Don't write profile information for any queries.
         /// </summary>

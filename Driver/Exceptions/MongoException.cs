@@ -19,21 +19,22 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a MongoDB exception.
     /// </summary>
     [Serializable]
-    public class MongoException : Exception {
-        #region constructors
+    public class MongoException : Exception
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public MongoException(
-            string message
-        )
-            : base(message) {
+        public MongoException(string message)
+            : base(message)
+        {
         }
 
         /// <summary>
@@ -41,11 +42,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public MongoException(
-            string message,
-            Exception innerException
-        )
-            : base(message, innerException) {
+        public MongoException(string message, Exception innerException)
+            : base(message, innerException)
+        {
         }
 
         /// <summary>
@@ -53,12 +52,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public MongoException(
-            SerializationInfo info,
-            StreamingContext context
-        )
-            : base(info, context) {
+        public MongoException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
-        #endregion
     }
 }

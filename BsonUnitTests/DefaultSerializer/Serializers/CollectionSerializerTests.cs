@@ -23,15 +23,19 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
+namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers
+{
     [BsonDiscriminator("CollectionSerializers.C")] // "C" is an ambiguous discriminator when nominalType is System.Object
-    public class C {
+    public class C
+    {
         public string P { get; set; }
     }
 
     [TestFixture]
-    public class CollectionSerializerTests {
-        public class T {
+    public class CollectionSerializerTests
+    {
+        public class T
+        {
             public ArrayList L { get; set; }
             public ICollection IC { get; set; }
             public IEnumerable IE { get; set; }
@@ -41,7 +45,8 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new T { L = null, IC = null, IE = null, IL = null, Q = null, S = null };
             var json = obj.ToJson();
             var rep = "null";
@@ -60,7 +65,8 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestEmpty() {
+        public void TestEmpty()
+        {
             var list = new ArrayList();
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
@@ -80,8 +86,9 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestOneC() {
-            var list = new ArrayList(new [] { new C { P = "x" } });
+        public void TestOneC()
+        {
+            var list = new ArrayList(new[] { new C { P = "x" } });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
             var rep = "[{ '_t' : 'CollectionSerializers.C', 'P' : 'x' }]";
@@ -100,7 +107,8 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestOneInt() {
+        public void TestOneInt()
+        {
             var list = new ArrayList(new[] { 1 });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
@@ -120,7 +128,8 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestOneString() {
+        public void TestOneString()
+        {
             var list = new ArrayList(new[] { "x" });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
@@ -140,7 +149,8 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestTwoCs() {
+        public void TestTwoCs()
+        {
             var list = new ArrayList(new[] { new C { P = "x" }, new C { P = "y" } });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
@@ -160,7 +170,8 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestTwoInts() {
+        public void TestTwoInts()
+        {
             var list = new ArrayList(new[] { 1, 2 });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
@@ -180,7 +191,8 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestTwoStrings() {
+        public void TestTwoStrings()
+        {
             var list = new ArrayList(new[] { "x", "y" });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue(list), S = new Stack(list) };
             var json = obj.ToJson();
@@ -200,7 +212,8 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers {
         }
 
         [Test]
-        public void TestMixedPrimitiveTypes() {
+        public void TestMixedPrimitiveTypes()
+        {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
             var isoDate = string.Format("ISODate(\"{0}\")", dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var guid = Guid.Empty;

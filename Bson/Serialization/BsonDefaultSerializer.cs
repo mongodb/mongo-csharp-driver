@@ -18,6 +18,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -31,12 +33,14 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.Bson.Serialization {
+namespace MongoDB.Bson.Serialization
+{
     /// <summary>
     /// Represents the default serialization provider.
     /// </summary>
-    public class BsonDefaultSerializer : IBsonSerializationProvider {
-        #region private static fields
+    public class BsonDefaultSerializer : IBsonSerializationProvider
+    {
+        // private static fields
         private static BsonDefaultSerializer instance = new BsonDefaultSerializer();
         private static Dictionary<Type, IBsonSerializer> serializers;
         private static Dictionary<Type, Type> genericSerializerDefinitions;
@@ -44,13 +48,15 @@ namespace MongoDB.Bson.Serialization {
         private static Dictionary<BsonValue, HashSet<Type>> discriminators = new Dictionary<BsonValue, HashSet<Type>>();
         private static HashSet<Type> typesWithRegisteredKnownTypes = new HashSet<Type>();
         private static HashSet<Type> discriminatedTypes = new HashSet<Type>();
-        #endregion
 
-        #region static constructor
-        static BsonDefaultSerializer() {
-            serializers = new Dictionary<Type, IBsonSerializer> {
+        // static constructor
+        static BsonDefaultSerializer()
+        {
+            serializers = new Dictionary<Type, IBsonSerializer>
+            {
                 { typeof(ArrayList), EnumerableSerializer.Instance },
                 { typeof(BitArray), BitArraySerializer.Instance },
+                { typeof(Bitmap), BitmapSerializer.Instance },
                 { typeof(Boolean), BooleanSerializer.Instance },
                 { typeof(BsonArray), BsonArraySerializer.Instance },
                 { typeof(BsonBinaryData), BsonBinaryDataSerializer.Instance },
@@ -89,6 +95,7 @@ namespace MongoDB.Bson.Serialization {
                 { typeof(IDictionary), DictionarySerializer.Instance },
                 { typeof(IEnumerable), EnumerableSerializer.Instance },
                 { typeof(IList), EnumerableSerializer.Instance },
+                { typeof(Image), ImageSerializer.Instance },
                 { typeof(Int16), Int16Serializer.Instance },
                 { typeof(Int32), Int32Serializer.Instance },
                 { typeof(Int64), Int64Serializer.Instance },
@@ -112,7 +119,8 @@ namespace MongoDB.Bson.Serialization {
                 { typeof(Version), VersionSerializer.Instance }
             };
 
-            genericSerializerDefinitions = new Dictionary<Type, Type> {
+            genericSerializerDefinitions = new Dictionary<Type, Type>
+            {
                 { typeof(Collection<>), typeof(EnumerableSerializer<>)},
                 { typeof(Dictionary<,>), typeof(DictionarySerializer<,>) },
                 { typeof(HashSet<>), typeof(EnumerableSerializer<>) },
@@ -130,34 +138,32 @@ namespace MongoDB.Bson.Serialization {
                 { typeof(Stack<>), typeof(StackSerializer<>) }
             };
         }
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDefaultSerializer class.
         /// </summary>
-        public BsonDefaultSerializer() {
+        public BsonDefaultSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the BsonDefaultSerializer class.
         /// </summary>
-        public static BsonDefaultSerializer Instance {
+        public static BsonDefaultSerializer Instance
+        {
             get { return instance; }
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Returns whether the given type has any discriminators registered for any of its subclasses.
         /// </summary>
         /// <param name="type">A Type.</param>
         /// <returns>True if the type is discriminated.</returns>
-        public static bool IsTypeDiscriminated(
-            Type type
-        ) {
+        public static bool IsTypeDiscriminated(Type type)
+        {
             return type.IsInterface || discriminatedTypes.Contains(type);
         }
 
@@ -167,11 +173,10 @@ namespace MongoDB.Bson.Serialization {
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="discriminator">The discriminator.</param>
         /// <returns>The actual type of the object.</returns>
-        public static Type LookupActualType(
-            Type nominalType,
-            BsonValue discriminator
-        ) {
-            if (discriminator == null) {
+        public static Type LookupActualType(Type nominalType, BsonValue discriminator)
+        {
+            if (discriminator == null)
+            {
                 return nominalType;
             }
 
@@ -179,16 +184,23 @@ namespace MongoDB.Bson.Serialization {
             EnsureKnownTypesAreRegistered(nominalType);
 
             BsonSerializer.ConfigLock.EnterReadLock();
-            try {
+            try
+            {
                 Type actualType = null;
 
                 HashSet<Type> hashSet;
-                if (discriminators.TryGetValue(discriminator, out hashSet)) {
-                    foreach (var type in hashSet) {
-                        if (nominalType.IsAssignableFrom(type)) {
-                            if (actualType == null) {
+                if (discriminators.TryGetValue(discriminator, out hashSet))
+                {
+                    foreach (var type in hashSet)
+                    {
+                        if (nominalType.IsAssignableFrom(type))
+                        {
+                            if (actualType == null)
+                            {
                                 actualType = type;
-                            } else {
+                            }
+                            else
+                            {
                                 string message = string.Format("Ambiguous discriminator '{0}'.", discriminator);
                                 throw new BsonSerializationException(message);
                             }
@@ -196,22 +208,29 @@ namespace MongoDB.Bson.Serialization {
                     }
                 }
 
-                if (actualType == null && discriminator.IsString) {
+                if (actualType == null && discriminator.IsString)
+                {
                     actualType = Type.GetType(discriminator.AsString); // see if it's a Type name
                 }
 
-                if (actualType == null) {
+                if (actualType == null)
+                {
                     string message = string.Format("Unknown discriminator value '{0}'.", discriminator);
                     throw new BsonSerializationException(message);
                 }
 
-                if (!nominalType.IsAssignableFrom(actualType)) {
-                    string message = string.Format("Actual type {0} is not assignable to expected type {1}.", actualType.FullName, nominalType.FullName);
+                if (!nominalType.IsAssignableFrom(actualType))
+                {
+                    string message = string.Format(
+                        "Actual type {0} is not assignable to expected type {1}.",
+                        actualType.FullName, nominalType.FullName);
                     throw new BsonSerializationException(message);
                 }
 
                 return actualType;
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitReadLock();
             }
         }
@@ -221,45 +240,58 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>A discriminator convention.</returns>
-        public static IDiscriminatorConvention LookupDiscriminatorConvention(
-            Type type
-        ) {
+        public static IDiscriminatorConvention LookupDiscriminatorConvention(Type type)
+        {
             BsonSerializer.ConfigLock.EnterReadLock();
-            try {
+            try
+            {
                 IDiscriminatorConvention convention;
-                if (discriminatorConventions.TryGetValue(type, out convention)) {
+                if (discriminatorConventions.TryGetValue(type, out convention))
+                {
                     return convention;
                 }
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitReadLock();
             }
 
             BsonSerializer.ConfigLock.EnterWriteLock();
-            try {
+            try
+            {
                 IDiscriminatorConvention convention;
-                if (!discriminatorConventions.TryGetValue(type, out convention)) {
+                if (!discriminatorConventions.TryGetValue(type, out convention))
+                {
                     // if there is no convention registered for object register the default one
-                    if (!discriminatorConventions.ContainsKey(typeof(object))) {
+                    if (!discriminatorConventions.ContainsKey(typeof(object)))
+                    {
                         var defaultDiscriminatorConvention = StandardDiscriminatorConvention.Hierarchical;
                         discriminatorConventions.Add(typeof(object), defaultDiscriminatorConvention);
-                        if (type == typeof(object)) {
+                        if (type == typeof(object))
+                        {
                             return defaultDiscriminatorConvention;
                         }
                     }
 
-                    if (type.IsInterface) {
+                    if (type.IsInterface)
+                    {
                         // TODO: should convention for interfaces be inherited from parent interfaces?
                         convention = discriminatorConventions[typeof(object)];
                         discriminatorConventions[type] = convention;
-                    } else {
+                    }
+                    else
+                    {
                         // inherit the discriminator convention from the closest parent that has one
                         Type parentType = type.BaseType;
-                        while (convention == null) {
-                            if (parentType == null) {
+                        while (convention == null)
+                        {
+                            if (parentType == null)
+                            {
                                 var message = string.Format("No discriminator convention found for type {0}.", type.FullName);
                                 throw new BsonSerializationException(message);
                             }
-                            if (discriminatorConventions.TryGetValue(parentType, out convention)) {
+                            if (discriminatorConventions.TryGetValue(parentType, out convention))
+                            {
                                 break;
                             }
                             parentType = parentType.BaseType;
@@ -267,14 +299,17 @@ namespace MongoDB.Bson.Serialization {
 
                         // register this convention for all types between this and the parent type where we found the convention
                         var unregisteredType = type;
-                        while (unregisteredType != parentType) {
+                        while (unregisteredType != parentType)
+                        {
                             BsonDefaultSerializer.RegisterDiscriminatorConvention(unregisteredType, convention);
                             unregisteredType = unregisteredType.BaseType;
                         }
                     }
                 }
                 return convention;
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
@@ -284,32 +319,37 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="discriminator">The discriminator.</param>
-        public static void RegisterDiscriminator(
-            Type type,
-            BsonValue discriminator
-        ) {
-            if (type.IsInterface) {
+        public static void RegisterDiscriminator(Type type, BsonValue discriminator)
+        {
+            if (type.IsInterface)
+            {
                 var message = string.Format("Discriminators can only be registered for classes, not for interface {0}.", type.FullName);
                 throw new BsonSerializationException(message);
             }
 
             BsonSerializer.ConfigLock.EnterWriteLock();
-            try {
+            try
+            {
                 HashSet<Type> hashSet;
-                if (!discriminators.TryGetValue(discriminator, out hashSet)) {
+                if (!discriminators.TryGetValue(discriminator, out hashSet))
+                {
                     hashSet = new HashSet<Type>();
                     discriminators.Add(discriminator, hashSet);
                 }
 
-                if (!hashSet.Contains(type)) {
+                if (!hashSet.Contains(type))
+                {
                     hashSet.Add(type);
 
                     // mark all base types as discriminated (so we know that it's worth reading a discriminator)
-                    for (var baseType = type.BaseType; baseType != null; baseType = baseType.BaseType) {
+                    for (var baseType = type.BaseType; baseType != null; baseType = baseType.BaseType)
+                    {
                         discriminatedTypes.Add(baseType);
                     }
                 }
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
@@ -319,113 +359,126 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="type">Type type.</param>
         /// <param name="convention">The discriminator convention.</param>
-        public static void RegisterDiscriminatorConvention(
-            Type type,
-            IDiscriminatorConvention convention
-        ) {
+        public static void RegisterDiscriminatorConvention(Type type, IDiscriminatorConvention convention)
+        {
             BsonSerializer.ConfigLock.EnterWriteLock();
-            try {
-                if (!discriminatorConventions.ContainsKey(type)) {
+            try
+            {
+                if (!discriminatorConventions.ContainsKey(type))
+                {
                     discriminatorConventions.Add(type, convention);
-                } else {
+                }
+                else
+                {
                     var message = string.Format("There is already a discriminator convention registered for type {0}.", type.FullName);
                     throw new BsonSerializationException(message);
                 }
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
-        #endregion
 
-        #region internal static methods
-        internal static void EnsureKnownTypesAreRegistered(
-            Type nominalType
-        ) {
+        // internal static methods
+        internal static void EnsureKnownTypesAreRegistered(Type nominalType)
+        {
             BsonSerializer.ConfigLock.EnterReadLock();
-            try {
-                if (typesWithRegisteredKnownTypes.Contains(nominalType)) {
+            try
+            {
+                if (typesWithRegisteredKnownTypes.Contains(nominalType))
+                {
                     return;
                 }
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitReadLock();
             }
 
             BsonSerializer.ConfigLock.EnterWriteLock();
-            try {
-                if (!typesWithRegisteredKnownTypes.Contains(nominalType)) {
+            try
+            {
+                if (!typesWithRegisteredKnownTypes.Contains(nominalType))
+                {
                     // only call LookupClassMap for classes with a BsonKnownTypesAttribute
                     var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
-                    if (knownTypesAttribute != null && knownTypesAttribute.Length > 0) {
+                    if (knownTypesAttribute != null && knownTypesAttribute.Length > 0)
+                    {
                         // known types will be registered as a side effect of calling LookupClassMap
                         BsonClassMap.LookupClassMap(nominalType);
                     }
 
                     typesWithRegisteredKnownTypes.Add(nominalType);
                 }
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Gets the serializer for a type.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>The serializer.</returns>
-        public IBsonSerializer GetSerializer(
-            Type type
-        ) {
+        public IBsonSerializer GetSerializer(Type type)
+        {
             IBsonSerializer serializer;
-            if (serializers.TryGetValue(type, out serializer)) {
+            if (serializers.TryGetValue(type, out serializer))
+            {
                 return serializer;
             }
 
-            if (type.IsGenericType) {
+            if (type.IsGenericType)
+            {
                 var genericTypeDefinition = type.GetGenericTypeDefinition();
                 Type genericSerializerDefinition;
-                if (genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition)) {
+                if (genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition))
+                {
                     var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
-                    return (IBsonSerializer) Activator.CreateInstance(genericSerializerType);
+                    return (IBsonSerializer)Activator.CreateInstance(genericSerializerType);
                 }
             }
 
-            if (type.IsArray) {
+            if (type.IsArray)
+            {
                 var elementType = type.GetElementType();
-                switch (type.GetArrayRank()) {
+                switch (type.GetArrayRank())
+                {
                     case 1:
                         var arraySerializerDefinition = typeof(ArraySerializer<>);
                         var arraySerializerType = arraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer) Activator.CreateInstance(arraySerializerType);
+                        return (IBsonSerializer)Activator.CreateInstance(arraySerializerType);
                     case 2:
                         var twoDimensionalArraySerializerDefinition = typeof(TwoDimensionalArraySerializer<>);
                         var twoDimensionalArraySerializerType = twoDimensionalArraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer) Activator.CreateInstance(twoDimensionalArraySerializerType);
+                        return (IBsonSerializer)Activator.CreateInstance(twoDimensionalArraySerializerType);
                     case 3:
                         var threeDimensionalArraySerializerDefinition = typeof(ThreeDimensionalArraySerializer<>);
                         var threeDimensionalArraySerializerType = threeDimensionalArraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer) Activator.CreateInstance(threeDimensionalArraySerializerType);
+                        return (IBsonSerializer)Activator.CreateInstance(threeDimensionalArraySerializerType);
                     default:
                         var message = string.Format("No serializer found for array for rank {0}.", type.GetArrayRank());
                         throw new BsonSerializationException(message);
                 }
             }
 
-            if (type.IsEnum) {
+            if (type.IsEnum)
+            {
                 return EnumSerializer.Instance;
             }
 
-            if (
-                (type.IsClass || (type.IsValueType && !type.IsPrimitive)) &&
+            if ((type.IsClass || (type.IsValueType && !type.IsPrimitive)) &&
                 !typeof(Array).IsAssignableFrom(type) &&
-                !typeof(Enum).IsAssignableFrom(type)
-            ) {
+                !typeof(Enum).IsAssignableFrom(type))
+            {
                 return BsonClassMapSerializer.Instance;
             }
 
             return null;
         }
-        #endregion
     }
 }

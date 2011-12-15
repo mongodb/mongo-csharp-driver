@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Flags used with the Eval method in MongoDatabase.
     /// </summary>
     [Flags]
-    public enum EvalFlags {
+    public enum EvalFlags
+    {
         /// <summary>
         /// No flags.
         /// </summary>

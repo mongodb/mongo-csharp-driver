@@ -24,12 +24,16 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class SystemProfileInfoTests {
+    public class SystemProfileInfoTests
+    {
         [Test]
-        public void TestMinimal() {
-            var info = new SystemProfileInfo {
+        public void TestMinimal()
+        {
+            var info = new SystemProfileInfo
+            {
                 Timestamp = new DateTime(2011, 10, 7, 0, 0, 0, DateTimeKind.Utc),
                 Duration = TimeSpan.FromMilliseconds(123)
             };
@@ -38,8 +42,10 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestAll() {
-            var info = new SystemProfileInfo {
+        public void TestAll()
+        {
+            var info = new SystemProfileInfo
+            {
                 Abbreviated = "abbreviated",
                 Client = "client",
                 Command = new BsonDocument("command", 1),

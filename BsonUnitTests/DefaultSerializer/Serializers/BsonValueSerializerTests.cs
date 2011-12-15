@@ -26,15 +26,17 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Serialization {
+namespace MongoDB.BsonUnitTests.Serialization
+{
     [TestFixture]
-    public class BsonArraySerializerTests {
-        public class TestClass {
+    public class BsonArraySerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonArray value
-            ) {
+            public TestClass(BsonArray value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -44,7 +46,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -56,7 +59,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestEmpty() {
+        public void TestEmpty()
+        {
             var obj = new TestClass(new BsonArray());
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "[]").Replace("'", "\"");
@@ -68,7 +72,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNotEmpty() {
+        public void TestNotEmpty()
+        {
             var obj = new TestClass(new BsonArray { 1, 2 });
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "[1, 2]").Replace("'", "\"");
@@ -81,13 +86,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonBinaryGuidSerializerTests {
-        public class TestClass {
+    public class BsonBinaryGuidSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonBinaryData value
-            ) {
+            public TestClass(BsonBinaryData value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -97,7 +103,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -109,7 +116,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestEmpty() {
+        public void TestEmpty()
+        {
             var obj = new TestClass(Guid.Empty);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "CSUUID('00000000-0000-0000-0000-000000000000')").Replace("'", "\"");
@@ -121,7 +129,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNew() {
+        public void TestNew()
+        {
             var guid = Guid.NewGuid();
             var obj = new TestClass(guid);
             var json = obj.ToJson();
@@ -136,13 +145,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonBooleanSerializerTests {
-        public class TestClass {
+    public class BsonBooleanSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonBoolean value
-            ) {
+            public TestClass(BsonBoolean value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -152,7 +162,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -164,7 +175,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestFalse() {
+        public void TestFalse()
+        {
             var obj = new TestClass(false);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "false").Replace("'", "\"");
@@ -176,7 +188,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestTrue() {
+        public void TestTrue()
+        {
             var obj = new TestClass(true);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "true").Replace("'", "\"");
@@ -189,13 +202,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonDateTimeSerializerTests {
-        public class TestClass {
+    public class BsonDateTimeSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonDateTime value
-            ) {
+            public TestClass(BsonDateTime value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -205,7 +219,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -217,7 +232,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMinBson() {
+        public void TestMinBson()
+        {
             var obj = new TestClass(BsonDateTime.Create(long.MinValue));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "new Date(-9223372036854775808)").Replace("'", "\"");
@@ -229,7 +245,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMinLocal() {
+        public void TestMinLocal()
+        {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('0001-01-01T00:00:00Z')").Replace("'", "\"");
@@ -241,7 +258,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMinUnspecified() {
+        public void TestMinUnspecified()
+        {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('0001-01-01T00:00:00Z')").Replace("'", "\"");
@@ -253,7 +271,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMinUtc() {
+        public void TestMinUtc()
+        {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('0001-01-01T00:00:00Z')").Replace("'", "\"");
@@ -265,7 +284,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMaxBson() {
+        public void TestMaxBson()
+        {
             var obj = new TestClass(BsonDateTime.Create(long.MaxValue));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "new Date(9223372036854775807)").Replace("'", "\"");
@@ -277,7 +297,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMaxLocal() {
+        public void TestMaxLocal()
+        {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('9999-12-31T23:59:59.999Z')").Replace("'", "\"");
@@ -289,7 +310,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMaxUnspecified() {
+        public void TestMaxUnspecified()
+        {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('9999-12-31T23:59:59.999Z')").Replace("'", "\"");
@@ -301,7 +323,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMaxUtc() {
+        public void TestMaxUtc()
+        {
             var obj = new TestClass(DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ISODate('9999-12-31T23:59:59.999Z')").Replace("'", "\"");
@@ -313,10 +336,11 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestLocal() {
+        public void TestLocal()
+        {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Local));
             var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
-            long milliseconds = (long) (obj.V.Value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
+            long milliseconds = (long)(obj.V.Value.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", isoDate).Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -327,7 +351,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestUnspecified() {
+        public void TestUnspecified()
+        {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Unspecified));
             var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var json = obj.ToJson();
@@ -340,7 +365,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestUtc() {
+        public void TestUtc()
+        {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Utc));
             var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var json = obj.ToJson();
@@ -354,13 +380,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonDocumentSerializerTests {
-        public class TestClass {
+    public class BsonDocumentSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonDocument value
-            ) {
+            public TestClass(BsonDocument value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -370,7 +397,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -382,7 +410,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestEmpty() {
+        public void TestEmpty()
+        {
             var obj = new TestClass(new BsonDocument());
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ }").Replace("'", "\"");
@@ -394,13 +423,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNotEmpty() {
+        public void TestNotEmpty()
+        {
             var obj = new TestClass(
-                new BsonDocument {
+                new BsonDocument
+                {
                     { "A", 1 },
                     { "B", 2 }
-                }
-            );
+                });
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ 'A' : 1, 'B' : 2 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -412,13 +442,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonDocumentWrapperSerializerTests {
-        public class TestClass {
+    public class BsonDocumentWrapperSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonDocumentWrapper value
-            ) {
+            public TestClass(BsonDocumentWrapper value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -428,17 +459,21 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            try {
+            try
+            {
                 BsonSerializer.Deserialize<TestClass>(bson);
                 Assert.Fail("Expected an exception to be thrown.");
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass: Specified method is not supported.";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
@@ -447,17 +482,21 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestEmpty() {
+        public void TestEmpty()
+        {
             var obj = new TestClass(BsonDocumentWrapper.Create(new BsonDocument()));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            try {
+            try
+            {
                 BsonSerializer.Deserialize<TestClass>(bson);
                 Assert.Fail("Expected an exception to be thrown.");
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass: Specified method is not supported.";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
@@ -466,24 +505,27 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNotEmpty() {
+        public void TestNotEmpty()
+        {
             var obj = new TestClass(
                 BsonDocumentWrapper.Create(
-                    new BsonDocument {
+                    new BsonDocument
+                    {
                         { "A", 1 },
                         { "B", 2 }
-                    }
-                )
-            );
+                    }));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ 'A' : 1, 'B' : 2 }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            try {
+            try
+            {
                 BsonSerializer.Deserialize<TestClass>(bson);
                 Assert.Fail("Expected an exception to be thrown.");
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass: Specified method is not supported.";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
@@ -493,13 +535,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonDoubleSerializerTests {
-        public class TestClass {
+    public class BsonDoubleSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonDouble value
-            ) {
+            public TestClass(BsonDouble value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -509,7 +552,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -521,7 +565,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMin() {
+        public void TestMin()
+        {
             var obj = new TestClass(double.MinValue);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-1.7976931348623157E+308").Replace("'", "\"");
@@ -533,7 +578,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMinusOne() {
+        public void TestMinusOne()
+        {
             var obj = new TestClass(-1.0);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-1.0").Replace("'", "\"");
@@ -545,7 +591,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestZero() {
+        public void TestZero()
+        {
             var obj = new TestClass(0.0);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "0.0").Replace("'", "\"");
@@ -557,7 +604,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestOne() {
+        public void TestOne()
+        {
             var obj = new TestClass(1.0);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "1.0").Replace("'", "\"");
@@ -569,7 +617,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMax() {
+        public void TestMax()
+        {
             var obj = new TestClass(double.MaxValue);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "1.7976931348623157E+308").Replace("'", "\"");
@@ -581,7 +630,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNaN() {
+        public void TestNaN()
+        {
             var obj = new TestClass(double.NaN);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NaN").Replace("'", "\"");
@@ -593,7 +643,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNegativeInfinity() {
+        public void TestNegativeInfinity()
+        {
             var obj = new TestClass(double.NegativeInfinity);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-Infinity").Replace("'", "\"");
@@ -605,7 +656,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestPositiveInfinity() {
+        public void TestPositiveInfinity()
+        {
             var obj = new TestClass(double.PositiveInfinity);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Infinity").Replace("'", "\"");
@@ -618,13 +670,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonInt32SerializerTests {
-        public class TestClass {
+    public class BsonInt32SerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonInt32 value
-            ) {
+            public TestClass(BsonInt32 value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -634,7 +687,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -646,7 +700,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMin() {
+        public void TestMin()
+        {
             var obj = new TestClass(int.MinValue);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", int.MinValue.ToString()).Replace("'", "\"");
@@ -658,7 +713,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMinusOne() {
+        public void TestMinusOne()
+        {
             var obj = new TestClass(-1);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "-1").Replace("'", "\"");
@@ -670,7 +726,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestZero() {
+        public void TestZero()
+        {
             var obj = new TestClass(0);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "0").Replace("'", "\"");
@@ -682,7 +739,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestOne() {
+        public void TestOne()
+        {
             var obj = new TestClass(1);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "1").Replace("'", "\"");
@@ -694,7 +752,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMax() {
+        public void TestMax()
+        {
             var obj = new TestClass(int.MaxValue);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", int.MaxValue.ToString()).Replace("'", "\"");
@@ -707,13 +766,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonInt64SerializerTests {
-        public class TestClass {
+    public class BsonInt64SerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonInt64 value
-            ) {
+            public TestClass(BsonInt64 value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -723,7 +783,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -735,7 +796,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMin() {
+        public void TestMin()
+        {
             var obj = new TestClass(long.MinValue);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong('-9223372036854775808')").Replace("'", "\"");
@@ -747,7 +809,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMinusOne() {
+        public void TestMinusOne()
+        {
             var obj = new TestClass(-1);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong(-1)").Replace("'", "\"");
@@ -759,7 +822,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestZero() {
+        public void TestZero()
+        {
             var obj = new TestClass(0);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong(0)").Replace("'", "\"");
@@ -771,7 +835,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestOne() {
+        public void TestOne()
+        {
             var obj = new TestClass(1);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong(1)").Replace("'", "\"");
@@ -783,7 +848,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMax() {
+        public void TestMax()
+        {
             var obj = new TestClass(long.MaxValue);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "NumberLong('9223372036854775807')").Replace("'", "\"");
@@ -796,13 +862,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonJavaScriptSerializerTests {
-        public class TestClass {
+    public class BsonJavaScriptSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonJavaScript value
-            ) {
+            public TestClass(BsonJavaScript value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -812,7 +879,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -824,7 +892,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNotNull() {
+        public void TestNotNull()
+        {
             var obj = new TestClass("this.age === 21");
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$code' : 'this.age === 21' }").Replace("'", "\"");
@@ -837,13 +906,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonJavaScriptWithScopeSerializerTests {
-        public class TestClass {
+    public class BsonJavaScriptWithScopeSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonJavaScriptWithScope value
-            ) {
+            public TestClass(BsonJavaScriptWithScope value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -853,7 +923,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -865,7 +936,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNotNull() {
+        public void TestNotNull()
+        {
             var scope = new BsonDocument("x", 21);
             var obj = new TestClass(new BsonJavaScriptWithScope("this.age === 21", scope));
             var json = obj.ToJson();
@@ -879,13 +951,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonMaxKeySerializerTests {
-        public class TestClass {
+    public class BsonMaxKeySerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonMaxKey value
-            ) {
+            public TestClass(BsonMaxKey value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -895,7 +968,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -907,7 +981,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestValue() {
+        public void TestValue()
+        {
             var obj = new TestClass(BsonMaxKey.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$maxkey' : 1 }").Replace("'", "\"");
@@ -921,13 +996,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonMinKeySerializerTests {
-        public class TestClass {
+    public class BsonMinKeySerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonMinKey value
-            ) {
+            public TestClass(BsonMinKey value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -937,7 +1013,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -949,7 +1026,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestValue() {
+        public void TestValue()
+        {
             var obj = new TestClass(BsonMinKey.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$minkey' : 1 }").Replace("'", "\"");
@@ -963,13 +1041,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonNullSerializerTests {
-        public class TestClass {
+    public class BsonNullSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonNull value
-            ) {
+            public TestClass(BsonNull value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -979,7 +1058,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : null, 'V' : # }".Replace("#", "{ '$csharpnull' : true }").Replace("'", "\"");
@@ -991,7 +1071,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestValue() {
+        public void TestValue()
+        {
             var obj = new TestClass(BsonNull.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -1005,13 +1086,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonObjectIdSerializerTests {
-        public class TestClass {
+    public class BsonObjectIdSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonObjectId value
-            ) {
+            public TestClass(BsonObjectId value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -1021,7 +1103,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -1033,7 +1116,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNotNull() {
+        public void TestNotNull()
+        {
             var obj = new TestClass(new BsonObjectId(1, 2, 3, 4));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ObjectId('000000010000020003000004')").Replace("'", "\"");
@@ -1046,13 +1130,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonRegularExpressionSerializerTests {
-        public class TestClass {
+    public class BsonRegularExpressionSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonRegularExpression value
-            ) {
+            public TestClass(BsonRegularExpression value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -1062,7 +1147,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -1074,7 +1160,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestWithoutOptions() {
+        public void TestWithoutOptions()
+        {
             var obj = new TestClass(new BsonRegularExpression("abc"));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "/abc/").Replace("'", "\"");
@@ -1086,7 +1173,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestWithOptions() {
+        public void TestWithOptions()
+        {
             var obj = new TestClass(new BsonRegularExpression("abc", "imxs"));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "/abc/imxs").Replace("'", "\"");
@@ -1099,15 +1187,18 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonStringObjectIdTests {
-        public class C {
+    public class BsonStringObjectIdTests
+    {
+        public class C
+        {
             [BsonRepresentation(BsonType.ObjectId)]
             public string Id;
             public int N;
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new C { Id = null, N = 1 };
             var json = obj.ToJson();
             var expected = "{ '_id' : null, 'N' : 1 }".Replace("'", "\"");
@@ -1119,7 +1210,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNotNull() {
+        public void TestNotNull()
+        {
             var id = ObjectId.Parse("123456789012345678901234");
             var obj = new C { Id = id.ToString(), N = 1 };
             var json = obj.ToJson();
@@ -1133,13 +1225,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonStringSerializerTests {
-        public class TestClass {
+    public class BsonStringSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonString value
-            ) {
+            public TestClass(BsonString value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -1149,7 +1242,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -1161,7 +1255,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestEmpty() {
+        public void TestEmpty()
+        {
             var obj = new TestClass("");
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "''").Replace("'", "\"");
@@ -1173,7 +1268,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestHelloWorld() {
+        public void TestHelloWorld()
+        {
             var obj = new TestClass("Hello World");
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "'Hello World'").Replace("'", "\"");
@@ -1186,13 +1282,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonSymbolSerializerTests {
-        public class TestClass {
+    public class BsonSymbolSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonSymbol value
-            ) {
+            public TestClass(BsonSymbol value)
+            {
                 this.B = value;
                 this.V = value;
                 this.S = value;
@@ -1206,7 +1303,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : #, 'S' : # }".Replace("#", "null").Replace("'", "\"");
@@ -1219,7 +1317,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestEmpty() {
+        public void TestEmpty()
+        {
             var obj = new TestClass("");
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : #, 'S' : '' }".Replace("#", "{ '$symbol' : '' }").Replace("'", "\"");
@@ -1232,7 +1331,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestHelloWorld() {
+        public void TestHelloWorld()
+        {
             var obj = new TestClass("Hello World");
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : #, 'S' : 'Hello World' }".Replace("#", "{ '$symbol' : 'Hello World' }").Replace("'", "\"");
@@ -1246,13 +1346,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonTimestampSerializerTests {
-        public class TestClass {
+    public class BsonTimestampSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonTimestamp value
-            ) {
+            public TestClass(BsonTimestamp value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -1262,7 +1363,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
@@ -1274,7 +1376,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMin() {
+        public void TestMin()
+        {
             var obj = new TestClass(new BsonTimestamp(long.MinValue));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong('-9223372036854775808') }").Replace("'", "\"");
@@ -1286,7 +1389,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMinusOne() {
+        public void TestMinusOne()
+        {
             var obj = new TestClass(new BsonTimestamp(-1));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong(-1) }").Replace("'", "\"");
@@ -1298,7 +1402,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestZero() {
+        public void TestZero()
+        {
             var obj = new TestClass(new BsonTimestamp(0));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong(0) }").Replace("'", "\"");
@@ -1310,7 +1415,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestOne() {
+        public void TestOne()
+        {
             var obj = new TestClass(new BsonTimestamp(1));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong(1) }").Replace("'", "\"");
@@ -1322,7 +1428,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestOneTwo() {
+        public void TestOneTwo()
+        {
             var obj = new TestClass(new BsonTimestamp(1, 2));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong('4294967298') }").Replace("'", "\"");
@@ -1334,7 +1441,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestMax() {
+        public void TestMax()
+        {
             var obj = new TestClass(new BsonTimestamp(long.MaxValue));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$timestamp' : NumberLong('9223372036854775807') }").Replace("'", "\"");
@@ -1347,13 +1455,14 @@ namespace MongoDB.BsonUnitTests.Serialization {
     }
 
     [TestFixture]
-    public class BsonUndefinedSerializerTests {
-        public class TestClass {
+    public class BsonUndefinedSerializerTests
+    {
+        public class TestClass
+        {
             public TestClass() { }
 
-            public TestClass(
-                BsonUndefined value
-            ) {
+            public TestClass(BsonUndefined value)
+            {
                 this.B = value;
                 this.V = value;
             }
@@ -1363,7 +1472,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestNull() {
+        public void TestNull()
+        {
             var obj = new TestClass(null);
             var json = obj.ToJson();
             var expected = "{ 'B' : null, 'V' : null }".Replace("'", "\"");
@@ -1375,7 +1485,8 @@ namespace MongoDB.BsonUnitTests.Serialization {
         }
 
         [Test]
-        public void TestValue() {
+        public void TestValue()
+        {
             var obj = new TestClass(BsonUndefined.Value);
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "undefined").Replace("'", "\"");

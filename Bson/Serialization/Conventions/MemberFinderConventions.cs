@@ -15,16 +15,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents a member finder convention.
     /// </summary>
-    public interface IMemberFinderConvention {
+    public interface IMemberFinderConvention
+    {
         /// <summary>
         /// Finds the members of a class that are serialized.
         /// </summary>
@@ -38,19 +38,18 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// </summary>
     public abstract class BindingFlagsMemberFinderConvention : IMemberFinderConvention
     {
-        #region private fields
+        // private fields
         private const BindingFlags ValidMemberBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
         private readonly BindingFlags memberBindingFlags;
-        #endregion
 
+        // constructors
         /// <summary>
         /// Initializes an instance of the BindingFlagsMemberFinderConvention class.
         /// </summary>
         /// <param name="memberBindingFlags">The member binding flags.</param>
-        protected BindingFlagsMemberFinderConvention(
-            BindingFlags memberBindingFlags
-        ) {
+        protected BindingFlagsMemberFinderConvention(BindingFlags memberBindingFlags)
+        {
             if ((memberBindingFlags & ~ValidMemberBindingFlags) != 0)
             {
                 throw new ArgumentException("Invalid binding flags '" + memberBindingFlags + "'", "memberBindingFlags");
@@ -64,34 +63,43 @@ namespace MongoDB.Bson.Serialization.Conventions {
         /// </summary>
         /// <param name="type">The class.</param>
         /// <returns>The members that are serialized.</returns>
-        public IEnumerable<MemberInfo> FindMembers(
-            Type type
-        ) {
-            foreach (var fieldInfo in type.GetFields(memberBindingFlags | BindingFlags.DeclaredOnly)) {
-                if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) { // we can't write
+        public IEnumerable<MemberInfo> FindMembers(Type type)
+        {
+            foreach (var fieldInfo in type.GetFields(memberBindingFlags | BindingFlags.DeclaredOnly))
+            {
+                if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+                {
+                    // we can't write
                     continue;
                 }
 
-                if (fieldInfo.IsPrivate && fieldInfo.IsDefined(typeof(CompilerGeneratedAttribute), false)) { // skip private compiler generated backing fields
+                if (fieldInfo.IsPrivate && fieldInfo.IsDefined(typeof(CompilerGeneratedAttribute), false))
+                {
+                    // skip private compiler generated backing fields
                     continue;
                 }
 
                 yield return fieldInfo;
             }
 
-            foreach (var propertyInfo in type.GetProperties(memberBindingFlags | BindingFlags.DeclaredOnly)) {
-                if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && type.Namespace != null)) { // we can't read, or we can't write and it is not anonymous
+            foreach (var propertyInfo in type.GetProperties(memberBindingFlags | BindingFlags.DeclaredOnly))
+            {
+                if (!propertyInfo.CanRead || (!propertyInfo.CanWrite && type.Namespace != null))
+                {
+                    // we can't read, or we can't write and it is not anonymous
                     continue;
                 }
 
                 // skip indexers
-                if (propertyInfo.GetIndexParameters().Length != 0) {
+                if (propertyInfo.GetIndexParameters().Length != 0)
+                {
                     continue;
                 }
 
                 // skip overridden properties (they are already included by the base class)
                 var getMethodInfo = propertyInfo.GetGetMethod(true);
-                if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != type) {
+                if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != type)
+                {
                     continue;
                 }
 
@@ -103,24 +111,28 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents a member finder convention where all public read/write fields and properties are serialized.
     /// </summary>
-    public class PublicMemberFinderConvention : BindingFlagsMemberFinderConvention {
+    public class PublicMemberFinderConvention : BindingFlagsMemberFinderConvention
+    {
         /// <summary>
         /// Initializes an instance of the PublicMemberFinderConvention class.
         /// </summary>
         public PublicMemberFinderConvention()
-            : base(BindingFlags.Public | BindingFlags.Instance) {
+            : base(BindingFlags.Public | BindingFlags.Instance)
+        {
         }
     }
 
     /// <summary>
     /// Represents a member finder convention where all public, internal, and private read/write fields and properties are serialized.
     /// </summary>
-    public class PrivateMemberFinderConvention : BindingFlagsMemberFinderConvention {
+    public class PrivateMemberFinderConvention : BindingFlagsMemberFinderConvention
+    {
         /// <summary>
         /// Initializes an instance of the PrivateMemberFinderConvention class.
         /// </summary>
         public PrivateMemberFinderConvention()
-            : base(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) {
+            : base(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        {
         }
     }
 }

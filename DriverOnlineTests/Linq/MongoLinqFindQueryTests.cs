@@ -25,10 +25,13 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 
-namespace MongoDB.DriverOnlineTests.Linq {
+namespace MongoDB.DriverOnlineTests.Linq
+{
     [TestFixture]
-    public class MongoLinqFindQueryTests {
-        private class C {
+    public class MongoLinqFindQueryTests
+    {
+        private class C
+        {
             public ObjectId Id { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
@@ -39,7 +42,8 @@ namespace MongoDB.DriverOnlineTests.Linq {
         private MongoCollection<C> collection;
 
         [TestFixtureSetUp]
-        public void Setup() {
+        public void Setup()
+        {
             server = MongoServer.Create("mongodb://localhost/?safe=true");
             server.Connect();
             database = server["onlinetests"];
@@ -54,16 +58,18 @@ namespace MongoDB.DriverOnlineTests.Linq {
         }
 
         [Test]
-        public void TestQueryXEquals1() {
+        public void TestQueryXEquals1()
+        {
             var query = from c in collection.AsQueryable<C>()
                         where c.X == 1
                         select c;
             var count = 0;
-            foreach (var c in query) {
+            foreach (var c in query)
+            {
                 Assert.AreEqual(1, c.X);
                 count++;
             }
             Assert.AreEqual(1, count);
         }
-   }
+    }
 }

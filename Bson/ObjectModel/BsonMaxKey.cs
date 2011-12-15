@@ -18,34 +18,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents the BSON MaxKey value.
     /// </summary>
     [Serializable]
-    public class BsonMaxKey : BsonValue, IComparable<BsonMaxKey>, IEquatable<BsonMaxKey> {
-        #region private static fields
+    public class BsonMaxKey : BsonValue, IComparable<BsonMaxKey>, IEquatable<BsonMaxKey>
+    {
+        // private static fields
         private static BsonMaxKey value = new BsonMaxKey();
-        #endregion
 
-        #region constructors
+        // constructors
         // private so only the singleton instance can be created
         private BsonMaxKey()
-            : base(BsonType.MaxKey) {
+            : base(BsonType.MaxKey)
+        {
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Compares two BsonMaxKey values.
         /// </summary>
         /// <param name="lhs">The first BsonMaxKey.</param>
         /// <param name="rhs">The other BsonMaxKey.</param>
         /// <returns>True if the two BsonMaxKey values are not equal according to ==.</returns>
-        public static bool operator !=(
-            BsonMaxKey lhs,
-            BsonMaxKey rhs
-        ) {
+        public static bool operator !=(BsonMaxKey lhs, BsonMaxKey rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -55,31 +54,26 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonMaxKey.</param>
         /// <param name="rhs">The other BsonMaxKey.</param>
         /// <returns>True if the two BsonMaxKey values are equal according to ==.</returns>
-        public static bool operator ==(
-            BsonMaxKey lhs,
-            BsonMaxKey rhs
-        ) {
+        public static bool operator ==(BsonMaxKey lhs, BsonMaxKey rhs)
+        {
             if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets the singleton instance of BsonMaxKey.
         /// </summary>
         public static BsonMaxKey Value { get { return value; } }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Compares this BsonMaxKey to another BsonMaxKey.
         /// </summary>
         /// <param name="other">The other BsonMaxKey.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonMaxKey is less than, equal to, or greather than the other.</returns>
-        public int CompareTo(
-            BsonMaxKey other
-        ) {
+        public int CompareTo(BsonMaxKey other)
+        {
             if (other == null) { return 1; }
             return 0; // it's a singleton
         }
@@ -89,9 +83,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonMaxKey is less than, equal to, or greather than the other BsonValue.</returns>
-        public override int CompareTo(
-            BsonValue other
-        ) {
+        public override int CompareTo(BsonValue other)
+        {
             if (other == null) { return 1; }
             if (other is BsonMaxKey) { return 0; }
             return 1;
@@ -102,9 +95,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="rhs">The other BsonMaxKey.</param>
         /// <returns>True if the two BsonMaxKey values are equal.</returns>
-        public bool Equals(
-            BsonMaxKey rhs
-        ) {
+        public bool Equals(BsonMaxKey rhs)
+        {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return true; // it's a singleton
         }
@@ -114,9 +106,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonMaxKey and equal to this one.</returns>
-        public override bool Equals(
-            object obj
-        ) {
+        public override bool Equals(object obj)
+        {
             return Equals(obj as BsonMaxKey); // works even if obj is null or of a different type
         }
 
@@ -124,7 +115,8 @@ namespace MongoDB.Bson {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return bsonType.GetHashCode();
         }
 
@@ -132,9 +124,9 @@ namespace MongoDB.Bson {
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return "BsonMaxKey";
         }
-        #endregion
     }
 }

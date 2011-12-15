@@ -22,13 +22,17 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoDatabaseSettingsTests {
+    public class MongoDatabaseSettingsTests
+    {
         [Test]
-        public void TestAll() {
+        public void TestAll()
+        {
             var server = MongoServer.Create();
-            var settings = new MongoDatabaseSettings(server, "database") {
+            var settings = new MongoDatabaseSettings(server, "database")
+            {
                 Credentials = MongoCredentials.Create("username", "password"),
                 SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5)),
                 SlaveOk = true
@@ -52,7 +56,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestFrozenCopy() {
+        public void TestFrozenCopy()
+        {
             var server = MongoServer.Create();
             var settings = new MongoDatabaseSettings(server, "database");
             var frozenCopy = settings.FrozenCopy();

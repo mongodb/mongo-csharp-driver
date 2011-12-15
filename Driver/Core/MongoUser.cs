@@ -18,28 +18,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a MongoDB user.
     /// </summary>
     [Serializable]
-    public class MongoUser {
-        #region private fields
+    public class MongoUser
+    {
+        // private fields
         private string username;
         private string passwordHash;
         private bool isReadOnly;
-        #endregion
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Creates a new instance of MongoUser.
         /// </summary>
         /// <param name="credentials">The user's credentials.</param>
         /// <param name="isReadOnly">Whether the user has read-only access.</param>
-        public MongoUser(
-            MongoCredentials credentials,
-            bool isReadOnly
-        ) {
+        public MongoUser(MongoCredentials credentials, bool isReadOnly)
+        {
             this.username = credentials.Username;
             this.passwordHash = HashPassword(credentials.Username, credentials.Password);
             this.isReadOnly = isReadOnly;
@@ -51,22 +50,19 @@ namespace MongoDB.Driver {
         /// <param name="username">The username.</param>
         /// <param name="passwordHash">The password hash.</param>
         /// <param name="isReadOnly">Whether the user has read-only access.</param>
-        public MongoUser(
-            string username,
-            string passwordHash,
-            bool isReadOnly
-        ) {
+        public MongoUser(string username, string passwordHash, bool isReadOnly)
+        {
             this.username = username;
             this.passwordHash = passwordHash;
             this.isReadOnly = isReadOnly;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the username.
         /// </summary>
-        public string Username {
+        public string Username
+        {
             get { return username; }
             set { username = value; }
         }
@@ -74,7 +70,8 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the password hash.
         /// </summary>
-        public string PasswordHash {
+        public string PasswordHash
+        {
             get { return passwordHash; }
             set { passwordHash = value; }
         }
@@ -82,35 +79,32 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets whether the user is a read-only user.
         /// </summary>
-        public bool IsReadOnly {
+        public bool IsReadOnly
+        {
             get { return isReadOnly; }
             set { isReadOnly = value; }
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Calculates the password hash.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>The password hash.</returns>
-        public static string HashPassword(
-            string username,
-            string password
-        ) {
+        public static string HashPassword(string username, string password)
+        {
             return MongoUtils.Hash(username + ":mongo:" + password);
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Returns a string representation of the credentials.
         /// </summary>
         /// <returns>A string representation of the user.</returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return string.Format("User:{0}", username);
         }
-        #endregion
     }
 }
