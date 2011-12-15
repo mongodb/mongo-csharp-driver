@@ -140,50 +140,6 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Creates a list of new instances of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the wrapped objects.</typeparam>
-        /// <param name="values">A list of wrapped objects.</param>
-        /// <returns>A list of BsonDocumentWrappers or null.</returns>
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values)
-        {
-            if (values != null)
-            {
-                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(TNominalType), v));
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates a list of new instances of the BsonDocumentWrapper class.
-        /// </summary>
-        /// <param name="nominalType">The nominal type of the wrapped object.</param>
-        /// <param name="values">A list of wrapped objects.</param>
-        /// <returns>A list of BsonDocumentWrappers or null.</returns>
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values)
-        {
-            if (values != null)
-            {
-                var wrappers = new List<BsonDocumentWrapper>();
-                foreach (var value in values)
-                {
-                    if (value != null)
-                    {
-                        wrappers.Add(new BsonDocumentWrapper(nominalType, value));
-                    }
-                }
-                return wrappers;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         // public methods
         /// <summary>
         /// CompareTo is an invalid operation for BsonDocumentWrapper.

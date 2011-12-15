@@ -24,57 +24,51 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.Driver.Builders
-{
+namespace MongoDB.Driver {
     /// <summary>
-    /// A builder for creating update modifiers.
+    /// A helper class for creating update modifiers.
     /// </summary>
-    [Serializable]
-    public class UpdateBuilder : BuilderBase, IMongoUpdate
-    {
-        // private fields
-        private BsonDocument document;
-
-        // constructors
+    public static class Update {
+        #region public static methods
         /// <summary>
-        /// Initializes a new instance of the UpdateBuilder class.
+        /// Creates an update replacement document from an object.
         /// </summary>
-        public UpdateBuilder()
-        {
-            document = new BsonDocument();
+        /// <typeparam name="T">The nominal type of the wrapped object.</typeparam>
+        /// <param name="update">The wrapped object.</param>
+        /// <returns>A new instance of UpdateWrapper or null.</returns>
+        public static UpdateWrapper Create<T>(
+            T update
+        ) {
+            return UpdateWrapper.Create(update);
         }
 
-        // internal properties
-        internal BsonDocument Document
-        {
-            get { return document; }
+        /// <summary>
+        /// Creates an update replacement document from an object.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the wrapped object.</param>
+        /// <param name="update">The wrapped object.</param>
+        /// <returns>A new instance of UpdateWrapper or null.</returns>
+        public static UpdateWrapper Create(
+            Type nominalType,
+            object update
+        ) {
+            return UpdateWrapper.Create(nominalType, update);
         }
 
-        // public methods
         /// <summary>
         /// Adds a value to a named array element if the value is not already in the array (see $addToSet).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The value to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSet(
+        public static UpdateBuilder AddToSet(
             string name,
-            object value)
-        {
-            var bsonValue = BsonValue.Create(value);
-            BsonElement element;
-            if (document.TryGetElement("$addToSet", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, bsonValue);
-            }
-            else
-            {
-                document.Add("$addToSet", new BsonDocument(name, bsonValue));
-            }
-            return this;
+            object value
+        ) {
+            return new UpdateBuilder().AddToSet(name, value);
         }
 
         /// <summary>
@@ -84,11 +78,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSet<TDocument>(
+        public static UpdateBuilder AddToSet<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            object value)
-        {
-            return this.AddToSet(memberExpression.GetElementName(), value);
+            object value
+        ) {
+            return new UpdateBuilder().AddToSet(memberExpression, value);
         }
 
         /// <summary>
@@ -97,21 +91,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach(
+        public static UpdateBuilder AddToSetEach(
             string name,
-            BsonArray values)
-        {
-            var arg = new BsonDocument("$each", values);
-            BsonElement element;
-            if (document.TryGetElement("$addToSet", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, arg);
-            }
-            else
-            {
-                document.Add("$addToSet", new BsonDocument(name, arg));
-            }
-            return this;
+            BsonArray values
+        ) {
+            return new UpdateBuilder().AddToSetEach(name, values);
         }
 
         /// <summary>
@@ -121,11 +105,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="values">The values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach<TDocument>(
+        public static UpdateBuilder AddToSetEach<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            BsonArray values)
-        {
-            return this.AddToSetEach(memberExpression.GetElementName(), values);
+            BsonArray values
+        ) {
+            return new UpdateBuilder().AddToSetEach(memberExpression, values);
         }
 
         /// <summary>
@@ -134,12 +118,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach(
+        public static UpdateBuilder AddToSetEach(
             string name,
-            IEnumerable<BsonValue> values)
-        {
-            return this.AddToSetEach(name, new BsonArray(values));
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().AddToSetEach(name, values);
         }
+
 
         /// <summary>
         /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
@@ -148,11 +133,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="values">The values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach<TDocument>(
+        public static UpdateBuilder AddToSetEach<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            IEnumerable<BsonValue> values)
-        {
-            return this.AddToSetEach(memberExpression.GetElementName(), values);
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().AddToSetEach(memberExpression, values);
         }
 
         /// <summary>
@@ -163,13 +148,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to add to the set.</param>
         /// <param name="args">The additional values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach(
+        public static UpdateBuilder AddToSetEach(
             string name,
             BsonValue arg1,
             BsonValue arg2,
-            params BsonValue[] args)
-        {
-            return this.AddToSetEach(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params BsonValue[] args
+        ) {
+            return new UpdateBuilder().AddToSetEach(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -181,13 +166,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to add to the set.</param>
         /// <param name="args">The additional values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach<TDocument>(
+        public static UpdateBuilder AddToSetEach<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
             BsonValue arg1,
             BsonValue arg2,
-            params BsonValue[] args)
-        {
-            return this.AddToSetEach(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params BsonValue[] args
+        ) {
+            return new UpdateBuilder().AddToSetEach(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -196,11 +181,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach(
+        public static UpdateBuilder AddToSetEach(
             string name,
-            IEnumerable values)
-        {
-            return this.AddToSetEach(name, new BsonArray(values));
+            IEnumerable values
+        ) {
+            return new UpdateBuilder().AddToSetEach(name, values);
         }
 
         /// <summary>
@@ -210,11 +195,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="values">The values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach<TDocument>(
+        public static UpdateBuilder AddToSetEach<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            IEnumerable values)
-        {
-            return this.AddToSetEach(memberExpression.GetElementName(), values);
+            IEnumerable values
+        ) {
+            return new UpdateBuilder().AddToSetEach(memberExpression, values);
         }
 
         /// <summary>
@@ -225,13 +210,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to add to the set.</param>
         /// <param name="args">The additional values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach(
+        public static UpdateBuilder AddToSetEach(
             string name,
             object arg1,
             object arg2,
-            params object[] args)
-        {
-            return this.AddToSetEach(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params object[] args
+        ) {
+            return new UpdateBuilder().AddToSetEach(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -243,13 +228,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to add to the set.</param>
         /// <param name="args">The additional values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder AddToSetEach<TDocument>(
+        public static UpdateBuilder AddToSetEach<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
             object arg1,
             object arg2,
-            params object[] args)
-        {
-            return this.AddToSetEach(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params object[] args
+        ) {
+            return new UpdateBuilder().AddToSetEach(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -258,36 +243,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to be modified.</param>
         /// <param name="value">The value to be and-ed with the current value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder BitwiseAnd(string name, int value)
-        {
-            BitwiseOperation(name, "and", value);
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the named element to the bitwise and of its value with another value (see $bit with "and").
-        /// </summary>
-        /// <typeparam name="TDocument">The document type.</typeparam>
-        /// <param name="memberExpression">A lambda expression specifying the member.</param>
-        /// <param name="value">The value to be and-ed with the current value.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder BitwiseAnd<TDocument>(
-            Expression<Func<TDocument, object>> memberExpression,
-            int value)
-        {
-            return this.BitwiseAnd(memberExpression.GetElementName(), value);
-        }
-
-        /// <summary>
-        /// Sets the named element to the bitwise and of its value with another value (see $bit with "and").
-        /// </summary>
-        /// <param name="name">The name of the element to be modified.</param>
-        /// <param name="value">The value to be and-ed with the current value.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder BitwiseAnd(string name, long value)
-        {
-            BitwiseOperation(name, "and", value);
-            return this;
+        public static UpdateBuilder BitwiseAnd(
+            string name,
+            int value
+        ) {
+            return new UpdateBuilder().BitwiseAnd(name, value);
         }
 
         /// <summary>
@@ -297,11 +257,38 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to be and-ed with the current value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder BitwiseAnd<TDocument>(
+        public static UpdateBuilder BitwiseAnd<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            long value)
-        {
-            return this.BitwiseAnd(memberExpression.GetElementName(), value);
+            int value
+        ) {
+            return new UpdateBuilder().BitwiseAnd(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise and of its value with another value (see $bit with "and").
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be and-ed with the current value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder BitwiseAnd(
+            string name,
+            long value
+        ) {
+            return new UpdateBuilder().BitwiseAnd(name, value);
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise and of its value with another value (see $bit with "and").
+        /// </summary>
+        /// <typeparam name="TDocument">The document type.</typeparam>
+        /// <param name="memberExpression">A lambda expression specifying the member.</param>
+        /// <param name="value">The value to be and-ed with the current value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder BitwiseAnd<TDocument>(
+            Expression<Func<TDocument, object>> memberExpression,
+            long value
+        ) {
+            return new UpdateBuilder().BitwiseAnd(memberExpression, value);
         }
 
         /// <summary>
@@ -310,10 +297,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to be modified.</param>
         /// <param name="value">The value to be or-ed with the current value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder BitwiseOr(string name, int value)
-        {
-            BitwiseOperation(name, "or", value);
-            return this;
+        public static UpdateBuilder BitwiseOr(
+            string name,
+            int value
+        ) {
+            return new UpdateBuilder().BitwiseOr(name, value);
         }
 
         /// <summary>
@@ -323,11 +311,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to be or-ed with the current value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder BitwiseOr<TDocument>(
+        public static UpdateBuilder BitwiseOr<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            int value)
-        {
-            return this.BitwiseOr(memberExpression.GetElementName(), value);
+            int value
+        ) {
+            return new UpdateBuilder().BitwiseOr(memberExpression, value);
         }
 
         /// <summary>
@@ -336,10 +324,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to be modified.</param>
         /// <param name="value">The value to be or-ed with the current value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder BitwiseOr(string name, long value)
-        {
-            BitwiseOperation(name, "or", value);
-            return this;
+        public static UpdateBuilder BitwiseOr(
+            string name,
+            long value
+        ) {
+            return new UpdateBuilder().BitwiseOr(name, value);
         }
 
         /// <summary>
@@ -349,35 +338,37 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to be or-ed with the current value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder BitwiseOr<TDocument>(
+        public static UpdateBuilder BitwiseOr<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            long value)
-        {
-            return this.BitwiseOr(memberExpression.GetElementName(), value);
+            long value
+        ) {
+            return new UpdateBuilder().BitwiseOr(memberExpression, value);
         }
 
         /// <summary>
-        /// Combines another UpdateBuilder into this one.
+        /// Combines several UpdateBuilders into a single UpdateBuilder.
         /// </summary>
-        /// <param name="otherUpdate">The UpdateBuilder to combine into this one.</param>
+        /// <param name="updates">The UpdateBuilders to combine.</param>
         /// <returns>A combined UpdateBuilder.</returns>
-        public UpdateBuilder Combine(UpdateBuilder otherUpdate)
-        {
-            foreach (var otherOperation in otherUpdate.Document)
-            {
-                var otherOperationName = otherOperation.Name;
-                var otherTargets = otherOperation.Value.AsBsonDocument;
-                BsonElement operation;
-                if (document.TryGetElement(otherOperationName, out operation))
-                {
-                    operation.Value.AsBsonDocument.Add(otherTargets);
-                }
-                else
-                {
-                    document.Add(otherOperationName, otherTargets);
-                }
+        public static UpdateBuilder Combine(
+            IEnumerable<UpdateBuilder> updates
+        ) {
+            var combined = new UpdateBuilder();
+            foreach (var update in updates) {
+                combined.Combine(update);
             }
-            return this;
+            return combined;
+        }
+
+        /// <summary>
+        /// Combines several UpdateBuilders into a single UpdateBuilder.
+        /// </summary>
+        /// <param name="updates">The UpdateBuilders to combine.</param>
+        /// <returns>A combined UpdateBuilder.</returns>
+        public static UpdateBuilder Combine(
+            params UpdateBuilder[] updates
+        ) {
+            return Combine((IEnumerable<UpdateBuilder>) updates);
         }
 
         /// <summary>
@@ -386,10 +377,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to be incremented.</param>
         /// <param name="value">The value to increment by.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Inc(string name, double value)
-        {
-            Inc(name, BsonValue.Create(value));
-            return this;
+        public static UpdateBuilder Inc(
+            string name,
+            double value
+        ) {
+            return new UpdateBuilder().Inc(name, value);
         }
 
         /// <summary>
@@ -399,11 +391,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to increment by.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Inc<TDocument>(
+        public static UpdateBuilder Inc<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            double value)
-        {
-            return this.Inc(memberExpression.GetElementName(), value);
+            double value
+        ) {
+            return new UpdateBuilder().Inc(memberExpression, value);
         }
 
         /// <summary>
@@ -412,10 +404,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to be incremented.</param>
         /// <param name="value">The value to increment by.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Inc(string name, int value)
-        {
-            Inc(name, BsonValue.Create(value));
-            return this;
+        public static UpdateBuilder Inc(
+            string name,
+            int value
+        ) {
+            return new UpdateBuilder().Inc(name, value);
         }
 
         /// <summary>
@@ -425,11 +418,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to increment by.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Inc<TDocument>(
+        public static UpdateBuilder Inc<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            int value)
-        {
-            return this.Inc(memberExpression.GetElementName(), value);
+            int value
+        ) {
+            return new UpdateBuilder().Inc(memberExpression, value);
         }
 
         /// <summary>
@@ -438,10 +431,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to be incremented.</param>
         /// <param name="value">The value to increment by.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Inc(string name, long value)
-        {
-            Inc(name, BsonValue.Create(value));
-            return this;
+        public static UpdateBuilder Inc(
+            string name,
+            long value
+        ) {
+            return new UpdateBuilder().Inc(name, value);
         }
 
         /// <summary>
@@ -451,11 +445,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to increment by.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Inc<TDocument>(
+        public static UpdateBuilder Inc<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            long value)
-        {
-            return this.Inc(memberExpression.GetElementName(), value);
+            long value
+        ) {
+            return new UpdateBuilder().Inc(memberExpression, value);
         }
 
         /// <summary>
@@ -463,18 +457,10 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the array element.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PopFirst(string name)
-        {
-            BsonElement element;
-            if (document.TryGetElement("$pop", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, -1);
-            }
-            else
-            {
-                document.Add("$pop", new BsonDocument(name, -1));
-            }
-            return this;
+        public static UpdateBuilder PopFirst(
+            string name
+        ) {
+            return new UpdateBuilder().PopFirst(name);
         }
 
         /// <summary>
@@ -483,10 +469,10 @@ namespace MongoDB.Driver.Builders
         /// <typeparam name="TDocument">The document type.</typeparam>
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PopFirst<TDocument>(
-            Expression<Func<TDocument, object>> memberExpression)
-        {
-            return this.PopFirst(memberExpression.GetElementName());
+        public static UpdateBuilder PopFirst<TDocument>(
+            Expression<Func<TDocument, object>> memberExpression
+        ) {
+            return new UpdateBuilder().PopFirst(memberExpression);
         }
 
         /// <summary>
@@ -494,18 +480,10 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the array element.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PopLast(string name)
-        {
-            BsonElement element;
-            if (document.TryGetElement("$pop", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, 1);
-            }
-            else
-            {
-                document.Add("$pop", new BsonDocument(name, 1));
-            }
-            return this;
+        public static UpdateBuilder PopLast(
+            string name
+        ) {
+            return new UpdateBuilder().PopLast(name);
         }
 
         /// <summary>
@@ -514,10 +492,10 @@ namespace MongoDB.Driver.Builders
         /// <typeparam name="TDocument">The document type.</typeparam>
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PopLast<TDocument>(
-            Expression<Func<TDocument, object>> memberExpression)
-        {
-            return this.PopLast(memberExpression.GetElementName());
+        public static UpdateBuilder PopLast<TDocument>(
+            Expression<Func<TDocument, object>> memberExpression
+        ) {
+            return new UpdateBuilder().PopLast(memberExpression);
         }
 
         /// <summary>
@@ -526,21 +504,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The value to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Pull(
+        public static UpdateBuilder Pull(
             string name,
-            object value)
-        {
-            var bsonValue = BsonValue.Create(value);
-            BsonElement element;
-            if (document.TryGetElement("$pull", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, bsonValue);
-            }
-            else
-            {
-                document.Add("$pull", new BsonDocument(name, bsonValue));
-            }
-            return this;
+            object value
+        ) {
+            return new UpdateBuilder().Pull(name, value);
         }
 
         /// <summary>
@@ -550,11 +518,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Pull<TDocument>(
+        public static UpdateBuilder Pull<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            object value)
-        {
-            return this.Pull(memberExpression.GetElementName(), value);
+            object value
+        ) {
+            return new UpdateBuilder().Pull(memberExpression, value);
         }
 
         /// <summary>
@@ -563,45 +531,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll(string name, BsonArray values)
-        {
-            BsonElement element;
-            if (document.TryGetElement("$pullAll", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, values);
-            }
-            else
-            {
-                document.Add("$pullAll", new BsonDocument(name, values));
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
-        /// </summary>
-        /// <typeparam name="TDocument">The document type.</typeparam>
-        /// <param name="memberExpression">A lambda expression specifying the member.</param>
-        /// <param name="values">The values to remove.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll<TDocument>(
-            Expression<Func<TDocument, object>> memberExpression,
-            BsonArray values)
-        {
-            return this.PullAll(memberExpression.GetElementName(), values);
-        }
-
-        /// <summary>
-        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
-        /// </summary>
-        /// <param name="name">The name of the array element.</param>
-        /// <param name="values">The values to remove.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll(
+        public static UpdateBuilder PullAll(
             string name,
-            IEnumerable<BsonValue> values)
-        {
-            return this.PullAll(name, new BsonArray(values));
+            BsonArray values
+        ) {
+            return new UpdateBuilder().PullAll(name, values);
         }
 
         /// <summary>
@@ -611,12 +545,40 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="values">The values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll<TDocument>(
+        public static UpdateBuilder PullAll<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            IEnumerable<BsonValue> values)
-        {
-            return this.PullAll(memberExpression.GetElementName(), values);
+            BsonArray values
+        ) {
+            return new UpdateBuilder().PullAll(memberExpression, values);
         }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="values">The values to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PullAll(
+            string name,
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().PullAll(name, values);
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <typeparam name="TDocument">The document type.</typeparam>
+        /// <param name="memberExpression">A lambda expression specifying the member.</param>
+        /// <param name="values">The values to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PullAll<TDocument>(
+            Expression<Func<TDocument, object>> memberExpression,
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().PullAll(memberExpression, values);
+        }
+
 
         /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
@@ -626,13 +588,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to remove.</param>
         /// <param name="args">The additional values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll(
+        public static UpdateBuilder PullAll(
             string name,
             BsonValue arg1,
             BsonValue arg2,
-            params BsonValue[] args)
-        {
-            return this.PullAll(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params BsonValue[] args
+        ) {
+            return new UpdateBuilder().PullAll(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -644,13 +606,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to remove.</param>
         /// <param name="args">The additional values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll<TDocument>(
+        public static UpdateBuilder PullAll<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
             BsonValue arg1,
             BsonValue arg2,
-            params BsonValue[] args)
-        {
-            return this.PullAll(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params BsonValue[] args
+        ) {
+            return new UpdateBuilder().PullAll(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -659,11 +621,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll(
+        public static UpdateBuilder PullAll(
             string name,
-            IEnumerable values)
-        {
-            return this.PullAll(name, new BsonArray(values));
+            IEnumerable values
+        ) {
+            return new UpdateBuilder().PullAll(name, values);
         }
 
         /// <summary>
@@ -673,28 +635,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="values">The values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll<TDocument>(
+        public static UpdateBuilder PullAll<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            IEnumerable values)
-        {
-            return this.PullAll(memberExpression, values);
-        }
-
-        /// <summary>
-        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
-        /// </summary>
-        /// <param name="name">The name of the array element.</param>
-        /// <param name="arg1">The first value to remove.</param>
-        /// <param name="arg2">The second value to remove.</param>
-        /// <param name="args">The additional values to remove.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll(
-            string name,
-            object arg1,
-            object arg2,
-            params object[] args)
-        {
-            return PullAll(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            IEnumerable values
+        ) {
+            return new UpdateBuilder().PullAll(memberExpression, values);
         }
 
         /// <summary>
@@ -706,13 +651,30 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to remove.</param>
         /// <param name="args">The additional values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PullAll<TDocument>(
+        public static UpdateBuilder PullAll<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
             object arg1,
             object arg2,
-            params object[] args)
-        {
-            return this.PullAll(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params object[] args
+        ) {
+            return new UpdateBuilder().PullAll(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="arg1">The first value to remove.</param>
+        /// <param name="arg2">The second value to remove.</param>
+        /// <param name="args">The additional values to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PullAll(
+            string name,
+            object arg1,
+            object arg2,
+            params object[] args
+        ) {
+            return new UpdateBuilder().PullAll(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -721,21 +683,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The value to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Push(
+        public static UpdateBuilder Push(
             string name,
-            object value)
-        {
-            var bsonValue = BsonValue.Create(value);
-            BsonElement element;
-            if (document.TryGetElement("$push", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, bsonValue);
-            }
-            else
-            {
-                document.Add("$push", new BsonDocument(name, bsonValue));
-            }
-            return this;
+            object value
+        ) {
+            return new UpdateBuilder().Push(name, value);
         }
 
         /// <summary>
@@ -745,11 +697,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The value to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Push<TDocument>(
+        public static UpdateBuilder Push<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            object value)
-        {
-            return this.Push(memberExpression.GetElementName(), value);
+            object value
+        ) {
+            return new UpdateBuilder().Push(memberExpression, value);
         }
 
         /// <summary>
@@ -758,45 +710,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll(string name, BsonArray values)
-        {
-            BsonElement element;
-            if (document.TryGetElement("$pushAll", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, values);
-            }
-            else
-            {
-                document.Add("$pushAll", new BsonDocument(name, values));
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a list of values to the end of the named array element (see $pushAll).
-        /// </summary>
-        /// <typeparam name="TDocument">The document type.</typeparam>
-        /// <param name="memberExpression">A lambda expression specifying the member.</param>
-        /// <param name="values">The values to add to the end of the array.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll<TDocument>(
-            Expression<Func<TDocument, object>> memberExpression,
-            BsonArray values)
-        {
-            return this.PushAll(memberExpression.GetElementName(), values);
-        }
-
-        /// <summary>
-        /// Adds a list of values to the end of the named array element (see $pushAll).
-        /// </summary>
-        /// <param name="name">The name of the array element.</param>
-        /// <param name="values">The values to add to the end of the array.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll(
+        public static UpdateBuilder PushAll(
             string name,
-            IEnumerable<BsonValue> values)
-        {
-            return this.PushAll(name, new BsonArray(values));
+            BsonArray values
+        ) {
+            return new UpdateBuilder().PushAll(name, values);
         }
 
         /// <summary>
@@ -806,11 +724,38 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll<TDocument>(
+        public static UpdateBuilder PushAll<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            IEnumerable<BsonValue> values)
-        {
-            return this.PushAll(memberExpression.GetElementName(), values);
+            BsonArray values
+        ) {
+            return new UpdateBuilder().PushAll(memberExpression, values);
+        }
+
+        /// <summary>
+        /// Adds a list of values to the end of the named array element (see $pushAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="values">The values to add to the end of the array.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PushAll(
+            string name,
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().PushAll(name, values);
+        }
+
+        /// <summary>
+        /// Adds a list of values to the end of the named array element (see $pushAll).
+        /// </summary>
+        /// <typeparam name="TDocument">The document type.</typeparam>
+        /// <param name="memberExpression">A lambda expression specifying the member.</param>
+        /// <param name="values">The values to add to the end of the array.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PushAll<TDocument>(
+            Expression<Func<TDocument, object>> memberExpression,
+            IEnumerable<BsonValue> values
+        ) {
+            return new UpdateBuilder().PushAll(memberExpression, values);
         }
 
         /// <summary>
@@ -821,13 +766,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to add to the end of the array.</param>
         /// <param name="args">The additional values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll(
+        public static UpdateBuilder PushAll(
             string name,
             BsonValue arg1,
             BsonValue arg2,
-            params BsonValue[] args)
-        {
-            return this.PushAll(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params BsonValue[] args
+        ) {
+            return new UpdateBuilder().PushAll(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -839,13 +784,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to add to the end of the array.</param>
         /// <param name="args">The additional values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll<TDocument>(
+        public static UpdateBuilder PushAll<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
             BsonValue arg1,
             BsonValue arg2,
-            params BsonValue[] args)
-        {
-            return this.PushAll(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params BsonValue[] args
+        ) {
+            return new UpdateBuilder().PushAll(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -854,11 +799,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll(
+        public static UpdateBuilder PushAll(
             string name,
-            IEnumerable values)
-        {
-            return this.PushAll(name, new BsonArray(values));
+            IEnumerable values
+        ) {
+            return new UpdateBuilder().PushAll(name, values);
         }
 
         /// <summary>
@@ -868,11 +813,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll<TDocument>(
+        public static UpdateBuilder PushAll<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            IEnumerable values)
-        {
-            return this.PushAll(memberExpression.GetElementName(), values);
+            IEnumerable values
+        ) {
+            return new UpdateBuilder().PushAll(memberExpression, values);
         }
 
         /// <summary>
@@ -883,13 +828,13 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to add to the end of the array.</param>
         /// <param name="args">The additional values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll(
+        public static UpdateBuilder PushAll(
             string name,
             object arg1,
             object arg2,
-            params object[] args)
-        {
-            return this.PushAll(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params object[] args
+        ) {
+            return new UpdateBuilder().PushAll(name, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
@@ -901,33 +846,51 @@ namespace MongoDB.Driver.Builders
         /// <param name="arg2">The second value to add to the end of the array.</param>
         /// <param name="args">The additional values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder PushAll<TDocument>(
+        public static UpdateBuilder PushAll<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
             object arg1,
             object arg2,
-            params object[] args)
-        {
-            return this.PushAll(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
+            params object[] args
+        ) {
+            return new UpdateBuilder().PushAll(memberExpression, ParameterHelpers.ConvertToBsonValues(arg1, arg2, args));
         }
 
         /// <summary>
         /// Renames an element (see $rename).
         /// </summary>
-        /// <param name="oldElementName">The old element name.</param>
-        /// <param name="newElementName">The new element name.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Rename(string oldElementName, string newElementName)
-        {
-            BsonElement element;
-            if (document.TryGetElement("$rename", out element))
-            {
-                element.Value.AsBsonDocument.Add(oldElementName, newElementName);
-            }
-            else
-            {
-                document.Add("$rename", new BsonDocument(oldElementName, newElementName));
-            }
-            return this;
+        /// <param name="oldElementName">The name of the element to be renamed.</param>
+        /// <param name="newElementName">The new name of the element.</param>
+        /// <returns>An UpdateDocuemnt.</returns>
+        public static UpdateBuilder Rename(
+            string oldElementName,
+            string newElementName
+        ) {
+            return new UpdateBuilder().Rename(oldElementName, newElementName);
+        }
+
+        /// <summary>
+        /// Replaces the entire document with a new document (the _id must remain the same).
+        /// </summary>
+        /// <typeparam name="TNominalType">The nominal type of the replacement document</typeparam>
+        /// <param name="document">The replacement document.</param>
+        /// <returns>An UpdateWrapper.</returns>
+        public static IMongoUpdate Replace<TNominalType>(
+            TNominalType document
+        ) {
+            return UpdateWrapper.Create<TNominalType>(document);
+        }
+
+        /// <summary>
+        /// Replaces the entire document with a new document (the _id must remain the same).
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the replacement document</param>
+        /// <param name="document">The replacement document.</param>
+        /// <returns>An UpdateWrapper.</returns>
+        public static IMongoUpdate Replace(
+            Type nominalType,
+            object document
+        ) {
+            return UpdateWrapper.Create(nominalType, document);
         }
 
         /// <summary>
@@ -936,21 +899,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to be set.</param>
         /// <param name="value">The new value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Set(
+        public static UpdateBuilder Set(
             string name,
-            object value)
-        {
-            var bsonValue = BsonValue.Create(value);
-            BsonElement element;
-            if (document.TryGetElement("$set", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, bsonValue);
-            }
-            else
-            {
-                document.Add("$set", new BsonDocument(name, bsonValue));
-            }
-            return this;
+            object value
+        ) {
+            return new UpdateBuilder().Set(name, value);
         }
 
         /// <summary>
@@ -960,20 +913,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <param name="value">The new value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Set<TDocument>(
+        public static UpdateBuilder Set<TDocument>(
             Expression<Func<TDocument, object>> memberExpression,
-            object value)
-        {
-            return this.Set(memberExpression.GetElementName(), value);
-        }
-
-        /// <summary>
-        /// Returns the result of the builder as a BsonDocument.
-        /// </summary>
-        /// <returns>A BsonDocument.</returns>
-        public override BsonDocument ToBsonDocument()
-        {
-            return document;
+            object value
+        ) {
+            return new UpdateBuilder().Set(memberExpression, value);
         }
 
         /// <summary>
@@ -981,18 +925,10 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to be removed.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Unset(string name)
-        {
-            BsonElement element;
-            if (document.TryGetElement("$unset", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, 1);
-            }
-            else
-            {
-                document.Add("$unset", new BsonDocument(name, 1));
-            }
-            return this;
+        public static UpdateBuilder Unset(
+            string name
+        ) {
+            return new UpdateBuilder().Unset(name);
         }
 
         /// <summary>
@@ -1001,57 +937,11 @@ namespace MongoDB.Driver.Builders
         /// <typeparam name="TDocument">The document type.</typeparam>
         /// <param name="memberExpression">A lambda expression specifying the member.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Unset<TDocument>(
-            Expression<Func<TDocument, object>> memberExpression)
-        {
-            return this.Unset(memberExpression.GetElementName());
+        public static UpdateBuilder Unset<TDocument>(
+            Expression<Func<TDocument, object>> memberExpression
+        ) {
+            return new UpdateBuilder().Unset(memberExpression);
         }
-
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            document.Serialize(bsonWriter, nominalType, options);
-        }
-
-        // private methods
-        private void BitwiseOperation(string name, string operation, BsonValue value)
-        {
-            BsonElement bitElement;
-            if (!document.TryGetElement("$bit", out bitElement))
-            {
-                bitElement = new BsonElement("$bit", new BsonDocument());
-                document.Add(bitElement);
-            }
-            var bitDocument = bitElement.Value.AsBsonDocument;
-
-            BsonElement fieldElement;
-            if (!bitDocument.TryGetElement(name, out fieldElement))
-            {
-                fieldElement = new BsonElement(name, new BsonDocument());
-                bitDocument.Add(fieldElement);
-            }
-            var fieldDocument = fieldElement.Value.AsBsonDocument;
-
-            fieldDocument.Add(operation, value);
-        }
-
-        private void Inc(string name, BsonValue value)
-        {
-            BsonElement incElement;
-            if (!document.TryGetElement("$inc", out incElement))
-            {
-                incElement = new BsonElement("$inc", new BsonDocument());
-                document.Add(incElement);
-            }
-            var incDocument = incElement.Value.AsBsonDocument;
-
-            incDocument.Add(name, value);
-        }
+        #endregion
     }
 }

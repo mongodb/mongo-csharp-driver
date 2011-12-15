@@ -88,6 +88,7 @@
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="Builders\MapReduceOptionsBuilder.cs" />
+    <Compile Include="Builders\ParameterHelper.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
@@ -103,6 +104,8 @@
     <Compile Include="Core\CommandResults\ValidateCollectionResult.cs" />
     <Compile Include="Core\ConnectWaitFor.cs" />
     <Compile Include="Core\EvalFlags.cs" />
+    <Compile Include="Core\Fields.cs" />
+    <Compile Include="Core\IndexKeys.cs" />
     <Compile Include="Core\InsertFlags.cs" />
     <Compile Include="Core\Interfaces\IMongoCollectionOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoCommand.cs" />
@@ -128,6 +131,7 @@
     <Compile Include="Core\MongoUrlBuilder.cs" />
     <Compile Include="Core\MongoUser.cs" />
     <Compile Include="Core\ProfilingLevel.cs" />
+    <Compile Include="Core\Query.cs" />
     <Compile Include="Core\SystemProfileInfo.cs" />
     <Compile Include="Core\Wrappers\BaseWrapper.cs" />
     <Compile Include="Core\Wrappers\CollectionOptionsDocument.cs" />
@@ -180,6 +184,7 @@
     <Compile Include="Internal\MongoReplyMessage.cs" />
     <Compile Include="Internal\MongoUpdateMessage.cs" />
     <Compile Include="Internal\ReplicaSetConnector.cs" />
+    <Compile Include="Linq\MemberExpressionExtensions.cs" />
     <Compile Include="Linq\ExpressionPrettyPrinter.cs" />
     <Compile Include="Linq\ExpressionVisitor.cs" />
     <Compile Include="Linq\MongoLinqFindQuery.cs" />
@@ -215,6 +220,8 @@
     <Compile Include="Core\RemoveFlags.cs" />
     <Compile Include="Core\SafeMode.cs" />
     <Compile Include="Core\UpdateFlags.cs" />
+    <Compile Include="Core\Update.cs" />
+    <Compile Include="Core\SortBy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bson\Bson.csproj">

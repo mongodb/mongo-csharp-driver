@@ -60,12 +60,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp111
             var update = Update.AddToSet("InnerObjects", 1);
             collection.Update(query, update);
             var d1 = new D { X = 1 };
-            update = Update.AddToSetWrapped("InnerObjects", d1);
+            update = Update.AddToSet("InnerObjects", d1);
             collection.Update(query, update);
 
             var d2 = new D { X = 2 };
             var d3 = new D { X = 3 };
-            update = Update.AddToSetEachWrapped("InnerObjects", d1, d2, d3);
+            update = Update.AddToSetEach("InnerObjects", d1, d2, d3);
             collection.Update(query, update);
 
             var document = collection.FindOneAs<BsonDocument>();

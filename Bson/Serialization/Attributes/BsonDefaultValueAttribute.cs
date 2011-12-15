@@ -28,7 +28,6 @@ namespace MongoDB.Bson.Serialization.Attributes
     {
         // private fields
         private object defaultValue;
-        private bool serializeDefaultValue = true;
 
         // constructors
         /// <summary>
@@ -47,15 +46,6 @@ namespace MongoDB.Bson.Serialization.Attributes
         public object DefaultValue
         {
             get { return defaultValue; }
-        }
-
-        /// <summary>
-        /// Gets or sets whether to serialize the default value.
-        /// </summary>
-        public bool SerializeDefaultValue
-        {
-            get { return serializeDefaultValue; }
-            set { serializeDefaultValue = value; }
         }
     }
 }

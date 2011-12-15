@@ -899,7 +899,7 @@ namespace MongoDB.DriverOnlineTests
             {
                 try
                 {
-                    var options = new MongoInsertOptions(collection) { Flags = InsertFlags.ContinueOnError };
+                    var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
                     collection.InsertBatch(batch, options);
                 }
                 catch (MongoSafeModeException)

@@ -96,6 +96,7 @@
     <Compile Include="Serialization\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonSerializationOptionsAttribute.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
+    <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DictionarySerializationOptions.cs" />
     <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />
@@ -122,8 +123,6 @@
     <Compile Include="Serialization\Conventions\DefaultValueConventions.cs" />
     <Compile Include="Serialization\Conventions\DiscriminatorConventions.cs" />
     <Compile Include="Serialization\Conventions\MemberFinderConventions.cs" />
-    <Compile Include="Serialization\Conventions\SerializeDefaultValueConventions.cs" />
-    <Compile Include="Serialization\Conventions\IgnoreIfNullConventions.cs" />
     <Compile Include="Serialization\Conventions\ElementNameConventions.cs" />
     <Compile Include="Serialization\Conventions\IdMemberConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreExtraElementsConventions.cs" />
@@ -144,7 +143,7 @@
     <Compile Include="Serialization\Attributes\BsonIdAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonIgnoreAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonIgnoreExtraElementsAttribute.cs" />
-    <Compile Include="Serialization\Attributes\BsonIgnoreIfNullAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonIgnoreIfDefaultAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonKnownTypesAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonRequiredAttribute.cs" />
     <Compile Include="Serialization\BsonClassMap.cs" />

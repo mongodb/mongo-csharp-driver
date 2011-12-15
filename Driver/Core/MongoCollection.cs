@@ -134,7 +134,7 @@ namespace MongoDB.Driver
                 { "key", keysDocument }
             };
             index.Merge(optionsDocument);
-            var insertOptions = new MongoInsertOptions(this)
+            var insertOptions = new MongoInsertOptions
             {
                 CheckElementNames = false,
                 SafeMode = SafeMode.True
@@ -514,7 +514,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The nominal type of the document.</typeparam>
         /// <param name="id">The id of the document.</param>
         /// <returns>A TDocument (or null if not found).</returns>
-        public virtual TDocument FindOneByIdAs<TDocument>(BsonValue id)
+        public virtual TDocument FindOneByIdAs<TDocument>(object id)
         {
             return FindOneAs<TDocument>(Query.EQ("_id", id));
         }
@@ -525,7 +525,7 @@ namespace MongoDB.Driver
         /// <param name="documentType">The nominal type of the document.</param>
         /// <param name="id">The id of the document.</param>
         /// <returns>A TDocument (or null if not found).</returns>
-        public virtual object FindOneByIdAs(Type documentType, BsonValue id)
+        public virtual object FindOneByIdAs(Type documentType, object id)
         {
             return FindOneAs(documentType, Query.EQ("_id", id));
         }
@@ -846,7 +846,8 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Insert(Type nominalType, object document)
         {
-            return Insert(nominalType, document, settings.SafeMode);
+            var options = new MongoInsertOptions();
+            return Insert(nominalType, document, options);
         }
 
         /// <summary>
@@ -875,7 +876,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Insert(Type nominalType, object document, SafeMode safeMode)
         {
-            var options = new MongoInsertOptions(this) { SafeMode = safeMode };
+            var options = new MongoInsertOptions { SafeMode = safeMode };
             return Insert(nominalType, document, options);
         }
 
@@ -934,7 +935,8 @@ namespace MongoDB.Driver
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
         public virtual IEnumerable<SafeModeResult> InsertBatch(Type nominalType, IEnumerable documents)
         {
-            return InsertBatch(nominalType, documents, settings.SafeMode);
+            var options = new MongoInsertOptions();
+            return InsertBatch(nominalType, documents, options);
         }
 
         /// <summary>
@@ -946,7 +948,7 @@ namespace MongoDB.Driver
         /// <returns>A list of SafeModeResults (or null if SafeMode is not being used).</returns>
         public virtual IEnumerable<SafeModeResult> InsertBatch(Type nominalType, IEnumerable documents, SafeMode safeMode)
         {
-            var options = new MongoInsertOptions(this) { SafeMode = safeMode };
+            var options = new MongoInsertOptions { SafeMode = safeMode };
             return InsertBatch(nominalType, documents, options);
         }
 
@@ -963,10 +965,17 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("documents");
             }
+
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try
             {
-                var safeMode = options.SafeMode;
+                var safeMode = options.SafeMode ?? this.settings.SafeMode;
+
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
                 var writerSettings = GetWriterSettings(connection);
@@ -1105,7 +1114,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Remove(IMongoQuery query)
         {
-            return Remove(query, RemoveFlags.None, settings.SafeMode);
+            return Remove(query, RemoveFlags.None, null);
         }
 
         /// <summary>
@@ -1127,7 +1136,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Remove(IMongoQuery query, RemoveFlags flags)
         {
-            return Remove(query, flags, settings.SafeMode);
+            return Remove(query, flags, null);
         }
 
         /// <summary>
@@ -1145,7 +1154,7 @@ namespace MongoDB.Driver
                 var writerSettings = GetWriterSettings(connection);
                 using (var message = new MongoDeleteMessage(writerSettings, FullName, flags, query))
                 {
-                    return connection.SendMessage(message, safeMode);
+                    return connection.SendMessage(message, safeMode ?? this.settings.SafeMode);
                 }
             }
             finally
@@ -1160,7 +1169,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult RemoveAll()
         {
-            return Remove(Query.Null, RemoveFlags.None, settings.SafeMode);
+            return Remove(Query.Null, RemoveFlags.None, null);
         }
 
         /// <summary>
@@ -1230,7 +1239,8 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Save(Type nominalType, object document)
         {
-            return Save(nominalType, document, settings.SafeMode);
+            var options = new MongoInsertOptions();
+            return Save(nominalType, document, options);
         }
 
         /// <summary>
@@ -1281,8 +1291,8 @@ namespace MongoDB.Driver
                         }
                     }
                     var query = Query.EQ("_id", idBsonValue);
-                    var update = Builders.Update.Replace(nominalType, document);
-                    var updateOptions = new MongoUpdateOptions(this)
+                    var update = Driver.Update.Replace(nominalType, document);
+                    var updateOptions = new MongoUpdateOptions()
                     {
                         CheckElementNames = options.CheckElementNames,
                         Flags = UpdateFlags.Upsert,
@@ -1307,7 +1317,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Save(Type nominalType, object document, SafeMode safeMode)
         {
-            var options = new MongoInsertOptions(this) { SafeMode = safeMode };
+            var options = new MongoInsertOptions { SafeMode = safeMode };
             return Save(nominalType, document, options);
         }
 
@@ -1328,7 +1338,8 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Update(IMongoQuery query, IMongoUpdate update)
         {
-            return Update(query, update, UpdateFlags.None, settings.SafeMode);
+            var options = new MongoUpdateOptions();
+            return Update(query, update, options);
         }
 
         /// <summary>
@@ -1349,13 +1360,19 @@ namespace MongoDB.Driver
                 }
             }
 
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try
             {
                 var writerSettings = GetWriterSettings(connection);
                 using (var message = new MongoUpdateMessage(writerSettings, FullName, options.CheckElementNames, options.Flags, query, update))
                 {
-                    return connection.SendMessage(message, options.SafeMode);
+                    var safeMode = options.SafeMode ?? this.settings.SafeMode;
+                    return connection.SendMessage(message, safeMode);
                 }
             }
             finally
@@ -1373,7 +1390,8 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Update(IMongoQuery query, IMongoUpdate update, SafeMode safeMode)
         {
-            return Update(query, update, UpdateFlags.None, safeMode);
+            var options = new MongoUpdateOptions() { SafeMode = safeMode };
+            return Update(query, update, options);
         }
 
         /// <summary>
@@ -1385,7 +1403,8 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Update(IMongoQuery query, IMongoUpdate update, UpdateFlags flags)
         {
-            return Update(query, update, flags, settings.SafeMode);
+            var options = new MongoUpdateOptions() { Flags = flags };
+            return Update(query, update, options);
         }
 
         /// <summary>
@@ -1398,7 +1417,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Update(IMongoQuery query, IMongoUpdate update, UpdateFlags flags, SafeMode safeMode)
         {
-            var options = new MongoUpdateOptions(this)
+            var options = new MongoUpdateOptions
             {
                 Flags = flags,
                 SafeMode = safeMode
@@ -1562,7 +1581,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="id">The id of the document.</param>
         /// <returns>A TDefaultDocument (or null if not found).</returns>
-        public virtual TDefaultDocument FindOneById(BsonValue id)
+        public virtual TDefaultDocument FindOneById(object id)
         {
             return FindOneByIdAs<TDefaultDocument>(id);
         }

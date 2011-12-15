@@ -51,7 +51,7 @@ namespace MongoDB.Bson
             { BsonType.RegularExpression, 12 },
             { BsonType.JavaScript, 13 }, // TODO: confirm where JavaScript and JavaScriptWithScope are in the sort order
             { BsonType.JavaScriptWithScope, 14 },
-            { BsonType.MaxKey, 15 }
+            { BsonType.MaxKey, 15 },
         };
 
         // protected fields
@@ -68,6 +68,39 @@ namespace MongoDB.Bson
         protected BsonValue(BsonType bsonType)
         {
             this.bsonType = bsonType;
+        }
+
+        // public static properties
+        /// <summary>
+        /// Gets the singleton instance of BsonMinKey.
+        /// </summary>
+        public static BsonMinKey MinKey
+        {
+            get { return BsonMinKey.Value; }
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of BsonMaxKey.
+        /// </summary>
+        public static BsonMaxKey MaxKey
+        {
+            get { return BsonMaxKey.Value; }
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of BsonNull.
+        /// </summary>
+        public static BsonNull Null
+        {
+            get { return BsonNull.Value; }
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of BsonUndefined.
+        /// </summary>
+        public static BsonUndefined Undefined
+        {
+            get { return BsonUndefined.Value; }
         }
 
         // public properties
@@ -999,7 +1032,12 @@ namespace MongoDB.Bson
             }
             else
             {
-                return BsonTypeMapper.MapToBsonValue(value);
+                BsonValue bsonValue;
+                if (!BsonTypeMapper.TryMapToBsonValue(value, out bsonValue)) 
+                {
+                    bsonValue = BsonDocumentWrapper.Create(value.GetType(), value, false);
+                }
+                return bsonValue;
             }
         }
 

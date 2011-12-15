@@ -47,10 +47,10 @@ namespace MongoDB.Bson.Serialization
         private IIdGenerator idGenerator;
         private bool isRequired;
         private bool hasDefaultValue;
-        private bool serializeDefaultValue = true;
-        private Func<object, bool> shouldSerializeMethod = (obj) => true;
-        private bool ignoreIfNull;
+        private Func<object, bool> shouldSerializeMethod;
+        private bool ignoreIfDefault;
         private object defaultValue;
+        private Func<object, bool> defaultComparer;
 
         // constructors
         /// <summary>
@@ -200,14 +200,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets whether the default value should be serialized.
-        /// </summary>
-        public bool SerializeDefaultValue
-        {
-            get { return serializeDefaultValue; }
-        }
-
-        /// <summary>
         /// Gets the method that will be called to determine whether the member should be serialized.
         /// </summary>
         public Func<object, bool> ShouldSerializeMethod
@@ -216,11 +208,11 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets whether null values should be ignored when serialized.
+        /// Gets whether default values should be ignored when serialized.
         /// </summary>
-        public bool IgnoreIfNull
+        public bool IgnoreIfDefault
         {
-            get { return ignoreIfNull; }
+            get { return ignoreIfDefault; }
         }
 
         /// <summary>
@@ -232,6 +224,35 @@ namespace MongoDB.Bson.Serialization
         }
 
         // public methods
+        /// <summary>
+        /// Determines whether a value should be serialized
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>True if the value should be serialized.</returns>
+        public bool ShouldSerialize(object obj, object value)
+        {
+            if (this.ignoreIfDefault)
+            {
+                if (this.defaultComparer == null)
+                {
+                    this.defaultComparer = GetDefaultComparer();
+                }
+
+                if (this.defaultComparer(value))
+                {
+                    return false;
+                }
+            }
+
+            if (this.shouldSerializeMethod != null && !this.shouldSerializeMethod(obj))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Applies the default value to the member of an object.
         /// </summary>
@@ -271,19 +292,7 @@ namespace MongoDB.Bson.Serialization
         {
             this.defaultValue = defaultValue;
             this.hasDefaultValue = true;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the default value.
-        /// </summary>
-        /// <param name="defaultValue">The default value.</param>
-        /// <param name="serializeDefaultValue">Whether the default value shoudl be serialized.</param>
-        /// <returns>The member map.</returns>
-        public BsonMemberMap SetDefaultValue(object defaultValue, bool serializeDefaultValue)
-        {
-            SetDefaultValue(defaultValue);
-            SetSerializeDefaultValue(serializeDefaultValue);
+            this.defaultComparer = null;
             return this;
         }
 
@@ -310,13 +319,13 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Sets whether null values should be ignored when serialized.
+        /// Sets whether default values should be ignored when serialized.
         /// </summary>
-        /// <param name="ignoreIfNull">Wether null values should be ignored when serialized.</param>
+        /// <param name="ignoreIfDefault">Whether default values should be ignored when serialized.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetIgnoreIfNull(bool ignoreIfNull)
+        public BsonMemberMap SetIgnoreIfDefault(bool ignoreIfDefault)
         {
-            this.ignoreIfNull = ignoreIfNull;
+            this.ignoreIfDefault = ignoreIfDefault;
             return this;
         }
 
@@ -376,31 +385,13 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Sets whether the default value should be serialized.
-        /// </summary>
-        /// <param name="serializeDefaultValue">Whether the default value should be serialized.</param>
-        /// <returns>The member map.</returns>
-        public BsonMemberMap SetSerializeDefaultValue(bool serializeDefaultValue)
-        {
-            this.serializeDefaultValue = serializeDefaultValue;
-            return this;
-        }
-
-        /// <summary>
         /// Sets the method that will be called to determine whether the member should be serialized.
         /// </summary>
         /// <param name="shouldSerializeMethod">The method.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap SetShouldSerializeMethod(Func<object, bool> shouldSerializeMethod)
         {
-            if (shouldSerializeMethod != null)
-            {
-                this.shouldSerializeMethod = shouldSerializeMethod;
-            }
-            else
-            {
-                this.shouldSerializeMethod = (obj) => true;
-            }
+            this.shouldSerializeMethod = shouldSerializeMethod;
             return this;
         }
 
@@ -431,11 +422,55 @@ namespace MongoDB.Bson.Serialization
             return (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
         }
 
+        private Func<object, bool> GetDefaultComparer()
+        {
+            Type memberType;
+
+            var propertyInfo = memberInfo as PropertyInfo;
+            if (propertyInfo != null)
+            {
+                var getMethodInfo = propertyInfo.GetGetMethod(true);
+                if (getMethodInfo == null)
+                {
+                    var message = string.Format("The property '{0} {1}' of class '{2}' has no 'get' accessor.", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+                    throw new BsonSerializationException(message);
+                }
+                memberType = propertyInfo.PropertyType;
+            }
+            else
+            {
+                memberType = ((FieldInfo)memberInfo).FieldType;
+            }
+
+            // lambdaExpression = (obj) => (TMember)obj == comparand
+            var objParameter = Expression.Parameter(typeof(object), "obj");
+
+            Expression comparand;
+            if (this.hasDefaultValue)
+            {
+                comparand = Expression.Constant(this.defaultValue);
+            }
+            else
+            {
+                comparand = GetDefaultExpression(memberType);
+            }
+
+            var lambdaExpression = Expression.Lambda<Func<object, bool>>(
+                Expression.Equal(
+                    Expression.Convert(objParameter, memberType),
+                    comparand
+                ),
+                objParameter
+            );
+
+            return lambdaExpression.Compile();
+        }
+
         private Func<object, object> GetGetter()
         {
-            if (memberInfo is PropertyInfo)
+            var propertyInfo = memberInfo as PropertyInfo;
+            if (propertyInfo != null)
             {
-                var propertyInfo = (PropertyInfo)memberInfo;
                 var getMethodInfo = propertyInfo.GetGetMethod(true);
                 if (getMethodInfo == null)
                 {
@@ -488,6 +523,67 @@ namespace MongoDB.Bson.Serialization
             );
 
             return lambdaExpression.Compile();
+        }
+
+        private static Expression GetDefaultExpression(Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Empty:
+                case TypeCode.DBNull:
+                case TypeCode.String:
+                    return Expression.Constant(null, type);
+
+                case TypeCode.Object:
+                    if (!type.IsValueType)
+                    {
+                        return Expression.Constant(null, type);
+                    }
+                    return Expression.New(type);
+
+                case TypeCode.Boolean:
+                    return Expression.Constant(false, type);
+
+                case TypeCode.Char:
+                    return Expression.Constant('\0', type);
+
+                case TypeCode.SByte:
+                    return Expression.Constant((sbyte)0, type);
+
+                case TypeCode.Byte:
+                    return Expression.Constant((byte)0, type);
+
+                case TypeCode.Int16:
+                    return Expression.Constant((short)0, type);
+
+                case TypeCode.UInt16:
+                    return Expression.Constant((ushort)0, type);
+
+                case TypeCode.Int32:
+                    return Expression.Constant(0, type);
+
+                case TypeCode.UInt32:
+                    return Expression.Constant(0U, type);
+
+                case TypeCode.Int64:
+                    return Expression.Constant(0L, type);
+
+                case TypeCode.UInt64:
+                    return Expression.Constant(0UL, type);
+
+                case TypeCode.Single:
+                    return Expression.Constant(0F, type);
+
+                case TypeCode.Double:
+                    return Expression.Constant(0D, type);
+
+                case TypeCode.Decimal:
+                    return Expression.Constant(0M, type);
+
+                case TypeCode.DateTime:
+                    return Expression.New(type);
+            }
+            throw new InvalidOperationException("Unreachable code");
         }
     }
 }

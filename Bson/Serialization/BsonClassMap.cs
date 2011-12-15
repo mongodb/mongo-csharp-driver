@@ -618,6 +618,17 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets a member map.
         /// </summary>
+        /// <param name="memberInfo">The MemberInfo.</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap GetMemberMap(MemberInfo memberInfo)
+        {
+            // can be called whether frozen or not
+            return declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
+        }
+
+        /// <summary>
+        /// Gets a member map.
+        /// </summary>
         /// <param name="memberName">The member name.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap GetMemberMap(string memberName)
@@ -985,8 +996,7 @@ namespace MongoDB.Bson.Serialization
             var memberMap = MapMember(memberInfo);
 
             memberMap.SetElementName(conventions.ElementNameConvention.GetElementName(memberInfo));
-            memberMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(memberInfo));
-            memberMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberInfo));
+            memberMap.SetIgnoreIfDefault(conventions.IgnoreIfDefaultConvention.IgnoreIfDefault(memberInfo));
 
             var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(memberInfo);
             if (defaultValue != null)
@@ -1007,7 +1017,6 @@ namespace MongoDB.Bson.Serialization
                 if (defaultValueAttribute != null)
                 {
                     memberMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
-                    memberMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
                 }
 
                 var elementAttribute = attribute as BsonElementAttribute;
@@ -1040,10 +1049,10 @@ namespace MongoDB.Bson.Serialization
                     continue;
                 }
 
-                var ignoreIfNullAttribute = attribute as BsonIgnoreIfNullAttribute;
-                if (ignoreIfNullAttribute != null)
+                var ignoreIfDefaultAttribute = attribute as BsonIgnoreIfDefaultAttribute;
+                if (ignoreIfDefaultAttribute != null)
                 {
-                    memberMap.SetIgnoreIfNull(true);
+                    memberMap.SetIgnoreIfDefault(ignoreIfDefaultAttribute.Value);
                 }
 
                 var requiredAttribute = attribute as BsonRequiredAttribute;
@@ -1363,14 +1372,8 @@ namespace MongoDB.Bson.Serialization
             UnmapMember(propertyLambda);
         }
 
-        // private methods
-        private MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
-        {
-            var memberName = GetMemberNameFromLambda(memberLambda);
-            return classType.GetMember(memberName).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
-        }
-
-        private string GetMemberNameFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        // private static methods
+        private static MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             var body = memberLambda.Body;
             MemberExpression memberExpression;
@@ -1384,9 +1387,21 @@ namespace MongoDB.Bson.Serialization
                     memberExpression = (MemberExpression)convertExpression.Operand;
                     break;
                 default:
-                    throw new BsonSerializationException("Invalid propertyLambda.");
+                    throw new BsonSerializationException("Invalid lambda expression");
             }
-            return memberExpression.Member.Name;
+            var memberInfo = memberExpression.Member;
+            if (memberInfo == null ||
+                (memberInfo.MemberType != MemberTypes.Field &&
+                memberInfo.MemberType != MemberTypes.Property))
+            {
+                throw new BsonSerializationException("Invalid lambda expression");
+            }
+            return memberInfo;
+        }
+
+        private static string GetMemberNameFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
+            return GetMemberInfoFromLambda(memberLambda).Name;
         }
     }
 }

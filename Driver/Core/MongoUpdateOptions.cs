@@ -36,12 +36,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the MongoUpdateOptions class.
         /// </summary>
-        /// <param name="collection">The collection from which to get default settings for the options.</param>
-        public MongoUpdateOptions(MongoCollection collection)
+        public MongoUpdateOptions()
         {
             this.checkElementNames = true;
             this.flags = UpdateFlags.None;
-            this.safeMode = collection.Settings.SafeMode;
         }
 
         // public properties

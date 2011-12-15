@@ -22,45 +22,45 @@ using System.Reflection;
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// Represents an ignore if null convention.
+    /// Represents an ignore if default convention.
     /// </summary>
-    public interface IIgnoreIfNullConvention
+    public interface IIgnoreIfDefaultConvention
     {
         /// <summary>
         /// Determines whether to ignore nulls for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>Whether to ignore nulls.</returns>
-        bool IgnoreIfNull(MemberInfo memberInfo);
+        bool IgnoreIfDefault(MemberInfo memberInfo);
     }
 
     /// <summary>
-    /// Represents an ignore if null convention where nulls are never ignored.
+    /// Represents an ignore if default convention where default values are never ignored.
     /// </summary>
-    public class NeverIgnoreIfNullConvention : IIgnoreIfNullConvention
+    public class NeverIgnoreIfDefaultConvention : IIgnoreIfDefaultConvention
     {
         /// <summary>
         /// Determines whether to ignore nulls for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>Whether to ignore nulls.</returns>
-        public bool IgnoreIfNull(MemberInfo memberInfo)
+        public bool IgnoreIfDefault(MemberInfo memberInfo)
         {
             return false;
         }
     }
 
     /// <summary>
-    /// Represents an ignore if null convention where nulls are always ignored.
+    /// Represents an ignore if default convention where default values are always ignored.
     /// </summary>
-    public class AlwaysIgnoreIfNullConvention : IIgnoreIfNullConvention
+    public class AlwaysIgnoreIfDefaultConvention : IIgnoreIfDefaultConvention 
     {
         /// <summary>
         /// Determines whether to ignore nulls for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>Whether to ignore nulls.</returns>
-        public bool IgnoreIfNull(MemberInfo memberInfo)
+        public bool IgnoreIfDefault(MemberInfo memberInfo)
         {
             return true;
         }

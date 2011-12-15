@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq
         public static MongoLinqQuery Translate(MongoCollection collection, Expression expression)
         {
             // total hack just to test the initial LINQ framework
-            var query = MongoDB.Driver.Builders.Query.EQ("X", 1);
+            var query = MongoDB.Driver.Query.EQ("X", 1);
             return new MongoLinqFindQuery(collection, query);
         }
     }

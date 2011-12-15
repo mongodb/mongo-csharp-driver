@@ -45,7 +45,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp358
                 { "_id", 1 },
                 { "v", new BsonDocument("$x", 1) } // server doesn't allow "$" at top level
             };
-            var insertOptions = new MongoInsertOptions(collection) { CheckElementNames = false };
+            var insertOptions = new MongoInsertOptions() { CheckElementNames = false };
             collection.Insert(document, insertOptions);
             document = collection.FindOne();
             Assert.AreEqual(1, document["v"].AsBsonDocument["$x"].AsInt32);
@@ -53,7 +53,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp358
             document["v"].AsBsonDocument["$x"] = 2;
             var query = Query.EQ("_id", 1);
             var update = Update.Replace(document);
-            var updateOptions = new MongoUpdateOptions(collection) { CheckElementNames = false };
+            var updateOptions = new MongoUpdateOptions() { CheckElementNames = false };
             collection.Update(query, update, updateOptions);
             document = collection.FindOne();
             Assert.AreEqual(2, document["v"].AsBsonDocument["$x"].AsInt32);

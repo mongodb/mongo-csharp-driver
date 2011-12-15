@@ -34,10 +34,11 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
         public class Test
         {
             [BsonDefaultValue("default1")]
-            public string SerializedDefaultValue1 { get; set; }
-            [BsonDefaultValue("default2", SerializeDefaultValue = true)]
-            public string SerializedDefaultValue2 { get; set; }
-            [BsonDefaultValue("default3", SerializeDefaultValue = false)]
+
+            public string SerializedDefaultValue { get; set; }
+            [BsonDefaultValue("default2")]
+            [BsonIgnoreIfDefault]
+
             public string NotSerializedDefaultValue { get; set; }
             public string NoDefaultValue { get; set; }
 
@@ -49,9 +50,9 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             public string Ignored { get; set; }
             public string NotIgnored { get; set; }
 
-            [BsonIgnoreIfNull]
-            public string IgnoredIfNull { get; set; }
-            public string NotIgnoredIfNull { get; set; }
+            [BsonIgnoreIfDefault]
+            public string IgnoredIfDefault { get; set; }
+            public string NotIgnoredIfDefault { get; set; }
 
             [BsonRequired]
             public string Required { get; set; }
@@ -84,24 +85,19 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
-            var serializedDefaultValue1 = classMap.GetMemberMap("SerializedDefaultValue1");
-            Assert.AreEqual(true, serializedDefaultValue1.HasDefaultValue);
-            Assert.AreEqual(true, serializedDefaultValue1.SerializeDefaultValue);
-            Assert.AreEqual("default1", serializedDefaultValue1.DefaultValue);
-
-            var serializedDefaultValue2 = classMap.GetMemberMap("SerializedDefaultValue2");
-            Assert.AreEqual(true, serializedDefaultValue2.HasDefaultValue);
-            Assert.AreEqual(true, serializedDefaultValue2.SerializeDefaultValue);
-            Assert.AreEqual("default2", serializedDefaultValue2.DefaultValue);
+            var serializedDefaultValue = classMap.GetMemberMap("SerializedDefaultValue");
+            Assert.AreEqual(true, serializedDefaultValue.HasDefaultValue);
+            Assert.AreEqual(false, serializedDefaultValue.IgnoreIfDefault);
+            Assert.AreEqual("default1", serializedDefaultValue.DefaultValue);
 
             var notSerializedDefaultValue = classMap.GetMemberMap("NotSerializedDefaultValue");
             Assert.AreEqual(true, notSerializedDefaultValue.HasDefaultValue);
-            Assert.AreEqual(false, notSerializedDefaultValue.SerializeDefaultValue);
-            Assert.AreEqual("default3", notSerializedDefaultValue.DefaultValue);
+            Assert.AreEqual(true, notSerializedDefaultValue.IgnoreIfDefault);
+            Assert.AreEqual("default2", notSerializedDefaultValue.DefaultValue);
 
             var noDefaultValue = classMap.GetMemberMap("NoDefaultValue");
             Assert.AreEqual(false, noDefaultValue.HasDefaultValue);
-            Assert.AreEqual(true, noDefaultValue.SerializeDefaultValue);
+            Assert.AreEqual(false, noDefaultValue.IgnoreIfDefault);
             Assert.IsNull(noDefaultValue.DefaultValue);
         }
 
@@ -136,11 +132,11 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
-            var ignoredIfNull = classMap.GetMemberMap("IgnoredIfNull");
-            Assert.AreEqual(true, ignoredIfNull.IgnoreIfNull);
+            var ignoredIfDefault = classMap.GetMemberMap("IgnoredIfDefault");
+            Assert.AreEqual(true, ignoredIfDefault.IgnoreIfDefault);
 
-            var notIgnoredIfNull = classMap.GetMemberMap("NotIgnoredIfNull");
-            Assert.AreEqual(false, notIgnoredIfNull.IgnoreIfNull);
+            var notIgnoredIfDefault = classMap.GetMemberMap("NotIgnoredIfDefault");
+            Assert.AreEqual(false, notIgnoredIfDefault.IgnoreIfDefault);
         }
 
         [Test]
