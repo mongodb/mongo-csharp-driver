@@ -39,7 +39,6 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355
             public ObjectId Id { get; set; }
             public Image I { get; set; }
             public Bitmap B { get; set; }
-            // public Metafile M { get; set; }
         }
 
         private MongoServer server;
@@ -80,7 +79,6 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355
             Assert.IsInstanceOf<C>(r);
             Assert.IsNull(r.I);
             Assert.IsNull(r.B);
-            // Assert.IsNull(r.M);
         }
 
         private byte[] GetBytes(Bitmap bitmap)
