@@ -36,11 +36,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the MongoInsertOptions class.
         /// </summary>
-        /// <param name="collection">The collection from which to get default settings for the options.</param>
-        public MongoInsertOptions(MongoCollection collection)
+        public MongoInsertOptions()
         {
             this.checkElementNames = true;
             this.flags = InsertFlags.None;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MongoInsertOptions class.
+        /// </summary>
+        /// <param name="collection">The collection from which to get default settings for the options.</param>
+        [Obsolete("Options constructors which take a MongoCollection parameter are obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use a constructor which does not take a MongoCollection parameter.")]
+        public MongoInsertOptions(MongoCollection collection) : this()
+        {
             this.safeMode = collection.Settings.SafeMode;
         }
 

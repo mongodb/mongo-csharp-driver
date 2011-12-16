@@ -214,7 +214,7 @@ namespace MongoDB.Driver
             try
             {
                 var pingCommand = new CommandDocument("ping", 1);
-                connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand);
+                connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand, true);
             }
             finally
             {
@@ -405,17 +405,14 @@ namespace MongoDB.Driver
         internal void VerifyState(MongoConnection connection)
         {
             CommandResult isMasterResult = null;
+            bool ok = false;
             try
             {
-                try
+                var isMasterCommand = new CommandDocument("ismaster", 1);
+                isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand, false);
+                if (!isMasterResult.Ok)
                 {
-                    var isMasterCommand = new CommandDocument("ismaster", 1);
-                    isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand);
-                }
-                catch (MongoCommandException ex)
-                {
-                    isMasterResult = ex.CommandResult;
-                    throw;
+                    throw new MongoCommandException(isMasterResult);
                 }
 
                 var isPrimary = isMasterResult.Response["ismaster", false].ToBoolean();
@@ -429,27 +426,25 @@ namespace MongoDB.Driver
                 var maxMessageLength = Math.Max(MongoDefaults.MaxMessageLength, maxDocumentSize + 1024); // derived from maxDocumentSize
 
                 MongoServerBuildInfo buildInfo;
-                try
+                var buildInfoCommand = new CommandDocument("buildinfo", 1);
+                var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand, false);
+                if (buildInfoResult.Ok)
                 {
-                    var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                    var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand);
                     buildInfo = new MongoServerBuildInfo(
                         buildInfoResult.Response["bits"].ToInt32(), // bits
                         buildInfoResult.Response["gitVersion"].AsString, // gitVersion
                         buildInfoResult.Response["sysInfo"].AsString, // sysInfo
-                        buildInfoResult.Response["version"].AsString); // versionString
+                        buildInfoResult.Response["version"].AsString // versionString
+                    );
                 }
-                catch (MongoCommandException ex)
+                else
                 {
-                    // short term fix: if buildInfo fails due to auth we don't know the server version
-                    if (ex.CommandResult.ErrorMessage == "need to login")
+                    // short term fix: if buildInfo fails due to auth we don't know the server version; see CSHARP-324
+                    if (buildInfoResult.ErrorMessage != "need to login")
                     {
-                        buildInfo = null;
+                        throw new MongoCommandException(buildInfoResult);
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    buildInfo = null;
                 }
 
                 this.isMasterResult = isMasterResult;
@@ -457,15 +452,18 @@ namespace MongoDB.Driver
                 this.maxMessageLength = maxMessageLength;
                 this.buildInfo = buildInfo;
                 this.SetState(MongoServerState.Connected, isPrimary, isSecondary, isPassive, isArbiter);
+                ok = true;
             }
-            catch
+            finally
             {
-                this.isMasterResult = isMasterResult;
-                this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
-                this.maxMessageLength = MongoDefaults.MaxMessageLength;
-                this.buildInfo = null;
-                this.SetState(MongoServerState.Disconnected, false, false, false, false);
-                throw;
+                if (!ok)
+                {
+                    this.isMasterResult = isMasterResult;
+                    this.maxDocumentSize = MongoDefaults.MaxDocumentSize;
+                    this.maxMessageLength = MongoDefaults.MaxMessageLength;
+                    this.buildInfo = null;
+                    this.SetState(MongoServerState.Disconnected, false, false, false, false);
+                }
             }
         }
 

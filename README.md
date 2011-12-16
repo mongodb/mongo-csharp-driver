@@ -33,5 +33,6 @@ http://jira.mongodb.org/browse/CSHARP
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Testo                     test1@doramail.com   
 * Craig Wilson              craiggwilson@gmail.com
+* Alexander Nagy            optimiz3@gmail.com
 
 If you have contributed and I have neglected to add you to this list please contact me at robert@10gen.com to be added to the list (with apologies).
