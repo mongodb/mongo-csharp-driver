@@ -249,6 +249,7 @@ namespace MongoDB.Driver
             clone.skip = skip;
             clone.limit = limit;
             clone.batchSize = batchSize;
+            clone.fields = fields;
             clone.serializationOptions = serializationOptions;
             return clone;
         }
