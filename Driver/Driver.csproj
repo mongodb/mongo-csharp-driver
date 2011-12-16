@@ -180,6 +180,7 @@
     <Compile Include="Internal\MongoReplyMessage.cs" />
     <Compile Include="Internal\MongoUpdateMessage.cs" />
     <Compile Include="Internal\ReplicaSetConnector.cs" />
+    <Compile Include="Linq\Evaluator.cs" />
     <Compile Include="Linq\ExpressionPrettyPrinter.cs" />
     <Compile Include="Linq\ExpressionVisitor.cs" />
     <Compile Include="Linq\MongoLinqFindQuery.cs" />
