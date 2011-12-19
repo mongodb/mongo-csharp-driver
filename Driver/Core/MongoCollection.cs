@@ -974,7 +974,7 @@ namespace MongoDB.Driver
             var connection = server.AcquireConnection(database, false); // not slaveOk
             try
             {
-                var safeMode = options.SafeMode ?? this.settings.SafeMode;
+                var safeMode = options.SafeMode ?? settings.SafeMode;
 
                 List<SafeModeResult> results = (safeMode.Enabled) ? new List<SafeModeResult>() : null;
 
@@ -1154,7 +1154,7 @@ namespace MongoDB.Driver
                 var writerSettings = GetWriterSettings(connection);
                 using (var message = new MongoDeleteMessage(writerSettings, FullName, flags, query))
                 {
-                    return connection.SendMessage(message, safeMode ?? this.settings.SafeMode);
+                    return connection.SendMessage(message, safeMode ?? settings.SafeMode);
                 }
             }
             finally
@@ -1292,7 +1292,7 @@ namespace MongoDB.Driver
                     }
                     var query = Query.EQ("_id", idBsonValue);
                     var update = Builders.Update.Replace(nominalType, document);
-                    var updateOptions = new MongoUpdateOptions()
+                    var updateOptions = new MongoUpdateOptions
                     {
                         CheckElementNames = options.CheckElementNames,
                         Flags = UpdateFlags.Upsert,
@@ -1371,7 +1371,7 @@ namespace MongoDB.Driver
                 var writerSettings = GetWriterSettings(connection);
                 using (var message = new MongoUpdateMessage(writerSettings, FullName, options.CheckElementNames, options.Flags, query, update))
                 {
-                    var safeMode = options.SafeMode ?? this.settings.SafeMode;
+                    var safeMode = options.SafeMode ?? settings.SafeMode;
                     return connection.SendMessage(message, safeMode);
                 }
             }
@@ -1390,7 +1390,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Update(IMongoQuery query, IMongoUpdate update, SafeMode safeMode)
         {
-            var options = new MongoUpdateOptions() { SafeMode = safeMode };
+            var options = new MongoUpdateOptions { SafeMode = safeMode };
             return Update(query, update, options);
         }
 
@@ -1403,7 +1403,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Update(IMongoQuery query, IMongoUpdate update, UpdateFlags flags)
         {
-            var options = new MongoUpdateOptions() { Flags = flags };
+            var options = new MongoUpdateOptions { Flags = flags };
             return Update(query, update, options);
         }
 

@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Internal
                         new MongoCommandException(commandResult));
                 }
 
-                string nonce = commandResult.Response["nonce"].AsString;
+                var nonce = commandResult.Response["nonce"].AsString;
                 var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + credentials.Password);
                 var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
                 var authenticateCommand = new CommandDocument
