@@ -104,6 +104,10 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         protected bool ignoreExtraElements = true;
         /// <summary>
+        /// Whether the ignoreExtraElements value should be inherited by derived classes.
+        /// </summary>
+        protected bool ignoreExtraElementsIsInherited = false;
+        /// <summary>
         /// The member map for the property or field (if any) used to hold any extra elements found during deserialization.
         /// </summary>
         protected BsonMemberMap extraElementsMemberMap;
@@ -188,6 +192,14 @@ namespace MongoDB.Bson.Serialization
         public bool IgnoreExtraElements
         {
             get { return ignoreExtraElements; }
+        }
+
+        /// <summary>
+        /// Gets whether the IgnoreExtraElements value should be inherited by derived classes.
+        /// </summary>
+        public bool IgnoreExtraElementsIsInherited
+        {
+            get { return ignoreExtraElementsIsInherited; }
         }
 
         /// <summary>
@@ -502,6 +514,11 @@ namespace MongoDB.Bson.Serialization
                             discriminatorIsRequired |= baseClassMap.discriminatorIsRequired;
                             hasRootClass |= (isRootClass || baseClassMap.HasRootClass);
                             allMemberMaps.AddRange(baseClassMap.MemberMaps);
+                            if (baseClassMap.IgnoreExtraElements && baseClassMap.IgnoreExtraElementsIsInherited)
+                            {
+                                ignoreExtraElements = true;
+                                ignoreExtraElementsIsInherited = true;
+                            }
                         }
                         allMemberMaps.AddRange(declaredMemberMaps);
 
@@ -853,6 +870,16 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Sets whether the IgnoreExtraElements value should be inherited by derived classes.
+        /// </summary>
+        /// <param name="ignoreExtraElementsIsInherited">Whether the IgnoreExtraElements value should be inherited by derived classes.</param>
+        public void SetIgnoreExtraElementsIsInherited(bool ignoreExtraElementsIsInherited)
+        {
+            if (frozen) { ThrowFrozenException(); }
+            this.ignoreExtraElementsIsInherited = ignoreExtraElementsIsInherited;
+        }
+
+        /// <summary>
         /// Sets whether this class is a root class.
         /// </summary>
         /// <param name="isRootClass">Whether this class is a root class.</param>
@@ -950,6 +977,7 @@ namespace MongoDB.Bson.Serialization
             if (ignoreExtraElementsAttribute != null)
             {
                 ignoreExtraElements = ignoreExtraElementsAttribute.IgnoreExtraElements;
+                ignoreExtraElementsIsInherited = ignoreExtraElementsAttribute.Inherited;
             }
             else
             {

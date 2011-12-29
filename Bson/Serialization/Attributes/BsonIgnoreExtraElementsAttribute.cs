@@ -28,6 +28,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     {
         // private fields
         private bool ignoreExtraElements;
+        private bool inherited;
 
         // constructors
         /// <summary>
@@ -54,6 +55,15 @@ namespace MongoDB.Bson.Serialization.Attributes
         public bool IgnoreExtraElements
         {
             get { return ignoreExtraElements; }
+        }
+
+        /// <summary>
+        /// Gets whether extra elements should also be ignored when any class derived from this one is deserialized.
+        /// </summary>
+        public bool Inherited
+        {
+            get { return inherited; }
+            set { inherited = value; }
         }
     }
 }
