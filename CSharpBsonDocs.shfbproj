@@ -15,15 +15,14 @@
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
-    <OutputPath>.\Help\Driver\</OutputPath>
-    <HtmlHelpName>CSharpDriverDocs</HtmlHelpName>
+    <OutputPath>.\Help\Bson\</OutputPath>
+    <HtmlHelpName>CSharpBsonDocs</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
       <DocumentationSource sourceFile="Bson\Bson.csproj" xmlns="" />
-      <DocumentationSource sourceFile="Driver\Driver.csproj" xmlns="" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
-    <HelpTitle>MongoDB C# Driver API Documentation</HelpTitle>
+    <HelpTitle>MongoDB C# Bson API Documentation</HelpTitle>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="MongoDB.Bson" isDocumented="True">The MongoDB.Bson top level namespace and its child namespaces contain the classes for managing Bson data. The top level MongoDB.Bson namespace contains the classes that represent all the basic Bson Types.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Bson.IO" isDocumented="True">The MongoDB.Bson.IO namespace contains the types that allow reading and writing of Bson data.</NamespaceSummaryItem>
@@ -34,11 +33,6 @@
       <NamespaceSummaryItem name="MongoDB.Bson.Serialization.IdGenerators" isDocumented="True">The various id generators used in the serialization/deserialization of Bson data are represented in this namespace.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Bson.Serialization.Options" isDocumented="True">The MongoDB.Bson.Serialization.Options namespace contains the classes that represent the serialization options for specific types such as DateTime, Document etc.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Bson.Serialization.Serializers" isDocumented="True">The MongoDB.Bson.Serialization.Serializers namespace contains the serializers for the various Bson and base .Net types</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="MongoDB.Driver" isDocumented="True">The MongoDB.Driver namespace contains all the basic types and classes that compose the MongoDB driver. It contains the classes needed for most interactions with the database.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="MongoDB.Driver.Builders" isDocumented="True">The MongoDB.Driver.Builders namespace contains helper classes (builders) that can be used to construct various options used in the driver.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="MongoDB.Driver.GridFS" isDocumented="True">The classes used to interact with MongoDB GridFS are part of the MongoDB.Driver.GridFS namespace.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="MongoDB.Driver.Internal" isDocumented="True">The MongoDB.Driver.Internal namespace contains internal classes used by the driver such as ConnectionPool.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="MongoDB.Driver.Wrappers" isDocumented="True">Wrapped versions of various classes for use in serialization are present in the MongoDB.Driver.Wrappers namespace.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <CopyrightText>Copyright 2010-2011 10gen Inc.</CopyrightText>
     <FeedbackEMailAddress>robert%4010gen.com sridhar%4010gen.com</FeedbackEMailAddress>
