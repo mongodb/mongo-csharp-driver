@@ -26,14 +26,25 @@ using System.Threading;
 
 namespace MongoDB.Driver.Linq
 {
+    /// <summary>
+    /// An abstract base class for an Expression visitor.
+    /// </summary>
     public abstract class ExpressionVisitor
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the ExpressionVisitor class.
+        /// </summary>
         protected ExpressionVisitor()
         {
         }
 
         // protected methods
+        /// <summary>
+        /// Visits an Expression.
+        /// </summary>
+        /// <param name="exp">The Expression.</param>
+        /// <returns>The Expression (posibly modified).</returns>
         protected virtual Expression Visit(Expression exp)
         {
             if (exp == null)
@@ -105,6 +116,11 @@ namespace MongoDB.Driver.Linq
             }
         }
 
+        /// <summary>
+        /// Visits a MemberBinding.
+        /// </summary>
+        /// <param name="binding">The MemberBinding.</param>
+        /// <returns>The MemberBinding (possibly modified).</returns>
         protected virtual MemberBinding VisitBinding(MemberBinding binding)
         {
             switch (binding.BindingType)
@@ -120,6 +136,11 @@ namespace MongoDB.Driver.Linq
             }
         }
 
+        /// <summary>
+        /// Visits an ElementInit.
+        /// </summary>
+        /// <param name="initializer">The ElementInit.</param>
+        /// <returns>The ElementInit (possibly modified).</returns>
         protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
         {
             ReadOnlyCollection<Expression> arguments = this.VisitExpressionList(initializer.Arguments);
@@ -130,6 +151,11 @@ namespace MongoDB.Driver.Linq
             return initializer;
         }
 
+        /// <summary>
+        /// Visits a UnaryExpression.
+        /// </summary>
+        /// <param name="u">The UnaryExpression.</param>
+        /// <returns>The UnaryExpression (possibly modified).</returns>
         protected virtual Expression VisitUnary(UnaryExpression u)
         {
             Expression operand = this.Visit(u.Operand);
@@ -140,6 +166,11 @@ namespace MongoDB.Driver.Linq
             return u;
         }
 
+        /// <summary>
+        /// Visits a BinaryExpression.
+        /// </summary>
+        /// <param name="b">The BinaryExpression.</param>
+        /// <returns>The BinaryExpression (possibly modified).</returns>
         protected virtual Expression VisitBinary(BinaryExpression b)
         {
             Expression left = this.Visit(b.Left);
@@ -159,6 +190,11 @@ namespace MongoDB.Driver.Linq
             return b;
         }
 
+        /// <summary>
+        /// Visits a TypeBinaryExpression.
+        /// </summary>
+        /// <param name="b">The TypeBinaryExpression.</param>
+        /// <returns>The TypeBinaryExpression (possibly modified).</returns>
         protected virtual Expression VisitTypeIs(TypeBinaryExpression b)
         {
             Expression expr = this.Visit(b.Expression);
@@ -169,11 +205,21 @@ namespace MongoDB.Driver.Linq
             return b;
         }
 
+        /// <summary>
+        /// Visits a ConstantExpression.
+        /// </summary>
+        /// <param name="c">The ConstantExpression.</param>
+        /// <returns>The ConstantExpression (possibly modified).</returns>
         protected virtual Expression VisitConstant(ConstantExpression c)
         {
             return c;
         }
 
+        /// <summary>
+        /// Visits a ConditionalExpression.
+        /// </summary>
+        /// <param name="c">The ConditionalExpression.</param>
+        /// <returns>The ConditionalExpression (possibly modified).</returns>
         protected virtual Expression VisitConditional(ConditionalExpression c)
         {
             Expression test = this.Visit(c.Test);
@@ -186,11 +232,21 @@ namespace MongoDB.Driver.Linq
             return c;
         }
 
+        /// <summary>
+        /// Visits a ParameterExpression.
+        /// </summary>
+        /// <param name="p">The ParameterExpression.</param>
+        /// <returns>The ParameterExpression (possibly modified).</returns>
         protected virtual Expression VisitParameter(ParameterExpression p)
         {
             return p;
         }
 
+        /// <summary>
+        /// Visits a MemberExpression.
+        /// </summary>
+        /// <param name="m">The MemberExpression.</param>
+        /// <returns>The MemberExpression (possibly modified).</returns>
         protected virtual Expression VisitMemberAccess(MemberExpression m)
         {
             Expression exp = this.Visit(m.Expression);
@@ -201,6 +257,11 @@ namespace MongoDB.Driver.Linq
             return m;
         }
 
+        /// <summary>
+        /// Visits a MethodCallExpression.
+        /// </summary>
+        /// <param name="m">The MethodCallExpression.</param>
+        /// <returns>The MethodCallExpression (possibly modified).</returns>
         protected virtual Expression VisitMethodCall(MethodCallExpression m)
         {
             Expression obj = this.Visit(m.Object);
@@ -212,6 +273,11 @@ namespace MongoDB.Driver.Linq
             return m;
         }
 
+        /// <summary>
+        /// Visits an Expression list.
+        /// </summary>
+        /// <param name="original">The Expression list.</param>
+        /// <returns>The Expression list (possibly modified).</returns>
         protected virtual ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
         {
             List<Expression> list = null;
@@ -239,6 +305,11 @@ namespace MongoDB.Driver.Linq
             return original;
         }
 
+        /// <summary>
+        /// Visits a MemberAssignment.
+        /// </summary>
+        /// <param name="assignment">The MemberAssignment.</param>
+        /// <returns>The MemberAssignment (possibly modified).</returns>
         protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {
             Expression e = this.Visit(assignment.Expression);
@@ -249,6 +320,11 @@ namespace MongoDB.Driver.Linq
             return assignment;
         }
 
+        /// <summary>
+        /// Visits a MemberMemberBinding.
+        /// </summary>
+        /// <param name="binding">The MemberMemberBinding.</param>
+        /// <returns>The MemberMemberBinding (possibly modified).</returns>
         protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
         {
             IEnumerable<MemberBinding> bindings = this.VisitBindingList(binding.Bindings);
@@ -259,6 +335,11 @@ namespace MongoDB.Driver.Linq
             return binding;
         }
 
+        /// <summary>
+        /// Visits a MemberListBinding.
+        /// </summary>
+        /// <param name="binding">The MemberListBinding.</param>
+        /// <returns>The MemberListBinding (possibly modified).</returns>
         protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)
         {
             IEnumerable<ElementInit> initializers = this.VisitElementInitializerList(binding.Initializers);
@@ -269,6 +350,11 @@ namespace MongoDB.Driver.Linq
             return binding;
         }
 
+        /// <summary>
+        /// Visits a MemberBinding list.
+        /// </summary>
+        /// <param name="original">The MemberBinding list.</param>
+        /// <returns>The MemberBinding list (possibly modified).</returns>
         protected virtual IEnumerable<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
         {
             List<MemberBinding> list = null;
@@ -296,6 +382,11 @@ namespace MongoDB.Driver.Linq
             return original;
         }
 
+        /// <summary>
+        /// Visits an ElementInit list.
+        /// </summary>
+        /// <param name="original">The ElementInit list.</param>
+        /// <returns>The ElementInit list (possibly modified).</returns>
         protected virtual IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
         {
             List<ElementInit> list = null;
@@ -323,6 +414,11 @@ namespace MongoDB.Driver.Linq
             return original;
         }
 
+        /// <summary>
+        /// Visits a LambdaExpression.
+        /// </summary>
+        /// <param name="lambda">The LambdaExpression.</param>
+        /// <returns>The LambdaExpression (possibly modified).</returns>
         protected virtual Expression VisitLambda(LambdaExpression lambda)
         {
             Expression body = this.Visit(lambda.Body);
@@ -333,6 +429,11 @@ namespace MongoDB.Driver.Linq
             return lambda;
         }
 
+        /// <summary>
+        /// Visits a NewExpression.
+        /// </summary>
+        /// <param name="nex">The NewExpression.</param>
+        /// <returns>The NewExpression (possibly modified).</returns>
         protected virtual NewExpression VisitNew(NewExpression nex)
         {
             IEnumerable<Expression> args = this.VisitExpressionList(nex.Arguments);
@@ -350,6 +451,11 @@ namespace MongoDB.Driver.Linq
             return nex;
         }
 
+        /// <summary>
+        /// Visits a MemberInitExpression.
+        /// </summary>
+        /// <param name="init">The MemberInitExpression.</param>
+        /// <returns>The MemberInitExpression (possibly modified).</returns>
         protected virtual Expression VisitMemberInit(MemberInitExpression init)
         {
             NewExpression n = this.VisitNew(init.NewExpression);
@@ -361,6 +467,11 @@ namespace MongoDB.Driver.Linq
             return init;
         }
 
+        /// <summary>
+        /// Visits a ListInitExpression.
+        /// </summary>
+        /// <param name="init">The ListInitExpression.</param>
+        /// <returns>The ListInitExpression (possibly modified).</returns>
         protected virtual Expression VisitListInit(ListInitExpression init)
         {
             NewExpression n = this.VisitNew(init.NewExpression);
@@ -372,6 +483,11 @@ namespace MongoDB.Driver.Linq
             return init;
         }
 
+        /// <summary>
+        /// Visits a NewArrayExpression.
+        /// </summary>
+        /// <param name="na">The NewArrayExpression.</param>
+        /// <returns>The NewArrayExpression (possibly modified).</returns>
         protected virtual Expression VisitNewArray(NewArrayExpression na)
         {
             IEnumerable<Expression> exprs = this.VisitExpressionList(na.Expressions);
@@ -389,6 +505,11 @@ namespace MongoDB.Driver.Linq
             return na;
         }
 
+        /// <summary>
+        /// Visits an InvocationExpression.
+        /// </summary>
+        /// <param name="iv">The InvocationExpression.</param>
+        /// <returns>The InvocationExpression (possibly modified).</returns>
         protected virtual Expression VisitInvocation(InvocationExpression iv)
         {
             IEnumerable<Expression> args = this.VisitExpressionList(iv.Arguments);

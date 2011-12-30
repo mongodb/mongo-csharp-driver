@@ -24,6 +24,9 @@ using System.Threading;
 
 namespace MongoDB.Driver.Linq
 {
+    /// <summary>
+    /// A class that pretty prints an Expression.
+    /// </summary>
     public class ExpressionPrettyPrinter : ExpressionVisitor
     {
         // private fields
@@ -31,11 +34,19 @@ namespace MongoDB.Driver.Linq
         private string indentation = "";
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the ExpressionPrettyPrinter class.
+        /// </summary>
         public ExpressionPrettyPrinter()
         {
         }
 
         // public methods
+        /// <summary>
+        /// Pretty prints an Expression.
+        /// </summary>
+        /// <param name="exp">The Expression to pretty print.</param>
+        /// <returns>A string containing the pretty printed Expression.</returns>
         public string PrettyPrint(Expression exp)
         {
             sb = new StringBuilder();
@@ -45,11 +56,21 @@ namespace MongoDB.Driver.Linq
         }
 
         // protected methods
+        /// <summary>
+        /// Visits an ElementInit node.
+        /// </summary>
+        /// <param name="initializer">The ElementInit node.</param>
+        /// <returns>The ElementInit node.</returns>
         protected override ElementInit VisitElementInitializer(ElementInit initializer)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a UnaryExpression.
+        /// </summary>
+        /// <param name="u">The UnaryExpression.</param>
+        /// <returns>The UnaryExpression.</returns>
         protected override Expression VisitUnary(UnaryExpression u)
         {
             WriteHeader(u);
@@ -62,6 +83,11 @@ namespace MongoDB.Driver.Linq
             return u;
         }
 
+        /// <summary>
+        /// Visits a BinaryExpression.
+        /// </summary>
+        /// <param name="b">The BinaryExpression.</param>
+        /// <returns>The BinaryExpression.</returns>
         protected override Expression VisitBinary(BinaryExpression b)
         {
             WriteHeader(b);
@@ -76,11 +102,21 @@ namespace MongoDB.Driver.Linq
             return b;
         }
 
+        /// <summary>
+        /// Visits a TypeBinaryExpression.
+        /// </summary>
+        /// <param name="b">The TypeBinaryExpression.</param>
+        /// <returns>The TypeBinaryExpression.</returns>
         protected override Expression VisitTypeIs(TypeBinaryExpression b)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a ConstantExpression.
+        /// </summary>
+        /// <param name="c">The ConstantExpression.</param>
+        /// <returns>The ConstantExpression.</returns>
         protected override Expression VisitConstant(ConstantExpression c)
         {
             WriteHeader(c);
@@ -91,11 +127,21 @@ namespace MongoDB.Driver.Linq
             return c;
         }
 
+        /// <summary>
+        /// Visits a ConditionalExpression.
+        /// </summary>
+        /// <param name="c">The ConditionalExpression.</param>
+        /// <returns>The ConditionalExpression.</returns>
         protected override Expression VisitConditional(ConditionalExpression c)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a ParameterExpression.
+        /// </summary>
+        /// <param name="p">The ParameterExpression.</param>
+        /// <returns>The ParameterExpression.</returns>
         protected override Expression VisitParameter(ParameterExpression p)
         {
             WriteHeader(p);
@@ -107,6 +153,11 @@ namespace MongoDB.Driver.Linq
             return p;
         }
 
+        /// <summary>
+        /// Visits a MemberExpression.
+        /// </summary>
+        /// <param name="m">The MemberExpression.</param>
+        /// <returns>The MemberExpression.</returns>
         protected override Expression VisitMemberAccess(MemberExpression m)
         {
             WriteHeader(m);
@@ -119,6 +170,11 @@ namespace MongoDB.Driver.Linq
             return m;
         }
 
+        /// <summary>
+        /// Visits a MethodCallExpression.
+        /// </summary>
+        /// <param name="m">The MethodCallExpression.</param>
+        /// <returns>The MethodCallExpression.</returns>
         protected override Expression VisitMethodCall(MethodCallExpression m)
         {
             WriteHeader(m);
@@ -137,36 +193,71 @@ namespace MongoDB.Driver.Linq
             return m;
         }
 
+        /// <summary>
+        /// Visits an Expression list.
+        /// </summary>
+        /// <param name="original">The Expression list.</param>
+        /// <returns>The Expression list.</returns>
         protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a MemberAssignment.
+        /// </summary>
+        /// <param name="assignment">The MemberAssignment.</param>
+        /// <returns>The MemberAssignment.</returns>
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a MemberMemberBinding.
+        /// </summary>
+        /// <param name="binding">The MemberMemberBinding.</param>
+        /// <returns>The MemberMemberBinding.</returns>
         protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a MemberListBinding.
+        /// </summary>
+        /// <param name="binding">The MemberListBinding.</param>
+        /// <returns>The MemberListBinding.</returns>
         protected override MemberListBinding VisitMemberListBinding(MemberListBinding binding)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a MemberBinding list.
+        /// </summary>
+        /// <param name="original">The MemberBinding list.</param>
+        /// <returns>The MemberBinding list.</returns>
         protected override IEnumerable<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits an ElementInit list.
+        /// </summary>
+        /// <param name="original">The ElementInit list.</param>
+        /// <returns>The ElementInit list.</returns>
         protected override IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a LambdaExpression.
+        /// </summary>
+        /// <param name="lambda">The LambdaExpression.</param>
+        /// <returns>The LambdaExpression.</returns>
         protected override Expression VisitLambda(LambdaExpression lambda)
         {
             WriteHeader(lambda);
@@ -183,26 +274,51 @@ namespace MongoDB.Driver.Linq
             return lambda;
         }
 
+        /// <summary>
+        /// Visits a NewExpression.
+        /// </summary>
+        /// <param name="nex">The NewExpression.</param>
+        /// <returns>The NewExpression.</returns>
         protected override NewExpression VisitNew(NewExpression nex)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a MemberInitExpression.
+        /// </summary>
+        /// <param name="init">The MemberInitExpression.</param>
+        /// <returns>The MemberInitExpression.</returns>
         protected override Expression VisitMemberInit(MemberInitExpression init)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a ListInitExpression.
+        /// </summary>
+        /// <param name="init">The ListInitExpression.</param>
+        /// <returns>The ListInitExpression.</returns>
         protected override Expression VisitListInit(ListInitExpression init)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits a NewArrayExpression.
+        /// </summary>
+        /// <param name="na">The NewArrayExpression.</param>
+        /// <returns>The NewArrayExpression.</returns>
         protected override Expression VisitNewArray(NewArrayExpression na)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Visits an InvocationExpression.
+        /// </summary>
+        /// <param name="iv">The InvocationExpression.</param>
+        /// <returns>The InvocationExpression.</returns>
         protected override Expression VisitInvocation(InvocationExpression iv)
         {
             throw new NotImplementedException();
