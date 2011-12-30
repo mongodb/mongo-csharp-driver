@@ -48,7 +48,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(null, builder.SafeMode);
             Assert.AreEqual(null, builder.Server);
             Assert.AreEqual(null, builder.Servers);
-            Assert.AreEqual(false, builder.SlaveOk);
+            Assert.AreEqual(ReadPreference.Primary, builder.ReadPreference);
             Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
             Assert.AreEqual(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
             Assert.AreEqual(MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
@@ -475,8 +475,8 @@ namespace MongoDB.DriverUnitTests
         public void TestSlaveOkFalse()
         {
             var connectionString = "mongodb://localhost";
-            var builder = new MongoUrlBuilder("mongodb://localhost") { SlaveOk = false };
-            Assert.AreEqual(false, builder.SlaveOk);
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = ReadPreference.Primary };
+            Assert.AreEqual(ReadPreference.Primary, builder.ReadPreference);
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }
@@ -485,8 +485,8 @@ namespace MongoDB.DriverUnitTests
         public void TestSlaveOkTrue()
         {
             var connectionString = "mongodb://localhost/?slaveOk=true";
-            var builder = new MongoUrlBuilder("mongodb://localhost") { SlaveOk = true };
-            Assert.AreEqual(true, builder.SlaveOk);
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = ReadPreference.Secondary };
+            Assert.AreEqual(ReadPreference.Secondary, builder.ReadPreference);
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }

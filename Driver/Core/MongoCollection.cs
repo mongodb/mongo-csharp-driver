@@ -971,7 +971,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var connection = server.AcquireConnection(database, false); // not slaveOk
+            var connection = server.AcquireConnection(database, ReadPreference.Primary); // not slaveOk
             try
             {
                 var safeMode = options.SafeMode ?? settings.SafeMode;
@@ -1148,7 +1148,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Remove(IMongoQuery query, RemoveFlags flags, SafeMode safeMode)
         {
-            var connection = server.AcquireConnection(database, false); // not slaveOk
+            var connection = server.AcquireConnection(database, ReadPreference.Primary); // not slaveOk
             try
             {
                 var writerSettings = GetWriterSettings(connection);
@@ -1365,7 +1365,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var connection = server.AcquireConnection(database, false); // not slaveOk
+            var connection = server.AcquireConnection(database, ReadPreference.Primary); // not slaveOk
             try
             {
                 var writerSettings = GetWriterSettings(connection);

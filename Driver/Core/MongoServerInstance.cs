@@ -52,11 +52,13 @@ namespace MongoDB.Driver
         private bool isPassive;
         private bool isPrimary;
         private bool isSecondary;
+        private HashSet<string> tags;
         private int maxDocumentSize;
         private int maxMessageLength;
         private int sequentialId;
         private MongoServer server;
         private MongoServerState state; // always use property to set value so event gets raised
+
 
         // constructors
         internal MongoServerInstance(MongoServer server, MongoServerAddress address)
@@ -68,6 +70,7 @@ namespace MongoDB.Driver
             this.maxMessageLength = MongoDefaults.MaxMessageLength;
             this.state = MongoServerState.Disconnected;
             this.connectionPool = new MongoConnectionPool(this);
+            this.tags = new HashSet<string>();
             // Console.WriteLine("MongoServerInstance[{0}]: {1}", sequentialId, address);
         }
 
@@ -204,6 +207,14 @@ namespace MongoDB.Driver
             get { return state; }
         }
 
+        /// <summary>
+        /// Gets the tags of this instance.
+        /// </summary>
+        public HashSet<string> Tags
+        {
+            get { return tags; }
+        }
+
         // public methods
         /// <summary>
         /// Checks whether the server is alive (throws an exception if not).
@@ -295,7 +306,7 @@ namespace MongoDB.Driver
             return connection;
         }
 
-        internal void Connect(bool slaveOk)
+        internal void Connect(ReadPreference readPreference)
         {
             // Console.WriteLine("MongoServerInstance[{0}]: Connect(slaveOk={1}) called.", sequentialId, slaveOk);
             lock (serverInstanceLock)
@@ -315,9 +326,9 @@ namespace MongoDB.Driver
                         try
                         {
                             VerifyState(connection);
-                            if (!isPrimary && !slaveOk)
+                            if (!isPrimary && readPreference.Equals(ReadPreference.Primary) )
                             {
-                                throw new MongoConnectionException("Server is not a primary and SlaveOk is false.");
+                                throw new MongoConnectionException("Server is not a primary and readPreference is set to primary");
                             }
                         }
                         finally
@@ -419,6 +430,12 @@ namespace MongoDB.Driver
                 var isSecondary = isMasterResult.Response["secondary", false].ToBoolean();
                 var isPassive = isMasterResult.Response["passive", false].ToBoolean();
                 var isArbiter = isMasterResult.Response["arbiterOnly", false].ToBoolean();
+
+                //let's suppose for now that tags are included in the isMaster command results
+                var tags = isMasterResult.Response["tags", new BsonArray()].AsBsonArray.ToList();
+                foreach (BsonValue tag in tags)
+                    if (tag.IsString) this.tags.Add(tag.AsString);
+
                 // workaround for CSHARP-273
                 if (isPassive && isArbiter) { isPassive = false; }
 

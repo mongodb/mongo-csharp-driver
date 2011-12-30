@@ -43,7 +43,7 @@ namespace MongoDB.DriverUnitTests
             settings.ReplicaSetName = "replicaname";
             settings.SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(4));
             settings.Server = new MongoServerAddress("server");
-            settings.SlaveOk = true;
+            settings.ReadPreference = ReadPreference.Secondary;
             settings.SocketTimeout = TimeSpan.FromSeconds(5);
             settings.WaitQueueSize = 55;
             settings.WaitQueueTimeout = TimeSpan.FromSeconds(6);

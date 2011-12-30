@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         private string replicaSetName;
         private SafeMode safeMode;
         private IEnumerable<MongoServerAddress> servers;
-        private bool slaveOk;
+        private ReadPreference readPreference;
         private TimeSpan socketTimeout;
         private double waitQueueMultiple;
         private int waitQueueSize;
@@ -227,10 +227,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether queries should be sent to secondary servers.
         /// </summary>
-        public bool SlaveOk
+        public ReadPreference ReadPreference
         {
-            get { return slaveOk; }
-            set { slaveOk = value; }
+            get { return readPreference; }
+            set { readPreference = value; }
         }
 
         /// <summary>
@@ -538,8 +538,8 @@ namespace MongoDB.Driver
                                 if (safeMode == null) { safeMode = new SafeMode(false); }
                                 SafeMode.Enabled = ParseBoolean(name, value);
                                 break;
-                            case "slaveok":
-                                slaveOk = ParseBoolean(name, value);
+                            case "readpreference":
+                                readPreference = ReadPreference.Parse(value);
                                 break;
                             case "sockettimeout":
                             case "sockettimeoutms":
@@ -600,7 +600,7 @@ namespace MongoDB.Driver
         {
             return new MongoServerSettings(connectionMode, connectTimeout, defaultCredentials, guidRepresentation, ipv6,
                 maxConnectionIdleTime, maxConnectionLifeTime, maxConnectionPoolSize, minConnectionPoolSize, replicaSetName,
-                safeMode ?? MongoDefaults.SafeMode, servers, slaveOk, socketTimeout, ComputedWaitQueueSize, waitQueueTimeout);
+                safeMode ?? MongoDefaults.SafeMode, servers, readPreference, socketTimeout, ComputedWaitQueueSize, waitQueueTimeout);
         }
 
         /// <summary>
@@ -651,9 +651,9 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("replicaSet={0};", replicaSetName);
             }
-            if (slaveOk)
+            if (readPreference!=null)
             {
-                query.AppendFormat("slaveOk=true;");
+                query.AppendFormat(readPreference.ToString());
             }
             if (safeMode != null && safeMode.Enabled)
             {
@@ -751,7 +751,7 @@ namespace MongoDB.Driver
             replicaSetName = null;
             safeMode = null;
             servers = null;
-            slaveOk = false;
+            readPreference = ReadPreference.Primary;
             socketTimeout = MongoDefaults.SocketTimeout;
             waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
             waitQueueSize = MongoDefaults.WaitQueueSize;

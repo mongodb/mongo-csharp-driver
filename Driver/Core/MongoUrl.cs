@@ -206,9 +206,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets whether queries should be sent to secondary servers.
         /// </summary>
-        public bool SlaveOk
+        public ReadPreference ReadPreference
         {
-            get { return serverSettings.SlaveOk; }
+            get { return serverSettings.ReadPreference; }
         }
 
         /// <summary>

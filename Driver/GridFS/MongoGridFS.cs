@@ -251,7 +251,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="fileInfo">The GridFS file.</param>
         public void Download(Stream stream, MongoGridFSFileInfo fileInfo)
         {
-            using (database.RequestStart(database.Settings.SlaveOk))
+            using (database.RequestStart(database.Settings.ReadPreference))
             {
                 EnsureIndexes();
 
@@ -423,7 +423,7 @@ namespace MongoDB.Driver.GridFS
             else
             {
                 // check whether we are guaranteed to use a primary
-                if (database.Settings.SlaveOk)
+                if (database.Settings.ReadPreference != ReadPreference.Primary)
                 {
                     return;
                 }
@@ -756,7 +756,7 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The file info of the new GridFS file.</returns>
         public MongoGridFSFileInfo Upload(Stream stream, string remoteFileName, MongoGridFSCreateOptions createOptions)
         {
-            using (database.RequestStart(false)) // not slaveOk
+            using (database.RequestStart(ReadPreference.Primary)) // not slaveOk
             {
                 EnsureIndexes();
 

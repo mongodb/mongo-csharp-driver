@@ -74,7 +74,7 @@ namespace MongoDB.Driver
             if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
             {
                 // make sure commands get routed to the primary server by using slaveOk false
-                commandCollectionSettings.SlaveOk = false;
+                commandCollectionSettings.ReadPreference = ReadPreference.Primary;
             }
             commandCollection = GetCollection(commandCollectionSettings);
         }
@@ -679,7 +679,7 @@ namespace MongoDB.Driver
         /// <returns>A cursor.</returns>
         public MongoCursor<SystemProfileInfo> GetProfilingInfo(IMongoQuery query)
         {
-            var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { SlaveOk = false };
+            var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { ReadPreference = ReadPreference.Primary };
             var collection = GetCollection<SystemProfileInfo>(collectionSettings);
             return collection.Find(query);
         }
@@ -781,7 +781,7 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart()
         {
-            return RequestStart(false); // not slaveOk
+            return RequestStart(ReadPreference.Primary); // not slaveOk
         }
 
         /// <summary>
@@ -791,9 +791,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        public virtual IDisposable RequestStart(bool slaveOk)
+        public virtual IDisposable RequestStart(ReadPreference readPreference)
         {
-            return server.RequestStart(this, slaveOk);
+            return server.RequestStart(this, readPreference);
         }
 
         // TODO: mongo shell has ResetError at the database level

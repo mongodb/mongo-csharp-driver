@@ -42,7 +42,8 @@ namespace MongoDB.Driver
         private string replicaSetName;
         private SafeMode safeMode;
         private IEnumerable<MongoServerAddress> servers;
-        private bool slaveOk;
+        //private bool slaveOk;
+        private ReadPreference readPreference;
         private TimeSpan socketTimeout;
         private int waitQueueSize;
         private TimeSpan waitQueueTimeout;
@@ -69,7 +70,8 @@ namespace MongoDB.Driver
             replicaSetName = null;
             safeMode = MongoDefaults.SafeMode;
             servers = null;
-            slaveOk = false;
+            //slaveOk = false;
+            readPreference = ReadPreference.Primary;
             socketTimeout = MongoDefaults.SocketTimeout;
             waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
             waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
@@ -94,7 +96,7 @@ namespace MongoDB.Driver
         /// <param name="socketTimeout">The socket timeout.</param>
         /// <param name="waitQueueSize">The wait queue size.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
-        public MongoServerSettings(ConnectionMode connectionMode, TimeSpan connectTimeout, MongoCredentials defaultCredentials, GuidRepresentation guidRepresentation, bool ipv6, TimeSpan maxConnectionIdleTime, TimeSpan maxConnectionLifeTime, int maxConnectionPoolSize, int minConnectionPoolSize, string replicaSetName, SafeMode safeMode, IEnumerable<MongoServerAddress> servers, bool slaveOk, TimeSpan socketTimeout, int waitQueueSize, TimeSpan waitQueueTimeout)
+        public MongoServerSettings(ConnectionMode connectionMode, TimeSpan connectTimeout, MongoCredentials defaultCredentials, GuidRepresentation guidRepresentation, bool ipv6, TimeSpan maxConnectionIdleTime, TimeSpan maxConnectionLifeTime, int maxConnectionPoolSize, int minConnectionPoolSize, string replicaSetName, SafeMode safeMode, IEnumerable<MongoServerAddress> servers, ReadPreference readPreference, TimeSpan socketTimeout, int waitQueueSize, TimeSpan waitQueueTimeout)
         {
             this.connectionMode = connectionMode;
             this.connectTimeout = connectTimeout;
@@ -108,7 +110,8 @@ namespace MongoDB.Driver
             this.replicaSetName = replicaSetName;
             this.safeMode = safeMode;
             this.servers = servers;
-            this.slaveOk = slaveOk;
+            //this.slaveOk = slaveOk;
+            this.readPreference = readPreference;
             this.socketTimeout = socketTimeout;
             this.waitQueueSize = waitQueueSize;
             this.waitQueueTimeout = waitQueueTimeout;
@@ -300,18 +303,35 @@ namespace MongoDB.Driver
             }
         }
 
+        ///// <summary>
+        ///// Gets or sets whether queries should be sent to secondary servers.
+        ///// </summary>
+        //public bool SlaveOk
+        //{
+        //    get { return slaveOk; }
+        //    set
+        //    {
+        //        if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+        //        slaveOk = value;
+        //    }
+        //}
+
         /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
+        /// Gets or sets the read preference (primary, any secondaries, set of tags)
         /// </summary>
-        public bool SlaveOk
+        /// <value>
+        /// The read preference.
+        /// </value>
+        public ReadPreference ReadPreference
         {
-            get { return slaveOk; }
+            get { return readPreference; }
             set
             {
                 if (isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                slaveOk = value;
+                readPreference = value;
             }
         }
+
 
         /// <summary>
         /// Gets or sets the socket timeout.
@@ -359,7 +379,7 @@ namespace MongoDB.Driver
         /// <returns>A clone of the settings.</returns>
         public MongoServerSettings Clone()
         {
-            return new MongoServerSettings(connectionMode, connectTimeout, defaultCredentials, guidRepresentation, ipv6, maxConnectionIdleTime, maxConnectionLifeTime, maxConnectionPoolSize, minConnectionPoolSize, replicaSetName, safeMode, servers, slaveOk, socketTimeout, waitQueueSize, waitQueueTimeout);
+            return new MongoServerSettings(connectionMode, connectTimeout, defaultCredentials, guidRepresentation, ipv6, maxConnectionIdleTime, maxConnectionLifeTime, maxConnectionPoolSize, minConnectionPoolSize, replicaSetName, safeMode, servers, readPreference, socketTimeout, waitQueueSize, waitQueueTimeout);
         }
 
         /// <summary>
@@ -395,7 +415,8 @@ namespace MongoDB.Driver
                         this.replicaSetName == rhs.replicaSetName &&
                         this.safeMode == rhs.safeMode &&
                         (this.servers == null && rhs.servers == null || this.servers.SequenceEqual(rhs.servers)) &&
-                        this.slaveOk == rhs.slaveOk &&
+                        ((this.readPreference == null && rhs.readPreference == null) || this.readPreference.Equals(rhs.readPreference)) && 
+                        //this.slaveOk == rhs.slaveOk &&
                         this.socketTimeout == rhs.socketTimeout &&
                         this.waitQueueSize == rhs.waitQueueSize &&
                         this.waitQueueTimeout == rhs.waitQueueTimeout;
@@ -490,7 +511,8 @@ namespace MongoDB.Driver
                     hash = 37 * hash + server.GetHashCode();
                 }
             }
-            hash = 37 * hash + slaveOk.GetHashCode();
+            //hash = 37 * hash + slaveOk.GetHashCode();
+            hash = 37 * hash + readPreference.GetHashCode();
             hash = 37 * hash + socketTimeout.GetHashCode();
             hash = 37 * hash + waitQueueSize.GetHashCode();
             hash = 37 * hash + waitQueueTimeout.GetHashCode();
@@ -517,7 +539,8 @@ namespace MongoDB.Driver
             sb.AppendFormat("ReplicaSetName={0};", replicaSetName);
             sb.AppendFormat("SafeMode={0};", safeMode);
             sb.AppendFormat("Servers={0};", serversString);
-            sb.AppendFormat("SlaveOk={0};", slaveOk);
+            sb.AppendFormat("ReadPreference={0}", readPreference);
+            //sb.AppendFormat("SlaveOk={0};", slaveOk);
             sb.AppendFormat("SocketTimeout={0};", socketTimeout);
             sb.AppendFormat("WaitQueueSize={0};", waitQueueSize);
             sb.AppendFormat("WaitQueueTimeout={0}", waitQueueTimeout);

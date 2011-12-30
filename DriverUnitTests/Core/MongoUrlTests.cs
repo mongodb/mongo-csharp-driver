@@ -46,7 +46,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, url.MaxConnectionPoolSize);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.False, url.SafeMode);
-            Assert.AreEqual(false, url.SlaveOk);
+            Assert.AreEqual(ReadPreference.Primary, url.ReadPreference);
             Assert.AreEqual(MongoDefaults.SocketTimeout, url.SocketTimeout);
             Assert.AreEqual(MongoDefaults.WaitQueueMultiple, url.WaitQueueMultiple);
             Assert.AreEqual(MongoDefaults.WaitQueueSize, url.WaitQueueSize);
@@ -382,7 +382,7 @@ namespace MongoDB.DriverUnitTests
         {
             string connectionString = "mongodb://localhost/?slaveOk=false";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual(false, url.SlaveOk);
+            Assert.AreEqual(ReadPreference.Primary, url.ReadPreference);
             Assert.AreEqual("mongodb://localhost", url.ToString()); // slaveOk=false dropped
         }
 
@@ -391,7 +391,7 @@ namespace MongoDB.DriverUnitTests
         {
             string connectionString = "mongodb://localhost/?slaveOk=true";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual(true, url.SlaveOk);
+            Assert.AreEqual(ReadPreference.Secondary, url.ReadPreference);
             Assert.AreEqual(connectionString, url.ToString());
         }
 
@@ -447,7 +447,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("name", url.ReplicaSetName);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
             Assert.AreEqual(SafeMode.Create(true, true, 2, TimeSpan.FromSeconds(2)), url.SafeMode);
-            Assert.AreEqual(true, url.SlaveOk);
+            Assert.AreEqual(ReadPreference.Secondary, url.ReadPreference);
             Assert.AreEqual(connectionString, url.ToString());
         }
 

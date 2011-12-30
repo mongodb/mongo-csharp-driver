@@ -47,7 +47,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
             Assert.AreEqual(null, builder.ReplicaSetName);
             Assert.IsNull(builder.SafeMode);
-            Assert.AreEqual(false, builder.SlaveOk);
+            Assert.AreEqual(ReadPreference.Primary, builder.ReadPreference);
             Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
             Assert.AreEqual(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
             Assert.AreEqual(MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
@@ -418,7 +418,7 @@ namespace MongoDB.DriverUnitTests
         {
             string connectionString = "server=localhost;slaveOk=false";
             var builder = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(false, builder.SlaveOk);
+            Assert.AreEqual(ReadPreference.Secondary, builder.ReadPreference);
             Assert.AreEqual(connectionString, builder.ToString());
         }
 
@@ -427,7 +427,7 @@ namespace MongoDB.DriverUnitTests
         {
             string connectionString = "server=localhost;slaveOk=true";
             var builder = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(true, builder.SlaveOk);
+            Assert.AreEqual(ReadPreference.Secondary, builder.ReadPreference);
             Assert.AreEqual(connectionString, builder.ToString());
         }
 
@@ -484,7 +484,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("name", builder.ReplicaSetName);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
             Assert.AreEqual(new SafeMode(true) { FSync = true, J = true, W = 2, WTimeout = TimeSpan.FromSeconds(2) }, builder.SafeMode);
-            Assert.AreEqual(true, builder.SlaveOk);
+            Assert.AreEqual(ReadPreference.Secondary, builder.ReadPreference);
             Assert.AreEqual(connectionString, builder.ToString());
         }
     }

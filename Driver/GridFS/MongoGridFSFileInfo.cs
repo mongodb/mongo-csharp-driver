@@ -324,7 +324,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (Exists)
             {
-                using (gridFS.Database.RequestStart(false)) // not slaveOk
+                using (gridFS.Database.RequestStart(ReadPreference.Primary)) // not slaveOk
                 {
                     gridFS.EnsureIndexes();
                     gridFS.Files.Remove(Query.EQ("_id", id), gridFS.Settings.SafeMode);

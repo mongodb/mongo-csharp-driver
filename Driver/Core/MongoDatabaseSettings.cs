@@ -32,7 +32,7 @@ namespace MongoDB.Driver
         private MongoCredentials credentials;
         private GuidRepresentation guidRepresentation;
         private SafeMode safeMode;
-        private bool slaveOk;
+        private ReadPreference readPreference;
         // the following fields are set when Freeze is called
         private bool isFrozen;
         private int frozenHashCode;
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
             this.credentials = serverSettings.DefaultCredentials;
             this.guidRepresentation = serverSettings.GuidRepresentation;
             this.safeMode = serverSettings.SafeMode;
-            this.slaveOk = serverSettings.SlaveOk;
+            this.readPreference = serverSettings.ReadPreference;
         }
 
         /// <summary>
@@ -62,13 +62,13 @@ namespace MongoDB.Driver
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="safeMode">The safe mode to use.</param>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
-        public MongoDatabaseSettings(string databaseName, MongoCredentials credentials, GuidRepresentation guidRepresentation, SafeMode safeMode, bool slaveOk)
+        public MongoDatabaseSettings(string databaseName, MongoCredentials credentials, GuidRepresentation guidRepresentation, SafeMode safeMode, ReadPreference readPreference)
         {
             this.databaseName = databaseName;
             this.credentials = credentials;
             this.guidRepresentation = guidRepresentation;
             this.safeMode = safeMode;
-            this.slaveOk = slaveOk;
+            this.readPreference = readPreference;
         }
 
         // public properties
@@ -130,13 +130,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether queries should be sent to secondary servers.
         /// </summary>
-        public bool SlaveOk
+        public ReadPreference ReadPreference
         {
-            get { return slaveOk; }
+            get { return readPreference; }
             set
             {
                 if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                slaveOk = value;
+                readPreference = value;
             }
         }
 
@@ -147,7 +147,7 @@ namespace MongoDB.Driver
         /// <returns>A clone of the settings.</returns>
         public MongoDatabaseSettings Clone()
         {
-            return new MongoDatabaseSettings(databaseName, credentials, guidRepresentation, safeMode, slaveOk);
+            return new MongoDatabaseSettings(databaseName, credentials, guidRepresentation, safeMode, readPreference);
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace MongoDB.Driver
                         this.credentials == rhs.credentials &&
                         this.guidRepresentation == rhs.guidRepresentation &&
                         this.safeMode == rhs.safeMode &&
-                        this.slaveOk == rhs.slaveOk;
+                        this.readPreference == rhs.readPreference;
                 }
             }
         }
@@ -253,15 +253,15 @@ namespace MongoDB.Driver
             hash = 37 * hash + ((credentials == null) ? 0 : credentials.GetHashCode());
             hash = 37 * hash + guidRepresentation.GetHashCode();
             hash = 37 * hash + ((safeMode == null) ? 0 : safeMode.GetHashCode());
-            hash = 37 * hash + slaveOk.GetHashCode();
+            hash = 37 * hash + readPreference.GetHashCode();
             return hash;
         }
 
         private string ToStringHelper()
         {
             return string.Format(
-                "DatabaseName={0};Credentials={1};GuidRepresentation={2};SafeMode={3};SlaveOk={4}",
-                databaseName, credentials, guidRepresentation, safeMode, slaveOk);
+                "DatabaseName={0};Credentials={1};GuidRepresentation={2};SafeMode={3};ReadPreference={4}",
+                databaseName, credentials, guidRepresentation, safeMode, readPreference);
         }
     }
 }

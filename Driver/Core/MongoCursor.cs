@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         private IMongoFields fields;
         private BsonDocument options;
         private QueryFlags flags;
-        private bool slaveOk;
+        private ReadPreference readPreference;
         private int skip;
         private int limit; // number of documents to return (enforced by cursor)
         private int batchSize; // number of documents to return in each reply
@@ -59,7 +59,7 @@ namespace MongoDB.Driver
             this.database = collection.Database;
             this.collection = collection;
             this.query = query;
-            this.slaveOk = collection.Settings.SlaveOk;
+            this.readPreference = collection.Settings.ReadPreference;
         }
 
         // public properties
@@ -126,7 +126,10 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual QueryFlags Flags
         {
-            get { return flags | (slaveOk ? QueryFlags.SlaveOk : 0); }
+            get {
+                throw new Exception("what could be done with this logical OR ?");
+                //return flags | (slaveOk ? QueryFlags.SlaveOk : 0); 
+            }
             set
             {
                 if (isFrozen) { ThrowFrozen(); }
@@ -135,15 +138,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether the query should be sent to a secondary server.
+        /// Gets or sets whether the query should be sent to a secondary server or to a given sets of tags.
         /// </summary>
-        public virtual bool SlaveOk
+        public virtual ReadPreference ReadPreference
         {
-            get { return slaveOk || ((flags & QueryFlags.SlaveOk) != 0); }
+            get { return readPreference; }
             set
             {
                 if (isFrozen) { ThrowFrozen(); }
-                slaveOk = value;
+                readPreference = value;
             }
         }
 
@@ -245,7 +248,7 @@ namespace MongoDB.Driver
             var clone = Create(documentType, collection, query);
             clone.options = options == null ? null : (BsonDocument)options.Clone();
             clone.flags = flags;
-            clone.slaveOk = slaveOk;
+            clone.readPreference = readPreference;
             clone.skip = skip;
             clone.limit = limit;
             clone.batchSize = batchSize;
@@ -511,10 +514,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetSlaveOk(bool slaveOk)
+        public virtual MongoCursor SetReadPreference(ReadPreference readPreference)
         {
             if (isFrozen) { ThrowFrozen(); }
-            this.slaveOk = slaveOk;
+            this.readPreference = readPreference;
             return this;
         }
 
@@ -778,9 +781,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetSlaveOk(bool slaveOk)
+        public new virtual MongoCursor<TDocument> SetReadPreference(ReadPreference readPreference)
         {
-            return (MongoCursor<TDocument>)base.SetSlaveOk(slaveOk);
+            return (MongoCursor<TDocument>)base.SetReadPreference(readPreference);
         }
 
         /// <summary>

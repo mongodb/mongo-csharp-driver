@@ -207,7 +207,7 @@ namespace MongoDB.Driver
             if (serverInstance == null)
             {
                 // first time we need a connection let Server.AcquireConnection pick the server instance
-                var connection = cursor.Server.AcquireConnection(cursor.Database, cursor.SlaveOk);
+                var connection = cursor.Server.AcquireConnection(cursor.Database, cursor.ReadPreference);
                 serverInstance = connection.ServerInstance;
                 return connection;
             }

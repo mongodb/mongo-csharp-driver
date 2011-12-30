@@ -51,7 +51,7 @@ namespace MongoDB.Driver
             { "safe", "safe" },
             { "server", "server" },
             { "servers", "server" },
-            { "slaveok", "slaveOk" },
+            //{ "slaveok", "slaveOk" },
             { "sockettimeout", "socketTimeout" },
             { "sockettimeoutms", "socketTimeoutMS" },
             { "username", "username" },
@@ -79,7 +79,8 @@ namespace MongoDB.Driver
         private string replicaSetName;
         private SafeMode safeMode;
         private IEnumerable<MongoServerAddress> servers;
-        private bool slaveOk;
+        //private bool slaveOk;
+        private ReadPreference readPreference;
         private TimeSpan socketTimeout;
         private string username;
         private double waitQueueMultiple;
@@ -329,16 +330,26 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
-        /// </summary>
-        public bool SlaveOk
+        ///// <summary>
+        ///// Gets or sets whether queries should be sent to secondary servers.
+        ///// </summary>
+        //public bool SlaveOk
+        //{
+        //    get { return slaveOk; }
+        //    set
+        //    {
+        //        slaveOk = value;
+        //        base["slaveOk"] = XmlConvert.ToString(value);
+        //    }
+        //}
+
+        public ReadPreference ReadPreference
         {
-            get { return slaveOk; }
+            get { return readPreference; }
             set
             {
-                slaveOk = value;
-                base["slaveOk"] = XmlConvert.ToString(value);
+                readPreference = value;
+                base["readPreference"] = value.ToString();
             }
         }
 
@@ -487,9 +498,12 @@ namespace MongoDB.Driver
                     case "servers":
                         Servers = ParseServersString((string)value);
                         break;
-                    case "slaveok":
-                        SlaveOk = Convert.ToBoolean(value);
+                    case "readPreference":
+                        ReadPreference = ReadPreference.Parse((string)value);
                         break;
+                    //case "slaveok":
+                    //    SlaveOk = Convert.ToBoolean(value);
+                    //    break;
                     case "sockettimeout":
                     case "sockettimeoutms":
                         SocketTimeout = ToTimeSpan(keyword, value);
@@ -562,7 +576,7 @@ namespace MongoDB.Driver
             var defaultCredentials = MongoCredentials.Create(username, password);
             return new MongoServerSettings(connectionMode, connectTimeout, defaultCredentials, guidRepresentation, ipv6,
                 maxConnectionIdleTime, maxConnectionLifeTime, maxConnectionPoolSize, minConnectionPoolSize, replicaSetName,
-                safeMode ?? MongoDefaults.SafeMode, servers, slaveOk, socketTimeout, ComputedWaitQueueSize,waitQueueTimeout);
+                safeMode ?? MongoDefaults.SafeMode, servers, readPreference, socketTimeout, ComputedWaitQueueSize,waitQueueTimeout);
         }
 
         // private methods
@@ -610,7 +624,7 @@ namespace MongoDB.Driver
             replicaSetName = null;
             safeMode = null;
             servers = null;
-            slaveOk = false;
+            readPreference = ReadPreference.Primary;
             socketTimeout = MongoDefaults.SocketTimeout;
             username = null;
             waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
