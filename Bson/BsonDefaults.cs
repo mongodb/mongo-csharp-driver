@@ -31,8 +31,8 @@ namespace MongoDB.Bson
 
         // public static properties
         /// <summary>
-        /// Gets or sets the default Guid representation to be used in serialization of 
-        /// <see cref="MongoDB.Bson.BsonObjectId"/> to the database. 
+        /// Gets or sets the default representation to be used in serialization of 
+        /// Guids to the database. 
         /// <seealso cref="MongoDB.Bson.GuidRepresentation"/> 
         /// </summary>
         public static GuidRepresentation GuidRepresentation
