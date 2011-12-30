@@ -380,7 +380,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSlaveOkFalse()
         {
-            string connectionString = "mongodb://localhost/?slaveOk=false";
+            string connectionString = "mongodb://localhost/?readPreference=primary";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.AreEqual(ReadPreference.Primary, url.ReadPreference);
             Assert.AreEqual("mongodb://localhost", url.ToString()); // slaveOk=false dropped
@@ -389,7 +389,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSlaveOkTrue()
         {
-            string connectionString = "mongodb://localhost/?slaveOk=true";
+            string connectionString = "mongodb://localhost/?readPreference=secondary";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.AreEqual(ReadPreference.Secondary, url.ReadPreference);
             Assert.AreEqual(connectionString, url.ToString());
@@ -436,7 +436,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAll()
         {
-            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s;guids=PythonLegacy";
+            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;readPreference=secondary;safe=true;fsync=true;w=2;wtimeout=2s;guids=PythonLegacy";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());

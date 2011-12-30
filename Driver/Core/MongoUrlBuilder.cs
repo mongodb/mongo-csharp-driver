@@ -651,9 +651,9 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("replicaSet={0};", replicaSetName);
             }
-            if (readPreference!=null)
+            if (readPreference!=null && !readPreference.Equals(ReadPreference.Primary))
             {
-                query.AppendFormat(readPreference.ToString());
+                query.AppendFormat("readPreference={0};",readPreference.ToString());
             }
             if (safeMode != null && safeMode.Enabled)
             {

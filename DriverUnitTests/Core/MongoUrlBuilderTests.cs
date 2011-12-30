@@ -484,7 +484,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSlaveOkTrue()
         {
-            var connectionString = "mongodb://localhost/?slaveOk=true";
+            var connectionString = "mongodb://localhost/?readPreference=secondary";
             var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = ReadPreference.Secondary };
             Assert.AreEqual(ReadPreference.Secondary, builder.ReadPreference);
             Assert.AreEqual(connectionString, builder.ToString());
