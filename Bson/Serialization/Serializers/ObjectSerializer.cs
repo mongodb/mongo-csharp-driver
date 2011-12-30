@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (nominalType != typeof(object))
             {
-                var message = string.Format("ObjectSerializer can only be used with nominal type System.Object, not type {1}.", nominalType.FullName);
+                var message = string.Format("ObjectSerializer can only be used with nominal type System.Object, not type {0}.", nominalType.FullName);
                 throw new InvalidOperationException(message);
             }
 
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (actualType != typeof(object))
             {
-                var message = string.Format("ObjectSerializer can only be used with actual type System.Object, not type {1}.", actualType.FullName);
+                var message = string.Format("ObjectSerializer can only be used with actual type System.Object, not type {0}.", actualType.FullName);
                 throw new ArgumentException(message, "actualType");
             }
 
@@ -173,7 +173,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var actualType = value.GetType();
                 if (actualType != typeof(object))
                 {
-                    var message = string.Format("ObjectSerializer can only be used with type System.Object, not type {1}.", actualType.FullName);
+                    var message = string.Format("ObjectSerializer can only be used with type System.Object, not type {0}.", actualType.FullName);
                     throw new InvalidOperationException(message);
                 }
 

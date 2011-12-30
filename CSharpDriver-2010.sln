@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverOnlineTests", "Driver
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{00502D63-7789-410D-B6BE-5F16327FF810}"
 	ProjectSection(SolutionItems) = preProject
+		CodeAnalysisRuleSet.ruleset = CodeAnalysisRuleSet.ruleset
+		CustomDictionary.xml = CustomDictionary.xml
 		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
 		README.md = README.md
 		Release Notes v1.3.txt = Release Notes v1.3.txt

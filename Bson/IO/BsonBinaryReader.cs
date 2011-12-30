@@ -611,7 +611,7 @@ namespace MongoDB.Bson.IO
             }
             if (size > settings.MaxDocumentSize)
             {
-                var message = string.Format("Size {0} is not valid because it is larger than MaxDocumentSize {0}.", size, settings.MaxDocumentSize);
+                var message = string.Format("Size {0} is not valid because it is larger than MaxDocumentSize {1}.", size, settings.MaxDocumentSize);
                 throw new FileFormatException(message);
             }
             return size;
