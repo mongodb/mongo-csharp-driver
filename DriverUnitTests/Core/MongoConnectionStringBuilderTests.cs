@@ -416,16 +416,16 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSlaveOkFalse()
         {
-            string connectionString = "server=localhost;slaveOk=false";
+            string connectionString = "server=localhost;readPreference=primary";
             var builder = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual(ReadPreference.Secondary, builder.ReadPreference);
+            Assert.AreEqual(ReadPreference.Primary, builder.ReadPreference);
             Assert.AreEqual(connectionString, builder.ToString());
         }
 
         [Test]
         public void TestSlaveOkTrue()
         {
-            string connectionString = "server=localhost;slaveOk=true";
+            string connectionString = "server=localhost;readPreference=secondary";
             var builder = new MongoConnectionStringBuilder(connectionString);
             Assert.AreEqual(ReadPreference.Secondary, builder.ReadPreference);
             Assert.AreEqual(connectionString, builder.ToString());
@@ -472,7 +472,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAll()
         {
-            string connectionString = "server=localhost;connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;j=true;w=2;wtimeout=2s;guids=PythonLegacy";
+            string connectionString = "server=localhost;connect=replicaSet;replicaSet=name;readPreference=secondary;safe=true;fsync=true;j=true;w=2;wtimeout=2s;guids=PythonLegacy";
             var builder = new MongoConnectionStringBuilder(connectionString);
             Assert.IsNull(builder.Username);
             Assert.IsNull(builder.Password);

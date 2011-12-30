@@ -498,7 +498,7 @@ namespace MongoDB.Driver
                     case "servers":
                         Servers = ParseServersString((string)value);
                         break;
-                    case "readPreference":
+                    case "readpreference":
                         ReadPreference = ReadPreference.Parse((string)value);
                         break;
                     //case "slaveok":

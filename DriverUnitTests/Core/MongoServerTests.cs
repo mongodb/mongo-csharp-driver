@@ -35,7 +35,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, server.Instances.Count()); // Instance is created immediately but not connected
             Assert.AreEqual(MongoDefaults.GuidRepresentation, server.Settings.GuidRepresentation);
             Assert.AreEqual(SafeMode.False, server.Settings.SafeMode);
-            Assert.AreEqual(ReadPreference.Secondary, server.Settings.ReadPreference);
+            Assert.AreEqual(ReadPreference.Primary, server.Settings.ReadPreference);
             Assert.AreEqual(MongoServerState.Disconnected, server.State);
             Assert.IsTrue(expectedSeedList.SequenceEqual(server.Settings.Servers));
         }
