@@ -1,0 +1,66 @@
+C# Driver Version 1.3.1 Release Notes
+=====================================
+
+This is a minor release of the C# driver. The main issue it fixes is one where the state of a replica set is not always tracked accurately.
+
+Highlights
+    More accurate tracking of replica set status
+    
+Breaking changes
+    None (unless you were relying on the wording of some exception messages)
+
+JIRA Issues resolved
+--------------------
+
+The list of JIRA issues resolved in this driver release can be found at https://jira.mongodb.org/secure/IssueNavigator.jspa?mode=hide&requestId=11163
+
+BSON Library changes
+--------------------
+
+BsonClassMapSerializer.cs
+    Better error message when a nested document was expected during deserialization but something else was found
+    Deserialization errors now identify the field/property and class involved
+
+JsonReader.cs
+    Handle DateTime.MinValue and MaxValue correctly in FormatJavaScriptDateTime
+
+JsonScanner.cs
+    Support "_" in unquoted field names
+
+TruncationException.cs
+    Better error message
+
+Driver changes
+--------------
+
+MongoCollection.cs
+    Save now also uses the options when Save results in an Update (instead of only on Insert)
+    New Update overload that takes a MongoUpdateOptions parameter
+
+MongoServer.cs
+    Added UnregisterAllServers method
+    UnregisterServer now acquires lock before calling Disconnect
+    DropDatabase now clears the corresponding entries from the IndexCache used by EnsureIndex
+
+MongoServerAddress.cs
+    Now supports numeric IPv6 addressses
+
+MongoServerInstance.cs
+    Now raises StateChanged event when any of the following changes: state, isPrimary, isSecondary, isPassive and isArbiter
+        (before some StateChanged events where not raised which could result in the MongoServer class not tracking the state of the replica set correctly)
+
+MongoUpdateMessage.cs
+    Added checkUpdateDocument field (set to false when update replacement should be allowed to contain invalid field names)
+
+MongoUpdateOptions.cs
+    New class used to provide options for the Update method
+
+MongoUrlBuilder.cs
+    Now supports numeric IPv6 addresses
+
+Environments tested on
+----------------------
+
+Visual Studio 2010 on Windows 7 x64 against MongoDB 1.8.3, 2.0.1
+Visual Studio 2008 on Windows 7 x64 against MongoDB 1.8.3, 2.0.1
+MonoDevelop 2.8.2 (with Mono 2.10) on Windows 7 x64 and OS X Snow Leopard against MongoDB 1.8.3, 2.0.1
