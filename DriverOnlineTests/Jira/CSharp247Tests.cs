@@ -42,28 +42,28 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp247
             public int X { get; set; }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection("testcollection");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection("testcollection");
         }
 
         [Test]
         public void TestDeserializeInterface()
         {
-            collection.RemoveAll();
+            _collection.RemoveAll();
 
             var c = new C { X = 1 };
-            collection.Insert<I>(c);
+            _collection.Insert<I>(c);
             var id = c.Id;
 
-            var i = collection.FindOneAs<I>();
+            var i = _collection.FindOneAs<I>();
             Assert.IsInstanceOf<C>(i);
             var r = (C)i;
             Assert.AreEqual(id, r.Id);

@@ -47,15 +47,15 @@ namespace MongoDB.Driver
     public class MongoUrl : IEquatable<MongoUrl>
     {
         // private static fields
-        private static object staticLock = new object();
-        private static Dictionary<string, MongoUrl> cache = new Dictionary<string, MongoUrl>();
+        private static object __staticLock = new object();
+        private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
-        private MongoServerSettings serverSettings;
-        private double waitQueueMultiple;
-        private int waitQueueSize;
-        private string databaseName;
-        private string url;
+        private MongoServerSettings _serverSettings;
+        private double _waitQueueMultiple;
+        private int _waitQueueSize;
+        private string _databaseName;
+        private string _url;
 
         // constructors
         /// <summary>
@@ -65,11 +65,11 @@ namespace MongoDB.Driver
         public MongoUrl(string url)
         {
             var builder = new MongoUrlBuilder(url); // parses url
-            serverSettings = builder.ToServerSettings().FrozenCopy();
-            this.waitQueueMultiple = builder.WaitQueueMultiple;
-            this.waitQueueSize = builder.WaitQueueSize;
-            this.databaseName = builder.DatabaseName;
-            this.url = builder.ToString(); // keep canonical form
+            _serverSettings = builder.ToServerSettings().FrozenCopy();
+            _waitQueueMultiple = builder.WaitQueueMultiple;
+            _waitQueueSize = builder.WaitQueueSize;
+            _databaseName = builder.DatabaseName;
+            _url = builder.ToString(); // keep canonical form
         }
 
         // public properties
@@ -80,13 +80,13 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (waitQueueMultiple == 0.0)
+                if (_waitQueueMultiple == 0.0)
                 {
-                    return waitQueueSize;
+                    return _waitQueueSize;
                 }
                 else
                 {
-                    return (int)(waitQueueMultiple * serverSettings.MaxConnectionPoolSize);
+                    return (int)(_waitQueueMultiple * _serverSettings.MaxConnectionPoolSize);
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace MongoDB.Driver
         /// </summary>
         public ConnectionMode ConnectionMode
         {
-            get { return serverSettings.ConnectionMode; }
+            get { return _serverSettings.ConnectionMode; }
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan ConnectTimeout
         {
-            get { return serverSettings.ConnectTimeout; }
+            get { return _serverSettings.ConnectTimeout; }
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string DatabaseName
         {
-            get { return databaseName; }
+            get { return _databaseName; }
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoCredentials DefaultCredentials
         {
-            get { return serverSettings.DefaultCredentials; }
+            get { return _serverSettings.DefaultCredentials; }
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         /// </summary>
         public GuidRepresentation GuidRepresentation
         {
-            get { return serverSettings.GuidRepresentation; }
+            get { return _serverSettings.GuidRepresentation; }
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IPv6
         {
-            get { return serverSettings.IPv6; }
+            get { return _serverSettings.IPv6; }
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan MaxConnectionIdleTime
         {
-            get { return serverSettings.MaxConnectionIdleTime; }
+            get { return _serverSettings.MaxConnectionIdleTime; }
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan MaxConnectionLifeTime
         {
-            get { return serverSettings.MaxConnectionLifeTime; }
+            get { return _serverSettings.MaxConnectionLifeTime; }
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int MaxConnectionPoolSize
         {
-            get { return serverSettings.MaxConnectionPoolSize; }
+            get { return _serverSettings.MaxConnectionPoolSize; }
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int MinConnectionPoolSize
         {
-            get { return serverSettings.MinConnectionPoolSize; }
+            get { return _serverSettings.MinConnectionPoolSize; }
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string ReplicaSetName
         {
-            get { return serverSettings.ReplicaSetName; }
+            get { return _serverSettings.ReplicaSetName; }
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace MongoDB.Driver
         /// </summary>
         public SafeMode SafeMode
         {
-            get { return serverSettings.SafeMode; }
+            get { return _serverSettings.SafeMode; }
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoServerAddress Server
         {
-            get { return serverSettings.Server; }
+            get { return _serverSettings.Server; }
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers
         {
-            get { return serverSettings.Servers; }
+            get { return _serverSettings.Servers; }
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool SlaveOk
         {
-            get { return serverSettings.SlaveOk; }
+            get { return _serverSettings.SlaveOk; }
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan SocketTimeout
         {
-            get { return serverSettings.SocketTimeout; }
+            get { return _serverSettings.SocketTimeout; }
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Url
         {
-            get { return url; }
+            get { return _url; }
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace MongoDB.Driver
         /// </summary>
         public double WaitQueueMultiple
         {
-            get { return waitQueueMultiple; }
+            get { return _waitQueueMultiple; }
         }
 
         /// <summary>
@@ -240,7 +240,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int WaitQueueSize
         {
-            get { return waitQueueSize; }
+            get { return _waitQueueSize; }
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan WaitQueueTimeout
         {
-            get { return serverSettings.WaitQueueTimeout; }
+            get { return _serverSettings.WaitQueueTimeout; }
         }
 
         // public operators
@@ -281,7 +281,7 @@ namespace MongoDB.Driver
         /// </summary>
         public static void ClearCache()
         {
-            cache.Clear();
+            __cache.Clear();
         }
 
         /// <summary>
@@ -292,25 +292,25 @@ namespace MongoDB.Driver
         public static MongoUrl Create(string url)
         {
             // cache previously seen urls to avoid repeated parsing
-            lock (staticLock)
+            lock (__staticLock)
             {
                 MongoUrl mongoUrl;
-                if (!cache.TryGetValue(url, out mongoUrl))
+                if (!__cache.TryGetValue(url, out mongoUrl))
                 {
                     mongoUrl = new MongoUrl(url);
                     var canonicalUrl = mongoUrl.ToString();
                     if (canonicalUrl != url)
                     {
-                        if (cache.ContainsKey(canonicalUrl))
+                        if (__cache.ContainsKey(canonicalUrl))
                         {
-                            mongoUrl = cache[canonicalUrl]; // use existing MongoUrl
+                            mongoUrl = __cache[canonicalUrl]; // use existing MongoUrl
                         }
                         else
                         {
-                            cache[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
+                            __cache[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
                         }
                     }
-                    cache[url] = mongoUrl;
+                    __cache[url] = mongoUrl;
                 }
                 return mongoUrl;
             }
@@ -325,7 +325,7 @@ namespace MongoDB.Driver
         public bool Equals(MongoUrl rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return url == rhs.url; // this works because URL is in canonical form
+            return _url == rhs._url; // this works because URL is in canonical form
         }
 
         /// <summary>
@@ -344,7 +344,7 @@ namespace MongoDB.Driver
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            return url.GetHashCode(); // this works because URL is in canonical form
+            return _url.GetHashCode(); // this works because URL is in canonical form
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace MongoDB.Driver
         /// <returns>A new instance of MongoServerSettings.</returns>
         public MongoServerSettings ToServerSettings()
         {
-            return serverSettings;
+            return _serverSettings;
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace MongoDB.Driver
         /// <returns>The canonical URL.</returns>
         public override string ToString()
         {
-            return url;
+            return _url;
         }
     }
 }

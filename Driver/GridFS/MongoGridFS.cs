@@ -31,10 +31,10 @@ namespace MongoDB.Driver.GridFS
     public class MongoGridFS
     {
         // private fields
-        private MongoDatabase database;
-        private MongoGridFSSettings settings;
-        private MongoCollection<BsonDocument> chunks;
-        private MongoCollection<BsonDocument> files;
+        private MongoDatabase _database;
+        private MongoGridFSSettings _settings;
+        private MongoCollection<BsonDocument> _chunks;
+        private MongoCollection<BsonDocument> _files;
 
         // constructors
         /// <summary>
@@ -53,10 +53,10 @@ namespace MongoDB.Driver.GridFS
         /// <param name="settings">The GridFS settings.</param>
         public MongoGridFS(MongoDatabase database, MongoGridFSSettings settings)
         {
-            this.database = database;
-            this.settings = settings.FrozenCopy();
-            this.chunks = database[settings.ChunksCollectionName, settings.SafeMode];
-            this.files = database[settings.FilesCollectionName, settings.SafeMode];
+            _database = database;
+            _settings = settings.FrozenCopy();
+            _chunks = database[settings.ChunksCollectionName, settings.SafeMode];
+            _files = database[settings.FilesCollectionName, settings.SafeMode];
         }
 
         // public properties
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public MongoCollection<BsonDocument> Chunks
         {
-            get { return chunks; }
+            get { return _chunks; }
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public MongoDatabase Database
         {
-            get { return database; }
+            get { return _database; }
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public MongoCollection<BsonDocument> Files
         {
-            get { return files; }
+            get { return _files; }
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public MongoGridFSSettings Settings
         {
-            get { return settings; }
+            get { return _settings; }
         }
 
         // public methods
@@ -251,7 +251,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="fileInfo">The GridFS file.</param>
         public void Download(Stream stream, MongoGridFSFileInfo fileInfo)
         {
-            using (database.RequestStart(database.Settings.SlaveOk))
+            using (_database.RequestStart(_database.Settings.SlaveOk))
             {
                 EnsureIndexes();
 
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.GridFS
                     for (int n = 0; n < numberOfChunks; n++)
                     {
                         var query = Query.And(Query.EQ("files_id", fileInfo.Id), Query.EQ("n", n));
-                        var chunk = chunks.FindOne(query);
+                        var chunk = _chunks.FindOne(query);
                         if (chunk == null)
                         {
                             string errorMessage = string.Format("Chunk {0} missing for GridFS file '{1}'.", n, fileInfo.Name);
@@ -410,7 +410,7 @@ namespace MongoDB.Driver.GridFS
         public void EnsureIndexes(int maxFiles)
         {
             // don't try to create indexes on secondaries
-            var requestConnection = database.Server.RequestConnection;
+            var requestConnection = _database.Server.RequestConnection;
             if (requestConnection != null)
             {
                 // check whether the actual server instance we are using is a primary
@@ -423,37 +423,37 @@ namespace MongoDB.Driver.GridFS
             else
             {
                 // check whether we are guaranteed to use a primary
-                if (database.Settings.SlaveOk)
+                if (_database.Settings.SlaveOk)
                 {
                     return;
                 }
             }
 
             // avoid round trip to count files if possible
-            var indexCache = database.Server.IndexCache;
-            if (indexCache.Contains(files, "filename_1_uploadDate_1") &&
-                indexCache.Contains(chunks, "files_id_1_n_1"))
+            var indexCache = _database.Server.IndexCache;
+            if (indexCache.Contains(_files, "filename_1_uploadDate_1") &&
+                indexCache.Contains(_chunks, "files_id_1_n_1"))
             {
                 return;
             }
 
             // only create indexes if number of GridFS files is still small (to avoid performance surprises)
-            var count = files.Count();
+            var count = _files.Count();
             if (count < maxFiles)
             {
-                files.EnsureIndex("filename", "uploadDate");
-                chunks.EnsureIndex(IndexKeys.Ascending("files_id", "n"), IndexOptions.SetUnique(true));
+                _files.EnsureIndex("filename", "uploadDate");
+                _chunks.EnsureIndex(IndexKeys.Ascending("files_id", "n"), IndexOptions.SetUnique(true));
             }
             else
             {
                 // at least check to see if the indexes exist so we can stop calling files.Count()
-                if (files.IndexExistsByName("filename_1_uploadDate_1"))
+                if (_files.IndexExistsByName("filename_1_uploadDate_1"))
                 {
-                    indexCache.Add(files, "filename_1_uploadDate_1");
+                    indexCache.Add(_files, "filename_1_uploadDate_1");
                 }
-                if (chunks.IndexExistsByName("files_id_1_n_1"))
+                if (_chunks.IndexExistsByName("files_id_1_n_1"))
                 {
-                    indexCache.Add(chunks, "files_id_1_n_1");
+                    indexCache.Add(_chunks, "files_id_1_n_1");
                 }
             }
         }
@@ -465,7 +465,7 @@ namespace MongoDB.Driver.GridFS
         /// <returns>True if the GridFS file exists.</returns>
         public bool Exists(IMongoQuery query)
         {
-            return files.Count(query) > 0;
+            return _files.Count(query) > 0;
         }
 
         /// <summary>
@@ -497,7 +497,7 @@ namespace MongoDB.Driver.GridFS
         public MongoCursor<MongoGridFSFileInfo> Find(IMongoQuery query)
         {
             var serializationOptions = new MongoGridFSFileInfo.SerializationOptions { GridFS = this };
-            return files.FindAs<MongoGridFSFileInfo>(query).SetSerializationOptions(serializationOptions);
+            return _files.FindAs<MongoGridFSFileInfo>(query).SetSerializationOptions(serializationOptions);
         }
 
         /// <summary>
@@ -541,15 +541,15 @@ namespace MongoDB.Driver.GridFS
             BsonDocument fileInfo;
             if (version > 0)
             {
-                fileInfo = files.Find(query).SetSortOrder(SortBy.Ascending("uploadDate")).SetSkip(version - 1).SetLimit(1).FirstOrDefault();
+                fileInfo = _files.Find(query).SetSortOrder(SortBy.Ascending("uploadDate")).SetSkip(version - 1).SetLimit(1).FirstOrDefault();
             }
             else if (version < 0)
             {
-                fileInfo = files.Find(query).SetSortOrder(SortBy.Descending("uploadDate")).SetSkip(-version - 1).SetLimit(1).FirstOrDefault();
+                fileInfo = _files.Find(query).SetSortOrder(SortBy.Descending("uploadDate")).SetSkip(-version - 1).SetLimit(1).FirstOrDefault();
             }
             else
             {
-                fileInfo = files.FindOne(query);
+                fileInfo = _files.FindOne(query);
             }
 
             if (fileInfo != null)
@@ -703,7 +703,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create(aliases));
-            files.Update(query, update);
+            _files.Update(query, update);
         }
 
         /// <summary>
@@ -715,7 +715,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (contentType == null) ? Update.Unset("contentType") : Update.Set("contentType", contentType);
-            files.Update(query, update);
+            _files.Update(query, update);
         }
 
         /// <summary>
@@ -727,7 +727,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (metadata == null) ? Update.Unset("metadata") : Update.Set("metadata", metadata);
-            files.Update(query, update);
+            _files.Update(query, update);
         }
 
         /// <summary>
@@ -740,7 +740,7 @@ namespace MongoDB.Driver.GridFS
         {
             var options = new MongoGridFSCreateOptions
             {
-                ChunkSize = settings.ChunkSize,
+                ChunkSize = _settings.ChunkSize,
                 Id = BsonObjectId.GenerateNewId(),
                 UploadDate = DateTime.UtcNow
             };
@@ -756,12 +756,12 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The file info of the new GridFS file.</returns>
         public MongoGridFSFileInfo Upload(Stream stream, string remoteFileName, MongoGridFSCreateOptions createOptions)
         {
-            using (database.RequestStart(false)) // not slaveOk
+            using (_database.RequestStart(false)) // not slaveOk
             {
                 EnsureIndexes();
 
                 var files_id = createOptions.Id ?? BsonObjectId.GenerateNewId();
-                var chunkSize = createOptions.ChunkSize == 0 ? settings.ChunkSize : createOptions.ChunkSize;
+                var chunkSize = createOptions.ChunkSize == 0 ? _settings.ChunkSize : createOptions.ChunkSize;
                 var buffer = new byte[chunkSize];
 
                 var length = 0;
@@ -803,7 +803,7 @@ namespace MongoDB.Driver.GridFS
                             { "n", n },
                             { "data", new BsonBinaryData(data) }
                         };
-                        chunks.Insert(chunk, settings.SafeMode);
+                        _chunks.Insert(chunk, _settings.SafeMode);
 
                         md5Algorithm.TransformBlock(data, 0, data.Length, null, 0);
 
@@ -820,9 +820,9 @@ namespace MongoDB.Driver.GridFS
                 var md5Command = new CommandDocument
                 {
                     { "filemd5", files_id },
-                    { "root", settings.Root }
+                    { "root", _settings.Root }
                 };
-                var md5Result = database.RunCommand(md5Command);
+                var md5Result = _database.RunCommand(md5Command);
                 var md5Server = md5Result.Response["md5"].AsString;
 
                 if (!md5Client.Equals(md5Server, StringComparison.OrdinalIgnoreCase))
@@ -843,7 +843,7 @@ namespace MongoDB.Driver.GridFS
                     { "aliases", BsonArray.Create(createOptions.Aliases) }, // optional
                     { "metadata", createOptions.Metadata } // optional
                 };
-                files.Insert(fileInfo, settings.SafeMode);
+                _files.Insert(fileInfo, _settings.SafeMode);
 
                 return FindOneById(files_id);
             }

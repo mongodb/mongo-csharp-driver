@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     public class MongoQueryException : MongoException
     {
         // private fields
-        private BsonDocument queryResult;
+        private BsonDocument _queryResult;
 
         // constructors
         /// <summary>
@@ -60,7 +60,7 @@ namespace MongoDB.Driver
         public MongoQueryException(string message, BsonDocument queryResult)
             : base(message)
         {
-            this.queryResult = queryResult;
+            _queryResult = queryResult;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument QueryResult
         {
-            get { return queryResult; }
+            get { return _queryResult; }
         }
     }
 }

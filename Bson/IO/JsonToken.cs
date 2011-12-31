@@ -109,8 +109,8 @@ namespace MongoDB.Bson.IO
     public class JsonToken
     {
         // private fields
-        private JsonTokenType type;
-        private string lexeme;
+        private JsonTokenType _type;
+        private string _lexeme;
 
         // constructors
         /// <summary>
@@ -120,8 +120,8 @@ namespace MongoDB.Bson.IO
         /// <param name="lexeme">The lexeme.</param>
         public JsonToken(JsonTokenType type, string lexeme)
         {
-            this.type = type;
-            this.lexeme = lexeme;
+            _type = type;
+            _lexeme = lexeme;
         }
 
         // public properties
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public JsonTokenType Type
         {
-            get { return type; }
+            get { return _type; }
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public string Lexeme
         {
-            get { return lexeme; }
+            get { return _lexeme; }
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace MongoDB.Bson.IO
     public class DateTimeJsonToken : JsonToken
     {
         // private fields
-        private BsonDateTime value;
+        private BsonDateTime _value;
 
         // constructors
         /// <summary>
@@ -215,7 +215,7 @@ namespace MongoDB.Bson.IO
         public DateTimeJsonToken(string lexeme, BsonDateTime value)
             : base(JsonTokenType.DateTime, lexeme)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -224,7 +224,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override BsonDateTime DateTimeValue
         {
-            get { return value; }
+            get { return _value; }
         }
     }
 
@@ -234,7 +234,7 @@ namespace MongoDB.Bson.IO
     public class DoubleJsonToken : JsonToken
     {
         // private fields
-        private double value;
+        private double _value;
 
         // constructors
         /// <summary>
@@ -245,7 +245,7 @@ namespace MongoDB.Bson.IO
         public DoubleJsonToken(string lexeme, double value)
             : base(JsonTokenType.Double, lexeme)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -254,7 +254,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override double DoubleValue
         {
-            get { return value; }
+            get { return _value; }
         }
     }
 
@@ -264,7 +264,7 @@ namespace MongoDB.Bson.IO
     public class Int32JsonToken : JsonToken
     {
         // private fields
-        private int value;
+        private int _value;
 
         // constructors
         /// <summary>
@@ -275,7 +275,7 @@ namespace MongoDB.Bson.IO
         public Int32JsonToken(string lexeme, int value)
             : base(JsonTokenType.Int32, lexeme)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -284,7 +284,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override int Int32Value
         {
-            get { return value; }
+            get { return _value; }
         }
 
         /// <summary>
@@ -292,7 +292,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override long Int64Value
         {
-            get { return value; }
+            get { return _value; }
         }
     }
 
@@ -302,7 +302,7 @@ namespace MongoDB.Bson.IO
     public class Int64JsonToken : JsonToken
     {
         // private fields
-        private long value;
+        private long _value;
 
         // constructors
         /// <summary>
@@ -313,7 +313,7 @@ namespace MongoDB.Bson.IO
         public Int64JsonToken(string lexeme, long value)
             : base(JsonTokenType.Int64, lexeme)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -322,7 +322,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override long Int64Value
         {
-            get { return value; }
+            get { return _value; }
         }
     }
 
@@ -332,7 +332,7 @@ namespace MongoDB.Bson.IO
     public class ObjectIdJsonToken : JsonToken
     {
         // private fields
-        private ObjectId value;
+        private ObjectId _value;
 
         // constructors
         /// <summary>
@@ -343,7 +343,7 @@ namespace MongoDB.Bson.IO
         public ObjectIdJsonToken(string lexeme, ObjectId value)
             : base(JsonTokenType.ObjectId, lexeme)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -352,7 +352,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override ObjectId ObjectIdValue
         {
-            get { return value; }
+            get { return _value; }
         }
     }
 
@@ -362,7 +362,7 @@ namespace MongoDB.Bson.IO
     public class RegularExpressionJsonToken : JsonToken
     {
         // private fields
-        private BsonRegularExpression value;
+        private BsonRegularExpression _value;
 
         // constructors
         /// <summary>
@@ -373,7 +373,7 @@ namespace MongoDB.Bson.IO
         public RegularExpressionJsonToken(string lexeme, BsonRegularExpression value)
             : base(JsonTokenType.RegularExpression, lexeme)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -382,7 +382,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override BsonRegularExpression RegularExpressionValue
         {
-            get { return value; }
+            get { return _value; }
         }
     }
 
@@ -392,7 +392,7 @@ namespace MongoDB.Bson.IO
     public class StringJsonToken : JsonToken
     {
         // private fields
-        private string value;
+        private string _value;
 
         // constructors
         /// <summary>
@@ -404,7 +404,7 @@ namespace MongoDB.Bson.IO
         public StringJsonToken(JsonTokenType type, string lexeme, string value)
             : base(type, lexeme)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -413,7 +413,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override string StringValue
         {
-            get { return value; }
+            get { return _value; }
         }
     }
 }

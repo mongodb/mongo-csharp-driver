@@ -28,27 +28,27 @@ namespace MongoDB.Bson.IO
     public class BsonBuffer : IDisposable
     {
         // private static fields
-        private static Stack<byte[]> chunkPool = new Stack<byte[]>();
-        private static int maxChunkPoolSize = 64;
-        private const int chunkSize = 16 * 1024; // 16KiB
-        private static readonly bool[] validBsonTypes = new bool[256];
+        private static Stack<byte[]> __chunkPool = new Stack<byte[]>();
+        private static int __maxChunkPoolSize = 64;
+        private const int __chunkSize = 16 * 1024; // 16KiB
+        private static readonly bool[] __validBsonTypes = new bool[256];
 
         // private fields
-        private bool disposed = false;
-        private List<byte[]> chunks = new List<byte[]>(4);
-        private int capacity;
-        private int length; // always use property to set so position can be adjusted if necessary
-        private int position; // always use property to set so chunkIndex/chunkOffset/chunk/length will be set also
-        private int chunkIndex;
-        private int chunkOffset;
-        private byte[] chunk;
+        private bool _disposed = false;
+        private List<byte[]> _chunks = new List<byte[]>(4);
+        private int _capacity;
+        private int _length; // always use property to set so position can be adjusted if necessary
+        private int _position; // always use property to set so chunkIndex/chunkOffset/chunk/length will be set also
+        private int _chunkIndex;
+        private int _chunkOffset;
+        private byte[] _chunk;
 
         // static constructor
         static BsonBuffer()
         {
             foreach (BsonType bsonType in Enum.GetValues(typeof(BsonType)))
             {
-                validBsonTypes[(byte)bsonType] = true;
+                __validBsonTypes[(byte)bsonType] = true;
             }
         }
 
@@ -69,16 +69,16 @@ namespace MongoDB.Bson.IO
         {
             get
             {
-                lock (chunkPool)
+                lock (__chunkPool)
                 {
-                    return maxChunkPoolSize;
+                    return __maxChunkPoolSize;
                 }
             }
             set
             {
-                lock (chunkPool)
+                lock (__chunkPool)
                 {
-                    maxChunkPoolSize = value;
+                    __maxChunkPoolSize = value;
                 }
             }
         }
@@ -91,15 +91,15 @@ namespace MongoDB.Bson.IO
         {
             get
             {
-                if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-                return length;
+                if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+                return _length;
             }
             set
             {
-                if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-                EnsureSpaceAvailable(value - position);
-                length = value;
-                if (position > value)
+                if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+                EnsureSpaceAvailable(value - _position);
+                _length = value;
+                if (_position > value)
                 {
                     Position = value;
                 }
@@ -113,29 +113,29 @@ namespace MongoDB.Bson.IO
         {
             get
             {
-                if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-                return position;
+                if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+                return _position;
             }
             set
             {
-                if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-                if (chunkIndex != value / chunkSize)
+                if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+                if (_chunkIndex != value / __chunkSize)
                 {
-                    chunkIndex = value / chunkSize;
-                    if (chunkIndex < chunks.Count)
+                    _chunkIndex = value / __chunkSize;
+                    if (_chunkIndex < _chunks.Count)
                     {
-                        chunk = chunks[chunkIndex];
+                        _chunk = _chunks[_chunkIndex];
                     }
                     else
                     {
-                        chunk = null; // EnsureSpaceAvailable will set this when it gets the chunk
+                        _chunk = null; // EnsureSpaceAvailable will set this when it gets the chunk
                     }
                 }
-                chunkOffset = value % chunkSize;
-                position = value;
-                if (length < value)
+                _chunkOffset = value % __chunkSize;
+                _position = value;
+                if (_length < value)
                 {
-                    length = value;
+                    _length = value;
                 }
             }
         }
@@ -143,28 +143,28 @@ namespace MongoDB.Bson.IO
         // private static methods
         private static byte[] GetChunk()
         {
-            lock (chunkPool)
+            lock (__chunkPool)
             {
-                if (chunkPool.Count > 0)
+                if (__chunkPool.Count > 0)
                 {
-                    return chunkPool.Pop();
+                    return __chunkPool.Pop();
                 }
             }
-            return new byte[chunkSize]; // release the lock before allocating memory
+            return new byte[__chunkSize]; // release the lock before allocating memory
         }
 
         private static bool IsValidBsonType(BsonType bsonType)
         {
-            return validBsonTypes[(byte)bsonType];
+            return __validBsonTypes[(byte)bsonType];
         }
 
         private static void ReleaseChunk(byte[] chunk)
         {
-            lock (chunkPool)
+            lock (__chunkPool)
             {
-                if (chunkPool.Count < maxChunkPoolSize)
+                if (__chunkPool.Count < __maxChunkPoolSize)
                 {
-                    chunkPool.Push(chunk);
+                    __chunkPool.Push(chunk);
                 }
             }
         }
@@ -177,12 +177,12 @@ namespace MongoDB.Bson.IO
         /// <param name="length">The length of the object.</param>
         public void Backpatch(int position, int length)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             // use local chunk variables because we're writing at a different position
-            int chunkIndex = position / chunkSize;
-            int chunkOffset = position % chunkSize;
-            var chunk = chunks[chunkIndex];
-            if (chunkSize - chunkOffset >= 4)
+            int chunkIndex = position / __chunkSize;
+            int chunkOffset = position % __chunkSize;
+            var chunk = _chunks[chunkIndex];
+            if (__chunkSize - chunkOffset >= 4)
             {
                 chunk[chunkOffset + 0] = (byte)(length);
                 chunk[chunkOffset + 1] = (byte)(length >> 8);
@@ -195,9 +195,9 @@ namespace MongoDB.Bson.IO
                 for (int i = 0; i < 4; i++)
                 {
                     chunk[chunkOffset++] = (byte)length;
-                    if (chunkOffset == chunkSize)
+                    if (chunkOffset == __chunkSize)
                     {
-                        chunk = chunks[++chunkIndex];
+                        chunk = _chunks[++chunkIndex];
                         chunkOffset = 0;
                     }
                     length >>= 8;
@@ -210,15 +210,15 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public void Clear()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             Position = 0;
-            foreach (var localChunk in chunks)
+            foreach (var localChunk in _chunks)
             {
                 ReleaseChunk(localChunk);
             }
-            chunks.Clear();
-            chunk = null;
-            capacity = 0;
+            _chunks.Clear();
+            _chunk = null;
+            _capacity = 0;
         }
 
         /// <summary>
@@ -230,13 +230,13 @@ namespace MongoDB.Bson.IO
         /// <param name="count">The number of bytes to copy.</param>
         public void CopyTo(int sourceOffset, byte[] destination, int destinationOffset, int count)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-            var chunkIndex = sourceOffset / chunkSize;
-            var chunkOffset = sourceOffset % chunkSize;
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            var chunkIndex = sourceOffset / __chunkSize;
+            var chunkOffset = sourceOffset % __chunkSize;
             while (count > 0)
             {
-                var chunk = chunks[chunkIndex];
-                var available = chunkSize - chunkOffset;
+                var chunk = _chunks[chunkIndex];
+                var available = __chunkSize - chunkOffset;
                 var partialCount = (count > available) ? available : count;
                 Buffer.BlockCopy(chunk, chunkOffset, destination, destinationOffset, partialCount);
                 chunkIndex++;
@@ -251,10 +251,10 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public void Dispose()
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 Clear();
-                disposed = true;
+                _disposed = true;
             }
         }
 
@@ -277,15 +277,15 @@ namespace MongoDB.Bson.IO
         /// <param name="count">The number of bytes to load.</param>
         public void LoadFrom(Stream stream, int count)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
 
             EnsureSpaceAvailable(count);
-            var localChunkIndex = chunkIndex;
-            var localChunkOffset = chunkOffset;
+            var localChunkIndex = _chunkIndex;
+            var localChunkOffset = _chunkOffset;
             while (count > 0)
             {
-                var localChunk = chunks[localChunkIndex];
-                int available = chunkSize - localChunkOffset;
+                var localChunk = _chunks[localChunkIndex];
+                int available = __chunkSize - localChunkOffset;
                 int partialCount = (count > available) ? available : count;
                 // might take several reads, you never know with a network stream.
                 int bytesPending = partialCount;
@@ -305,7 +305,7 @@ namespace MongoDB.Bson.IO
                 localChunkIndex++;
                 localChunkOffset = 0;
                 count -= partialCount;
-                length += partialCount;
+                _length += partialCount;
             }
         }
 
@@ -315,9 +315,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A BsonType.</returns>
         public BsonType PeekBsonType()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
-            var bsonType = (BsonType)chunk[chunkOffset];
+            var bsonType = (BsonType)_chunk[_chunkOffset];
             if (!IsValidBsonType(bsonType))
             {
                 string message = string.Format("Invalid BsonType {0}.", (int)bsonType);
@@ -332,9 +332,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A Byte.</returns>
         public byte PeekByte()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
-            return chunk[chunkOffset];
+            return _chunk[_chunkOffset];
         }
 
         /// <summary>
@@ -343,9 +343,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A Boolean.</returns>
         public bool ReadBoolean()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
-            var value = chunk[chunkOffset] != 0;
+            var value = _chunk[_chunkOffset] != 0;
             Position++;
             return value;
         }
@@ -356,9 +356,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A BsonType.</returns>
         public BsonType ReadBsonType()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
-            var bsonType = (BsonType)chunk[chunkOffset];
+            var bsonType = (BsonType)_chunk[_chunkOffset];
             if (!IsValidBsonType(bsonType))
             {
                 string message = string.Format("Invalid BsonType {0}.", (int)bsonType);
@@ -374,9 +374,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A Byte.</returns>
         public byte ReadByte()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(1);
-            var value = chunk[chunkOffset];
+            var value = _chunk[_chunkOffset];
             Position++;
             return value;
         }
@@ -388,16 +388,16 @@ namespace MongoDB.Bson.IO
         /// <returns>A byte array.</returns>
         public byte[] ReadBytes(int count)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(count);
             var value = new byte[count];
             int destinationOffset = 0;
             while (count > 0)
             {
                 // might only be reading part of the first or last chunk
-                int available = chunkSize - chunkOffset;
+                int available = __chunkSize - _chunkOffset;
                 int partialCount = (count > available) ? available : count;
-                Buffer.BlockCopy(chunk, chunkOffset, value, destinationOffset, partialCount);
+                Buffer.BlockCopy(_chunk, _chunkOffset, value, destinationOffset, partialCount);
                 Position += partialCount;
                 destinationOffset += partialCount;
                 count -= partialCount;
@@ -411,11 +411,11 @@ namespace MongoDB.Bson.IO
         /// <returns>A Double.</returns>
         public double ReadDouble()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(8);
-            if (chunkSize - chunkOffset >= 8)
+            if (__chunkSize - _chunkOffset >= 8)
             {
-                var value = BitConverter.ToDouble(chunk, chunkOffset);
+                var value = BitConverter.ToDouble(_chunk, _chunkOffset);
                 Position += 8;
                 return value;
             }
@@ -431,16 +431,16 @@ namespace MongoDB.Bson.IO
         /// <returns>An Int32.</returns>
         public int ReadInt32()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(4);
-            if (chunkSize - chunkOffset >= 4)
+            if (__chunkSize - _chunkOffset >= 4)
             {
                 // for int only we come out ahead with this code vs using BitConverter
                 var value =
-                    ((int)chunk[chunkOffset + 0]) +
-                    ((int)chunk[chunkOffset + 1] << 8) +
-                    ((int)chunk[chunkOffset + 2] << 16) +
-                    ((int)chunk[chunkOffset + 3] << 24);
+                    ((int)_chunk[_chunkOffset + 0]) +
+                    ((int)_chunk[_chunkOffset + 1] << 8) +
+                    ((int)_chunk[_chunkOffset + 2] << 16) +
+                    ((int)_chunk[_chunkOffset + 3] << 24);
                 Position += 4;
                 return value;
             }
@@ -456,11 +456,11 @@ namespace MongoDB.Bson.IO
         /// <returns>An Int64.</returns>
         public long ReadInt64()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(8);
-            if (chunkSize - chunkOffset >= 8)
+            if (__chunkSize - _chunkOffset >= 8)
             {
-                var value = BitConverter.ToInt64(chunk, chunkOffset);
+                var value = BitConverter.ToInt64(_chunk, _chunkOffset);
                 Position += 8;
                 return value;
             }
@@ -479,12 +479,12 @@ namespace MongoDB.Bson.IO
         /// <param name="increment">The increment.</param>
         public void ReadObjectId(out int timestamp, out int machine, out short pid, out int increment)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(12);
-            if (chunkSize - chunkOffset >= 12)
+            if (__chunkSize - _chunkOffset >= 12)
             {
-                var c = chunk;
-                var o = chunkOffset;
+                var c = _chunk;
+                var o = _chunkOffset;
                 timestamp = (c[o + 0] << 24) + (c[o + 1] << 16) + (c[o + 2] << 8) + c[o + 3];
                 machine = (c[o + 4] << 16) + (c[o + 5] << 8) + c[o + 6];
                 pid = (short)((c[o + 7] << 8) + c[o + 8]);
@@ -504,13 +504,13 @@ namespace MongoDB.Bson.IO
         /// <returns>A String.</returns>
         public string ReadString()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             var length = ReadInt32();
             EnsureDataAvailable(length + 1);
             string value;
-            if (chunkSize - chunkOffset >= length - 1)
+            if (__chunkSize - _chunkOffset >= length - 1)
             {
-                value = Encoding.UTF8.GetString(chunk, chunkOffset, length - 1);
+                value = Encoding.UTF8.GetString(_chunk, _chunkOffset, length - 1);
                 Position += length - 1;
             }
             else
@@ -532,51 +532,51 @@ namespace MongoDB.Bson.IO
         /// <returns>A String.</returns>
         public string ReadCString()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             // optimize for the case where the null terminator is on the same chunk
             int partialCount;
-            if (chunkIndex < chunks.Count - 1)
+            if (_chunkIndex < _chunks.Count - 1)
             {
-                partialCount = chunkSize - chunkOffset; // remaining part of any chunk but the last
+                partialCount = __chunkSize - _chunkOffset; // remaining part of any chunk but the last
             }
             else
             {
-                partialCount = length - position; // populated part of last chunk
+                partialCount = _length - _position; // populated part of last chunk
             }
-            var index = Array.IndexOf<byte>(chunk, 0, chunkOffset, partialCount);
+            var index = Array.IndexOf<byte>(_chunk, 0, _chunkOffset, partialCount);
             if (index != -1)
             {
-                var stringLength = index - chunkOffset;
-                var value = Encoding.UTF8.GetString(chunk, chunkOffset, stringLength);
+                var stringLength = index - _chunkOffset;
+                var value = Encoding.UTF8.GetString(_chunk, _chunkOffset, stringLength);
                 Position += stringLength + 1;
                 return value;
             }
 
             // the null terminator is not on the same chunk so keep looking starting with the next chunk
-            var localChunkIndex = chunkIndex + 1;
-            var localPosition = localChunkIndex * chunkSize;
-            while (localPosition < length)
+            var localChunkIndex = _chunkIndex + 1;
+            var localPosition = localChunkIndex * __chunkSize;
+            while (localPosition < _length)
             {
-                var localChunk = chunks[localChunkIndex];
-                if (localChunkIndex < chunks.Count - 1)
+                var localChunk = _chunks[localChunkIndex];
+                if (localChunkIndex < _chunks.Count - 1)
                 {
-                    partialCount = chunkSize; // all of any chunk but the last
+                    partialCount = __chunkSize; // all of any chunk but the last
                 }
                 else
                 {
-                    partialCount = length - localPosition; // populated part of last chunk
+                    partialCount = _length - localPosition; // populated part of last chunk
                 }
                 index = Array.IndexOf<byte>(localChunk, 0, 0, partialCount);
                 if (index != -1)
                 {
                     localPosition += index;
-                    var stringLength = localPosition - position;
+                    var stringLength = localPosition - _position;
                     var value = Encoding.UTF8.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
                     Position += 1; // skip over null byte at end
                     return value;
                 }
                 localChunkIndex++;
-                localPosition += chunkSize;
+                localPosition += __chunkSize;
             }
 
             throw new FileFormatException("String is missing null terminator.");
@@ -597,50 +597,50 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public void SkipCString()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
 
             // optimize for the case where the null terminator is on the same chunk
             int partialCount;
-            if (chunkIndex < chunks.Count - 1)
+            if (_chunkIndex < _chunks.Count - 1)
             {
-                partialCount = chunkSize - chunkOffset; // remaining part of any chunk but the last
+                partialCount = __chunkSize - _chunkOffset; // remaining part of any chunk but the last
             }
             else
             {
-                partialCount = length - position; // populated part of last chunk
+                partialCount = _length - _position; // populated part of last chunk
             }
-            var index = Array.IndexOf<byte>(chunk, 0, chunkOffset, partialCount);
+            var index = Array.IndexOf<byte>(_chunk, 0, _chunkOffset, partialCount);
             if (index != -1)
             {
-                var stringLength = index - chunkOffset;
+                var stringLength = index - _chunkOffset;
                 Position += stringLength + 1;
                 return;
             }
 
             // the null terminator is not on the same chunk so keep looking starting with the next chunk
-            var localChunkIndex = chunkIndex + 1;
-            var localPosition = localChunkIndex * chunkSize;
-            while (localPosition < length)
+            var localChunkIndex = _chunkIndex + 1;
+            var localPosition = localChunkIndex * __chunkSize;
+            while (localPosition < _length)
             {
-                var localChunk = chunks[localChunkIndex];
-                if (localChunkIndex < chunks.Count - 1)
+                var localChunk = _chunks[localChunkIndex];
+                if (localChunkIndex < _chunks.Count - 1)
                 {
-                    partialCount = chunkSize; // all of any chunk but the last
+                    partialCount = __chunkSize; // all of any chunk but the last
                 }
                 else
                 {
-                    partialCount = length - localPosition; // populated part of last chunk
+                    partialCount = _length - localPosition; // populated part of last chunk
                 }
                 index = Array.IndexOf<byte>(localChunk, 0, 0, partialCount);
                 if (index != -1)
                 {
                     localPosition += index;
-                    var stringLength = localPosition - position;
+                    var stringLength = localPosition - _position;
                     Position += stringLength + 1;
                     return;
                 }
                 localChunkIndex++;
-                localPosition += chunkSize;
+                localPosition += __chunkSize;
             }
 
             throw new FileFormatException("String is missing null terminator.");
@@ -652,9 +652,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A byte array.</returns>
         public byte[] ToByteArray()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-            var bytes = new byte[position];
-            CopyTo(0, bytes, 0, position);
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            var bytes = new byte[_position];
+            CopyTo(0, bytes, 0, _position);
             return bytes;
         }
 
@@ -664,9 +664,9 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The Boolean value.</param>
         public void WriteBoolean(bool value)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(1);
-            chunk[chunkOffset] = value ? (byte)1 : (byte)0;
+            _chunk[_chunkOffset] = value ? (byte)1 : (byte)0;
             Position++;
         }
 
@@ -676,9 +676,9 @@ namespace MongoDB.Bson.IO
         /// <param name="value">A byte.</param>
         public void WriteByte(byte value)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(1);
-            chunk[chunkOffset] = value;
+            _chunk[_chunkOffset] = value;
             Position++;
         }
 
@@ -688,16 +688,16 @@ namespace MongoDB.Bson.IO
         /// <param name="value">A byte array.</param>
         public void WriteBytes(byte[] value)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(value.Length);
             int sourceOffset = 0;
             int count = value.Length;
             while (count > 0)
             {
                 // possibly straddles chunk boundary initially
-                int available = chunkSize - chunkOffset;
+                int available = __chunkSize - _chunkOffset;
                 int partialCount = (count > available) ? available : count;
-                Buffer.BlockCopy(value, sourceOffset, chunk, chunkOffset, partialCount);
+                Buffer.BlockCopy(value, sourceOffset, _chunk, _chunkOffset, partialCount);
                 Position += partialCount;
                 sourceOffset += partialCount;
                 count -= partialCount;
@@ -710,13 +710,13 @@ namespace MongoDB.Bson.IO
         /// <param name="value">A string.</param>
         public void WriteCString(string value)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             int maxLength = Encoding.UTF8.GetMaxByteCount(value.Length) + 1;
             EnsureSpaceAvailable(maxLength);
-            if (chunkSize - chunkOffset >= maxLength)
+            if (__chunkSize - _chunkOffset >= maxLength)
             {
-                int length = Encoding.UTF8.GetBytes(value, 0, value.Length, chunk, chunkOffset);
-                chunk[chunkOffset + length] = 0;
+                int length = Encoding.UTF8.GetBytes(value, 0, value.Length, _chunk, _chunkOffset);
+                _chunk[_chunkOffset + length] = 0;
                 Position += length + 1;
             }
             else
@@ -734,11 +734,11 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The Double value.</param>
         public void WriteDouble(double value)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(8);
-            if (chunkSize - chunkOffset >= 8)
+            if (__chunkSize - _chunkOffset >= 8)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(value), 0, chunk, chunkOffset, 8);
+                Buffer.BlockCopy(BitConverter.GetBytes(value), 0, _chunk, _chunkOffset, 8);
                 Position += 8;
             }
             else
@@ -753,15 +753,15 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The Int32 value.</param>
         public void WriteInt32(int value)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(4);
-            if (chunkSize - chunkOffset >= 4)
+            if (__chunkSize - _chunkOffset >= 4)
             {
                 // for int only we come out ahead with this code vs using BitConverter
-                chunk[chunkOffset + 0] = (byte)(value);
-                chunk[chunkOffset + 1] = (byte)(value >> 8);
-                chunk[chunkOffset + 2] = (byte)(value >> 16);
-                chunk[chunkOffset + 3] = (byte)(value >> 24);
+                _chunk[_chunkOffset + 0] = (byte)(value);
+                _chunk[_chunkOffset + 1] = (byte)(value >> 8);
+                _chunk[_chunkOffset + 2] = (byte)(value >> 16);
+                _chunk[_chunkOffset + 3] = (byte)(value >> 24);
                 Position += 4;
             }
             else
@@ -776,11 +776,11 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The Int64 value.</param>
         public void WriteInt64(long value)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(8);
-            if (chunkSize - chunkOffset >= 8)
+            if (__chunkSize - _chunkOffset >= 8)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(value), 0, chunk, chunkOffset, 8);
+                Buffer.BlockCopy(BitConverter.GetBytes(value), 0, _chunk, _chunkOffset, 8);
                 Position += 8;
             }
             else
@@ -798,22 +798,22 @@ namespace MongoDB.Bson.IO
         /// <param name="increment">The increment.</param>
         public void WriteObjectId(int timestamp, int machine, short pid, int increment)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(12);
-            if (chunkSize - chunkOffset >= 12)
+            if (__chunkSize - _chunkOffset >= 12)
             {
-                chunk[chunkOffset + 0] = (byte)(timestamp >> 24);
-                chunk[chunkOffset + 1] = (byte)(timestamp >> 16);
-                chunk[chunkOffset + 2] = (byte)(timestamp >> 8);
-                chunk[chunkOffset + 3] = (byte)(timestamp);
-                chunk[chunkOffset + 4] = (byte)(machine >> 16);
-                chunk[chunkOffset + 5] = (byte)(machine >> 8);
-                chunk[chunkOffset + 6] = (byte)(machine);
-                chunk[chunkOffset + 7] = (byte)(pid >> 8);
-                chunk[chunkOffset + 8] = (byte)(pid);
-                chunk[chunkOffset + 9] = (byte)(increment >> 16);
-                chunk[chunkOffset + 10] = (byte)(increment >> 8);
-                chunk[chunkOffset + 11] = (byte)(increment);
+                _chunk[_chunkOffset + 0] = (byte)(timestamp >> 24);
+                _chunk[_chunkOffset + 1] = (byte)(timestamp >> 16);
+                _chunk[_chunkOffset + 2] = (byte)(timestamp >> 8);
+                _chunk[_chunkOffset + 3] = (byte)(timestamp);
+                _chunk[_chunkOffset + 4] = (byte)(machine >> 16);
+                _chunk[_chunkOffset + 5] = (byte)(machine >> 8);
+                _chunk[_chunkOffset + 6] = (byte)(machine);
+                _chunk[_chunkOffset + 7] = (byte)(pid >> 8);
+                _chunk[_chunkOffset + 8] = (byte)(pid);
+                _chunk[_chunkOffset + 9] = (byte)(increment >> 16);
+                _chunk[_chunkOffset + 10] = (byte)(increment >> 8);
+                _chunk[_chunkOffset + 11] = (byte)(increment);
                 Position += 12;
             }
             else
@@ -828,18 +828,18 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The String value.</param>
         public void WriteString(string value)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             int maxLength = Encoding.UTF8.GetMaxByteCount(value.Length) + 5;
             EnsureSpaceAvailable(maxLength);
-            if (chunkSize - chunkOffset >= maxLength)
+            if (__chunkSize - _chunkOffset >= maxLength)
             {
-                int length = Encoding.UTF8.GetBytes(value, 0, value.Length, chunk, chunkOffset + 4); // write string first
+                int length = Encoding.UTF8.GetBytes(value, 0, value.Length, _chunk, _chunkOffset + 4); // write string first
                 int lengthPlusOne = length + 1;
-                chunk[chunkOffset + 0] = (byte)(lengthPlusOne); // now we know the length
-                chunk[chunkOffset + 1] = (byte)(lengthPlusOne >> 8);
-                chunk[chunkOffset + 2] = (byte)(lengthPlusOne >> 16);
-                chunk[chunkOffset + 3] = (byte)(lengthPlusOne >> 24);
-                chunk[chunkOffset + 4 + length] = 0;
+                _chunk[_chunkOffset + 0] = (byte)(lengthPlusOne); // now we know the length
+                _chunk[_chunkOffset + 1] = (byte)(lengthPlusOne >> 8);
+                _chunk[_chunkOffset + 2] = (byte)(lengthPlusOne >> 16);
+                _chunk[_chunkOffset + 3] = (byte)(lengthPlusOne >> 24);
+                _chunk[_chunkOffset + 4 + length] = 0;
                 Position += length + 5;
             }
             else
@@ -858,19 +858,19 @@ namespace MongoDB.Bson.IO
         /// <param name="stream">The Stream.</param>
         public void WriteTo(Stream stream)
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-            if (position > 0)
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_position > 0)
             {
-                var wholeChunks = position / chunkSize;
+                var wholeChunks = _position / __chunkSize;
                 for (int chunkIndex = 0; chunkIndex < wholeChunks; chunkIndex++)
                 {
-                    stream.Write(chunks[chunkIndex], 0, chunkSize);
+                    stream.Write(_chunks[chunkIndex], 0, __chunkSize);
                 }
 
-                var partialChunkSize = position % chunkSize;
+                var partialChunkSize = _position % __chunkSize;
                 if (partialChunkSize != 0)
                 {
-                    stream.Write(chunks[wholeChunks], 0, partialChunkSize);
+                    stream.Write(_chunks[wholeChunks], 0, partialChunkSize);
                 }
             }
         }
@@ -880,15 +880,15 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public void WriteZero()
         {
-            if (disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureSpaceAvailable(4);
-            if (chunkSize - chunkOffset >= 4)
+            if (__chunkSize - _chunkOffset >= 4)
             {
                 // for int only we come out ahead with this code vs using BitConverter
-                chunk[chunkOffset + 0] = 0;
-                chunk[chunkOffset + 1] = 0;
-                chunk[chunkOffset + 2] = 0;
-                chunk[chunkOffset + 3] = 0;
+                _chunk[_chunkOffset + 0] = 0;
+                _chunk[_chunkOffset + 1] = 0;
+                _chunk[_chunkOffset + 2] = 0;
+                _chunk[_chunkOffset + 3] = 0;
                 Position += 4;
             }
             else
@@ -900,32 +900,32 @@ namespace MongoDB.Bson.IO
         // private methods
         private void EnsureDataAvailable(int needed)
         {
-            if (length - position < needed)
+            if (_length - _position < needed)
             {
-                var available = length - position;
+                var available = _length - _position;
                 var message = string.Format(
                     "Not enough input bytes available. Needed {0}, but only {1} are available (at position {2}).",
-                    needed, available, position);
+                    needed, available, _position);
                 throw new EndOfStreamException(message);
             }
         }
 
         private void EnsureSpaceAvailable(int needed)
         {
-            if (capacity - position < needed)
+            if (_capacity - _position < needed)
             {
                 // either we have no chunks or we just crossed a chunk boundary landing at chunkOffset 0
-                if (chunk == null)
+                if (_chunk == null)
                 {
-                    chunk = GetChunk();
-                    chunks.Add(chunk);
-                    capacity += chunkSize;
+                    _chunk = GetChunk();
+                    _chunks.Add(_chunk);
+                    _capacity += __chunkSize;
                 }
 
-                while (capacity - position < needed)
+                while (_capacity - _position < needed)
                 {
-                    chunks.Add(GetChunk());
-                    capacity += chunkSize;
+                    _chunks.Add(GetChunk());
+                    _capacity += __chunkSize;
                 }
             }
         }

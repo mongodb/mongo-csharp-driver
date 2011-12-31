@@ -30,10 +30,10 @@ namespace MongoDB.Bson
     public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId>
     {
         // private static fields
-        private static BsonObjectId emptyInstance = new BsonObjectId(ObjectId.Empty);
+        private static BsonObjectId __emptyInstance = new BsonObjectId(ObjectId.Empty);
 
         // private fields
-        private ObjectId value;
+        private ObjectId _value;
 
         // constructors
         /// <summary>
@@ -43,7 +43,7 @@ namespace MongoDB.Bson
         public BsonObjectId(ObjectId value)
             : base(BsonType.ObjectId)
         {
-            this.value = value;
+            _value = value;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace MongoDB.Bson
         public BsonObjectId(byte[] value)
             : base(BsonType.ObjectId)
         {
-            this.value = new ObjectId(value);
+            _value = new ObjectId(value);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace MongoDB.Bson
         public BsonObjectId(int timestamp, int machine, short pid, int increment)
             : base(BsonType.ObjectId)
         {
-            this.value = new ObjectId(timestamp, machine, pid, increment);
+            _value = new ObjectId(timestamp, machine, pid, increment);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace MongoDB.Bson
         public BsonObjectId(string value)
             : base(BsonType.ObjectId)
         {
-            this.value = new ObjectId(value);
+            _value = new ObjectId(value);
         }
 
         // public static properties
@@ -85,7 +85,7 @@ namespace MongoDB.Bson
         /// </summary>
         public static BsonObjectId Empty
         {
-            get { return emptyInstance; }
+            get { return __emptyInstance; }
         }
 
         // public properties
@@ -94,7 +94,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Timestamp
         {
-            get { return value.Timestamp; }
+            get { return _value.Timestamp; }
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Machine
         {
-            get { return value.Machine; }
+            get { return _value.Machine; }
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace MongoDB.Bson
         /// </summary>
         public short Pid
         {
-            get { return value.Pid; }
+            get { return _value.Pid; }
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Increment
         {
-            get { return value.Increment; }
+            get { return _value.Increment; }
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace MongoDB.Bson
         /// </summary>
         public DateTime CreationTime
         {
-            get { return value.CreationTime; }
+            get { return _value.CreationTime; }
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace MongoDB.Bson
         /// </summary>
         public override object RawValue
         {
-            get { return value; }
+            get { return _value; }
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace MongoDB.Bson
         /// </summary>
         public ObjectId Value
         {
-            get { return value; }
+            get { return _value; }
         }
 
         // public operators
@@ -303,7 +303,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonObjectId other)
         {
             if (other == null) { return 1; }
-            return value.CompareTo(other.Value);
+            return _value.CompareTo(other.Value);
         }
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace MongoDB.Bson
             var otherObjectId = other as BsonObjectId;
             if (otherObjectId != null)
             {
-                return value.CompareTo(otherObjectId.Value);
+                return _value.CompareTo(otherObjectId.Value);
             }
             return CompareTypeTo(other);
         }
@@ -350,8 +350,8 @@ namespace MongoDB.Bson
         public override int GetHashCode()
         {
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -361,7 +361,7 @@ namespace MongoDB.Bson
         /// <returns>A byte array.</returns>
         public byte[] ToByteArray()
         {
-            return value.ToByteArray();
+            return _value.ToByteArray();
         }
 
         /// <summary>
@@ -370,7 +370,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return value.ToString();
+            return _value.ToString();
         }
     }
 }

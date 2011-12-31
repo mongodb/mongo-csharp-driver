@@ -48,30 +48,30 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp198
             public string Name;
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<Foo> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<Foo> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection<Foo>("csharp198");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection<Foo>("csharp198");
         }
 
         [Test]
         public void TestSave()
         {
-            collection.RemoveAll();
+            _collection.RemoveAll();
             var foo1 = new Foo
             {
                 Id = new Id { AccountId = 1, Index = 2 },
                 Name = "foo1"
             };
-            collection.Save(foo1);
+            _collection.Save(foo1);
 
-            var foo1Rehydrated = collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo1.Id)));
+            var foo1Rehydrated = _collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo1.Id)));
             Assert.IsInstanceOf<Foo>(foo1Rehydrated);
             Assert.IsInstanceOf<Id>(foo1Rehydrated.Id);
             Assert.AreEqual(1, foo1Rehydrated.Id.AccountId);
@@ -83,9 +83,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp198
                 Id = new IdWithExtraField { AccountId = 3, Index = 4, Extra = 5 },
                 Name = "foo2"
             };
-            collection.Save(foo2);
+            _collection.Save(foo2);
 
-            var foo2Rehydrated = collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo2.Id)));
+            var foo2Rehydrated = _collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo2.Id)));
             Assert.IsInstanceOf<Foo>(foo2Rehydrated);
             Assert.IsInstanceOf<IdWithExtraField>(foo2Rehydrated.Id);
             Assert.AreEqual(3, foo2Rehydrated.Id.AccountId);

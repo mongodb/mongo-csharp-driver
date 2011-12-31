@@ -25,15 +25,15 @@ namespace MongoDB.Bson.Serialization.Options
     public class DateTimeSerializationOptions : IBsonSerializationOptions
     {
         // private static fields
-        private static DateTimeSerializationOptions dateOnlyInstance = new DateTimeSerializationOptions(true);
-        private static DateTimeSerializationOptions defaults = new DateTimeSerializationOptions();
-        private static DateTimeSerializationOptions localInstance = new DateTimeSerializationOptions(DateTimeKind.Local);
-        private static DateTimeSerializationOptions utcInstance = new DateTimeSerializationOptions(DateTimeKind.Utc);
+        private static DateTimeSerializationOptions __dateOnlyInstance = new DateTimeSerializationOptions(true);
+        private static DateTimeSerializationOptions __defaults = new DateTimeSerializationOptions();
+        private static DateTimeSerializationOptions __localInstance = new DateTimeSerializationOptions(DateTimeKind.Local);
+        private static DateTimeSerializationOptions __utcInstance = new DateTimeSerializationOptions(DateTimeKind.Utc);
 
         // private fields
-        private bool dateOnly = false;
-        private DateTimeKind kind = DateTimeKind.Utc;
-        private BsonType representation = BsonType.DateTime;
+        private bool _dateOnly = false;
+        private DateTimeKind _kind = DateTimeKind.Utc;
+        private BsonType _representation = BsonType.DateTime;
 
         // constructors
         /// <summary>
@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <param name="dateOnly">Whether this DateTime consists of a Date only.</param>
         public DateTimeSerializationOptions(bool dateOnly)
         {
-            this.dateOnly = dateOnly;
+            _dateOnly = dateOnly;
         }
 
         /// <summary>
@@ -59,8 +59,8 @@ namespace MongoDB.Bson.Serialization.Options
         /// <param name="representation">The external representation.</param>
         public DateTimeSerializationOptions(bool dateOnly, BsonType representation)
         {
-            this.dateOnly = dateOnly;
-            this.representation = representation;
+            _dateOnly = dateOnly;
+            _representation = representation;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <param name="kind">The DateTimeKind (Local, Unspecified or Utc).</param>
         public DateTimeSerializationOptions(DateTimeKind kind)
         {
-            this.kind = kind;
+            _kind = kind;
         }
 
         /// <summary>
@@ -79,8 +79,8 @@ namespace MongoDB.Bson.Serialization.Options
         /// <param name="representation">The external representation.</param>
         public DateTimeSerializationOptions(DateTimeKind kind, BsonType representation)
         {
-            this.kind = kind;
-            this.representation = representation;
+            _kind = kind;
+            _representation = representation;
         }
 
         // public static properties
@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DateTimeSerializationOptions DateOnlyInstance
         {
-            get { return dateOnlyInstance; }
+            get { return __dateOnlyInstance; }
         }
 
         /// <summary>
@@ -97,8 +97,8 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DateTimeSerializationOptions Defaults
         {
-            get { return defaults; }
-            set { defaults = value; }
+            get { return __defaults; }
+            set { __defaults = value; }
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DateTimeSerializationOptions LocalInstance
         {
-            get { return localInstance; }
+            get { return __localInstance; }
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DateTimeSerializationOptions UtcInstance
         {
-            get { return utcInstance; }
+            get { return __utcInstance; }
         }
 
         // public properties
@@ -123,7 +123,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public bool DateOnly
         {
-            get { return dateOnly; }
+            get { return _dateOnly; }
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public DateTimeKind Kind
         {
-            get { return kind; }
+            get { return _kind; }
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public BsonType Representation
         {
-            get { return representation; }
+            get { return _representation; }
         }
     }
 }

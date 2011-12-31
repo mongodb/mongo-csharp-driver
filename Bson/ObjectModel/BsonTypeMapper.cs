@@ -31,7 +31,7 @@ namespace MongoDB.Bson
     {
         // private static fields
         // table of from mappings used by MapToBsonValue
-        private static Dictionary<Type, Conversion> fromMappings = new Dictionary<Type, Conversion>
+        private static Dictionary<Type, Conversion> __fromMappings = new Dictionary<Type, Conversion>
         {
             { typeof(bool), Conversion.NewBsonBoolean },
             { typeof(BsonArray), Conversion.None },
@@ -72,7 +72,7 @@ namespace MongoDB.Bson
         };
 
         // table of from/to mappings used by MapToBsonValue
-        private static Dictionary<Mapping, Conversion> fromToMappings = new Dictionary<Mapping, Conversion>()
+        private static Dictionary<Mapping, Conversion> __fromToMappings = new Dictionary<Mapping, Conversion>()
         {
             { Mapping.FromTo(typeof(bool), BsonType.Boolean), Conversion.NewBsonBoolean },
             { Mapping.FromTo(typeof(BsonArray), BsonType.Array), Conversion.None },
@@ -151,7 +151,7 @@ namespace MongoDB.Bson
             { Mapping.FromTo(typeof(ulong), BsonType.Timestamp), Conversion.UInt64ToBsonTimestamp }
         };
 
-        private static Dictionary<Type, ICustomBsonTypeMapper> customTypeMappers = new Dictionary<Type, ICustomBsonTypeMapper>();
+        private static Dictionary<Type, ICustomBsonTypeMapper> __customTypeMappers = new Dictionary<Type, ICustomBsonTypeMapper>();
 
         // public static methods
         /// <summary>
@@ -203,7 +203,7 @@ namespace MongoDB.Bson
             }
 
             Conversion conversion; // the conversion (if it exists) that will convert value to bsonType
-            if (fromToMappings.TryGetValue(Mapping.FromTo(valueType, bsonType), out conversion))
+            if (__fromToMappings.TryGetValue(Mapping.FromTo(valueType, bsonType), out conversion))
             {
                 return Convert(value, conversion);
             }
@@ -240,7 +240,7 @@ namespace MongoDB.Bson
         /// <param name="customTypeMapper">A custom type mapper.</param>
         public static void RegisterCustomTypeMapper(Type type, ICustomBsonTypeMapper customTypeMapper)
         {
-            customTypeMappers.Add(type, customTypeMapper);
+            __customTypeMappers.Add(type, customTypeMapper);
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace MongoDB.Bson
             }
 
             Conversion conversion;
-            if (fromMappings.TryGetValue(valueType, out conversion))
+            if (__fromMappings.TryGetValue(valueType, out conversion))
             {
                 bsonValue = Convert(value, conversion);
                 return true;
@@ -303,7 +303,7 @@ namespace MongoDB.Bson
             }
 
             ICustomBsonTypeMapper customTypeMapper;
-            if (customTypeMappers.TryGetValue(valueType, out customTypeMapper))
+            if (__customTypeMappers.TryGetValue(valueType, out customTypeMapper))
             {
                 return customTypeMapper.TryMapToBsonValue(value, out bsonValue);
             }
@@ -463,13 +463,13 @@ namespace MongoDB.Bson
 
         private struct Mapping
         {
-            private Type netType;
-            private BsonType bsonType;
+            private Type _netType;
+            private BsonType _bsonType;
 
             public Mapping(Type netType, BsonType bsonType)
             {
-                this.netType = netType;
-                this.bsonType = bsonType;
+                _netType = netType;
+                _bsonType = bsonType;
             }
 
             public static Mapping FromTo(Type netType, BsonType bsonType)
@@ -477,8 +477,8 @@ namespace MongoDB.Bson
                 return new Mapping(netType, bsonType);
             }
 
-            public Type NetType { get { return netType; } }
-            public BsonType BsonType { get { return bsonType; } }
+            public Type NetType { get { return _netType; } }
+            public BsonType BsonType { get { return _bsonType; } }
 
             /// <summary>
             /// Compares this Mapping to another object.
@@ -488,7 +488,7 @@ namespace MongoDB.Bson
             public override bool Equals(object obj)
             {
                 Mapping rhs = (Mapping)obj;
-                return netType == rhs.netType && bsonType == rhs.bsonType;
+                return _netType == rhs._netType && _bsonType == rhs._bsonType;
             }
 
             /// <summary>
@@ -497,7 +497,7 @@ namespace MongoDB.Bson
             /// <returns>The hash code.</returns>
             public override int GetHashCode()
             {
-                return netType.GetHashCode() + (int)bsonType;
+                return _netType.GetHashCode() + (int)_bsonType;
             }
         }
     }

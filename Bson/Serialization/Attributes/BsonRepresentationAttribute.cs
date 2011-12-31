@@ -30,9 +30,9 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonRepresentationAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
-        private BsonType representation;
-        private bool allowOverflow;
-        private bool allowTruncation;
+        private BsonType _representation;
+        private bool _allowOverflow;
+        private bool _allowTruncation;
 
         // constructors
         /// <summary>
@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="representation">The external representation.</param>
         public BsonRepresentationAttribute(BsonType representation)
         {
-            this.representation = representation;
+            _representation = representation;
         }
 
         // public properties
@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public BsonType Representation
         {
-            get { return representation; }
+            get { return _representation; }
         }
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public bool AllowOverflow
         {
-            get { return allowOverflow; }
-            set { allowOverflow = value; }
+            get { return _allowOverflow; }
+            set { _allowOverflow = value; }
         }
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public bool AllowTruncation
         {
-            get { return allowTruncation; }
-            set { allowTruncation = value; }
+            get { return _allowTruncation; }
+            set { _allowTruncation = value; }
         }
 
         // public methods
@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions()
         {
-            return new RepresentationSerializationOptions(representation, allowOverflow, allowTruncation);
+            return new RepresentationSerializationOptions(_representation, _allowOverflow, _allowTruncation);
         }
     }
 }

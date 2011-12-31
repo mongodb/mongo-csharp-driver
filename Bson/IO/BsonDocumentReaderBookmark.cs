@@ -26,27 +26,27 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentReaderBookmark : BsonReaderBookmark
     {
         // private fields
-        private BsonDocumentReaderContext context;
-        private BsonValue currentValue;
+        private BsonDocumentReaderContext _context;
+        private BsonValue _currentValue;
 
         // constructors
         internal BsonDocumentReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName, BsonDocumentReaderContext context, BsonValue currentValue)
             : base(state, currentBsonType, currentName)
         {
-            this.context = context.Clone();
-            this.currentValue = currentValue;
+            _context = context.Clone();
+            _currentValue = currentValue;
         }
 
         // internal properties
         internal BsonValue CurrentValue
         {
-            get { return currentValue; }
+            get { return _currentValue; }
         }
 
         // internal methods
         internal BsonDocumentReaderContext CloneContext()
         {
-            return context.Clone();
+            return _context.Clone();
         }
     }
 }

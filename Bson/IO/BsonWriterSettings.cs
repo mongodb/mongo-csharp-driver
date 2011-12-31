@@ -30,11 +30,11 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// The representation for Guids.
         /// </summary>
-        protected GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
+        protected GuidRepresentation _guidRepresentation = BsonDefaults.GuidRepresentation;
         /// <summary>
         /// Whether the settings are frozen.
         /// </summary>
-        protected bool isFrozen;
+        protected bool _isFrozen;
 
         // constructors
         /// <summary>
@@ -50,7 +50,7 @@ namespace MongoDB.Bson.IO
         /// <param name="guidRepresentation">The representation for Guids.</param>
         protected BsonWriterSettings(GuidRepresentation guidRepresentation)
         {
-            this.guidRepresentation = guidRepresentation;
+            _guidRepresentation = guidRepresentation;
         }
 
         // public properties
@@ -59,11 +59,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public GuidRepresentation GuidRepresentation
         {
-            get { return guidRepresentation; }
+            get { return _guidRepresentation; }
             set
             {
-                if (isFrozen) { ThrowFrozenException(); }
-                guidRepresentation = value;
+                if (_isFrozen) { ThrowFrozenException(); }
+                _guidRepresentation = value;
             }
         }
 
@@ -72,7 +72,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public bool IsFrozen
         {
-            get { return isFrozen; }
+            get { return _isFrozen; }
         }
 
         // public methods
@@ -91,7 +91,7 @@ namespace MongoDB.Bson.IO
         /// <returns>The frozen settings.</returns>
         public BsonWriterSettings Freeze()
         {
-            isFrozen = true;
+            _isFrozen = true;
             return this;
         }
 
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A frozen copy of the settings.</returns>
         public BsonWriterSettings FrozenCopy()
         {
-            if (isFrozen)
+            if (_isFrozen)
             {
                 return this;
             }

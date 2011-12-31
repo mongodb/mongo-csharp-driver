@@ -38,16 +38,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp253
             public BsonNull BsonNull { get; set; }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection("testcollection");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection("testcollection");
         }
 
         [Test]
@@ -58,21 +58,21 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp253
                 DBRef = new MongoDBRef("database", "collection", ObjectId.GenerateNewId()),
                 BsonNull = null
             };
-            collection.Insert(c);
+            _collection.Insert(c);
         }
 
         [Test]
         public void TestInsertDollar()
         {
-            Assert.Throws<BsonSerializationException>(() => { collection.Insert(new BsonDocument("$x", 1)); });
-            Assert.Throws<BsonSerializationException>(() => { collection.Insert(new BsonDocument("x", new BsonDocument("$x", 1))); });
+            Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("$x", 1)); });
+            Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("x", new BsonDocument("$x", 1))); });
         }
 
         [Test]
         public void TestInsertPeriod()
         {
-            Assert.Throws<BsonSerializationException>(() => { collection.Insert(new BsonDocument("a.b", 1)); });
-            Assert.Throws<BsonSerializationException>(() => { collection.Insert(new BsonDocument("a", new BsonDocument("b.c", 1))); });
+            Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("a.b", 1)); });
+            Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("a", new BsonDocument("b.c", 1))); });
         }
 
         [Test]
@@ -96,13 +96,13 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp253
                     }
                 }
             };
-            collection.Insert(document);
+            _collection.Insert(document);
         }
 
         [Test]
         public void TestCreateIndexOnNestedElement()
         {
-            collection.CreateIndex("a.b");
+            _collection.CreateIndex("a.b");
         }
     }
 }

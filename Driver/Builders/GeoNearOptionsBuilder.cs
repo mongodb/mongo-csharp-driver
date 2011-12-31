@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Builders
     public class GeoNearOptionsBuilder : BuilderBase, IMongoGeoNearOptions
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public GeoNearOptionsBuilder()
         {
-            document = new BsonDocument();
+            _document = new BsonDocument();
         }
 
         // public methods
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public GeoNearOptionsBuilder SetDistanceMultiplier(double value)
         {
-            document["distanceMultiplier"] = value;
+            _document["distanceMultiplier"] = value;
             return this;
         }
 
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public GeoNearOptionsBuilder SetMaxDistance(double value)
         {
-            document["maxDistance"] = value;
+            _document["maxDistance"] = value;
             return this;
         }
 
@@ -121,11 +121,11 @@ namespace MongoDB.Driver.Builders
         {
             if (value)
             {
-                document["spherical"] = true;
+                _document["spherical"] = true;
             }
             else
             {
-                document.Remove("spherical");
+                _document.Remove("spherical");
             }
             return this;
         }
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
-            return document;
+            return _document;
         }
 
         // protected methods
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            document.Serialize(bsonWriter, nominalType, options);
+            _document.Serialize(bsonWriter, nominalType, options);
         }
     }
 }

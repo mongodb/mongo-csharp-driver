@@ -31,8 +31,8 @@ namespace MongoDB.Driver
     public class MongoServerAddress : IEquatable<MongoServerAddress>
     {
         // private fields
-        private string host;
-        private int port;
+        private string _host;
+        private int _port;
 
         // constructors
         /// <summary>
@@ -41,8 +41,8 @@ namespace MongoDB.Driver
         /// <param name="host">The server's host name.</param>
         public MongoServerAddress(string host)
         {
-            this.host = host;
-            this.port = 27017;
+            _host = host;
+            _port = 27017;
         }
 
         /// <summary>
@@ -52,8 +52,8 @@ namespace MongoDB.Driver
         /// <param name="port">The server's port number.</param>
         public MongoServerAddress(string host, int port)
         {
-            this.host = host;
-            this.port = port;
+            _host = host;
+            _port = port;
         }
 
         // factory methods
@@ -106,7 +106,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Host
         {
-            get { return host; }
+            get { return _host; }
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int Port
         {
-            get { return port; }
+            get { return _port; }
         }
 
         // public operators
@@ -149,7 +149,7 @@ namespace MongoDB.Driver
         public bool Equals(MongoServerAddress rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return host.Equals(rhs.host, StringComparison.OrdinalIgnoreCase) && port == rhs.port;
+            return _host.Equals(rhs._host, StringComparison.OrdinalIgnoreCase) && _port == rhs._port;
         }
 
         /// <summary>
@@ -170,8 +170,8 @@ namespace MongoDB.Driver
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + host.ToLower().GetHashCode();
-            hash = 37 * hash + port.GetHashCode();
+            hash = 37 * hash + _host.ToLower().GetHashCode();
+            hash = 37 * hash + _port.GetHashCode();
             return hash;
         }
 
@@ -181,7 +181,7 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the server address.</returns>
         public override string ToString()
         {
-            return string.Format("{0}:{1}", host, port);
+            return string.Format("{0}:{1}", _host, _port);
         }
 
         /// <summary>
@@ -191,18 +191,18 @@ namespace MongoDB.Driver
         /// <returns>The IPEndPoint of the server.</returns>
         public IPEndPoint ToIPEndPoint(AddressFamily addressFamily)
         {
-            var ipAddresses = Dns.GetHostAddresses(host);
+            var ipAddresses = Dns.GetHostAddresses(_host);
             if (ipAddresses != null && ipAddresses.Length != 0)
             {
                 foreach (var ipAddress in ipAddresses)
                 {
                     if (ipAddress.AddressFamily == addressFamily)
                     {
-                        return new IPEndPoint(ipAddress, port);
+                        return new IPEndPoint(ipAddress, _port);
                     }
                 }
             }
-            var message = string.Format("Unable to resolve host name '{0}'.", host);
+            var message = string.Format("Unable to resolve host name '{0}'.", _host);
             throw new MongoConnectionException(message);
         }
     }

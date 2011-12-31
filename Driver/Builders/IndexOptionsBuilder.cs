@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Builders
     public class IndexOptionsBuilder : BuilderBase, IMongoIndexOptions
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public IndexOptionsBuilder()
         {
-            document = new BsonDocument();
+            _document = new BsonDocument();
         }
 
         // public methods
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexOptionsBuilder SetBackground(bool value)
         {
-            document["background"] = value;
+            _document["background"] = value;
             return this;
         }
 
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexOptionsBuilder SetBucketSize(double value)
         {
-            document["bucketSize"] = value;
+            _document["bucketSize"] = value;
             return this;
         }
 
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexOptionsBuilder SetDropDups(bool value)
         {
-            document["dropDups"] = value;
+            _document["dropDups"] = value;
             return this;
         }
 
@@ -172,8 +172,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexOptionsBuilder SetGeoSpatialRange(double min, double max)
         {
-            document["min"] = min;
-            document["max"] = max;
+            _document["min"] = min;
+            _document["max"] = max;
             return this;
         }
 
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexOptionsBuilder SetName(string value)
         {
-            document["name"] = value;
+            _document["name"] = value;
             return this;
         }
 
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexOptionsBuilder SetSparse(bool value)
         {
-            document["sparse"] = value;
+            _document["sparse"] = value;
             return this;
         }
 
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexOptionsBuilder SetUnique(bool value)
         {
-            document["unique"] = value;
+            _document["unique"] = value;
             return this;
         }
 
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
-            return document;
+            return _document;
         }
 
         // protected methods
@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            document.Serialize(bsonWriter, nominalType, options);
+            _document.Serialize(bsonWriter, nominalType, options);
         }
     }
 }

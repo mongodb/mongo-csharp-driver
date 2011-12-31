@@ -30,9 +30,9 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDateTimeOptionsAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
-        private bool dateOnly = false;
-        private DateTimeKind kind = DateTimeKind.Utc;
-        private BsonType representation = BsonType.DateTime;
+        private bool _dateOnly = false;
+        private DateTimeKind _kind = DateTimeKind.Utc;
+        private BsonType _representation = BsonType.DateTime;
 
         // constructors
         /// <summary>
@@ -48,8 +48,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public bool DateOnly
         {
-            get { return dateOnly; }
-            set { dateOnly = value; }
+            get { return _dateOnly; }
+            set { _dateOnly = value; }
         }
 
         /// <summary>
@@ -57,8 +57,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public DateTimeKind Kind
         {
-            get { return kind; }
-            set { kind = value; }
+            get { return _kind; }
+            set { _kind = value; }
         }
 
         /// <summary>
@@ -66,8 +66,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public BsonType Representation
         {
-            get { return representation; }
-            set { representation = value; }
+            get { return _representation; }
+            set { _representation = value; }
         }
 
         // public methods
@@ -77,13 +77,13 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions()
         {
-            if (dateOnly)
+            if (_dateOnly)
             {
-                return new DateTimeSerializationOptions(dateOnly, representation);
+                return new DateTimeSerializationOptions(_dateOnly, _representation);
             }
             else
             {
-                return new DateTimeSerializationOptions(kind, representation);
+                return new DateTimeSerializationOptions(_kind, _representation);
             }
         }
     }

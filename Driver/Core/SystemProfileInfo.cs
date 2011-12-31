@@ -32,34 +32,34 @@ namespace MongoDB.Driver
     public class SystemProfileInfo : IBsonSerializable
     {
         // private fields
-        private string abbreviated;
-        private string client;
-        private BsonDocument command;
-        private long cursorId;
-        private TimeSpan duration;
-        private string error;
-        private string exception;
-        private int exceptionCode;
-        private bool exhaust;
-        private bool fastMod;
-        private bool fastModInsert;
-        private bool idHack;
-        private string info;
-        private int keyUpdates;
-        private bool moved;
-        private string @namespace;
-        private int numberReturned;
-        private int numberScanned;
-        private int numberToReturn;
-        private int numberToSkip;
-        private string op;
-        private BsonDocument query;
-        private int responseLength;
-        private bool scanAndOrder;
-        private DateTime timestamp;
-        private BsonDocument updateObject;
-        private bool upsert;
-        private string user;
+        private string _abbreviated;
+        private string _client;
+        private BsonDocument _command;
+        private long _cursorId;
+        private TimeSpan _duration;
+        private string _error;
+        private string _exception;
+        private int _exceptionCode;
+        private bool _exhaust;
+        private bool _fastMod;
+        private bool _fastModInsert;
+        private bool _idHack;
+        private string _info;
+        private int _keyUpdates;
+        private bool _moved;
+        private string _namespace;
+        private int _numberReturned;
+        private int _numberScanned;
+        private int _numberToReturn;
+        private int _numberToSkip;
+        private string _op;
+        private BsonDocument _query;
+        private int _responseLength;
+        private bool _scanAndOrder;
+        private DateTime _timestamp;
+        private BsonDocument _updateObject;
+        private bool _upsert;
+        private string _user;
 
         // constructors
         /// <summary>
@@ -75,8 +75,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Abbreviated
         {
-            get { return abbreviated; }
-            set { abbreviated = value; }
+            get { return _abbreviated; }
+            set { _abbreviated = value; }
         }
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Client
         {
-            get { return client; }
-            set { client = value; }
+            get { return _client; }
+            set { _client = value; }
         }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Command
         {
-            get { return command; }
-            set { command = value; }
+            get { return _command; }
+            set { _command = value; }
         }
 
         /// <summary>
@@ -102,8 +102,8 @@ namespace MongoDB.Driver
         /// </summary>
         public long CursorId
         {
-            get { return cursorId; }
-            set { cursorId = value; }
+            get { return _cursorId; }
+            set { _cursorId = value; }
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan Duration
         {
-            get { return duration; }
-            set { duration = value; }
+            get { return _duration; }
+            set { _duration = value; }
         }
 
         /// <summary>
@@ -120,8 +120,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Error
         {
-            get { return error; }
-            set { error = value; }
+            get { return _error; }
+            set { _error = value; }
         }
 
         /// <summary>
@@ -129,8 +129,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Exception
         {
-            get { return exception; }
-            set { exception = value; }
+            get { return _exception; }
+            set { _exception = value; }
         }
 
         /// <summary>
@@ -138,8 +138,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int ExceptionCode
         {
-            get { return exceptionCode; }
-            set { exceptionCode = value; }
+            get { return _exceptionCode; }
+            set { _exceptionCode = value; }
         }
 
         /// <summary>
@@ -147,8 +147,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Exhaust
         {
-            get { return exhaust; }
-            set { exhaust = value; }
+            get { return _exhaust; }
+            set { _exhaust = value; }
         }
 
         /// <summary>
@@ -156,8 +156,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool FastMod
         {
-            get { return fastMod; }
-            set { fastMod = value; }
+            get { return _fastMod; }
+            set { _fastMod = value; }
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool FastModInsert
         {
-            get { return fastModInsert; }
-            set { fastModInsert = value; }
+            get { return _fastModInsert; }
+            set { _fastModInsert = value; }
         }
 
         /// <summary>
@@ -174,8 +174,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IdHack
         {
-            get { return idHack; }
-            set { idHack = value; }
+            get { return _idHack; }
+            set { _idHack = value; }
         }
 
         /// <summary>
@@ -183,8 +183,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Info
         {
-            get { return info; }
-            set { info = value; }
+            get { return _info; }
+            set { _info = value; }
         }
 
         /// <summary>
@@ -192,8 +192,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int KeyUpdates
         {
-            get { return keyUpdates; }
-            set { keyUpdates = value; }
+            get { return _keyUpdates; }
+            set { _keyUpdates = value; }
         }
 
         /// <summary>
@@ -201,8 +201,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Moved
         {
-            get { return moved; }
-            set { moved = value; }
+            get { return _moved; }
+            set { _moved = value; }
         }
 
         /// <summary>
@@ -210,8 +210,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Namespace
         {
-            get { return @namespace; }
-            set { @namespace = value; }
+            get { return _namespace; }
+            set { _namespace = value; }
         }
 
         /// <summary>
@@ -219,8 +219,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberReturned
         {
-            get { return numberReturned; }
-            set { numberReturned = value; }
+            get { return _numberReturned; }
+            set { _numberReturned = value; }
         }
 
         /// <summary>
@@ -228,8 +228,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberScanned
         {
-            get { return numberScanned; }
-            set { numberScanned = value; }
+            get { return _numberScanned; }
+            set { _numberScanned = value; }
         }
 
         /// <summary>
@@ -237,8 +237,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberToReturn
         {
-            get { return numberToReturn; }
-            set { numberToReturn = value; }
+            get { return _numberToReturn; }
+            set { _numberToReturn = value; }
         }
 
         /// <summary>
@@ -246,8 +246,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberToSkip
         {
-            get { return numberToSkip; }
-            set { numberToSkip = value; }
+            get { return _numberToSkip; }
+            set { _numberToSkip = value; }
         }
 
         /// <summary>
@@ -255,8 +255,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Op
         {
-            get { return op; }
-            set { op = value; }
+            get { return _op; }
+            set { _op = value; }
         }
 
         /// <summary>
@@ -264,8 +264,8 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Query
         {
-            get { return query; }
-            set { query = value; }
+            get { return _query; }
+            set { _query = value; }
         }
 
         /// <summary>
@@ -273,8 +273,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int ResponseLength
         {
-            get { return responseLength; }
-            set { responseLength = value; }
+            get { return _responseLength; }
+            set { _responseLength = value; }
         }
 
         /// <summary>
@@ -282,8 +282,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool ScanAndOrder
         {
-            get { return scanAndOrder; }
-            set { scanAndOrder = value; }
+            get { return _scanAndOrder; }
+            set { _scanAndOrder = value; }
         }
 
         /// <summary>
@@ -291,8 +291,8 @@ namespace MongoDB.Driver
         /// </summary>
         public DateTime Timestamp
         {
-            get { return timestamp; }
-            set { timestamp = value; }
+            get { return _timestamp; }
+            set { _timestamp = value; }
         }
 
         /// <summary>
@@ -300,8 +300,8 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument UpdateObject
         {
-            get { return updateObject; }
-            set { updateObject = value; }
+            get { return _updateObject; }
+            set { _updateObject = value; }
         }
 
         /// <summary>
@@ -309,8 +309,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Upsert
         {
-            get { return upsert; }
-            set { upsert = value; }
+            get { return _upsert; }
+            set { _upsert = value; }
         }
 
         /// <summary>
@@ -318,8 +318,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string User
         {
-            get { return user; }
-            set { user = value; }
+            get { return _user; }
+            set { _user = value; }
         }
 
         // explicit interface implementation
@@ -340,88 +340,88 @@ namespace MongoDB.Driver
                     switch (name)
                     {
                         case "abbreviated":
-                            abbreviated = bsonReader.ReadString();
+                            _abbreviated = bsonReader.ReadString();
                             break;
                         case "client":
-                            client = bsonReader.ReadString();
+                            _client = bsonReader.ReadString();
                             break;
                         case "command":
-                            command = BsonDocument.ReadFrom(bsonReader);
+                            _command = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "cursorid":
-                            cursorId = BsonValue.ReadFrom(bsonReader).ToInt64();
+                            _cursorId = BsonValue.ReadFrom(bsonReader).ToInt64();
                             break;
                         case "err":
-                            error = bsonReader.ReadString();
+                            _error = bsonReader.ReadString();
                             break;
                         case "exception":
-                            exception = bsonReader.ReadString();
+                            _exception = bsonReader.ReadString();
                             break;
                         case "exceptionCode":
-                            exceptionCode = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _exceptionCode = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "exhaust":
-                            exhaust = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _exhaust = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "fastmod":
-                            fastMod = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _fastMod = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "fastmodinsert":
-                            fastModInsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _fastModInsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "idhack":
-                            idHack = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _idHack = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "info":
-                            info = bsonReader.ReadString();
+                            _info = bsonReader.ReadString();
                             break;
                         case "keyUpdates":
-                            keyUpdates = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _keyUpdates = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "millis":
-                            duration = TimeSpan.FromMilliseconds(BsonValue.ReadFrom(bsonReader).ToDouble());
+                            _duration = TimeSpan.FromMilliseconds(BsonValue.ReadFrom(bsonReader).ToDouble());
                             break;
                         case "moved":
-                            moved = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _moved = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "nreturned":
-                            numberReturned = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _numberReturned = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ns":
-                            @namespace = bsonReader.ReadString();
+                            _namespace = bsonReader.ReadString();
                             break;
                         case "nscanned":
-                            numberScanned = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _numberScanned = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ntoreturn":
-                            numberToReturn = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _numberToReturn = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ntoskip":
-                            numberToSkip = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _numberToSkip = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "op":
-                            op = bsonReader.ReadString();
+                            _op = bsonReader.ReadString();
                             break;
                         case "query":
-                            query = BsonDocument.ReadFrom(bsonReader);
+                            _query = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "responseLength":
-                            responseLength = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _responseLength = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "scanAndOrder":
-                            scanAndOrder = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _scanAndOrder = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "ts":
-                            timestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
+                            _timestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
                             break;
                         case "updateobj":
-                            updateObject = BsonDocument.ReadFrom(bsonReader);
+                            _updateObject = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "upsert":
-                            upsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _upsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "user":
-                            user = bsonReader.ReadString();
+                            _user = bsonReader.ReadString();
                             break;
                         default:
                             break; // ignore unknown elements
@@ -440,114 +440,114 @@ namespace MongoDB.Driver
         void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             bsonWriter.WriteStartDocument();
-            bsonWriter.WriteDateTime("ts", BsonUtils.ToMillisecondsSinceEpoch(timestamp));
-            if (info != null)
+            bsonWriter.WriteDateTime("ts", BsonUtils.ToMillisecondsSinceEpoch(_timestamp));
+            if (_info != null)
             {
-                bsonWriter.WriteString("info", info);
+                bsonWriter.WriteString("info", _info);
             }
-            if (op != null)
+            if (_op != null)
             {
-                bsonWriter.WriteString("op", op);
+                bsonWriter.WriteString("op", _op);
             }
-            if (@namespace != null)
+            if (_namespace != null)
             {
-                bsonWriter.WriteString("ns", @namespace);
+                bsonWriter.WriteString("ns", _namespace);
             }
-            if (command != null)
+            if (_command != null)
             {
                 bsonWriter.WriteName("command");
-                command.WriteTo(bsonWriter);
+                _command.WriteTo(bsonWriter);
             }
-            if (query != null)
+            if (_query != null)
             {
                 bsonWriter.WriteName("query");
-                query.WriteTo(bsonWriter);
+                _query.WriteTo(bsonWriter);
             }
-            if (updateObject != null)
+            if (_updateObject != null)
             {
                 bsonWriter.WriteName("updateobj");
-                updateObject.WriteTo(bsonWriter);
+                _updateObject.WriteTo(bsonWriter);
             }
-            if (cursorId != 0)
+            if (_cursorId != 0)
             {
-                bsonWriter.WriteInt64("cursorid", cursorId);
+                bsonWriter.WriteInt64("cursorid", _cursorId);
             }
-            if (numberToReturn != 0)
+            if (_numberToReturn != 0)
             {
-                bsonWriter.WriteInt32("ntoreturn", numberToReturn);
+                bsonWriter.WriteInt32("ntoreturn", _numberToReturn);
             }
-            if (numberToSkip != 0)
+            if (_numberToSkip != 0)
             {
-                bsonWriter.WriteInt32("ntoskip", numberToSkip);
+                bsonWriter.WriteInt32("ntoskip", _numberToSkip);
             }
-            if (exhaust)
+            if (_exhaust)
             {
-                bsonWriter.WriteBoolean("exhaust", exhaust);
+                bsonWriter.WriteBoolean("exhaust", _exhaust);
             }
-            if (numberScanned != 0)
+            if (_numberScanned != 0)
             {
-                bsonWriter.WriteInt32("nscanned", numberScanned);
+                bsonWriter.WriteInt32("nscanned", _numberScanned);
             }
-            if (idHack)
+            if (_idHack)
             {
-                bsonWriter.WriteBoolean("idhack", idHack);
+                bsonWriter.WriteBoolean("idhack", _idHack);
             }
-            if (scanAndOrder)
+            if (_scanAndOrder)
             {
-                bsonWriter.WriteBoolean("scanAndOrder", scanAndOrder);
+                bsonWriter.WriteBoolean("scanAndOrder", _scanAndOrder);
             }
-            if (moved)
+            if (_moved)
             {
-                bsonWriter.WriteBoolean("moved", moved);
+                bsonWriter.WriteBoolean("moved", _moved);
             }
-            if (fastMod)
+            if (_fastMod)
             {
-                bsonWriter.WriteBoolean("fastmod", fastMod);
+                bsonWriter.WriteBoolean("fastmod", _fastMod);
             }
-            if (fastModInsert)
+            if (_fastModInsert)
             {
-                bsonWriter.WriteBoolean("fastmodinsert", fastModInsert);
+                bsonWriter.WriteBoolean("fastmodinsert", _fastModInsert);
             }
-            if (upsert)
+            if (_upsert)
             {
-                bsonWriter.WriteBoolean("upsert", upsert);
+                bsonWriter.WriteBoolean("upsert", _upsert);
             }
-            if (keyUpdates != 0)
+            if (_keyUpdates != 0)
             {
-                bsonWriter.WriteInt32("keyUpdates", keyUpdates);
+                bsonWriter.WriteInt32("keyUpdates", _keyUpdates);
             }
-            if (exception != null)
+            if (_exception != null)
             {
-                bsonWriter.WriteString("exception", exception);
+                bsonWriter.WriteString("exception", _exception);
             }
-            if (exceptionCode != 0)
+            if (_exceptionCode != 0)
             {
-                bsonWriter.WriteInt32("exceptionCode", exceptionCode);
+                bsonWriter.WriteInt32("exceptionCode", _exceptionCode);
             }
-            if (numberReturned != 0)
+            if (_numberReturned != 0)
             {
-                bsonWriter.WriteInt32("nreturned", numberReturned);
+                bsonWriter.WriteInt32("nreturned", _numberReturned);
             }
-            if (responseLength != 0)
+            if (_responseLength != 0)
             {
-                bsonWriter.WriteInt32("responseLength", responseLength);
+                bsonWriter.WriteInt32("responseLength", _responseLength);
             }
-            bsonWriter.WriteDouble("millis", duration.TotalMilliseconds);
-            if (client != null)
+            bsonWriter.WriteDouble("millis", _duration.TotalMilliseconds);
+            if (_client != null)
             {
-                bsonWriter.WriteString("client", client);
+                bsonWriter.WriteString("client", _client);
             }
-            if (user != null)
+            if (_user != null)
             {
-                bsonWriter.WriteString("user", user);
+                bsonWriter.WriteString("user", _user);
             }
-            if (error != null)
+            if (_error != null)
             {
-                bsonWriter.WriteString("err", error);
+                bsonWriter.WriteString("err", _error);
             }
-            if (abbreviated != null)
+            if (_abbreviated != null)
             {
-                bsonWriter.WriteString("abbreviated", abbreviated);
+                bsonWriter.WriteString("abbreviated", _abbreviated);
             }
             bsonWriter.WriteEndDocument();
         }

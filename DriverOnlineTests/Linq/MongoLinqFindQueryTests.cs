@@ -37,30 +37,30 @@ namespace MongoDB.DriverOnlineTests.Linq
             public int Y { get; set; }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<C> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            server.Connect();
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("linqtests");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _server.Connect();
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection<C>("linqtests");
 
-            collection.Drop();
-            collection.Insert(new C { X = 1, Y = 11 });
-            collection.Insert(new C { X = 2, Y = 12 });
-            collection.Insert(new C { X = 3, Y = 13 });
-            collection.Insert(new C { X = 4, Y = 14 });
-            collection.Insert(new C { X = 5, Y = 15 });
+            _collection.Drop();
+            _collection.Insert(new C { X = 1, Y = 11 });
+            _collection.Insert(new C { X = 2, Y = 12 });
+            _collection.Insert(new C { X = 3, Y = 13 });
+            _collection.Insert(new C { X = 4, Y = 14 });
+            _collection.Insert(new C { X = 5, Y = 15 });
         }
 
         [Test]
         public void TestQueryXEquals1()
         {
-            var query = from c in collection.AsQueryable<C>()
+            var query = from c in _collection.AsQueryable<C>()
                         where c.X == 1
                         select c;
             var count = 0;

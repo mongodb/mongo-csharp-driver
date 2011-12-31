@@ -30,12 +30,12 @@ namespace MongoDB.Driver.GridFS
     public class MongoGridFSCreateOptions
     {
         // private fields
-        private string[] aliases;
-        private int chunkSize;
-        private string contentType;
-        private BsonValue id; // usually a BsonObjectId but not required to be
-        private BsonDocument metadata;
-        private DateTime uploadDate;
+        private string[] _aliases;
+        private int _chunkSize;
+        private string _contentType;
+        private BsonValue _id; // usually a BsonObjectId but not required to be
+        private BsonDocument _metadata;
+        private DateTime _uploadDate;
 
         // constructors
         /// <summary>
@@ -51,8 +51,8 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public string[] Aliases
         {
-            get { return aliases; }
-            set { aliases = value; }
+            get { return _aliases; }
+            set { _aliases = value; }
         }
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public int ChunkSize
         {
-            get { return chunkSize; }
-            set { chunkSize = value; }
+            get { return _chunkSize; }
+            set { _chunkSize = value; }
         }
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public string ContentType
         {
-            get { return contentType; }
-            set { contentType = value; }
+            get { return _contentType; }
+            set { _contentType = value; }
         }
 
         /// <summary>
@@ -78,8 +78,8 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public BsonValue Id
         {
-            get { return id; }
-            set { id = value; }
+            get { return _id; }
+            set { _id = value; }
         }
 
         /// <summary>
@@ -87,8 +87,8 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public BsonDocument Metadata
         {
-            get { return metadata; }
-            set { metadata = value; }
+            get { return _metadata; }
+            set { _metadata = value; }
         }
 
         /// <summary>
@@ -96,8 +96,8 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public DateTime UploadDate
         {
-            get { return uploadDate; }
-            set { uploadDate = value; }
+            get { return _uploadDate; }
+            set { _uploadDate = value; }
         }
     }
 }

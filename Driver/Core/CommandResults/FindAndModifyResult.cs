@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var value = response["value"];
+                var value = _response["value"];
                 return (value.IsBsonNull) ? null : value.AsBsonDocument;
             }
         }

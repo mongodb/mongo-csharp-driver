@@ -27,7 +27,7 @@ namespace MongoDB.DriverUnitTests
     [TestFixture]
     public class MongoUrlBuilderTests
     {
-        private static MongoServerAddress localhost = new MongoServerAddress("localhost");
+        private static MongoServerAddress __localhost = new MongoServerAddress("localhost");
 
         [Test]
         public void TestDefaults()

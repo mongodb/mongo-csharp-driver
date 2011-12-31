@@ -28,15 +28,15 @@ namespace MongoDB.Driver
     public class MongoDatabaseSettings
     {
         // private fields
-        private string databaseName;
-        private MongoCredentials credentials;
-        private GuidRepresentation guidRepresentation;
-        private SafeMode safeMode;
-        private bool slaveOk;
+        private string _databaseName;
+        private MongoCredentials _credentials;
+        private GuidRepresentation _guidRepresentation;
+        private SafeMode _safeMode;
+        private bool _slaveOk;
         // the following fields are set when Freeze is called
-        private bool isFrozen;
-        private int frozenHashCode;
-        private string frozenStringRepresentation;
+        private bool _isFrozen;
+        private int _frozenHashCode;
+        private string _frozenStringRepresentation;
 
         // constructors
         /// <summary>
@@ -47,11 +47,11 @@ namespace MongoDB.Driver
         public MongoDatabaseSettings(MongoServer server, string databaseName)
         {
             var serverSettings = server.Settings;
-            this.databaseName = databaseName;
-            this.credentials = serverSettings.DefaultCredentials;
-            this.guidRepresentation = serverSettings.GuidRepresentation;
-            this.safeMode = serverSettings.SafeMode;
-            this.slaveOk = serverSettings.SlaveOk;
+            _databaseName = databaseName;
+            _credentials = serverSettings.DefaultCredentials;
+            _guidRepresentation = serverSettings.GuidRepresentation;
+            _safeMode = serverSettings.SafeMode;
+            _slaveOk = serverSettings.SlaveOk;
         }
 
         /// <summary>
@@ -64,11 +64,11 @@ namespace MongoDB.Driver
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         public MongoDatabaseSettings(string databaseName, MongoCredentials credentials, GuidRepresentation guidRepresentation, SafeMode safeMode, bool slaveOk)
         {
-            this.databaseName = databaseName;
-            this.credentials = credentials;
-            this.guidRepresentation = guidRepresentation;
-            this.safeMode = safeMode;
-            this.slaveOk = slaveOk;
+            _databaseName = databaseName;
+            _credentials = credentials;
+            _guidRepresentation = guidRepresentation;
+            _safeMode = safeMode;
+            _slaveOk = slaveOk;
         }
 
         // public properties
@@ -77,11 +77,11 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoCredentials Credentials
         {
-            get { return credentials; }
+            get { return _credentials; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                credentials = value;
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                _credentials = value;
             }
         }
 
@@ -90,7 +90,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string DatabaseName
         {
-            get { return databaseName; }
+            get { return _databaseName; }
         }
 
         /// <summary>
@@ -98,11 +98,11 @@ namespace MongoDB.Driver
         /// </summary>
         public GuidRepresentation GuidRepresentation
         {
-            get { return guidRepresentation; }
+            get { return _guidRepresentation; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                guidRepresentation = value;
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                _guidRepresentation = value;
             }
         }
 
@@ -111,7 +111,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IsFrozen
         {
-            get { return isFrozen; }
+            get { return _isFrozen; }
         }
 
         /// <summary>
@@ -119,11 +119,11 @@ namespace MongoDB.Driver
         /// </summary>
         public SafeMode SafeMode
         {
-            get { return safeMode; }
+            get { return _safeMode; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                safeMode = value;
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                _safeMode = value;
             }
         }
 
@@ -132,11 +132,11 @@ namespace MongoDB.Driver
         /// </summary>
         public bool SlaveOk
         {
-            get { return slaveOk; }
+            get { return _slaveOk; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                slaveOk = value;
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                _slaveOk = value;
             }
         }
 
@@ -147,7 +147,7 @@ namespace MongoDB.Driver
         /// <returns>A clone of the settings.</returns>
         public MongoDatabaseSettings Clone()
         {
-            return new MongoDatabaseSettings(databaseName, credentials, guidRepresentation, safeMode, slaveOk);
+            return new MongoDatabaseSettings(_databaseName, _credentials, _guidRepresentation, _safeMode, _slaveOk);
         }
 
         /// <summary>
@@ -164,18 +164,18 @@ namespace MongoDB.Driver
             }
             else
             {
-                if (this.isFrozen && rhs.isFrozen)
+                if (_isFrozen && rhs._isFrozen)
                 {
-                    return this.frozenStringRepresentation == rhs.frozenStringRepresentation;
+                    return _frozenStringRepresentation == rhs._frozenStringRepresentation;
                 }
                 else
                 {
                     return
-                        this.databaseName == rhs.databaseName &&
-                        this.credentials == rhs.credentials &&
-                        this.guidRepresentation == rhs.guidRepresentation &&
-                        this.safeMode == rhs.safeMode &&
-                        this.slaveOk == rhs.slaveOk;
+                        _databaseName == rhs._databaseName &&
+                        _credentials == rhs._credentials &&
+                        _guidRepresentation == rhs._guidRepresentation &&
+                        _safeMode == rhs._safeMode &&
+                        _slaveOk == rhs._slaveOk;
                 }
             }
         }
@@ -186,12 +186,12 @@ namespace MongoDB.Driver
         /// <returns>The frozen settings.</returns>
         public MongoDatabaseSettings Freeze()
         {
-            if (!isFrozen)
+            if (!_isFrozen)
             {
-                safeMode = safeMode.FrozenCopy();
-                frozenHashCode = GetHashCodeHelper();
-                frozenStringRepresentation = ToStringHelper();
-                isFrozen = true;
+                _safeMode = _safeMode.FrozenCopy();
+                _frozenHashCode = GetHashCodeHelper();
+                _frozenStringRepresentation = ToStringHelper();
+                _isFrozen = true;
             }
             return this;
         }
@@ -202,7 +202,7 @@ namespace MongoDB.Driver
         /// <returns>A frozen copy of the settings.</returns>
         public MongoDatabaseSettings FrozenCopy()
         {
-            if (isFrozen)
+            if (_isFrozen)
             {
                 return this;
             }
@@ -218,9 +218,9 @@ namespace MongoDB.Driver
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            if (isFrozen)
+            if (_isFrozen)
             {
-                return frozenHashCode;
+                return _frozenHashCode;
             }
             else
             {
@@ -234,9 +234,9 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the settings.</returns>
         public override string ToString()
         {
-            if (isFrozen)
+            if (_isFrozen)
             {
-                return frozenStringRepresentation;
+                return _frozenStringRepresentation;
             }
             else
             {
@@ -249,11 +249,11 @@ namespace MongoDB.Driver
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + ((databaseName == null) ? 0 : databaseName.GetHashCode());
-            hash = 37 * hash + ((credentials == null) ? 0 : credentials.GetHashCode());
-            hash = 37 * hash + guidRepresentation.GetHashCode();
-            hash = 37 * hash + ((safeMode == null) ? 0 : safeMode.GetHashCode());
-            hash = 37 * hash + slaveOk.GetHashCode();
+            hash = 37 * hash + ((_databaseName == null) ? 0 : _databaseName.GetHashCode());
+            hash = 37 * hash + ((_credentials == null) ? 0 : _credentials.GetHashCode());
+            hash = 37 * hash + _guidRepresentation.GetHashCode();
+            hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
+            hash = 37 * hash + _slaveOk.GetHashCode();
             return hash;
         }
 
@@ -261,7 +261,7 @@ namespace MongoDB.Driver
         {
             return string.Format(
                 "DatabaseName={0};Credentials={1};GuidRepresentation={2};SafeMode={3};SlaveOk={4}",
-                databaseName, credentials, guidRepresentation, safeMode, slaveOk);
+                _databaseName, _credentials, _guidRepresentation, _safeMode, _slaveOk);
         }
     }
 }

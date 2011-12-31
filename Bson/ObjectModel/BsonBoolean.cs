@@ -28,18 +28,18 @@ namespace MongoDB.Bson
     public class BsonBoolean : BsonValue, IComparable<BsonBoolean>, IEquatable<BsonBoolean>
     {
         // private static fields
-        private static BsonBoolean falseInstance = new BsonBoolean(false);
-        private static BsonBoolean trueInstance = new BsonBoolean(true);
+        private static BsonBoolean __falseInstance = new BsonBoolean(false);
+        private static BsonBoolean __trueInstance = new BsonBoolean(true);
 
         // private fields
-        private bool value;
+        private bool _value;
 
         // constructors
         // private so that only the two official instances can be created
         private BsonBoolean(bool value)
             : base(BsonType.Boolean)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public static properties
@@ -48,7 +48,7 @@ namespace MongoDB.Bson
         /// </summary>
         public static BsonBoolean False
         {
-            get { return falseInstance; }
+            get { return __falseInstance; }
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace MongoDB.Bson
         /// </summary>
         public static BsonBoolean True
         {
-            get { return trueInstance; }
+            get { return __trueInstance; }
         }
 
         // public properties
@@ -65,7 +65,7 @@ namespace MongoDB.Bson
         /// </summary>
         public override object RawValue
         {
-            get { return value; }
+            get { return _value; }
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace MongoDB.Bson
         /// </summary>
         public bool Value
         {
-            get { return value; }
+            get { return _value; }
         }
 
         // public operators
@@ -118,7 +118,7 @@ namespace MongoDB.Bson
         /// <returns>The corresponding BsonBoolean value.</returns>
         public static BsonBoolean Create(bool value)
         {
-            return value ? trueInstance : falseInstance;
+            return value ? __trueInstance : __falseInstance;
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonBoolean other)
         {
             if (other == null) { return 1; }
-            return (value ? 1 : 0).CompareTo(other.value ? 1 : 0);
+            return (_value ? 1 : 0).CompareTo(other._value ? 1 : 0);
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace MongoDB.Bson
             var otherBoolean = other as BsonBoolean;
             if (otherBoolean != null)
             {
-                return (value ? 1 : 0).CompareTo(otherBoolean.value ? 1 : 0);
+                return (_value ? 1 : 0).CompareTo(otherBoolean._value ? 1 : 0);
             }
             return CompareTypeTo(other);
         }
@@ -174,7 +174,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonBoolean rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.value == rhs.value;
+            return _value == rhs._value;
         }
 
         /// <summary>
@@ -195,8 +195,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -206,7 +206,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return XmlConvert.ToString(value);
+            return XmlConvert.ToString(_value);
         }
     }
 }

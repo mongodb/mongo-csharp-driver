@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     public class MongoCommandException : MongoException
     {
         // private fields
-        private CommandResult commandResult;
+        private CommandResult _commandResult;
 
         // constructors
         /// <summary>
@@ -69,7 +69,7 @@ namespace MongoDB.Driver
         public MongoCommandException(string message, CommandResult commandResult)
             : this(message)
         {
-            this.commandResult = commandResult;
+            _commandResult = commandResult;
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
         /// </summary>
         public CommandResult CommandResult
         {
-            get { return commandResult; }
+            get { return _commandResult; }
         }
 
         // private static methods

@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class EnumerableSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static EnumerableSerializer instance = new EnumerableSerializer();
+        private static EnumerableSerializer __instance = new EnumerableSerializer();
 
         // constructors
         /// <summary>
@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static EnumerableSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class QueueSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static QueueSerializer instance = new QueueSerializer();
+        private static QueueSerializer __instance = new QueueSerializer();
 
         // constructors
         /// <summary>
@@ -136,7 +136,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static QueueSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -209,7 +209,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class StackSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static StackSerializer instance = new StackSerializer();
+        private static StackSerializer __instance = new StackSerializer();
 
         // constructors
         /// <summary>
@@ -225,7 +225,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static StackSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods

@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq
     public class MongoLinqFindQuery : MongoLinqQuery
     {
         // private fields
-        private IMongoQuery query;
+        private IMongoQuery _query;
 
         // constructor
         /// <summary>
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq
         public MongoLinqFindQuery(MongoCollection collection, IMongoQuery query)
             : base(collection)
         {
-            this.query = query;
+            _query = query;
         }
 
         // public methods
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The result of executing the translated Find query.</returns>
         public override IEnumerator<T> GetEnumerator<T>()
         {
-            var cursor = collection.FindAs<T>(query);
+            var cursor = _collection.FindAs<T>(_query);
             // TODO: modify the cursor with things like sort order, skip and limit
             return cursor.GetEnumerator();
         }

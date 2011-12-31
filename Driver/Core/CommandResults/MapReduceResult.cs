@@ -29,7 +29,7 @@ namespace MongoDB.Driver
     public class MapReduceResult : CommandResult
     {
         // private fields
-        private MongoDatabase inputDatabase;
+        private MongoDatabase _inputDatabase;
 
         // constructors
         /// <summary>
@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var result = response["result", null];
+                var result = _response["result", null];
                 if (result != null)
                 {
                     if (result.IsString)
@@ -70,7 +70,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var result = response["result", null];
+                var result = _response["result", null];
                 if (result != null && result.IsBsonDocument)
                 {
                     return (string)result.AsBsonDocument["db", null];
@@ -84,7 +84,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan Duration
         {
-            get { return TimeSpan.FromMilliseconds(response["timeMillis"].ToInt32()); }
+            get { return TimeSpan.FromMilliseconds(_response["timeMillis"].ToInt32()); }
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long EmitCount
         {
-            get { return response["counts"].AsBsonDocument["emit"].ToInt64(); }
+            get { return _response["counts"].AsBsonDocument["emit"].ToInt64(); }
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long OutputCount
         {
-            get { return response["counts"].AsBsonDocument["output"].ToInt64(); }
+            get { return _response["counts"].AsBsonDocument["output"].ToInt64(); }
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<BsonDocument> InlineResults
         {
-            get { return response["results"].AsBsonArray.Cast<BsonDocument>(); }
+            get { return _response["results"].AsBsonArray.Cast<BsonDocument>(); }
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long InputCount
         {
-            get { return response["counts"].AsBsonDocument["input"].ToInt64(); }
+            get { return _response["counts"].AsBsonDocument["input"].ToInt64(); }
         }
 
         // public methods
@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         /// <returns>The documents.</returns>
         public IEnumerable<BsonDocument> GetResults()
         {
-            if (response.Contains("results"))
+            if (_response.Contains("results"))
             {
                 return InlineResults;
             }
@@ -156,11 +156,11 @@ namespace MongoDB.Driver
                 MongoDatabase outputDatabase;
                 if (outputDatabaseName == null)
                 {
-                    outputDatabase = inputDatabase;
+                    outputDatabase = _inputDatabase;
                 }
                 else
                 {
-                    outputDatabase = inputDatabase.Server[outputDatabaseName];
+                    outputDatabase = _inputDatabase.Server[outputDatabaseName];
                 }
                 return outputDatabase[CollectionName].FindAll();
             }
@@ -183,7 +183,7 @@ namespace MongoDB.Driver
         /// <returns>The documents.</returns>
         public IEnumerable<object> GetResultsAs(Type documentType)
         {
-            if (response.Contains("results"))
+            if (_response.Contains("results"))
             {
                 return GetInlineResultsAs(documentType);
             }
@@ -193,11 +193,11 @@ namespace MongoDB.Driver
                 MongoDatabase outputDatabase;
                 if (outputDatabaseName == null)
                 {
-                    outputDatabase = inputDatabase;
+                    outputDatabase = _inputDatabase;
                 }
                 else
                 {
-                    outputDatabase = inputDatabase.Server[outputDatabaseName];
+                    outputDatabase = _inputDatabase.Server[outputDatabaseName];
                 }
                 return outputDatabase[CollectionName].FindAllAs(documentType).Cast<object>();
             }
@@ -206,7 +206,7 @@ namespace MongoDB.Driver
         // internal methods
         internal void SetInputDatabase(MongoDatabase inputDatabase)
         {
-            this.inputDatabase = inputDatabase;
+            _inputDatabase = inputDatabase;
         }
     }
 }

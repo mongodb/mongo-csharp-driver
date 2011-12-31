@@ -33,19 +33,19 @@ namespace MongoDB.Driver
     public abstract class MongoCursor : IEnumerable
     {
         // private fields
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection collection;
-        private IMongoQuery query;
-        private IMongoFields fields;
-        private BsonDocument options;
-        private QueryFlags flags;
-        private bool slaveOk;
-        private int skip;
-        private int limit; // number of documents to return (enforced by cursor)
-        private int batchSize; // number of documents to return in each reply
-        private IBsonSerializationOptions serializationOptions;
-        private bool isFrozen; // prevent any further modifications once enumeration has begun
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection _collection;
+        private IMongoQuery _query;
+        private IMongoFields _fields;
+        private BsonDocument _options;
+        private QueryFlags _flags;
+        private bool _slaveOk;
+        private int _skip;
+        private int _limit; // number of documents to return (enforced by cursor)
+        private int _batchSize; // number of documents to return in each reply
+        private IBsonSerializationOptions _serializationOptions;
+        private bool _isFrozen; // prevent any further modifications once enumeration has begun
 
         // constructors
         /// <summary>
@@ -55,11 +55,11 @@ namespace MongoDB.Driver
         /// <param name="query">The query.</param>
         protected MongoCursor(MongoCollection collection, IMongoQuery query)
         {
-            this.server = collection.Database.Server;
-            this.database = collection.Database;
-            this.collection = collection;
-            this.query = query;
-            this.slaveOk = collection.Settings.SlaveOk;
+            _server = collection.Database.Server;
+            _database = collection.Database;
+            _collection = collection;
+            _query = query;
+            _slaveOk = collection.Settings.SlaveOk;
         }
 
         // public properties
@@ -68,7 +68,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoServer Server
         {
-            get { return server; }
+            get { return _server; }
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoDatabase Database
         {
-            get { return database; }
+            get { return _database; }
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoCollection Collection
         {
-            get { return collection; }
+            get { return _collection; }
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual IMongoQuery Query
         {
-            get { return query; }
+            get { return _query; }
         }
 
         /// <summary>
@@ -100,11 +100,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual IMongoFields Fields
         {
-            get { return fields; }
+            get { return _fields; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                fields = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _fields = value;
             }
         }
 
@@ -113,11 +113,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual BsonDocument Options
         {
-            get { return options; }
+            get { return _options; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                options = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _options = value;
             }
         }
 
@@ -126,11 +126,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual QueryFlags Flags
         {
-            get { return flags | (slaveOk ? QueryFlags.SlaveOk : 0); }
+            get { return _flags | (_slaveOk ? QueryFlags.SlaveOk : 0); }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                flags = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _flags = value;
             }
         }
 
@@ -139,11 +139,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual bool SlaveOk
         {
-            get { return slaveOk || ((flags & QueryFlags.SlaveOk) != 0); }
+            get { return _slaveOk || ((_flags & QueryFlags.SlaveOk) != 0); }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                slaveOk = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _slaveOk = value;
             }
         }
 
@@ -152,11 +152,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual int Skip
         {
-            get { return skip; }
+            get { return _skip; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                skip = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _skip = value;
             }
         }
 
@@ -165,11 +165,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual int Limit
         {
-            get { return limit; }
+            get { return _limit; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                limit = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _limit = value;
             }
         }
 
@@ -178,11 +178,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual int BatchSize
         {
-            get { return batchSize; }
+            get { return _batchSize; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                batchSize = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _batchSize = value;
             }
         }
 
@@ -191,11 +191,11 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual IBsonSerializationOptions SerializationOptions
         {
-            get { return serializationOptions; }
+            get { return _serializationOptions; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                serializationOptions = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _serializationOptions = value;
             }
         }
 
@@ -204,8 +204,8 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual bool IsFrozen
         {
-            get { return isFrozen; }
-            protected set { isFrozen = value; }
+            get { return _isFrozen; }
+            protected set { _isFrozen = value; }
         }
 
         // public static methods
@@ -242,15 +242,15 @@ namespace MongoDB.Driver
         /// <returns>A clone of the cursor.</returns>
         public virtual MongoCursor Clone(Type documentType)
         {
-            var clone = Create(documentType, collection, query);
-            clone.options = options == null ? null : (BsonDocument)options.Clone();
-            clone.flags = flags;
-            clone.slaveOk = slaveOk;
-            clone.skip = skip;
-            clone.limit = limit;
-            clone.batchSize = batchSize;
-            clone.fields = fields;
-            clone.serializationOptions = serializationOptions;
+            var clone = Create(documentType, _collection, _query);
+            clone._options = _options == null ? null : (BsonDocument)_options.Clone();
+            clone._flags = _flags;
+            clone._slaveOk = _slaveOk;
+            clone._skip = _skip;
+            clone._limit = _limit;
+            clone._batchSize = _batchSize;
+            clone._fields = _fields;
+            clone._serializationOptions = _serializationOptions;
             return clone;
         }
 
@@ -260,13 +260,13 @@ namespace MongoDB.Driver
         /// <returns>The number of documents that match the query.</returns>
         public virtual long Count()
         {
-            isFrozen = true;
+            _isFrozen = true;
             var command = new CommandDocument
             {
-                { "count", collection.Name },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "count", _collection.Name },
+                { "query", BsonDocumentWrapper.Create(_query) } // query is optional
             };
-            var result = database.RunCommand(command);
+            var result = _database.RunCommand(command);
             return result.Response["n"].ToInt64();
         }
 
@@ -286,10 +286,10 @@ namespace MongoDB.Driver
         /// <returns>An explanation of thow the query was executed.</returns>
         public virtual BsonDocument Explain(bool verbose)
         {
-            isFrozen = true;
+            _isFrozen = true;
             var clone = Clone<BsonDocument>();
             clone.SetOption("$explain", true);
-            clone.limit = -clone.limit; // TODO: should this be -1?
+            clone._limit = -clone._limit; // TODO: should this be -1?
             var explanation = clone.FirstOrDefault();
             if (!verbose)
             {
@@ -324,9 +324,9 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetBatchSize(int batchSize)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             if (batchSize < 0) { throw new ArgumentException("BatchSize cannot be negative."); }
-            this.batchSize = batchSize;
+            _batchSize = batchSize;
             return this;
         }
 
@@ -337,8 +337,8 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetFields(IMongoFields fields)
         {
-            if (isFrozen) { ThrowFrozen(); }
-            this.fields = fields;
+            if (_isFrozen) { ThrowFrozen(); }
+            _fields = fields;
             return this;
         }
 
@@ -349,8 +349,8 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetFields(params string[] fields)
         {
-            if (isFrozen) { ThrowFrozen(); }
-            this.fields = Builders.Fields.Include(fields);
+            if (_isFrozen) { ThrowFrozen(); }
+            _fields = Builders.Fields.Include(fields);
             return this;
         }
 
@@ -361,8 +361,8 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetFlags(QueryFlags flags)
         {
-            if (isFrozen) { ThrowFrozen(); }
-            this.flags = flags;
+            if (_isFrozen) { ThrowFrozen(); }
+            _flags = flags;
             return this;
         }
 
@@ -373,7 +373,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetHint(BsonDocument hint)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             SetOption("$hint", hint);
             return this;
         }
@@ -385,7 +385,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetHint(string indexName)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             SetOption("$hint", indexName);
             return this;
         }
@@ -397,8 +397,8 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetLimit(int limit)
         {
-            if (isFrozen) { ThrowFrozen(); }
-            this.limit = limit;
+            if (_isFrozen) { ThrowFrozen(); }
+            _limit = limit;
             return this;
         }
 
@@ -410,7 +410,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetMax(BsonDocument max)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             SetOption("$max", max);
             return this;
         }
@@ -422,7 +422,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetMaxScan(int maxScan)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             SetOption("$maxscan", maxScan);
             return this;
         }
@@ -435,7 +435,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetMin(BsonDocument min)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             SetOption("$min", min);
             return this;
         }
@@ -448,9 +448,9 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetOption(string name, BsonValue value)
         {
-            if (isFrozen) { ThrowFrozen(); }
-            if (options == null) { options = new BsonDocument(); }
-            options[name] = value;
+            if (_isFrozen) { ThrowFrozen(); }
+            if (_options == null) { _options = new BsonDocument(); }
+            _options[name] = value;
             return this;
         }
 
@@ -461,11 +461,11 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetOptions(BsonDocument options)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             if (options != null)
             {
-                if (this.options == null) { this.options = new BsonDocument(); }
-                this.options.Merge(options, true); // overwriteExistingElements
+                if (_options == null) { _options = new BsonDocument(); }
+                _options.Merge(options, true); // overwriteExistingElements
             }
             return this;
         }
@@ -477,8 +477,8 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetSerializationOptions(IBsonSerializationOptions serializationOptions)
         {
-            if (isFrozen) { ThrowFrozen(); }
-            this.serializationOptions = serializationOptions;
+            if (_isFrozen) { ThrowFrozen(); }
+            _serializationOptions = serializationOptions;
             return this;
         }
 
@@ -488,7 +488,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetShowDiskLoc()
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             SetOption("$showDiskLoc", true);
             return this;
         }
@@ -500,9 +500,9 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetSkip(int skip)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             if (skip < 0) { throw new ArgumentException("Skip cannot be negative."); }
-            this.skip = skip;
+            _skip = skip;
             return this;
         }
 
@@ -513,8 +513,8 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetSlaveOk(bool slaveOk)
         {
-            if (isFrozen) { ThrowFrozen(); }
-            this.slaveOk = slaveOk;
+            if (_isFrozen) { ThrowFrozen(); }
+            _slaveOk = slaveOk;
             return this;
         }
 
@@ -524,7 +524,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetSnapshot()
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             SetOption("$snapshot", true);
             return this;
         }
@@ -536,7 +536,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetSortOrder(IMongoSortBy sortBy)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             SetOption("$orderby", BsonDocumentWrapper.Create(sortBy));
             return this;
         }
@@ -548,7 +548,7 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetSortOrder(params string[] keys)
         {
-            if (isFrozen) { ThrowFrozen(); }
+            if (_isFrozen) { ThrowFrozen(); }
             return SetSortOrder(SortBy.Ascending(keys));
         }
 
@@ -558,15 +558,15 @@ namespace MongoDB.Driver
         /// <returns>The size of the result set.</returns>
         public virtual long Size()
         {
-            isFrozen = true;
+            _isFrozen = true;
             var command = new CommandDocument
             {
-                { "count", collection.Name },
-                { "query", BsonDocumentWrapper.Create(query) }, // query is optional
-                { "limit", limit, limit != 0 },
-                { "skip", skip, skip != 0 }
+                { "count", _collection.Name },
+                { "query", BsonDocumentWrapper.Create(_query) }, // query is optional
+                { "limit", _limit, _limit != 0 },
+                { "skip", _skip, _skip != 0 }
             };
-            var result = database.RunCommand(command);
+            var result = _database.RunCommand(command);
             return result.Response["n"].ToInt64();
         }
 

@@ -38,37 +38,37 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp215
             public int X;
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<C> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("csharp215");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection<C>("csharp215");
         }
 
         [Test]
         public void TestSave()
         {
-            collection.RemoveAll();
+            _collection.RemoveAll();
 
             var doc = new C { X = 1 };
-            collection.Save(doc);
+            _collection.Save(doc);
             var id = doc.Id;
 
-            Assert.AreEqual(1, collection.Count());
-            var fetched = collection.FindOne();
+            Assert.AreEqual(1, _collection.Count());
+            var fetched = _collection.FindOne();
             Assert.AreEqual(id, fetched.Id);
             Assert.AreEqual(1, fetched.X);
 
             doc.X = 2;
-            collection.Save(doc);
+            _collection.Save(doc);
 
-            Assert.AreEqual(1, collection.Count());
-            fetched = collection.FindOne();
+            Assert.AreEqual(1, _collection.Count());
+            fetched = _collection.FindOne();
             Assert.AreEqual(id, fetched.Id);
             Assert.AreEqual(2, fetched.X);
         }

@@ -28,24 +28,24 @@ namespace MongoDB.DriverOnlineTests.Jira
     [TestFixture]
     public class CSharp307Tests
     {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database["testcollection"];
-            collection.Drop();
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database["testcollection"];
+            _collection.Drop();
         }
 
         [Test]
         public void TestInsertNullDocument()
         {
             BsonDocument document = null;
-            var ex = Assert.Catch<ArgumentNullException>(() => collection.Insert(document));
+            var ex = Assert.Catch<ArgumentNullException>(() => _collection.Insert(document));
             Assert.AreEqual("document", ex.ParamName);
         }
 
@@ -53,7 +53,7 @@ namespace MongoDB.DriverOnlineTests.Jira
         public void TestInsertNullBatch()
         {
             BsonDocument[] batch = null;
-            var ex = Assert.Catch<ArgumentNullException>(() => collection.InsertBatch(batch));
+            var ex = Assert.Catch<ArgumentNullException>(() => _collection.InsertBatch(batch));
             Assert.AreEqual("documents", ex.ParamName);
         }
 
@@ -61,14 +61,14 @@ namespace MongoDB.DriverOnlineTests.Jira
         public void TestInsertBatchWithNullDocument()
         {
             BsonDocument[] batch = new BsonDocument[] { null };
-            Assert.Throws<ArgumentException>(() => collection.InsertBatch(batch), "Batch contains one or more null documents.");
+            Assert.Throws<ArgumentException>(() => _collection.InsertBatch(batch), "Batch contains one or more null documents.");
         }
 
         [Test]
         public void TestSaveNullDocument()
         {
             BsonDocument document = null;
-            var ex = Assert.Catch<ArgumentNullException>(() => collection.Save(document));
+            var ex = Assert.Catch<ArgumentNullException>(() => _collection.Save(document));
             Assert.AreEqual("document", ex.ParamName);
         }
     }

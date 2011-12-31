@@ -29,12 +29,12 @@ namespace MongoDB.DriverOnlineTests.Jira
     [TestFixture]
     public class CSharp325Tests
     {
-        private MongoServer server;
+        private MongoServer _server;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace MongoDB.DriverOnlineTests.Jira
             foreach (var c in invalidChars)
             {
                 var databaseName = new string(new char[] { 'x', c });
-                Assert.Throws<ArgumentException>(() => { var database = server[databaseName]; });
+                Assert.Throws<ArgumentException>(() => { var database = _server[databaseName]; });
             }
         }
     }

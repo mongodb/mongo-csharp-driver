@@ -24,65 +24,65 @@ namespace MongoDB.Bson.IO
     internal class BsonDocumentWriterContext
     {
         // private fields
-        private BsonDocumentWriterContext parentContext;
-        private ContextType contextType;
-        private BsonDocument document;
-        private BsonArray array;
-        private string code;
-        private string name;
+        private BsonDocumentWriterContext _parentContext;
+        private ContextType _contextType;
+        private BsonDocument _document;
+        private BsonArray _array;
+        private string _code;
+        private string _name;
 
         // constructors
         internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, BsonDocument document)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.document = document;
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _document = document;
         }
 
         internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, BsonArray array)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.array = array;
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _array = array;
         }
 
         internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, string code)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.code = code;
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _code = code;
         }
 
         // internal properties
         internal BsonDocumentWriterContext ParentContext
         {
-            get { return parentContext; }
+            get { return _parentContext; }
         }
 
         internal string Name
         {
-            get { return name; }
-            set { name = value; }
+            get { return _name; }
+            set { _name = value; }
         }
 
         internal ContextType ContextType
         {
-            get { return contextType; }
+            get { return _contextType; }
         }
 
         internal BsonDocument Document
         {
-            get { return document; }
+            get { return _document; }
         }
 
         internal BsonArray Array
         {
-            get { return array; }
+            get { return _array; }
         }
 
         internal string Code
         {
-            get { return code; }
+            get { return _code; }
         }
     }
 }

@@ -28,8 +28,8 @@ namespace MongoDB.Bson
     public class BsonDateTime : BsonValue, IComparable<BsonDateTime>, IEquatable<BsonDateTime>
     {
         // private fields
-        private long millisecondsSinceEpoch;
-        private DateTime value; // only valid if millisecondsSinceEpoch is between MinValue and MaxValue for DateTime
+        private long _millisecondsSinceEpoch;
+        private DateTime _value; // only valid if millisecondsSinceEpoch is between MinValue and MaxValue for DateTime
 
         // constructors
         /// <summary>
@@ -39,8 +39,8 @@ namespace MongoDB.Bson
         public BsonDateTime(DateTime value)
             : base(BsonType.DateTime)
         {
-            this.millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(value);
-            this.value = value;
+            _millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(value);
+            _value = value;
         }
 
         /// <summary>
@@ -50,11 +50,11 @@ namespace MongoDB.Bson
         public BsonDateTime(long millisecondsSinceEpoch)
             : base(BsonType.DateTime)
         {
-            this.millisecondsSinceEpoch = millisecondsSinceEpoch;
+            _millisecondsSinceEpoch = millisecondsSinceEpoch;
             if (millisecondsSinceEpoch >= BsonConstants.DateTimeMinValueMillisecondsSinceEpoch &&
                 millisecondsSinceEpoch <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
             {
-                this.value = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(millisecondsSinceEpoch);
+                _value = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(millisecondsSinceEpoch);
             }
         }
 
@@ -67,8 +67,8 @@ namespace MongoDB.Bson
             get
             {
                 return
-                    millisecondsSinceEpoch >= BsonConstants.DateTimeMinValueMillisecondsSinceEpoch &&
-                    millisecondsSinceEpoch <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch;
+                    _millisecondsSinceEpoch >= BsonConstants.DateTimeMinValueMillisecondsSinceEpoch &&
+                    _millisecondsSinceEpoch <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch;
             }
         }
 
@@ -77,7 +77,7 @@ namespace MongoDB.Bson
         /// </summary>
         public long MillisecondsSinceEpoch
         {
-            get { return millisecondsSinceEpoch; }
+            get { return _millisecondsSinceEpoch; }
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace MongoDB.Bson
         /// </summary>
         public override object RawValue
         {
-            get { return millisecondsSinceEpoch; }
+            get { return _millisecondsSinceEpoch; }
         }
 
         /// <summary>
@@ -95,15 +95,15 @@ namespace MongoDB.Bson
         {
             get
             {
-                if (millisecondsSinceEpoch < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch)
+                if (_millisecondsSinceEpoch < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch)
                 {
                     throw new OverflowException("MillisecondsSinceEpoch value is before DateTime.MinValue.");
                 }
-                if (millisecondsSinceEpoch > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
+                if (_millisecondsSinceEpoch > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
                 {
                     throw new OverflowException("MillisecondsSinceEpoch value is after DateTime.MaxValue.");
                 }
-                return value;
+                return _value;
             }
         }
 
@@ -190,11 +190,11 @@ namespace MongoDB.Bson
             if (other == null) { return 1; }
             if (IsValidDateTime && other.IsValidDateTime)
             {
-                return value.CompareTo(other.value);
+                return _value.CompareTo(other._value);
             }
             else
             {
-                return millisecondsSinceEpoch.CompareTo(other.millisecondsSinceEpoch);
+                return _millisecondsSinceEpoch.CompareTo(other._millisecondsSinceEpoch);
             }
         }
 
@@ -211,17 +211,17 @@ namespace MongoDB.Bson
             {
                 if (IsValidDateTime && otherDateTime.IsValidDateTime)
                 {
-                    return value.CompareTo(otherDateTime.value);
+                    return _value.CompareTo(otherDateTime._value);
                 }
                 else
                 {
-                    return millisecondsSinceEpoch.CompareTo(otherDateTime.millisecondsSinceEpoch);
+                    return _millisecondsSinceEpoch.CompareTo(otherDateTime._millisecondsSinceEpoch);
                 }
             }
             var otherTimestamp = other as BsonTimestamp;
             if (otherTimestamp != null)
             {
-                return millisecondsSinceEpoch.CompareTo(otherTimestamp.Timestamp * 1000L); // timestamp is in seconds
+                return _millisecondsSinceEpoch.CompareTo(otherTimestamp.Timestamp * 1000L); // timestamp is in seconds
             }
             return CompareTypeTo(other);
         }
@@ -234,7 +234,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonDateTime rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.millisecondsSinceEpoch == rhs.millisecondsSinceEpoch && this.value == rhs.value;
+            return _millisecondsSinceEpoch == rhs._millisecondsSinceEpoch && _value == rhs._value;
         }
 
         /// <summary>
@@ -255,9 +255,9 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + millisecondsSinceEpoch.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _millisecondsSinceEpoch.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -269,11 +269,11 @@ namespace MongoDB.Bson
         {
             if (IsValidDateTime)
             {
-                return value.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK");
+                return _value.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK");
             }
             else
             {
-                return XmlConvert.ToString(millisecondsSinceEpoch);
+                return XmlConvert.ToString(_millisecondsSinceEpoch);
             }
         }
     }

@@ -28,28 +28,28 @@ namespace MongoDB.DriverOnlineTests.Jira
     [TestFixture]
     public class CSharp282Tests
     {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database["testcollection"];
-            collection.Drop();
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database["testcollection"];
+            _collection.Drop();
         }
 
         [Test]
         public void TestEmptyUpdateBuilder()
         {
             var document = new BsonDocument("x", 1);
-            collection.Insert(document);
+            _collection.Insert(document);
 
             var query = Query.EQ("_id", document["_id"]);
             var update = new UpdateBuilder();
-            Assert.Throws<ArgumentException>(() => collection.Update(query, update));
+            Assert.Throws<ArgumentException>(() => _collection.Update(query, update));
         }
     }
 }

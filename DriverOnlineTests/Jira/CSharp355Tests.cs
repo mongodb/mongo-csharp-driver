@@ -41,17 +41,17 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355
             public Bitmap B { get; set; }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<C> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("test");
-            collection.Drop();
+            _server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection<C>("test");
+            _collection.Drop();
         }
 
         [Test]
@@ -59,9 +59,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355
         {
             var bitmap = new Bitmap(1, 2);
             var c = new C { I = bitmap, B = bitmap };
-            collection.RemoveAll();
-            collection.Insert(c);
-            var r = collection.FindOne();
+            _collection.RemoveAll();
+            _collection.Insert(c);
+            var r = _collection.FindOne();
             Assert.IsInstanceOf<C>(r);
             Assert.IsInstanceOf<Bitmap>(r.I);
             Assert.AreEqual(1, r.B.Width);
@@ -73,9 +73,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355
         public void TestImageNull()
         {
             var c = new C { I = null, B = null };
-            collection.RemoveAll();
-            collection.Insert(c);
-            var r = collection.FindOne();
+            _collection.RemoveAll();
+            _collection.Insert(c);
+            var r = _collection.FindOne();
             Assert.IsInstanceOf<C>(r);
             Assert.IsNull(r.I);
             Assert.IsNull(r.B);

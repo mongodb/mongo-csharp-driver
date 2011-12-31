@@ -29,25 +29,25 @@ namespace MongoDB.DriverOnlineTests.CommandResults
     [TestFixture]
     public class GetLastErrorResultTests
     {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database["test"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database["test"];
         }
 
         [Test]
         public void TestInsert()
         {
-            using (database.RequestStart())
+            using (_database.RequestStart())
             {
-                collection.Insert(new BsonDocument());
-                var result = server.GetLastError();
+                _collection.Insert(new BsonDocument());
+                var result = _server.GetLastError();
                 Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsFalse(result.UpdatedExisting);
                 Assert.AreEqual(0, result.DocumentsAffected); // note: DocumentsAffected is only set after an Update?
@@ -57,7 +57,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults
         [Test]
         public void TestUpdate()
         {
-            using (database.RequestStart())
+            using (_database.RequestStart())
             {
                 var id = ObjectId.GenerateNewId();
                 var document = new BsonDocument
@@ -65,12 +65,12 @@ namespace MongoDB.DriverOnlineTests.CommandResults
                     { "_id", id },
                     { "x", 1 }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
 
                 var query = Query.EQ("_id", id);
                 var update = Update.Inc("x", 1);
-                collection.Update(query, update);
-                var result = server.GetLastError();
+                _collection.Update(query, update);
+                var result = _server.GetLastError();
                 Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsTrue(result.UpdatedExisting);
                 Assert.AreEqual(1, result.DocumentsAffected);

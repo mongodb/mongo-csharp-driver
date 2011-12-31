@@ -27,7 +27,7 @@ namespace MongoDB.Bson
     public class BsonNull : BsonValue, IComparable<BsonNull>, IEquatable<BsonNull>
     {
         // private static fields
-        private static BsonNull value = new BsonNull();
+        private static BsonNull __value = new BsonNull();
 
         // constructors
         // private so only the singleton instance can be created
@@ -64,7 +64,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the singleton instance of BsonNull.
         /// </summary>
-        public static BsonNull Value { get { return value; } }
+        public static BsonNull Value { get { return __value; } }
 
         // public methods
         /// <summary>
@@ -119,7 +119,7 @@ namespace MongoDB.Bson
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            return bsonType.GetHashCode();
+            return _bsonType.GetHashCode();
         }
 
         /// <summary>

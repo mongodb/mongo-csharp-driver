@@ -30,8 +30,8 @@ namespace MongoDB.Driver.Linq
     public class ExpressionPrettyPrinter : ExpressionVisitor
     {
         // private fields
-        private StringBuilder sb;
-        private string indentation = "";
+        private StringBuilder _sb;
+        private string _indentation = "";
 
         // constructors
         /// <summary>
@@ -49,10 +49,10 @@ namespace MongoDB.Driver.Linq
         /// <returns>A string containing the pretty printed Expression.</returns>
         public string PrettyPrint(Expression exp)
         {
-            sb = new StringBuilder();
-            indentation = "";
+            _sb = new StringBuilder();
+            _indentation = "";
             Visit(exp);
-            return sb.ToString();
+            return _sb.ToString();
         }
 
         // protected methods
@@ -367,35 +367,35 @@ namespace MongoDB.Driver.Linq
 
         private void WriteLine(string line)
         {
-            sb.Append(indentation);
-            sb.Append(line);
-            sb.AppendLine();
+            _sb.Append(_indentation);
+            _sb.Append(line);
+            _sb.AppendLine();
         }
 
         private void WriteLine(string format, params object[] args)
         {
-            sb.Append(indentation);
-            sb.AppendFormat(format, args);
-            sb.AppendLine();
+            _sb.Append(_indentation);
+            _sb.AppendFormat(format, args);
+            _sb.AppendLine();
         }
 
         // nested classes
         internal class Indentation : IDisposable
         {
             // private fields
-            private ExpressionPrettyPrinter prettyPrinter;
+            private ExpressionPrettyPrinter _prettyPrinter;
 
             // constructors
             public Indentation(ExpressionPrettyPrinter prettyPrinter)
             {
-                this.prettyPrinter = prettyPrinter;
-                prettyPrinter.indentation += "| ";
+                _prettyPrinter = prettyPrinter;
+                prettyPrinter._indentation += "| ";
             }
 
             // public methods
             public void Dispose()
             {
-                prettyPrinter.indentation = prettyPrinter.indentation.Remove(prettyPrinter.indentation.Length - 2);
+                _prettyPrinter._indentation = _prettyPrinter._indentation.Remove(_prettyPrinter._indentation.Length - 2);
             }
         }
     }

@@ -38,23 +38,23 @@ namespace MongoDB.DriverOnlineTests.Linq
             public int Y { get; set; }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            server.Connect();
-            database = server["onlinetests"];
-            collection = database["linqtests"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _server.Connect();
+            _database = _server["onlinetests"];
+            _collection = _database["linqtests"];
         }
 
         [Test]
         public void TestConstructorWithOneArgument()
         {
-            var provider = new MongoQueryProvider(collection);
+            var provider = new MongoQueryProvider(_collection);
             var iqueryable = (IQueryable)new MongoQueryable<C>(provider);
             Assert.AreSame(typeof(C), iqueryable.ElementType);
             Assert.AreSame(provider, iqueryable.Provider);
@@ -63,7 +63,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         [Test]
         public void TestConstructorWithTwoArguments()
         {
-            var queryable = collection.AsQueryable<C>();
+            var queryable = _collection.AsQueryable<C>();
             var iqueryable = (IQueryable)new MongoQueryable<C>((MongoQueryProvider)queryable.Provider, queryable.Expression);
             Assert.AreSame(typeof(C), iqueryable.ElementType);
             Assert.AreSame(queryable.Provider, iqueryable.Provider);

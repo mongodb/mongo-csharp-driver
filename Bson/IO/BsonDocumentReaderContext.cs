@@ -24,57 +24,57 @@ namespace MongoDB.Bson.IO
     internal class BsonDocumentReaderContext
     {
         // private fields
-        private BsonDocumentReaderContext parentContext;
-        private ContextType contextType;
-        private BsonDocument document;
-        private BsonArray array;
-        private int index;
+        private BsonDocumentReaderContext _parentContext;
+        private ContextType _contextType;
+        private BsonDocument _document;
+        private BsonArray _array;
+        private int _index;
 
         // constructors
         internal BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonArray array)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.array = array;
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _array = array;
         }
 
         internal BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonDocument document)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.document = document;
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _document = document;
         }
 
         // used by Clone
         private BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonDocument document, BsonArray array, int index)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.document = document;
-            this.array = array;
-            this.index = index;
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _document = document;
+            _array = array;
+            _index = index;
         }
 
         // internal properties
         internal BsonArray Array
         {
-            get { return array; }
+            get { return _array; }
         }
 
         internal ContextType ContextType
         {
-            get { return contextType; }
+            get { return _contextType; }
         }
 
         internal BsonDocument Document
         {
-            get { return document; }
+            get { return _document; }
         }
 
         internal int Index
         {
-            get { return index; }
-            set { index = value; }
+            get { return _index; }
+            set { _index = value; }
         }
 
         // public methods
@@ -84,14 +84,14 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the context.</returns>
         public BsonDocumentReaderContext Clone()
         {
-            return new BsonDocumentReaderContext(parentContext, contextType, document, array, index);
+            return new BsonDocumentReaderContext(_parentContext, _contextType, _document, _array, _index);
         }
 
         public BsonElement GetNextElement()
         {
-            if (index < document.ElementCount)
+            if (_index < _document.ElementCount)
             {
-                return document.GetElement(index++);
+                return _document.GetElement(_index++);
             }
             else
             {
@@ -101,9 +101,9 @@ namespace MongoDB.Bson.IO
 
         public BsonValue GetNextValue()
         {
-            if (index < array.Count)
+            if (_index < _array.Count)
             {
-                return array[index++];
+                return _array[_index++];
             }
             else
             {
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.IO
 
         public BsonDocumentReaderContext PopContext()
         {
-            return parentContext;
+            return _parentContext;
         }
     }
 }

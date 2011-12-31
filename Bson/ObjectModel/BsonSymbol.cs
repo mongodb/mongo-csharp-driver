@@ -27,14 +27,14 @@ namespace MongoDB.Bson
     public class BsonSymbol : BsonValue, IComparable<BsonSymbol>, IEquatable<BsonSymbol>
     {
         // private fields
-        private string name;
+        private string _name;
 
         // constructors
         // internal because only BsonSymbolTable should call this constructor
         internal BsonSymbol(string name)
             : base(BsonType.Symbol)
         {
-            this.name = name;
+            _name = name;
         }
 
         // public properties
@@ -43,7 +43,7 @@ namespace MongoDB.Bson
         /// </summary>
         public string Name
         {
-            get { return name; }
+            get { return _name; }
         }
 
         // public operators
@@ -127,7 +127,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonSymbol other)
         {
             if (other == null) { return 1; }
-            return name.CompareTo(other.name);
+            return _name.CompareTo(other._name);
         }
 
         /// <summary>
@@ -141,12 +141,12 @@ namespace MongoDB.Bson
             var otherSymbol = other as BsonSymbol;
             if (otherSymbol != null)
             {
-                return name.CompareTo(otherSymbol.Name);
+                return _name.CompareTo(otherSymbol.Name);
             }
             var otherString = other as BsonString;
             if (otherString != null)
             {
-                return name.CompareTo(otherString.Value);
+                return _name.CompareTo(otherString.Value);
             }
             return CompareTypeTo(other);
         }
@@ -178,7 +178,7 @@ namespace MongoDB.Bson
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            return name.GetHashCode();
+            return _name.GetHashCode();
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return name;
+            return _name;
         }
     }
 }

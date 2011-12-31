@@ -27,7 +27,7 @@ namespace MongoDB.Bson
     public class BsonUndefined : BsonValue, IComparable<BsonUndefined>, IEquatable<BsonUndefined>
     {
         // private static fields
-        private static BsonUndefined value = new BsonUndefined();
+        private static BsonUndefined __value = new BsonUndefined();
 
         // constructors
         // private so only the singleton instance can be created
@@ -64,7 +64,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the singleton instance of BsonUndefined.
         /// </summary>
-        public static BsonUndefined Value { get { return value; } }
+        public static BsonUndefined Value { get { return __value; } }
 
         // public methods
         /// <summary>
@@ -118,7 +118,7 @@ namespace MongoDB.Bson
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            return bsonType.GetHashCode();
+            return _bsonType.GetHashCode();
         }
 
         /// <summary>

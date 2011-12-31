@@ -479,7 +479,7 @@ namespace MongoDB.Driver.Builders
     public class UpdateBuilder : BuilderBase, IMongoUpdate
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -487,13 +487,13 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public UpdateBuilder()
         {
-            document = new BsonDocument();
+            _document = new BsonDocument();
         }
 
         // internal properties
         internal BsonDocument Document
         {
-            get { return document; }
+            get { return _document; }
         }
 
         // public methods
@@ -506,13 +506,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder AddToSet(string name, BsonValue value)
         {
             BsonElement element;
-            if (document.TryGetElement("$addToSet", out element))
+            if (_document.TryGetElement("$addToSet", out element))
             {
                 element.Value.AsBsonDocument.Add(name, value);
             }
             else
             {
-                document.Add("$addToSet", new BsonDocument(name, value));
+                _document.Add("$addToSet", new BsonDocument(name, value));
             }
             return this;
         }
@@ -527,13 +527,13 @@ namespace MongoDB.Driver.Builders
         {
             var arg = new BsonDocument("$each", values);
             BsonElement element;
-            if (document.TryGetElement("$addToSet", out element))
+            if (_document.TryGetElement("$addToSet", out element))
             {
                 element.Value.AsBsonDocument.Add(name, arg);
             }
             else
             {
-                document.Add("$addToSet", new BsonDocument(name, arg));
+                _document.Add("$addToSet", new BsonDocument(name, arg));
             }
             return this;
         }
@@ -658,13 +658,13 @@ namespace MongoDB.Driver.Builders
                 var otherOperationName = otherOperation.Name;
                 var otherTargets = otherOperation.Value.AsBsonDocument;
                 BsonElement operation;
-                if (document.TryGetElement(otherOperationName, out operation))
+                if (_document.TryGetElement(otherOperationName, out operation))
                 {
                     operation.Value.AsBsonDocument.Add(otherTargets);
                 }
                 else
                 {
-                    document.Add(otherOperationName, otherTargets);
+                    _document.Add(otherOperationName, otherTargets);
                 }
             }
             return this;
@@ -714,13 +714,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder PopFirst(string name)
         {
             BsonElement element;
-            if (document.TryGetElement("$pop", out element))
+            if (_document.TryGetElement("$pop", out element))
             {
                 element.Value.AsBsonDocument.Add(name, -1);
             }
             else
             {
-                document.Add("$pop", new BsonDocument(name, -1));
+                _document.Add("$pop", new BsonDocument(name, -1));
             }
             return this;
         }
@@ -733,13 +733,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder PopLast(string name)
         {
             BsonElement element;
-            if (document.TryGetElement("$pop", out element))
+            if (_document.TryGetElement("$pop", out element))
             {
                 element.Value.AsBsonDocument.Add(name, 1);
             }
             else
             {
-                document.Add("$pop", new BsonDocument(name, 1));
+                _document.Add("$pop", new BsonDocument(name, 1));
             }
             return this;
         }
@@ -753,13 +753,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder Pull(string name, BsonValue value)
         {
             BsonElement element;
-            if (document.TryGetElement("$pull", out element))
+            if (_document.TryGetElement("$pull", out element))
             {
                 element.Value.AsBsonDocument.Add(name, value);
             }
             else
             {
-                document.Add("$pull", new BsonDocument(name, value));
+                _document.Add("$pull", new BsonDocument(name, value));
             }
             return this;
         }
@@ -774,13 +774,13 @@ namespace MongoDB.Driver.Builders
         {
             BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
             BsonElement element;
-            if (document.TryGetElement("$pull", out element))
+            if (_document.TryGetElement("$pull", out element))
             {
                 element.Value.AsBsonDocument.Add(name, wrappedQuery);
             }
             else
             {
-                document.Add("$pull", new BsonDocument(name, wrappedQuery));
+                _document.Add("$pull", new BsonDocument(name, wrappedQuery));
             }
             return this;
         }
@@ -794,13 +794,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder PullAll(string name, BsonArray values)
         {
             BsonElement element;
-            if (document.TryGetElement("$pullAll", out element))
+            if (_document.TryGetElement("$pullAll", out element))
             {
                 element.Value.AsBsonDocument.Add(name, values);
             }
             else
             {
-                document.Add("$pullAll", new BsonDocument(name, values));
+                _document.Add("$pullAll", new BsonDocument(name, values));
             }
             return this;
         }
@@ -838,13 +838,13 @@ namespace MongoDB.Driver.Builders
         {
             var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
             BsonElement element;
-            if (document.TryGetElement("$pullAll", out element))
+            if (_document.TryGetElement("$pullAll", out element))
             {
                 element.Value.AsBsonDocument.Add(name, wrappedValues);
             }
             else
             {
-                document.Add("$pullAll", new BsonDocument(name, wrappedValues));
+                _document.Add("$pullAll", new BsonDocument(name, wrappedValues));
             }
             return this;
         }
@@ -872,13 +872,13 @@ namespace MongoDB.Driver.Builders
         {
             var wrappedValue = BsonDocumentWrapper.Create(value);
             BsonElement element;
-            if (document.TryGetElement("$pull", out element))
+            if (_document.TryGetElement("$pull", out element))
             {
                 element.Value.AsBsonDocument.Add(name, wrappedValue);
             }
             else
             {
-                document.Add("$pull", new BsonDocument(name, wrappedValue));
+                _document.Add("$pull", new BsonDocument(name, wrappedValue));
             }
             return this;
         }
@@ -892,13 +892,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder Push(string name, BsonValue value)
         {
             BsonElement element;
-            if (document.TryGetElement("$push", out element))
+            if (_document.TryGetElement("$push", out element))
             {
                 element.Value.AsBsonDocument.Add(name, value);
             }
             else
             {
-                document.Add("$push", new BsonDocument(name, value));
+                _document.Add("$push", new BsonDocument(name, value));
             }
             return this;
         }
@@ -912,13 +912,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder PushAll(string name, BsonArray values)
         {
             BsonElement element;
-            if (document.TryGetElement("$pushAll", out element))
+            if (_document.TryGetElement("$pushAll", out element))
             {
                 element.Value.AsBsonDocument.Add(name, values);
             }
             else
             {
-                document.Add("$pushAll", new BsonDocument(name, values));
+                _document.Add("$pushAll", new BsonDocument(name, values));
             }
             return this;
         }
@@ -956,13 +956,13 @@ namespace MongoDB.Driver.Builders
         {
             var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
             BsonElement element;
-            if (document.TryGetElement("$pushAll", out element))
+            if (_document.TryGetElement("$pushAll", out element))
             {
                 element.Value.AsBsonDocument.Add(name, wrappedValues);
             }
             else
             {
-                document.Add("$pushAll", new BsonDocument(name, wrappedValues));
+                _document.Add("$pushAll", new BsonDocument(name, wrappedValues));
             }
             return this;
         }
@@ -990,13 +990,13 @@ namespace MongoDB.Driver.Builders
         {
             var wrappedValue = BsonDocumentWrapper.Create<T>(value);
             BsonElement element;
-            if (document.TryGetElement("$push", out element))
+            if (_document.TryGetElement("$push", out element))
             {
                 element.Value.AsBsonDocument.Add(name, wrappedValue);
             }
             else
             {
-                document.Add("$push", new BsonDocument(name, wrappedValue));
+                _document.Add("$push", new BsonDocument(name, wrappedValue));
             }
             return this;
         }
@@ -1010,13 +1010,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder Rename(string oldElementName, string newElementName)
         {
             BsonElement element;
-            if (document.TryGetElement("$rename", out element))
+            if (_document.TryGetElement("$rename", out element))
             {
                 element.Value.AsBsonDocument.Add(oldElementName, newElementName);
             }
             else
             {
-                document.Add("$rename", new BsonDocument(oldElementName, newElementName));
+                _document.Add("$rename", new BsonDocument(oldElementName, newElementName));
             }
             return this;
         }
@@ -1030,13 +1030,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder Set(string name, BsonValue value)
         {
             BsonElement element;
-            if (document.TryGetElement("$set", out element))
+            if (_document.TryGetElement("$set", out element))
             {
                 element.Value.AsBsonDocument.Add(name, value);
             }
             else
             {
-                document.Add("$set", new BsonDocument(name, value));
+                _document.Add("$set", new BsonDocument(name, value));
             }
             return this;
         }
@@ -1052,13 +1052,13 @@ namespace MongoDB.Driver.Builders
         {
             var wrappedValue = BsonDocumentWrapper.Create<T>(value);
             BsonElement element;
-            if (document.TryGetElement("$set", out element))
+            if (_document.TryGetElement("$set", out element))
             {
                 element.Value.AsBsonDocument.Add(name, wrappedValue);
             }
             else
             {
-                document.Add("$set", new BsonDocument(name, wrappedValue));
+                _document.Add("$set", new BsonDocument(name, wrappedValue));
             }
             return this;
         }
@@ -1069,7 +1069,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
-            return document;
+            return _document;
         }
 
         /// <summary>
@@ -1080,13 +1080,13 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder Unset(string name)
         {
             BsonElement element;
-            if (document.TryGetElement("$unset", out element))
+            if (_document.TryGetElement("$unset", out element))
             {
                 element.Value.AsBsonDocument.Add(name, 1);
             }
             else
             {
-                document.Add("$unset", new BsonDocument(name, 1));
+                _document.Add("$unset", new BsonDocument(name, 1));
             }
             return this;
         }
@@ -1100,17 +1100,17 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            document.Serialize(bsonWriter, nominalType, options);
+            _document.Serialize(bsonWriter, nominalType, options);
         }
 
         // private methods
         private void BitwiseOperation(string name, string operation, BsonValue value)
         {
             BsonElement bitElement;
-            if (!document.TryGetElement("$bit", out bitElement))
+            if (!_document.TryGetElement("$bit", out bitElement))
             {
                 bitElement = new BsonElement("$bit", new BsonDocument());
-                document.Add(bitElement);
+                _document.Add(bitElement);
             }
             var bitDocument = bitElement.Value.AsBsonDocument;
 
@@ -1128,10 +1128,10 @@ namespace MongoDB.Driver.Builders
         private void Inc(string name, BsonValue value)
         {
             BsonElement incElement;
-            if (!document.TryGetElement("$inc", out incElement))
+            if (!_document.TryGetElement("$inc", out incElement))
             {
                 incElement = new BsonElement("$inc", new BsonDocument());
-                document.Add(incElement);
+                _document.Add(incElement);
             }
             var incDocument = incElement.Value.AsBsonDocument;
 

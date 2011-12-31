@@ -27,15 +27,15 @@ namespace MongoDB.Driver.GridFS
     public class MongoGridFSSettings : IEquatable<MongoGridFSSettings>
     {
         // private static fields
-        private static MongoGridFSSettings defaults = new MongoGridFSSettings();
+        private static MongoGridFSSettings __defaults = new MongoGridFSSettings();
 
         // private fields
-        private bool isFrozen;
-        private string chunksCollectionName = "fs.chunks";
-        private int chunkSize = 256 * 1024; // 256KiB
-        private string filesCollectionName = "fs.files";
-        private string root = "fs";
-        private SafeMode safeMode = SafeMode.False;
+        private bool _isFrozen;
+        private string _chunksCollectionName = "fs.chunks";
+        private int _chunkSize = 256 * 1024; // 256KiB
+        private string _filesCollectionName = "fs.files";
+        private string _root = "fs";
+        private SafeMode _safeMode = SafeMode.False;
 
         // constructors
         /// <summary>
@@ -51,8 +51,8 @@ namespace MongoDB.Driver.GridFS
         /// <param name="database">The database from which to inherit some of the settings.</param>
         public MongoGridFSSettings(MongoDatabase database)
         {
-            this.chunkSize = MongoGridFSSettings.Defaults.ChunkSize;
-            this.root = MongoGridFSSettings.Defaults.Root;
+            _chunkSize = MongoGridFSSettings.Defaults.ChunkSize;
+            _root = MongoGridFSSettings.Defaults.Root;
             this.SafeMode = database.Settings.SafeMode;
         }
 
@@ -64,9 +64,9 @@ namespace MongoDB.Driver.GridFS
         /// <param name="safeMode">The safe mode.</param>
         public MongoGridFSSettings(int chunkSize, string root, SafeMode safeMode)
         {
-            this.chunkSize = chunkSize;
+            _chunkSize = chunkSize;
             this.Root = root; // use property not field
-            this.safeMode = safeMode;
+            _safeMode = safeMode;
         }
 
         // public static properties
@@ -75,8 +75,8 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public static MongoGridFSSettings Defaults
         {
-            get { return defaults; }
-            set { defaults = value; }
+            get { return __defaults; }
+            set { __defaults = value; }
         }
 
         // public properties
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public string ChunksCollectionName
         {
-            get { return chunksCollectionName; }
+            get { return _chunksCollectionName; }
         }
 
         /// <summary>
@@ -93,11 +93,11 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public int ChunkSize
         {
-            get { return chunkSize; }
+            get { return _chunkSize; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                chunkSize = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _chunkSize = value;
             }
         }
 
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public string FilesCollectionName
         {
-            get { return filesCollectionName; }
+            get { return _filesCollectionName; }
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public bool IsFrozen
         {
-            get { return isFrozen; }
+            get { return _isFrozen; }
         }
 
         /// <summary>
@@ -122,13 +122,13 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public string Root
         {
-            get { return root; }
+            get { return _root; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                root = value;
-                filesCollectionName = value + ".files";
-                chunksCollectionName = value + ".chunks";
+                if (_isFrozen) { ThrowFrozen(); }
+                _root = value;
+                _filesCollectionName = value + ".files";
+                _chunksCollectionName = value + ".chunks";
             }
         }
 
@@ -137,11 +137,11 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public SafeMode SafeMode
         {
-            get { return safeMode; }
+            get { return _safeMode; }
             set
             {
-                if (isFrozen) { ThrowFrozen(); }
-                safeMode = value;
+                if (_isFrozen) { ThrowFrozen(); }
+                _safeMode = value;
             }
         }
 
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.GridFS
         /// <returns>A clone of the settings.</returns>
         public MongoGridFSSettings Clone()
         {
-            return new MongoGridFSSettings(chunkSize, root, safeMode);
+            return new MongoGridFSSettings(_chunkSize, _root, _safeMode);
         }
 
         /// <summary>
@@ -187,9 +187,9 @@ namespace MongoDB.Driver.GridFS
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return
-                this.chunkSize == rhs.chunkSize &&
-                this.root == rhs.root &&
-                this.safeMode == rhs.safeMode;
+                _chunkSize == rhs._chunkSize &&
+                _root == rhs._root &&
+                _safeMode == rhs._safeMode;
         }
 
         /// <summary>
@@ -208,10 +208,10 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The frozen settings.</returns>
         public MongoGridFSSettings Freeze()
         {
-            if (!isFrozen)
+            if (!_isFrozen)
             {
-                safeMode = safeMode.FrozenCopy();
-                isFrozen = true;
+                _safeMode = _safeMode.FrozenCopy();
+                _isFrozen = true;
             }
             return this;
         }
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.GridFS
         /// <returns>A frozen copy of the settings.</returns>
         public MongoGridFSSettings FrozenCopy()
         {
-            if (isFrozen)
+            if (_isFrozen)
             {
                 return this;
             }
@@ -240,9 +240,9 @@ namespace MongoDB.Driver.GridFS
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + chunkSize.GetHashCode();
-            hash = 37 * hash + root.GetHashCode();
-            hash = 37 * hash + safeMode.GetHashCode();
+            hash = 37 * hash + _chunkSize.GetHashCode();
+            hash = 37 * hash + _root.GetHashCode();
+            hash = 37 * hash + _safeMode.GetHashCode();
             return hash;
         }
 

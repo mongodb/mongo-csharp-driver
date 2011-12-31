@@ -35,22 +35,22 @@ namespace MongoDB.Bson.Serialization
     public class BsonMemberMap
     {
         // private fields
-        private ConventionProfile conventions;
-        private string elementName;
-        private int order = int.MaxValue;
-        private MemberInfo memberInfo;
-        private Type memberType;
-        private Func<object, object> getter;
-        private Action<object, object> setter;
-        private IBsonSerializationOptions serializationOptions;
-        private IBsonSerializer serializer;
-        private IIdGenerator idGenerator;
-        private bool isRequired;
-        private bool hasDefaultValue;
-        private bool serializeDefaultValue = true;
-        private Func<object, bool> shouldSerializeMethod = (obj) => true;
-        private bool ignoreIfNull;
-        private object defaultValue;
+        private ConventionProfile _conventions;
+        private string _elementName;
+        private int _order = int.MaxValue;
+        private MemberInfo _memberInfo;
+        private Type _memberType;
+        private Func<object, object> _getter;
+        private Action<object, object> _setter;
+        private IBsonSerializationOptions _serializationOptions;
+        private IBsonSerializer _serializer;
+        private IIdGenerator _idGenerator;
+        private bool _isRequired;
+        private bool _hasDefaultValue;
+        private bool _serializeDefaultValue = true;
+        private Func<object, bool> _shouldSerializeMethod = (obj) => true;
+        private bool _ignoreIfNull;
+        private object _defaultValue;
 
         // constructors
         /// <summary>
@@ -60,9 +60,9 @@ namespace MongoDB.Bson.Serialization
         /// <param name="conventions">The conventions to use with this member.</param>
         public BsonMemberMap(MemberInfo memberInfo, ConventionProfile conventions)
         {
-            this.memberInfo = memberInfo;
-            this.memberType = BsonClassMap.GetMemberInfoType(memberInfo);
-            this.conventions = conventions;
+            _memberInfo = memberInfo;
+            _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
+            _conventions = conventions;
         }
 
         // public properties
@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public string MemberName
         {
-            get { return memberInfo.Name; }
+            get { return _memberInfo.Name; }
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public Type MemberType
         {
-            get { return memberType; }
+            get { return _memberType; }
         }
 
         /// <summary>
@@ -89,11 +89,11 @@ namespace MongoDB.Bson.Serialization
         {
             get
             {
-                if (elementName == null)
+                if (_elementName == null)
                 {
-                    elementName = conventions.ElementNameConvention.GetElementName(memberInfo);
+                    _elementName = _conventions.ElementNameConvention.GetElementName(_memberInfo);
                 }
-                return elementName;
+                return _elementName;
             }
         }
 
@@ -102,7 +102,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public int Order
         {
-            get { return order; }
+            get { return _order; }
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public MemberInfo MemberInfo
         {
-            get { return memberInfo; }
+            get { return _memberInfo; }
         }
 
         /// <summary>
@@ -120,11 +120,11 @@ namespace MongoDB.Bson.Serialization
         {
             get
             {
-                if (getter == null)
+                if (_getter == null)
                 {
-                    getter = GetGetter();
+                    _getter = GetGetter();
                 }
-                return getter;
+                return _getter;
             }
         }
 
@@ -133,7 +133,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public IBsonSerializationOptions SerializationOptions
         {
-            get { return serializationOptions; }
+            get { return _serializationOptions; }
         }
 
         /// <summary>
@@ -143,18 +143,18 @@ namespace MongoDB.Bson.Serialization
         {
             get
             {
-                if (setter == null)
+                if (_setter == null)
                 {
-                    if (memberInfo.MemberType == MemberTypes.Field)
+                    if (_memberInfo.MemberType == MemberTypes.Field)
                     {
-                        setter = GetFieldSetter();
+                        _setter = GetFieldSetter();
                     }
                     else
                     {
-                        setter = GetPropertySetter();
+                        _setter = GetPropertySetter();
                     }
                 }
-                return setter;
+                return _setter;
             }
         }
 
@@ -165,21 +165,21 @@ namespace MongoDB.Bson.Serialization
         {
             get
             {
-                if (idGenerator == null)
+                if (_idGenerator == null)
                 {
                     // special case IdGenerator for strings represented externally as ObjectId
-                    var memberInfoType = BsonClassMap.GetMemberInfoType(memberInfo);
-                    var representationOptions = serializationOptions as RepresentationSerializationOptions;
+                    var memberInfoType = BsonClassMap.GetMemberInfoType(_memberInfo);
+                    var representationOptions = _serializationOptions as RepresentationSerializationOptions;
                     if (memberInfoType == typeof(string) && representationOptions != null && representationOptions.Representation == BsonType.ObjectId)
                     {
-                        idGenerator = StringObjectIdGenerator.Instance;
+                        _idGenerator = StringObjectIdGenerator.Instance;
                     }
                     else
                     {
-                        idGenerator = conventions.IdGeneratorConvention.GetIdGenerator(memberInfo);
+                        _idGenerator = _conventions.IdGeneratorConvention.GetIdGenerator(_memberInfo);
                     }
                 }
-                return idGenerator;
+                return _idGenerator;
             }
         }
 
@@ -188,7 +188,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public bool IsRequired
         {
-            get { return isRequired; }
+            get { return _isRequired; }
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public bool HasDefaultValue
         {
-            get { return hasDefaultValue; }
+            get { return _hasDefaultValue; }
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public bool SerializeDefaultValue
         {
-            get { return serializeDefaultValue; }
+            get { return _serializeDefaultValue; }
         }
 
         /// <summary>
@@ -212,7 +212,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public Func<object, bool> ShouldSerializeMethod
         {
-            get { return shouldSerializeMethod; }
+            get { return _shouldSerializeMethod; }
         }
 
         /// <summary>
@@ -220,7 +220,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public bool IgnoreIfNull
         {
-            get { return ignoreIfNull; }
+            get { return _ignoreIfNull; }
         }
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public object DefaultValue
         {
-            get { return defaultValue; }
+            get { return _defaultValue; }
         }
 
         // public methods
@@ -238,11 +238,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="obj">The object.</param>
         public void ApplyDefaultValue(object obj)
         {
-            if (!hasDefaultValue)
+            if (!_hasDefaultValue)
             {
                 throw new InvalidOperationException("BsonMemberMap has no default value.");
             }
-            this.Setter(obj, defaultValue);
+            this.Setter(obj, _defaultValue);
         }
 
         /// <summary>
@@ -252,9 +252,9 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public IBsonSerializer GetSerializer(Type actualType)
         {
-            if (serializer != null)
+            if (_serializer != null)
             {
-                return serializer;
+                return _serializer;
             }
             else
             {
@@ -269,8 +269,8 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetDefaultValue(object defaultValue)
         {
-            this.defaultValue = defaultValue;
-            this.hasDefaultValue = true;
+            _defaultValue = defaultValue;
+            _hasDefaultValue = true;
             return this;
         }
 
@@ -294,7 +294,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetElementName(string elementName)
         {
-            this.elementName = elementName;
+            _elementName = elementName;
             return this;
         }
 
@@ -305,7 +305,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetIdGenerator(IIdGenerator idGenerator)
         {
-            this.idGenerator = idGenerator;
+            _idGenerator = idGenerator;
             return this;
         }
 
@@ -316,7 +316,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetIgnoreIfNull(bool ignoreIfNull)
         {
-            this.ignoreIfNull = ignoreIfNull;
+            _ignoreIfNull = ignoreIfNull;
             return this;
         }
 
@@ -327,7 +327,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetIsRequired(bool isRequired)
         {
-            this.isRequired = isRequired;
+            _isRequired = isRequired;
             return this;
         }
 
@@ -338,7 +338,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetOrder(int order)
         {
-            this.order = order;
+            _order = order;
             return this;
         }
 
@@ -349,7 +349,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetRepresentation(BsonType representation)
         {
-            this.serializationOptions = new RepresentationSerializationOptions(representation);
+            _serializationOptions = new RepresentationSerializationOptions(representation);
             return this;
         }
 
@@ -360,7 +360,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetSerializationOptions(IBsonSerializationOptions serializationOptions)
         {
-            this.serializationOptions = serializationOptions;
+            _serializationOptions = serializationOptions;
             return this;
         }
 
@@ -371,7 +371,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetSerializer(IBsonSerializer serializer)
         {
-            this.serializer = serializer;
+            _serializer = serializer;
             return this;
         }
 
@@ -382,7 +382,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetSerializeDefaultValue(bool serializeDefaultValue)
         {
-            this.serializeDefaultValue = serializeDefaultValue;
+            _serializeDefaultValue = serializeDefaultValue;
             return this;
         }
 
@@ -395,11 +395,11 @@ namespace MongoDB.Bson.Serialization
         {
             if (shouldSerializeMethod != null)
             {
-                this.shouldSerializeMethod = shouldSerializeMethod;
+                _shouldSerializeMethod = shouldSerializeMethod;
             }
             else
             {
-                this.shouldSerializeMethod = (obj) => true;
+                _shouldSerializeMethod = (obj) => true;
             }
             return this;
         }
@@ -407,7 +407,7 @@ namespace MongoDB.Bson.Serialization
         // private methods
         private Action<object, object> GetFieldSetter()
         {
-            var fieldInfo = (FieldInfo)memberInfo;
+            var fieldInfo = (FieldInfo)_memberInfo;
 
             if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
             {
@@ -433,9 +433,9 @@ namespace MongoDB.Bson.Serialization
 
         private Func<object, object> GetGetter()
         {
-            if (memberInfo is PropertyInfo)
+            if (_memberInfo is PropertyInfo)
             {
-                var propertyInfo = (PropertyInfo)memberInfo;
+                var propertyInfo = (PropertyInfo)_memberInfo;
                 var getMethodInfo = propertyInfo.GetGetMethod(true);
                 if (getMethodInfo == null)
                 {
@@ -451,8 +451,8 @@ namespace MongoDB.Bson.Serialization
             var lambdaExpression = Expression.Lambda<Func<object, object>>(
                 Expression.Convert(
                     Expression.MakeMemberAccess(
-                        Expression.Convert(objParameter, memberInfo.DeclaringType),
-                        memberInfo
+                        Expression.Convert(objParameter, _memberInfo.DeclaringType),
+                        _memberInfo
                     ),
                     typeof(object)
                 ),
@@ -464,7 +464,7 @@ namespace MongoDB.Bson.Serialization
 
         private Action<object, object> GetPropertySetter()
         {
-            var propertyInfo = (PropertyInfo)memberInfo;
+            var propertyInfo = (PropertyInfo)_memberInfo;
             var setMethodInfo = propertyInfo.GetSetMethod(true);
             if (setMethodInfo == null)
             {
@@ -479,9 +479,9 @@ namespace MongoDB.Bson.Serialization
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var lambdaExpression = Expression.Lambda<Action<object, object>>(
                 Expression.Call(
-                    Expression.Convert(objParameter, memberInfo.DeclaringType),
+                    Expression.Convert(objParameter, _memberInfo.DeclaringType),
                     setMethodInfo,
-                    Expression.Convert(valueParameter, memberType)
+                    Expression.Convert(valueParameter, _memberType)
                 ),
                 objParameter,
                 valueParameter

@@ -31,35 +31,35 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp230
     [TestFixture]
     public class CSharp230Tests
     {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection("testcollection");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection("testcollection");
         }
 
         [Test]
         public void TestEnsureIndexAfterDropCollection()
         {
-            if (collection.Exists())
+            if (_collection.Exists())
             {
-                collection.Drop();
+                _collection.Drop();
             }
-            server.ResetIndexCache();
+            _server.ResetIndexCache();
 
-            Assert.IsFalse(collection.IndexExists("x"));
-            collection.EnsureIndex("x");
-            Assert.IsTrue(collection.IndexExists("x"));
+            Assert.IsFalse(_collection.IndexExists("x"));
+            _collection.EnsureIndex("x");
+            Assert.IsTrue(_collection.IndexExists("x"));
 
-            collection.Drop();
-            Assert.IsFalse(collection.IndexExists("x"));
-            collection.EnsureIndex("x");
-            Assert.IsTrue(collection.IndexExists("x"));
+            _collection.Drop();
+            Assert.IsFalse(_collection.IndexExists("x"));
+            _collection.EnsureIndex("x");
+            Assert.IsTrue(_collection.IndexExists("x"));
         }
     }
 }

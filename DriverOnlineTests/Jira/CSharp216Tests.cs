@@ -31,14 +31,14 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp216
     [TestFixture]
     public class CSharp216Tests
     {
-        private MongoServer server;
-        private MongoDatabase database;
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp216
             var code = "function (x, y) { return y; }";
             var objectArrayArg = new object[] { 1, 2, 3 };
             var boolArg = true;
-            var result = database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+            var result = _database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
             Assert.AreEqual(BsonType.Boolean, result.BsonType);
             Assert.AreEqual(true, result.AsBoolean);
         }
@@ -58,7 +58,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp216
             var code = "function (x, y) { return y; }";
             var objectArrayArg = new object[] { 1, 2, 3 };
             var boolArg = true;
-            var result = database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+            var result = _database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
             Assert.AreEqual(BsonType.Boolean, result.BsonType);
             Assert.AreEqual(true, result.AsBoolean);
         }

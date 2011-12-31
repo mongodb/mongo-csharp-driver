@@ -33,24 +33,24 @@ namespace MongoDB.Driver
     public class MongoDatabase
     {
         // private static fields
-        private static HashSet<char> invalidDatabaseNameChars;
+        private static HashSet<char> __invalidDatabaseNameChars;
 
         // private fields
-        private object databaseLock = new object();
-        private MongoServer server;
-        private MongoDatabaseSettings settings;
-        private string name;
-        private Dictionary<MongoCollectionSettings, MongoCollection> collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
-        private MongoCollection<BsonDocument> commandCollection;
-        private MongoGridFS gridFS;
+        private object _databaseLock = new object();
+        private MongoServer _server;
+        private MongoDatabaseSettings _settings;
+        private string _name;
+        private Dictionary<MongoCollectionSettings, MongoCollection> _collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
+        private MongoCollection<BsonDocument> _commandCollection;
+        private MongoGridFS _gridFS;
 
         // static constructor
         static MongoDatabase()
         {
             // MongoDB itself prohibits some characters and the rest are prohibited by the Windows restrictions on filenames
-            invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
-            foreach (var c in Path.GetInvalidPathChars()) { invalidDatabaseNameChars.Add(c); }
-            foreach (var c in Path.GetInvalidFileNameChars()) { invalidDatabaseNameChars.Add(c); }
+            __invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
+            foreach (var c in Path.GetInvalidPathChars()) { __invalidDatabaseNameChars.Add(c); }
+            foreach (var c in Path.GetInvalidFileNameChars()) { __invalidDatabaseNameChars.Add(c); }
         }
 
         // constructors
@@ -63,9 +63,9 @@ namespace MongoDB.Driver
         public MongoDatabase(MongoServer server, MongoDatabaseSettings settings)
         {
             ValidateDatabaseName(settings.DatabaseName);
-            this.server = server;
-            this.settings = settings.FrozenCopy();
-            this.name = settings.DatabaseName;
+            _server = server;
+            _settings = settings.FrozenCopy();
+            _name = settings.DatabaseName;
 
             var commandCollectionSettings = new MongoCollectionSettings<BsonDocument>(this, "$cmd")
             {
@@ -76,7 +76,7 @@ namespace MongoDB.Driver
                 // make sure commands get routed to the primary server by using slaveOk false
                 commandCollectionSettings.SlaveOk = false;
             }
-            commandCollection = GetCollection(commandCollectionSettings);
+            _commandCollection = GetCollection(commandCollectionSettings);
         }
 
         // factory methods
@@ -175,7 +175,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoCollection<BsonDocument> CommandCollection
         {
-            get { return commandCollection; }
+            get { return _commandCollection; }
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoCredentials Credentials
         {
-            get { return settings.Credentials; }
+            get { return _settings.Credentials; }
         }
 
         /// <summary>
@@ -194,13 +194,13 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (databaseLock)
+                lock (_databaseLock)
                 {
-                    if (gridFS == null)
+                    if (_gridFS == null)
                     {
-                        gridFS = new MongoGridFS(this);
+                        _gridFS = new MongoGridFS(this);
                     }
-                    return gridFS;
+                    return _gridFS;
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual string Name
         {
-            get { return name; }
+            get { return _name; }
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoServer Server
         {
-            get { return server; }
+            get { return _server; }
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoDatabaseSettings Settings
         {
-            get { return settings; }
+            get { return _settings; }
         }
 
         // public indexers
@@ -361,7 +361,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Drop()
         {
-            server.DropDatabase(name);
+            _server.DropDatabase(_name);
         }
 
         /// <summary>
@@ -375,7 +375,7 @@ namespace MongoDB.Driver
             {
                 var command = new CommandDocument("drop", collectionName);
                 var result = RunCommand(command);
-                server.IndexCache.Reset(name, collectionName);
+                _server.IndexCache.Reset(_name, collectionName);
                 return result;
             }
             catch (MongoCommandException ex)
@@ -447,9 +447,9 @@ namespace MongoDB.Driver
         /// <returns>An instance of nominalType (or null if the document was not found).</returns>
         public virtual object FetchDBRefAs(Type documentType, MongoDBRef dbRef)
         {
-            if (dbRef.DatabaseName != null && dbRef.DatabaseName != name)
+            if (dbRef.DatabaseName != null && dbRef.DatabaseName != _name)
             {
-                return server.FetchDBRefAs(documentType, dbRef);
+                return _server.FetchDBRefAs(documentType, dbRef);
             }
 
             var collection = GetCollection(dbRef.CollectionName);
@@ -507,13 +507,13 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(MongoCollectionSettings<TDefaultDocument> collectionSettings)
         {
-            lock (databaseLock)
+            lock (_databaseLock)
             {
                 MongoCollection collection;
-                if (!collections.TryGetValue(collectionSettings, out collection))
+                if (!_collections.TryGetValue(collectionSettings, out collection))
                 {
                     collection = new MongoCollection<TDefaultDocument>(this, collectionSettings);
-                    collections.Add(collectionSettings, collection);
+                    _collections.Add(collectionSettings, collection);
                 }
                 return (MongoCollection<TDefaultDocument>)collection;
             }
@@ -557,16 +557,16 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection GetCollection(MongoCollectionSettings collectionSettings)
         {
-            lock (databaseLock)
+            lock (_databaseLock)
             {
                 MongoCollection collection;
-                if (!collections.TryGetValue(collectionSettings, out collection))
+                if (!_collections.TryGetValue(collectionSettings, out collection))
                 {
                     var collectionDefinition = typeof(MongoCollection<>);
                     var collectionType = collectionDefinition.MakeGenericType(collectionSettings.DefaultDocumentType);
                     var constructorInfo = collectionType.GetConstructor(new Type[] { typeof(MongoDatabase), collectionSettings.GetType() });
                     collection = (MongoCollection)constructorInfo.Invoke(new object[] { this, collectionSettings });
-                    collections.Add(collectionSettings, collection);
+                    _collections.Add(collectionSettings, collection);
                 }
                 return collection;
             }
@@ -636,7 +636,7 @@ namespace MongoDB.Driver
         {
             List<string> collectionNames = new List<string>();
             var namespaces = GetCollection("system.namespaces");
-            var prefix = name + ".";
+            var prefix = _name + ".";
             foreach (var @namespace in namespaces.FindAll())
             {
                 string collectionName = @namespace["name"].AsString;
@@ -701,7 +701,7 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoDatabase.</returns>
         public virtual MongoDatabase GetSisterDatabase(string databaseName)
         {
-            return server.GetDatabase(databaseName);
+            return _server.GetDatabase(databaseName);
         }
 
         /// <summary>
@@ -757,11 +757,11 @@ namespace MongoDB.Driver
             MongoCollection.ValidateCollectionName(newCollectionName);
             var command = new CommandDocument
             {
-                { "renameCollection", string.Format("{0}.{1}", name, oldCollectionName) },
-                { "to", string.Format("{0}.{1}", name, newCollectionName) },
+                { "renameCollection", string.Format("{0}.{1}", _name, oldCollectionName) },
+                { "to", string.Format("{0}.{1}", _name, newCollectionName) },
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
-            return server.RunAdminCommand(command);
+            return _server.RunAdminCommand(command);
         }
 
         /// <summary>
@@ -770,7 +770,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void RequestDone()
         {
-            server.RequestDone();
+            _server.RequestDone();
         }
 
         /// <summary>
@@ -793,7 +793,7 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(bool slaveOk)
         {
-            return server.RequestStart(this, slaveOk);
+            return _server.RequestStart(this, slaveOk);
         }
 
         // TODO: mongo shell has ResetError at the database level
@@ -805,7 +805,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void ResetIndexCache()
         {
-            server.IndexCache.Reset(this);
+            _server.IndexCache.Reset(this);
         }
 
         /// <summary>
@@ -872,7 +872,7 @@ namespace MongoDB.Driver
                 if (commandResult.ErrorMessage == "not master")
                 {
                     // TODO: figure out which instance gave the error and set its state to Unknown
-                    server.Disconnect();
+                    _server.Disconnect();
                 }
                 throw new MongoCommandException(commandResult);
             }
@@ -923,7 +923,7 @@ namespace MongoDB.Driver
         /// <returns>A canonical string representation for this database.</returns>
         public override string ToString()
         {
-            return name;
+            return _name;
         }
 
         // private methods
@@ -939,7 +939,7 @@ namespace MongoDB.Driver
             }
             foreach (var c in name)
             {
-                if (invalidDatabaseNameChars.Contains(c))
+                if (__invalidDatabaseNameChars.Contains(c))
                 {
                     var bytes = new byte[] { (byte)((int)c >> 8), (byte)((int)c & 255) };
                     var hex = BsonUtils.ToHexString(bytes);

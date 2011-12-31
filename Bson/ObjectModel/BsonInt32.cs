@@ -28,20 +28,20 @@ namespace MongoDB.Bson
     public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32>
     {
         // private static fields
-        private static int firstInstance = -10;
-        private static int lastInstance = 100;
-        private static BsonInt32[] instances;
+        private static int __firstInstance = -10;
+        private static int __lastInstance = 100;
+        private static BsonInt32[] __instances;
 
         // private fields
-        private int value;
+        private int _value;
 
         // static constructor
         static BsonInt32()
         {
-            instances = new BsonInt32[lastInstance - firstInstance + 1];
-            for (int i = 0; i < instances.Length; i++)
+            __instances = new BsonInt32[__lastInstance - __firstInstance + 1];
+            for (int i = 0; i < __instances.Length; i++)
             {
-                instances[i] = new BsonInt32(firstInstance + i);
+                __instances[i] = new BsonInt32(__firstInstance + i);
             }
         }
 
@@ -53,7 +53,7 @@ namespace MongoDB.Bson
         public BsonInt32(int value)
             : base(BsonType.Int32)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public static properties
@@ -103,7 +103,7 @@ namespace MongoDB.Bson
         /// </summary>
         public override object RawValue
         {
-            get { return value; }
+            get { return _value; }
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Value
         {
-            get { return value; }
+            get { return _value; }
         }
 
         // public operators
@@ -156,9 +156,9 @@ namespace MongoDB.Bson
         /// <returns>A BsonInt32.</returns>
         public static BsonInt32 Create(int value)
         {
-            if (value >= firstInstance && value <= lastInstance)
+            if (value >= __firstInstance && value <= __lastInstance)
             {
-                return instances[value - firstInstance];
+                return __instances[value - __firstInstance];
             }
             else
             {
@@ -192,7 +192,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonInt32 other)
         {
             if (other == null) { return 1; }
-            return value.CompareTo(other.value);
+            return _value.CompareTo(other._value);
         }
 
         /// <summary>
@@ -206,17 +206,17 @@ namespace MongoDB.Bson
             var otherInt32 = other as BsonInt32;
             if (otherInt32 != null)
             {
-                return value.CompareTo(otherInt32.value);
+                return _value.CompareTo(otherInt32._value);
             }
             var otherInt64 = other as BsonInt64;
             if (otherInt64 != null)
             {
-                return ((long)value).CompareTo(otherInt64.Value);
+                return ((long)_value).CompareTo(otherInt64.Value);
             }
             var otherDouble = other as BsonDouble;
             if (otherDouble != null)
             {
-                return ((double)value).CompareTo(otherDouble.Value);
+                return ((double)_value).CompareTo(otherDouble.Value);
             }
             return CompareTypeTo(other);
         }
@@ -229,7 +229,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonInt32 rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.value == rhs.value;
+            return _value == rhs._value;
         }
 
         /// <summary>
@@ -250,8 +250,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -261,7 +261,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return XmlConvert.ToString(value);
+            return XmlConvert.ToString(_value);
         }
 
         // protected methods
@@ -275,19 +275,19 @@ namespace MongoDB.Bson
             var rhsInt32 = rhs as BsonInt32;
             if (rhsInt32 != null)
             {
-                return this.value == rhsInt32.value;
+                return _value == rhsInt32._value;
             }
 
             var rhsInt64 = rhs as BsonInt64;
             if (rhsInt64 != null)
             {
-                return (long)this.value == rhsInt64.Value;
+                return (long)_value == rhsInt64.Value;
             }
 
             var rhsDouble = rhs as BsonDouble;
             if (rhsDouble != null)
             {
-                return (double)this.value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
+                return (double)_value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
             }
 
             return this.Equals(rhs);

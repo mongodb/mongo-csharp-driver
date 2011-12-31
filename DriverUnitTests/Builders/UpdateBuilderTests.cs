@@ -33,8 +33,8 @@ namespace MongoDB.DriverUnitTests.Builders
             public int X;
         }
 
-        private C a = new C { X = 1 };
-        private C b = new C { X = 2 };
+        private C _a = new C { X = 1 };
+        private C _b = new C { X = 2 };
 
         [Test]
         public void TestAddToSet()
@@ -55,7 +55,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAddToSetEachWrapped()
         {
-            var update = Update.AddToSetEachWrapped("name", a, b);
+            var update = Update.AddToSetEachWrapped("name", _a, _b);
             var expected = "{ \"$addToSet\" : { \"name\" : { \"$each\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -63,7 +63,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAddToSetWrapped()
         {
-            var update = Update.AddToSetWrapped("name", a);
+            var update = Update.AddToSetWrapped("name", _a);
             var expected = "{ \"$addToSet\" : { \"name\" : { \"X\" : 1 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -229,7 +229,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPullAllWrapped()
         {
-            var update = Update.PullAllWrapped("name", a, b);
+            var update = Update.PullAllWrapped("name", _a, _b);
             var expected = "{ \"$pullAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -237,7 +237,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPullWrapped()
         {
-            var update = Update.PullWrapped("name", a);
+            var update = Update.PullWrapped("name", _a);
             var expected = "{ \"$pull\" : { \"name\" : { \"X\" : 1 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -261,7 +261,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPushWrapped()
         {
-            var update = Update.PushWrapped("name", a);
+            var update = Update.PushWrapped("name", _a);
             var expected = "{ \"$push\" : { \"name\" : { \"X\" : 1 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -277,7 +277,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPushAllWrapped()
         {
-            var update = Update.PushAllWrapped("name", a, b);
+            var update = Update.PushAllWrapped("name", _a, _b);
             var expected = "{ \"$pushAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -293,7 +293,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestSetWrapped()
         {
-            var update = Update.SetWrapped("name", a);
+            var update = Update.SetWrapped("name", _a);
             var expected = "{ \"$set\" : { \"name\" : { \"X\" : 1 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }

@@ -67,7 +67,7 @@ namespace MongoDB.BsonUnitTests.IO
             }
         }
 
-        private static string hexDigits = "0123456789abcdef";
+        private static string __hexDigits = "0123456789abcdef";
 
         private byte[] DecodeByteString(string byteString)
         {
@@ -77,8 +77,8 @@ namespace MongoDB.BsonUnitTests.IO
                 char c = byteString[i++];
                 if (c == '\\' && ((c = byteString[i++]) != '\\'))
                 {
-                    int x = hexDigits.IndexOf(char.ToLower(byteString[i++]));
-                    int y = hexDigits.IndexOf(char.ToLower(byteString[i++]));
+                    int x = __hexDigits.IndexOf(char.ToLower(byteString[i++]));
+                    int y = __hexDigits.IndexOf(char.ToLower(byteString[i++]));
                     bytes.Add((byte)(16 * x + y));
                 }
                 else

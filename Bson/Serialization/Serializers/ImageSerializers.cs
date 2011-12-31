@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class ImageSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static ImageSerializer instance = new ImageSerializer();
+        private static ImageSerializer __instance = new ImageSerializer();
 
         // constructors
         /// <summary>
@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static ImageSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -147,7 +147,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BitmapSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BitmapSerializer instance = new BitmapSerializer();
+        private static BitmapSerializer __instance = new BitmapSerializer();
 
         // static constructor
         static BitmapSerializer()
@@ -169,7 +169,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BitmapSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods

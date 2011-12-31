@@ -38,9 +38,9 @@ namespace MongoDB.Bson
         // private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
         // if duplicate names are present only the first one will be in the dictionary (the others can only be accessed by index)
-        private List<BsonElement> elements = new List<BsonElement>();
-        private Dictionary<string, int> indexes = new Dictionary<string, int>(); // maps names to indexes into elements list
-        private bool allowDuplicateNames;
+        private List<BsonElement> _elements = new List<BsonElement>();
+        private Dictionary<string, int> _indexes = new Dictionary<string, int>(); // maps names to indexes into elements list
+        private bool _allowDuplicateNames;
 
         // constructors
         /// <summary>
@@ -59,7 +59,7 @@ namespace MongoDB.Bson
         public BsonDocument(bool allowDuplicateNames)
             : base(BsonType.Document)
         {
-            this.allowDuplicateNames = allowDuplicateNames;
+            _allowDuplicateNames = allowDuplicateNames;
         }
 
         /// <summary>
@@ -196,8 +196,8 @@ namespace MongoDB.Bson
         /// </summary>
         public bool AllowDuplicateNames
         {
-            get { return allowDuplicateNames; }
-            set { allowDuplicateNames = value; }
+            get { return _allowDuplicateNames; }
+            set { _allowDuplicateNames = value; }
         }
 
         // ElementCount could be greater than the number of Names if allowDuplicateNames is true
@@ -206,7 +206,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int ElementCount
         {
-            get { return elements.Count; }
+            get { return _elements.Count; }
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace MongoDB.Bson
         /// </summary>
         public IEnumerable<BsonElement> Elements
         {
-            get { return elements; }
+            get { return _elements; }
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace MongoDB.Bson
         /// </summary>
         public IEnumerable<string> Names
         {
-            get { return elements.Select(e => e.Name); }
+            get { return _elements.Select(e => e.Name); }
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace MongoDB.Bson
         /// </summary>
         public IEnumerable<object> RawValues
         {
-            get { return elements.Select(e => e.Value.RawValue); }
+            get { return _elements.Select(e => e.Value.RawValue); }
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace MongoDB.Bson
         /// </summary>
         public IEnumerable<BsonValue> Values
         {
-            get { return elements.Select(e => e.Value); }
+            get { return _elements.Select(e => e.Value); }
         }
 
         // public indexers
@@ -271,8 +271,8 @@ namespace MongoDB.Bson
         /// <returns>The value of the element.</returns>
         public BsonValue this[int index]
         {
-            get { return elements[index].Value; }
-            set { elements[index].Value = value; }
+            get { return _elements[index].Value; }
+            set { _elements[index].Value = value; }
         }
 
         /// <summary>
@@ -286,9 +286,9 @@ namespace MongoDB.Bson
             get
             {
                 int index;
-                if (indexes.TryGetValue(name, out index))
+                if (_indexes.TryGetValue(name, out index))
                 {
-                    return elements[index].Value;
+                    return _elements[index].Value;
                 }
                 else
                 {
@@ -307,9 +307,9 @@ namespace MongoDB.Bson
             get
             {
                 int index;
-                if (indexes.TryGetValue(name, out index))
+                if (_indexes.TryGetValue(name, out index))
                 {
-                    return elements[index].Value;
+                    return _elements[index].Value;
                 }
                 else
                 {
@@ -320,9 +320,9 @@ namespace MongoDB.Bson
             set
             {
                 int index;
-                if (indexes.TryGetValue(name, out index))
+                if (_indexes.TryGetValue(name, out index))
                 {
-                    elements[index].Value = value;
+                    _elements[index].Value = value;
                 }
                 else
                 {
@@ -440,17 +440,17 @@ namespace MongoDB.Bson
             {
                 bool found;
                 int index;
-                if ((found = indexes.TryGetValue(element.Name, out index)) && !allowDuplicateNames)
+                if ((found = _indexes.TryGetValue(element.Name, out index)) && !_allowDuplicateNames)
                 {
                     var message = string.Format("Duplicate element name '{0}'.", element.Name);
                     throw new InvalidOperationException(message);
                 }
                 else
                 {
-                    elements.Add(element);
+                    _elements.Add(element);
                     if (!found)
                     {
-                        indexes.Add(element.Name, elements.Count - 1); // index of the newly added element
+                        _indexes.Add(element.Name, _elements.Count - 1); // index of the newly added element
                     }
                 }
             }
@@ -605,8 +605,8 @@ namespace MongoDB.Bson
         /// </summary>
         public void Clear()
         {
-            elements.Clear();
-            indexes.Clear();
+            _elements.Clear();
+            _indexes.Clear();
         }
 
         /// <summary>
@@ -616,7 +616,7 @@ namespace MongoDB.Bson
         public override BsonValue Clone()
         {
             BsonDocument clone = new BsonDocument();
-            foreach (BsonElement element in elements)
+            foreach (BsonElement element in _elements)
             {
                 clone.Add(element.Clone());
             }
@@ -631,14 +631,14 @@ namespace MongoDB.Bson
         public int CompareTo(BsonDocument other)
         {
             if (other == null) { return 1; }
-            for (int i = 0; i < elements.Count && i < other.elements.Count; i++)
+            for (int i = 0; i < _elements.Count && i < other._elements.Count; i++)
             {
-                int r = elements[i].Name.CompareTo(other.elements[i].Name);
+                int r = _elements[i].Name.CompareTo(other._elements[i].Name);
                 if (r != 0) { return r; }
-                r = elements[i].Value.CompareTo(other.elements[i].Value);
+                r = _elements[i].Value.CompareTo(other._elements[i].Value);
                 if (r != 0) { return r; }
             }
-            return elements.Count.CompareTo(other.elements.Count);
+            return _elements.Count.CompareTo(other._elements.Count);
         }
 
         /// <summary>
@@ -664,7 +664,7 @@ namespace MongoDB.Bson
         /// <returns>True if the document contains an element with the specified name.</returns>
         public bool Contains(string name)
         {
-            return indexes.ContainsKey(name);
+            return _indexes.ContainsKey(name);
         }
 
         /// <summary>
@@ -674,7 +674,7 @@ namespace MongoDB.Bson
         /// <returns>True if the document contains an element with the specified value.</returns>
         public bool ContainsValue(BsonValue value)
         {
-            return elements.Any(e => e.Value == value);
+            return _elements.Any(e => e.Value == value);
         }
 
         /// <summary>
@@ -684,7 +684,7 @@ namespace MongoDB.Bson
         public override BsonValue DeepClone()
         {
             BsonDocument clone = new BsonDocument();
-            foreach (BsonElement element in elements)
+            foreach (BsonElement element in _elements)
             {
                 clone.Add(element.DeepClone());
             }
@@ -757,7 +757,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonDocument rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return object.ReferenceEquals(this, rhs) || this.elements.SequenceEqual(rhs.elements);
+            return object.ReferenceEquals(this, rhs) || _elements.SequenceEqual(rhs._elements);
         }
 
         /// <summary>
@@ -777,7 +777,7 @@ namespace MongoDB.Bson
         /// <returns>The element.</returns>
         public BsonElement GetElement(int index)
         {
-            return elements[index];
+            return _elements[index];
         }
 
         /// <summary>
@@ -788,9 +788,9 @@ namespace MongoDB.Bson
         public BsonElement GetElement(string name)
         {
             int index;
-            if (indexes.TryGetValue(name, out index))
+            if (_indexes.TryGetValue(name, out index))
             {
-                return elements[index];
+                return _elements[index];
             }
             else
             {
@@ -805,7 +805,7 @@ namespace MongoDB.Bson
         /// <returns>An enumerator.</returns>
         public IEnumerator<BsonElement> GetEnumerator()
         {
-            return elements.GetEnumerator();
+            return _elements.GetEnumerator();
         }
 
         /// <summary>
@@ -816,8 +816,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * bsonType.GetHashCode();
-            foreach (BsonElement element in elements)
+            hash = 37 * _bsonType.GetHashCode();
+            foreach (BsonElement element in _elements)
             {
                 hash = 37 * hash + element.GetHashCode();
             }
@@ -864,14 +864,14 @@ namespace MongoDB.Bson
         {
             if (element != null)
             {
-                if (indexes.ContainsKey(element.Name) && !allowDuplicateNames)
+                if (_indexes.ContainsKey(element.Name) && !_allowDuplicateNames)
                 {
                     var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
                     throw new InvalidOperationException(message);
                 }
                 else
                 {
-                    elements.Insert(index, element);
+                    _elements.Insert(index, element);
                     RebuildDictionary();
                 }
             }
@@ -916,9 +916,9 @@ namespace MongoDB.Bson
         /// <param name="name">The name of the element to remove.</param>
         public void Remove(string name)
         {
-            if (indexes.ContainsKey(name))
+            if (_indexes.ContainsKey(name))
             {
-                elements.RemoveAll(e => e.Name == name);
+                _elements.RemoveAll(e => e.Name == name);
                 RebuildDictionary();
             }
         }
@@ -929,7 +929,7 @@ namespace MongoDB.Bson
         /// <param name="index">The zero based index of the element to remove.</param>
         public void RemoveAt(int index)
         {
-            elements.RemoveAt(index);
+            _elements.RemoveAt(index);
             RebuildDictionary();
         }
 
@@ -939,7 +939,7 @@ namespace MongoDB.Bson
         /// <param name="element">The element to remove.</param>
         public void RemoveElement(BsonElement element)
         {
-            elements.Remove(element);
+            _elements.Remove(element);
             RebuildDictionary();
         }
 
@@ -955,21 +955,21 @@ namespace MongoDB.Bson
 
             var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions)options;
             int idIndex;
-            if (documentOptions.SerializeIdFirst && indexes.TryGetValue("_id", out idIndex))
+            if (documentOptions.SerializeIdFirst && _indexes.TryGetValue("_id", out idIndex))
             {
-                elements[idIndex].WriteTo(bsonWriter);
+                _elements[idIndex].WriteTo(bsonWriter);
             }
             else
             {
                 idIndex = -1; // remember that when TryGetValue returns false it sets idIndex to 0
             }
 
-            for (int i = 0; i < elements.Count; i++)
+            for (int i = 0; i < _elements.Count; i++)
             {
                 // if serializeIdFirst is false then idIndex will be -1 and no elements will be skipped
                 if (i != idIndex)
                 {
-                    elements[i].WriteTo(bsonWriter);
+                    _elements[i].WriteTo(bsonWriter);
                 }
             }
 
@@ -1026,7 +1026,7 @@ namespace MongoDB.Bson
         /// <returns>The document.</returns>
         public BsonDocument SetElement(int index, BsonElement element)
         {
-            elements[index] = element;
+            _elements[index] = element;
             RebuildDictionary();
             return this;
         }
@@ -1039,9 +1039,9 @@ namespace MongoDB.Bson
         public BsonDocument SetElement(BsonElement element)
         {
             int index;
-            if (indexes.TryGetValue(element.Name, out index))
+            if (_indexes.TryGetValue(element.Name, out index))
             {
-                elements[index] = element;
+                _elements[index] = element;
             }
             else
             {
@@ -1056,8 +1056,8 @@ namespace MongoDB.Bson
         /// <returns>A dictionary.</returns>
         public Dictionary<string, object> ToDictionary()
         {
-            var dictionary = new Dictionary<string, object>(elements.Count);
-            foreach (var element in elements)
+            var dictionary = new Dictionary<string, object>(_elements.Count);
+            foreach (var element in _elements)
             {
                 dictionary.Add(element.Name, ToDictionaryHelper(element.Value));
             }
@@ -1070,8 +1070,8 @@ namespace MongoDB.Bson
         /// <returns>A hashtable.</returns>
         public Hashtable ToHashtable()
         {
-            var hashtable = new Hashtable(elements.Count);
-            foreach (var element in elements)
+            var hashtable = new Hashtable(_elements.Count);
+            foreach (var element in _elements)
             {
                 hashtable.Add(element.Name, ToHashtableHelper(element.Value));
             }
@@ -1096,9 +1096,9 @@ namespace MongoDB.Bson
         public bool TryGetElement(string name, out BsonElement value)
         {
             int index;
-            if (indexes.TryGetValue(name, out index))
+            if (_indexes.TryGetValue(name, out index))
             {
-                value = elements[index];
+                value = _elements[index];
                 return true;
             }
             else
@@ -1117,9 +1117,9 @@ namespace MongoDB.Bson
         public bool TryGetValue(string name, out BsonValue value)
         {
             int index;
-            if (indexes.TryGetValue(name, out index))
+            if (_indexes.TryGetValue(name, out index))
             {
-                value = elements[index].Value;
+                value = _elements[index].Value;
                 return true;
             }
             else
@@ -1177,13 +1177,13 @@ namespace MongoDB.Bson
         // private methods
         private void RebuildDictionary()
         {
-            indexes.Clear();
-            for (int index = 0; index < elements.Count; index++)
+            _indexes.Clear();
+            for (int index = 0; index < _elements.Count; index++)
             {
-                BsonElement element = elements[index];
-                if (!indexes.ContainsKey(element.Name))
+                BsonElement element = _elements[index];
+                if (!_indexes.ContainsKey(element.Name))
                 {
-                    indexes.Add(element.Name, index);
+                    _indexes.Add(element.Name, index);
                 }
             }
         }
@@ -1230,7 +1230,7 @@ namespace MongoDB.Bson
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return elements.GetEnumerator();
+            return _elements.GetEnumerator();
         }
     }
 }

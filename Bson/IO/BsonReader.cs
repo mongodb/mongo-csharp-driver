@@ -30,23 +30,23 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Whether the reader has been disposed.
         /// </summary>
-        protected bool disposed = false;
+        protected bool _disposed = false;
         /// <summary>
         /// The settings of the reader.
         /// </summary>
-        protected BsonReaderSettings settings;
+        protected BsonReaderSettings _settings;
         /// <summary>
         /// The current state of the reader.
         /// </summary>  
-        protected BsonReaderState state;
+        protected BsonReaderState _state;
         /// <summary>
         /// The current BSON type.
         /// </summary>
-        protected BsonType currentBsonType;
+        protected BsonType _currentBsonType;
         /// <summary>
         /// The name of the current element.
         /// </summary>
-        protected string currentName;
+        protected string _currentName;
 
         // constructors
         /// <summary>
@@ -55,8 +55,8 @@ namespace MongoDB.Bson.IO
         /// <param name="settings">The reader settings.</param>
         protected BsonReader(BsonReaderSettings settings)
         {
-            this.settings = settings.FrozenCopy();
-            this.state = BsonReaderState.Initial;
+            _settings = settings.FrozenCopy();
+            _state = BsonReaderState.Initial;
         }
 
         // public properties
@@ -67,15 +67,15 @@ namespace MongoDB.Bson.IO
         {
             get
             {
-                if (state == BsonReaderState.Initial || state == BsonReaderState.Done || state == BsonReaderState.ScopeDocument || state == BsonReaderState.Type)
+                if (_state == BsonReaderState.Initial || _state == BsonReaderState.Done || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
                 {
                     ReadBsonType();
                 }
-                if (state != BsonReaderState.Value)
+                if (_state != BsonReaderState.Value)
                 {
                     ThrowInvalidState("CurrentBsonType", BsonReaderState.Value);
                 }
-                return currentBsonType;
+                return _currentBsonType;
             }
         }
 
@@ -84,7 +84,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonReaderSettings Settings
         {
-            get { return settings; }
+            get { return _settings; }
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonReaderState State
         {
-            get { return state; }
+            get { return _state; }
         }
 
         // public static methods
@@ -215,10 +215,10 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public void Dispose()
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 Dispose(true);
-                disposed = true;
+                _disposed = true;
             }
         }
 
@@ -229,8 +229,8 @@ namespace MongoDB.Bson.IO
         /// <returns>True if the element was found.</returns>
         public bool FindElement(string name)
         {
-            if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReaderState.Type)
+            if (_disposed) { ThrowObjectDisposedException(); }
+            if (_state != BsonReaderState.Type)
             {
                 ThrowInvalidState("FindElement", BsonReaderState.Type);
             }
@@ -256,8 +256,8 @@ namespace MongoDB.Bson.IO
         /// <returns>True if the element was found.</returns>
         public string FindStringElement(string name)
         {
-            if (disposed) { ThrowObjectDisposedException(); }
-            if (state != BsonReaderState.Type)
+            if (_disposed) { ThrowObjectDisposedException(); }
+            if (_state != BsonReaderState.Type)
             {
                 ThrowInvalidState("FindStringElement", BsonReaderState.Type);
             }
@@ -500,18 +500,18 @@ namespace MongoDB.Bson.IO
         /// <returns>The name of the element.</returns>
         public string ReadName()
         {
-            if (disposed) { ThrowObjectDisposedException(); }
-            if (state == BsonReaderState.Type)
+            if (_disposed) { ThrowObjectDisposedException(); }
+            if (_state == BsonReaderState.Type)
             {
                 ReadBsonType();
             }
-            if (state != BsonReaderState.Name)
+            if (_state != BsonReaderState.Name)
             {
                 ThrowInvalidState("ReadName", BsonReaderState.Name);
             }
 
-            state = BsonReaderState.Value;
-            return currentName;
+            _state = BsonReaderState.Value;
+            return _currentName;
         }
 
         /// <summary>
@@ -706,7 +706,7 @@ namespace MongoDB.Bson.IO
             var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
             var message = string.Format(
                 "{0} can only be called when State is {1}, not when State is {2}.",
-                methodName, validStatesString, state);
+                methodName, validStatesString, _state);
             throw new InvalidOperationException(message);
         }
 
@@ -725,24 +725,24 @@ namespace MongoDB.Bson.IO
         /// <param name="requiredBsonType">The required BSON type.</param>
         protected void VerifyBsonType(string methodName, BsonType requiredBsonType)
         {
-            if (state == BsonReaderState.Initial || state == BsonReaderState.ScopeDocument || state == BsonReaderState.Type)
+            if (_state == BsonReaderState.Initial || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
             {
                 ReadBsonType();
             }
-            if (state == BsonReaderState.Name)
+            if (_state == BsonReaderState.Name)
             {
                 // ignore name
-                state = BsonReaderState.Value;
+                _state = BsonReaderState.Value;
             }
-            if (state != BsonReaderState.Value)
+            if (_state != BsonReaderState.Value)
             {
                 ThrowInvalidState(methodName, BsonReaderState.Value);
             }
-            if (currentBsonType != requiredBsonType)
+            if (_currentBsonType != requiredBsonType)
             {
                 var message = string.Format(
                     "{0} can only be called when CurrentBsonType is {1}, not when CurrentBsonType is {2}.",
-                    methodName, requiredBsonType, currentBsonType);
+                    methodName, requiredBsonType, _currentBsonType);
                 throw new InvalidOperationException(message);
             }
         }

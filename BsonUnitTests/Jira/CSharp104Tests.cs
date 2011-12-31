@@ -31,7 +31,7 @@ namespace MongoDB.BsonUnitTests.Jira
     [TestFixture]
     public class CSharp104Tests
     {
-        private static bool firstTime = true;
+        private static bool __firstTime = true;
 
 #pragma warning disable 169 // never used
         private class Test
@@ -40,19 +40,19 @@ namespace MongoDB.BsonUnitTests.Jira
             {
             }
 
-            private const string literal = "constant";
-            private readonly string readOnly;
-            private string getOnly;
-            private string setOnly;
+            private const string _literal = "constant";
+            private readonly string _readOnly;
+            private string _getOnly;
+            private string _setOnly;
 
             public Test(string value)
             {
-                this.getOnly = value;
+                _getOnly = value;
             }
 
             public ObjectId Id { get; set; }
-            public string GetOnly { get { return getOnly; } }
-            public string SetOnly { set { setOnly = value; } }
+            public string GetOnly { get { return _getOnly; } }
+            public string SetOnly { set { _setOnly = value; } }
         }
 #pragma warning restore
 
@@ -63,7 +63,7 @@ namespace MongoDB.BsonUnitTests.Jira
             // uncomment all or parts of the class map initialization code to test
             // the exceptions thrown for each non-compliant field or property
 
-            if (firstTime)
+            if (__firstTime)
             {
                 BsonClassMap.RegisterClassMap<Test>(cm =>
                 {
@@ -76,7 +76,7 @@ namespace MongoDB.BsonUnitTests.Jira
                     // cm.MapProperty("notfound");
                     // cm.MapMember(null);
                 });
-                firstTime = false;
+                __firstTime = false;
             }
 
             var test = new Test("x") { SetOnly = "y" };

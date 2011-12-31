@@ -27,22 +27,22 @@ namespace MongoDB.Driver
     public class SafeMode : IEquatable<SafeMode>
     {
         // private static fields
-        private static SafeMode @false = new SafeMode(false);
-        private static SafeMode fsyncTrue = new SafeMode(true, true);
-        private static SafeMode @true = new SafeMode(true, false);
-        private static SafeMode w2 = new SafeMode(true, false, 2);
-        private static SafeMode w3 = new SafeMode(true, false, 3);
-        private static SafeMode w4 = new SafeMode(true, false, 4);
+        private static SafeMode __false = new SafeMode(false);
+        private static SafeMode __fsyncTrue = new SafeMode(true, true);
+        private static SafeMode __true = new SafeMode(true, false);
+        private static SafeMode __w2 = new SafeMode(true, false, 2);
+        private static SafeMode __w3 = new SafeMode(true, false, 3);
+        private static SafeMode __w4 = new SafeMode(true, false, 4);
 
         // private fields
-        private bool enabled;
-        private bool fsync;
-        private bool j;
-        private int w;
-        private string wmode;
-        private TimeSpan wtimeout;
-        private bool isFrozen;
-        private int frozenHashCode;
+        private bool _enabled;
+        private bool _fsync;
+        private bool _j;
+        private int _w;
+        private string _wmode;
+        private TimeSpan _wtimeout;
+        private bool _isFrozen;
+        private int _frozenHashCode;
 
         // constructors
         /// <summary>
@@ -97,10 +97,10 @@ namespace MongoDB.Driver
                 throw new ArgumentException("wtimeout cannot be non-zero when w is zero.");
             }
 
-            this.enabled = enabled;
-            this.fsync = fsync;
-            this.w = w;
-            this.wtimeout = wtimeout;
+            _enabled = enabled;
+            _fsync = fsync;
+            _w = w;
+            _wtimeout = wtimeout;
         }
 
         /// <summary>
@@ -131,12 +131,12 @@ namespace MongoDB.Driver
         {
             if (other != null)
             {
-                this.enabled = other.enabled;
-                this.fsync = other.fsync;
-                this.j = other.j;
-                this.w = other.w;
-                this.wmode = other.wmode;
-                this.wtimeout = other.wtimeout;
+                _enabled = other._enabled;
+                _fsync = other._fsync;
+                _j = other._j;
+                _w = other._w;
+                _wmode = other._wmode;
+                _wtimeout = other._wtimeout;
             }
         }
 
@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         /// </summary>
         public static SafeMode False
         {
-            get { return @false; }
+            get { return __false; }
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace MongoDB.Driver
         /// </summary>
         public static SafeMode FSyncTrue
         {
-            get { return fsyncTrue; }
+            get { return __fsyncTrue; }
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace MongoDB.Driver
         /// </summary>
         public static SafeMode True
         {
-            get { return @true; }
+            get { return __true; }
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace MongoDB.Driver
         /// </summary>
         public static SafeMode W2
         {
-            get { return w2; }
+            get { return __w2; }
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace MongoDB.Driver
         /// </summary>
         public static SafeMode W3
         {
-            get { return w3; }
+            get { return __w3; }
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace MongoDB.Driver
         /// </summary>
         public static SafeMode W4
         {
-            get { return w4; }
+            get { return __w4; }
         }
 
         // public properties
@@ -195,11 +195,11 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Enabled
         {
-            get { return enabled; }
+            get { return _enabled; }
             set
             {
-                if (isFrozen) { ThrowFrozenException(); }
-                enabled = value;
+                if (_isFrozen) { ThrowFrozenException(); }
+                _enabled = value;
             }
         }
 
@@ -208,12 +208,12 @@ namespace MongoDB.Driver
         /// </summary>
         public bool FSync
         {
-            get { return fsync; }
+            get { return _fsync; }
             set
             {
-                if (isFrozen) { ThrowFrozenException(); }
-                fsync = value;
-                enabled |= value;
+                if (_isFrozen) { ThrowFrozenException(); }
+                _fsync = value;
+                _enabled |= value;
             }
         }
 
@@ -222,12 +222,12 @@ namespace MongoDB.Driver
         /// </summary>
         public bool J
         {
-            get { return j; }
+            get { return _j; }
             set
             {
-                if (isFrozen) { ThrowFrozenException(); }
-                j = value;
-                enabled |= value;
+                if (_isFrozen) { ThrowFrozenException(); }
+                _j = value;
+                _enabled |= value;
             }
         }
 
@@ -236,13 +236,13 @@ namespace MongoDB.Driver
         /// </summary>
         public int W
         {
-            get { return w; }
+            get { return _w; }
             set
             {
-                if (isFrozen) { ThrowFrozenException(); }
-                w = value;
-                wmode = null;
-                enabled |= (value != 0);
+                if (_isFrozen) { ThrowFrozenException(); }
+                _w = value;
+                _wmode = null;
+                _enabled |= (value != 0);
             }
         }
 
@@ -251,13 +251,13 @@ namespace MongoDB.Driver
         /// </summary>
         public string WMode
         {
-            get { return wmode; }
+            get { return _wmode; }
             set
             {
-                if (isFrozen) { ThrowFrozenException(); }
-                w = 0;
-                wmode = value;
-                enabled |= (value != null);
+                if (_isFrozen) { ThrowFrozenException(); }
+                _w = 0;
+                _wmode = value;
+                _enabled |= (value != null);
             }
         }
 
@@ -266,11 +266,11 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan WTimeout
         {
-            get { return wtimeout; }
+            get { return _wtimeout; }
             set
             {
-                if (isFrozen) { ThrowFrozenException(); }
-                wtimeout = value;
+                if (_isFrozen) { ThrowFrozenException(); }
+                _wtimeout = value;
             }
         }
 
@@ -347,15 +347,15 @@ namespace MongoDB.Driver
                 {
                     switch (w)
                     {
-                        case 2: return w2;
-                        case 3: return w3;
-                        case 4: return w4;
+                        case 2: return __w2;
+                        case 3: return __w3;
+                        case 4: return __w4;
                         default: return new SafeMode(true, false, w);
                     }
                 }
                 else if (w == 0)
                 {
-                    return @false;
+                    return __false;
                 }
             }
             return new SafeMode(enabled, fsync, w, wtimeout);
@@ -411,12 +411,12 @@ namespace MongoDB.Driver
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return
-                this.enabled == rhs.enabled &&
-                this.fsync == rhs.fsync &&
-                this.j == rhs.j &&
-                this.w == rhs.w &&
-                this.wmode == rhs.wmode &&
-                this.wtimeout == rhs.wtimeout;
+                _enabled == rhs._enabled &&
+                _fsync == rhs._fsync &&
+                _j == rhs._j &&
+                _w == rhs._w &&
+                _wmode == rhs._wmode &&
+                _wtimeout == rhs._wtimeout;
         }
 
         /// <summary>
@@ -425,10 +425,10 @@ namespace MongoDB.Driver
         /// <returns>The frozen SafeMode.</returns>
         public SafeMode Freeze()
         {
-            if (!isFrozen)
+            if (!_isFrozen)
             {
-                frozenHashCode = GetHashCodeHelper();
-                isFrozen = true;
+                _frozenHashCode = GetHashCodeHelper();
+                _isFrozen = true;
             }
             return this;
         }
@@ -439,7 +439,7 @@ namespace MongoDB.Driver
         /// <returns>A frozen copy of the SafeMode.</returns>
         public SafeMode FrozenCopy()
         {
-            if (isFrozen)
+            if (_isFrozen)
             {
                 return this;
             }
@@ -455,9 +455,9 @@ namespace MongoDB.Driver
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            if (isFrozen)
+            if (_isFrozen)
             {
-                return frozenHashCode;
+                return _frozenHashCode;
             }
             else
             {
@@ -471,30 +471,30 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the SafeMode.</returns>
         public override string ToString()
         {
-            if (enabled)
+            if (_enabled)
             {
                 var sb = new StringBuilder("safe=true");
-                if (fsync)
+                if (_fsync)
                 {
                     sb.Append(",fsync=true");
                 }
-                if (j)
+                if (_j)
                 {
                     sb.Append(",j=true");
                 }
-                if (w != 0 || wmode != null)
+                if (_w != 0 || _wmode != null)
                 {
-                    if (w != 0)
+                    if (_w != 0)
                     {
-                        sb.AppendFormat(",w={0}", w);
+                        sb.AppendFormat(",w={0}", _w);
                     }
-                    if (wmode != null)
+                    if (_wmode != null)
                     {
-                        sb.AppendFormat(",wmode=\"{0}\"", wmode);
+                        sb.AppendFormat(",wmode=\"{0}\"", _wmode);
                     }
-                    if (wtimeout != TimeSpan.Zero)
+                    if (_wtimeout != TimeSpan.Zero)
                     {
-                        sb.AppendFormat(",wtimeout={0}", wtimeout);
+                        sb.AppendFormat(",wtimeout={0}", _wtimeout);
                     }
                 }
                 return sb.ToString();
@@ -510,12 +510,12 @@ namespace MongoDB.Driver
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + enabled.GetHashCode();
-            hash = 37 * hash + fsync.GetHashCode();
-            hash = 37 * hash + j.GetHashCode();
-            hash = 37 * hash + w.GetHashCode();
-            hash = 37 * hash + ((wmode == null) ? 0 : wmode.GetHashCode());
-            hash = 37 * hash + wtimeout.GetHashCode();
+            hash = 37 * hash + _enabled.GetHashCode();
+            hash = 37 * hash + _fsync.GetHashCode();
+            hash = 37 * hash + _j.GetHashCode();
+            hash = 37 * hash + _w.GetHashCode();
+            hash = 37 * hash + ((_wmode == null) ? 0 : _wmode.GetHashCode());
+            hash = 37 * hash + _wtimeout.GetHashCode();
             return hash;
         }
 

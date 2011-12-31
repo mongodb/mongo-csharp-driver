@@ -27,11 +27,11 @@ namespace MongoDB.Driver
     public class MongoServerBuildInfo
     {
         // private fields
-        private int bits;
-        private string gitVersion;
-        private string sysInfo;
-        private Version version;
-        private string versionString;
+        private int _bits;
+        private string _gitVersion;
+        private string _sysInfo;
+        private Version _version;
+        private string _versionString;
 
         // constructors
         /// <summary>
@@ -43,11 +43,11 @@ namespace MongoDB.Driver
         /// <param name="versionString">The version string.</param>
         public MongoServerBuildInfo(int bits, string gitVersion, string sysInfo, string versionString)
         {
-            this.bits = bits;
-            this.gitVersion = gitVersion;
-            this.sysInfo = sysInfo;
-            this.version = ParseVersion(versionString);
-            this.versionString = versionString;
+            _bits = bits;
+            _gitVersion = gitVersion;
+            _sysInfo = sysInfo;
+            _version = ParseVersion(versionString);
+            _versionString = versionString;
         }
 
         // public properties
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int Bits
         {
-            get { return bits; }
+            get { return _bits; }
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string GitVersion
         {
-            get { return gitVersion; }
+            get { return _gitVersion; }
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string SysInfo
         {
-            get { return sysInfo; }
+            get { return _sysInfo; }
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace MongoDB.Driver
         /// </summary>
         public Version Version
         {
-            get { return version; }
+            get { return _version; }
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string VersionString
         {
-            get { return versionString; }
+            get { return _versionString; }
         }
 
         // private methods

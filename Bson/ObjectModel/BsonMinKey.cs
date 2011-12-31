@@ -27,7 +27,7 @@ namespace MongoDB.Bson
     public class BsonMinKey : BsonValue, IComparable<BsonMinKey>, IEquatable<BsonMinKey>
     {
         // private static fields
-        private static BsonMinKey value = new BsonMinKey();
+        private static BsonMinKey __value = new BsonMinKey();
 
         // constructors
         // private so only the singleton instance can be created
@@ -64,7 +64,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the singleton instance of BsonMinKey.
         /// </summary>
-        public static BsonMinKey Value { get { return value; } }
+        public static BsonMinKey Value { get { return __value; } }
 
         // public methods
         /// <summary>
@@ -117,7 +117,7 @@ namespace MongoDB.Bson
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            return bsonType.GetHashCode();
+            return _bsonType.GetHashCode();
         }
 
         /// <summary>

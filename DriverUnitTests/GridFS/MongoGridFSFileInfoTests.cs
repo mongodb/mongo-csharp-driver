@@ -28,16 +28,16 @@ namespace MongoDB.DriverUnitTests.GridFS
     [TestFixture]
     public class MongoGridFSFileInfoTests
     {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoGridFS gridFS;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoGridFS _gridFS;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            server = MongoServer.Create();
-            database = server["test"];
-            gridFS = database.GridFS;
+            _server = MongoServer.Create();
+            _database = _server["test"];
+            _gridFS = _database.GridFS;
         }
 
         [Test]
@@ -55,11 +55,11 @@ namespace MongoDB.DriverUnitTests.GridFS
                 Metadata = metadata,
                 UploadDate = uploadDate
             };
-            var info = new MongoGridFSFileInfo(gridFS, "filename", createOptions);
+            var info = new MongoGridFSFileInfo(_gridFS, "filename", createOptions);
             Assert.IsTrue(aliases.SequenceEqual(info.Aliases));
             Assert.AreEqual(123, info.ChunkSize);
             Assert.AreEqual("content", info.ContentType);
-            Assert.AreEqual(gridFS, info.GridFS);
+            Assert.AreEqual(_gridFS, info.GridFS);
             Assert.AreEqual(1, info.Id.AsInt32);
             Assert.AreEqual(0, info.Length);
             Assert.AreEqual(null, info.MD5);
@@ -72,9 +72,9 @@ namespace MongoDB.DriverUnitTests.GridFS
         public void TestEquals()
         {
             var createOptions = new MongoGridFSCreateOptions { ChunkSize = 123 };
-            var a = new MongoGridFSFileInfo(gridFS, "f", createOptions);
-            var b = new MongoGridFSFileInfo(gridFS, "f", createOptions);
-            var c = new MongoGridFSFileInfo(gridFS, "g", createOptions);
+            var a = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
+            var b = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
+            var c = new MongoGridFSFileInfo(_gridFS, "g", createOptions);
             var n = (MongoCredentials)null;
 
             Assert.IsTrue(object.Equals(a, b));

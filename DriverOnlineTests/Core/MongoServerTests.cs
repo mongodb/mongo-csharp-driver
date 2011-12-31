@@ -27,16 +27,16 @@ namespace MongoDB.DriverOnlineTests
     [TestFixture]
     public class MongoServerTests
     {
-        private MongoServer server;
-        private MongoDatabase database;
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            server.Connect();
-            server.DropDatabase("onlinetests");
-            database = server["onlinetests"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _server.Connect();
+            _server.DropDatabase("onlinetests");
+            _database = _server["onlinetests"];
         }
 
         // TODO: more tests for MongoServer
@@ -45,58 +45,58 @@ namespace MongoDB.DriverOnlineTests
         public void TestDatabaseExists()
         {
             var databaseName = "onlinetests-temp";
-            var database = server[databaseName];
+            var database = _server[databaseName];
             database.Drop();
-            Assert.IsFalse(server.DatabaseExists(databaseName));
+            Assert.IsFalse(_server.DatabaseExists(databaseName));
             database["test"].Insert(new BsonDocument("x", 1));
-            Assert.IsTrue(server.DatabaseExists(databaseName));
+            Assert.IsTrue(_server.DatabaseExists(databaseName));
         }
 
         [Test]
         public void TestDropDatabase()
         {
             var databaseName = "onlinetests-temp";
-            var database = server[databaseName];
+            var database = _server[databaseName];
             var test = database["test"];
             test.Insert(new BsonDocument());
-            var databaseNames = server.GetDatabaseNames();
+            var databaseNames = _server.GetDatabaseNames();
             Assert.IsTrue(databaseNames.Contains(databaseName));
 
-            var result = server.DropDatabase(databaseName);
-            databaseNames = server.GetDatabaseNames();
+            var result = _server.DropDatabase(databaseName);
+            databaseNames = _server.GetDatabaseNames();
             Assert.IsFalse(databaseNames.Contains(databaseName));
         }
 
         [Test]
         public void TestPing()
         {
-            server.Ping();
+            _server.Ping();
         }
 
         [Test]
         public void TestGetDatabaseNames()
         {
-            var databaseNames = server.GetDatabaseNames();
+            var databaseNames = _server.GetDatabaseNames();
         }
 
         [Test]
         public void TestReconnect()
         {
-            server.Reconnect();
-            Assert.AreEqual(MongoServerState.Connected, server.State);
+            _server.Reconnect();
+            Assert.AreEqual(MongoServerState.Connected, _server.State);
         }
 
         [Test]
         public void TestRunAdminCommandAs()
         {
-            var result = (CommandResult)server.RunAdminCommandAs(typeof(CommandResult), "ping");
+            var result = (CommandResult)_server.RunAdminCommandAs(typeof(CommandResult), "ping");
             Assert.AreEqual(true, result.Ok);
         }
 
         [Test]
         public void TestRunAdminCommandAsGeneric()
         {
-            var result = server.RunAdminCommandAs<CommandResult>("ping");
+            var result = _server.RunAdminCommandAs<CommandResult>("ping");
             Assert.AreEqual(true, result.Ok);
         }
 
@@ -104,7 +104,7 @@ namespace MongoDB.DriverOnlineTests
         public void TestVersion()
         {
             var versionZero = new Version(0, 0, 0, 0);
-            Assert.AreNotEqual(versionZero, server.BuildInfo.Version);
+            Assert.AreNotEqual(versionZero, _server.BuildInfo.Version);
         }
     }
 }

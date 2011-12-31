@@ -31,34 +31,34 @@ namespace MongoDB.DriverOnlineTests.GridFS
     [TestFixture]
     public class MongoGridFSStreamTests
     {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoGridFS gridFS;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoGridFS _gridFS;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
             var settings = new MongoGridFSSettings
             {
                 ChunkSize = 16,
                 SafeMode = SafeMode.True
             };
-            gridFS = database.GetGridFS(settings);
+            _gridFS = _database.GetGridFS(settings);
         }
 
         [Test]
         public void TestCreateZeroLengthFile()
         {
-            gridFS.Files.RemoveAll();
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
 
-            var fileInfo = gridFS.FindOne("test");
+            var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test"))
+            using (var stream = _gridFS.Create("test"))
             {
                 Assert.IsTrue(stream.CanRead);
                 Assert.IsTrue(stream.CanSeek);
@@ -67,18 +67,18 @@ namespace MongoDB.DriverOnlineTests.GridFS
                 Assert.AreEqual(0, stream.Length);
                 Assert.AreEqual(0, stream.Position);
 
-                fileInfo = gridFS.FindOne("test");
+                fileInfo = _gridFS.FindOne("test");
                 Assert.IsTrue(fileInfo.Exists);
                 Assert.IsNull(fileInfo.Aliases);
                 Assert.AreEqual("test", fileInfo.Name);
-                Assert.AreEqual(gridFS.Settings.ChunkSize, fileInfo.ChunkSize);
+                Assert.AreEqual(_gridFS.Settings.ChunkSize, fileInfo.ChunkSize);
                 Assert.IsNull(fileInfo.ContentType);
                 Assert.AreEqual(0, fileInfo.Length);
                 Assert.IsNull(fileInfo.MD5);
                 Assert.IsNull(fileInfo.Metadata);
             }
 
-            fileInfo = gridFS.FindOne("test");
+            fileInfo = _gridFS.FindOne("test");
             Assert.IsTrue(fileInfo.Exists);
             Assert.AreEqual(0, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
@@ -87,24 +87,24 @@ namespace MongoDB.DriverOnlineTests.GridFS
         [Test]
         public void TestCreate1ByteFile()
         {
-            gridFS.Files.RemoveAll();
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
 
-            var fileInfo = gridFS.FindOne("test");
+            var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test"))
+            using (var stream = _gridFS.Create("test"))
             {
                 stream.WriteByte(1);
             }
 
-            fileInfo = gridFS.FindOne("test");
+            fileInfo = _gridFS.FindOne("test");
             Assert.IsTrue(fileInfo.Exists);
             Assert.AreEqual(1, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
 
-            using (var stream = gridFS.OpenRead("test"))
+            using (var stream = _gridFS.OpenRead("test"))
             {
                 var b = stream.ReadByte();
                 Assert.AreEqual(1, b);
@@ -116,26 +116,26 @@ namespace MongoDB.DriverOnlineTests.GridFS
         [Test]
         public void TestCreate3ChunkFile()
         {
-            gridFS.Files.RemoveAll();
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
 
-            var fileInfo = gridFS.FindOne("test");
+            var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test"))
+            using (var stream = _gridFS.Create("test"))
             {
-                fileInfo = gridFS.FindOne("test");
+                fileInfo = _gridFS.FindOne("test");
                 var bytes = new byte[fileInfo.ChunkSize * 3];
                 stream.Write(bytes, 0, bytes.Length);
             }
 
-            fileInfo = gridFS.FindOne("test");
+            fileInfo = _gridFS.FindOne("test");
             Assert.IsTrue(fileInfo.Exists);
             Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
 
-            using (var stream = gridFS.OpenRead("test"))
+            using (var stream = _gridFS.OpenRead("test"))
             {
                 var bytes = new byte[fileInfo.ChunkSize * 3];
                 var bytesRead = stream.Read(bytes, 0, fileInfo.ChunkSize * 3);
@@ -150,16 +150,16 @@ namespace MongoDB.DriverOnlineTests.GridFS
         [Test]
         public void TestCreate3ChunkFile1ByteAtATime()
         {
-            gridFS.Files.RemoveAll();
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
 
-            var fileInfo = gridFS.FindOne("test");
+            var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test"))
+            using (var stream = _gridFS.Create("test"))
             {
-                fileInfo = gridFS.FindOne("test");
+                fileInfo = _gridFS.FindOne("test");
 
                 for (int i = 0; i < fileInfo.ChunkSize * 3; i++)
                 {
@@ -167,12 +167,12 @@ namespace MongoDB.DriverOnlineTests.GridFS
                 }
             }
 
-            fileInfo = gridFS.FindOne("test");
+            fileInfo = _gridFS.FindOne("test");
             Assert.IsTrue(fileInfo.Exists);
             Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
 
-            using (var stream = gridFS.OpenRead("test"))
+            using (var stream = _gridFS.OpenRead("test"))
             {
                 for (int i = 0; i < fileInfo.ChunkSize * 3; i++)
                 {
@@ -187,16 +187,16 @@ namespace MongoDB.DriverOnlineTests.GridFS
         [Test]
         public void TestCreate3ChunkFile14BytesAtATime()
         {
-            gridFS.Files.RemoveAll();
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
 
-            var fileInfo = gridFS.FindOne("test");
+            var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test"))
+            using (var stream = _gridFS.Create("test"))
             {
-                fileInfo = gridFS.FindOne("test");
+                fileInfo = _gridFS.FindOne("test");
 
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 for (int i = 0; i < fileInfo.ChunkSize * 3; i += 4)
@@ -205,12 +205,12 @@ namespace MongoDB.DriverOnlineTests.GridFS
                 }
             }
 
-            fileInfo = gridFS.FindOne("test");
+            fileInfo = _gridFS.FindOne("test");
             Assert.IsTrue(fileInfo.Exists);
             Assert.AreEqual(fileInfo.ChunkSize * 3, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);
 
-            using (var stream = gridFS.OpenRead("test"))
+            using (var stream = _gridFS.OpenRead("test"))
             {
                 var expected = new byte[] { 1, 2, 3, 4 };
                 var bytes = new byte[4];
@@ -228,75 +228,75 @@ namespace MongoDB.DriverOnlineTests.GridFS
         [Test]
         public void TestOpenCreateWithId()
         {
-            gridFS.Files.RemoveAll();
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
 
             var createOptions = new MongoGridFSCreateOptions
             {
                 Id = 1
             };
-            using (var stream = gridFS.Create("test", createOptions))
+            using (var stream = _gridFS.Create("test", createOptions))
             {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
             }
 
-            var fileInfo = gridFS.FindOne("test");
+            var fileInfo = _gridFS.FindOne("test");
             Assert.AreEqual(BsonInt32.Create(1), fileInfo.Id);
         }
 
         [Test]
         public void TestOpenCreateWithMetadata()
         {
-            gridFS.Files.RemoveAll();
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
 
             var metadata = new BsonDocument("author", "John Doe");
             var createOptions = new MongoGridFSCreateOptions
             {
                 Metadata = metadata
             };
-            using (var stream = gridFS.Create("test", createOptions))
+            using (var stream = _gridFS.Create("test", createOptions))
             {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
             }
 
-            var fileInfo = gridFS.FindOne("test");
+            var fileInfo = _gridFS.FindOne("test");
             Assert.AreEqual(metadata, fileInfo.Metadata);
         }
 
         [Test]
         public void TestUpdateMD5()
         {
-            gridFS.Files.RemoveAll();
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
 
-            var fileInfo = gridFS.FindOne("test");
+            var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = gridFS.Create("test"))
+            using (var stream = _gridFS.Create("test"))
             {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
                 stream.UpdateMD5 = false;
             }
 
-            fileInfo = gridFS.FindOne("test");
+            fileInfo = _gridFS.FindOne("test");
             Assert.IsTrue(fileInfo.Exists);
             Assert.AreEqual(4, fileInfo.Length);
             Assert.IsNull(fileInfo.MD5);
 
-            using (var stream = gridFS.Open("test", FileMode.Append, FileAccess.Write))
+            using (var stream = _gridFS.Open("test", FileMode.Append, FileAccess.Write))
             {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
             }
 
-            fileInfo = gridFS.FindOne("test");
+            fileInfo = _gridFS.FindOne("test");
             Assert.IsTrue(fileInfo.Exists);
             Assert.AreEqual(8, fileInfo.Length);
             Assert.IsNotNull(fileInfo.MD5);

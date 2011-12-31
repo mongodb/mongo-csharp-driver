@@ -37,9 +37,9 @@ namespace MongoDB.Bson
     public class BsonDocumentWrapper : BsonValue, IBsonSerializable
     {
         // private fields
-        private Type wrappedNominalType;
-        private object wrappedObject;
-        private bool isUpdateDocument;
+        private Type _wrappedNominalType;
+        private object _wrappedObject;
+        private bool _isUpdateDocument;
 
         // constructors
         // needed for Deserialize
@@ -56,8 +56,8 @@ namespace MongoDB.Bson
         public BsonDocumentWrapper(object wrappedObject)
             : base(BsonType.Document)
         {
-            this.wrappedNominalType = (wrappedObject == null) ? typeof(object) : wrappedObject.GetType();
-            this.wrappedObject = wrappedObject;
+            _wrappedNominalType = (wrappedObject == null) ? typeof(object) : wrappedObject.GetType();
+            _wrappedObject = wrappedObject;
         }
 
         /// <summary>
@@ -68,8 +68,8 @@ namespace MongoDB.Bson
         public BsonDocumentWrapper(Type wrappedNominalType, object wrappedObject)
             : base(BsonType.Document)
         {
-            this.wrappedNominalType = wrappedNominalType;
-            this.wrappedObject = wrappedObject;
+            _wrappedNominalType = wrappedNominalType;
+            _wrappedObject = wrappedObject;
         }
 
         /// <summary>
@@ -81,9 +81,9 @@ namespace MongoDB.Bson
         internal BsonDocumentWrapper(Type wrappedNominalType, object wrappedObject, bool isUpdateDocument)
             : base(BsonType.Document)
         {
-            this.wrappedNominalType = wrappedNominalType;
-            this.wrappedObject = wrappedObject;
-            this.isUpdateDocument = isUpdateDocument;
+            _wrappedNominalType = wrappedNominalType;
+            _wrappedObject = wrappedObject;
+            _isUpdateDocument = isUpdateDocument;
         }
 
         // public static methods
@@ -246,7 +246,7 @@ namespace MongoDB.Bson
         /// <param name="options">The serialization options.</param>
         public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            if (isUpdateDocument)
+            if (_isUpdateDocument)
             {
                 var savedCheckElementNames = bsonWriter.CheckElementNames;
                 var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
@@ -254,7 +254,7 @@ namespace MongoDB.Bson
                 {
                     bsonWriter.CheckElementNames = false;
                     bsonWriter.CheckUpdateDocument = true;
-                    BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, options);
+                    BsonSerializer.Serialize(bsonWriter, _wrappedNominalType, _wrappedObject, options);
                 }
                 finally
                 {
@@ -264,7 +264,7 @@ namespace MongoDB.Bson
             }
             else
             {
-                BsonSerializer.Serialize(bsonWriter, wrappedNominalType, wrappedObject, options);
+                BsonSerializer.Serialize(bsonWriter, _wrappedNominalType, _wrappedObject, options);
             }
         }
 

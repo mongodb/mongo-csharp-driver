@@ -28,7 +28,7 @@ namespace MongoDB.Bson
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64>
     {
         // private fields
-        private long value;
+        private long _value;
 
         // constructors
         /// <summary>
@@ -38,7 +38,7 @@ namespace MongoDB.Bson
         public BsonInt64(long value)
             : base(BsonType.Int64)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -47,7 +47,7 @@ namespace MongoDB.Bson
         /// </summary>
         public override object RawValue
         {
-            get { return value; }
+            get { return _value; }
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace MongoDB.Bson
         /// </summary>
         public long Value
         {
-            get { return value; }
+            get { return _value; }
         }
 
         // public operators
@@ -129,7 +129,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonInt64 other)
         {
             if (other == null) { return 1; }
-            return value.CompareTo(other.value);
+            return _value.CompareTo(other._value);
         }
 
         /// <summary>
@@ -143,17 +143,17 @@ namespace MongoDB.Bson
             var otherInt64 = other as BsonInt64;
             if (otherInt64 != null)
             {
-                return value.CompareTo(otherInt64.value);
+                return _value.CompareTo(otherInt64._value);
             }
             var otherInt32 = other as BsonInt32;
             if (otherInt32 != null)
             {
-                return value.CompareTo((long)otherInt32.Value);
+                return _value.CompareTo((long)otherInt32.Value);
             }
             var otherDouble = other as BsonDouble;
             if (otherDouble != null)
             {
-                return ((double)value).CompareTo(otherDouble.Value);
+                return ((double)_value).CompareTo(otherDouble.Value);
             }
             return CompareTypeTo(other);
         }
@@ -166,7 +166,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonInt64 rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.value == rhs.value;
+            return _value == rhs._value;
         }
 
         /// <summary>
@@ -187,8 +187,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -198,7 +198,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return XmlConvert.ToString(value);
+            return XmlConvert.ToString(_value);
         }
 
         // protected methods
@@ -212,19 +212,19 @@ namespace MongoDB.Bson
             var rhsInt64 = rhs as BsonInt64;
             if (rhsInt64 != null)
             {
-                return this.value == rhsInt64.value;
+                return _value == rhsInt64._value;
             }
 
             var rhsInt32 = rhs as BsonInt32;
             if (rhsInt32 != null)
             {
-                return this.value == (long)rhsInt32.Value;
+                return _value == (long)rhsInt32.Value;
             }
 
             var rhsDouble = rhs as BsonDouble;
             if (rhsDouble != null)
             {
-                return (double)this.value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
+                return (double)_value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
             }
 
             return this.Equals(rhs);

@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Builders
     public class GroupByBuilder : BuilderBase, IMongoGroupBy
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -68,10 +68,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="names">One or more key names.</param>
         public GroupByBuilder(string[] names)
         {
-            document = new BsonDocument();
+            _document = new BsonDocument();
             foreach (var name in names)
             {
-                document.Add(name, 1);
+                _document.Add(name, 1);
             }
         }
 
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
-            return document;
+            return _document;
         }
 
         // explicit interface implementations
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            document.Serialize(bsonWriter, nominalType, options);
+            _document.Serialize(bsonWriter, nominalType, options);
         }
     }
 }

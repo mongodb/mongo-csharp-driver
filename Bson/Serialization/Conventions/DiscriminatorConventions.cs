@@ -56,11 +56,11 @@ namespace MongoDB.Bson.Serialization.Conventions
     public abstract class StandardDiscriminatorConvention : IDiscriminatorConvention
     {
         // private static fields
-        private static ScalarDiscriminatorConvention scalar = new ScalarDiscriminatorConvention("_t");
-        private static HierarchicalDiscriminatorConvention hierarchical = new HierarchicalDiscriminatorConvention("_t");
+        private static ScalarDiscriminatorConvention __scalar = new ScalarDiscriminatorConvention("_t");
+        private static HierarchicalDiscriminatorConvention __hierarchical = new HierarchicalDiscriminatorConvention("_t");
 
         // private fields
-        private string elementName;
+        private string _elementName;
 
         // constructors
         /// <summary>
@@ -69,7 +69,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="elementName">The element name.</param>
         protected StandardDiscriminatorConvention(string elementName)
         {
-            this.elementName = elementName;
+            _elementName = elementName;
         }
 
         // public static properties
@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         public static ScalarDiscriminatorConvention Scalar
         {
-            get { return scalar; }
+            get { return __scalar; }
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         public static HierarchicalDiscriminatorConvention Hierarchical
         {
-            get { return hierarchical; }
+            get { return __hierarchical; }
         }
 
         // public properties
@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         public string ElementName
         {
-            get { return elementName; }
+            get { return _elementName; }
         }
 
         // public methods
@@ -151,7 +151,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                     var bookmark = bsonReader.GetBookmark();
                     bsonReader.ReadStartDocument();
                     var actualType = nominalType;
-                    if (bsonReader.FindElement(elementName))
+                    if (bsonReader.FindElement(_elementName))
                     {
                         var discriminator = BsonValue.ReadFrom(bsonReader);
                         if (discriminator.IsBsonArray)

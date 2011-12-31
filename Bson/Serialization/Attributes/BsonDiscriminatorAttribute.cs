@@ -27,9 +27,9 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDiscriminatorAttribute : Attribute
     {
         // private fields
-        private string discriminator;
-        private bool required;
-        private bool rootClass;
+        private string _discriminator;
+        private bool _required;
+        private bool _rootClass;
 
         // constructors
         /// <summary>
@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="discriminator">The discriminator.</param>
         public BsonDiscriminatorAttribute(string discriminator)
         {
-            this.discriminator = discriminator;
+            _discriminator = discriminator;
         }
 
         // public properties
@@ -54,7 +54,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public string Discriminator
         {
-            get { return discriminator; }
+            get { return _discriminator; }
         }
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public bool Required
         {
-            get { return required; }
-            set { required = value; }
+            get { return _required; }
+            set { _required = value; }
         }
 
         /// <summary>
@@ -71,8 +71,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public bool RootClass
         {
-            get { return rootClass; }
-            set { rootClass = value; }
+            get { return _rootClass; }
+            set { _rootClass = value; }
         }
     }
 }

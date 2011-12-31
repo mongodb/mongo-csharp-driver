@@ -27,8 +27,8 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonElementAttribute : Attribute
     {
         // private fields
-        private string elementName;
-        private int order = int.MaxValue;
+        private string _elementName;
+        private int _order = int.MaxValue;
 
         // constructors
         /// <summary>
@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="elementName">The name of the element.</param>
         public BsonElementAttribute(string elementName)
         {
-            this.elementName = elementName;
+            _elementName = elementName;
         }
 
         // public properties
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public string ElementName
         {
-            get { return elementName; }
+            get { return _elementName; }
         }
 
         /// <summary>
@@ -54,8 +54,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public int Order
         {
-            get { return order; }
-            set { order = value; }
+            get { return _order; }
+            set { _order = value; }
         }
     }
 }

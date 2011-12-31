@@ -25,11 +25,11 @@ namespace MongoDB.Bson.Serialization.Options
     public class DocumentSerializationOptions : IBsonSerializationOptions
     {
         // private static fields
-        private static DocumentSerializationOptions defaults = new DocumentSerializationOptions(false);
-        private static DocumentSerializationOptions serializeIdFirstInstance = new DocumentSerializationOptions(true);
+        private static DocumentSerializationOptions __defaults = new DocumentSerializationOptions(false);
+        private static DocumentSerializationOptions __serializeIdFirstInstance = new DocumentSerializationOptions(true);
 
         // private fields
-        private bool serializeIdFirst;
+        private bool _serializeIdFirst;
 
         // constructors
         /// <summary>
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <param name="serializeIdFirst">Whether to serialize the Id as the first element.</param>
         public DocumentSerializationOptions(bool serializeIdFirst)
         {
-            this.serializeIdFirst = serializeIdFirst;
+            _serializeIdFirst = serializeIdFirst;
         }
 
         // public static properties
@@ -47,8 +47,8 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DocumentSerializationOptions Defaults
         {
-            get { return defaults; }
-            set { defaults = value; }
+            get { return __defaults; }
+            set { __defaults = value; }
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DocumentSerializationOptions SerializeIdFirstInstance
         {
-            get { return serializeIdFirstInstance; }
+            get { return __serializeIdFirstInstance; }
         }
 
         // public properties
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public bool SerializeIdFirst
         {
-            get { return serializeIdFirst; }
+            get { return _serializeIdFirst; }
         }
     }
 }

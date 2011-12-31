@@ -31,33 +31,33 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp163
     [TestFixture]
     public class CSharp163Tests
     {
-        private MongoServer server;
-        private MongoDatabase database;
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
         }
 
         [Test]
         public void TestNullAliasesAndContentType()
         {
-            database.GridFS.Files.RemoveAll();
-            database.GridFS.Chunks.RemoveAll();
+            _database.GridFS.Files.RemoveAll();
+            _database.GridFS.Chunks.RemoveAll();
 
             var text = "Hello World";
             var bytes = Encoding.UTF8.GetBytes(text);
             var stream = new MemoryStream(bytes);
-            var fileInfo = database.GridFS.Upload(stream, null); // test no filename!
+            var fileInfo = _database.GridFS.Upload(stream, null); // test no filename!
             Assert.IsNull(fileInfo.Aliases);
             Assert.IsNull(fileInfo.ContentType);
             Assert.IsNull(fileInfo.Metadata);
             Assert.IsNull(fileInfo.Name);
 
             var query = Query.EQ("_id", fileInfo.Id);
-            var files = database.GridFS.Files.FindOne(query);
+            var files = _database.GridFS.Files.FindOne(query);
             Assert.IsFalse(files.Contains("aliases"));
             Assert.IsFalse(files.Contains("contentType"));
             Assert.IsFalse(files.Contains("filename"));
@@ -69,9 +69,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp163
                 .Set("contentType", BsonNull.Value)
                 .Set("filename", BsonNull.Value)
                 .Set("metadata", BsonNull.Value);
-            database.GridFS.Files.Update(query, update);
+            _database.GridFS.Files.Update(query, update);
 
-            var fileInfo2 = database.GridFS.FindOne(query);
+            var fileInfo2 = _database.GridFS.FindOne(query);
             Assert.IsNull(fileInfo2.Aliases);
             Assert.IsNull(fileInfo2.ContentType);
             Assert.IsNull(fileInfo2.Metadata);
@@ -82,12 +82,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp163
             var contentType = "text/plain";
             var metadata = new BsonDocument { { "x", 1 }, { "y", 2 } };
             var name = "HelloWorld.txt";
-            database.GridFS.SetAliases(fileInfo, aliases);
-            database.GridFS.SetContentType(fileInfo, contentType);
-            database.GridFS.SetMetadata(fileInfo, metadata);
+            _database.GridFS.SetAliases(fileInfo, aliases);
+            _database.GridFS.SetContentType(fileInfo, contentType);
+            _database.GridFS.SetMetadata(fileInfo, metadata);
             fileInfo.MoveTo(name);
 
-            var fileInfo3 = database.GridFS.FindOne(query);
+            var fileInfo3 = _database.GridFS.FindOne(query);
             Assert.IsTrue(aliases.SequenceEqual(fileInfo3.Aliases));
             Assert.AreEqual(contentType, fileInfo3.ContentType);
             Assert.AreEqual(metadata, fileInfo3.Metadata);

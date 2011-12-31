@@ -38,16 +38,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp172
             public int N;
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<C> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("csharp172");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection<C>("csharp172");
         }
 
         [Test]
@@ -55,11 +55,11 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp172
         {
             var obj1 = new C { N = 1 };
             Assert.IsNullOrEmpty(obj1.Id);
-            collection.RemoveAll();
-            collection.Insert(obj1);
+            _collection.RemoveAll();
+            _collection.Insert(obj1);
             Assert.IsNotNullOrEmpty(obj1.Id);
 
-            var obj2 = collection.FindOne();
+            var obj2 = _collection.FindOne();
             Assert.AreEqual(obj1.Id, obj2.Id);
             Assert.AreEqual(obj1.N, obj2.N);
         }

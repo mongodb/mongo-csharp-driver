@@ -27,9 +27,9 @@ namespace MongoDB.Driver
     public class MongoUser
     {
         // private fields
-        private string username;
-        private string passwordHash;
-        private bool isReadOnly;
+        private string _username;
+        private string _passwordHash;
+        private bool _isReadOnly;
 
         // constructors
         /// <summary>
@@ -39,9 +39,9 @@ namespace MongoDB.Driver
         /// <param name="isReadOnly">Whether the user has read-only access.</param>
         public MongoUser(MongoCredentials credentials, bool isReadOnly)
         {
-            this.username = credentials.Username;
-            this.passwordHash = HashPassword(credentials.Username, credentials.Password);
-            this.isReadOnly = isReadOnly;
+            _username = credentials.Username;
+            _passwordHash = HashPassword(credentials.Username, credentials.Password);
+            _isReadOnly = isReadOnly;
         }
 
         /// <summary>
@@ -52,9 +52,9 @@ namespace MongoDB.Driver
         /// <param name="isReadOnly">Whether the user has read-only access.</param>
         public MongoUser(string username, string passwordHash, bool isReadOnly)
         {
-            this.username = username;
-            this.passwordHash = passwordHash;
-            this.isReadOnly = isReadOnly;
+            _username = username;
+            _passwordHash = passwordHash;
+            _isReadOnly = isReadOnly;
         }
 
         // public properties
@@ -63,8 +63,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Username
         {
-            get { return username; }
-            set { username = value; }
+            get { return _username; }
+            set { _username = value; }
         }
 
         /// <summary>
@@ -72,8 +72,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string PasswordHash
         {
-            get { return passwordHash; }
-            set { passwordHash = value; }
+            get { return _passwordHash; }
+            set { _passwordHash = value; }
         }
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IsReadOnly
         {
-            get { return isReadOnly; }
-            set { isReadOnly = value; }
+            get { return _isReadOnly; }
+            set { _isReadOnly = value; }
         }
 
         // public static methods
@@ -104,7 +104,7 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the user.</returns>
         public override string ToString()
         {
-            return string.Format("User:{0}", username);
+            return string.Format("User:{0}", _username);
         }
     }
 }

@@ -54,10 +54,10 @@ namespace MongoDB.Driver.Builders
     public class MapReduceOutput
     {
         // private fields
-        private MapReduceOutputMode mode;
-        private string databaseName;
-        private string collectionName;
-        private bool sharded;
+        private MapReduceOutputMode _mode;
+        private string _databaseName;
+        private string _collectionName;
+        private bool _sharded;
 
         // constructors
         /// <summary>
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public MapReduceOutput()
         {
-            this.mode = MapReduceOutputMode.Inline;
+            _mode = MapReduceOutputMode.Inline;
         }
 
         /// <summary>
@@ -74,8 +74,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="collectionName">The name of the output collection.</param>
         public MapReduceOutput(string collectionName)
         {
-            this.mode = MapReduceOutputMode.Replace;
-            this.collectionName = collectionName;
+            _mode = MapReduceOutputMode.Replace;
+            _collectionName = collectionName;
         }
 
         /// <summary>
@@ -85,9 +85,9 @@ namespace MongoDB.Driver.Builders
         /// <param name="collectionName">The name of the output collection.</param>
         public MapReduceOutput(string databaseName, string collectionName)
         {
-            this.mode = MapReduceOutputMode.Replace;
-            this.databaseName = databaseName;
-            this.collectionName = collectionName;
+            _mode = MapReduceOutputMode.Replace;
+            _databaseName = databaseName;
+            _collectionName = collectionName;
         }
 
         // implicit operators
@@ -119,13 +119,13 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public string CollectionName
         {
-            get { return collectionName; }
+            get { return _collectionName; }
             set
             {
-                collectionName = value;
-                if (collectionName != null && mode == MapReduceOutputMode.Inline)
+                _collectionName = value;
+                if (_collectionName != null && _mode == MapReduceOutputMode.Inline)
                 {
-                    mode = MapReduceOutputMode.Replace;
+                    _mode = MapReduceOutputMode.Replace;
                 }
             }
         }
@@ -135,13 +135,13 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public string DatabaseName
         {
-            get { return databaseName; }
+            get { return _databaseName; }
             set
             {
-                databaseName = value;
-                if (databaseName != null && mode == MapReduceOutputMode.Inline)
+                _databaseName = value;
+                if (_databaseName != null && _mode == MapReduceOutputMode.Inline)
                 {
-                    mode = MapReduceOutputMode.Replace;
+                    _mode = MapReduceOutputMode.Replace;
                 }
             }
         }
@@ -151,15 +151,15 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public MapReduceOutputMode Mode
         {
-            get { return mode; }
+            get { return _mode; }
             set
             {
-                mode = value;
-                if (mode == MapReduceOutputMode.Inline)
+                _mode = value;
+                if (_mode == MapReduceOutputMode.Inline)
                 {
-                    databaseName = null;
-                    collectionName = null;
-                    sharded = false;
+                    _databaseName = null;
+                    _collectionName = null;
+                    _sharded = false;
                 }
             }
         }
@@ -169,8 +169,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public bool Sharded
         {
-            get { return sharded; }
-            set { sharded = value; }
+            get { return _sharded; }
+            set { _sharded = value; }
         }
 
         // public static methods
@@ -309,9 +309,9 @@ namespace MongoDB.Driver.Builders
         // internal methods
         internal BsonValue ToBsonValue()
         {
-            if (mode == MapReduceOutputMode.Inline)
+            if (_mode == MapReduceOutputMode.Inline)
             {
-                if (sharded)
+                if (_sharded)
                 {
                     throw new MongoException("MapReduceOutput cannot be sharded when output mode is Inline.");
                 }
@@ -319,27 +319,27 @@ namespace MongoDB.Driver.Builders
             }
             else
             {
-                if (collectionName == null)
+                if (_collectionName == null)
                 {
                     throw new MongoException("MapReduceOutput collection name is missing.");
                 }
-                if (mode == MapReduceOutputMode.Replace && databaseName == null && !sharded)
+                if (_mode == MapReduceOutputMode.Replace && _databaseName == null && !_sharded)
                 {
-                    return collectionName;
+                    return _collectionName;
                 }
                 else
                 {
                     string modeString = "replace";
-                    switch (mode)
+                    switch (_mode)
                     {
                         case MapReduceOutputMode.Merge: modeString = "merge"; break;
                         case MapReduceOutputMode.Reduce: modeString = "reduce"; break;
                     }
                     return new BsonDocument
                     {
-                        { modeString, collectionName },
-                        { "db", databaseName }, // optional
-                        { "sharded", true, sharded } // optional
+                        { modeString, _collectionName },
+                        { "db", _databaseName }, // optional
+                        { "sharded", true, _sharded } // optional
                     };
                 }
             }
@@ -469,7 +469,7 @@ namespace MongoDB.Driver.Builders
     public class MapReduceOptionsBuilder : BuilderBase, IMongoMapReduceOptions
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -477,7 +477,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public MapReduceOptionsBuilder()
         {
-            document = new BsonDocument();
+            _document = new BsonDocument();
         }
 
         // public methods
@@ -488,7 +488,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetFinalize(BsonJavaScript finalize)
         {
-            document["finalize"] = finalize;
+            _document["finalize"] = finalize;
             return this;
         }
 
@@ -499,7 +499,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetJSMode(bool value)
         {
-            document["jsMode"] = value;
+            _document["jsMode"] = value;
             return this;
         }
 
@@ -510,7 +510,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetKeepTemp(bool value)
         {
-            document["keeptemp"] = value;
+            _document["keeptemp"] = value;
             return this;
         }
 
@@ -521,7 +521,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetLimit(int value)
         {
-            document["limit"] = value;
+            _document["limit"] = value;
             return this;
         }
 
@@ -532,7 +532,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetOutput(MapReduceOutput output)
         {
-            document["out"] = output.ToBsonValue();
+            _document["out"] = output.ToBsonValue();
             return this;
         }
 
@@ -543,7 +543,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetQuery(IMongoQuery query)
         {
-            document["query"] = BsonDocumentWrapper.Create(query);
+            _document["query"] = BsonDocumentWrapper.Create(query);
             return this;
         }
 
@@ -554,7 +554,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetScope(IMongoScope scope)
         {
-            document["scope"] = BsonDocumentWrapper.Create(scope);
+            _document["scope"] = BsonDocumentWrapper.Create(scope);
             return this;
         }
 
@@ -565,7 +565,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetSortOrder(IMongoSortBy sortBy)
         {
-            document["sort"] = BsonDocumentWrapper.Create(sortBy);
+            _document["sort"] = BsonDocumentWrapper.Create(sortBy);
             return this;
         }
 
@@ -586,7 +586,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public MapReduceOptionsBuilder SetVerbose(bool value)
         {
-            document["verbose"] = value;
+            _document["verbose"] = value;
             return this;
         }
 
@@ -596,13 +596,13 @@ namespace MongoDB.Driver.Builders
         /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
-            return document;
+            return _document;
         }
 
         // internal methods
         internal MapReduceOptionsBuilder AddOptions(BsonDocument options)
         {
-            document.Add(options);
+            _document.Add(options);
             return this;
         }
 
@@ -615,7 +615,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            document.Serialize(bsonWriter, nominalType, options);
+            _document.Serialize(bsonWriter, nominalType, options);
         }
     }
 }

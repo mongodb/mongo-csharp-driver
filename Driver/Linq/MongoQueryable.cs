@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Linq
     public class MongoQueryable<T> : IOrderedQueryable<T>
     {
         // private fields
-        private MongoQueryProvider provider;
-        private Expression expression;
+        private MongoQueryProvider _provider;
+        private Expression _expression;
 
         // constructors
         /// <summary>
@@ -45,8 +45,8 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("provider");
             }
-            this.provider = provider;
-            this.expression = Expression.Constant(this);
+            _provider = provider;
+            _expression = Expression.Constant(this);
         }
 
         /// <summary>
@@ -66,8 +66,8 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentOutOfRangeException("expression");
             }
-            this.provider = provider;
-            this.expression = expression;
+            _provider = provider;
+            _expression = expression;
         }
 
         // public methods
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Linq
         /// <returns></returns>
         public IEnumerator<T> GetEnumerator()
         {
-            return provider.GetEnumerator<T>(expression);
+            return _provider.GetEnumerator<T>(_expression);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Linq
         /// <returns></returns>
         public override string ToString()
         {
-            return provider.GetQueryText(expression);
+            return _provider.GetQueryText(_expression);
         }
 
         // explicit implementation of IEnumerable
@@ -103,12 +103,12 @@ namespace MongoDB.Driver.Linq
 
         Expression IQueryable.Expression
         {
-            get { return expression; }
+            get { return _expression; }
         }
 
         IQueryProvider IQueryable.Provider
         {
-            get { return provider; }
+            get { return _provider; }
         }
     }
 }

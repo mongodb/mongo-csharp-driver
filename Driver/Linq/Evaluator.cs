@@ -63,11 +63,11 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         class SubtreeEvaluator : ExpressionVisitor
         {
-            HashSet<Expression> candidates;
+            HashSet<Expression> _candidates;
 
             internal SubtreeEvaluator(HashSet<Expression> candidates)
             {
-                this.candidates = candidates;
+                _candidates = candidates;
             }
 
             internal Expression Eval(Expression exp)
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Linq
                 {
                     return null;
                 }
-                if (this.candidates.Contains(exp))
+                if (_candidates.Contains(exp))
                 {
                     return this.Evaluate(exp);
                 }
@@ -106,41 +106,41 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         class Nominator : ExpressionVisitor
         {
-            Func<Expression, bool> fnCanBeEvaluated;
-            HashSet<Expression> candidates;
-            bool cannotBeEvaluated;
+            Func<Expression, bool> _fnCanBeEvaluated;
+            HashSet<Expression> _candidates;
+            bool _cannotBeEvaluated;
 
             internal Nominator(Func<Expression, bool> fnCanBeEvaluated)
             {
-                this.fnCanBeEvaluated = fnCanBeEvaluated;
+                _fnCanBeEvaluated = fnCanBeEvaluated;
             }
 
             internal HashSet<Expression> Nominate(Expression expression)
             {
-                this.candidates = new HashSet<Expression>();
+                _candidates = new HashSet<Expression>();
                 this.Visit(expression);
-                return this.candidates;
+                return _candidates;
             }
 
             protected override Expression Visit(Expression expression)
             {
                 if (expression != null)
                 {
-                    bool saveCannotBeEvaluated = this.cannotBeEvaluated;
-                    this.cannotBeEvaluated = false;
+                    bool saveCannotBeEvaluated = _cannotBeEvaluated;
+                    _cannotBeEvaluated = false;
                     base.Visit(expression);
-                    if (!this.cannotBeEvaluated)
+                    if (!_cannotBeEvaluated)
                     {
-                        if (this.fnCanBeEvaluated(expression))
+                        if (_fnCanBeEvaluated(expression))
                         {
-                            this.candidates.Add(expression);
+                            _candidates.Add(expression);
                         }
                         else
                         {
-                            this.cannotBeEvaluated = true;
+                            _cannotBeEvaluated = true;
                         }
                     }
-                    this.cannotBeEvaluated |= saveCannotBeEvaluated;
+                    _cannotBeEvaluated |= saveCannotBeEvaluated;
                 }
                 return expression;
             }

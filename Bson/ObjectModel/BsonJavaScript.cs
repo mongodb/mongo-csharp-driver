@@ -30,7 +30,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// The JavaScript code.
         /// </summary>
-        protected string code;
+        protected string _code;
 
         // constructors
         /// <summary>
@@ -40,7 +40,7 @@ namespace MongoDB.Bson
         public BsonJavaScript(string code)
             : base(BsonType.JavaScript)
         {
-            this.code = code;
+            _code = code;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace MongoDB.Bson
         protected BsonJavaScript(string code, BsonType bsonType)
             : base(bsonType)
         {
-            this.code = code;
+            _code = code;
         }
 
         // public properties
@@ -60,7 +60,7 @@ namespace MongoDB.Bson
         /// </summary>
         public string Code
         {
-            get { return code; }
+            get { return _code; }
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonJavaScript other)
         {
             if (other == null) { return 1; }
-            return code.CompareTo(other.code);
+            return _code.CompareTo(other._code);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonJavaScript rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.code == rhs.code;
+            return _code == rhs._code;
         }
 
         /// <summary>
@@ -188,8 +188,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + code.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _code.GetHashCode();
             return hash;
         }
 
@@ -199,7 +199,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return code;
+            return _code;
         }
     }
 }

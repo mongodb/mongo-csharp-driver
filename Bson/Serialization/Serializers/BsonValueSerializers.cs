@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonArraySerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonArraySerializer instance = new BsonArraySerializer();
+        private static BsonArraySerializer __instance = new BsonArraySerializer();
 
         // constructors
         /// <summary>
@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonArraySerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -104,7 +104,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonBinaryDataSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonBinaryDataSerializer instance = new BsonBinaryDataSerializer();
+        private static BsonBinaryDataSerializer __instance = new BsonBinaryDataSerializer();
 
         // constructors
         /// <summary>
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonBinaryDataSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -205,7 +205,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonBooleanSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonBooleanSerializer instance = new BsonBooleanSerializer();
+        private static BsonBooleanSerializer __instance = new BsonBooleanSerializer();
 
         // constructors
         /// <summary>
@@ -221,7 +221,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonBooleanSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -276,7 +276,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDateTimeSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonDateTimeSerializer instance = new BsonDateTimeSerializer();
+        private static BsonDateTimeSerializer __instance = new BsonDateTimeSerializer();
 
         // constructors
         /// <summary>
@@ -292,7 +292,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonDateTimeSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -509,7 +509,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDocumentSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonDocumentSerializer instance = new BsonDocumentSerializer();
+        private static BsonDocumentSerializer __instance = new BsonDocumentSerializer();
 
         // constructors
         /// <summary>
@@ -525,7 +525,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonDocumentSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -596,7 +596,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDocumentWrapperSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonDocumentWrapperSerializer instance = new BsonDocumentWrapperSerializer();
+        private static BsonDocumentWrapperSerializer __instance = new BsonDocumentWrapperSerializer();
 
         // constructors
         /// <summary>
@@ -612,7 +612,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonDocumentWrapperSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -656,7 +656,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDoubleSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonDoubleSerializer instance = new BsonDoubleSerializer();
+        private static BsonDoubleSerializer __instance = new BsonDoubleSerializer();
 
         // constructors
         /// <summary>
@@ -672,7 +672,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonDoubleSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -727,7 +727,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonInt32Serializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonInt32Serializer instance = new BsonInt32Serializer();
+        private static BsonInt32Serializer __instance = new BsonInt32Serializer();
 
         // constructors
         /// <summary>
@@ -743,7 +743,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonInt32Serializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -798,7 +798,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonInt64Serializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonInt64Serializer instance = new BsonInt64Serializer();
+        private static BsonInt64Serializer __instance = new BsonInt64Serializer();
 
         // constructors
         /// <summary>
@@ -814,7 +814,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonInt64Serializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -869,7 +869,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonJavaScriptSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonJavaScriptSerializer instance = new BsonJavaScriptSerializer();
+        private static BsonJavaScriptSerializer __instance = new BsonJavaScriptSerializer();
 
         // constructors
         /// <summary>
@@ -885,7 +885,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonJavaScriptSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -941,7 +941,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonJavaScriptWithScopeSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonJavaScriptWithScopeSerializer instance = new BsonJavaScriptWithScopeSerializer();
+        private static BsonJavaScriptWithScopeSerializer __instance = new BsonJavaScriptWithScopeSerializer();
 
         // constructors
         /// <summary>
@@ -957,7 +957,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonJavaScriptWithScopeSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1015,7 +1015,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonMaxKeySerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonMaxKeySerializer instance = new BsonMaxKeySerializer();
+        private static BsonMaxKeySerializer __instance = new BsonMaxKeySerializer();
 
         // constructors
         /// <summary>
@@ -1031,7 +1031,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonMaxKeySerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1086,7 +1086,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonMinKeySerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonMinKeySerializer instance = new BsonMinKeySerializer();
+        private static BsonMinKeySerializer __instance = new BsonMinKeySerializer();
 
         // constructors
         /// <summary>
@@ -1102,7 +1102,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonMinKeySerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1157,7 +1157,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonNullSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonNullSerializer instance = new BsonNullSerializer();
+        private static BsonNullSerializer __instance = new BsonNullSerializer();
 
         // constructors
         /// <summary>
@@ -1173,7 +1173,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonNullSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1234,7 +1234,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonObjectIdSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonObjectIdSerializer instance = new BsonObjectIdSerializer();
+        private static BsonObjectIdSerializer __instance = new BsonObjectIdSerializer();
 
         // constructors
         /// <summary>
@@ -1250,7 +1250,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonObjectIdSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1305,7 +1305,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonRegularExpressionSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonRegularExpressionSerializer instance = new BsonRegularExpressionSerializer();
+        private static BsonRegularExpressionSerializer __instance = new BsonRegularExpressionSerializer();
 
         // constructors
         /// <summary>
@@ -1321,7 +1321,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonRegularExpressionSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1378,7 +1378,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonStringSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonStringSerializer instance = new BsonStringSerializer();
+        private static BsonStringSerializer __instance = new BsonStringSerializer();
 
         // constructors
         /// <summary>
@@ -1394,7 +1394,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonStringSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1449,7 +1449,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonSymbolSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonSymbolSerializer instance = new BsonSymbolSerializer();
+        private static BsonSymbolSerializer __instance = new BsonSymbolSerializer();
 
         // constructors
         /// <summary>
@@ -1465,7 +1465,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonSymbolSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1536,7 +1536,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonTimestampSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonTimestampSerializer instance = new BsonTimestampSerializer();
+        private static BsonTimestampSerializer __instance = new BsonTimestampSerializer();
 
         // constructors
         /// <summary>
@@ -1552,7 +1552,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonTimestampSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1607,7 +1607,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonUndefinedSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonUndefinedSerializer instance = new BsonUndefinedSerializer();
+        private static BsonUndefinedSerializer __instance = new BsonUndefinedSerializer();
 
         // constructors
         /// <summary>
@@ -1623,7 +1623,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonUndefinedSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1678,7 +1678,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonValueSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BsonValueSerializer instance = new BsonValueSerializer();
+        private static BsonValueSerializer __instance = new BsonValueSerializer();
 
         // constructors
         /// <summary>
@@ -1694,7 +1694,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BsonValueSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods

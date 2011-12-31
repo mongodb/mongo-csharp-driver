@@ -26,8 +26,8 @@ namespace MongoDB.Bson
     public static class BsonDefaults
     {
         // private static fields
-        private static GuidRepresentation guidRepresentation = GuidRepresentation.CSharpLegacy;
-        private static int maxDocumentSize = 4 * 1024 * 1024; // 4MiB
+        private static GuidRepresentation __guidRepresentation = GuidRepresentation.CSharpLegacy;
+        private static int __maxDocumentSize = 4 * 1024 * 1024; // 4MiB
 
         // public static properties
         /// <summary>
@@ -37,17 +37,17 @@ namespace MongoDB.Bson
         /// </summary>
         public static GuidRepresentation GuidRepresentation
         {
-            get { return guidRepresentation; }
-            set { guidRepresentation = value; }
+            get { return __guidRepresentation; }
+            set { __guidRepresentation = value; }
         }
 
         /// <summary>
-        /// Gets or sets the default max document size. The default it 4MB.
+        /// Gets or sets the default max document size. The default is 4MiB.
         /// </summary>
         public static int MaxDocumentSize
         {
-            get { return maxDocumentSize; }
-            set { maxDocumentSize = value; }
+            get { return __maxDocumentSize; }
+            set { __maxDocumentSize = value; }
         }
     }
 }

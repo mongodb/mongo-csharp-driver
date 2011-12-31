@@ -26,8 +26,8 @@ namespace MongoDB.Bson
     public static class BsonSymbolTable
     {
         // private static fields
-        private static object staticLock = new object();
-        private static Dictionary<string, BsonSymbol> symbolTable = new Dictionary<string, BsonSymbol>();
+        private static object __staticLock = new object();
+        private static Dictionary<string, BsonSymbol> __symbolTable = new Dictionary<string, BsonSymbol>();
 
         // public static methods
         /// <summary>
@@ -37,13 +37,13 @@ namespace MongoDB.Bson
         /// <returns>The symbol.</returns>
         public static BsonSymbol Lookup(string name)
         {
-            lock (staticLock)
+            lock (__staticLock)
             {
                 BsonSymbol symbol;
-                if (!symbolTable.TryGetValue(name, out symbol))
+                if (!__symbolTable.TryGetValue(name, out symbol))
                 {
                     symbol = new BsonSymbol(name);
-                    symbolTable[name] = symbol;
+                    __symbolTable[name] = symbol;
                 }
                 return symbol;
             }

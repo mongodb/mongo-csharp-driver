@@ -29,8 +29,8 @@ namespace MongoDB.Driver.Wrappers
     public abstract class BaseWrapper : IBsonSerializable
     {
         // private fields
-        private Type nominalType;
-        private object obj;
+        private Type _nominalType;
+        private object _obj;
 
         // constructors
         /// <summary>
@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Wrappers
         /// <param name="obj">The wrapped object.</param>
         protected BaseWrapper(object obj)
         {
-            this.nominalType = obj.GetType();
-            this.obj = obj;
+            _nominalType = obj.GetType();
+            _obj = obj;
         }
 
         /// <summary>
@@ -50,8 +50,8 @@ namespace MongoDB.Driver.Wrappers
         /// <param name="obj">The wrapped object.</param>
         protected BaseWrapper(Type nominalType, object obj)
         {
-            this.nominalType = nominalType;
-            this.obj = obj;
+            _nominalType = nominalType;
+            _obj = obj;
         }
 
         // public methods
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Wrappers
         /// <param name="options">The serialization options.</param>
         public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            BsonSerializer.Serialize(bsonWriter, this.nominalType, obj, options); // use wrapped nominalType
+            BsonSerializer.Serialize(bsonWriter, _nominalType, _obj, options); // use wrapped nominalType
         }
 
         /// <summary>

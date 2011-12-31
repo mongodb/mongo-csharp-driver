@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Builders
     public class IndexKeysBuilder : BuilderBase, IMongoIndexKeys
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public IndexKeysBuilder()
         {
-            document = new BsonDocument();
+            _document = new BsonDocument();
         }
 
         // public methods
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Builders
         {
             foreach (var name in names)
             {
-                document.Add(name, 1);
+                _document.Add(name, 1);
             }
             return this;
         }
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Builders
         {
             foreach (var name in names)
             {
-                document.Add(name, -1);
+                _document.Add(name, -1);
             }
             return this;
         }
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexKeysBuilder GeoSpatial(string name)
         {
-            document.Add(name, "2d");
+            _document.Add(name, "2d");
             return this;
         }
 
@@ -159,8 +159,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public IndexKeysBuilder GeoSpatialHaystack(string name, string additionalName)
         {
-            document.Add(name, "geoHaystack");
-            document.Add(additionalName, 1, additionalName != null);
+            _document.Add(name, "geoHaystack");
+            _document.Add(additionalName, 1, additionalName != null);
             return this;
         }
 
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
-            return document;
+            return _document;
         }
 
         // protected methods
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            document.Serialize(bsonWriter, nominalType, options);
+            _document.Serialize(bsonWriter, nominalType, options);
         }
     }
 }

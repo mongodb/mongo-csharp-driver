@@ -29,16 +29,16 @@ namespace MongoDB.BsonUnitTests.IO
     [TestFixture]
     public class BsonBufferValueStraddlesChunksTests
     {
-        private static int chunkSize = 16 * 1024; // 16KiB
-        private static int used = 16;
-        private static int filler = chunkSize - used;
+        private static int __chunkSize = 16 * 1024; // 16KiB
+        private static int __used = 16;
+        private static int __filler = __chunkSize - __used;
 
         [Test]
         public void TestNameStraddles()
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "yyyyyyyy", 1 }
             };
 
@@ -52,7 +52,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", new BsonArray { 1, 2, 3, 4 } }
             };
 
@@ -66,7 +66,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", new BsonBinaryData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }) }
             };
 
@@ -80,7 +80,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler - 4) },
+                { "x", new string('x', __filler - 4) },
                 { "y", new BsonBinaryData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }) }
             };
 
@@ -94,7 +94,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", DateTime.UtcNow }
             };
 
@@ -108,7 +108,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", new BsonDocument { { "a", 1 }, { "b", 2 } } }
             };
 
@@ -122,7 +122,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", 1.0 }
             };
 
@@ -136,7 +136,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", 1 }
             };
 
@@ -150,7 +150,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", 1L }
             };
 
@@ -164,7 +164,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", new BsonJavaScript("adsfasdf") }
             };
 
@@ -178,7 +178,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler - 4) },
+                { "x", new string('x', __filler - 4) },
                 { "y", new BsonJavaScript("adsfasdf") }
             };
 
@@ -192,7 +192,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", new BsonJavaScriptWithScope("adsfasdf", new BsonDocument("a", 1)) }
             };
 
@@ -206,7 +206,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler - 4) },
+                { "x", new string('x', __filler - 4) },
                 { "y", new BsonJavaScriptWithScope("adsfasdf", new BsonDocument("a", 1)) }
             };
 
@@ -220,7 +220,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler - 8) },
+                { "x", new string('x', __filler - 8) },
                 { "y", new BsonJavaScriptWithScope("adsfasdf", new BsonDocument("a", 1)) }
             };
 
@@ -234,7 +234,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", new ObjectId(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }) }
             };
 
@@ -248,7 +248,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", "yyyyyyyy" }
             };
 
@@ -262,7 +262,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler - 4) },
+                { "x", new string('x', __filler - 4) },
                 { "y", "yyyyyyyy" }
             };
 
@@ -276,7 +276,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", "yyyyyyyy" }
             };
 
@@ -290,7 +290,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler - 4) },
+                { "x", new string('x', __filler - 4) },
                 { "y", "yyyyyyyy" }
             };
 
@@ -304,7 +304,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "x", new string('x', filler) },
+                { "x", new string('x', __filler) },
                 { "y", new BsonTimestamp(123456789012345678L) }
             };
 

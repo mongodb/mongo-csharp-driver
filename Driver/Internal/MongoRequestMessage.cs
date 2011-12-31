@@ -28,14 +28,14 @@ namespace MongoDB.Driver.Internal
     internal abstract class MongoRequestMessage : MongoMessage, IDisposable
     {
         // private static fields
-        private static int lastRequestId = 0;
+        private static int __lastRequestId = 0;
 
         // protected fields
-        protected bool disposed = false;
-        protected BsonBuffer buffer;
-        protected BsonBinaryWriterSettings writerSettings;
-        protected bool disposeBuffer;
-        protected int messageStartPosition = -1; // start position in buffer for backpatching messageLength
+        protected bool _disposed = false;
+        protected BsonBuffer _buffer;
+        protected BsonBinaryWriterSettings _writerSettings;
+        protected bool _disposeBuffer;
+        protected int _messageStartPosition = -1; // start position in buffer for backpatching messageLength
 
         // constructors
         protected MongoRequestMessage(MessageOpcode opcode, BsonBuffer buffer, BsonBinaryWriterSettings writerSettings)
@@ -44,40 +44,40 @@ namespace MongoDB.Driver.Internal
             // buffer is not null if piggybacking this message onto an existing buffer
             if (buffer == null)
             {
-                this.buffer = new BsonBuffer();
-                this.disposeBuffer = true; // only call Dispose if we allocated the buffer
+                _buffer = new BsonBuffer();
+                _disposeBuffer = true; // only call Dispose if we allocated the buffer
             }
             else
             {
-                this.buffer = buffer;
-                this.disposeBuffer = false;
+                _buffer = buffer;
+                _disposeBuffer = false;
             }
-            this.writerSettings = writerSettings;
-            this.requestId = Interlocked.Increment(ref lastRequestId);
+            _writerSettings = writerSettings;
+            _requestId = Interlocked.Increment(ref __lastRequestId);
         }
 
         // public properties
         public BsonBuffer Buffer
         {
-            get { return buffer; }
+            get { return _buffer; }
         }
 
         public BsonBinaryWriterSettings WriterSettings
         {
-            get { return writerSettings; }
+            get { return _writerSettings; }
         }
 
         // public methods
         public void Dispose()
         {
-            if (!disposed)
+            if (!_disposed)
             {
-                if (disposeBuffer)
+                if (_disposeBuffer)
                 {
-                    buffer.Dispose();
+                    _buffer.Dispose();
                 }
-                buffer = null;
-                disposed = true;
+                _buffer = null;
+                _disposed = true;
             }
         }
 
@@ -87,10 +87,10 @@ namespace MongoDB.Driver.Internal
             // normally this method is only called once (from MongoConnection.SendMessage)
             // but in the case of InsertBatch it is called before SendMessage is called to initialize the message so that AddDocument can be called
             // therefore we need the if statement to ignore subsequent calls from SendMessage
-            if (messageStartPosition == -1)
+            if (_messageStartPosition == -1)
             {
-                messageStartPosition = buffer.Position;
-                WriteMessageHeaderTo(buffer);
+                _messageStartPosition = _buffer.Position;
+                WriteMessageHeaderTo(_buffer);
                 WriteBody();
                 BackpatchMessageLength();
             }
@@ -99,8 +99,8 @@ namespace MongoDB.Driver.Internal
         // protected methods
         protected void BackpatchMessageLength()
         {
-            messageLength = buffer.Position - messageStartPosition;
-            buffer.Backpatch(messageStartPosition, messageLength);
+            _messageLength = _buffer.Position - _messageStartPosition;
+            _buffer.Backpatch(_messageStartPosition, _messageLength);
         }
 
         protected abstract void WriteBody();

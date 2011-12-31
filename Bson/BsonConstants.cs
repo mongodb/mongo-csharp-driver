@@ -26,17 +26,17 @@ namespace MongoDB.Bson
     public static class BsonConstants
     {
         // private static fields
-        private static readonly long dateTimeMaxValueMillisecondsSinceEpoch;
-        private static readonly long dateTimeMinValueMillisecondsSinceEpoch;
-        private static readonly DateTime unixEpoch;
+        private static readonly long __dateTimeMaxValueMillisecondsSinceEpoch;
+        private static readonly long __dateTimeMinValueMillisecondsSinceEpoch;
+        private static readonly DateTime __unixEpoch;
 
         // static constructor
         static BsonConstants()
         {
             // unixEpoch has to be initialized first
-            unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            dateTimeMaxValueMillisecondsSinceEpoch = (DateTime.MaxValue - unixEpoch).Ticks / 10000;
-            dateTimeMinValueMillisecondsSinceEpoch = (DateTime.MinValue - unixEpoch).Ticks / 10000;
+            __unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            __dateTimeMaxValueMillisecondsSinceEpoch = (DateTime.MaxValue - __unixEpoch).Ticks / 10000;
+            __dateTimeMinValueMillisecondsSinceEpoch = (DateTime.MinValue - __unixEpoch).Ticks / 10000;
         }
 
         // public static properties
@@ -45,7 +45,7 @@ namespace MongoDB.Bson
         /// </summary>
         public static long DateTimeMaxValueMillisecondsSinceEpoch
         {
-            get { return dateTimeMaxValueMillisecondsSinceEpoch; }
+            get { return __dateTimeMaxValueMillisecondsSinceEpoch; }
         }
 
         /// <summary>
@@ -53,12 +53,12 @@ namespace MongoDB.Bson
         /// </summary>
         public static long DateTimeMinValueMillisecondsSinceEpoch
         {
-            get { return dateTimeMinValueMillisecondsSinceEpoch; }
+            get { return __dateTimeMinValueMillisecondsSinceEpoch; }
         }
 
         /// <summary>
         /// Gets the Unix Epoch for BSON DateTimes (1970-01-01).
         /// </summary>
-        public static DateTime UnixEpoch { get { return unixEpoch; } }
+        public static DateTime UnixEpoch { get { return __unixEpoch; } }
     }
 }

@@ -32,7 +32,7 @@ namespace MongoDB.Driver
     public abstract class GeoHaystackSearchResult : CommandResult
     {
         // private fields
-        private GeoHaystackSearchStats stats;
+        private GeoHaystackSearchStats _stats;
 
         // constructors
         /// <summary>
@@ -58,11 +58,11 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (stats == null)
+                if (_stats == null)
                 {
-                    stats = new GeoHaystackSearchStats(response["stats"].AsBsonDocument);
+                    _stats = new GeoHaystackSearchStats(_response["stats"].AsBsonDocument);
                 }
-                return stats;
+                return _stats;
             }
         }
 
@@ -143,7 +143,7 @@ namespace MongoDB.Driver
         public abstract class GeoHaystackSearchHit
         {
             // private fields
-            private BsonDocument hit;
+            private BsonDocument _hit;
 
             // constructors
             /// <summary>
@@ -152,7 +152,7 @@ namespace MongoDB.Driver
             /// <param name="hit">The hit.</param>
             public GeoHaystackSearchHit(BsonDocument hit)
             {
-                this.hit = hit;
+                _hit = hit;
             }
 
             // public properties
@@ -169,7 +169,7 @@ namespace MongoDB.Driver
             /// </summary>
             public BsonDocument RawDocument
             {
-                get { return hit; }
+                get { return _hit; }
             }
 
             // protected properties
@@ -185,7 +185,7 @@ namespace MongoDB.Driver
         public class GeoHaystackSearchStats
         {
             // private fields
-            private BsonDocument stats;
+            private BsonDocument _stats;
 
             // constructors
             /// <summary>
@@ -194,7 +194,7 @@ namespace MongoDB.Driver
             /// <param name="stats">The stats.</param>
             public GeoHaystackSearchStats(BsonDocument stats)
             {
-                this.stats = stats;
+                _stats = stats;
             }
 
             // public properties
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
             /// </summary>
             public int BTreeMatches
             {
-                get { return stats["btreeMatches"].ToInt32(); }
+                get { return _stats["btreeMatches"].ToInt32(); }
             }
 
             /// <summary>
@@ -211,7 +211,7 @@ namespace MongoDB.Driver
             /// </summary>
             public TimeSpan Duration
             {
-                get { return TimeSpan.FromMilliseconds(stats["time"].ToInt32()); }
+                get { return TimeSpan.FromMilliseconds(_stats["time"].ToInt32()); }
             }
 
             /// <summary>
@@ -219,7 +219,7 @@ namespace MongoDB.Driver
             /// </summary>
             public int NumberOfHits
             {
-                get { return stats["n"].ToInt32(); }
+                get { return _stats["n"].ToInt32(); }
             }
         }
     }
@@ -232,7 +232,7 @@ namespace MongoDB.Driver
     public class GeoHaystackSearchResult<TDocument> : GeoHaystackSearchResult
     {
         // private fields
-        private GeoHaystackSearchHits hits;
+        private GeoHaystackSearchHits _hits;
 
         // constructors
         /// <summary>
@@ -250,11 +250,11 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (hits == null)
+                if (_hits == null)
                 {
-                    hits = new GeoHaystackSearchHits(response["results"].AsBsonArray);
+                    _hits = new GeoHaystackSearchHits(_response["results"].AsBsonArray);
                 }
-                return hits;
+                return _hits;
             }
         }
 
@@ -274,7 +274,7 @@ namespace MongoDB.Driver
         public new class GeoHaystackSearchHits : GeoHaystackSearchResult.GeoHaystackSearchHits, IEnumerable<GeoHaystackSearchHit>
         {
             // private fields
-            private List<GeoHaystackSearchHit> hits;
+            private List<GeoHaystackSearchHit> _hits;
 
             // constructors
             /// <summary>
@@ -283,7 +283,7 @@ namespace MongoDB.Driver
             /// <param name="hits">The hits.</param>
             public GeoHaystackSearchHits(BsonArray hits)
             {
-                this.hits = hits.Select(h => new GeoHaystackSearchHit(h.AsBsonDocument)).ToList();
+                _hits = hits.Select(h => new GeoHaystackSearchHit(h.AsBsonDocument)).ToList();
             }
 
             // public properties
@@ -292,7 +292,7 @@ namespace MongoDB.Driver
             /// </summary>
             public override int Count
             {
-                get { return hits.Count; }
+                get { return _hits.Count; }
             }
 
             // indexers
@@ -303,7 +303,7 @@ namespace MongoDB.Driver
             /// <returns>The hit.</returns>
             public new GeoHaystackSearchHit this[int index]
             {
-                get { return hits[index]; }
+                get { return _hits[index]; }
             }
 
             // public methods
@@ -313,7 +313,7 @@ namespace MongoDB.Driver
             /// <returns>An enumerator.</returns>
             public new IEnumerator<GeoHaystackSearchHit> GetEnumerator()
             {
-                return hits.GetEnumerator();
+                return _hits.GetEnumerator();
             }
 
             // protected methods
@@ -324,7 +324,7 @@ namespace MongoDB.Driver
             /// <returns>The hit.</returns>
             protected override GeoHaystackSearchResult.GeoHaystackSearchHit GetHitImplementation(int index)
             {
-                return hits[index];
+                return _hits[index];
             }
 
             /// <summary>
@@ -333,7 +333,7 @@ namespace MongoDB.Driver
             /// <returns>An enumerator.</returns>
             protected override IEnumerator<GeoHaystackSearchResult.GeoHaystackSearchHit> GetEnumeratorImplementation()
             {
-                return hits.Cast<GeoHaystackSearchResult.GeoHaystackSearchHit>().GetEnumerator();
+                return _hits.Cast<GeoHaystackSearchResult.GeoHaystackSearchHit>().GetEnumerator();
             }
         }
 

@@ -39,16 +39,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp134
         }
 #pragma warning restore
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<C> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("csharp134");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection<C>("csharp134");
         }
 
         [Test]
@@ -56,10 +56,10 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp134
         {
             var dbRef = new MongoDBRef("test", ObjectId.GenerateNewId());
             var c = new C { DbRef = dbRef };
-            collection.RemoveAll();
-            collection.Insert(c);
+            _collection.RemoveAll();
+            _collection.Insert(c);
 
-            var rehydrated = collection.FindOne();
+            var rehydrated = _collection.FindOne();
             Assert.IsNull(rehydrated.DbRef.DatabaseName);
             Assert.AreEqual(dbRef.CollectionName, rehydrated.DbRef.CollectionName);
             Assert.AreEqual(dbRef.Id, rehydrated.DbRef.Id);

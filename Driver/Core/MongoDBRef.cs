@@ -32,9 +32,9 @@ namespace MongoDB.Driver
     public class MongoDBRef : IBsonSerializable
     {
         // private fields
-        private string databaseName;
-        private string collectionName;
-        private BsonValue id;
+        private string _databaseName;
+        private string _collectionName;
+        private BsonValue _id;
 
         // constructors
         // default constructor is private and only used for deserialization
@@ -49,8 +49,8 @@ namespace MongoDB.Driver
         /// <param name="id">The Id of the document.</param>
         public MongoDBRef(string collectionName, BsonValue id)
         {
-            this.collectionName = collectionName;
-            this.id = id;
+            _collectionName = collectionName;
+            _id = id;
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace MongoDB.Driver
         /// <param name="id">The Id of the document.</param>
         public MongoDBRef(string databaseName, string collectionName, BsonValue id)
         {
-            this.databaseName = databaseName;
-            this.collectionName = collectionName;
-            this.id = id;
+            _databaseName = databaseName;
+            _collectionName = collectionName;
+            _id = id;
         }
 
         // public properties
@@ -72,7 +72,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string DatabaseName
         {
-            get { return databaseName; }
+            get { return _databaseName; }
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string CollectionName
         {
-            get { return collectionName; }
+            get { return _collectionName; }
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonValue Id
         {
-            get { return id; }
+            get { return _id; }
         }
 
         // explicit interface implementations
@@ -110,13 +110,13 @@ namespace MongoDB.Driver
                     switch (name)
                     {
                         case "$ref":
-                            collectionName = bsonReader.ReadString();
+                            _collectionName = bsonReader.ReadString();
                             break;
                         case "$id":
-                            id = BsonValue.ReadFrom(bsonReader); ;
+                            _id = BsonValue.ReadFrom(bsonReader); ;
                             break;
                         case "$db":
-                            databaseName = bsonReader.ReadString();
+                            _databaseName = bsonReader.ReadString();
                             break;
                         default:
                             message = string.Format("Element '{0}' is not valid for DBRef.", name);
@@ -136,12 +136,12 @@ namespace MongoDB.Driver
         void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             bsonWriter.WriteStartDocument();
-            bsonWriter.WriteString("$ref", collectionName);
+            bsonWriter.WriteString("$ref", _collectionName);
             bsonWriter.WriteName("$id");
-            id.WriteTo(bsonWriter);
-            if (databaseName != null)
+            _id.WriteTo(bsonWriter);
+            if (_databaseName != null)
             {
-                bsonWriter.WriteString("$db", databaseName);
+                bsonWriter.WriteString("$db", _databaseName);
             }
             bsonWriter.WriteEndDocument();
         }

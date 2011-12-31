@@ -43,7 +43,7 @@ namespace MongoDB.Driver
         /// </summary>
         public double AverageObjectSize
         {
-            get { return response["avgObjSize"].ToDouble(); }
+            get { return _response["avgObjSize"].ToDouble(); }
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int CollectionCount
         {
-            get { return response["collections"].ToInt32(); }
+            get { return _response["collections"].ToInt32(); }
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long DataSize
         {
-            get { return response["dataSize"].ToInt64(); }
+            get { return _response["dataSize"].ToInt64(); }
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int ExtentCount
         {
-            get { return response["numExtents"].ToInt32(); }
+            get { return _response["numExtents"].ToInt32(); }
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long FileSize
         {
-            get { return response["fileSize"].ToInt64(); }
+            get { return _response["fileSize"].ToInt64(); }
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int IndexCount
         {
-            get { return response["indexes"].ToInt32(); }
+            get { return _response["indexes"].ToInt32(); }
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long IndexSize
         {
-            get { return response["indexSize"].ToInt64(); }
+            get { return _response["indexSize"].ToInt64(); }
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long ObjectCount
         {
-            get { return response["objects"].ToInt64(); }
+            get { return _response["objects"].ToInt64(); }
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long StorageSize
         {
-            get { return response["storageSize"].ToInt64(); }
+            get { return _response["storageSize"].ToInt64(); }
         }
     }
 }

@@ -28,25 +28,25 @@ namespace MongoDB.DriverOnlineTests.CommandResults
     [TestFixture]
     public class DatabaseStatsResultTests
     {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["driveronlinetests"];
-            collection = database["test"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["driveronlinetests"];
+            _collection = _database["test"];
         }
 
         [Test]
         public void Test()
         {
             // make sure collection and database exist
-            collection.Insert(new BsonDocument());
+            _collection.Insert(new BsonDocument());
 
-            var result = database.GetStats();
+            var result = _database.GetStats();
             Assert.IsTrue(result.Ok);
             Assert.IsTrue(result.AverageObjectSize > 0);
             Assert.IsTrue(result.CollectionCount > 0);

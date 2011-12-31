@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonKnownTypesAttribute : Attribute
     {
         // private fields
-        private Type[] knownTypes;
+        private Type[] _knownTypes;
 
         // constructors
         /// <summary>
@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="knownTypes">One or more known types.</param>
         public BsonKnownTypesAttribute(params Type[] knownTypes)
         {
-            this.knownTypes = knownTypes;
+            _knownTypes = knownTypes;
         }
 
         // public properties
@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public Type[] KnownTypes
         {
-            get { return knownTypes; }
+            get { return _knownTypes; }
         }
     }
 }

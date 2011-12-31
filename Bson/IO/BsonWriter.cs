@@ -32,27 +32,27 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Whether the object has been disposed.
         /// </summary>
-        protected bool disposed = false;
+        protected bool _disposed = false;
         /// <summary>
         /// The settings of the writer.
         /// </summary>
-        protected BsonWriterSettings settings;
+        protected BsonWriterSettings _settings;
         /// <summary>
         /// The current state of the writer.
         /// </summary>
-        protected BsonWriterState state;
+        protected BsonWriterState _state;
         /// <summary>
         /// The name of the current element.
         /// </summary>
-        protected string name;
+        protected string _name;
         /// <summary>
         /// Whether to check element names (no periods or leading $).
         /// </summary>
-        protected bool checkElementNames;
+        protected bool _checkElementNames;
         /// <summary>
         /// Whether to check an update document (turns CheckElementNames on if first element name does *not* start with $).
         /// </summary>
-        protected bool checkUpdateDocument;
+        protected bool _checkUpdateDocument;
 
         // constructors
         /// <summary>
@@ -61,8 +61,8 @@ namespace MongoDB.Bson.IO
         /// <param name="settings">The writer settings.</param>
         protected BsonWriter(BsonWriterSettings settings)
         {
-            this.settings = settings.FrozenCopy();
-            this.state = BsonWriterState.Initial;
+            _settings = settings.FrozenCopy();
+            _state = BsonWriterState.Initial;
         }
 
         // public properties
@@ -71,8 +71,8 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public bool CheckElementNames
         {
-            get { return checkElementNames; }
-            set { checkElementNames = value; }
+            get { return _checkElementNames; }
+            set { _checkElementNames = value; }
         }
 
         /// <summary>
@@ -80,8 +80,8 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public bool CheckUpdateDocument
         {
-            get { return checkUpdateDocument; }
-            set { checkUpdateDocument = value; }
+            get { return _checkUpdateDocument; }
+            set { _checkUpdateDocument = value; }
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonWriterSettings Settings
         {
-            get { return settings; }
+            get { return _settings; }
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonWriterState State
         {
-            get { return state; }
+            get { return _state; }
         }
 
         // public static methods
@@ -206,10 +206,10 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public void Dispose()
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 Dispose(true);
-                disposed = true;
+                _disposed = true;
             }
         }
 
@@ -427,15 +427,15 @@ namespace MongoDB.Bson.IO
         /// <param name="name">The name of the element.</param>
         public virtual void WriteName(string name)
         {
-            if (disposed) { throw new ObjectDisposedException(this.GetType().Name); }
-            if (state != BsonWriterState.Name)
+            if (_disposed) { throw new ObjectDisposedException(this.GetType().Name); }
+            if (_state != BsonWriterState.Name)
             {
                 ThrowInvalidState("WriteName", BsonWriterState.Name);
             }
             CheckElementName(name);
 
-            this.name = name;
-            state = BsonWriterState.Value;
+            _name = name;
+            _state = BsonWriterState.Value;
         }
 
         /// <summary>
@@ -598,14 +598,14 @@ namespace MongoDB.Bson.IO
         /// <param name="name">The element name to be checked.</param>
         protected void CheckElementName(string name)
         {
-            if (checkUpdateDocument)
+            if (_checkUpdateDocument)
             {
-                checkElementNames = !name.StartsWith("$");
-                checkUpdateDocument = false;
+                _checkElementNames = !name.StartsWith("$");
+                _checkUpdateDocument = false;
                 return;
             }
 
-            if (checkElementNames)
+            if (_checkElementNames)
             {
                 if (name.StartsWith("$"))
                 {
@@ -661,7 +661,7 @@ namespace MongoDB.Bson.IO
         protected void ThrowInvalidState(string methodName, params BsonWriterState[] validStates)
         {
             string message;
-            if (state == BsonWriterState.Initial || state == BsonWriterState.ScopeDocument || state == BsonWriterState.Done)
+            if (_state == BsonWriterState.Initial || _state == BsonWriterState.ScopeDocument || _state == BsonWriterState.Done)
             {
                 if (!methodName.StartsWith("End") && methodName != "WriteName")
                 {
@@ -685,7 +685,7 @@ namespace MongoDB.Bson.IO
             var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
             message = string.Format(
                 "{0} can only be called when State is {1}, not when State is {2}",
-                methodName, validStatesString, state);
+                methodName, validStatesString, _state);
             throw new InvalidOperationException(message);
         }
     }

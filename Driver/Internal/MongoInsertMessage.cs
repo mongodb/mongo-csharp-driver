@@ -29,28 +29,28 @@ namespace MongoDB.Driver.Internal
     internal class MongoInsertMessage : MongoRequestMessage
     {
         // private fields
-        private string collectionFullName;
-        private bool checkElementNames;
-        private InsertFlags flags;
-        private int firstDocumentStartPosition;
-        private int lastDocumentStartPosition;
+        private string _collectionFullName;
+        private bool _checkElementNames;
+        private InsertFlags _flags;
+        private int _firstDocumentStartPosition;
+        private int _lastDocumentStartPosition;
 
         // constructors
         internal MongoInsertMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, bool checkElementNames, InsertFlags flags)
             : base(MessageOpcode.Insert, null, writerSettings)
         {
-            this.collectionFullName = collectionFullName;
-            this.checkElementNames = checkElementNames;
-            this.flags = flags;
+            _collectionFullName = collectionFullName;
+            _checkElementNames = checkElementNames;
+            _flags = flags;
         }
 
         // internal methods
         internal void AddDocument(Type nominalType, object document)
         {
-            lastDocumentStartPosition = buffer.Position;
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings))
+            _lastDocumentStartPosition = _buffer.Position;
+            using (var bsonWriter = BsonWriter.Create(_buffer, _writerSettings))
             {
-                bsonWriter.CheckElementNames = checkElementNames;
+                bsonWriter.CheckElementNames = _checkElementNames;
                 BsonSerializer.Serialize(bsonWriter, nominalType, document, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
             BackpatchMessageLength();
@@ -58,10 +58,10 @@ namespace MongoDB.Driver.Internal
 
         internal byte[] RemoveLastDocument()
         {
-            var lastDocumentLength = (int)(buffer.Position - lastDocumentStartPosition);
+            var lastDocumentLength = (int)(_buffer.Position - _lastDocumentStartPosition);
             var lastDocument = new byte[lastDocumentLength];
-            buffer.CopyTo(lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
-            buffer.Position = lastDocumentStartPosition;
+            _buffer.CopyTo(_lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
+            _buffer.Position = _lastDocumentStartPosition;
             BackpatchMessageLength();
 
             return lastDocument;
@@ -69,17 +69,17 @@ namespace MongoDB.Driver.Internal
 
         internal void ResetBatch(byte[] lastDocument)
         {
-            buffer.Position = firstDocumentStartPosition;
-            buffer.WriteBytes(lastDocument);
+            _buffer.Position = _firstDocumentStartPosition;
+            _buffer.WriteBytes(lastDocument);
             BackpatchMessageLength();
         }
 
         // protected methods
         protected override void WriteBody()
         {
-            buffer.WriteInt32((int)flags);
-            buffer.WriteCString(collectionFullName);
-            firstDocumentStartPosition = buffer.Position;
+            _buffer.WriteInt32((int)_flags);
+            _buffer.WriteCString(_collectionFullName);
+            _firstDocumentStartPosition = _buffer.Position;
             // documents to be added later by calling AddDocument
         }
     }

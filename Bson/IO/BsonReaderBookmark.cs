@@ -29,15 +29,15 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// The state of the reader.
         /// </summary>
-        protected BsonReaderState state;
+        protected BsonReaderState _state;
         /// <summary>
         /// The current BSON type.
         /// </summary>
-        protected BsonType currentBsonType;
+        protected BsonType _currentBsonType;
         /// <summary>
         /// The name of the current element.
         /// </summary>
-        protected string currentName;
+        protected string _currentName;
 
         // constructors
         /// <summary>
@@ -48,9 +48,9 @@ namespace MongoDB.Bson.IO
         /// <param name="currentName">The name of the current element.</param>
         protected BsonReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName)
         {
-            this.state = state;
-            this.currentBsonType = currentBsonType;
-            this.currentName = currentName;
+            _state = state;
+            _currentBsonType = currentBsonType;
+            _currentName = currentName;
         }
 
         // public properties
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonReaderState State
         {
-            get { return state; }
+            get { return _state; }
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonType CurrentBsonType
         {
-            get { return currentBsonType; }
+            get { return _currentBsonType; }
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public string CurrentName
         {
-            get { return currentName; }
+            get { return _currentName; }
         }
     }
 }

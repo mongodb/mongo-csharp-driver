@@ -31,7 +31,7 @@ namespace MongoDB.Bson
     public class BsonArray : BsonValue, IComparable<BsonArray>, IEquatable<BsonArray>, IList<BsonValue>
     {
         // private fields
-        private List<BsonValue> values;
+        private List<BsonValue> _values;
 
         // constructors
         /// <summary>
@@ -139,7 +139,7 @@ namespace MongoDB.Bson
         public BsonArray(int capacity)
             : base(BsonType.Array)
         {
-            values = new List<BsonValue>(capacity);
+            _values = new List<BsonValue>(capacity);
         }
 
         // public operators
@@ -172,8 +172,8 @@ namespace MongoDB.Bson
         /// </summary>
         public int Capacity
         {
-            get { return values.Capacity; }
-            set { values.Capacity = value; }
+            get { return _values.Capacity; }
+            set { _values.Capacity = value; }
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Count
         {
-            get { return values.Count; }
+            get { return _values.Count; }
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace MongoDB.Bson
         /// </summary>
         public IEnumerable<object> RawValues
         {
-            get { return values.Select(v => v.RawValue); }
+            get { return _values.Select(v => v.RawValue); }
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace MongoDB.Bson
         /// </summary>
         public IEnumerable<BsonValue> Values
         {
-            get { return values; }
+            get { return _values; }
         }
 
         // public indexers
@@ -216,8 +216,8 @@ namespace MongoDB.Bson
         /// <returns>The value of the element.</returns>
         public BsonValue this[int index]
         {
-            get { return values[index]; }
-            set { values[index] = value; }
+            get { return _values[index]; }
+            set { _values[index] = value; }
         }
 
         // public static methods
@@ -419,7 +419,7 @@ namespace MongoDB.Bson
         {
             if (value != null)
             {
-                values.Add(value);
+                _values.Add(value);
             }
             return this;
         }
@@ -435,7 +435,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    this.values.Add(BsonBoolean.Create(value));
+                    _values.Add(BsonBoolean.Create(value));
                 }
             }
             return this;
@@ -450,7 +450,7 @@ namespace MongoDB.Bson
         {
             if (values != null)
             {
-                this.values.AddRange(values);
+                _values.AddRange(values);
             }
             return this;
         }
@@ -466,7 +466,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    this.values.Add(BsonDateTime.Create(value));
+                    _values.Add(BsonDateTime.Create(value));
                 }
             }
             return this;
@@ -483,7 +483,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    this.values.Add(BsonDouble.Create(value));
+                    _values.Add(BsonDouble.Create(value));
                 }
             }
             return this;
@@ -500,7 +500,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    this.values.Add(BsonInt32.Create(value));
+                    _values.Add(BsonInt32.Create(value));
                 }
             }
             return this;
@@ -517,7 +517,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    this.values.Add(BsonInt64.Create(value));
+                    _values.Add(BsonInt64.Create(value));
                 }
             }
             return this;
@@ -534,7 +534,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    this.values.Add(BsonObjectId.Create(value));
+                    _values.Add(BsonObjectId.Create(value));
                 }
             }
             return this;
@@ -551,7 +551,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    this.values.Add(BsonString.Create(value));
+                    _values.Add(BsonString.Create(value));
                 }
             }
             return this;
@@ -568,7 +568,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    this.values.Add(BsonValue.Create(value));
+                    _values.Add(BsonValue.Create(value));
                 }
             }
             return this;
@@ -580,8 +580,8 @@ namespace MongoDB.Bson
         /// <returns>A shallow clone of the array.</returns>
         public override BsonValue Clone()
         {
-            var clone = new BsonArray(values.Capacity);
-            foreach (var value in values)
+            var clone = new BsonArray(_values.Capacity);
+            foreach (var value in _values)
             {
                 clone.Add(value.Clone());
             }
@@ -593,7 +593,7 @@ namespace MongoDB.Bson
         /// </summary>
         public void Clear()
         {
-            values.Clear();
+            _values.Clear();
         }
 
         /// <summary>
@@ -604,12 +604,12 @@ namespace MongoDB.Bson
         public int CompareTo(BsonArray other)
         {
             if (other == null) { return 1; }
-            for (int i = 0; i < values.Count && i < other.values.Count; i++)
+            for (int i = 0; i < _values.Count && i < other._values.Count; i++)
             {
-                int r = values[i].CompareTo(other.values[i]);
+                int r = _values[i].CompareTo(other._values[i]);
                 if (r != 0) { return r; }
             }
-            return values.Count.CompareTo(other.values.Count);
+            return _values.Count.CompareTo(other._values.Count);
         }
 
         /// <summary>
@@ -635,7 +635,7 @@ namespace MongoDB.Bson
         /// <returns>True if the array contains the value.</returns>
         public bool Contains(BsonValue value)
         {
-            return values.Contains(value);
+            return _values.Contains(value);
         }
 
         /// <summary>
@@ -645,9 +645,9 @@ namespace MongoDB.Bson
         /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
         public void CopyTo(BsonValue[] array, int arrayIndex)
         {
-            for (int i = 0, j = arrayIndex; i < values.Count; i++, j++)
+            for (int i = 0, j = arrayIndex; i < _values.Count; i++, j++)
             {
-                array[j] = values[i];
+                array[j] = _values[i];
             }
         }
 
@@ -658,9 +658,9 @@ namespace MongoDB.Bson
         /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
         public void CopyTo(object[] array, int arrayIndex)
         {
-            for (int i = 0, j = arrayIndex; i < values.Count; i++, j++)
+            for (int i = 0, j = arrayIndex; i < _values.Count; i++, j++)
             {
-                array[j] = values[i].RawValue;
+                array[j] = _values[i].RawValue;
             }
         }
 
@@ -670,8 +670,8 @@ namespace MongoDB.Bson
         /// <returns>A deep clone of the array.</returns>
         public override BsonValue DeepClone()
         {
-            var clone = new BsonArray(values.Capacity);
-            foreach (var value in values)
+            var clone = new BsonArray(_values.Capacity);
+            foreach (var value in _values)
             {
                 clone.Add(value.DeepClone());
             }
@@ -686,7 +686,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonArray rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return object.ReferenceEquals(this, rhs) || this.values.SequenceEqual(rhs.values);
+            return object.ReferenceEquals(this, rhs) || _values.SequenceEqual(rhs._values);
         }
 
         /// <summary>
@@ -705,7 +705,7 @@ namespace MongoDB.Bson
         /// <returns>An enumerator.</returns>
         public IEnumerator<BsonValue> GetEnumerator()
         {
-            return values.GetEnumerator();
+            return _values.GetEnumerator();
         }
 
         /// <summary>
@@ -716,8 +716,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            foreach (var value in values)
+            hash = 37 * hash + _bsonType.GetHashCode();
+            foreach (var value in _values)
             {
                 hash = 37 * hash + value.GetHashCode();
             }
@@ -731,7 +731,7 @@ namespace MongoDB.Bson
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
         public int IndexOf(BsonValue value)
         {
-            return values.IndexOf(value);
+            return _values.IndexOf(value);
         }
 
         /// <summary>
@@ -742,7 +742,7 @@ namespace MongoDB.Bson
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
         public int IndexOf(BsonValue value, int index)
         {
-            return values.IndexOf(value, index);
+            return _values.IndexOf(value, index);
         }
 
         /// <summary>
@@ -754,7 +754,7 @@ namespace MongoDB.Bson
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
         public int IndexOf(BsonValue value, int index, int count)
         {
-            return values.IndexOf(value, index, count);
+            return _values.IndexOf(value, index, count);
         }
 
         /// <summary>
@@ -764,7 +764,7 @@ namespace MongoDB.Bson
         /// <param name="value">The new value.</param>
         public void Insert(int index, BsonValue value)
         {
-            values.Insert(index, value);
+            _values.Insert(index, value);
         }
 
         /// <summary>
@@ -774,7 +774,7 @@ namespace MongoDB.Bson
         /// <returns>True if the value was removed.</returns>
         public bool Remove(BsonValue value)
         {
-            return values.Remove(value);
+            return _values.Remove(value);
         }
 
         /// <summary>
@@ -783,7 +783,7 @@ namespace MongoDB.Bson
         /// <param name="index">The zero based index of the element to remove.</param>
         public void RemoveAt(int index)
         {
-            values.RemoveAt(index);
+            _values.RemoveAt(index);
         }
 
         /// <summary>
@@ -792,7 +792,7 @@ namespace MongoDB.Bson
         /// <returns>An array of BsonValues.</returns>
         public BsonValue[] ToArray()
         {
-            return values.ToArray();
+            return _values.ToArray();
         }
 
         /// <summary>
@@ -801,7 +801,7 @@ namespace MongoDB.Bson
         /// <returns>A list of BsonValues.</returns>
         public List<BsonValue> ToList()
         {
-            return values.ToList();
+            return _values.ToList();
         }
 
         /// <summary>
@@ -812,10 +812,10 @@ namespace MongoDB.Bson
         {
             var sb = new StringBuilder();
             sb.Append("[");
-            for (int i = 0; i < values.Count; i++)
+            for (int i = 0; i < _values.Count; i++)
             {
                 if (i > 0) { sb.Append(", "); }
-                sb.Append(values[i].ToString());
+                sb.Append(_values[i].ToString());
             }
             sb.Append("]");
             return sb.ToString();
@@ -828,9 +828,9 @@ namespace MongoDB.Bson
         public new void WriteTo(BsonWriter bsonWriter)
         {
             bsonWriter.WriteStartArray();
-            for (int i = 0; i < values.Count; i++)
+            for (int i = 0; i < _values.Count; i++)
             {
-                values[i].WriteTo(bsonWriter);
+                _values[i].WriteTo(bsonWriter);
             }
             bsonWriter.WriteEndArray();
         }

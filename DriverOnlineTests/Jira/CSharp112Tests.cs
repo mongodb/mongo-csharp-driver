@@ -51,23 +51,23 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
         }
 #pragma warning restore
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database["csharp112"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
+            _collection = _database["csharp112"];
         }
 
         [Test]
         public void TestDeserializeDouble()
         {
             // test with valid values
-            collection.RemoveAll();
+            _collection.RemoveAll();
             var values = new object[]
             {
                 0,
@@ -89,18 +89,18 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                     { "_id", i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++)
             {
                 var query = Query.EQ("_id", i + 1);
-                var document = collection.FindOneAs<D>(query);
+                var document = _collection.FindOneAs<D>(query);
                 Assert.AreEqual(BsonValue.Create(values[i]).ToDouble(), document.N);
             }
 
             // test with values that cause data loss
-            collection.RemoveAll();
+            _collection.RemoveAll();
             values = new object[]
             {
                 0x7eeeeeeeeeeeeeee,
@@ -115,7 +115,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                     { "_id", i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++)
@@ -123,7 +123,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                 var query = Query.EQ("_id", i + 1);
                 try
                 {
-                    collection.FindOneAs<D>(query);
+                    _collection.FindOneAs<D>(query);
                     Assert.Fail("Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
@@ -140,7 +140,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
         public void TestDeserializeInt32()
         {
             // test with valid values
-            collection.RemoveAll();
+            _collection.RemoveAll();
             var values = new object[]
             {
                 0L,
@@ -161,18 +161,18 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                     { "_id", i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++)
             {
                 var query = Query.EQ("_id", i + 1);
-                var document = collection.FindOneAs<I>(query);
+                var document = _collection.FindOneAs<I>(query);
                 Assert.AreEqual(BsonValue.Create(values[i]).ToInt32(), document.N);
             }
 
             // test with values that cause overflow
-            collection.RemoveAll();
+            _collection.RemoveAll();
             values = new object[]
             {
                 ((long)Int32.MinValue - 1),
@@ -189,7 +189,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                     { "_id", i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++)
@@ -197,7 +197,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                 var query = Query.EQ("_id", i + 1);
                 try
                 {
-                    collection.FindOneAs<I>(query);
+                    _collection.FindOneAs<I>(query);
                     Assert.Fail("Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
@@ -210,7 +210,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             }
 
             // test with values that cause truncation
-            collection.RemoveAll();
+            _collection.RemoveAll();
             values = new object[]
             {
                 -1.5,
@@ -223,7 +223,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                     { "_id", i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++)
@@ -231,7 +231,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                 var query = Query.EQ("_id", i + 1);
                 try
                 {
-                    collection.FindOneAs<I>(query);
+                    _collection.FindOneAs<I>(query);
                     Assert.Fail("Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
@@ -248,7 +248,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
         public void TestDeserializeInt64()
         {
             // test with valid values
-            collection.RemoveAll();
+            _collection.RemoveAll();
             var values = new object[]
             {
                 0,
@@ -274,18 +274,18 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                     { "_id", i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++)
             {
                 var query = Query.EQ("_id", i + 1);
-                var document = collection.FindOneAs<L>(query);
+                var document = _collection.FindOneAs<L>(query);
                 Assert.AreEqual(BsonValue.Create(values[i]).ToInt64(), document.N);
             }
 
             // test with values that cause overflow
-            collection.RemoveAll();
+            _collection.RemoveAll();
             values = new object[]
             {
                 double.MaxValue,
@@ -298,7 +298,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                     { "_id", i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++)
@@ -306,7 +306,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                 var query = Query.EQ("_id", i + 1);
                 try
                 {
-                    collection.FindOneAs<L>(query);
+                    _collection.FindOneAs<L>(query);
                     Assert.Fail("Expected an exception to be thrown.");
                 }
                 catch (Exception ex)
@@ -319,7 +319,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             }
 
             // test with values that cause data truncation
-            collection.RemoveAll();
+            _collection.RemoveAll();
             values = new object[]
             {
                 -1.5,
@@ -332,7 +332,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                     { "_id", i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
             }
 
             for (int i = 0; i < values.Length; i++)
@@ -340,7 +340,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
                 var query = Query.EQ("_id", i + 1);
                 try
                 {
-                    collection.FindOneAs<L>(query);
+                    _collection.FindOneAs<L>(query);
                     Assert.Fail("Expected an exception to be thrown.");
                 }
                 catch (Exception ex)

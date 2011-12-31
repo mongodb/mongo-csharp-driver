@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Internal
     internal class BlockingQueue<T>
     {
         // private fields
-        private object syncRoot = new object();
-        private Queue<T> queue = new Queue<T>();
+        private object _syncRoot = new object();
+        private Queue<T> _queue = new Queue<T>();
 
         // constructors
         /// <summary>
@@ -47,22 +47,22 @@ namespace MongoDB.Driver.Internal
         /// <returns>The first item in the queue (null if it timed out).</returns>
         internal T Dequeue(TimeSpan timeout)
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
                 var timeoutAt = DateTime.UtcNow + timeout;
-                while (queue.Count == 0)
+                while (_queue.Count == 0)
                 {
                     var timeRemaining = timeoutAt - DateTime.UtcNow;
                     if (timeRemaining > TimeSpan.Zero)
                     {
-                        Monitor.Wait(syncRoot, timeRemaining);
+                        Monitor.Wait(_syncRoot, timeRemaining);
                     }
                     else
                     {
                         return default(T);
                     }
                 }
-                return queue.Dequeue();
+                return _queue.Dequeue();
             }
         }
 
@@ -72,10 +72,10 @@ namespace MongoDB.Driver.Internal
         /// <param name="item">The item to be queued.</param>
         internal void Enqueue(T item)
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
-                queue.Enqueue(item);
-                Monitor.Pulse(syncRoot);
+                _queue.Enqueue(item);
+                Monitor.Pulse(_syncRoot);
             }
         }
     }

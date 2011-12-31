@@ -27,8 +27,8 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDefaultValueAttribute : Attribute
     {
         // private fields
-        private object defaultValue;
-        private bool serializeDefaultValue = true;
+        private object _defaultValue;
+        private bool _serializeDefaultValue = true;
 
         // constructors
         /// <summary>
@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="defaultValue">The default value.</param>
         public BsonDefaultValueAttribute(object defaultValue)
         {
-            this.defaultValue = defaultValue;
+            _defaultValue = defaultValue;
         }
 
         // public properties
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public object DefaultValue
         {
-            get { return defaultValue; }
+            get { return _defaultValue; }
         }
 
         /// <summary>
@@ -54,8 +54,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public bool SerializeDefaultValue
         {
-            get { return serializeDefaultValue; }
-            set { serializeDefaultValue = value; }
+            get { return _serializeDefaultValue; }
+            set { _serializeDefaultValue = value; }
         }
     }
 }

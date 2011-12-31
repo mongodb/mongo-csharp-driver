@@ -27,7 +27,7 @@ namespace MongoDB.Bson
     public class BsonJavaScriptWithScope : BsonJavaScript, IComparable<BsonJavaScriptWithScope>, IEquatable<BsonJavaScriptWithScope>
     {
         // private fields
-        private BsonDocument scope;
+        private BsonDocument _scope;
 
         // constructors
         /// <summary>
@@ -38,7 +38,7 @@ namespace MongoDB.Bson
         public BsonJavaScriptWithScope(string code, BsonDocument scope)
             : base(code, BsonType.JavaScriptWithScope)
         {
-            this.scope = scope;
+            _scope = scope;
         }
 
         // public operators
@@ -71,7 +71,7 @@ namespace MongoDB.Bson
         /// </summary>
         public BsonDocument Scope
         {
-            get { return scope; }
+            get { return _scope; }
         }
 
         // public static methods
@@ -117,7 +117,7 @@ namespace MongoDB.Bson
         /// <returns>A shallow clone of the BsonJavaScriptWithScope.</returns>
         public override BsonValue Clone()
         {
-            return new BsonJavaScriptWithScope(code, (BsonDocument)scope.Clone());
+            return new BsonJavaScriptWithScope(_code, (BsonDocument)_scope.Clone());
         }
 
         /// <summary>
@@ -126,10 +126,10 @@ namespace MongoDB.Bson
         /// <returns>A deep clone of the BsonJavaScriptWithScope.</returns>
         public override BsonValue DeepClone()
         {
-            BsonJavaScriptWithScope clone = new BsonJavaScriptWithScope(code, new BsonDocument());
-            foreach (BsonElement element in scope)
+            BsonJavaScriptWithScope clone = new BsonJavaScriptWithScope(_code, new BsonDocument());
+            foreach (BsonElement element in _scope)
             {
-                clone.scope.Add(element.DeepClone());
+                clone._scope.Add(element.DeepClone());
             }
             return clone;
         }
@@ -142,9 +142,9 @@ namespace MongoDB.Bson
         public int CompareTo(BsonJavaScriptWithScope other)
         {
             if (other == null) { return 1; }
-            int r = code.CompareTo(other.code);
+            int r = _code.CompareTo(other._code);
             if (r != 0) { return r; }
-            return scope.CompareTo(other.scope);
+            return _scope.CompareTo(other._scope);
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonJavaScriptWithScope rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.code == rhs.code && this.scope == rhs.scope;
+            return _code == rhs._code && _scope == rhs._scope;
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace MongoDB.Bson
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + base.GetHashCode();
-            hash = 37 * hash + scope.GetHashCode();
+            hash = 37 * hash + _scope.GetHashCode();
             return hash;
         }
 
@@ -203,7 +203,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return string.Format("{0}, scope : {1}", code, scope.ToJson());
+            return string.Format("{0}, scope : {1}", _code, _scope.ToJson());
         }
     }
 }

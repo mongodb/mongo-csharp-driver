@@ -24,8 +24,8 @@ namespace MongoDB.Bson.IO
     internal class JsonReaderContext
     {
         // private fields
-        private JsonReaderContext parentContext;
-        private ContextType contextType;
+        private JsonReaderContext _parentContext;
+        private ContextType _contextType;
 
         // constructors
         // used by Clone
@@ -35,14 +35,14 @@ namespace MongoDB.Bson.IO
 
         internal JsonReaderContext(JsonReaderContext parentContext, ContextType contextType)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
+            _parentContext = parentContext;
+            _contextType = contextType;
         }
 
         // internal properties
         internal ContextType ContextType
         {
-            get { return contextType; }
+            get { return _contextType; }
         }
 
         // public methods
@@ -52,12 +52,12 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the context.</returns>
         public JsonReaderContext Clone()
         {
-            return new JsonReaderContext(parentContext, contextType);
+            return new JsonReaderContext(_parentContext, _contextType);
         }
 
         public JsonReaderContext PopContext()
         {
-            return parentContext;
+            return _parentContext;
         }
     }
 }

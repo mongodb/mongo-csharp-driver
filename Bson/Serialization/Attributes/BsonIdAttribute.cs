@@ -27,8 +27,8 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonIdAttribute : Attribute
     {
         // private fields
-        private Type idGenerator;
-        private int order = int.MaxValue;
+        private Type _idGenerator;
+        private int _order = int.MaxValue;
 
         // constructors
         /// <summary>
@@ -44,8 +44,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public Type IdGenerator
         {
-            get { return idGenerator; }
-            set { idGenerator = value; }
+            get { return _idGenerator; }
+            set { _idGenerator = value; }
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public int Order
         {
-            get { return order; }
-            set { order = value; }
+            get { return _order; }
+            set { _order = value; }
         }
     }
 }

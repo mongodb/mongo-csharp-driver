@@ -27,10 +27,10 @@ namespace MongoDB.Bson.IO
     public class JsonReaderSettings : BsonReaderSettings
     {
         // private static fields
-        private static JsonReaderSettings defaults = null; // delay creation to pick up the latest default values
+        private static JsonReaderSettings __defaults = null; // delay creation to pick up the latest default values
 
         // private fields
-        private bool closeInput = false;
+        private bool _closeInput = false;
 
         // constructors
         /// <summary>
@@ -48,7 +48,7 @@ namespace MongoDB.Bson.IO
         public JsonReaderSettings(bool closeInput, GuidRepresentation guidRepresentation)
             : base(guidRepresentation)
         {
-            this.closeInput = closeInput;
+            _closeInput = closeInput;
         }
 
         // public static properties
@@ -59,13 +59,13 @@ namespace MongoDB.Bson.IO
         {
             get
             {
-                if (defaults == null)
+                if (__defaults == null)
                 {
-                    defaults = new JsonReaderSettings();
+                    __defaults = new JsonReaderSettings();
                 }
-                return defaults;
+                return __defaults;
             }
-            set { defaults = value; }
+            set { __defaults = value; }
         }
 
         // public properties
@@ -74,11 +74,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public bool CloseInput
         {
-            get { return closeInput; }
+            get { return _closeInput; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
-                closeInput = value;
+                if (_isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
+                _closeInput = value;
             }
         }
 
@@ -99,7 +99,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonReaderSettings CloneImplementation()
         {
-            return new JsonReaderSettings(closeInput, guidRepresentation);
+            return new JsonReaderSettings(_closeInput, _guidRepresentation);
         }
     }
 }

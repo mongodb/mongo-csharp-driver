@@ -33,7 +33,7 @@ namespace MongoDB.Driver
     public class MongoConnectionStringBuilder : DbConnectionStringBuilder
     {
         // private static fields
-        private static Dictionary<string, string> canonicalKeywords = new Dictionary<string, string>
+        private static Dictionary<string, string> __canonicalKeywords = new Dictionary<string, string>
         {
             { "connect", "connect" },
             { "connecttimeout", "connectTimeout" },
@@ -66,25 +66,25 @@ namespace MongoDB.Driver
 
         // private fields
         // default values are set in ResetValues
-        private ConnectionMode connectionMode;
-        private TimeSpan connectTimeout;
-        private string databaseName;
-        private GuidRepresentation guidRepresentation;
-        private bool ipv6;
-        private TimeSpan maxConnectionIdleTime;
-        private TimeSpan maxConnectionLifeTime;
-        private int maxConnectionPoolSize;
-        private int minConnectionPoolSize;
-        private string password;
-        private string replicaSetName;
-        private SafeMode safeMode;
-        private IEnumerable<MongoServerAddress> servers;
-        private bool slaveOk;
-        private TimeSpan socketTimeout;
-        private string username;
-        private double waitQueueMultiple;
-        private int waitQueueSize;
-        private TimeSpan waitQueueTimeout;
+        private ConnectionMode _connectionMode;
+        private TimeSpan _connectTimeout;
+        private string _databaseName;
+        private GuidRepresentation _guidRepresentation;
+        private bool _ipv6;
+        private TimeSpan _maxConnectionIdleTime;
+        private TimeSpan _maxConnectionLifeTime;
+        private int _maxConnectionPoolSize;
+        private int _minConnectionPoolSize;
+        private string _password;
+        private string _replicaSetName;
+        private SafeMode _safeMode;
+        private IEnumerable<MongoServerAddress> _servers;
+        private bool _slaveOk;
+        private TimeSpan _socketTimeout;
+        private string _username;
+        private double _waitQueueMultiple;
+        private int _waitQueueSize;
+        private TimeSpan _waitQueueTimeout;
 
         // constructors
         /// <summary>
@@ -113,13 +113,13 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (waitQueueMultiple == 0.0)
+                if (_waitQueueMultiple == 0.0)
                 {
-                    return waitQueueSize;
+                    return _waitQueueSize;
                 }
                 else
                 {
-                    return (int)(waitQueueMultiple * maxConnectionPoolSize);
+                    return (int)(_waitQueueMultiple * _maxConnectionPoolSize);
                 }
             }
         }
@@ -129,10 +129,10 @@ namespace MongoDB.Driver
         /// </summary>
         public ConnectionMode ConnectionMode
         {
-            get { return connectionMode; }
+            get { return _connectionMode; }
             set
             {
-                connectionMode = value;
+                _connectionMode = value;
                 base["connect"] = MongoUtils.ToCamelCase(value.ToString());
             }
         }
@@ -142,10 +142,10 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan ConnectTimeout
         {
-            get { return connectTimeout; }
+            get { return _connectTimeout; }
             set
             {
-                connectTimeout = value;
+                _connectTimeout = value;
                 base["connectTimeout"] = MongoUrlBuilder.FormatTimeSpan(value);
             }
         }
@@ -155,10 +155,10 @@ namespace MongoDB.Driver
         /// </summary>
         public string DatabaseName
         {
-            get { return databaseName; }
+            get { return _databaseName; }
             set
             {
-                base["database"] = databaseName = value;
+                base["database"] = _databaseName = value;
             }
         }
 
@@ -167,10 +167,10 @@ namespace MongoDB.Driver
         /// </summary>
         public GuidRepresentation GuidRepresentation
         {
-            get { return guidRepresentation; }
+            get { return _guidRepresentation; }
             set
             {
-                base["guids"] = guidRepresentation = value;
+                base["guids"] = _guidRepresentation = value;
             }
         }
 
@@ -179,10 +179,10 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IPv6
         {
-            get { return ipv6; }
+            get { return _ipv6; }
             set
             {
-                ipv6 = value;
+                _ipv6 = value;
                 base["ipv6"] = XmlConvert.ToString(value);
             }
         }
@@ -192,10 +192,10 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan MaxConnectionIdleTime
         {
-            get { return maxConnectionIdleTime; }
+            get { return _maxConnectionIdleTime; }
             set
             {
-                maxConnectionIdleTime = value;
+                _maxConnectionIdleTime = value;
                 base["maxIdleTime"] = MongoUrlBuilder.FormatTimeSpan(value);
             }
         }
@@ -205,10 +205,10 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan MaxConnectionLifeTime
         {
-            get { return maxConnectionLifeTime; }
+            get { return _maxConnectionLifeTime; }
             set
             {
-                maxConnectionLifeTime = value;
+                _maxConnectionLifeTime = value;
                 base["maxLifeTime"] = MongoUrlBuilder.FormatTimeSpan(value);
             }
         }
@@ -218,10 +218,10 @@ namespace MongoDB.Driver
         /// </summary>
         public int MaxConnectionPoolSize
         {
-            get { return maxConnectionPoolSize; }
+            get { return _maxConnectionPoolSize; }
             set
             {
-                maxConnectionPoolSize = value;
+                _maxConnectionPoolSize = value;
                 base["maxPoolSize"] = XmlConvert.ToString(value);
             }
         }
@@ -231,10 +231,10 @@ namespace MongoDB.Driver
         /// </summary>
         public int MinConnectionPoolSize
         {
-            get { return minConnectionPoolSize; }
+            get { return _minConnectionPoolSize; }
             set
             {
-                minConnectionPoolSize = value;
+                _minConnectionPoolSize = value;
                 base["minPoolSize"] = XmlConvert.ToString(value);
             }
         }
@@ -244,10 +244,10 @@ namespace MongoDB.Driver
         /// </summary>
         public string Password
         {
-            get { return password; }
+            get { return _password; }
             set
             {
-                base["password"] = password = value;
+                base["password"] = _password = value;
             }
         }
 
@@ -256,11 +256,11 @@ namespace MongoDB.Driver
         /// </summary>
         public string ReplicaSetName
         {
-            get { return replicaSetName; }
+            get { return _replicaSetName; }
             set
             {
                 ConnectionMode = ConnectionMode.ReplicaSet;
-                base["replicaSet"] = replicaSetName = value;
+                base["replicaSet"] = _replicaSetName = value;
             }
         }
 
@@ -269,10 +269,10 @@ namespace MongoDB.Driver
         /// </summary>
         public SafeMode SafeMode
         {
-            get { return safeMode; }
+            get { return _safeMode; }
             set
             {
-                safeMode = value;
+                _safeMode = value;
                 if (value == null)
                 {
                     base["safe"] = null;
@@ -308,7 +308,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoServerAddress Server
         {
-            get { return (servers == null) ? null : servers.Single(); }
+            get { return (_servers == null) ? null : _servers.Single(); }
             set
             {
                 Servers = new[] { value };
@@ -320,12 +320,12 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers
         {
-            get { return servers; }
+            get { return _servers; }
             set
             {
-                servers = value;
+                _servers = value;
                 base["server"] = GetServersString();
-                connectionMode = (value.Count() == 1) ? ConnectionMode.Direct : ConnectionMode.ReplicaSet; // assign to field not to property
+                _connectionMode = (value.Count() == 1) ? ConnectionMode.Direct : ConnectionMode.ReplicaSet; // assign to field not to property
             }
         }
 
@@ -334,10 +334,10 @@ namespace MongoDB.Driver
         /// </summary>
         public bool SlaveOk
         {
-            get { return slaveOk; }
+            get { return _slaveOk; }
             set
             {
-                slaveOk = value;
+                _slaveOk = value;
                 base["slaveOk"] = XmlConvert.ToString(value);
             }
         }
@@ -347,10 +347,10 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan SocketTimeout
         {
-            get { return socketTimeout; }
+            get { return _socketTimeout; }
             set
             {
-                socketTimeout = value;
+                _socketTimeout = value;
                 base["socketTimeout"] = MongoUrlBuilder.FormatTimeSpan(value);
             }
         }
@@ -360,10 +360,10 @@ namespace MongoDB.Driver
         /// </summary>
         public string Username
         {
-            get { return username; }
+            get { return _username; }
             set
             {
-                base["username"] = username = value;
+                base["username"] = _username = value;
             }
         }
 
@@ -372,10 +372,10 @@ namespace MongoDB.Driver
         /// </summary>
         public double WaitQueueMultiple
         {
-            get { return waitQueueMultiple; }
+            get { return _waitQueueMultiple; }
             set
             {
-                waitQueueMultiple = value;
+                _waitQueueMultiple = value;
                 base["waitQueueMultiple"] = (value != 0) ? XmlConvert.ToString(value) : null;
             }
         }
@@ -385,10 +385,10 @@ namespace MongoDB.Driver
         /// </summary>
         public int WaitQueueSize
         {
-            get { return waitQueueSize; }
+            get { return _waitQueueSize; }
             set
             {
-                waitQueueSize = value;
+                _waitQueueSize = value;
                 base["waitQueueSize"] = (value != 0) ? XmlConvert.ToString(value) : null;
             }
         }
@@ -398,10 +398,10 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan WaitQueueTimeout
         {
-            get { return waitQueueTimeout; }
+            get { return _waitQueueTimeout; }
             set
             {
-                waitQueueTimeout = value;
+                _waitQueueTimeout = value;
                 base["waitQueueTimeout"] = MongoUrlBuilder.FormatTimeSpan(value);
             }
         }
@@ -417,7 +417,7 @@ namespace MongoDB.Driver
             get
             {
                 if (keyword == null) { throw new ArgumentNullException("keyword"); }
-                return base[canonicalKeywords[keyword.ToLower()]];
+                return base[__canonicalKeywords[keyword.ToLower()]];
             }
             set
             {
@@ -442,9 +442,9 @@ namespace MongoDB.Driver
                         DatabaseName = (string)value;
                         break;
                     case "fsync":
-                        if (safeMode == null) { safeMode = new SafeMode(false); }
-                        safeMode.FSync = Convert.ToBoolean(value);
-                        SafeMode = safeMode;
+                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
+                        _safeMode.FSync = Convert.ToBoolean(value);
+                        SafeMode = _safeMode;
                         break;
                     case "guids":
                         GuidRepresentation = (GuidRepresentation)Enum.Parse(typeof(GuidRepresentation), (string)value, true); // ignoreCase
@@ -453,9 +453,9 @@ namespace MongoDB.Driver
                         IPv6 = Convert.ToBoolean(value);
                         break;
                     case "j":
-                        if (safeMode == null) { safeMode = new SafeMode(false); }
-                        safeMode.J = Convert.ToBoolean(value);
-                        SafeMode = safeMode;
+                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
+                        _safeMode.J = Convert.ToBoolean(value);
+                        SafeMode = _safeMode;
                         break;
                     case "maxidletime":
                     case "maxidletimems":
@@ -479,9 +479,9 @@ namespace MongoDB.Driver
                         ConnectionMode = ConnectionMode.ReplicaSet;
                         break;
                     case "safe":
-                        if (safeMode == null) { safeMode = new SafeMode(false); }
-                        safeMode.Enabled = Convert.ToBoolean(value);
-                        SafeMode = safeMode;
+                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
+                        _safeMode.Enabled = Convert.ToBoolean(value);
+                        SafeMode = _safeMode;
                         break;
                     case "server":
                     case "servers":
@@ -498,16 +498,16 @@ namespace MongoDB.Driver
                         Username = (string)value;
                         break;
                     case "w":
-                        if (safeMode == null) { safeMode = new SafeMode(false); }
+                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
                         try
                         {
-                            safeMode.W = Convert.ToInt32(value);
+                            _safeMode.W = Convert.ToInt32(value);
                         }
                         catch (FormatException)
                         {
-                            safeMode.WMode = (string)value;
+                            _safeMode.WMode = (string)value;
                         }
-                        SafeMode = safeMode;
+                        SafeMode = _safeMode;
                         break;
                     case "waitqueuemultiple":
                         WaitQueueMultiple = Convert.ToDouble(value);
@@ -522,9 +522,9 @@ namespace MongoDB.Driver
                         WaitQueueTimeout = ToTimeSpan(keyword, value);
                         break;
                     case "wtimeout":
-                        if (safeMode == null) { safeMode = new SafeMode(false); }
-                        safeMode.WTimeout = ToTimeSpan(keyword, value);
-                        SafeMode = safeMode;
+                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
+                        _safeMode.WTimeout = ToTimeSpan(keyword, value);
+                        SafeMode = _safeMode;
                         break;
                     default:
                         var message = string.Format("Invalid keyword '{0}'.", keyword);
@@ -550,7 +550,7 @@ namespace MongoDB.Driver
         /// <returns>True if the keyword is valid.</returns>
         public override bool ContainsKey(string keyword)
         {
-            return canonicalKeywords.ContainsKey(keyword.ToLower());
+            return __canonicalKeywords.ContainsKey(keyword.ToLower());
         }
 
         /// <summary>
@@ -559,17 +559,17 @@ namespace MongoDB.Driver
         /// <returns>A new instance of MongoServerSettings.</returns>
         public MongoServerSettings ToServerSettings()
         {
-            var defaultCredentials = MongoCredentials.Create(username, password);
-            return new MongoServerSettings(connectionMode, connectTimeout, defaultCredentials, guidRepresentation, ipv6,
-                maxConnectionIdleTime, maxConnectionLifeTime, maxConnectionPoolSize, minConnectionPoolSize, replicaSetName,
-                safeMode ?? MongoDefaults.SafeMode, servers, slaveOk, socketTimeout, ComputedWaitQueueSize,waitQueueTimeout);
+            var defaultCredentials = MongoCredentials.Create(_username, _password);
+            return new MongoServerSettings(_connectionMode, _connectTimeout, defaultCredentials, _guidRepresentation, _ipv6,
+                _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, _replicaSetName,
+                _safeMode ?? MongoDefaults.SafeMode, _servers, _slaveOk, _socketTimeout, ComputedWaitQueueSize,_waitQueueTimeout);
         }
 
         // private methods
         private string GetServersString()
         {
             var sb = new StringBuilder();
-            foreach (var server in servers)
+            foreach (var server in _servers)
             {
                 if (sb.Length > 0) { sb.Append(","); }
                 if (server.Port == 27017)
@@ -597,25 +597,25 @@ namespace MongoDB.Driver
         private void ResetValues()
         {
             // set fields and not properties so base class items aren't set
-            connectionMode = ConnectionMode.Direct;
-            connectTimeout = MongoDefaults.ConnectTimeout;
-            databaseName = null;
-            guidRepresentation = MongoDefaults.GuidRepresentation;
-            ipv6 = false;
-            maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
-            maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
-            maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
-            minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
-            password = null;
-            replicaSetName = null;
-            safeMode = null;
-            servers = null;
-            slaveOk = false;
-            socketTimeout = MongoDefaults.SocketTimeout;
-            username = null;
-            waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
-            waitQueueSize = MongoDefaults.WaitQueueSize;
-            waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
+            _connectionMode = ConnectionMode.Direct;
+            _connectTimeout = MongoDefaults.ConnectTimeout;
+            _databaseName = null;
+            _guidRepresentation = MongoDefaults.GuidRepresentation;
+            _ipv6 = false;
+            _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
+            _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
+            _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
+            _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _password = null;
+            _replicaSetName = null;
+            _safeMode = null;
+            _servers = null;
+            _slaveOk = false;
+            _socketTimeout = MongoDefaults.SocketTimeout;
+            _username = null;
+            _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
+            _waitQueueSize = MongoDefaults.WaitQueueSize;
+            _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
         }
 
         private TimeSpan ToTimeSpan(string keyword, object value)

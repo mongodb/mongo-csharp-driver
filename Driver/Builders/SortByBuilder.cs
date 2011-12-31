@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Builders
     public class SortByBuilder : BuilderBase, IMongoSortBy
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public SortByBuilder()
         {
-            document = new BsonDocument();
+            _document = new BsonDocument();
         }
 
         // public methods
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Builders
         {
             foreach (var key in keys)
             {
-                document.Add(key, 1);
+                _document.Add(key, 1);
             }
             return this;
         }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Builders
         {
             foreach (var key in keys)
             {
-                document.Add(key, -1);
+                _document.Add(key, -1);
             }
             return this;
         }
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
-            return document;
+            return _document;
         }
 
         // protected
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            document.Serialize(bsonWriter, nominalType, options);
+            _document.Serialize(bsonWriter, nominalType, options);
         }
     }
 }

@@ -32,8 +32,8 @@ namespace MongoDB.Driver
     public class GetIndexesResult : IEnumerable<IndexInfo>
     {
         // private fields
-        private BsonDocument[] documents;
-        private IndexInfo[] indexes;
+        private BsonDocument[] _documents;
+        private IndexInfo[] _indexes;
 
         // constructors
         /// <summary>
@@ -42,8 +42,8 @@ namespace MongoDB.Driver
         /// <param name="documents">The raw documents containing the information about the indexes.</param>
         public GetIndexesResult(BsonDocument[] documents)
         {
-            this.documents = documents;
-            this.indexes = this.documents.Select(d => new IndexInfo(d)).ToArray();
+            _documents = documents;
+            _indexes = _documents.Select(d => new IndexInfo(d)).ToArray();
         }
 
         // public operators
@@ -54,7 +54,7 @@ namespace MongoDB.Driver
         /// <returns>An IndexInfo.</returns>
         public IndexInfo this[int index]
         {
-            get { return indexes[index]; }
+            get { return _indexes[index]; }
         }
 
         // public properties
@@ -63,7 +63,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int Count
         {
-            get { return indexes.Length; }
+            get { return _indexes.Length; }
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<BsonDocument> RawDocuments
         {
-            get { return documents; }
+            get { return _documents; }
         }
 
         // public methods
@@ -79,12 +79,12 @@ namespace MongoDB.Driver
         // explicit interface implementations
         IEnumerator<IndexInfo> IEnumerable<IndexInfo>.GetEnumerator()
         {
-            return ((IEnumerable<IndexInfo>)indexes).GetEnumerator();
+            return ((IEnumerable<IndexInfo>)_indexes).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return indexes.GetEnumerator();
+            return _indexes.GetEnumerator();
         }
     }
 
@@ -94,7 +94,7 @@ namespace MongoDB.Driver
     public class IndexInfo
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -103,7 +103,7 @@ namespace MongoDB.Driver
         /// <param name="document">The BSON document that contains information about the index.</param>
         public IndexInfo(BsonDocument document)
         {
-            this.document = document;
+            _document = document;
         }
 
         // public properties
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
             get
             {
                 BsonValue value;
-                if (document.TryGetValue("dropDups", out value))
+                if (_document.TryGetValue("dropDups", out value))
                 {
                     return value.ToBoolean();
                 }
@@ -134,7 +134,7 @@ namespace MongoDB.Driver
             get
             {
                 BsonValue value;
-                if (document.TryGetValue("background", out value))
+                if (_document.TryGetValue("background", out value))
                 {
                     return value.ToBoolean();
                 }
@@ -153,7 +153,7 @@ namespace MongoDB.Driver
             get
             {
                 BsonValue value;
-                if (document.TryGetValue("sparse", out value))
+                if (_document.TryGetValue("sparse", out value))
                 {
                     return value.ToBoolean();
                 }
@@ -172,7 +172,7 @@ namespace MongoDB.Driver
             get
             {
                 BsonValue value;
-                if (document.TryGetValue("unique", out value))
+                if (_document.TryGetValue("unique", out value))
                 {
                     return value.ToBoolean();
                 }
@@ -190,7 +190,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return new IndexKeysDocument(document["key"].AsBsonDocument.Elements);
+                return new IndexKeysDocument(_document["key"].AsBsonDocument.Elements);
             }
         }
 
@@ -201,7 +201,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return document["name"].AsString;
+                return _document["name"].AsString;
             }
         }
 
@@ -212,7 +212,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return document["ns"].AsString;
+                return _document["ns"].AsString;
             }
         }
 
@@ -221,7 +221,7 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument RawDocument
         {
-            get { return document; }
+            get { return _document; }
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace MongoDB.Driver
             get
             {
                 BsonValue value;
-                if (document.TryGetValue("v", out value))
+                if (_document.TryGetValue("v", out value))
                 {
                     return value.ToInt32();
                 }

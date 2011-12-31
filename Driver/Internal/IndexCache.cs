@@ -27,8 +27,8 @@ namespace MongoDB.Driver.Internal
     public class IndexCache
     {
         // private fields
-        private object syncRoot = new object();
-        private HashSet<IndexCacheKey> cache = new HashSet<IndexCacheKey>();
+        private object _syncRoot = new object();
+        private HashSet<IndexCacheKey> _cache = new HashSet<IndexCacheKey>();
 
         // constructors
         /// <summary>
@@ -46,11 +46,11 @@ namespace MongoDB.Driver.Internal
         /// <param name="indexName">The name of the index.</param>
         public void Add(MongoCollection collection, string indexName)
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
                 var database = collection.Database;
                 var key = new IndexCacheKey(database.Name, collection.Name, indexName);
-                cache.Add(key);
+                _cache.Add(key);
             }
         }
 
@@ -62,11 +62,11 @@ namespace MongoDB.Driver.Internal
         /// <returns>True if the cache contains the named index.</returns>
         public bool Contains(MongoCollection collection, string indexName)
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
                 var database = collection.Database;
                 var key = new IndexCacheKey(database.Name, collection.Name, indexName);
-                return cache.Contains(key);
+                return _cache.Contains(key);
             }
         }
 
@@ -77,11 +77,11 @@ namespace MongoDB.Driver.Internal
         /// <param name="indexName">The name of the index.</param>
         public void Remove(MongoCollection collection, string indexName)
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
                 var database = collection.Database;
                 var key = new IndexCacheKey(database.Name, collection.Name, indexName);
-                cache.Remove(key);
+                _cache.Remove(key);
             }
         }
 
@@ -90,9 +90,9 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public void Reset()
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
-                cache.Clear();
+                _cache.Clear();
             }
         }
 
@@ -120,9 +120,9 @@ namespace MongoDB.Driver.Internal
         /// <param name="databaseName">The name of the database.</param>
         public void Reset(string databaseName)
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
-                cache.RemoveWhere(key => key.DatabaseName == databaseName);
+                _cache.RemoveWhere(key => key.DatabaseName == databaseName);
             }
         }
 
@@ -133,9 +133,9 @@ namespace MongoDB.Driver.Internal
         /// <param name="collectionName">The name of the collection.</param>
         public void Reset(string databaseName, string collectionName)
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
-                cache.RemoveWhere(key => key.DatabaseName == databaseName && key.CollectionName == collectionName);
+                _cache.RemoveWhere(key => key.DatabaseName == databaseName && key.CollectionName == collectionName);
             }
         }
     }
@@ -143,18 +143,18 @@ namespace MongoDB.Driver.Internal
     internal struct IndexCacheKey
     {
         // private fields
-        private string databaseName;
-        private string collectionName;
-        private string indexName;
-        private int hashCode; // can be calculated once because class is immutable
+        private string _databaseName;
+        private string _collectionName;
+        private string _indexName;
+        private int _hashCode; // can be calculated once because class is immutable
 
         // constructors
         public IndexCacheKey(string databaseName, string collectionName, string indexName)
         {
-            this.databaseName = databaseName;
-            this.collectionName = collectionName;
-            this.indexName = indexName;
-            this.hashCode = ComputeHashCode(databaseName, collectionName, indexName);
+            _databaseName = databaseName;
+            _collectionName = collectionName;
+            _indexName = indexName;
+            _hashCode = ComputeHashCode(databaseName, collectionName, indexName);
         }
 
         // private static methods
@@ -171,17 +171,17 @@ namespace MongoDB.Driver.Internal
         // public properties
         public string DatabaseName
         {
-            get { return databaseName; }
+            get { return _databaseName; }
         }
 
         public string CollectionName
         {
-            get { return collectionName; }
+            get { return _collectionName; }
         }
 
         public string IndexName
         {
-            get { return indexName; }
+            get { return _indexName; }
         }
 
         public override bool Equals(object obj)
@@ -189,17 +189,17 @@ namespace MongoDB.Driver.Internal
             if (obj == null) { return false; }
             if (obj.GetType() != typeof(IndexCacheKey)) { return false; }
             var rhs = (IndexCacheKey)obj;
-            return this.databaseName == rhs.databaseName && this.collectionName == rhs.collectionName && this.indexName == rhs.indexName;
+            return _databaseName == rhs._databaseName && _collectionName == rhs._collectionName && _indexName == rhs._indexName;
         }
 
         public override int GetHashCode()
         {
-            return hashCode;
+            return _hashCode;
         }
 
         public override string ToString()
         {
-            return string.Format("{0}/{1}/{2}", databaseName, collectionName, indexName);
+            return string.Format("{0}/{1}/{2}", _databaseName, _collectionName, _indexName);
         }
     }
 }

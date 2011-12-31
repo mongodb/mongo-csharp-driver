@@ -32,7 +32,7 @@ namespace MongoDB.Driver
     public abstract class GeoNearResult : CommandResult
     {
         // private fields
-        private GeoNearStats stats;
+        private GeoNearStats _stats;
 
         // constructors
         /// <summary>
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Namespace
         {
-            get { return response["ns"].AsString; }
+            get { return _response["ns"].AsString; }
         }
 
         /// <summary>
@@ -66,11 +66,11 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (stats == null)
+                if (_stats == null)
                 {
-                    stats = new GeoNearStats(response["stats"].AsBsonDocument);
+                    _stats = new GeoNearStats(_response["stats"].AsBsonDocument);
                 }
-                return stats;
+                return _stats;
             }
         }
 
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         public abstract class GeoNearHit
         {
             // private fields
-            private BsonDocument hit;
+            private BsonDocument _hit;
 
             // constructors
             /// <summary>
@@ -160,7 +160,7 @@ namespace MongoDB.Driver
             /// <param name="hit">The hit.</param>
             public GeoNearHit(BsonDocument hit)
             {
-                this.hit = hit;
+                _hit = hit;
             }
 
             // public properties
@@ -169,7 +169,7 @@ namespace MongoDB.Driver
             /// </summary>
             public double Distance
             {
-                get { return hit["dis"].ToDouble(); }
+                get { return _hit["dis"].ToDouble(); }
             }
 
             /// <summary>
@@ -185,7 +185,7 @@ namespace MongoDB.Driver
             /// </summary>
             public BsonDocument RawDocument
             {
-                get { return hit["obj"].AsBsonDocument; }
+                get { return _hit["obj"].AsBsonDocument; }
             }
 
             // protected properties
@@ -201,7 +201,7 @@ namespace MongoDB.Driver
         public class GeoNearStats
         {
             // private fields
-            private BsonDocument stats;
+            private BsonDocument _stats;
 
             // constructors
             /// <summary>
@@ -210,7 +210,7 @@ namespace MongoDB.Driver
             /// <param name="stats">The stats.</param>
             public GeoNearStats(BsonDocument stats)
             {
-                this.stats = stats;
+                _stats = stats;
             }
 
             // public properties
@@ -219,7 +219,7 @@ namespace MongoDB.Driver
             /// </summary>
             public double AverageDistance
             {
-                get { return stats["avgDistance"].ToDouble(); }
+                get { return _stats["avgDistance"].ToDouble(); }
             }
 
             /// <summary>
@@ -227,7 +227,7 @@ namespace MongoDB.Driver
             /// </summary>
             public int BTreeLocations
             {
-                get { return stats["btreelocs"].ToInt32(); }
+                get { return _stats["btreelocs"].ToInt32(); }
             }
 
             /// <summary>
@@ -235,7 +235,7 @@ namespace MongoDB.Driver
             /// </summary>
             public TimeSpan Duration
             {
-                get { return TimeSpan.FromMilliseconds(stats["time"].ToInt32()); }
+                get { return TimeSpan.FromMilliseconds(_stats["time"].ToInt32()); }
             }
 
             /// <summary>
@@ -243,7 +243,7 @@ namespace MongoDB.Driver
             /// </summary>
             public double MaxDistance
             {
-                get { return stats["maxDistance"].ToDouble(); }
+                get { return _stats["maxDistance"].ToDouble(); }
             }
 
             /// <summary>
@@ -251,7 +251,7 @@ namespace MongoDB.Driver
             /// </summary>
             public int NumberScanned
             {
-                get { return stats["nscanned"].ToInt32(); }
+                get { return _stats["nscanned"].ToInt32(); }
             }
 
             /// <summary>
@@ -259,7 +259,7 @@ namespace MongoDB.Driver
             /// </summary>
             public int ObjectsLoaded
             {
-                get { return stats["objectsLoaded"].ToInt32(); }
+                get { return _stats["objectsLoaded"].ToInt32(); }
             }
         }
     }
@@ -272,7 +272,7 @@ namespace MongoDB.Driver
     public class GeoNearResult<TDocument> : GeoNearResult
     {
         // private fields
-        private GeoNearHits hits;
+        private GeoNearHits _hits;
 
         // constructors
         /// <summary>
@@ -290,11 +290,11 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (hits == null)
+                if (_hits == null)
                 {
-                    hits = new GeoNearHits(response["results"].AsBsonArray);
+                    _hits = new GeoNearHits(_response["results"].AsBsonArray);
                 }
-                return hits;
+                return _hits;
             }
         }
 
@@ -314,7 +314,7 @@ namespace MongoDB.Driver
         public new class GeoNearHits : GeoNearResult.GeoNearHits, IEnumerable<GeoNearHit>
         {
             // private fields
-            private List<GeoNearHit> hits;
+            private List<GeoNearHit> _hits;
 
             // constructors
             /// <summary>
@@ -323,7 +323,7 @@ namespace MongoDB.Driver
             /// <param name="hits">The hits.</param>
             public GeoNearHits(BsonArray hits)
             {
-                this.hits = hits.Select(h => new GeoNearHit(h.AsBsonDocument)).ToList();
+                _hits = hits.Select(h => new GeoNearHit(h.AsBsonDocument)).ToList();
             }
 
             // public properties
@@ -332,7 +332,7 @@ namespace MongoDB.Driver
             /// </summary>
             public override int Count
             {
-                get { return hits.Count; }
+                get { return _hits.Count; }
             }
 
             // indexers
@@ -343,7 +343,7 @@ namespace MongoDB.Driver
             /// <returns>The hit.</returns>
             public new GeoNearHit this[int index]
             {
-                get { return hits[index]; }
+                get { return _hits[index]; }
             }
 
             // public methods
@@ -353,7 +353,7 @@ namespace MongoDB.Driver
             /// <returns>An enumerator.</returns>
             public new IEnumerator<GeoNearHit> GetEnumerator()
             {
-                return hits.GetEnumerator();
+                return _hits.GetEnumerator();
             }
 
             // protected methods
@@ -364,7 +364,7 @@ namespace MongoDB.Driver
             /// <returns>The hit.</returns>
             protected override GeoNearResult.GeoNearHit GetHitImplementation(int index)
             {
-                return hits[index];
+                return _hits[index];
             }
 
             /// <summary>
@@ -373,7 +373,7 @@ namespace MongoDB.Driver
             /// <returns>An enumerator.</returns>
             protected override IEnumerator<GeoNearResult.GeoNearHit> GetEnumeratorImplementation()
             {
-                return hits.Cast<GeoNearResult.GeoNearHit>().GetEnumerator();
+                return _hits.Cast<GeoNearResult.GeoNearHit>().GetEnumerator();
             }
         }
 

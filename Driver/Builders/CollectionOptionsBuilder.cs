@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Builders
     public class CollectionOptionsBuilder : BuilderBase, IMongoCollectionOptions
     {
         // private fields
-        private BsonDocument document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public CollectionOptionsBuilder()
         {
-            document = new BsonDocument();
+            _document = new BsonDocument();
         }
 
         // public methods
@@ -110,11 +110,11 @@ namespace MongoDB.Driver.Builders
         {
             if (value)
             {
-                document["autoIndexId"] = value;
+                _document["autoIndexId"] = value;
             }
             else
             {
-                document.Remove("autoIndexId");
+                _document.Remove("autoIndexId");
             }
             return this;
         }
@@ -128,11 +128,11 @@ namespace MongoDB.Driver.Builders
         {
             if (value)
             {
-                document["capped"] = value;
+                _document["capped"] = value;
             }
             else
             {
-                document.Remove("capped");
+                _document.Remove("capped");
             }
             return this;
         }
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetMaxDocuments(long value)
         {
-            document["max"] = value;
+            _document["max"] = value;
             return this;
         }
 
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetMaxSize(long value)
         {
-            document["size"] = value;
+            _document["size"] = value;
             return this;
         }
 
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
-            return document;
+            return _document;
         }
 
         // protected methods
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            document.Serialize(bsonWriter, nominalType, options);
+            _document.Serialize(bsonWriter, nominalType, options);
         }
     }
 }

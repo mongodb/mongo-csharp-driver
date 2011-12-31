@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class EnumSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static EnumSerializer instance = new EnumSerializer();
+        private static EnumSerializer __instance = new EnumSerializer();
 
         // constructors
         /// <summary>
@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static EnumSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods

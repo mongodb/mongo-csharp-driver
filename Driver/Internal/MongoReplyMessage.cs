@@ -28,44 +28,44 @@ namespace MongoDB.Driver.Internal
     internal class MongoReplyMessage<TDocument> : MongoMessage
     {
         // private fields
-        private BsonBinaryReaderSettings readerSettings;
-        private ResponseFlags responseFlags;
-        private long cursorId;
-        private int startingFrom;
-        private int numberReturned;
-        private List<TDocument> documents;
+        private BsonBinaryReaderSettings _readerSettings;
+        private ResponseFlags _responseFlags;
+        private long _cursorId;
+        private int _startingFrom;
+        private int _numberReturned;
+        private List<TDocument> _documents;
 
         // constructors
         internal MongoReplyMessage(BsonBinaryReaderSettings readerSettings)
             : base(MessageOpcode.Reply)
         {
-            this.readerSettings = readerSettings;
+            _readerSettings = readerSettings;
         }
 
         // internal properties
         internal ResponseFlags ResponseFlags
         {
-            get { return responseFlags; }
+            get { return _responseFlags; }
         }
 
         internal long CursorId
         {
-            get { return cursorId; }
+            get { return _cursorId; }
         }
 
         internal int StartingFrom
         {
-            get { return startingFrom; }
+            get { return _startingFrom; }
         }
 
         internal int NumberReturned
         {
-            get { return numberReturned; }
+            get { return _numberReturned; }
         }
 
         internal List<TDocument> Documents
         {
-            get { return documents; }
+            get { return _documents; }
         }
 
         // internal methods
@@ -74,18 +74,18 @@ namespace MongoDB.Driver.Internal
             var messageStartPosition = buffer.Position;
 
             ReadMessageHeaderFrom(buffer);
-            responseFlags = (ResponseFlags)buffer.ReadInt32();
-            cursorId = buffer.ReadInt64();
-            startingFrom = buffer.ReadInt32();
-            numberReturned = buffer.ReadInt32();
+            _responseFlags = (ResponseFlags)buffer.ReadInt32();
+            _cursorId = buffer.ReadInt64();
+            _startingFrom = buffer.ReadInt32();
+            _numberReturned = buffer.ReadInt32();
 
-            using (BsonReader bsonReader = BsonReader.Create(buffer, readerSettings))
+            using (BsonReader bsonReader = BsonReader.Create(buffer, _readerSettings))
             {
-                if ((responseFlags & ResponseFlags.CursorNotFound) != 0)
+                if ((_responseFlags & ResponseFlags.CursorNotFound) != 0)
                 {
                     throw new MongoQueryException("Cursor not found.");
                 }
-                if ((responseFlags & ResponseFlags.QueryFailure) != 0)
+                if ((_responseFlags & ResponseFlags.QueryFailure) != 0)
                 {
                     var document = BsonDocument.ReadFrom(bsonReader);
                     var err = document["$err", null].AsString ?? "Unknown error.";
@@ -93,11 +93,11 @@ namespace MongoDB.Driver.Internal
                     throw new MongoQueryException(message, document);
                 }
 
-                documents = new List<TDocument>(numberReturned);
-                while (buffer.Position - messageStartPosition < messageLength)
+                _documents = new List<TDocument>(_numberReturned);
+                while (buffer.Position - messageStartPosition < _messageLength)
                 {
                     var document = (TDocument)BsonSerializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
-                    documents.Add(document);
+                    _documents.Add(document);
                 }
             }
         }

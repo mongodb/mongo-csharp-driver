@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class NullableSerializer<T> : BsonBaseSerializer where T : struct
     {
         // private fields
-        private IBsonSerializer serializer;
+        private IBsonSerializer _serializer;
 
         // constructors
         /// <summary>
@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public NullableSerializer()
         {
-            serializer = BsonSerializer.LookupSerializer(typeof(T));
+            _serializer = BsonSerializer.LookupSerializer(typeof(T));
         }
 
         // public methods
@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return serializer.Deserialize(bsonReader, typeof(T), options);
+                return _serializer.Deserialize(bsonReader, typeof(T), options);
             }
         }
 
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                serializer.Serialize(bsonWriter, typeof(T), value, options);
+                _serializer.Serialize(bsonWriter, typeof(T), value, options);
             }
         }
     }

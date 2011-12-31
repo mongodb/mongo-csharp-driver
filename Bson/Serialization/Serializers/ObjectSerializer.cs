@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class ObjectSerializer : IBsonSerializer
     {
         // private static fields
-        private static ObjectSerializer instance = new ObjectSerializer();
+        private static ObjectSerializer __instance = new ObjectSerializer();
 
         // constructors
         /// <summary>
@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static ObjectSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods

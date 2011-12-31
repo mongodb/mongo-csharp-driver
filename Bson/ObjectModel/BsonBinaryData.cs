@@ -27,9 +27,9 @@ namespace MongoDB.Bson
     public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData>
     {
         // private fields
-        private byte[] bytes;
-        private BsonBinarySubType subType;
-        private GuidRepresentation guidRepresentation; // only relevant if subType is UuidStandard or UuidLegacy
+        private byte[] _bytes;
+        private BsonBinarySubType _subType;
+        private GuidRepresentation _guidRepresentation; // only relevant if subType is UuidStandard or UuidLegacy
 
         // constructors
         /// <summary>
@@ -88,9 +88,9 @@ namespace MongoDB.Bson
                     throw new ArgumentException(message);
                 }
             }
-            this.bytes = bytes;
-            this.subType = subType;
-            this.guidRepresentation = guidRepresentation;
+            _bytes = bytes;
+            _subType = subType;
+            _guidRepresentation = guidRepresentation;
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace MongoDB.Bson
         /// </summary>
         public byte[] Bytes
         {
-            get { return bytes; }
+            get { return _bytes; }
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace MongoDB.Bson
         /// </summary>
         public GuidRepresentation GuidRepresentation
         {
-            get { return guidRepresentation; }
+            get { return _guidRepresentation; }
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace MongoDB.Bson
         {
             get
             {
-                if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
+                if (_subType == BsonBinarySubType.UuidStandard || _subType == BsonBinarySubType.UuidLegacy)
                 {
                     return ToGuid();
                 }
@@ -152,7 +152,7 @@ namespace MongoDB.Bson
         /// </summary>
         public BsonBinarySubType SubType
         {
-            get { return subType; }
+            get { return _subType; }
         }
 
         // public operators
@@ -294,14 +294,14 @@ namespace MongoDB.Bson
         public int CompareTo(BsonBinaryData other)
         {
             if (other == null) { return 1; }
-            int r = subType.CompareTo(other.subType);
+            int r = _subType.CompareTo(other._subType);
             if (r != 0) { return r; }
-            for (int i = 0; i < bytes.Length && i < other.bytes.Length; i++)
+            for (int i = 0; i < _bytes.Length && i < other._bytes.Length; i++)
             {
-                r = bytes[i].CompareTo(other.bytes[i]);
+                r = _bytes[i].CompareTo(other._bytes[i]);
                 if (r != 0) { return r; }
             }
-            return bytes.Length.CompareTo(other.bytes.Length);
+            return _bytes.Length.CompareTo(other._bytes.Length);
         }
 
         /// <summary>
@@ -329,7 +329,7 @@ namespace MongoDB.Bson
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             // note: guidRepresentation is not considered when testing for Equality
-            return object.ReferenceEquals(this, rhs) || this.subType == rhs.subType && this.bytes.SequenceEqual(rhs.bytes);
+            return object.ReferenceEquals(this, rhs) || _subType == rhs._subType && _bytes.SequenceEqual(rhs._bytes);
         }
 
         /// <summary>
@@ -351,12 +351,12 @@ namespace MongoDB.Bson
             // see Effective Java by Joshua Bloch
             // note: guidRepresentation is not considered when computing the hash code
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            foreach (byte b in bytes)
+            hash = 37 * hash + _bsonType.GetHashCode();
+            foreach (byte b in _bytes)
             {
                 hash = 37 * hash + b;
             }
-            hash = 37 * hash + subType.GetHashCode();
+            hash = 37 * hash + _subType.GetHashCode();
             return hash;
         }
 
@@ -366,7 +366,7 @@ namespace MongoDB.Bson
         /// <returns>A Guid.</returns>
         public Guid ToGuid()
         {
-            return ToGuid(guidRepresentation);
+            return ToGuid(_guidRepresentation);
         }
 
         /// <summary>
@@ -376,16 +376,16 @@ namespace MongoDB.Bson
         /// <returns>A Guid.</returns>
         public Guid ToGuid(GuidRepresentation guidRepresentation)
         {
-            if (subType != BsonBinarySubType.UuidStandard && subType != BsonBinarySubType.UuidLegacy)
+            if (_subType != BsonBinarySubType.UuidStandard && _subType != BsonBinarySubType.UuidLegacy)
             {
-                var message = string.Format("SubType must be UuidStandard or UuidLegacy, not {0}.", subType);
+                var message = string.Format("SubType must be UuidStandard or UuidLegacy, not {0}.", _subType);
                 throw new InvalidOperationException(message);
             }
             if (guidRepresentation == GuidRepresentation.Unspecified)
             {
                 throw new ArgumentException("GuidRepresentation cannot be Unspecified.");
             }
-            return GuidConverter.FromBytes(bytes, guidRepresentation);
+            return GuidConverter.FromBytes(_bytes, guidRepresentation);
         }
 
         /// <summary>
@@ -394,7 +394,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the binary data.</returns>
         public override string ToString()
         {
-            return string.Format("{0}:0x{1}", subType, BsonUtils.ToHexString(bytes));
+            return string.Format("{0}:0x{1}", _subType, BsonUtils.ToHexString(_bytes));
         }
     }
 }

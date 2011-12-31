@@ -28,9 +28,9 @@ namespace MongoDB.Driver
     public class MongoUpdateOptions
     {
         // private fields
-        private bool checkElementNames;
-        private UpdateFlags flags;
-        private SafeMode safeMode;
+        private bool _checkElementNames;
+        private UpdateFlags _flags;
+        private SafeMode _safeMode;
 
         // constructors
         /// <summary>
@@ -38,8 +38,8 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUpdateOptions()
         {
-            this.checkElementNames = true;
-            this.flags = UpdateFlags.None;
+            _checkElementNames = true;
+            _flags = UpdateFlags.None;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace MongoDB.Driver
         [Obsolete("Options constructors which take a MongoCollection parameter are obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use a constructor which does not take a MongoCollection parameter.")]
         public MongoUpdateOptions(MongoCollection collection) : this()
         {
-            this.safeMode = collection.Settings.SafeMode;
+            _safeMode = collection.Settings.SafeMode;
         }
 
         // public properties
@@ -58,8 +58,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool CheckElementNames
         {
-            get { return checkElementNames; }
-            set { checkElementNames = value; }
+            get { return _checkElementNames; }
+            set { _checkElementNames = value; }
         }
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace MongoDB.Driver
         /// </summary>
         public UpdateFlags Flags
         {
-            get { return flags; }
-            set { flags = value; }
+            get { return _flags; }
+            set { _flags = value; }
         }
 
         /// <summary>
@@ -76,8 +76,8 @@ namespace MongoDB.Driver
         /// </summary>
         public SafeMode SafeMode
         {
-            get { return safeMode; }
-            set { safeMode = value; }
+            get { return _safeMode; }
+            set { _safeMode = value; }
         }
     }
 }

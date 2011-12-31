@@ -26,23 +26,23 @@ namespace MongoDB.Driver.Internal
     internal class MongoKillCursorsMessage : MongoRequestMessage
     {
         // private fields
-        private long[] cursorIds;
+        private long[] _cursorIds;
 
         // constructors
         internal MongoKillCursorsMessage(params long[] cursorIds)
             : base(MessageOpcode.KillCursors, null, null)
         {
-            this.cursorIds = cursorIds;
+            _cursorIds = cursorIds;
         }
 
         // protected methods
         protected override void WriteBody()
         {
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteInt32(cursorIds.Length);
-            foreach (long cursorId in cursorIds)
+            _buffer.WriteInt32(0); // reserved
+            _buffer.WriteInt32(_cursorIds.Length);
+            foreach (long cursorId in _cursorIds)
             {
-                buffer.WriteInt64(cursorId);
+                _buffer.WriteInt64(cursorId);
             }
         }
     }

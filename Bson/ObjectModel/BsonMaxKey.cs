@@ -27,7 +27,7 @@ namespace MongoDB.Bson
     public class BsonMaxKey : BsonValue, IComparable<BsonMaxKey>, IEquatable<BsonMaxKey>
     {
         // private static fields
-        private static BsonMaxKey value = new BsonMaxKey();
+        private static BsonMaxKey __value = new BsonMaxKey();
 
         // constructors
         // private so only the singleton instance can be created
@@ -64,7 +64,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the singleton instance of BsonMaxKey.
         /// </summary>
-        public static BsonMaxKey Value { get { return value; } }
+        public static BsonMaxKey Value { get { return __value; } }
 
         // public methods
         /// <summary>
@@ -117,7 +117,7 @@ namespace MongoDB.Bson
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            return bsonType.GetHashCode();
+            return _bsonType.GetHashCode();
         }
 
         /// <summary>

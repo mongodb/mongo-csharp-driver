@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// The collection being queried.
         /// </summary>
-        protected MongoCollection collection;
+        protected MongoCollection _collection;
 
         // constructors
         /// <summary>
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="collection">The collection being queried.</param>
         protected MongoLinqQuery(MongoCollection collection)
         {
-            this.collection = collection;
+            _collection = collection;
         }
 
         // public methods

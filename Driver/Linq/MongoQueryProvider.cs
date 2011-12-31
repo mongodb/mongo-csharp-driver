@@ -29,14 +29,14 @@ namespace MongoDB.Driver.Linq
     public class MongoQueryProvider : IQueryProvider
     {
         // private static fields
-        private static Dictionary<Type, Func<MongoQueryProvider, Expression, IQueryable>> createQueryDelegates = new Dictionary<Type, Func<MongoQueryProvider, Expression, IQueryable>>();
-        private static MethodInfo createQueryGenericMethodDefinition;
-        private static Dictionary<Type, Func<MongoQueryProvider, Expression, object>> executeDelegates = new Dictionary<Type, Func<MongoQueryProvider, Expression, object>>();
-        private static MethodInfo executeGenericMethodDefinition;
-        private static object staticLock = new object();
+        private static Dictionary<Type, Func<MongoQueryProvider, Expression, IQueryable>> __createQueryDelegates = new Dictionary<Type, Func<MongoQueryProvider, Expression, IQueryable>>();
+        private static MethodInfo __createQueryGenericMethodDefinition;
+        private static Dictionary<Type, Func<MongoQueryProvider, Expression, object>> __executeDelegates = new Dictionary<Type, Func<MongoQueryProvider, Expression, object>>();
+        private static MethodInfo __executeGenericMethodDefinition;
+        private static object __staticLock = new object();
 
         // private fields
-        private MongoCollection collection;
+        private MongoCollection _collection;
 
         // static constructor
         static MongoQueryProvider()
@@ -45,11 +45,11 @@ namespace MongoDB.Driver.Linq
             {
                 if (methodInfo.Name == "CreateQuery" && methodInfo.IsGenericMethodDefinition)
                 {
-                    createQueryGenericMethodDefinition = methodInfo;
+                    __createQueryGenericMethodDefinition = methodInfo;
                 }
                 if (methodInfo.Name == "Execute" && methodInfo.IsGenericMethodDefinition)
                 {
-                    executeGenericMethodDefinition = methodInfo;
+                    __executeGenericMethodDefinition = methodInfo;
                 }
             }
         }
@@ -64,18 +64,18 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("collection");
             }
-            this.collection = collection;
+            _collection = collection;
         }
 
         // private static methods
         private static Func<MongoQueryProvider, Expression, IQueryable> GetCreateQueryDelegate(Type type)
         {
-            lock (staticLock)
+            lock (__staticLock)
             {
                 Func<MongoQueryProvider, Expression, IQueryable> createQueryDelegate;
-                if (!createQueryDelegates.TryGetValue(type, out createQueryDelegate))
+                if (!__createQueryDelegates.TryGetValue(type, out createQueryDelegate))
                 {
-                    var createQueryMethodInfo = createQueryGenericMethodDefinition.MakeGenericMethod(type);
+                    var createQueryMethodInfo = __createQueryGenericMethodDefinition.MakeGenericMethod(type);
 
                     // lambdaExpression = (provider, expression) => (IQueryable) provider.CreateQuery<T>(expression)
                     var providerParameter = Expression.Parameter(typeof(MongoQueryProvider), "provider");
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Linq
                         expressionParameter
                     );
                     createQueryDelegate = lambdaExpression.Compile();
-                    createQueryDelegates.Add(type, createQueryDelegate);
+                    __createQueryDelegates.Add(type, createQueryDelegate);
                 }
                 return createQueryDelegate;
             }
@@ -97,12 +97,12 @@ namespace MongoDB.Driver.Linq
 
         private static Func<MongoQueryProvider, Expression, object> GetExecuteDelegate(Type type)
         {
-            lock (staticLock)
+            lock (__staticLock)
             {
                 Func<MongoQueryProvider, Expression, object> executeDelegate;
-                if (!executeDelegates.TryGetValue(type, out executeDelegate))
+                if (!__executeDelegates.TryGetValue(type, out executeDelegate))
                 {
-                    var executeMethodInfo = executeGenericMethodDefinition.MakeGenericMethod(type);
+                    var executeMethodInfo = __executeGenericMethodDefinition.MakeGenericMethod(type);
 
                     // lambdaExpression = (provider, expression) => (object) provider.Execute<T>(expression)
                     var providerParameter = Expression.Parameter(typeof(MongoQueryProvider), "provider");
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Linq
                         expressionParameter
                     );
                     executeDelegate = lambdaExpression.Compile();
-                    executeDelegates.Add(type, executeDelegate);
+                    __executeDelegates.Add(type, executeDelegate);
                 }
                 return executeDelegate;
             }
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentException("Argument expression is not valid.");
             }
-            var translatedQuery = MongoLinqTranslator.Translate(collection, expression);
+            var translatedQuery = MongoLinqTranslator.Translate(_collection, expression);
             return (TResult)translatedQuery.Execute();
         }
 
@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentException("Argument expression is not valid.");
             }
-            var translatedQuery = MongoLinqTranslator.Translate(collection, expression);
+            var translatedQuery = MongoLinqTranslator.Translate(_collection, expression);
             return translatedQuery.GetEnumerator<T>();
         }
 
@@ -236,7 +236,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>A string.</returns>
         public string GetQueryText(Expression expression)
         {
-            var translatedQuery = MongoLinqTranslator.Translate(collection, expression);
+            var translatedQuery = MongoLinqTranslator.Translate(_collection, expression);
             return translatedQuery.ToString();
         }
     }

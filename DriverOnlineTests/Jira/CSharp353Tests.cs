@@ -32,26 +32,26 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp353
     [TestFixture]
     public class CSharp353Tests
     {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
-            database = server["onlinetests"];
-            collection = database["test"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
+            _database = _server["onlinetests"];
+            _collection = _database["test"];
         }
 
         [Test]
         public void TestDropDatabaseClearsIndexCache()
         {
-            server.IndexCache.Reset();
-            collection.EnsureIndex("x");
-            Assert.IsTrue(server.IndexCache.Contains(collection, "x_1"));
-            database.Drop();
-            Assert.IsFalse(server.IndexCache.Contains(collection, "x_1"));
+            _server.IndexCache.Reset();
+            _collection.EnsureIndex("x");
+            Assert.IsTrue(_server.IndexCache.Contains(_collection, "x_1"));
+            _database.Drop();
+            Assert.IsFalse(_server.IndexCache.Contains(_collection, "x_1"));
         }
     }
 }

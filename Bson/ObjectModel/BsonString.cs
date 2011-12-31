@@ -27,10 +27,10 @@ namespace MongoDB.Bson
     public class BsonString : BsonValue, IComparable<BsonString>, IEquatable<BsonString>
     {
         // private static fields
-        private static BsonString emptyInstance = new BsonString("");
+        private static BsonString __emptyInstance = new BsonString("");
 
         // private fields
-        private string value;
+        private string _value;
 
         // constructors
         /// <summary>
@@ -40,7 +40,7 @@ namespace MongoDB.Bson
         public BsonString(string value)
             : base(BsonType.String)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public static properties
@@ -49,7 +49,7 @@ namespace MongoDB.Bson
         /// </summary>
         public static BsonString Empty
         {
-            get { return emptyInstance; }
+            get { return __emptyInstance; }
         }
 
         // public properties
@@ -58,7 +58,7 @@ namespace MongoDB.Bson
         /// </summary>
         public override object RawValue
         {
-            get { return value; }
+            get { return _value; }
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace MongoDB.Bson
         /// </summary>
         public string Value
         {
-            get { return value; }
+            get { return _value; }
         }
 
         // public operators
@@ -131,7 +131,7 @@ namespace MongoDB.Bson
             if (value != null)
             {
                 // TODO: are there any other commonly used strings worth checking for?
-                return value == "" ? emptyInstance : new BsonString(value);
+                return value == "" ? __emptyInstance : new BsonString(value);
             }
             else
             {
@@ -148,7 +148,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonString other)
         {
             if (other == null) { return 1; }
-            return value.CompareTo(other.Value);
+            return _value.CompareTo(other.Value);
         }
 
         /// <summary>
@@ -162,12 +162,12 @@ namespace MongoDB.Bson
             var otherString = other as BsonString;
             if (otherString != null)
             {
-                return value.CompareTo(otherString.Value);
+                return _value.CompareTo(otherString.Value);
             }
             var otherSymbol = other as BsonSymbol;
             if (otherSymbol != null)
             {
-                return value.CompareTo(otherSymbol.Name);
+                return _value.CompareTo(otherSymbol.Name);
             }
             return CompareTypeTo(other);
         }
@@ -180,7 +180,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonString rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.value == rhs.value;
+            return _value == rhs._value;
         }
 
         /// <summary>
@@ -201,8 +201,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -212,7 +212,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return value;
+            return _value;
         }
     }
 }

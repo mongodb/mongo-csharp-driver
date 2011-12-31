@@ -48,14 +48,14 @@ namespace MongoDB.Bson.Serialization.Options
     public class DictionarySerializationOptions : IBsonSerializationOptions
     {
         // private static fields
-        private static DictionarySerializationOptions defaults = new DictionarySerializationOptions();
-        private static DictionarySerializationOptions dynamic = new DictionarySerializationOptions(DictionaryRepresentation.Dynamic);
-        private static DictionarySerializationOptions document = new DictionarySerializationOptions(DictionaryRepresentation.Document);
-        private static DictionarySerializationOptions arrayOfArrays = new DictionarySerializationOptions(DictionaryRepresentation.ArrayOfArrays);
-        private static DictionarySerializationOptions arrayOfDocuments = new DictionarySerializationOptions(DictionaryRepresentation.ArrayOfDocuments);
+        private static DictionarySerializationOptions __defaults = new DictionarySerializationOptions();
+        private static DictionarySerializationOptions __dynamic = new DictionarySerializationOptions(DictionaryRepresentation.Dynamic);
+        private static DictionarySerializationOptions __document = new DictionarySerializationOptions(DictionaryRepresentation.Document);
+        private static DictionarySerializationOptions __arrayOfArrays = new DictionarySerializationOptions(DictionaryRepresentation.ArrayOfArrays);
+        private static DictionarySerializationOptions __arrayOfDocuments = new DictionarySerializationOptions(DictionaryRepresentation.ArrayOfDocuments);
 
         // private fields
-        private DictionaryRepresentation representation = DictionaryRepresentation.Dynamic;
+        private DictionaryRepresentation _representation = DictionaryRepresentation.Dynamic;
 
         // constructors
         /// <summary>
@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <param name="representation">The representation to use for a Dictionary.</param>
         public DictionarySerializationOptions(DictionaryRepresentation representation)
         {
-            this.representation = representation;
+            _representation = representation;
         }
 
 
@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DictionarySerializationOptions ArrayOfArrays
         {
-            get { return arrayOfArrays; }
+            get { return __arrayOfArrays; }
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DictionarySerializationOptions ArrayOfDocuments
         {
-            get { return arrayOfDocuments; }
+            get { return __arrayOfDocuments; }
         }
 
         /// <summary>
@@ -97,8 +97,8 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DictionarySerializationOptions Defaults
         {
-            get { return defaults; }
-            set { defaults = value; }
+            get { return __defaults; }
+            set { __defaults = value; }
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DictionarySerializationOptions Document
         {
-            get { return document; }
+            get { return __document; }
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public static DictionarySerializationOptions Dynamic
         {
-            get { return dynamic; }
+            get { return __dynamic; }
         }
 
         // public properties
@@ -123,7 +123,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public DictionaryRepresentation Representation
         {
-            get { return representation; }
+            get { return _representation; }
         }
     }
 }

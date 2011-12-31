@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDictionaryOptionsAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
-        private DictionaryRepresentation representation = DictionaryRepresentation.Dynamic;
+        private DictionaryRepresentation _representation = DictionaryRepresentation.Dynamic;
 
         // constructors
         /// <summary>
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="representation">The representation to use for the Dictionary.</param>
         public BsonDictionaryOptionsAttribute(DictionaryRepresentation representation)
         {
-            this.representation = representation;
+            _representation = representation;
         }
 
         // public properties
@@ -55,8 +55,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         public DictionaryRepresentation Representation
         {
-            get { return representation; }
-            set { representation = value; }
+            get { return _representation; }
+            set { _representation = value; }
         }
 
         // public methods
@@ -66,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions()
         {
-            return new DictionarySerializationOptions(representation);
+            return new DictionarySerializationOptions(_representation);
         }
     }
 }

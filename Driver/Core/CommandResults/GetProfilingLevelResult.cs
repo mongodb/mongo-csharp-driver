@@ -43,7 +43,7 @@ namespace MongoDB.Driver
         /// </summary>
         public ProfilingLevel Level
         {
-            get { return (ProfilingLevel)response["was"].ToInt32(); }
+            get { return (ProfilingLevel)_response["was"].ToInt32(); }
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan Slow
         {
-            get { return TimeSpan.FromMilliseconds(response["slowms"].ToInt32()); }
+            get { return TimeSpan.FromMilliseconds(_response["slowms"].ToInt32()); }
         }
     }
 }

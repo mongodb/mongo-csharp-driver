@@ -24,24 +24,24 @@ namespace MongoDB.Bson.IO
     internal class BsonBinaryReaderContext
     {
         // private fields
-        private BsonBinaryReaderContext parentContext;
-        private ContextType contextType;
-        private int startPosition;
-        private int size;
+        private BsonBinaryReaderContext _parentContext;
+        private ContextType _contextType;
+        private int _startPosition;
+        private int _size;
 
         // constructors
         internal BsonBinaryReaderContext(BsonBinaryReaderContext parentContext, ContextType contextType, int startPosition, int size)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.startPosition = startPosition;
-            this.size = size;
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _startPosition = startPosition;
+            _size = size;
         }
 
         // internal properties
         internal ContextType ContextType
         {
-            get { return contextType; }
+            get { return _contextType; }
         }
 
         // public methods
@@ -51,18 +51,18 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the context.</returns>
         public BsonBinaryReaderContext Clone()
         {
-            return new BsonBinaryReaderContext(parentContext, contextType, startPosition, size);
+            return new BsonBinaryReaderContext(_parentContext, _contextType, _startPosition, _size);
         }
 
         public BsonBinaryReaderContext PopContext(int position)
         {
-            int actualSize = position - startPosition;
-            if (actualSize != size)
+            int actualSize = position - _startPosition;
+            if (actualSize != _size)
             {
-                var message = string.Format("Expected size to be {0}, not {1}.", size, actualSize);
+                var message = string.Format("Expected size to be {0}, not {1}.", _size, actualSize);
                 throw new FileFormatException(message);
             }
-            return parentContext;
+            return _parentContext;
         }
     }
 }

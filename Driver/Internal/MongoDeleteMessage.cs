@@ -29,36 +29,36 @@ namespace MongoDB.Driver.Internal
     internal class MongoDeleteMessage : MongoRequestMessage
     {
         // private fields
-        private string collectionFullName;
-        private RemoveFlags flags;
-        private IMongoQuery query;
+        private string _collectionFullName;
+        private RemoveFlags _flags;
+        private IMongoQuery _query;
 
         // constructors
         internal MongoDeleteMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, RemoveFlags flags, IMongoQuery query)
             : base(MessageOpcode.Delete, null, writerSettings)
         {
-            this.collectionFullName = collectionFullName;
-            this.flags = flags;
-            this.query = query;
+            _collectionFullName = collectionFullName;
+            _flags = flags;
+            _query = query;
         }
 
         // protected methods
         protected override void WriteBody()
         {
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(collectionFullName);
-            buffer.WriteInt32((int)flags);
+            _buffer.WriteInt32(0); // reserved
+            _buffer.WriteCString(_collectionFullName);
+            _buffer.WriteInt32((int)_flags);
 
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings))
+            using (var bsonWriter = BsonWriter.Create(_buffer, _writerSettings))
             {
-                if (query == null)
+                if (_query == null)
                 {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteEndDocument();
                 }
                 else
                 {
-                    BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                    BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 }
             }
         }

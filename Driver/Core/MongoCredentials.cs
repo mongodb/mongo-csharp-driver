@@ -27,9 +27,9 @@ namespace MongoDB.Driver
     public class MongoCredentials : IEquatable<MongoCredentials>
     {
         // private fields
-        private string username;
-        private string password;
-        private bool admin;
+        private string _username;
+        private string _password;
+        private bool _admin;
 
         // constructors
         /// <summary>
@@ -42,15 +42,15 @@ namespace MongoDB.Driver
             ValidatePassword(password);
             if (username.EndsWith("(admin)"))
             {
-                this.username = username.Substring(0, username.Length - 7);
-                this.password = password;
-                this.admin = true;
+                _username = username.Substring(0, username.Length - 7);
+                _password = password;
+                _admin = true;
             }
             else
             {
-                this.username = username;
-                this.password = password;
-                this.admin = false;
+                _username = username;
+                _password = password;
+                _admin = false;
             }
         }
 
@@ -63,9 +63,9 @@ namespace MongoDB.Driver
         public MongoCredentials(string username, string password, bool admin)
         {
             ValidatePassword(password);
-            this.username = username;
-            this.password = password;
-            this.admin = admin;
+            _username = username;
+            _password = password;
+            _admin = admin;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Username
         {
-            get { return username; }
+            get { return _username; }
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Password
         {
-            get { return password; }
+            get { return _password; }
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Admin
         {
-            get { return admin; }
+            get { return _admin; }
         }
 
         // public operators
@@ -144,7 +144,7 @@ namespace MongoDB.Driver
         public bool Equals(MongoCredentials rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.username == rhs.username && this.password == rhs.password && this.admin == rhs.admin;
+            return _username == rhs._username && _password == rhs._password && _admin == rhs._admin;
         }
 
         /// <summary>
@@ -165,9 +165,9 @@ namespace MongoDB.Driver
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + username.GetHashCode();
-            hash = 37 * hash + password.GetHashCode();
-            hash = 37 * hash + admin.GetHashCode();
+            hash = 37 * hash + _username.GetHashCode();
+            hash = 37 * hash + _password.GetHashCode();
+            hash = 37 * hash + _admin.GetHashCode();
             return hash;
         }
 
@@ -177,7 +177,7 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the credentials.</returns>
         public override string ToString()
         {
-            return string.Format("{0}{1}:{2}", username, admin ? "(admin)" : "", password);
+            return string.Format("{0}{1}:{2}", _username, _admin ? "(admin)" : "", _password);
         }
 
         // private methods

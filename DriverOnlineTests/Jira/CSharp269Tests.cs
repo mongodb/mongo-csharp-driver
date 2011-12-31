@@ -32,16 +32,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp269
     [TestFixture]
     public class CSharp269Tests
     {
-        private MongoServer server;
-        private MongoDatabase database;
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
-            database = server["onlinetests"];
-            database.GridFS.Files.Drop();
-            database.GridFS.Chunks.Drop();
+            _server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
+            _database = _server["onlinetests"];
+            _database.GridFS.Files.Drop();
+            _database.GridFS.Chunks.Drop();
         }
 
         [Test]
@@ -51,12 +51,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp269
             var bytes = Encoding.UTF8.GetBytes(text);
             using (var stream = new MemoryStream(bytes))
             {
-                database.GridFS.Upload(stream, "HelloWorld.txt");
+                _database.GridFS.Upload(stream, "HelloWorld.txt");
             }
 
             using (var stream = new MemoryStream())
             {
-                database.GridFS.Download(stream, "HelloWorld.txt");
+                _database.GridFS.Download(stream, "HelloWorld.txt");
                 var downloadedBytes = stream.ToArray();
                 var downloadedText = Encoding.UTF8.GetString(downloadedBytes);
                 Assert.AreEqual("HelloWorld", downloadedText);

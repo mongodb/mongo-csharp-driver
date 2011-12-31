@@ -39,36 +39,36 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp130
         }
 #pragma warning restore
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost"); // not safe=true
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("csharp130");
+            _server = MongoServer.Create("mongodb://localhost"); // not safe=true
+            _database = _server["onlinetests"];
+            _collection = _database.GetCollection<C>("csharp130");
         }
 
         [Test]
         public void TestLastErrorMessage()
         {
-            using (server.RequestStart(database))
+            using (_server.RequestStart(_database))
             {
                 var c = new C { List = new List<int>() };
 
                 // insert it once
-                collection.Insert(c);
-                var lastError = server.GetLastError();
+                _collection.Insert(c);
+                var lastError = _server.GetLastError();
                 Assert.AreEqual(0, lastError.DocumentsAffected);
                 Assert.IsFalse(lastError.HasLastErrorMessage);
                 Assert.IsNull(lastError.LastErrorMessage);
                 Assert.IsFalse(lastError.UpdatedExisting);
 
                 // insert it again (expect duplicate key error)
-                collection.Insert(c);
-                lastError = server.GetLastError();
+                _collection.Insert(c);
+                lastError = _server.GetLastError();
                 Assert.AreEqual(0, lastError.DocumentsAffected);
                 Assert.IsTrue(lastError.HasLastErrorMessage);
                 Assert.IsNotNull(lastError.LastErrorMessage);

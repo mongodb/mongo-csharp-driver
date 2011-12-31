@@ -38,30 +38,30 @@ namespace MongoDB.DriverOnlineTests.Linq
             public int Y { get; set; }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            server.Connect();
-            database = server["onlinetests"];
-            collection = database["linqtests"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _server.Connect();
+            _database = _server["onlinetests"];
+            _collection = _database["linqtests"];
         }
 
         [Test]
         public void TestConstructor()
         {
-            var provider = new MongoQueryProvider(collection);
+            var provider = new MongoQueryProvider(_collection);
         }
 
         [Test]
         public void TestCreateQuery()
         {
-            var expression = collection.AsQueryable<C>().Expression;
-            var provider = new MongoQueryProvider(collection);
+            var expression = _collection.AsQueryable<C>().Expression;
+            var provider = new MongoQueryProvider(_collection);
             var query = provider.CreateQuery<C>(expression);
             Assert.AreSame(typeof(C), query.ElementType);
             Assert.AreSame(provider, query.Provider);
@@ -71,8 +71,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         [Test]
         public void TestCreateQueryNonGeneric()
         {
-            var expression = collection.AsQueryable<C>().Expression;
-            var provider = new MongoQueryProvider(collection);
+            var expression = _collection.AsQueryable<C>().Expression;
+            var provider = new MongoQueryProvider(_collection);
             var query = provider.CreateQuery(expression);
             Assert.AreSame(typeof(C), query.ElementType);
             Assert.AreSame(provider, query.Provider);

@@ -35,17 +35,17 @@ namespace MongoDB.Driver
     public class MongoCursorEnumerator<TDocument> : IEnumerator<TDocument>
     {
         // private fields
-        private bool disposed = false;
-        private bool started = false;
-        private bool done = false;
-        private MongoCursor<TDocument> cursor;
-        private MongoServerInstance serverInstance; // set when first request is sent to server instance
-        private int count;
-        private int positiveLimit;
-        private MongoReplyMessage<TDocument> reply;
-        private int replyIndex;
-        private ResponseFlags responseFlags;
-        private long openCursorId;
+        private bool _disposed = false;
+        private bool _started = false;
+        private bool _done = false;
+        private MongoCursor<TDocument> _cursor;
+        private MongoServerInstance _serverInstance; // set when first request is sent to server instance
+        private int _count;
+        private int _positiveLimit;
+        private MongoReplyMessage<TDocument> _reply;
+        private int _replyIndex;
+        private ResponseFlags _responseFlags;
+        private long _openCursorId;
 
         // constructors
         /// <summary>
@@ -54,8 +54,8 @@ namespace MongoDB.Driver
         /// <param name="cursor">The cursor to be enumerated.</param>
         public MongoCursorEnumerator(MongoCursor<TDocument> cursor)
         {
-            this.cursor = cursor;
-            this.positiveLimit = cursor.Limit >= 0 ? cursor.Limit : -cursor.Limit;
+            _cursor = cursor;
+            _positiveLimit = cursor.Limit >= 0 ? cursor.Limit : -cursor.Limit;
         }
 
         // public properties
@@ -66,16 +66,16 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
-                if (!started)
+                if (_disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
+                if (!_started)
                 {
                     throw new InvalidOperationException("Current is not valid until MoveNext has been called.");
                 }
-                if (done)
+                if (_done)
                 {
                     throw new InvalidOperationException("Current is not valid after MoveNext has returned false.");
                 }
-                return reply.Documents[replyIndex];
+                return _reply.Documents[_replyIndex];
             }
         }
 
@@ -84,7 +84,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IsDead
         {
-            get { return openCursorId == 0; }
+            get { return _openCursorId == 0; }
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IsServerAwaitCapable
         {
-            get { return (responseFlags & ResponseFlags.AwaitCapable) != 0; }
+            get { return (_responseFlags & ResponseFlags.AwaitCapable) != 0; }
         }
 
         // public methods
@@ -101,7 +101,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void Dispose()
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 try
                 {
@@ -109,7 +109,7 @@ namespace MongoDB.Driver
                 }
                 finally
                 {
-                    disposed = true;
+                    _disposed = true;
                 }
             }
         }
@@ -120,15 +120,15 @@ namespace MongoDB.Driver
         /// <returns>True if another result is available.</returns>
         public bool MoveNext()
         {
-            if (disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
-            if (done)
+            if (_disposed) { throw new ObjectDisposedException("MongoCursorEnumerator"); }
+            if (_done)
             {
                 // normally once MoveNext returns false the enumerator is done and MoveNext will return false forever after that
                 // but for a tailable cursor MoveNext can return false for awhile and eventually return true again once new data arrives
                 // so a tailable cursor is never really done (at least while there is still an open cursor)
-                if ((cursor.Flags & QueryFlags.TailableCursor) != 0 && openCursorId != 0)
+                if ((_cursor.Flags & QueryFlags.TailableCursor) != 0 && _openCursorId != 0)
                 {
-                    done = false;
+                    _done = false;
                 }
                 else
                 {
@@ -136,54 +136,54 @@ namespace MongoDB.Driver
                 }
             }
 
-            if (!started)
+            if (!_started)
             {
-                reply = GetFirst();
-                if (reply.Documents.Count == 0)
+                _reply = GetFirst();
+                if (_reply.Documents.Count == 0)
                 {
-                    reply = null;
-                    done = true;
+                    _reply = null;
+                    _done = true;
                     return false;
                 }
-                replyIndex = -1;
-                started = true;
+                _replyIndex = -1;
+                _started = true;
             }
 
-            if (positiveLimit != 0 && count == positiveLimit)
+            if (_positiveLimit != 0 && _count == _positiveLimit)
             {
                 KillCursor(); // early exit
-                reply = null;
-                done = true;
+                _reply = null;
+                _done = true;
                 return false;
             }
 
             // reply would only be null if the cursor is tailable and temporarily ran out of documents
-            if (reply != null && replyIndex < reply.Documents.Count - 1)
+            if (_reply != null && _replyIndex < _reply.Documents.Count - 1)
             {
-                replyIndex++; // move to next document in the current reply
+                _replyIndex++; // move to next document in the current reply
             }
             else
             {
-                if (openCursorId != 0)
+                if (_openCursorId != 0)
                 {
-                    reply = GetMore();
-                    if (reply.Documents.Count == 0)
+                    _reply = GetMore();
+                    if (_reply.Documents.Count == 0)
                     {
-                        reply = null;
-                        done = true;
+                        _reply = null;
+                        _done = true;
                         return false;
                     }
-                    replyIndex = 0;
+                    _replyIndex = 0;
                 }
                 else
                 {
-                    reply = null;
-                    done = true;
+                    _reply = null;
+                    _done = true;
                     return false;
                 }
             }
 
-            count++;
+            _count++;
             return true;
         }
 
@@ -204,17 +204,17 @@ namespace MongoDB.Driver
         // private methods
         private MongoConnection AcquireConnection()
         {
-            if (serverInstance == null)
+            if (_serverInstance == null)
             {
                 // first time we need a connection let Server.AcquireConnection pick the server instance
-                var connection = cursor.Server.AcquireConnection(cursor.Database, cursor.SlaveOk);
-                serverInstance = connection.ServerInstance;
+                var connection = _cursor.Server.AcquireConnection(_cursor.Database, _cursor.SlaveOk);
+                _serverInstance = connection.ServerInstance;
                 return connection;
             }
             else
             {
                 // all subsequent requests for the same cursor must go to the same server instance
-                return cursor.Server.AcquireConnection(cursor.Database, serverInstance);
+                return _cursor.Server.AcquireConnection(_cursor.Database, _serverInstance);
             }
         }
 
@@ -226,36 +226,36 @@ namespace MongoDB.Driver
                 // some of these weird conditions are necessary to get commands to run correctly
                 // specifically numberToReturn has to be 1 or -1 for commands
                 int numberToReturn;
-                if (cursor.Limit < 0)
+                if (_cursor.Limit < 0)
                 {
-                    numberToReturn = cursor.Limit;
+                    numberToReturn = _cursor.Limit;
                 }
-                else if (cursor.Limit == 0)
+                else if (_cursor.Limit == 0)
                 {
-                    numberToReturn = cursor.BatchSize;
+                    numberToReturn = _cursor.BatchSize;
                 }
-                else if (cursor.BatchSize == 0)
+                else if (_cursor.BatchSize == 0)
                 {
-                    numberToReturn = cursor.Limit;
+                    numberToReturn = _cursor.Limit;
                 }
-                else if (cursor.Limit < cursor.BatchSize)
+                else if (_cursor.Limit < _cursor.BatchSize)
                 {
-                    numberToReturn = cursor.Limit;
+                    numberToReturn = _cursor.Limit;
                 }
                 else
                 {
-                    numberToReturn = cursor.BatchSize;
+                    numberToReturn = _cursor.BatchSize;
                 }
 
-                var writerSettings = cursor.Collection.GetWriterSettings(connection);
-                using (var message = new MongoQueryMessage(writerSettings, cursor.Collection.FullName, cursor.Flags, cursor.Skip, numberToReturn, WrapQuery(), cursor.Fields))
+                var writerSettings = _cursor.Collection.GetWriterSettings(connection);
+                using (var message = new MongoQueryMessage(writerSettings, _cursor.Collection.FullName, _cursor.Flags, _cursor.Skip, numberToReturn, WrapQuery(), _cursor.Fields))
                 {
                     return GetReply(connection, message);
                 }
             }
             finally
             {
-                cursor.Server.ReleaseConnection(connection);
+                _cursor.Server.ReleaseConnection(connection);
             }
         }
 
@@ -265,80 +265,80 @@ namespace MongoDB.Driver
             try
             {
                 int numberToReturn;
-                if (positiveLimit != 0)
+                if (_positiveLimit != 0)
                 {
-                    numberToReturn = positiveLimit - count;
-                    if (cursor.BatchSize != 0 && numberToReturn > cursor.BatchSize)
+                    numberToReturn = _positiveLimit - _count;
+                    if (_cursor.BatchSize != 0 && numberToReturn > _cursor.BatchSize)
                     {
-                        numberToReturn = cursor.BatchSize;
+                        numberToReturn = _cursor.BatchSize;
                     }
                 }
                 else
                 {
-                    numberToReturn = cursor.BatchSize;
+                    numberToReturn = _cursor.BatchSize;
                 }
 
-                using (var message = new MongoGetMoreMessage(cursor.Collection.FullName, numberToReturn, openCursorId))
+                using (var message = new MongoGetMoreMessage(_cursor.Collection.FullName, numberToReturn, _openCursorId))
                 {
                     return GetReply(connection, message);
                 }
             }
             finally
             {
-                cursor.Server.ReleaseConnection(connection);
+                _cursor.Server.ReleaseConnection(connection);
             }
         }
 
         private MongoReplyMessage<TDocument> GetReply(MongoConnection connection, MongoRequestMessage message)
         {
-            var readerSettings = cursor.Collection.GetReaderSettings(connection);
+            var readerSettings = _cursor.Collection.GetReaderSettings(connection);
             connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
-            var reply = connection.ReceiveMessage<TDocument>(readerSettings, cursor.SerializationOptions);
-            responseFlags = reply.ResponseFlags;
-            openCursorId = reply.CursorId;
+            var reply = connection.ReceiveMessage<TDocument>(readerSettings, _cursor.SerializationOptions);
+            _responseFlags = reply.ResponseFlags;
+            _openCursorId = reply.CursorId;
             return reply;
         }
 
         private void KillCursor()
         {
-            if (openCursorId != 0)
+            if (_openCursorId != 0)
             {
                 try
                 {
-                    if (serverInstance != null && serverInstance.State == MongoServerState.Connected)
+                    if (_serverInstance != null && _serverInstance.State == MongoServerState.Connected)
                     {
-                        var connection = cursor.Server.AcquireConnection(cursor.Database, serverInstance);
+                        var connection = _cursor.Server.AcquireConnection(_cursor.Database, _serverInstance);
                         try
                         {
-                            using (var message = new MongoKillCursorsMessage(openCursorId))
+                            using (var message = new MongoKillCursorsMessage(_openCursorId))
                             {
                                 connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
                             }
                         }
                         finally
                         {
-                            cursor.Server.ReleaseConnection(connection);
+                            _cursor.Server.ReleaseConnection(connection);
                         }
                     }
                 }
                 finally
                 {
-                    openCursorId = 0;
+                    _openCursorId = 0;
                 }
             }
         }
 
         private IMongoQuery WrapQuery()
         {
-            if (cursor.Options == null)
+            if (_cursor.Options == null)
             {
-                return cursor.Query;
+                return _cursor.Query;
             }
             else
             {
-                var query = (cursor.Query == null) ? (BsonValue)new BsonDocument() : BsonDocumentWrapper.Create(cursor.Query);
+                var query = (_cursor.Query == null) ? (BsonValue)new BsonDocument() : BsonDocumentWrapper.Create(_cursor.Query);
                 var wrappedQuery = new QueryDocument("$query", query);
-                wrappedQuery.Merge(cursor.Options);
+                wrappedQuery.Merge(_cursor.Options);
                 return wrappedQuery;
             }
         }

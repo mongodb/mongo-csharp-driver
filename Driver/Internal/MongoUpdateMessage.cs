@@ -29,43 +29,43 @@ namespace MongoDB.Driver.Internal
     internal class MongoUpdateMessage : MongoRequestMessage
     {
         // private fields
-        private string collectionFullName;
-        private bool checkUpdateDocument;
-        private UpdateFlags flags;
-        private IMongoQuery query;
-        private IMongoUpdate update;
+        private string _collectionFullName;
+        private bool _checkUpdateDocument;
+        private UpdateFlags _flags;
+        private IMongoQuery _query;
+        private IMongoUpdate _update;
 
         // constructors
         internal MongoUpdateMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, bool checkUpdateDocument, UpdateFlags flags, IMongoQuery query, IMongoUpdate update)
             : base(MessageOpcode.Update, null, writerSettings)
         {
-            this.collectionFullName = collectionFullName;
-            this.checkUpdateDocument = checkUpdateDocument;
-            this.flags = flags;
-            this.query = query;
-            this.update = update;
+            _collectionFullName = collectionFullName;
+            _checkUpdateDocument = checkUpdateDocument;
+            _flags = flags;
+            _query = query;
+            _update = update;
         }
 
         // protected methods
         protected override void WriteBody()
         {
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(collectionFullName);
-            buffer.WriteInt32((int)flags);
+            _buffer.WriteInt32(0); // reserved
+            _buffer.WriteCString(_collectionFullName);
+            _buffer.WriteInt32((int)_flags);
 
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings))
+            using (var bsonWriter = BsonWriter.Create(_buffer, _writerSettings))
             {
-                if (query == null)
+                if (_query == null)
                 {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteEndDocument();
                 }
                 else
                 {
-                    BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                    BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 }
-                bsonWriter.CheckUpdateDocument = checkUpdateDocument;
-                BsonSerializer.Serialize(bsonWriter, update.GetType(), update, DocumentSerializationOptions.SerializeIdFirstInstance);
+                bsonWriter.CheckUpdateDocument = _checkUpdateDocument;
+                BsonSerializer.Serialize(bsonWriter, _update.GetType(), _update, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
         }
     }

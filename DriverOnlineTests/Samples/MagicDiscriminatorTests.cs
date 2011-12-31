@@ -89,16 +89,16 @@ namespace MongoDB.DriverOnlineTests.Samples
             }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<A> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<A> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["test"];
-            collection = database.GetCollection<A>("magicdiscriminator");
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["test"];
+            _collection = _database.GetCollection<A>("magicdiscriminator");
         }
 
         [Test]
@@ -110,9 +110,9 @@ namespace MongoDB.DriverOnlineTests.Samples
             var expected = "{ 'InA' : 'a', 'OnlyInB' : 'b' }".Replace("'", "\""); // note: no _t discriminator!
             Assert.AreEqual(expected, json);
 
-            collection.RemoveAll();
-            collection.Insert(b);
-            var copy = (B)collection.FindOne();
+            _collection.RemoveAll();
+            _collection.Insert(b);
+            var copy = (B)_collection.FindOne();
             Assert.IsInstanceOf<B>(copy);
             Assert.AreEqual("a", copy.InA);
             Assert.AreEqual("b", copy.OnlyInB);
@@ -127,9 +127,9 @@ namespace MongoDB.DriverOnlineTests.Samples
             var expected = "{ 'InA' : 'a', 'OnlyInC' : 'c' }".Replace("'", "\""); // note: no _t discriminator!
             Assert.AreEqual(expected, json);
 
-            collection.RemoveAll();
-            collection.Insert(c);
-            var copy = (C)collection.FindOne();
+            _collection.RemoveAll();
+            _collection.Insert(c);
+            var copy = (C)_collection.FindOne();
             Assert.IsInstanceOf<C>(copy);
             Assert.AreEqual("a", copy.InA);
             Assert.AreEqual("c", copy.OnlyInC);

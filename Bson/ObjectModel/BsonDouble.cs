@@ -29,7 +29,7 @@ namespace MongoDB.Bson
     public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble>
     {
         // private fields
-        private double value;
+        private double _value;
 
         // constructors
         /// <summary>
@@ -39,7 +39,7 @@ namespace MongoDB.Bson
         public BsonDouble(double value)
             : base(BsonType.Double)
         {
-            this.value = value;
+            _value = value;
         }
 
         // public properties
@@ -48,7 +48,7 @@ namespace MongoDB.Bson
         /// </summary>
         public override object RawValue
         {
-            get { return value; }
+            get { return _value; }
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace MongoDB.Bson
         /// </summary>
         public double Value
         {
-            get { return value; }
+            get { return _value; }
         }
 
         // public operators
@@ -130,7 +130,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonDouble other)
         {
             if (other == null) { return 1; }
-            return value.CompareTo(other.value);
+            return _value.CompareTo(other._value);
         }
 
         /// <summary>
@@ -144,17 +144,17 @@ namespace MongoDB.Bson
             var otherDouble = other as BsonDouble;
             if (otherDouble != null)
             {
-                return value.CompareTo(otherDouble.value);
+                return _value.CompareTo(otherDouble._value);
             }
             var otherInt32 = other as BsonInt32;
             if (otherInt32 != null)
             {
-                return value.CompareTo((double)otherInt32.Value);
+                return _value.CompareTo((double)otherInt32.Value);
             }
             var otherInt64 = other as BsonInt64;
             if (otherInt64 != null)
             {
-                return value.CompareTo((double)otherInt64.Value);
+                return _value.CompareTo((double)otherInt64.Value);
             }
             return CompareTypeTo(other);
         }
@@ -167,7 +167,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonDouble rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.value.Equals(rhs.value); // use Equals instead of == so NaN is handled correctly
+            return _value.Equals(rhs._value); // use Equals instead of == so NaN is handled correctly
         }
 
         /// <summary>
@@ -188,8 +188,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -199,7 +199,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return value.ToString("R", NumberFormatInfo.InvariantInfo);
+            return _value.ToString("R", NumberFormatInfo.InvariantInfo);
         }
 
         // protected methods
@@ -213,19 +213,19 @@ namespace MongoDB.Bson
             var rhsDouble = rhs as BsonDouble;
             if (rhsDouble != null)
             {
-                return this.value == rhsDouble.value; // use == instead of Equals so NaN is handled correctly
+                return _value == rhsDouble._value; // use == instead of Equals so NaN is handled correctly
             }
 
             var rhsInt32 = rhs as BsonInt32;
             if (rhsInt32 != null)
             {
-                return this.value == (double)rhsInt32.Value;
+                return _value == (double)rhsInt32.Value;
             }
 
             var rhsInt64 = rhs as BsonInt64;
             if (rhsInt64 != null)
             {
-                return this.value == (double)rhsInt64.Value;
+                return _value == (double)rhsInt64.Value;
             }
 
             return this.Equals(rhs);

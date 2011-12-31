@@ -33,11 +33,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// The command.
         /// </summary>
-        protected IMongoCommand command;
+        protected IMongoCommand _command;
         /// <summary>
         /// The response.
         /// </summary>
-        protected BsonDocument response;
+        protected BsonDocument _response;
 
         // constructors
         /// <summary>
@@ -56,8 +56,8 @@ namespace MongoDB.Driver
         /// <param name="response">The response.</param>
         public CommandResult(IMongoCommand command, BsonDocument response)
         {
-            this.command = command;
-            this.response = response;
+            _command = command;
+            _response = response;
         }
 
         // public properties
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IMongoCommand Command
         {
-            get { return command; }
+            get { return _command; }
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string CommandName
         {
-            get { return command.ToBsonDocument().GetElement(0).Name; }
+            get { return _command.ToBsonDocument().GetElement(0).Name; }
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Response
         {
-            get { return response; }
+            get { return _response; }
         }
 
         /// <summary>
@@ -93,14 +93,14 @@ namespace MongoDB.Driver
             get
             {
                 BsonValue ok;
-                if (response.TryGetValue("ok", out ok) && ok.ToBoolean())
+                if (_response.TryGetValue("ok", out ok) && ok.ToBoolean())
                 {
                     return null;
                 }
                 else
                 {
                     BsonValue errmsg;
-                    if (response.TryGetValue("errmsg", out errmsg) && !errmsg.IsBsonNull)
+                    if (_response.TryGetValue("errmsg", out errmsg) && !errmsg.IsBsonNull)
                     {
                         return errmsg.ToString();
                     }
@@ -120,13 +120,13 @@ namespace MongoDB.Driver
             get
             {
                 BsonValue ok;
-                if (response.TryGetValue("ok", out ok))
+                if (_response.TryGetValue("ok", out ok))
                 {
                     return ok.ToBoolean();
                 }
                 else
                 {
-                    var message = string.Format("Command '{0}' failed. Response has no ok element (response was {1}).", CommandName, response.ToJson());
+                    var message = string.Format("Command '{0}' failed. Response has no ok element (response was {1}).", CommandName, _response.ToJson());
                     throw new MongoCommandException(message, this);
                 }
             }
@@ -141,13 +141,13 @@ namespace MongoDB.Driver
         // used after a constructor with no arguments (when creating a CommandResult from a generic type parameter)
         public void Initialize(IMongoCommand command, BsonDocument response)
         {
-            if (this.command != null || this.response != null)
+            if (_command != null || _response != null)
             {
                 var message = string.Format("{0} has already been initialized.", this.GetType().Name);
                 throw new InvalidOperationException(message);
             }
-            this.command = command;
-            this.response = response;
+            _command = command;
+            _response = response;
         }
     }
 }

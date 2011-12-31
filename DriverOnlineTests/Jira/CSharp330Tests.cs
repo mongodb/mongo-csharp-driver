@@ -28,20 +28,20 @@ namespace MongoDB.DriverOnlineTests.Jira
     [TestFixture]
     public class CSharp330Tests
     {
-        private MongoServer server;
-        private MongoDatabase database;
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
         }
 
         [Test]
         public void TestMongoGridFSSettingsInheritsSafeModeFromDatabase()
         {
-            var gridFS = database.GridFS;
+            var gridFS = _database.GridFS;
             Assert.AreEqual(true, gridFS.Settings.SafeMode.Enabled);
         }
     }

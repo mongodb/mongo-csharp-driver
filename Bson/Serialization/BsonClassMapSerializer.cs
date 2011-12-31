@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization
     public class BsonClassMapSerializer : IBsonSerializer
     {
         // private static fields
-        private static BsonClassMapSerializer instance = new BsonClassMapSerializer();
+        private static BsonClassMapSerializer __instance = new BsonClassMapSerializer();
 
         // constructors
         /// <summary>
@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public static BsonClassMapSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods

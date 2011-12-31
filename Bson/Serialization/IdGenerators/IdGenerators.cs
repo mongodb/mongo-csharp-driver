@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class BsonObjectIdGenerator : IIdGenerator
     {
         // private static fields
-        private static BsonObjectIdGenerator instance = new BsonObjectIdGenerator();
+        private static BsonObjectIdGenerator __instance = new BsonObjectIdGenerator();
 
         // constructors
         /// <summary>
@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         /// </summary>
         public static BsonObjectIdGenerator Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -79,7 +79,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class CombGuidGenerator : IIdGenerator
     {
         // private static fields
-        private static CombGuidGenerator instance = new CombGuidGenerator();
+        private static CombGuidGenerator __instance = new CombGuidGenerator();
 
         // constructors
         /// <summary>
@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         /// </summary>
         public static CombGuidGenerator Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -144,7 +144,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class GuidGenerator : IIdGenerator
     {
         // private static fields
-        private static GuidGenerator instance = new GuidGenerator();
+        private static GuidGenerator __instance = new GuidGenerator();
 
         // constructors
         /// <summary>
@@ -160,7 +160,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         /// </summary>
         public static GuidGenerator Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -192,7 +192,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class NullIdChecker : IIdGenerator
     {
         // private static fields
-        private static NullIdChecker instance = new NullIdChecker();
+        private static NullIdChecker __instance = new NullIdChecker();
 
         // constructors
         /// <summary>
@@ -208,7 +208,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         /// </summary>
         public static NullIdChecker Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -240,7 +240,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class ObjectIdGenerator : IIdGenerator
     {
         // private static fields
-        private static ObjectIdGenerator instance = new ObjectIdGenerator();
+        private static ObjectIdGenerator __instance = new ObjectIdGenerator();
 
         // constructors
         /// <summary>
@@ -256,7 +256,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         /// </summary>
         public static ObjectIdGenerator Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -288,7 +288,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class StringObjectIdGenerator : IIdGenerator
     {
         // private static fields
-        private static StringObjectIdGenerator instance = new StringObjectIdGenerator();
+        private static StringObjectIdGenerator __instance = new StringObjectIdGenerator();
 
         // constructors
         /// <summary>
@@ -304,7 +304,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         /// </summary>
         public static StringObjectIdGenerator Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods

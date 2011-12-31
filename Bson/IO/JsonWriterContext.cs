@@ -24,39 +24,39 @@ namespace MongoDB.Bson.IO
     internal class JsonWriterContext
     {
         // private fields
-        private JsonWriterContext parentContext;
-        private ContextType contextType;
-        private string indentation;
-        private bool hasElements = false;
+        private JsonWriterContext _parentContext;
+        private ContextType _contextType;
+        private string _indentation;
+        private bool _hasElements = false;
 
         // constructors
         internal JsonWriterContext(JsonWriterContext parentContext, ContextType contextType, string indentChars)
         {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.indentation = (parentContext == null) ? indentChars : parentContext.Indentation + indentChars;
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _indentation = (parentContext == null) ? indentChars : parentContext.Indentation + indentChars;
         }
 
         // internal properties
         internal JsonWriterContext ParentContext
         {
-            get { return parentContext; }
+            get { return _parentContext; }
         }
 
         internal ContextType ContextType
         {
-            get { return contextType; }
+            get { return _contextType; }
         }
 
         internal string Indentation
         {
-            get { return indentation; }
+            get { return _indentation; }
         }
 
         internal bool HasElements
         {
-            get { return hasElements; }
-            set { hasElements = value; }
+            get { return _hasElements; }
+            set { _hasElements = value; }
         }
     }
 }

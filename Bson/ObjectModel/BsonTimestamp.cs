@@ -28,7 +28,7 @@ namespace MongoDB.Bson
     public class BsonTimestamp : BsonValue, IComparable<BsonTimestamp>, IEquatable<BsonTimestamp>
     {
         // private fields
-        private long value;
+        private long _value;
 
         // constructors
         /// <summary>
@@ -38,7 +38,7 @@ namespace MongoDB.Bson
         public BsonTimestamp(long value)
             : base(BsonType.Timestamp)
         {
-            this.value = value;
+            _value = value;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace MongoDB.Bson
         public BsonTimestamp(int timestamp, int increment)
             : base(BsonType.Timestamp)
         {
-            this.value = ((long)timestamp << 32) + increment;
+            _value = ((long)timestamp << 32) + increment;
         }
 
         // public operators
@@ -82,7 +82,7 @@ namespace MongoDB.Bson
         /// </summary>
         public long Value
         {
-            get { return value; }
+            get { return _value; }
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Increment
         {
-            get { return (int)value; }
+            get { return (int)_value; }
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Timestamp
         {
-            get { return (int)(value >> 32); }
+            get { return (int)(_value >> 32); }
         }
 
         // public static methods
@@ -149,7 +149,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonTimestamp other)
         {
             if (other == null) { return 1; }
-            return value.CompareTo(other.value);
+            return _value.CompareTo(other._value);
         }
 
         /// <summary>
@@ -163,14 +163,14 @@ namespace MongoDB.Bson
             var otherTimestamp = other as BsonTimestamp;
             if (otherTimestamp != null)
             {
-                return value.CompareTo(otherTimestamp.value);
+                return _value.CompareTo(otherTimestamp._value);
             }
             var otherDateTime = other as BsonDateTime;
             if (otherDateTime != null)
             {
                 var seconds = (int)(otherDateTime.MillisecondsSinceEpoch / 1000);
                 var otherTimestampValue = ((long)seconds) << 32;
-                return value.CompareTo(otherTimestampValue);
+                return _value.CompareTo(otherTimestampValue);
             }
             return CompareTypeTo(other);
         }
@@ -183,7 +183,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonTimestamp rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.value == rhs.value;
+            return _value == rhs._value;
         }
 
         /// <summary>
@@ -204,8 +204,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -215,7 +215,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return XmlConvert.ToString(value);
+            return XmlConvert.ToString(_value);
         }
     }
 }

@@ -28,14 +28,14 @@ namespace MongoDB.DriverOnlineTests.CommandResults
     [TestFixture]
     public class CommandResultTests
     {
-        private MongoServer server;
-        private MongoDatabase database;
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
+            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _database = _server["onlinetests"];
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults
         [Test]
         public void TestIsMasterCommand()
         {
-            var result = database.RunCommand("ismaster");
+            var result = _database.RunCommand("ismaster");
             Assert.IsTrue(result.Ok);
         }
 
@@ -144,7 +144,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults
         {
             try
             {
-                var result = database.RunCommand("invalid");
+                var result = _database.RunCommand("invalid");
             }
             catch (MongoCommandException ex)
             {

@@ -30,7 +30,7 @@ namespace MongoDB.BsonUnitTests.Jira
     [TestFixture]
     public class CSharp313Tests
     {
-        private static object[] scalarValues = new object[]
+        private static object[] __scalarValues = new object[]
         {
             new BsonBinaryData(new byte[] { 1, 2, 3 }),
             true,
@@ -55,7 +55,7 @@ namespace MongoDB.BsonUnitTests.Jira
         [Test]
         public void TestStringToBson()
         {
-            foreach (var scalarValue in scalarValues)
+            foreach (var scalarValue in __scalarValues)
             {
                 Assert.Throws<InvalidOperationException>(() => { var bson = scalarValue.ToBson(); });
                 Assert.Throws<InvalidOperationException>(() => { var bson = scalarValue.ToBsonDocument(); });

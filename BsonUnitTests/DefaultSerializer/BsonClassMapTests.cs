@@ -243,7 +243,7 @@ namespace MongoDB.BsonUnitTests.Serialization
     [TestFixture]
     public class BsonClassMapIsClassMapRegisteredTests
     {
-        private static bool testAlreadyRan;
+        private static bool __testAlreadyRan;
 
         public class C
         {
@@ -255,13 +255,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         public void TestIsClassMapRegistered()
         {
             // test can only be run once
-            if (testAlreadyRan)
+            if (__testAlreadyRan)
             {
                 return;
             }
             else
             {
-                testAlreadyRan = true;
+                __testAlreadyRan = true;
             }
             Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(C)));
             BsonClassMap.RegisterClassMap<C>(cm => { cm.AutoMap(); });

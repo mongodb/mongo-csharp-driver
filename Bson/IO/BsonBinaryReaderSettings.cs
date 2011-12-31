@@ -27,13 +27,13 @@ namespace MongoDB.Bson.IO
     public class BsonBinaryReaderSettings : BsonReaderSettings
     {
         // private static fields
-        private static BsonBinaryReaderSettings defaults = null; // delay creation to pick up the latest default values
+        private static BsonBinaryReaderSettings __defaults = null; // delay creation to pick up the latest default values
 
         // private fields
-        private bool closeInput = false;
-        private bool fixOldBinarySubTypeOnInput = true;
-        private bool fixOldDateTimeMaxValueOnInput = true;
-        private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
+        private bool _closeInput = false;
+        private bool _fixOldBinarySubTypeOnInput = true;
+        private bool _fixOldDateTimeMaxValueOnInput = true;
+        private int _maxDocumentSize = BsonDefaults.MaxDocumentSize;
 
         // constructors
         /// <summary>
@@ -54,10 +54,10 @@ namespace MongoDB.Bson.IO
         public BsonBinaryReaderSettings(bool closeInput, bool fixOldBinarySubTypeOnInput, bool fixOldDateTimeMaxValueOnInput, GuidRepresentation guidRepresentation, int maxDocumentSize)
             : base(guidRepresentation)
         {
-            this.closeInput = closeInput;
-            this.fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
-            this.fixOldDateTimeMaxValueOnInput = fixOldDateTimeMaxValueOnInput;
-            this.maxDocumentSize = maxDocumentSize;
+            _closeInput = closeInput;
+            _fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
+            _fixOldDateTimeMaxValueOnInput = fixOldDateTimeMaxValueOnInput;
+            _maxDocumentSize = maxDocumentSize;
         }
 
         // public static properties
@@ -68,13 +68,13 @@ namespace MongoDB.Bson.IO
         {
             get
             {
-                if (defaults == null)
+                if (__defaults == null)
                 {
-                    defaults = new BsonBinaryReaderSettings();
+                    __defaults = new BsonBinaryReaderSettings();
                 }
-                return defaults;
+                return __defaults;
             }
-            set { defaults = value; }
+            set { __defaults = value; }
         }
 
         // public properties
@@ -83,11 +83,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public bool CloseInput
         {
-            get { return closeInput; }
+            get { return _closeInput; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                closeInput = value;
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _closeInput = value;
             }
         }
 
@@ -96,11 +96,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public bool FixOldBinarySubTypeOnInput
         {
-            get { return fixOldBinarySubTypeOnInput; }
+            get { return _fixOldBinarySubTypeOnInput; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                fixOldBinarySubTypeOnInput = value;
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _fixOldBinarySubTypeOnInput = value;
             }
         }
 
@@ -109,11 +109,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public bool FixOldDateTimeMaxValueOnInput
         {
-            get { return fixOldDateTimeMaxValueOnInput; }
+            get { return _fixOldDateTimeMaxValueOnInput; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                fixOldDateTimeMaxValueOnInput = value;
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _fixOldDateTimeMaxValueOnInput = value;
             }
         }
 
@@ -122,11 +122,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public int MaxDocumentSize
         {
-            get { return maxDocumentSize; }
+            get { return _maxDocumentSize; }
             set
             {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                maxDocumentSize = value;
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _maxDocumentSize = value;
             }
         }
 
@@ -147,7 +147,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonReaderSettings CloneImplementation()
         {
-            return new BsonBinaryReaderSettings(closeInput, fixOldBinarySubTypeOnInput, fixOldDateTimeMaxValueOnInput, guidRepresentation, maxDocumentSize);
+            return new BsonBinaryReaderSettings(_closeInput, _fixOldBinarySubTypeOnInput, _fixOldDateTimeMaxValueOnInput, _guidRepresentation, _maxDocumentSize);
         }
     }
 }

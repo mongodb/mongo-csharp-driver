@@ -32,8 +32,8 @@ namespace MongoDB.Bson
     public class BsonElement : IComparable<BsonElement>, IEquatable<BsonElement>
     {
         // private fields
-        private string name;
-        private BsonValue value;
+        private string _name;
+        private BsonValue _value;
 
         // constructors
         // NOTE: for every public BsonElement constructor there is a matching constructor, Add and Set method in BsonDocument
@@ -51,8 +51,8 @@ namespace MongoDB.Bson
         public BsonElement(string name, BsonValue value)
         {
             ValidateElementName(name);
-            this.name = name;
-            this.value = value;
+            _name = name;
+            _value = value;
         }
 
         // public properties
@@ -61,7 +61,7 @@ namespace MongoDB.Bson
         /// </summary>
         public string Name
         {
-            get { return name; }
+            get { return _name; }
         }
 
         /// <summary>
@@ -69,14 +69,14 @@ namespace MongoDB.Bson
         /// </summary>
         public BsonValue Value
         {
-            get { return value; }
+            get { return _value; }
             set
             {
                 if (value == null)
                 {
                     throw new ArgumentNullException("value");
                 }
-                this.value = value;
+                _value = value;
             }
         }
 
@@ -166,7 +166,7 @@ namespace MongoDB.Bson
             {
                 if (element.Name != expectedName)
                 {
-                    string message = string.Format("Expected element '{0}', not '{1}'.", expectedName, element.name);
+                    string message = string.Format("Expected element '{0}', not '{1}'.", expectedName, element._name);
                     throw new FileFormatException(message);
                 }
                 return element;
@@ -198,7 +198,7 @@ namespace MongoDB.Bson
         /// <returns>A shallow clone of the element.</returns>
         public BsonElement Clone()
         {
-            return new BsonElement(name, value.Clone());
+            return new BsonElement(_name, _value.Clone());
         }
 
         /// <summary>
@@ -208,8 +208,8 @@ namespace MongoDB.Bson
         public BsonElement DeepClone()
         {
             var clone = new BsonElement();
-            clone.name = name;
-            clone.value = value.DeepClone();
+            clone._name = _name;
+            clone._value = _value.DeepClone();
             return clone;
         }
 
@@ -221,9 +221,9 @@ namespace MongoDB.Bson
         public int CompareTo(BsonElement other)
         {
             if (other == null) { return 1; }
-            int r = this.name.CompareTo(other.name);
+            int r = _name.CompareTo(other._name);
             if (r != 0) { return r; }
-            return this.value.CompareTo(other.value);
+            return _value.CompareTo(other._value);
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonElement rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.name == rhs.name && this.value == rhs.value;
+            return _name == rhs._name && _value == rhs._value;
         }
 
         /// <summary>
@@ -255,8 +255,8 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + name.GetHashCode();
-            hash = 37 * hash + value.GetHashCode();
+            hash = 37 * hash + _name.GetHashCode();
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
@@ -266,14 +266,14 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return string.Format("{0}={1}", name, value);
+            return string.Format("{0}={1}", _name, _value);
         }
 
         // internal methods
         internal void WriteTo(BsonWriter bsonWriter)
         {
-            bsonWriter.WriteName(name);
-            value.WriteTo(bsonWriter);
+            bsonWriter.WriteName(_name);
+            _value.WriteTo(bsonWriter);
         }
     }
 }

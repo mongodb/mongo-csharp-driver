@@ -26,30 +26,30 @@ namespace MongoDB.Driver.Internal
     internal class DirectConnector
     {
         // private fields
-        private MongoServer server;
-        private int connectionAttempt;
+        private MongoServer _server;
+        private int _connectionAttempt;
 
         // constructors
         internal DirectConnector(MongoServer server, int connectionAttempt)
         {
-            this.server = server;
-            this.connectionAttempt = connectionAttempt;
+            _server = server;
+            _connectionAttempt = connectionAttempt;
         }
 
         // internal methods
         internal void Connect(TimeSpan timeout)
         {
             var exceptions = new List<Exception>();
-            foreach (var address in server.Settings.Servers)
+            foreach (var address in _server.Settings.Servers)
             {
                 try
                 {
-                    var serverInstance = server.Instance;
+                    var serverInstance = _server.Instance;
                     if (serverInstance.Address != address)
                     {
                         serverInstance.Address = address;
                     }
-                    serverInstance.Connect(server.Settings.SlaveOk); // TODO: what about timeout?
+                    serverInstance.Connect(_server.Settings.SlaveOk); // TODO: what about timeout?
                     return;
                 }
                 catch (Exception ex)
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Internal
                 }
             }
 
-            var firstAddress = server.Settings.Servers.First();
+            var firstAddress = _server.Settings.Servers.First();
             var firstException = exceptions.First();
             var message = string.Format("Unable to connect to server {0}: {1}.", firstAddress, firstException.Message);
             var connectionException = new MongoConnectionException(message, firstException);

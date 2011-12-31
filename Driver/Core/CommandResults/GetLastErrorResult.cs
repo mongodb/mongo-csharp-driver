@@ -43,7 +43,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long DocumentsAffected
         {
-            get { return response["n"].ToInt64(); }
+            get { return _response["n"].ToInt64(); }
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool HasLastErrorMessage
         {
-            get { return response["err", false].ToBoolean(); }
+            get { return _response["err", false].ToBoolean(); }
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var err = response["err", false];
+                var err = _response["err", false];
                 return (err.ToBoolean()) ? err.ToString() : null;
             }
         }
@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var updatedExisting = response["updatedExisting", false];
+                var updatedExisting = _response["updatedExisting", false];
                 return updatedExisting.ToBoolean();
             }
         }

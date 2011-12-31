@@ -30,26 +30,26 @@ namespace MongoDB.Bson
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>
     {
         // private static fields
-        private static ObjectId emptyInstance = default(ObjectId);
-        private static int staticMachine;
-        private static short staticPid;
-        private static int staticIncrement; // high byte will be masked out when generating new ObjectId
+        private static ObjectId __emptyInstance = default(ObjectId);
+        private static int __staticMachine;
+        private static short __staticPid;
+        private static int __staticIncrement; // high byte will be masked out when generating new ObjectId
 
         // private fields
         // we're using 14 bytes instead of 12 to hold the ObjectId in memory but unlike a byte[] there is no additional object on the heap
         // the extra two bytes are not visible to anyone outside of this class and they buy us considerable simplification
         // an additional advantage of this representation is that it will serialize to JSON without any 64 bit overflow problems
-        private int timestamp;
-        private int machine;
-        private short pid;
-        private int increment;
+        private int _timestamp;
+        private int _machine;
+        private short _pid;
+        private int _increment;
 
         // static constructor
         static ObjectId()
         {
-            staticMachine = GetMachineHash();
-            staticPid = (short)Process.GetCurrentProcess().Id; // use low order two bytes only
-            staticIncrement = (new Random()).Next();
+            __staticMachine = GetMachineHash();
+            __staticPid = (short)Process.GetCurrentProcess().Id; // use low order two bytes only
+            __staticIncrement = (new Random()).Next();
         }
 
         // constructors
@@ -59,7 +59,7 @@ namespace MongoDB.Bson
         /// <param name="bytes">The value.</param>
         public ObjectId(byte[] bytes)
         {
-            Unpack(bytes, out timestamp, out machine, out pid, out increment);
+            Unpack(bytes, out _timestamp, out _machine, out _pid, out _increment);
         }
 
         /// <summary>
@@ -71,10 +71,10 @@ namespace MongoDB.Bson
         /// <param name="increment">The increment.</param>
         public ObjectId(int timestamp, int machine, short pid, int increment)
         {
-            this.timestamp = timestamp;
-            this.machine = machine;
-            this.pid = pid;
-            this.increment = increment;
+            _timestamp = timestamp;
+            _machine = machine;
+            _pid = pid;
+            _increment = increment;
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace MongoDB.Bson
         /// <param name="value">The value.</param>
         public ObjectId(string value)
         {
-            Unpack(BsonUtils.ParseHexString(value), out timestamp, out machine, out pid, out increment);
+            Unpack(BsonUtils.ParseHexString(value), out _timestamp, out _machine, out _pid, out _increment);
         }
 
         // public static properties
@@ -92,7 +92,7 @@ namespace MongoDB.Bson
         /// </summary>
         public static ObjectId Empty
         {
-            get { return emptyInstance; }
+            get { return __emptyInstance; }
         }
 
         // public properties
@@ -101,7 +101,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Timestamp
         {
-            get { return timestamp; }
+            get { return _timestamp; }
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Machine
         {
-            get { return machine; }
+            get { return _machine; }
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace MongoDB.Bson
         /// </summary>
         public short Pid
         {
-            get { return pid; }
+            get { return _pid; }
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace MongoDB.Bson
         /// </summary>
         public int Increment
         {
-            get { return increment; }
+            get { return _increment; }
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace MongoDB.Bson
         /// </summary>
         public DateTime CreationTime
         {
-            get { return BsonConstants.UnixEpoch.AddSeconds(timestamp); }
+            get { return BsonConstants.UnixEpoch.AddSeconds(_timestamp); }
         }
 
         // public operators
@@ -211,8 +211,8 @@ namespace MongoDB.Bson
         public static ObjectId GenerateNewId()
         {
             int timestamp = GetCurrentTimestamp();
-            int increment = Interlocked.Increment(ref ObjectId.staticIncrement) & 0x00ffffff; // only use low order 3 bytes
-            return new ObjectId(timestamp, staticMachine, staticPid, increment);
+            int increment = Interlocked.Increment(ref __staticIncrement) & 0x00ffffff; // only use low order 3 bytes
+            return new ObjectId(timestamp, __staticMachine, __staticPid, increment);
         }
 
         /// <summary>
@@ -325,13 +325,13 @@ namespace MongoDB.Bson
         /// <returns>A 32-bit signed integer that indicates whether this ObjectId is less than, equal to, or greather than the other.</returns>
         public int CompareTo(ObjectId other)
         {
-            int r = timestamp.CompareTo(other.timestamp);
+            int r = _timestamp.CompareTo(other._timestamp);
             if (r != 0) { return r; }
-            r = machine.CompareTo(other.machine);
+            r = _machine.CompareTo(other._machine);
             if (r != 0) { return r; }
-            r = pid.CompareTo(other.pid);
+            r = _pid.CompareTo(other._pid);
             if (r != 0) { return r; }
-            return increment.CompareTo(other.increment);
+            return _increment.CompareTo(other._increment);
         }
 
         /// <summary>
@@ -342,10 +342,10 @@ namespace MongoDB.Bson
         public bool Equals(ObjectId rhs)
         {
             return
-                this.timestamp == rhs.timestamp &&
-                this.machine == rhs.machine &&
-                this.pid == rhs.pid &&
-                this.increment == rhs.increment;
+                _timestamp == rhs._timestamp &&
+                _machine == rhs._machine &&
+                _pid == rhs._pid &&
+                _increment == rhs._increment;
         }
 
         /// <summary>
@@ -372,10 +372,10 @@ namespace MongoDB.Bson
         public override int GetHashCode()
         {
             int hash = 17;
-            hash = 37 * hash + timestamp.GetHashCode();
-            hash = 37 * hash + machine.GetHashCode();
-            hash = 37 * hash + pid.GetHashCode();
-            hash = 37 * hash + increment.GetHashCode();
+            hash = 37 * hash + _timestamp.GetHashCode();
+            hash = 37 * hash + _machine.GetHashCode();
+            hash = 37 * hash + _pid.GetHashCode();
+            hash = 37 * hash + _increment.GetHashCode();
             return hash;
         }
 
@@ -385,7 +385,7 @@ namespace MongoDB.Bson
         /// <returns>A byte array.</returns>
         public byte[] ToByteArray()
         {
-            return Pack(timestamp, machine, pid, increment);
+            return Pack(_timestamp, _machine, _pid, _increment);
         }
 
         /// <summary>
@@ -394,7 +394,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return BsonUtils.ToHexString(Pack(timestamp, machine, pid, increment));
+            return BsonUtils.ToHexString(Pack(_timestamp, _machine, _pid, _increment));
         }
     }
 }

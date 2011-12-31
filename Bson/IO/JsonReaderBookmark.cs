@@ -26,48 +26,48 @@ namespace MongoDB.Bson.IO
     public class JsonReaderBookmark : BsonReaderBookmark
     {
         // private fields
-        private JsonReaderContext context;
-        private JsonToken currentToken;
-        private BsonValue currentValue;
-        private JsonToken pushedToken;
-        private int position;
+        private JsonReaderContext _context;
+        private JsonToken _currentToken;
+        private BsonValue _currentValue;
+        private JsonToken _pushedToken;
+        private int _position;
 
         // constructors
         internal JsonReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName, JsonReaderContext context, JsonToken currentToken, BsonValue currentValue, JsonToken pushedToken, int position)
             : base(state, currentBsonType, currentName)
         {
-            this.context = context.Clone();
-            this.currentToken = currentToken;
-            this.currentValue = currentValue;
-            this.pushedToken = pushedToken;
-            this.position = position;
+            _context = context.Clone();
+            _currentToken = currentToken;
+            _currentValue = currentValue;
+            _pushedToken = pushedToken;
+            _position = position;
         }
 
         // internal properties
         internal JsonToken CurrentToken
         {
-            get { return currentToken; }
+            get { return _currentToken; }
         }
 
         internal BsonValue CurrentValue
         {
-            get { return currentValue; }
+            get { return _currentValue; }
         }
 
         internal int Position
         {
-            get { return position; }
+            get { return _position; }
         }
 
         internal JsonToken PushedToken
         {
-            get { return pushedToken; }
+            get { return _pushedToken; }
         }
 
         // internal methods
         internal JsonReaderContext CloneContext()
         {
-            return context.Clone();
+            return _context.Clone();
         }
     }
 }

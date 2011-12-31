@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BitArraySerializer : BsonBaseSerializer
     {
         // private static fields
-        private static BitArraySerializer instance = new BitArraySerializer();
+        private static BitArraySerializer __instance = new BitArraySerializer();
 
         // constructors
         /// <summary>
@@ -53,7 +53,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static BitArraySerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -199,7 +199,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class ByteArraySerializer : BsonBaseSerializer
     {
         // private static fields
-        private static ByteArraySerializer instance = new ByteArraySerializer();
+        private static ByteArraySerializer __instance = new ByteArraySerializer();
 
         // constructors
         /// <summary>
@@ -215,7 +215,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static ByteArraySerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -314,7 +314,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class ByteSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static ByteSerializer instance = new ByteSerializer();
+        private static ByteSerializer __instance = new ByteSerializer();
 
         // constructors
         /// <summary>
@@ -330,7 +330,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static ByteSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -431,7 +431,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class CharSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static CharSerializer instance = new CharSerializer();
+        private static CharSerializer __instance = new CharSerializer();
 
         // constructors
         /// <summary>
@@ -447,7 +447,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static CharSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -508,7 +508,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class CultureInfoSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static CultureInfoSerializer instance = new CultureInfoSerializer();
+        private static CultureInfoSerializer __instance = new CultureInfoSerializer();
 
         // constructors
         /// <summary>
@@ -524,7 +524,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static CultureInfoSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -598,7 +598,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class DateTimeOffsetSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static DateTimeOffsetSerializer instance = new DateTimeOffsetSerializer();
+        private static DateTimeOffsetSerializer __instance = new DateTimeOffsetSerializer();
 
         // constructors
         /// <summary>
@@ -614,7 +614,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static DateTimeOffsetSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -699,8 +699,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class DecimalSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static DecimalSerializer instance = new DecimalSerializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.String);
+        private static DecimalSerializer __instance = new DecimalSerializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.String);
 
         // constructors
         /// <summary>
@@ -716,7 +716,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static DecimalSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -732,7 +732,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(decimal));
 
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType)
             {
@@ -768,7 +768,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             var decimalValue = (Decimal)value;
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             switch (representationOptions.Representation)
             {
                 case BsonType.Array:
@@ -806,7 +806,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class DrawingSizeSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static DrawingSizeSerializer instance = new DrawingSizeSerializer();
+        private static DrawingSizeSerializer __instance = new DrawingSizeSerializer();
 
         // constructors
         /// <summary>
@@ -822,7 +822,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static DrawingSizeSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -876,8 +876,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class Int16Serializer : BsonBaseSerializer
     {
         // private static fields
-        private static Int16Serializer instance = new Int16Serializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
+        private static Int16Serializer __instance = new Int16Serializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
 
         // constructors
         /// <summary>
@@ -893,7 +893,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static Int16Serializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -909,7 +909,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(short));
 
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType)
             {
@@ -937,7 +937,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             var int16Value = (short)value;
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             switch (representationOptions.Representation)
             {
                 case BsonType.Double:
@@ -965,7 +965,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class IPAddressSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static IPAddressSerializer instance = new IPAddressSerializer();
+        private static IPAddressSerializer __instance = new IPAddressSerializer();
 
         // constructors
         /// <summary>
@@ -981,7 +981,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static IPAddressSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1055,7 +1055,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class IPEndPointSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static IPEndPointSerializer instance = new IPEndPointSerializer();
+        private static IPEndPointSerializer __instance = new IPEndPointSerializer();
 
         // constructors
         /// <summary>
@@ -1071,7 +1071,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static IPEndPointSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1153,7 +1153,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class SByteSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static SByteSerializer instance = new SByteSerializer();
+        private static SByteSerializer __instance = new SByteSerializer();
 
         // constructors
         /// <summary>
@@ -1169,7 +1169,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static SByteSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1269,8 +1269,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class SingleSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static SingleSerializer instance = new SingleSerializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Double);
+        private static SingleSerializer __instance = new SingleSerializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Double);
 
         // constructors
         /// <summary>
@@ -1286,7 +1286,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static SingleSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1302,7 +1302,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(float));
 
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType)
             {
@@ -1330,7 +1330,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             var floatValue = (float)value;
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             switch (representationOptions.Representation)
             {
                 case BsonType.Double:
@@ -1358,7 +1358,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class TimeSpanSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static TimeSpanSerializer instance = new TimeSpanSerializer();
+        private static TimeSpanSerializer __instance = new TimeSpanSerializer();
 
         // constructors
         /// <summary>
@@ -1374,7 +1374,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static TimeSpanSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1437,8 +1437,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class UInt16Serializer : BsonBaseSerializer
     {
         // private static fields
-        private static UInt16Serializer instance = new UInt16Serializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
+        private static UInt16Serializer __instance = new UInt16Serializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
 
         // constructors
         /// <summary>
@@ -1454,7 +1454,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static UInt16Serializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1470,7 +1470,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(ushort));
 
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType)
             {
@@ -1498,7 +1498,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             var uint16Value = (ushort)value;
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             switch (representationOptions.Representation)
             {
                 case BsonType.Double:
@@ -1526,8 +1526,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class UInt32Serializer : BsonBaseSerializer
     {
         // private static fields
-        private static UInt32Serializer instance = new UInt32Serializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
+        private static UInt32Serializer __instance = new UInt32Serializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
 
         // constructors
         /// <summary>
@@ -1543,7 +1543,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static UInt32Serializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1559,7 +1559,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(uint));
 
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType)
             {
@@ -1587,7 +1587,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             var uint32Value = (uint)value;
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             switch (representationOptions.Representation)
             {
                 case BsonType.Double:
@@ -1615,8 +1615,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class UInt64Serializer : BsonBaseSerializer
     {
         // private static fields
-        private static UInt64Serializer instance = new UInt64Serializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int64);
+        private static UInt64Serializer __instance = new UInt64Serializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int64);
 
         // constructors
         /// <summary>
@@ -1632,7 +1632,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static UInt64Serializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1648,7 +1648,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(ulong));
 
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
             switch (bsonType)
             {
@@ -1676,7 +1676,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             var uint64Value = (ulong)value;
-            var representationOptions = (RepresentationSerializationOptions)options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             switch (representationOptions.Representation)
             {
                 case BsonType.Double:
@@ -1704,7 +1704,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class UriSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static UriSerializer instance = new UriSerializer();
+        private static UriSerializer __instance = new UriSerializer();
 
         // constructors
         /// <summary>
@@ -1720,7 +1720,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static UriSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods
@@ -1776,7 +1776,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class VersionSerializer : BsonBaseSerializer
     {
         // private static fields
-        private static VersionSerializer instance = new VersionSerializer();
+        private static VersionSerializer __instance = new VersionSerializer();
 
         // constructors
         /// <summary>
@@ -1792,7 +1792,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         public static VersionSerializer Instance
         {
-            get { return instance; }
+            get { return __instance; }
         }
 
         // public methods

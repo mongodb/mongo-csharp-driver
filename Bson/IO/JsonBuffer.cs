@@ -26,8 +26,8 @@ namespace MongoDB.Bson.IO
     public class JsonBuffer
     {
         // private fields
-        private string buffer;
-        private int position;
+        private string _buffer;
+        private int _position;
 
         // constructors
         /// <summary>
@@ -36,8 +36,8 @@ namespace MongoDB.Bson.IO
         /// <param name="buffer">The string.</param>
         public JsonBuffer(string buffer)
         {
-            this.buffer = buffer;
-            this.position = 0;
+            _buffer = buffer;
+            _position = 0;
         }
 
         // internal properties
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public int Length
         {
-            get { return buffer.Length; }
+            get { return _buffer.Length; }
         }
 
         /// <summary>
@@ -54,8 +54,8 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public int Position
         {
-            get { return position; }
-            set { position = value; }
+            get { return _position; }
+            set { _position = value; }
         }
 
         // public methods
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.IO
         /// <returns>The next character (or -1 if at the end of the buffer).</returns>
         public int Read()
         {
-            return (position >= buffer.Length) ? -1 : buffer[position++];
+            return (_position >= _buffer.Length) ? -1 : _buffer[_position++];
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.IO
         /// <returns>The substring.</returns>
         public string Substring(int start)
         {
-            return buffer.Substring(start);
+            return _buffer.Substring(start);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.IO
         /// <returns>The substring.</returns>
         public string Substring(int start, int count)
         {
-            return buffer.Substring(start, count);
+            return _buffer.Substring(start, count);
         }
 
         /// <summary>
@@ -95,9 +95,9 @@ namespace MongoDB.Bson.IO
         /// <param name="c">The character to return.</param>
         public void UnRead(int c)
         {
-            if (c != -1 && buffer[position - 1] == c)
+            if (c != -1 && _buffer[_position - 1] == c)
             {
-                position -= 1;
+                _position -= 1;
             }
         }
     }
