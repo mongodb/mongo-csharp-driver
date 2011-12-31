@@ -1,27 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>mongocsharpdriver</id>
+    <id>mongobson</id>
     <version>1.3</version>
-    <title>Official MongoDB C# driver</title>
+    <title>Official MongoDB C# bson implementation</title>
     <authors>10gen, Inc.</authors>
     <owners>Sridhar Nanjundeswaran</owners>
     <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Official 10gen supported C# driver for MongoDB</description>
+    <description>Official 10gen supported C# BSON implementation</description>
     <projectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <tags>mongodb mongo nosql</tags>
+    <tags>mongodb mongo bson json</tags>
     <language>en-US</language>
-    <dependencies>
-      <dependency id="mongobson" version="1.3"/>
-    </dependencies>
   </metadata>
   <files>
-    <file src="Driver\bin\Debug\MongoDB.Driver.dll" target="lib\net35" />
-    <file src="Driver\bin\Debug\MongoDB.Driver.pdb" target="lib\net35" />
-    <file src="Driver\bin\Debug\MongoDB.Driver.XML" target="lib\net35" />
-    <file src="Help\Driver\CSharpDriverDocs.chm" target="" />
+    <file src="Bson\bin\Debug\MongoDB.Bson.dll" target="lib\net35" />
+    <file src="Bson\bin\Debug\MongoDB.Bson.pdb" target="lib\net35" />
+    <file src="Bson\bin\Debug\MongoDB.Bson.xml" target="lib\net35" />
+    <file src="Help\Bson\CSharpBsonDocs.chm" target="" />
     <file src="Release Notes v1.3.txt" target="" />
     <file src="License.rtf" target ="" />
   </files>

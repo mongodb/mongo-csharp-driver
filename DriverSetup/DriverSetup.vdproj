@@ -224,7 +224,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1F2B25DB0B3140D1A6F888E8C0F5AFC6"
             {
-            "SourcePath" = "8:..\\Help\\CSharpDriverDocs.chm"
+            "SourcePath" = "8:..\\Help\\Driver\\CSharpDriverDocs.chm"
             "TargetName" = "8:CSharpDriverDocs.chm"
             "Tag" = "8:"
             "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
