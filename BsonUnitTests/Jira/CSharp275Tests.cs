@@ -40,7 +40,7 @@ namespace MongoDB.BsonUnitTests.Jira
             }
         }
 
-        private Test[] tests = new Test[]
+        private Test[] _tests = new Test[]
         {
             // note: use EST/EDT in all Json values to ensure DateTime.Parse doesn't work
             // test with dayOfWeek
@@ -123,7 +123,7 @@ namespace MongoDB.BsonUnitTests.Jira
         [Test]
         public void TestParseDates()
         {
-            foreach (var test in tests)
+            foreach (var test in _tests)
             {
                 var json = string.Format("{{ date : new Date('{0}') }}", test.Json);
                 BsonDocument document = null;

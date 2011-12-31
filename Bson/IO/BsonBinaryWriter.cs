@@ -30,7 +30,7 @@ namespace MongoDB.Bson.IO
         private Stream _stream; // can be null if we're only writing to the buffer
         private BsonBuffer _buffer;
         private bool _disposeBuffer;
-        private new BsonBinaryWriterSettings _binaryWriterSettings; // same value as in base class just declared as derived class
+        private BsonBinaryWriterSettings _binaryWriterSettings; // same value as in base class just declared as derived class
         private BsonBinaryWriterContext _context;
 
         // constructors

@@ -29,7 +29,7 @@ namespace MongoDB.Bson.IO
         // private fields
         private BsonBuffer _buffer; // if reading from a stream Create will have loaded the buffer
         private bool _disposeBuffer;
-        private new BsonBinaryReaderSettings _binaryReaderSettings; // same value as in base class just declared as derived class
+        private BsonBinaryReaderSettings _binaryReaderSettings; // same value as in base class just declared as derived class
         private BsonBinaryReaderContext _context;
 
         // constructors

@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentReader : BsonReader
     {
         // private fields
-        private new BsonDocumentReaderSettings _documentReaderSettings; // same value as in base class just declared as derived class
+        private BsonDocumentReaderSettings _documentReaderSettings; // same value as in base class just declared as derived class
         private BsonDocumentReaderContext _context;
         private BsonValue _currentValue;
 
