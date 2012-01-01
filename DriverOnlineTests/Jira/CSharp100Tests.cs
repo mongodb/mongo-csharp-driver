@@ -54,9 +54,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp100
         [Test]
         public void TestDeserializationOfTwoBs()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database["csharp100"];
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
 
             collection.RemoveAll();
             var obj = new ChildClass { SomeProperty = null };

@@ -32,9 +32,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp93
         [Test]
         public void TestDropAllIndexes()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("csharp93");
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
 
             if (collection.Exists())
             {
@@ -55,9 +55,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp93
         [Test]
         public void EnsureIndex_SetUniqueTrue_Success()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("csharp93");
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
 
             if (collection.Exists())
             {

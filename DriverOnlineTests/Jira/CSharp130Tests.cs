@@ -46,9 +46,11 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp130
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = MongoServer.Create("mongodb://localhost"); // not safe=true
-            _database = _server["onlinetests"];
-            _collection = _database.GetCollection<C>("csharp130");
+            var serverSettings = Configuration.TestServer.Settings.Clone();
+            serverSettings.SafeMode = SafeMode.False;
+            _server = MongoServer.Create(serverSettings); // not safe=true
+            _database = _server[Configuration.TestDatabase.Name];
+            _collection = _database.GetCollection<C>(Configuration.TestCollection.Name);
         }
 
         [Test]

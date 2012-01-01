@@ -96,9 +96,9 @@ namespace MongoDB.DriverOnlineTests.Samples
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
-            _database = _server["test"];
-            _collection = _database.GetCollection<A>("magicdiscriminator");
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.GetTestCollection<A>();
         }
 
         [Test]

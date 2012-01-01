@@ -35,9 +35,9 @@ namespace MongoDB.DriverOnlineTests.Jira
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
-            _database = _server["onlinetests"];
-            _collection = _database["testcollection"];
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
             _collection.Drop();
         }
 

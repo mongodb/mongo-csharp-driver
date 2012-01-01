@@ -47,9 +47,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp111
         [Test]
         public void TestAddToSetEach()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<C>("csharp111");
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.GetTestCollection<C>();
 
             collection.RemoveAll();
             var c = new C { InnerObjects = new List<D>() };

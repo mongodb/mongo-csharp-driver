@@ -252,7 +252,18 @@ namespace MongoDB.Driver
                 { "deleteIndexes", _name }, // not FullName
                 { "index", indexName }
             };
-            return _database.RunCommand(command);
+            try
+            {
+                return _database.RunCommand(command);
+            }
+            catch (MongoCommandException ex)
+            {
+                if (ex.CommandResult.ErrorMessage == "ns not found")
+                {
+                    return ex.CommandResult;
+                }
+                throw;
+            }
         }
 
         /// <summary>

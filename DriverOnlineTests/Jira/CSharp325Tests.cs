@@ -34,7 +34,7 @@ namespace MongoDB.DriverOnlineTests.Jira
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _server = Configuration.TestServer;
         }
 
         [Test]

@@ -79,9 +79,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
-            _database = _server["onlinetests"];
-            _collection = _database.GetCollection<GDA>("testcollection");
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.GetTestCollection<GDA>();
             _collection.Drop();
         }
 

@@ -38,8 +38,8 @@ namespace MongoDB.DriverOnlineTests.GridFS
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
-            _database = _server["onlinetests"];
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
             var settings = new MongoGridFSSettings
             {
                 ChunkSize = 16,

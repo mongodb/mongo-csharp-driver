@@ -45,10 +45,10 @@ namespace MongoDB.DriverOnlineTests.Linq
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _server = Configuration.TestServer;
             _server.Connect();
-            _database = _server["onlinetests"];
-            _collection = _database["linqtests"];
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
         }
 
         [Test]

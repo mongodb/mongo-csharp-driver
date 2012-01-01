@@ -41,9 +41,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp110
         [Test]
         public void TestFind()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<C>("csharp110");
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.GetTestCollection<C>();
 
             collection.RemoveAll();
             var c = new C { X = 1 };

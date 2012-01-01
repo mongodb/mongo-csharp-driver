@@ -35,9 +35,9 @@ namespace MongoDB.DriverOnlineTests.CommandResults
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
-            _database = _server["driveronlinetests"];
-            _collection = _database["test"];
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults
 
             var result = _collection.GetStats();
             Assert.IsTrue(result.Ok);
-            Assert.AreEqual("driveronlinetests.test", result.Namespace);
+            Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.AreEqual(1, result.ObjectCount);
             Assert.IsTrue(result.AverageObjectSize > 0.0);
             Assert.IsTrue(result.DataSize > 0);

@@ -35,9 +35,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp358
         [Test]
         public void TestInsertUpdateAndSaveWithElementNameStartingWithDollarSign()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
-            var database = server["onlinetests"];
-            var collection = database["test"];
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
             collection.Drop();
 
             var document = new BsonDocument

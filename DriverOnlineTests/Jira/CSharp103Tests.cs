@@ -32,9 +32,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp103
         [Test]
         public void TestNullReferenceException()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database["csharp103"];
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
             collection.RemoveAll();
             using (database.RequestStart())
             {

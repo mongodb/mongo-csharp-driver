@@ -40,9 +40,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp92
         [Test]
         public void TestSaveDocument()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("csharp92");
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
 
             var document = new BsonDocument { { "_id", -1 }, { "P", "x" } };
             collection.RemoveAll();
@@ -57,9 +57,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp92
         [Test]
         public void TestSaveClass()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<C>("csharp92");
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.GetTestCollection<C>();
 
             var document = new C { Id = -1, P = "x" };
             collection.RemoveAll();

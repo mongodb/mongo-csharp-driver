@@ -40,9 +40,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp77
         [Test]
         public void TestSave()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<Foo>("csharp77");
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.GetTestCollection<Foo>();
 
             var conventions = new ConventionProfile()
                 .SetIdMemberConvention(new NamedIdMemberConvention("_id"));

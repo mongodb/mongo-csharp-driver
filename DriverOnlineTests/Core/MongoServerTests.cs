@@ -29,14 +29,14 @@ namespace MongoDB.DriverOnlineTests
     {
         private MongoServer _server;
         private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
-            _server.Connect();
-            _server.DropDatabase("onlinetests");
-            _database = _server["onlinetests"];
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
         }
 
         // TODO: more tests for MongoServer
@@ -44,27 +44,22 @@ namespace MongoDB.DriverOnlineTests
         [Test]
         public void TestDatabaseExists()
         {
-            var databaseName = "onlinetests-temp";
-            var database = _server[databaseName];
-            database.Drop();
-            Assert.IsFalse(_server.DatabaseExists(databaseName));
-            database["test"].Insert(new BsonDocument("x", 1));
-            Assert.IsTrue(_server.DatabaseExists(databaseName));
+            _database.Drop();
+            Assert.IsFalse(_server.DatabaseExists(_database.Name));
+            _collection.Insert(new BsonDocument("x", 1));
+            Assert.IsTrue(_server.DatabaseExists(_database.Name));
         }
 
         [Test]
         public void TestDropDatabase()
         {
-            var databaseName = "onlinetests-temp";
-            var database = _server[databaseName];
-            var test = database["test"];
-            test.Insert(new BsonDocument());
+            _collection.Insert(new BsonDocument());
             var databaseNames = _server.GetDatabaseNames();
-            Assert.IsTrue(databaseNames.Contains(databaseName));
+            Assert.IsTrue(databaseNames.Contains(_database.Name));
 
-            var result = _server.DropDatabase(databaseName);
+            var result = _server.DropDatabase(_database.Name);
             databaseNames = _server.GetDatabaseNames();
-            Assert.IsFalse(databaseNames.Contains(databaseName));
+            Assert.IsFalse(databaseNames.Contains(_database.Name));
         }
 
         [Test]

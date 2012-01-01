@@ -34,10 +34,10 @@ namespace MongoDB.DriverOnlineTests
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
+            _server = Configuration.TestServer;
             _server.Connect();
-            _server.DropDatabase("onlinetests");
-            _database = _server["onlinetests"];
+            _database = Configuration.TestDatabase;
+            _database.Drop();
         }
 
         // TODO: more tests for MongoDatabase
@@ -130,7 +130,7 @@ namespace MongoDB.DriverOnlineTests
         [Test]
         public void TestGetCollection()
         {
-            var collectionName = "testgetcollection";
+            var collectionName = Configuration.TestCollection.Name;
             var collection = _database.GetCollection(typeof(BsonDocument), collectionName);
             Assert.AreSame(_database, collection.Database);
             Assert.AreEqual(_database.Name + "." + collectionName, collection.FullName);
@@ -141,7 +141,7 @@ namespace MongoDB.DriverOnlineTests
         [Test]
         public void TestGetCollectionGeneric()
         {
-            var collectionName = "testgetcollection";
+            var collectionName = Configuration.TestCollection.Name;
             var collection = _database.GetCollection(collectionName);
             Assert.AreSame(_database, collection.Database);
             Assert.AreEqual(_database.Name + "." + collectionName, collection.FullName);
@@ -152,7 +152,7 @@ namespace MongoDB.DriverOnlineTests
         [Test]
         public void TestGetCollectionNames()
         {
-            _server.DropDatabase("onlinetests");
+            _database.Drop();
             _database["a"].Insert(new BsonDocument("a", 1));
             _database["b"].Insert(new BsonDocument("b", 1));
             _database["c"].Insert(new BsonDocument("c", 1));
@@ -163,7 +163,7 @@ namespace MongoDB.DriverOnlineTests
         [Test]
         public void TestGetProfilingInfo()
         {
-            var collection = _database["testcollection"];
+            var collection = Configuration.TestCollection;
             if (collection.Exists()) { collection.Drop(); }
             collection.Insert(new BsonDocument("x", 1));
             _database.SetProfilingLevel(ProfilingLevel.All);

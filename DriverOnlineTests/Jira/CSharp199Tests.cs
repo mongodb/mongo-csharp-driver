@@ -33,12 +33,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199
         [Test]
         public void TestSingleRename()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
+            var server = Configuration.TestServer;
             server.Connect();
             if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
             {
-                var database = server["onlinetests"];
-                var collection = database.GetCollection("CSharp199");
+                var database = Configuration.TestDatabase;
+                var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
                 collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 } });
@@ -58,12 +58,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199
         [Test]
         public void TestMultipleRenames()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
+            var server = Configuration.TestServer;
             server.Connect();
             if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
             {
-                var database = server["onlinetests"];
-                var collection = database.GetCollection("CSharp199");
+                var database = Configuration.TestDatabase;
+                var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
                 collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
@@ -83,12 +83,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199
         [Test]
         public void TestRenameWithSet()
         {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
+            var server = Configuration.TestServer;
             server.Connect();
             if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
             {
-                var database = server["onlinetests"];
-                var collection = database.GetCollection("CSharp199");
+                var database = Configuration.TestDatabase;
+                var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
                 collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });

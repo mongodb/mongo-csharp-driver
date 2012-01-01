@@ -34,8 +34,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = MongoServer.Create("mongodb://localhost/?safe=true");
-            _database = _server["onlinetests"];
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
         }
 
         [Test]
