@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core
         {
             double ms = Math.Max(1, pingTime.TotalMilliseconds);
             int bucket = Convert.ToInt32(Math.Floor(Math.Log10(ms))); //might be written better
-            Extends(bucket);
+            Extends(bucket+1);
 
             // remove the instance previous ping
             Remove(instance);
