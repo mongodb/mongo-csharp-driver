@@ -12,7 +12,7 @@ namespace MongoDB.Driver.Core
     {
 
         private List<MongoServerInstance>[] buckets;
-
+        public object readLock = new object();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PingBuckets"/> class.
@@ -73,9 +73,11 @@ namespace MongoDB.Driver.Core
         {
             foreach (var bucket in buckets)
             {
-                if (bucket.Remove(mongoServerInstance))
-                    return;
-
+                lock (readLock)
+                {
+                    if (bucket.Remove(mongoServerInstance))
+                        return;
+                }
             }
         }
     }

@@ -1174,17 +1174,22 @@ namespace MongoDB.Driver
                             // round robin the connected secondaries, fall back to primary if no secondary found
                             lock (stateLock)
                             {
-                                for (int i = 0; i < instances.Count; i++)
+                                for (var i = 0; i < PingBuckets.BucketsCount; i++)
                                 {
-                                    // round robin (use if statement instead of mod because instances.Count can change
-                                    if (++loadBalancingInstanceIndex >= instances.Count)
+                                    lock (PingBuckets.readLock)
                                     {
-                                        loadBalancingInstanceIndex = 0;
-                                    }
-                                    var instance = instances[loadBalancingInstanceIndex];
-                                    if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive))
-                                    {
-                                        return instance;
+                                        if (++loadBalancingInstanceIndex >= PingBuckets.GetBucket(i).Count)
+                                        {
+                                            loadBalancingInstanceIndex = 0;
+                                        }
+                                        if (PingBuckets.GetBucket(i).Count > 0) // bucket not empty
+                                        {
+                                            var instance = PingBuckets.GetBucket(i)[loadBalancingInstanceIndex];
+                                            if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive))
+                                            {
+                                                return instance;
+                                            }
+                                        }
                                     }
                                 }
                             }
