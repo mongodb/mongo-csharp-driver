@@ -24,6 +24,7 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Core;
 
 namespace MongoDB.Driver
 {
@@ -52,6 +53,7 @@ namespace MongoDB.Driver
         private Dictionary<MongoDatabaseSettings, MongoDatabase> databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private IndexCache indexCache = new IndexCache();
+        private PingBuckets pingBuckets = new PingBuckets();
 
         // constructors
         /// <summary>
@@ -301,6 +303,11 @@ namespace MongoDB.Driver
         public virtual IndexCache IndexCache
         {
             get { return indexCache; }
+        }
+
+        public virtual PingBuckets PingBuckets
+        {
+            get { return pingBuckets; }
         }
 
         /// <summary>
@@ -895,7 +902,7 @@ namespace MongoDB.Driver
         {
             foreach (var instance in instances.ToArray())
             {
-                instance.Ping();
+                pingBuckets.Add(instance, instance.Ping());
             }
         }
 

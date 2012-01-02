@@ -23,6 +23,7 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Internal;
+using System.Diagnostics;
 
 namespace MongoDB.Driver
 {
@@ -208,18 +209,23 @@ namespace MongoDB.Driver
         /// <summary>
         /// Checks whether the server is alive (throws an exception if not).
         /// </summary>
-        public void Ping()
+        public TimeSpan Ping()
         {
+            var clock = new Stopwatch();
             var connection = connectionPool.AcquireConnection(null);
+
             try
             {
+                clock.Start();
                 var pingCommand = new CommandDocument("ping", 1);
                 connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand, true);
             }
             finally
             {
+                clock.Stop();
                 connectionPool.ReleaseConnection(connection);
             }
+            return clock.Elapsed;
         }
 
         /// <summary>
@@ -239,6 +245,7 @@ namespace MongoDB.Driver
                 {
                     // Console.WriteLine("MongoServerInstance[{0}]: Ping failed: {1}.", sequentialId, ex.Message);
                     connectionPool.Clear();
+                    this.Server.PingBuckets.Remove(this);
                 }
 
                 var connection = connectionPool.AcquireConnection(null);
