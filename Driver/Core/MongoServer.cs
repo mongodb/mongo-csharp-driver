@@ -1254,6 +1254,7 @@ namespace MongoDB.Driver
                 // Console.WriteLine("MongoServer[{0}]: Remove MongoServerInstance[{1}].", sequentialId, instance.SequentialId);
                 instance.StateChanged -= InstanceStateChanged;
                 instances.Remove(instance);
+                pingBuckets.Remove(instance);
                 InstanceStateChanged(instance, null); // removing an instance can change server state
             }
         }
