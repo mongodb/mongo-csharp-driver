@@ -127,8 +127,8 @@ namespace MongoDB.Driver
         public virtual QueryFlags Flags
         {
             get {
-                throw new Exception("what could be done with this logical OR ?");
-                //return flags | (slaveOk ? QueryFlags.SlaveOk : 0); 
+                //this part need to be changed when mongos handles read preference
+                return flags |  (readPreference.SecondaryOk ? QueryFlags.SlaveOk : 0);
             }
             set
             {

@@ -26,22 +26,36 @@ namespace MongoDB.Driver
         private HashSet<string> tags;
         private bool secondaryOk;
 
+        /// <summary>
+        /// Tags of the server from which reading is preferred.
+        /// </summary>
         public HashSet<string> Tags
         {
             get { return tags; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadPreference"/> class with a set of tags.
+        /// </summary>
+        /// <param name="tags">The tags.</param>
         public ReadPreference(HashSet<string> tags)
             : this(true)
         {
             this.tags = tags;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadPreference"/> class reading any secondary.
+        /// </summary>
+        /// <param name="secondary">if set to <c>true</c> [secondary].</param>
         public ReadPreference(bool secondary) : this()
         {
             this.secondaryOk = true;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReadPreference"/> class allowing reading only from primary.
+        /// </summary>
         public ReadPreference()
         {
             this.tags = new HashSet<string>();
@@ -133,11 +147,23 @@ namespace MongoDB.Driver
         }
 
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="ReadPreference"/> specifies tags from which reading is prefered.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if tagged; otherwise, <c>false</c>.
+        /// </value>
         public bool Tagged
         {
             get { return Tags.Count > 0; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the reading preferences allows to read from secondaries. This is the case except if Primary has been specified.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [secondary ok]; otherwise, <c>false</c>.
+        /// </value>
         public bool SecondaryOk
         {
             get { return secondaryOk; }
@@ -150,7 +176,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public bool Match(ReadPreference rp)
         {
-            return this.Equals(rp) || (this.Tagged && rp.Tagged && this.Tags.Intersect(rp.Tags).Count() > 0); //maybe Insect is not strong enough.. should I use Subset ?
+            return this.Equals(rp) || (this.Tagged && rp.Tagged && this.Tags.Intersect(rp.Tags).Count() > 0); //maybe Intersect is not strong enough.. should I use Subset ?
         }
     }
 }
