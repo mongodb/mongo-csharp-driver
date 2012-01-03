@@ -34,7 +34,11 @@ namespace MongoDB.Driver.Internal
         private IMongoQuery _query;
 
         // constructors
-        internal MongoDeleteMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, RemoveFlags flags, IMongoQuery query)
+        internal MongoDeleteMessage(
+            BsonBinaryWriterSettings writerSettings,
+            string collectionFullName,
+            RemoveFlags flags,
+            IMongoQuery query)
             : base(MessageOpcode.Delete, null, writerSettings)
         {
             _collectionFullName = collectionFullName;

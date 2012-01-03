@@ -128,7 +128,10 @@ namespace MongoDB.Driver.GridFS
         /// <param name="destFileName">The destination file name.</param>
         /// <param name="createOptions">The create options.</param>
         /// <returns>The file info of the new GridFS file.</returns>
-        public MongoGridFSFileInfo CopyTo(string sourceFileName, string destFileName, MongoGridFSCreateOptions createOptions)
+        public MongoGridFSFileInfo CopyTo(
+            string sourceFileName,
+            string destFileName,
+            MongoGridFSCreateOptions createOptions)
         {
             var fileInfo = FindOne(sourceFileName);
             if (fileInfo == null)
@@ -643,7 +646,11 @@ namespace MongoDB.Driver.GridFS
         /// <param name="access">The access.</param>
         /// <param name="createOptions">The create options.</param>
         /// <returns>A stream.</returns>
-        public MongoGridFSStream Open(string remoteFileName, FileMode mode, FileAccess access, MongoGridFSCreateOptions createOptions)
+        public MongoGridFSStream Open(
+            string remoteFileName,
+            FileMode mode,
+            FileAccess access,
+            MongoGridFSCreateOptions createOptions)
         {
             var fileInfo = new MongoGridFSFileInfo(this, remoteFileName, createOptions);
             return fileInfo.Open(mode, access);
@@ -754,7 +761,10 @@ namespace MongoDB.Driver.GridFS
         /// <param name="remoteFileName">The remote file name.</param>
         /// <param name="createOptions">The create options.</param>
         /// <returns>The file info of the new GridFS file.</returns>
-        public MongoGridFSFileInfo Upload(Stream stream, string remoteFileName, MongoGridFSCreateOptions createOptions)
+        public MongoGridFSFileInfo Upload(
+            Stream stream,
+            string remoteFileName,
+            MongoGridFSCreateOptions createOptions)
         {
             using (_database.RequestStart(false)) // not slaveOk
             {

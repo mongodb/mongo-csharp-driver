@@ -38,7 +38,10 @@ namespace MongoDB.Driver.Internal
         protected int _messageStartPosition = -1; // start position in buffer for backpatching messageLength
 
         // constructors
-        protected MongoRequestMessage(MessageOpcode opcode, BsonBuffer buffer, BsonBinaryWriterSettings writerSettings)
+        protected MongoRequestMessage(
+            MessageOpcode opcode,
+            BsonBuffer buffer,
+            BsonBinaryWriterSettings writerSettings)
             : base(opcode)
         {
             // buffer is not null if piggybacking this message onto an existing buffer

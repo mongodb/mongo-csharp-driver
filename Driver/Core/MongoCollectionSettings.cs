@@ -86,7 +86,13 @@ namespace MongoDB.Driver
         /// <param name="guidRepresentation">The GUID representation to use with this collection.</param>
         /// <param name="safeMode">The SafeMode to use with this collection.</param>
         /// <param name="slaveOk">Whether to route reads to secondaries for this collection.</param>
-        protected MongoCollectionSettings(string collectionName, bool assignIdOnInsert, Type defaultDocumentType, GuidRepresentation guidRepresentation, SafeMode safeMode, bool slaveOk)
+        protected MongoCollectionSettings(
+            string collectionName,
+            bool assignIdOnInsert,
+            Type defaultDocumentType,
+            GuidRepresentation guidRepresentation,
+            SafeMode safeMode,
+            bool slaveOk)
         {
             _collectionName = collectionName;
             _assignIdOnInsert = assignIdOnInsert;
@@ -322,7 +328,12 @@ namespace MongoDB.Driver
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="safeMode">The safe mode to use.</param>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
-        private MongoCollectionSettings(string collectionName, bool assignIdOnInsert, GuidRepresentation guidRepresentation, SafeMode safeMode, bool slaveOk)
+        private MongoCollectionSettings(
+            string collectionName,
+            bool assignIdOnInsert,
+            GuidRepresentation guidRepresentation,
+            SafeMode safeMode,
+            bool slaveOk)
             : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), guidRepresentation, safeMode, slaveOk)
         {
         }

@@ -37,12 +37,27 @@ namespace MongoDB.Driver.Internal
         private IMongoFields _fields;
 
         // constructors
-        internal MongoQueryMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, QueryFlags flags, int numberToSkip, int numberToReturn, IMongoQuery query, IMongoFields fields)
+        internal MongoQueryMessage(
+            BsonBinaryWriterSettings writerSettings,
+            string collectionFullName,
+            QueryFlags flags,
+            int numberToSkip,
+            int numberToReturn,
+            IMongoQuery query,
+            IMongoFields fields)
             : this(null, writerSettings, collectionFullName, flags, numberToSkip, numberToReturn, query, fields)
         {
         }
 
-        internal MongoQueryMessage(BsonBuffer buffer, BsonBinaryWriterSettings writerSettings, string collectionFullName, QueryFlags flags, int numberToSkip, int numberToReturn, IMongoQuery query, IMongoFields fields)
+        internal MongoQueryMessage(
+            BsonBuffer buffer,
+            BsonBinaryWriterSettings writerSettings,
+            string collectionFullName,
+            QueryFlags flags,
+            int numberToSkip,
+            int numberToReturn,
+            IMongoQuery query,
+            IMongoFields fields)
             : base(MessageOpcode.Query, buffer, writerSettings)
         {
             _collectionFullName = collectionFullName;

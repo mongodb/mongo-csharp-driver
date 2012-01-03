@@ -72,7 +72,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             var value = (IBsonSerializable)Activator.CreateInstance(actualType, true); // private default constructor OK
             return value.Deserialize(bsonReader, nominalType, options);
@@ -86,7 +90,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
-        public bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        public bool GetDocumentId(
+            object document,
+            out object id,
+            out Type idNominalType,
+            out IIdGenerator idGenerator)
         {
             var bsonSerializable = (IBsonSerializable)document;
             return bsonSerializable.GetDocumentId(out id, out idNominalType, out idGenerator);
@@ -99,7 +107,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             if (value == null)
             {

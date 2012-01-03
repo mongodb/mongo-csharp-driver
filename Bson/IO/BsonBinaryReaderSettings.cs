@@ -51,7 +51,12 @@ namespace MongoDB.Bson.IO
         /// <param name="fixOldDateTimeMaxValueOnInput">Whether to fix occurrences of the old representation of DateTime.MaxValue on input.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="maxDocumentSize">The max document size.</param>
-        public BsonBinaryReaderSettings(bool closeInput, bool fixOldBinarySubTypeOnInput, bool fixOldDateTimeMaxValueOnInput, GuidRepresentation guidRepresentation, int maxDocumentSize)
+        public BsonBinaryReaderSettings(
+            bool closeInput,
+            bool fixOldBinarySubTypeOnInput,
+            bool fixOldDateTimeMaxValueOnInput,
+            GuidRepresentation guidRepresentation,
+            int maxDocumentSize)
             : base(guidRepresentation)
         {
             _closeInput = closeInput;

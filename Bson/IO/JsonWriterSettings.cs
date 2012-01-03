@@ -57,7 +57,15 @@ namespace MongoDB.Bson.IO
         /// <param name="newLineChars">The new line characters.</param>
         /// <param name="outputMode">The output mode.</param>
         /// <param name="shellVersion">The version of the shell to target.</param>
-        public JsonWriterSettings(bool closeOutput, Encoding encoding, GuidRepresentation guidRepresentation, bool indent, string indentChars, string newLineChars, JsonOutputMode outputMode, Version shellVersion)
+        public JsonWriterSettings(
+            bool closeOutput,
+            Encoding encoding,
+            GuidRepresentation guidRepresentation,
+            bool indent,
+            string indentChars,
+            string newLineChars,
+            JsonOutputMode outputMode,
+            Version shellVersion)
             : base(guidRepresentation)
         {
             _closeOutput = closeOutput;

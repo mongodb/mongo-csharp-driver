@@ -62,7 +62,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="options">The serialization options.</param>
-        protected abstract void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options);
+        protected abstract void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            IBsonSerializationOptions options);
 
         // explicit interface implementations
         object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)

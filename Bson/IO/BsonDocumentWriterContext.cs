@@ -32,21 +32,30 @@ namespace MongoDB.Bson.IO
         private string _name;
 
         // constructors
-        internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, BsonDocument document)
+        internal BsonDocumentWriterContext(
+            BsonDocumentWriterContext parentContext,
+            ContextType contextType,
+            BsonDocument document)
         {
             _parentContext = parentContext;
             _contextType = contextType;
             _document = document;
         }
 
-        internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, BsonArray array)
+        internal BsonDocumentWriterContext(
+            BsonDocumentWriterContext parentContext,
+            ContextType contextType,
+            BsonArray array)
         {
             _parentContext = parentContext;
             _contextType = contextType;
             _array = array;
         }
 
-        internal BsonDocumentWriterContext(BsonDocumentWriterContext parentContext, ContextType contextType, string code)
+        internal BsonDocumentWriterContext(
+            BsonDocumentWriterContext parentContext,
+            ContextType contextType,
+            string code)
         {
             _parentContext = parentContext;
             _contextType = contextType;

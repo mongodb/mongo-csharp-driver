@@ -386,7 +386,12 @@ namespace MongoDB.Driver
             }
         }
 
-        internal void SetState(MongoServerState state, bool isPrimary, bool isSecondary, bool isPassive, bool isArbiter)
+        internal void SetState(
+            MongoServerState state,
+            bool isPrimary,
+            bool isSecondary,
+            bool isPassive,
+            bool isArbiter)
         {
             lock (_serverInstanceLock)
             {

@@ -235,7 +235,10 @@ namespace MongoDB.Bson
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <returns>A BsonBinaryData or null.</returns>
-        public static BsonBinaryData Create(byte[] bytes, BsonBinarySubType subType, GuidRepresentation guidRepresentation)
+        public static BsonBinaryData Create(
+            byte[] bytes,
+            BsonBinarySubType subType,
+            GuidRepresentation guidRepresentation)
         {
             if (bytes != null)
             {

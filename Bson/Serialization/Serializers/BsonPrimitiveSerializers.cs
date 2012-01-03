@@ -62,7 +62,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(bool));
 
@@ -95,7 +99,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             var boolValue = (bool)value;
             var representation = (options == null) ? BsonType.Boolean : ((RepresentationSerializationOptions)options).Representation;
@@ -157,7 +165,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(DateTime));
 
@@ -229,7 +241,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             var dateTime = (DateTime)value;
             var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions)options;
@@ -326,7 +342,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(double));
 
@@ -355,7 +375,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             var doubleValue = (double)value;
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
@@ -414,7 +438,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(Guid));
 
@@ -457,7 +485,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             var guid = (Guid)value;
             var representation = (options == null) ? BsonType.Binary : ((RepresentationSerializationOptions)options).Representation;
@@ -519,7 +551,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(int));
 
@@ -548,7 +584,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             var int32Value = (int)value;
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
@@ -608,7 +648,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(long));
 
@@ -637,7 +681,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             var int64Value = (long)value;
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
@@ -696,7 +744,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(ObjectId));
 
@@ -725,7 +777,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             var objectId = (ObjectId)value;
             var representation = (options == null) ? BsonType.ObjectId : ((RepresentationSerializationOptions)options).Representation;
@@ -777,7 +833,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(string));
 
@@ -816,7 +876,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             if (value == null)
             {

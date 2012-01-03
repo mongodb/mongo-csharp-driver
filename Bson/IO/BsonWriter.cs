@@ -235,7 +235,10 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The respresentation for Guids.</param>
-        public abstract void WriteBinaryData(byte[] bytes, BsonBinarySubType subType, GuidRepresentation guidRepresentation);
+        public abstract void WriteBinaryData(
+            byte[] bytes,
+            BsonBinarySubType subType,
+            GuidRepresentation guidRepresentation);
 
         /// <summary>
         /// Writes a BSON binary data element to the writer.
@@ -256,7 +259,11 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public void WriteBinaryData(string name, byte[] bytes, BsonBinarySubType subType, GuidRepresentation guidRepresentation)
+        public void WriteBinaryData(
+            string name,
+            byte[] bytes,
+            BsonBinarySubType subType,
+            GuidRepresentation guidRepresentation)
         {
             WriteName(name);
             WriteBinaryData(bytes, subType, guidRepresentation);
@@ -644,7 +651,10 @@ namespace MongoDB.Bson.IO
         /// <param name="methodName">The name of the method.</param>
         /// <param name="actualContextType">The actual ContextType.</param>
         /// <param name="validContextTypes">The valid ContextTypes.</param>
-        protected void ThrowInvalidContextType(string methodName, ContextType actualContextType, params ContextType[] validContextTypes)
+        protected void ThrowInvalidContextType(
+            string methodName,
+            ContextType actualContextType,
+            params ContextType[] validContextTypes)
         {
             var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
             var message = string.Format(

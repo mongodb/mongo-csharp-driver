@@ -36,7 +36,13 @@ namespace MongoDB.Driver.Internal
         private IMongoUpdate _update;
 
         // constructors
-        internal MongoUpdateMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, bool checkUpdateDocument, UpdateFlags flags, IMongoQuery query, IMongoUpdate update)
+        internal MongoUpdateMessage(
+            BsonBinaryWriterSettings writerSettings,
+            string collectionFullName,
+            bool checkUpdateDocument,
+            UpdateFlags flags,
+            IMongoQuery query,
+            IMongoUpdate update)
             : base(MessageOpcode.Update, null, writerSettings)
         {
             _collectionFullName = collectionFullName;

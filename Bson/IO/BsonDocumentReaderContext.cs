@@ -31,14 +31,20 @@ namespace MongoDB.Bson.IO
         private int _index;
 
         // constructors
-        internal BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonArray array)
+        internal BsonDocumentReaderContext(
+            BsonDocumentReaderContext parentContext,
+            ContextType contextType,
+            BsonArray array)
         {
             _parentContext = parentContext;
             _contextType = contextType;
             _array = array;
         }
 
-        internal BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonDocument document)
+        internal BsonDocumentReaderContext(
+            BsonDocumentReaderContext parentContext,
+            ContextType contextType,
+            BsonDocument document)
         {
             _parentContext = parentContext;
             _contextType = contextType;
@@ -46,7 +52,12 @@ namespace MongoDB.Bson.IO
         }
 
         // used by Clone
-        private BsonDocumentReaderContext(BsonDocumentReaderContext parentContext, ContextType contextType, BsonDocument document, BsonArray array, int index)
+        private BsonDocumentReaderContext(
+            BsonDocumentReaderContext parentContext,
+            ContextType contextType,
+            BsonDocument document,
+            BsonArray array,
+            int index)
         {
             _parentContext = parentContext;
             _contextType = contextType;

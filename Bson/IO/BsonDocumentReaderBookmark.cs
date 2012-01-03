@@ -30,7 +30,12 @@ namespace MongoDB.Bson.IO
         private BsonValue _currentValue;
 
         // constructors
-        internal BsonDocumentReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName, BsonDocumentReaderContext context, BsonValue currentValue)
+        internal BsonDocumentReaderBookmark(
+            BsonReaderState state,
+            BsonType currentBsonType,
+            string currentName,
+            BsonDocumentReaderContext context,
+            BsonValue currentValue)
             : base(state, currentBsonType, currentName)
         {
             _context = context.Clone();

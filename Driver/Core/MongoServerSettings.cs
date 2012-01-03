@@ -94,7 +94,23 @@ namespace MongoDB.Driver
         /// <param name="socketTimeout">The socket timeout.</param>
         /// <param name="waitQueueSize">The wait queue size.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
-        public MongoServerSettings(ConnectionMode connectionMode, TimeSpan connectTimeout, MongoCredentials defaultCredentials, GuidRepresentation guidRepresentation, bool ipv6, TimeSpan maxConnectionIdleTime, TimeSpan maxConnectionLifeTime, int maxConnectionPoolSize, int minConnectionPoolSize, string replicaSetName, SafeMode safeMode, IEnumerable<MongoServerAddress> servers, bool slaveOk, TimeSpan socketTimeout, int waitQueueSize, TimeSpan waitQueueTimeout)
+        public MongoServerSettings(
+            ConnectionMode connectionMode,
+            TimeSpan connectTimeout,
+            MongoCredentials defaultCredentials,
+            GuidRepresentation guidRepresentation,
+            bool ipv6,
+            TimeSpan maxConnectionIdleTime,
+            TimeSpan maxConnectionLifeTime,
+            int maxConnectionPoolSize,
+            int minConnectionPoolSize,
+            string replicaSetName,
+            SafeMode safeMode,
+            IEnumerable<MongoServerAddress> servers,
+            bool slaveOk,
+            TimeSpan socketTimeout,
+            int waitQueueSize,
+            TimeSpan waitQueueTimeout)
         {
             _connectionMode = connectionMode;
             _connectTimeout = connectTimeout;

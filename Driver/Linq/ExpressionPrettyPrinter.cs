@@ -198,7 +198,8 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="original">The Expression list.</param>
         /// <returns>The Expression list.</returns>
-        protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
+        protected override ReadOnlyCollection<Expression> VisitExpressionList(
+            ReadOnlyCollection<Expression> original)
         {
             throw new NotImplementedException();
         }
@@ -248,7 +249,8 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="original">The ElementInit list.</param>
         /// <returns>The ElementInit list.</returns>
-        protected override IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
+        protected override IEnumerable<ElementInit> VisitElementInitializerList(
+            ReadOnlyCollection<ElementInit> original)
         {
             throw new NotImplementedException();
         }

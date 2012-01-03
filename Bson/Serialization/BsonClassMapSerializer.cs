@@ -93,7 +93,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             VerifyNominalType(nominalType);
             if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
@@ -192,7 +196,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
-        public bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        public bool GetDocumentId(
+            object document,
+            out object id,
+            out Type idNominalType,
+            out IIdGenerator idGenerator)
         {
             var classMap = BsonClassMap.LookupClassMap(document.GetType());
             var idMemberMap = classMap.IdMemberMap;
@@ -219,7 +227,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             if (value == null)
             {
@@ -313,7 +325,11 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private methods
-        private void DeserializeExtraElement(BsonReader bsonReader, object obj, string elementName, BsonMemberMap extraElementsMemberMap)
+        private void DeserializeExtraElement(
+            BsonReader bsonReader,
+            object obj,
+            string elementName,
+            BsonMemberMap extraElementsMemberMap)
         {
             var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
             if (extraElements == null)

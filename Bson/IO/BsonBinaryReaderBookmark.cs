@@ -30,7 +30,12 @@ namespace MongoDB.Bson.IO
         private int _position;
 
         // constructors
-        internal BsonBinaryReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName, BsonBinaryReaderContext context, int position)
+        internal BsonBinaryReaderBookmark(
+            BsonReaderState state,
+            BsonType currentBsonType,
+            string currentName,
+            BsonBinaryReaderContext context,
+            int position)
             : base(state, currentBsonType, currentName)
         {
             _context = context.Clone();

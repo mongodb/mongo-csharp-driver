@@ -435,7 +435,9 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="genericTypeDefinition">The generic type.</param>
         /// <param name="genericSerializerDefinition">The generic serializer definition.</param>
-        public static void RegisterGenericSerializerDefinition(Type genericTypeDefinition, Type genericSerializerDefinition)
+        public static void RegisterGenericSerializerDefinition(
+            Type genericTypeDefinition,
+            Type genericSerializerDefinition)
         {
             __configLock.EnterWriteLock();
             try
@@ -520,7 +522,10 @@ namespace MongoDB.Bson.Serialization
         /// <param name="bsonWriter">The BsonWriter.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public static void Serialize<TNominalType>(BsonWriter bsonWriter, TNominalType value, IBsonSerializationOptions options)
+        public static void Serialize<TNominalType>(
+            BsonWriter bsonWriter,
+            TNominalType value,
+            IBsonSerializationOptions options)
         {
             Serialize(bsonWriter, typeof(TNominalType), value, options);
         }
@@ -543,7 +548,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public static void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public static void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             var bsonSerializable = value as IBsonSerializable;
             if (bsonSerializable != null)

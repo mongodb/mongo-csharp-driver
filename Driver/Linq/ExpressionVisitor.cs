@@ -387,7 +387,8 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="original">The ElementInit list.</param>
         /// <returns>The ElementInit list (possibly modified).</returns>
-        protected virtual IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
+        protected virtual IEnumerable<ElementInit> VisitElementInitializerList(
+            ReadOnlyCollection<ElementInit> original)
         {
             List<ElementInit> list = null;
             for (int i = 0, n = original.Count; i < n; i++)

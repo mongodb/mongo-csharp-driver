@@ -84,7 +84,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value, 
+            IBsonSerializationOptions options)
         {
             var actualType = value.GetType();
             VerifySerializeTypes(nominalType, actualType);

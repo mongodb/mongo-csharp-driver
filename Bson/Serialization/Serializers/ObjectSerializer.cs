@@ -107,7 +107,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public object Deserialize(
+           BsonReader bsonReader,
+           Type nominalType,
+           Type actualType,
+           IBsonSerializationOptions options)
         {
             if (actualType != typeof(object))
             {
@@ -150,7 +154,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
-        public bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        public bool GetDocumentId(
+           object document,
+           out object id,
+           out Type idNominalType,
+           out IIdGenerator idGenerator)
         {
             throw new NotSupportedException();
         }
@@ -162,7 +170,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
-        public void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             if (value == null)
             {

@@ -36,7 +36,11 @@ namespace MongoDB.Driver.Internal
         private int _lastDocumentStartPosition;
 
         // constructors
-        internal MongoInsertMessage(BsonBinaryWriterSettings writerSettings, string collectionFullName, bool checkElementNames, InsertFlags flags)
+        internal MongoInsertMessage(
+            BsonBinaryWriterSettings writerSettings,
+            string collectionFullName,
+            bool checkElementNames,
+            InsertFlags flags)
             : base(MessageOpcode.Insert, null, writerSettings)
         {
             _collectionFullName = collectionFullName;

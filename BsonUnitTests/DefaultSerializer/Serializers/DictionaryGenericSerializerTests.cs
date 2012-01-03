@@ -549,7 +549,9 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers
             return sl;
         }
 
-        private string GetArrayRepresentationInKeyOrder(IDictionary<object, object> dictionary, IDictionary<object, object> representations)
+        private string GetArrayRepresentationInKeyOrder(
+            IDictionary<object, object> dictionary,
+            IDictionary<object, object> representations)
         {
             var sb = new StringBuilder();
             foreach (var key in dictionary.Keys)
@@ -561,7 +563,9 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers
             return sb.ToString();
         }
 
-        private string GetDocumentRepresentationInKeyOrder(IDictionary<object, object> dictionary, IDictionary<object, object> representations)
+        private string GetDocumentRepresentationInKeyOrder(
+            IDictionary<object, object> dictionary,
+            IDictionary<object, object> representations)
         {
             var sb = new StringBuilder();
             foreach (var key in dictionary.Keys)

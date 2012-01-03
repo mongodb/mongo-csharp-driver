@@ -30,7 +30,10 @@ namespace MongoDB.Bson.IO
         private int _index; // used when contextType is Array
 
         // constructors
-        internal BsonBinaryWriterContext(BsonBinaryWriterContext parentContext, ContextType contextType, int startPosition)
+        internal BsonBinaryWriterContext(
+            BsonBinaryWriterContext parentContext,
+            ContextType contextType,
+            int startPosition)
         {
             _parentContext = parentContext;
             _contextType = contextType;

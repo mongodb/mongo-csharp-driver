@@ -62,7 +62,12 @@ namespace MongoDB.Driver
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="safeMode">The safe mode to use.</param>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
-        public MongoDatabaseSettings(string databaseName, MongoCredentials credentials, GuidRepresentation guidRepresentation, SafeMode safeMode, bool slaveOk)
+        public MongoDatabaseSettings(
+            string databaseName,
+            MongoCredentials credentials,
+            GuidRepresentation guidRepresentation,
+            SafeMode safeMode,
+            bool slaveOk)
         {
             _databaseName = databaseName;
             _credentials = credentials;

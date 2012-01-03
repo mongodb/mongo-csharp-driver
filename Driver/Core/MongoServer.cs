@@ -831,7 +831,10 @@ namespace MongoDB.Driver
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetDatabase(string databaseName, MongoCredentials credentials, SafeMode safeMode)
+        public virtual MongoDatabase GetDatabase(
+            string databaseName,
+            MongoCredentials credentials,
+            SafeMode safeMode)
         {
             var databaseSettings = new MongoDatabaseSettings(this, databaseName)
             {
@@ -1019,7 +1022,8 @@ namespace MongoDB.Driver
         /// <typeparam name="TCommandResult">The type to use for the command result.</typeparam>
         /// <param name="command">The command to run.</param>
         /// <returns>The result of the command (as a <typeparamref name="TCommandResult"/>).</returns>
-        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult, new()
+        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(IMongoCommand command)
+            where TCommandResult : CommandResult, new()
         {
             return (TCommandResult)RunAdminCommandAs(typeof(TCommandResult), command);
         }
@@ -1030,7 +1034,8 @@ namespace MongoDB.Driver
         /// <typeparam name="TCommandResult">The type to use for the command result.</typeparam>
         /// <param name="commandName">The name of the command to run.</param>
         /// <returns>The result of the command (as a <typeparamref name="TCommandResult"/>).</returns>
-        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(string commandName) where TCommandResult : CommandResult, new()
+        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(string commandName)
+            where TCommandResult : CommandResult, new()
         {
             return (TCommandResult)RunAdminCommandAs(typeof(TCommandResult), commandName);
         }

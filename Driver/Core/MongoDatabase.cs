@@ -336,7 +336,8 @@ namespace MongoDB.Driver
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of this collection.</param>
         /// <returns>A MongoCollectionSettings.</returns>
-        public virtual MongoCollectionSettings<TDefaultDocument> CreateCollectionSettings<TDefaultDocument>(string collectionName)
+        public virtual MongoCollectionSettings<TDefaultDocument> CreateCollectionSettings<TDefaultDocument>(
+            string collectionName)
         {
             return new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
         }
@@ -348,7 +349,9 @@ namespace MongoDB.Driver
         /// <param name="defaultDocumentType">The default document type for this collection.</param>
         /// <param name="collectionName">The name of this collection.</param>
         /// <returns>A MongoCollectionSettings.</returns>
-        public virtual MongoCollectionSettings CreateCollectionSettings(Type defaultDocumentType, string collectionName)
+        public virtual MongoCollectionSettings CreateCollectionSettings(
+            Type defaultDocumentType,
+            string collectionName)
         {
             var settingsDefinition = typeof(MongoCollectionSettings<>);
             var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
@@ -505,7 +508,8 @@ namespace MongoDB.Driver
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(MongoCollectionSettings<TDefaultDocument> collectionSettings)
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+            MongoCollectionSettings<TDefaultDocument> collectionSettings)
         {
             lock (_databaseLock)
             {
@@ -540,7 +544,9 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName, SafeMode safeMode)
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+            string collectionName,
+            SafeMode safeMode)
         {
             var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName)
             {
@@ -621,7 +627,10 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName, SafeMode safeMode)
+        public virtual MongoCollection GetCollection(
+            Type defaultDocumentType,
+            string collectionName,
+            SafeMode safeMode)
         {
             var collectionSettings = CreateCollectionSettings(defaultDocumentType, collectionName);
             collectionSettings.SafeMode = safeMode;
@@ -752,7 +761,10 @@ namespace MongoDB.Driver
         /// <param name="newCollectionName">The new name for the collection.</param>
         /// <param name="dropTarget">Whether to drop the target collection first if it already exists.</param>
         /// <returns>A CommandResult.</returns>
-        public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, bool dropTarget)
+        public virtual CommandResult RenameCollection(
+            string oldCollectionName,
+            string newCollectionName,
+            bool dropTarget)
         {
             MongoCollection.ValidateCollectionName(newCollectionName);
             var command = new CommandDocument
@@ -834,7 +846,8 @@ namespace MongoDB.Driver
         /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="command">The command object.</param>
         /// <returns>A TCommandResult</returns>
-        public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult, new()
+        public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
+            where TCommandResult : CommandResult, new()
         {
             return (TCommandResult)RunCommandAs(typeof(TCommandResult), command);
         }
@@ -845,7 +858,8 @@ namespace MongoDB.Driver
         /// <typeparam name="TCommandResult">The type of the returned command result.</typeparam>
         /// <param name="commandName">The name of the command.</param>
         /// <returns>A TCommandResult</returns>
-        public virtual TCommandResult RunCommandAs<TCommandResult>(string commandName) where TCommandResult : CommandResult, new()
+        public virtual TCommandResult RunCommandAs<TCommandResult>(string commandName)
+            where TCommandResult : CommandResult, new()
         {
             return (TCommandResult)RunCommandAs(typeof(TCommandResult), commandName);
         }

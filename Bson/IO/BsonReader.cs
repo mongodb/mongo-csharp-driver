@@ -302,7 +302,10 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public abstract void ReadBinaryData(out byte[] bytes, out BsonBinarySubType subType, out GuidRepresentation guidRepresentation);
+        public abstract void ReadBinaryData(
+            out byte[] bytes,
+            out BsonBinarySubType subType,
+            out GuidRepresentation guidRepresentation);
 
         /// <summary>
         /// Reads a BSON binary data element from the reader.
@@ -323,7 +326,11 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public void ReadBinaryData(string name, out byte[] bytes, out BsonBinarySubType subType, out GuidRepresentation guidRepresentation)
+        public void ReadBinaryData(
+            string name,
+            out byte[] bytes,
+            out BsonBinarySubType subType,
+            out GuidRepresentation guidRepresentation)
         {
             VerifyName(name);
             ReadBinaryData(out bytes, out subType, out guidRepresentation);
@@ -687,7 +694,10 @@ namespace MongoDB.Bson.IO
         /// <param name="methodName">The name of the method.</param>
         /// <param name="actualContextType">The actual ContextType.</param>
         /// <param name="validContextTypes">The valid ContextTypes.</param>
-        protected void ThrowInvalidContextType(string methodName, ContextType actualContextType, params ContextType[] validContextTypes)
+        protected void ThrowInvalidContextType(
+            string methodName,
+            ContextType actualContextType,
+            params ContextType[] validContextTypes)
         {
             var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
             var message = string.Format(

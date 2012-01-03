@@ -417,7 +417,12 @@ namespace MongoDB.Driver.Builders
         /// <param name="radius">The radius of the circle.</param>
         /// <param name="spherical">Whether to do a spherical search.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static QueryConditionList WithinCircle(string name, double centerX, double centerY, double radius, bool spherical)
+        public static QueryConditionList WithinCircle(
+            string name,
+            double centerX,
+            double centerY,
+            double radius,
+            bool spherical)
         {
             return new QueryConditionList(name).WithinCircle(centerX, centerY, radius, spherical);
         }
@@ -442,7 +447,12 @@ namespace MongoDB.Driver.Builders
         /// <param name="upperRightX">The x coordinate of the upper right corner.</param>
         /// <param name="upperRightY">The y coordinate of the upper right corner.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static QueryConditionList WithinRectangle(string name, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY)
+        public static QueryConditionList WithinRectangle(
+            string name,
+            double lowerLeftX,
+            double lowerLeftY,
+            double upperRightX,
+            double upperRightY)
         {
             return new QueryConditionList(name).WithinRectangle(lowerLeftX, lowerLeftY, upperRightX, upperRightY);
         }
@@ -900,7 +910,11 @@ namespace MongoDB.Driver.Builders
         /// <param name="upperRightX">The x coordinate of the upper right corner.</param>
         /// <param name="upperRightY">The y coordinate of the upper right corner.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public QueryConditionList WithinRectangle(double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY)
+        public QueryConditionList WithinRectangle(
+            double lowerLeftX,
+            double lowerLeftY,
+            double upperRightX,
+            double upperRightY)
         {
             _conditions.Add("$within", new BsonDocument("$box", new BsonArray { new BsonArray { lowerLeftX, lowerLeftY }, new BsonArray { upperRightX, upperRightY } }));
             return this;

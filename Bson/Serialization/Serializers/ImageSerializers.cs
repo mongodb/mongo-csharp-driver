@@ -60,7 +60,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type of the Image.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An Image.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            IBsonSerializationOptions options)
         {
             if (nominalType != typeof(Image))
             {
@@ -88,7 +91,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the Image.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An Image.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             if (nominalType != typeof(Image))
             {
@@ -121,7 +128,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The Image.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             if (nominalType != typeof(Image))
             {
@@ -181,7 +192,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="actualType">The actual type of the Bitmap.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A Bitmap.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
             if (nominalType != typeof(Image) && nominalType != typeof(Bitmap))
             {
@@ -237,7 +252,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="value">The Bitmap.</param>
         /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
             if (nominalType != typeof(Image) && nominalType != typeof(Bitmap))
             {

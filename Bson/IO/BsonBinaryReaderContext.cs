@@ -30,7 +30,11 @@ namespace MongoDB.Bson.IO
         private int _size;
 
         // constructors
-        internal BsonBinaryReaderContext(BsonBinaryReaderContext parentContext, ContextType contextType, int startPosition, int size)
+        internal BsonBinaryReaderContext(
+            BsonBinaryReaderContext parentContext,
+            ContextType contextType,
+            int startPosition, 
+            int size)
         {
             _parentContext = parentContext;
             _contextType = contextType;

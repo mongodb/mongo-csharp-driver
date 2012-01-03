@@ -60,7 +60,10 @@ namespace MongoDB.Bson
         /// <param name="options">The serialization options.</param>
         /// <param name="settings">The BsonBinaryWriter settings.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ToBson<TNominalType>(this TNominalType obj, IBsonSerializationOptions options, BsonBinaryWriterSettings settings)
+        public static byte[] ToBson<TNominalType>(
+            this TNominalType obj,
+            IBsonSerializationOptions options,
+            BsonBinaryWriterSettings settings)
         {
             return ToBson(obj, typeof(TNominalType), options, settings);
         }
@@ -108,7 +111,11 @@ namespace MongoDB.Bson
         /// <param name="options">The serialization options.</param>
         /// <param name="settings">The BsonBinaryWriter settings.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ToBson(this object obj, Type nominalType, IBsonSerializationOptions options, BsonBinaryWriterSettings settings)
+        public static byte[] ToBson(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationOptions options,
+            BsonBinaryWriterSettings settings)
         {
             using (var buffer = new BsonBuffer())
             {
@@ -150,7 +157,9 @@ namespace MongoDB.Bson
         /// <param name="obj">The object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ToBsonDocument<TNominalType>(this TNominalType obj, IBsonSerializationOptions options)
+        public static BsonDocument ToBsonDocument<TNominalType>(
+            this TNominalType obj,
+            IBsonSerializationOptions options)
         {
             return ToBsonDocument(obj, typeof(TNominalType), options);
         }
@@ -173,7 +182,10 @@ namespace MongoDB.Bson
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ToBsonDocument(this object obj, Type nominalType, IBsonSerializationOptions options)
+        public static BsonDocument ToBsonDocument(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationOptions options)
         {
             if (obj == null)
             {
@@ -232,7 +244,10 @@ namespace MongoDB.Bson
         /// <param name="options">The serialization options.</param>
         /// <param name="settings">The JsonWriter settings.</param>
         /// <returns>A JSON string.</returns>
-        public static string ToJson<TNominalType>(this TNominalType obj, IBsonSerializationOptions options, JsonWriterSettings settings)
+        public static string ToJson<TNominalType>(
+            this TNominalType obj,
+            IBsonSerializationOptions options,
+            JsonWriterSettings settings)
         {
             return ToJson(obj, typeof(TNominalType), options, settings);
         }
@@ -280,7 +295,11 @@ namespace MongoDB.Bson
         /// <param name="options">The serialization options.</param>
         /// <param name="settings">The JsonWriter settings.</param>
         /// <returns>A JSON string.</returns>
-        public static string ToJson(this object obj, Type nominalType, IBsonSerializationOptions options, JsonWriterSettings settings)
+        public static string ToJson(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationOptions options,
+            JsonWriterSettings settings)
         {
             using (var stringWriter = new StringWriter())
             {

@@ -49,7 +49,11 @@ namespace MongoDB.Bson.IO
         /// <param name="fixOldBinarySubTypeOnOutput">Whether to fix old binary data subtype on output.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="maxDocumentSize">The max document size.</param>
-        public BsonBinaryWriterSettings(bool closeOutput, bool fixOldBinarySubTypeOnOutput, GuidRepresentation guidRepresentation, int maxDocumentSize)
+        public BsonBinaryWriterSettings(
+            bool closeOutput,
+            bool fixOldBinarySubTypeOnOutput,
+            GuidRepresentation guidRepresentation,
+            int maxDocumentSize)
             : base(guidRepresentation)
         {
             _closeOutput = closeOutput;
