@@ -200,11 +200,11 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Casts the BsonValue to a DateTime (throws an InvalidCastException if the cast is not valid).
+        /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
         /// </summary>
         public DateTime AsDateTime
         {
-            get { return ((BsonDateTime)this).Value; }
+            get { return AsUniversalTime; }
         }
 
         /// <summary>
@@ -229,6 +229,14 @@ namespace MongoDB.Bson
         public int AsInt32
         {
             get { return ((BsonInt32)this).Value; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a DateTime in the local timezone (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public DateTime AsLocalTime
+        {
+            get { return ((BsonDateTime)this).ToLocalTime(); }
         }
 
         /// <summary>
@@ -317,6 +325,14 @@ namespace MongoDB.Bson
         public string AsString
         {
             get { return ((BsonString)this).Value; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public DateTime AsUniversalTime
+        {
+            get { return ((BsonDateTime)this).ToUniversalTime(); }
         }
 
         /// <summary>

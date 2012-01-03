@@ -29,7 +29,6 @@ namespace MongoDB.Bson
     {
         // private fields
         private long _millisecondsSinceEpoch;
-        private DateTime _value; // only valid if millisecondsSinceEpoch is between MinValue and MaxValue for DateTime
 
         // constructors
         /// <summary>
@@ -40,7 +39,6 @@ namespace MongoDB.Bson
             : base(BsonType.DateTime)
         {
             _millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(value);
-            _value = value;
         }
 
         /// <summary>
@@ -51,11 +49,6 @@ namespace MongoDB.Bson
             : base(BsonType.DateTime)
         {
             _millisecondsSinceEpoch = millisecondsSinceEpoch;
-            if (millisecondsSinceEpoch >= BsonConstants.DateTimeMinValueMillisecondsSinceEpoch &&
-                millisecondsSinceEpoch <= BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
-            {
-                _value = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(millisecondsSinceEpoch);
-            }
         }
 
         // public properties
@@ -95,15 +88,7 @@ namespace MongoDB.Bson
         {
             get
             {
-                if (_millisecondsSinceEpoch < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch)
-                {
-                    throw new OverflowException("MillisecondsSinceEpoch value is before DateTime.MinValue.");
-                }
-                if (_millisecondsSinceEpoch > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
-                {
-                    throw new OverflowException("MillisecondsSinceEpoch value is after DateTime.MaxValue.");
-                }
-                return _value;
+                return BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch);
             }
         }
 
@@ -188,14 +173,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonDateTime other)
         {
             if (other == null) { return 1; }
-            if (IsValidDateTime && other.IsValidDateTime)
-            {
-                return _value.CompareTo(other._value);
-            }
-            else
-            {
-                return _millisecondsSinceEpoch.CompareTo(other._millisecondsSinceEpoch);
-            }
+            return _millisecondsSinceEpoch.CompareTo(other._millisecondsSinceEpoch);
         }
 
         /// <summary>
@@ -209,14 +187,7 @@ namespace MongoDB.Bson
             var otherDateTime = other as BsonDateTime;
             if (otherDateTime != null)
             {
-                if (IsValidDateTime && otherDateTime.IsValidDateTime)
-                {
-                    return _value.CompareTo(otherDateTime._value);
-                }
-                else
-                {
-                    return _millisecondsSinceEpoch.CompareTo(otherDateTime._millisecondsSinceEpoch);
-                }
+                return _millisecondsSinceEpoch.CompareTo(otherDateTime._millisecondsSinceEpoch);
             }
             var otherTimestamp = other as BsonTimestamp;
             if (otherTimestamp != null)
@@ -234,7 +205,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonDateTime rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return _millisecondsSinceEpoch == rhs._millisecondsSinceEpoch && _value == rhs._value;
+            return _millisecondsSinceEpoch == rhs._millisecondsSinceEpoch;
         }
 
         /// <summary>
@@ -257,8 +228,26 @@ namespace MongoDB.Bson
             int hash = 17;
             hash = 37 * hash + _bsonType.GetHashCode();
             hash = 37 * hash + _millisecondsSinceEpoch.GetHashCode();
-            hash = 37 * hash + _value.GetHashCode();
             return hash;
+        }
+
+        /// <summary>
+        /// Converts the BsonDateTime value to a .NET DateTime value in the local timezone.
+        /// </summary>
+        /// <returns>A DateTime in the local timezone.</returns>
+        public DateTime ToLocalTime()
+        {
+            var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch);
+            return BsonUtils.ToLocalTime(utcDateTime, DateTimeKind.Local);
+        }
+
+        /// <summary>
+        /// Converts the BsonDateTime value to a .NET DateTime value in UTC.
+        /// </summary>
+        /// <returns>A DateTime in UTC.</returns>
+        public DateTime ToUniversalTime()
+        {
+            return BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch);
         }
 
         /// <summary>
@@ -269,7 +258,7 @@ namespace MongoDB.Bson
         {
             if (IsValidDateTime)
             {
-                return _value.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK");
+                return BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch).ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFFK");
             }
             else
             {

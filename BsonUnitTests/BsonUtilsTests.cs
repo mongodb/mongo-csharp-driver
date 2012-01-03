@@ -14,22 +14,21 @@
 */
 
 using System;
+using NUnit.Framework;
 
 using MongoDB.Bson;
-
-using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests
 {
     [TestFixture]
     public class BsonUtilsTests
     {
-
         [Test]
         public void TestMaxToDateTimeConversion()
         {
             var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
                 BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch);
+            Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
             Assert.AreEqual(DateTime.MaxValue, actual);
         }
 
@@ -38,6 +37,7 @@ namespace MongoDB.BsonUnitTests
         {
             var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
                 BsonConstants.DateTimeMinValueMillisecondsSinceEpoch);
+            Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
             Assert.AreEqual(DateTime.MinValue, actual);
         }
 
@@ -45,6 +45,7 @@ namespace MongoDB.BsonUnitTests
         public void TestZeroToDateTimeConversion()
         {
             var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(0);
+            Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
             Assert.AreEqual(BsonConstants.UnixEpoch, actual);
         }
 
@@ -53,8 +54,7 @@ namespace MongoDB.BsonUnitTests
         public void TestGreaterThanMaxToDateTimeConversion()
         {
             var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
-                BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch+1);
-            Assert.AreEqual(BsonConstants.UnixEpoch, actual);
+                BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch + 1);
         }
 
         [Test]
@@ -63,24 +63,20 @@ namespace MongoDB.BsonUnitTests
         {
             var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
                 BsonConstants.DateTimeMinValueMillisecondsSinceEpoch - 1);
-            Assert.AreEqual(BsonConstants.UnixEpoch, actual);
         }
 
         [Test]
         public void TestMaxToMillisConversion()
         {
             var actual = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MaxValue);
-            Assert.AreEqual(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch,
-                actual);
+            Assert.AreEqual(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch, actual);
         }
 
         [Test]
         public void TestMinToMillisConversion()
         {
             var actual = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MinValue);
-            Assert.AreEqual(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch,
-                actual);
+            Assert.AreEqual(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch, actual);
         }
-
     }
 }

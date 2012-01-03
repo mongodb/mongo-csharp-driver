@@ -194,13 +194,14 @@ namespace MongoDB.BsonUnitTests
         public void TestNullableDateTime()
         {
             var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             var document = new BsonDocument { { "v", utcNow }, { "n", BsonNull.Value }, { "s", "" } };
-            Assert.AreEqual(utcNow, (DateTime?)document["v"]);
+            Assert.AreEqual(utcNowTruncated, (DateTime?)document["v"]);
             Assert.AreEqual(null, (DateTime?)document["n"]);
             Assert.AreEqual(null, (DateTime?)document["x", null]);
             Assert.AreEqual(null, (DateTime?)document["x", (DateTime?)null]);
             Assert.AreEqual(null, (DateTime?)document["x", BsonNull.Value]);
-            Assert.AreEqual(utcNow, document["v"].AsNullableDateTime);
+            Assert.AreEqual(utcNowTruncated, document["v"].AsNullableDateTime);
             Assert.AreEqual(null, document["n"].AsNullableDateTime);
             Assert.AreEqual(null, document["x", (DateTime?)null].AsNullableDateTime);
             Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableDateTime);

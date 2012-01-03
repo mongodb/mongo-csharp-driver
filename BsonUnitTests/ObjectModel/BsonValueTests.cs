@@ -176,10 +176,11 @@ namespace MongoDB.BsonUnitTests
         public void TestAsDateTime()
         {
             var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             BsonValue v = utcNow;
             BsonValue s = "";
             var dt = v.AsDateTime;
-            Assert.AreEqual(utcNow, dt);
+            Assert.AreEqual(utcNowTruncated, dt);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsDateTime; });
         }
 
@@ -239,10 +240,11 @@ namespace MongoDB.BsonUnitTests
         public void TestAsNullableDateTime()
         {
             var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             BsonValue v = utcNow;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(utcNow, v.AsNullableDateTime);
+            Assert.AreEqual(utcNowTruncated, v.AsNullableDateTime);
             Assert.AreEqual(null, n.AsNullableDateTime);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableDateTime; });
         }
@@ -515,10 +517,11 @@ namespace MongoDB.BsonUnitTests
         public void TestImplicitConversionFromDateTime()
         {
             var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             BsonValue v = utcNow;
             Assert.IsInstanceOf<BsonDateTime>(v);
             var dt = (BsonDateTime)v;
-            Assert.AreEqual(utcNow, dt.Value);
+            Assert.AreEqual(utcNowTruncated, dt.Value);
         }
 
         [Test]
@@ -601,12 +604,13 @@ namespace MongoDB.BsonUnitTests
         public void TestImplicitConversionFromNullableDateTime()
         {
             var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             BsonValue v = (DateTime?)utcNow;
             BsonValue n = (DateTime?)null;
             Assert.IsInstanceOf<BsonDateTime>(v);
             Assert.IsInstanceOf<BsonNull>(n);
             var dt = (BsonDateTime)v;
-            Assert.AreEqual(utcNow, dt.Value);
+            Assert.AreEqual(utcNowTruncated, dt.Value);
         }
 
         [Test]

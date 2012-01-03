@@ -53,6 +53,15 @@ namespace MongoDB.Bson
         /// <returns>A DateTime.</returns>
         public static DateTime ToDateTimeFromMillisecondsSinceEpoch(long millisecondsSinceEpoch)
         {
+            if (millisecondsSinceEpoch < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch ||
+                millisecondsSinceEpoch > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
+            {
+                var message = string.Format(
+                    "The value {0} for the BsonDateTime MillisecondsSinceEpoch is outside the range that can be converted to a .NET DateTime.",
+                    millisecondsSinceEpoch);
+                throw new ArgumentOutOfRangeException("millisecondsSinceEpoch", message);
+            }
+
             // MaxValue has to be handled specially to avoid rounding errors
             if (millisecondsSinceEpoch == BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
             {
@@ -116,7 +125,14 @@ namespace MongoDB.Bson
         public static long ToMillisecondsSinceEpoch(DateTime dateTime)
         {
             var utcDateTime = ToUniversalTime(dateTime);
-            return (utcDateTime - BsonConstants.UnixEpoch).Ticks / 10000;
+            if (utcDateTime == DateTime.MaxValue)
+            {
+                return BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch;
+            }
+            else
+            {
+                return (utcDateTime - BsonConstants.UnixEpoch).Ticks / 10000;
+            }
         }
 
         /// <summary>
