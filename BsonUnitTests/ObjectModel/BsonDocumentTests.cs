@@ -416,6 +416,71 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestToDictionaryOneBinary()
+        {
+            var document = new BsonDocument("x", new BsonBinaryData(new byte[] { 1, 2, 3 }, BsonBinarySubType.Binary));
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<byte[]>(dictionary["x"]);
+            Assert.IsTrue(new byte[] { 1, 2, 3 }.SequenceEqual((byte[])dictionary["x"]));
+        }
+
+        [Test]
+        public void TestToDictionaryOneBoolean()
+        {
+            var document = new BsonDocument("x", true);
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<bool>(dictionary["x"]);
+            Assert.AreEqual(true, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToDictionaryOneDateTime()
+        {
+            var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
+            var document = new BsonDocument("x", utcNow);
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<DateTime>(dictionary["x"]);
+            Assert.AreEqual(DateTimeKind.Utc, ((DateTime)dictionary["x"]).Kind);
+            Assert.AreEqual(utcNowTruncated, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToDictionaryOneDouble()
+        {
+            var document = new BsonDocument("x", 1.0);
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<double>(dictionary["x"]);
+            Assert.AreEqual(1.0, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToDictionaryOneGuidLegacy()
+        {
+            var guid = Guid.NewGuid();
+            var document = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy));
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<Guid>(dictionary["x"]);
+            Assert.AreEqual(guid, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToDictionaryOneGuidStandard()
+        {
+            var guid = Guid.NewGuid();
+            var document = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.Standard));
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<Guid>(dictionary["x"]);
+            Assert.AreEqual(guid, dictionary["x"]);
+        }
+
+        [Test]
         public void TestToDictionaryOneInt32()
         {
             var document = new BsonDocument("x", 1);
@@ -436,6 +501,17 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestToDictionaryOneObjectId()
+        {
+            var objectId = ObjectId.GenerateNewId();
+            var hashtable = new BsonDocument("x", objectId);
+            var dictionary = hashtable.ToDictionary();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<ObjectId>(dictionary["x"]);
+            Assert.AreEqual(objectId, dictionary["x"]);
+        }
+
+        [Test]
         public void TestToDictionaryOneString()
         {
             var document = new BsonDocument("x", "abc");
@@ -443,6 +519,34 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(1, dictionary.Count);
             Assert.IsInstanceOf<string>(dictionary["x"]);
             Assert.AreEqual("abc", dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToDictionaryUnsupportedTypes()
+        {
+            var document = new BsonDocument
+            {
+                { "JavaScript", new BsonJavaScript("x = 1") },
+                { "JavaScriptWithScope", new BsonJavaScriptWithScope("x = y", new BsonDocument("y", 1)) },
+                { "MaxKey", BsonMaxKey.Value },
+                { "MinKey", BsonMinKey.Value },
+                { "Null", BsonNull.Value },
+                { "RegularExpression", new BsonRegularExpression("abc") },
+                { "Symbol", BsonSymbol.Create("name") },
+                { "Timestamp", new BsonTimestamp(123L) },
+                { "Undefined", BsonUndefined.Value },
+            };
+            var dictionary = document.ToDictionary();
+            Assert.AreEqual(9, dictionary.Count);
+            Assert.IsNull(dictionary["JavaScript"]);
+            Assert.IsNull(dictionary["JavaScriptWithScope"]);
+            Assert.IsNull(dictionary["MaxKey"]);
+            Assert.IsNull(dictionary["MinKey"]);
+            Assert.IsNull(dictionary["Null"]);
+            Assert.IsNull(dictionary["RegularExpression"]);
+            Assert.IsNull(dictionary["Symbol"]);
+            Assert.IsNull(dictionary["Timestamp"]);
+            Assert.IsNull(dictionary["Undefined"]);
         }
 
         [Test]
@@ -494,6 +598,71 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestToHashtableOneBinary()
+        {
+            var document = new BsonDocument("x", new BsonBinaryData(new byte[] { 1, 2, 3 }, BsonBinarySubType.Binary));
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(1, hashtable.Count);
+            Assert.IsInstanceOf<byte[]>(hashtable["x"]);
+            Assert.IsTrue(new byte[] { 1, 2, 3 }.SequenceEqual((byte[])hashtable["x"]));
+        }
+
+        [Test]
+        public void TestToHashtableOneBoolean()
+        {
+            var document = new BsonDocument("x", true);
+            var dictionary = document.ToHashtable();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<bool>(dictionary["x"]);
+            Assert.AreEqual(true, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToHashtableOneDateTime()
+        {
+            var utcNow = DateTime.UtcNow;
+            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
+            var hashtable = new BsonDocument("x", utcNow);
+            var dictionary = hashtable.ToHashtable();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<DateTime>(dictionary["x"]);
+            Assert.AreEqual(DateTimeKind.Utc, ((DateTime)dictionary["x"]).Kind);
+            Assert.AreEqual(utcNowTruncated, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToHashtableOneDouble()
+        {
+            var document = new BsonDocument("x", 1.0);
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(1, hashtable.Count);
+            Assert.IsInstanceOf<double>(hashtable["x"]);
+            Assert.AreEqual(1.0, hashtable["x"]);
+        }
+
+        [Test]
+        public void TestToHashtableOneGuidLegacy()
+        {
+            var guid = Guid.NewGuid();
+            var hashtable = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy));
+            var dictionary = hashtable.ToHashtable();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<Guid>(dictionary["x"]);
+            Assert.AreEqual(guid, dictionary["x"]);
+        }
+
+        [Test]
+        public void TestToHashtableOneGuidStandard()
+        {
+            var guid = Guid.NewGuid();
+            var hashtable = new BsonDocument("x", new BsonBinaryData(guid, GuidRepresentation.Standard));
+            var dictionary = hashtable.ToHashtable();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<Guid>(dictionary["x"]);
+            Assert.AreEqual(guid, dictionary["x"]);
+        }
+
+        [Test]
         public void TestToHashtableOneInt32()
         {
             var document = new BsonDocument("x", 1);
@@ -514,6 +683,17 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestToHashtableOneObjectId()
+        {
+            var objectId = ObjectId.GenerateNewId();
+            var hashtable = new BsonDocument("x", objectId);
+            var dictionary = hashtable.ToHashtable();
+            Assert.AreEqual(1, dictionary.Count);
+            Assert.IsInstanceOf<ObjectId>(dictionary["x"]);
+            Assert.AreEqual(objectId, dictionary["x"]);
+        }
+
+        [Test]
         public void TestToHashtableOneString()
         {
             var document = new BsonDocument("x", "abc");
@@ -521,6 +701,34 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(1, hashtable.Count);
             Assert.IsInstanceOf<string>(hashtable["x"]);
             Assert.AreEqual("abc", hashtable["x"]);
+        }
+
+        [Test]
+        public void TestToHashtableUnsupportedTypes()
+        {
+            var document = new BsonDocument
+            {
+                { "JavaScript", new BsonJavaScript("x = 1") },
+                { "JavaScriptWithScope", new BsonJavaScriptWithScope("x = y", new BsonDocument("y", 1)) },
+                { "MaxKey", BsonMaxKey.Value },
+                { "MinKey", BsonMinKey.Value },
+                { "Null", BsonNull.Value },
+                { "RegularExpression", new BsonRegularExpression("abc") },
+                { "Symbol", BsonSymbol.Create("name") },
+                { "Timestamp", new BsonTimestamp(123L) },
+                { "Undefined", BsonUndefined.Value },
+            };
+            var hashtable = document.ToHashtable();
+            Assert.AreEqual(9, hashtable.Count);
+            Assert.IsNull(hashtable["JavaScript"]);
+            Assert.IsNull(hashtable["JavaScriptWithScope"]);
+            Assert.IsNull(hashtable["MaxKey"]);
+            Assert.IsNull(hashtable["MinKey"]);
+            Assert.IsNull(hashtable["Null"]);
+            Assert.IsNull(hashtable["RegularExpression"]);
+            Assert.IsNull(hashtable["Symbol"]);
+            Assert.IsNull(hashtable["Timestamp"]);
+            Assert.IsNull(hashtable["Undefined"]);
         }
 
         private void AssertAreEqual(string expected, byte[] actual)
