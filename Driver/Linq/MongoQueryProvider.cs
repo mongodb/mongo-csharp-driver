@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentException("Argument expression is not valid.");
             }
-            var translatedQuery = MongoLinqTranslator.Translate(_collection, expression);
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
             return (TResult)translatedQuery.Execute();
         }
 
@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentException("Argument expression is not valid.");
             }
-            var translatedQuery = MongoLinqTranslator.Translate(_collection, expression);
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
             return translatedQuery.GetEnumerator<T>();
         }
 
@@ -236,7 +236,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>A string.</returns>
         public string GetQueryText(Expression expression)
         {
-            var translatedQuery = MongoLinqTranslator.Translate(_collection, expression);
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
             return translatedQuery.ToString();
         }
     }

@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// Represents a LINQ query that has been translated to a MongoDB query.
     /// </summary>
-    public abstract class MongoLinqQuery
+    public abstract class TranslatedQuery
     {
         // protected fields
         /// <summary>
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq
         /// Initializes a new instance of the MongoLinqQuery class.
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
-        protected MongoLinqQuery(MongoCollection collection)
+        protected TranslatedQuery(MongoCollection collection)
         {
             _collection = collection;
         }

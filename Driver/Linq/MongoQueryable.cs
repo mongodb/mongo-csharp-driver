@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Linq
 {
     /// <summary>
     /// An implementation of IQueryable{{T}} for querying a MongoDB collection.
+    /// This class has been named MongoQueryable instead of MongoQuery to avoid confusion with IMongoQuery.
     /// </summary>
     public class MongoQueryable<T> : IOrderedQueryable<T>
     {

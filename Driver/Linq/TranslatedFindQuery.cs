@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// Represents a LINQ query that has been translated to an equivalent MongoDB Find query.
     /// </summary>
-    public class MongoLinqFindQuery : MongoLinqQuery
+    public class TranslatedFindQuery : TranslatedQuery
     {
         // private fields
         private IMongoQuery _query;
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
         /// <param name="query">The query.</param>
-        public MongoLinqFindQuery(MongoCollection collection, IMongoQuery query)
+        public TranslatedFindQuery(MongoCollection collection, IMongoQuery query)
             : base(collection)
         {
             _query = query;

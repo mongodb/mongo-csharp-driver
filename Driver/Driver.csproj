@@ -183,12 +183,12 @@
     <Compile Include="Linq\Evaluator.cs" />
     <Compile Include="Linq\ExpressionPrettyPrinter.cs" />
     <Compile Include="Linq\ExpressionVisitor.cs" />
-    <Compile Include="Linq\MongoLinqFindQuery.cs" />
-    <Compile Include="Linq\MongoLinqExtensionMethods.cs" />
+    <Compile Include="Linq\TranslatedFindQuery.cs" />
+    <Compile Include="Linq\ExtensionMethods.cs" />
     <Compile Include="Linq\MongoQueryable.cs" />
     <Compile Include="Linq\MongoQueryProvider.cs" />
-    <Compile Include="Linq\MongoLinqTranslator.cs" />
-    <Compile Include="Linq\MongoLinqQuery.cs" />
+    <Compile Include="Linq\MongoQueryTranslator.cs" />
+    <Compile Include="Linq\TranslatedQuery.cs" />
     <Compile Include="Linq\TypeSystem.cs" />
     <Compile Include="MongoUtils.cs" />
     <Compile Include="MongoDefaults.cs" />

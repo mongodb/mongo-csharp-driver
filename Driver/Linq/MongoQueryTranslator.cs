@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,20 +23,24 @@ using System.Threading;
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
-    /// Static class that contains the Mongo Linq extension methods.
+    /// A translator from LINQ expression queries to Mongo queries.
     /// </summary>
-    public static class MongoLinqExtensionMethods
+    public static class MongoQueryTranslator
     {
+        // public static methods
         /// <summary>
-        /// Returns an instance of IQueryable{{T}} for a MongoCollection.
+        /// A translator from LINQ queries to MongoDB queries.
         /// </summary>
-        /// <typeparam name="T">The type of the returned documents.</typeparam>
-        /// <param name="collection">The name of the collection.</param>
-        /// <returns>An instance of IQueryable{{T}} for a MongoCollection.</returns>
-        public static IQueryable<T> AsQueryable<T>(this MongoCollection collection)
+        /// <param name="collection">The collection being queried.</param>
+        /// <param name="expression">The LINQ query.</param>
+        /// <returns>An instance of MongoLinqQuery.</returns>
+        public static TranslatedQuery Translate(MongoCollection collection, Expression expression)
         {
-            var provider = new MongoQueryProvider(collection);
-            return new MongoQueryable<T>(provider);
+            expression = Evaluator.PartialEval(expression);
+
+            // total hack just to test the initial LINQ framework
+            var query = MongoDB.Driver.Builders.Query.EQ("X", 1);
+            return new TranslatedFindQuery(collection, query);
         }
     }
 }
