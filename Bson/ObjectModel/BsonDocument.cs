@@ -1200,6 +1200,9 @@ namespace MongoDB.Bson
                 case BsonType.Document:
                     return value.AsBsonDocument.ToDictionary();
 
+                case BsonType.DateTime:
+                    return value.AsDateTime;
+
                 default:
                     return value.RawValue;
             }
@@ -1216,6 +1219,9 @@ namespace MongoDB.Bson
 
                 case BsonType.Document:
                     return value.AsBsonDocument.ToHashtable();
+
+                case BsonType.DateTime:
+                    return value.AsDateTime;
 
                 default:
                     return value.RawValue;
