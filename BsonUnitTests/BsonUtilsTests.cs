@@ -78,5 +78,46 @@ namespace MongoDB.BsonUnitTests
             var actual = BsonUtils.ToMillisecondsSinceEpoch(DateTime.MinValue);
             Assert.AreEqual(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch, actual);
         }
+
+        [Test]
+        public void TestToUniversalTimeUTCNow()
+        {
+            var expected = DateTime.UtcNow;
+            var actual = BsonUtils.ToUniversalTime(expected);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestToUniversalTimeMax()
+        {
+            var expected = DateTime.MaxValue;
+            var actual = BsonUtils.ToUniversalTime(expected);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestToUniversalTimeMin()
+        {
+            var expected = DateTime.MinValue;
+            var actual = BsonUtils.ToUniversalTime(expected);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestToHexString()
+        {
+            var value = new byte[] { 0, 1,2, 3, 4, 5 ,6 ,7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
+            var expected = "000102030405060708090a0b0c0d0e0f10ff";
+            var actual = BsonUtils.ToHexString(value);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestToHexStringNull()
+        {
+            var actual = BsonUtils.ToHexString(null);
+        }
+
     }
 }
