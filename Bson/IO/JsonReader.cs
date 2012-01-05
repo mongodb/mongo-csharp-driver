@@ -735,7 +735,7 @@ namespace MongoDB.Bson.IO
         private string FormatJavaScriptDateTimeString(DateTime dateTime)
         {
             var utc = BsonUtils.ToUniversalTime(dateTime);
-            var local = BsonUtils.ToLocalTime(utc, DateTimeKind.Local);
+            var local = BsonUtils.ToLocalTime(utc);
             var offset = local - utc;
             var offsetSign = "+";
             if (offset < TimeSpan.Zero)

@@ -238,7 +238,7 @@ namespace MongoDB.Bson
         public DateTime ToLocalTime()
         {
             var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch);
-            return BsonUtils.ToLocalTime(utcDateTime, DateTimeKind.Local);
+            return BsonUtils.ToLocalTime(utcDateTime);
         }
 
         /// <summary>

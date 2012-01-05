@@ -97,28 +97,20 @@ namespace MongoDB.Bson
         /// Converts a DateTime to local time (with special handling for MinValue and MaxValue).
         /// </summary>
         /// <param name="dateTime">A DateTime.</param>
-        /// <param name="kind">A DateTimeKind.</param>
         /// <returns>The DateTime in local time.</returns>
-        public static DateTime ToLocalTime(DateTime dateTime, DateTimeKind kind)
+        public static DateTime ToLocalTime(DateTime dateTime)
         {
-            if (dateTime.Kind == kind)
+            if (dateTime == DateTime.MinValue)
             {
-                return dateTime;
+                return DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local);
+            }
+            else if (dateTime == DateTime.MaxValue)
+            {
+                return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local);
             }
             else
             {
-                if (dateTime == DateTime.MinValue)
-                {
-                    return DateTime.SpecifyKind(DateTime.MinValue, kind);
-                }
-                else if (dateTime == DateTime.MaxValue)
-                {
-                    return DateTime.SpecifyKind(DateTime.MaxValue, kind);
-                }
-                else
-                {
-                    return DateTime.SpecifyKind(dateTime.ToLocalTime(), kind);
-                }
+                return dateTime.ToLocalTime();
             }
         }
 
@@ -140,26 +132,18 @@ namespace MongoDB.Bson
         /// <returns>The DateTime in UTC.</returns>
         public static DateTime ToUniversalTime(DateTime dateTime)
         {
-            if (dateTime.Kind == DateTimeKind.Utc)
+            if (dateTime == DateTime.MinValue)
             {
-                return dateTime;
+                return DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+            }
+            else if (dateTime == DateTime.MaxValue)
+            {
+                return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
             }
             else
             {
-                if (dateTime == DateTime.MinValue)
-                {
-                    return DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
-                }
-                else if (dateTime == DateTime.MaxValue)
-                {
-                    return DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
-                }
-                else
-                {
-                    return dateTime.ToUniversalTime();
-                }
+                return dateTime.ToUniversalTime();
             }
-
         }
 
         /// <summary>

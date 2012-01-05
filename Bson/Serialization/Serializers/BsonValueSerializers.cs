@@ -414,7 +414,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             case DateTimeKind.Local:
                             case DateTimeKind.Unspecified:
-                                dateTime = BsonUtils.ToLocalTime(dateTime, dateTimeOptions.Kind);
+                                dateTime = DateTime.SpecifyKind(BsonUtils.ToLocalTime(dateTime), dateTimeOptions.Kind);
                                 break;
                             case DateTimeKind.Utc:
                                 dateTime = BsonUtils.ToUniversalTime(dateTime);

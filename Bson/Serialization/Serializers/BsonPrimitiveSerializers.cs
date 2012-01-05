@@ -223,7 +223,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     case DateTimeKind.Local:
                     case DateTimeKind.Unspecified:
-                        value = BsonUtils.ToLocalTime(value, dateTimeOptions.Kind);
+                        value = DateTime.SpecifyKind(BsonUtils.ToLocalTime(value), dateTimeOptions.Kind);
                         break;
                     case DateTimeKind.Utc:
                         value = BsonUtils.ToUniversalTime(value);
