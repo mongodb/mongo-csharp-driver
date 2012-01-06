@@ -61,6 +61,24 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestDateTimeConstructor()
+        {
+            byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            var timestamp = BsonConstants.UnixEpoch.AddSeconds(0x01020304);
+            var objectId = new BsonObjectId(timestamp, 0x050607, 0x0809, 0x0a0b0c);
+            Assert.AreEqual(0x01020304, objectId.Timestamp);
+            Assert.AreEqual(0x050607, objectId.Machine);
+            Assert.AreEqual(0x0809, objectId.Pid);
+            Assert.AreEqual(0x0a0b0c, objectId.Increment);
+            Assert.AreEqual(0x050607, objectId.Machine);
+            Assert.AreEqual(0x0809, objectId.Pid);
+            Assert.AreEqual(0x0a0b0c, objectId.Increment);
+            Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
+            Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
+            Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
+        }
+
+        [Test]
         public void TestStringConstructor()
         {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
@@ -75,6 +93,38 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
             Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
             Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
+        }
+
+        [Test]
+        public void TestGenerateNewId()
+        {
+            // compare against two timestamps in case seconds since epoch changes in middle of test
+            var timestamp1 = (int)Math.Floor((DateTime.UtcNow - BsonConstants.UnixEpoch).TotalSeconds);
+            var objectId = BsonObjectId.GenerateNewId();
+            var timestamp2 = (int)Math.Floor((DateTime.UtcNow - BsonConstants.UnixEpoch).TotalSeconds);
+            Assert.IsTrue(objectId.Timestamp == timestamp1 || objectId.Timestamp == timestamp2);
+            Assert.IsTrue(objectId.Machine != 0);
+            Assert.IsTrue(objectId.Pid != 0);
+        }
+
+        [Test]
+        public void TestGenerateNewIdWithDateTime()
+        {
+            var timestamp = new DateTime(2011, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+            var objectId = BsonObjectId.GenerateNewId(timestamp);
+            Assert.IsTrue(objectId.CreationTime == timestamp);
+            Assert.IsTrue(objectId.Machine != 0);
+            Assert.IsTrue(objectId.Pid != 0);
+        }
+
+        [Test]
+        public void TestGenerateNewIdWithTimestamp()
+        {
+            var timestamp = 0x01020304;
+            var objectId = BsonObjectId.GenerateNewId(timestamp);
+            Assert.IsTrue(objectId.Timestamp == timestamp);
+            Assert.IsTrue(objectId.Machine != 0);
+            Assert.IsTrue(objectId.Pid != 0);
         }
 
         [Test]

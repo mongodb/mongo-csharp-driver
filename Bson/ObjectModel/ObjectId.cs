@@ -65,6 +65,18 @@ namespace MongoDB.Bson
         /// <summary>
         /// Initializes a new instance of the ObjectId class.
         /// </summary>
+        /// <param name="timestamp">The timestamp (expressed as a DateTime).</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
+        public ObjectId(DateTime timestamp, int machine, short pid, int increment)
+            : this(GetTimestampFromDateTime(timestamp), machine, pid, increment)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
@@ -207,10 +219,29 @@ namespace MongoDB.Bson
         /// <summary>
         /// Generates a new ObjectId with a unique value.
         /// </summary>
-        /// <returns>A ObjectId.</returns>
+        /// <returns>An ObjectId.</returns>
         public static ObjectId GenerateNewId()
         {
-            int timestamp = GetCurrentTimestamp();
+            return GenerateNewId(GetTimestampFromDateTime(DateTime.UtcNow));
+        }
+
+        /// <summary>
+        /// Generates a new ObjectId with a unique value (with the timestamp component based on a given DateTime).
+        /// </summary>
+        /// <param name="timestamp">The timestamp component (expressed as a DateTime).</param>
+        /// <returns>An ObjectId.</returns>
+        public static ObjectId GenerateNewId(DateTime timestamp)
+        {
+            return GenerateNewId(GetTimestampFromDateTime(timestamp));
+        }
+
+        /// <summary>
+        /// Generates a new ObjectId with a unique value (with the given timestamp).
+        /// </summary>
+        /// <param name="timestamp">The timestamp component.</param>
+        /// <returns>An ObjectId.</returns>
+        public static ObjectId GenerateNewId(int timestamp)
+        {
             int increment = Interlocked.Increment(ref __staticIncrement) & 0x00ffffff; // only use low order 3 bytes
             return new ObjectId(timestamp, __staticMachine, __staticPid, increment);
         }
@@ -311,10 +342,9 @@ namespace MongoDB.Bson
             return (hash[0] << 16) + (hash[1] << 8) + hash[2]; // use first 3 bytes of hash
         }
 
-        private static int GetCurrentTimestamp()
+        private static int GetTimestampFromDateTime(DateTime timestamp)
         {
-            DateTime now = DateTime.UtcNow;
-            return (int)Math.Floor((now - BsonConstants.UnixEpoch).TotalSeconds);
+            return (int)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
         }
 
         // public methods

@@ -59,6 +59,19 @@ namespace MongoDB.Bson
         /// <summary>
         /// Initializes a new instance of the BsonObjectId class.
         /// </summary>
+        /// <param name="timestamp">The timestamp (expressed as a DateTime).</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
+        public BsonObjectId(DateTime timestamp, int machine, short pid, int increment)
+            : base(BsonType.ObjectId)
+        {
+            _value = new ObjectId(timestamp, machine, pid, increment);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonObjectId class.
+        /// </summary>
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
@@ -261,6 +274,26 @@ namespace MongoDB.Bson
         public static BsonObjectId GenerateNewId()
         {
             return new BsonObjectId(ObjectId.GenerateNewId());
+        }
+
+        /// <summary>
+        /// Generates a new BsonObjectId with a unique value (with the timestamp component based on a given DateTime).
+        /// </summary>
+        /// <param name="timestamp">The timestamp component (expressed as a DateTime).</param>
+        /// <returns>A BsonObjectId.</returns>
+        public static BsonObjectId GenerateNewId(DateTime timestamp)
+        {
+            return new BsonObjectId(ObjectId.GenerateNewId(timestamp));
+        }
+
+        /// <summary>
+        /// Generates a new BsonObjectId with a unique value (with the given timestamp).
+        /// </summary>
+        /// <param name="timestamp">The timestamp component.</param>
+        /// <returns>A BsonObjectId.</returns>
+        public static BsonObjectId GenerateNewId(int timestamp)
+        {
+            return new BsonObjectId(ObjectId.GenerateNewId(timestamp));
         }
 
         /// <summary>
