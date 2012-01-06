@@ -29,20 +29,43 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonUtils
     {
-        // public static methods
+
         /// <summary>
-        /// Parses a hex string to a byte array.
+        /// Parses a hex string into its equivalent byte array.
         /// </summary>
-        /// <param name="s">The hex string.</param>
-        /// <returns>A byte array.</returns>
+        /// <param name="s">The hex string to parse.</param>
+        /// <returns>The byte equivalent of the hex string.</returns>
         public static byte[] ParseHexString(string s)
         {
-            byte[] bytes;
-            if (!TryParseHexString(s, out bytes))
+            if (string.IsNullOrEmpty(s))
             {
-                var message = string.Format("'{0}' is not a valid hex string.", s);
-                throw new FormatException(message);
+                throw new ArgumentNullException("s");
             }
+
+            byte[] bytes;
+            if ((s.Length & 1) != 0) 
+            {
+                s = "0" + s; // make length of s even
+            } 
+            bytes = new byte[s.Length / 2];
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                string hex = s.Substring(2 * i, 2);
+                try
+                {
+                    byte b = Convert.ToByte(hex, 16);
+                    bytes[i] = b;
+                }
+                catch (FormatException e)
+                {
+                    throw new FormatException(
+                        string.Format("Invalid hex string. Problem with substring {0} starting at position {1}",
+                        hex,
+                        2 * i),
+                        e);
+                }
+            }
+
             return bytes;
         }
 
@@ -154,29 +177,17 @@ namespace MongoDB.Bson
         /// <returns>True if the hex string was successfully parsed.</returns>
         public static bool TryParseHexString(string s, out byte[] bytes)
         {
-            if (s != null)
+            try
             {
-                if ((s.Length & 1) != 0) { s = "0" + s; } // make length of s even
-                bytes = new byte[s.Length / 2];
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    string hex = s.Substring(2 * i, 2);
-                    try
-                    {
-                        byte b = Convert.ToByte(hex, 16);
-                        bytes[i] = b;
-                    }
-                    catch (FormatException)
-                    {
-                        bytes = null;
-                        return false;
-                    }
-                }
-                return true;
+                bytes = ParseHexString(s);
+            }
+            catch
+            {
+                bytes = null;
+                return false;
             }
 
-            bytes = null;
-            return false;
+            return true;
         }
     }
 }

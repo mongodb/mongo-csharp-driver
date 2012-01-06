@@ -83,7 +83,7 @@ namespace MongoDB.BsonUnitTests
         public void TestToUniversalTimeUTCNow()
         {
             var expected = DateTime.UtcNow;
-            var actual = BsonUtils.ToUniversalTime(expected);
+            var actual = BsonUtils.ToUniversalTime(expected.ToLocalTime());
             Assert.AreEqual(expected, actual);
         }
 
@@ -117,6 +117,104 @@ namespace MongoDB.BsonUnitTests
         public void TestToHexStringNull()
         {
             var actual = BsonUtils.ToHexString(null);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestParseHexStringNull()
+        {
+            var actual = BsonUtils.ParseHexString(null);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestParseHexStringEmpty()
+        {
+            var actual = BsonUtils.ParseHexString(string.Empty);
+        }
+
+        [Test]
+        public void TestParseHexString()
+        {
+            var expected = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
+            var value = "000102030405060708090a0b0c0d0e0f10ff";
+            var actual = BsonUtils.ParseHexString(value);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestParseHexStringOdd()
+        {
+            var expected = new byte[] { 0, 15 };
+            var value = "00f";
+            var actual = BsonUtils.ParseHexString(value);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        [ExpectedException(typeof(FormatException))]
+        public void TestParseHexStringInvalid()
+        {
+            var actual = BsonUtils.ParseHexString("1G");
+        }
+
+        [Test]
+        [ExpectedException(typeof(FormatException))]
+        public void TestParseHexStringInvalid2()
+        {
+            var actual = BsonUtils.ParseHexString("00 1");
+        }
+
+        [Test]
+        public void TestTryParseHexStringNull()
+        {
+            byte[] expected;
+            BsonUtils.TryParseHexString(null, out expected);
+            Assert.IsNull(expected);
+        }
+
+        [Test]
+        public void TestTryParseHexStringEmpty()
+        {
+            byte[] expected;
+            var actual = BsonUtils.TryParseHexString(string.Empty, out expected);
+            Assert.IsNull(expected);
+        }
+
+        [Test]
+        public void TestTryParseHexString()
+        {
+            var expected = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
+            var value = "000102030405060708090a0b0c0d0e0f10ff";
+            byte[] actual;
+            BsonUtils.TryParseHexString(value, out actual);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestTryParseHexStringOdd()
+        {
+            var expected = new byte[] { 0, 15 };
+            var value = "00f";
+            byte[] actual;
+            BsonUtils.TryParseHexString(value, out actual);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestTryParseHexStringInvalid()
+        {
+            byte[] expected;
+            var actual = BsonUtils.TryParseHexString("1G", out expected);
+            Assert.IsNull(expected);
+        }
+
+        [Test]
+        public void TestTryParseHexStringInvalid2()
+        {
+            byte[] expected;
+            var actual = BsonUtils.TryParseHexString("00 1", out expected);
+            Assert.IsNull(expected);
         }
 
     }
