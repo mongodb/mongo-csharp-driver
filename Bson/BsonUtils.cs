@@ -24,11 +24,14 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
 {
+
     /// <summary>
     /// A static class containing BSON utility methods.
     /// </summary>
     public static class BsonUtils
     {
+
+        // public static methods
 
         /// <summary>
         /// Parses a hex string into its equivalent byte array.
@@ -37,7 +40,7 @@ namespace MongoDB.Bson
         /// <returns>The byte equivalent of the hex string.</returns>
         public static byte[] ParseHexString(string s)
         {
-            if (string.IsNullOrEmpty(s))
+            if (s == null)
             {
                 throw new ArgumentNullException("s");
             }
@@ -59,7 +62,8 @@ namespace MongoDB.Bson
                 catch (FormatException e)
                 {
                     throw new FormatException(
-                        string.Format("Invalid hex string. Problem with substring {0} starting at position {1}",
+                        string.Format("Invalid hex string {0}. Problem with substring {1} starting at position {2}",
+                        s,
                         hex,
                         2 * i),
                         e);

@@ -127,10 +127,11 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void TestParseHexStringEmpty()
         {
+            byte[] expected = new byte[0];
             var actual = BsonUtils.ParseHexString(string.Empty);
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]
@@ -168,17 +169,20 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestTryParseHexStringNull()
         {
-            byte[] expected;
-            BsonUtils.TryParseHexString(null, out expected);
-            Assert.IsNull(expected);
+            byte[] actual;
+            var result = BsonUtils.TryParseHexString(null, out actual);
+            Assert.IsFalse(result);
+            Assert.IsNull(actual);
         }
 
         [Test]
         public void TestTryParseHexStringEmpty()
         {
-            byte[] expected;
-            var actual = BsonUtils.TryParseHexString(string.Empty, out expected);
-            Assert.IsNull(expected);
+            byte[] expected = new byte[0];
+            byte[] actual;
+            var result = BsonUtils.TryParseHexString(string.Empty, out actual);
+            Assert.IsTrue(result);
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]
@@ -187,7 +191,8 @@ namespace MongoDB.BsonUnitTests
             var expected = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 255 };
             var value = "000102030405060708090a0b0c0d0e0f10ff";
             byte[] actual;
-            BsonUtils.TryParseHexString(value, out actual);
+            var result = BsonUtils.TryParseHexString(value, out actual);
+            Assert.IsTrue(result);
             Assert.AreEqual(expected, actual);
         }
 
@@ -197,24 +202,27 @@ namespace MongoDB.BsonUnitTests
             var expected = new byte[] { 0, 15 };
             var value = "00f";
             byte[] actual;
-            BsonUtils.TryParseHexString(value, out actual);
+            var result = BsonUtils.TryParseHexString(value, out actual);
+            Assert.IsTrue(result);
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
         public void TestTryParseHexStringInvalid()
         {
-            byte[] expected;
-            var actual = BsonUtils.TryParseHexString("1G", out expected);
-            Assert.IsNull(expected);
+            byte[] actual;
+            var result = BsonUtils.TryParseHexString("1G", out actual);
+            Assert.IsFalse(result);
+            Assert.IsNull(actual);
         }
 
         [Test]
         public void TestTryParseHexStringInvalid2()
         {
-            byte[] expected;
-            var actual = BsonUtils.TryParseHexString("00 1", out expected);
-            Assert.IsNull(expected);
+            byte[] actual;
+            var result = BsonUtils.TryParseHexString("00 1", out actual);
+            Assert.IsFalse(result);
+            Assert.IsNull(actual);
         }
 
     }
