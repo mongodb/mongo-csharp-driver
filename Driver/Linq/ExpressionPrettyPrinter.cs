@@ -283,7 +283,16 @@ namespace MongoDB.Driver.Linq
         /// <returns>The NewExpression.</returns>
         protected override NewExpression VisitNew(NewExpression nex)
         {
-            throw new NotImplementedException();
+            WriteHeader(nex);
+            using (new Indentation(this))
+            {
+                WriteLine("Arguments:");
+                foreach (var arg in nex.Arguments)
+                {
+                    VisitIndented(arg);
+                }
+            }
+            return nex;
         }
 
         /// <summary>
