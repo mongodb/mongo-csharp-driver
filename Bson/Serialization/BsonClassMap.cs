@@ -276,7 +276,7 @@ namespace MongoDB.Bson.Serialization
                 foreach (var genericType in type.GetGenericArguments())
                 {
                     var genericTypeName = GetTypeNameDiscriminator(genericType);
-                    if (genericTypeName.Contains(','))
+                    if (genericTypeName.IndexOf(',') != -1)
                     {
                         genericTypeName = "[" + genericTypeName + "]";
                     }

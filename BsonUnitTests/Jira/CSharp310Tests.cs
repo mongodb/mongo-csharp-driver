@@ -56,7 +56,7 @@ namespace MongoDB.BsonUnitTests.Jira
             var conventions = new ConventionProfile();
             conventions.SetDefaultValueConvention(new EmptyGuidDefaultValueConvention());
             conventions.SetSerializeDefaultValueConvention(new NeverSerializeDefaultValueConvention());
-            BsonClassMap.RegisterConventions(conventions, type => type.FullName.StartsWith("MongoDB.BsonUnitTests.Jira.CSharp310Tests"));
+            BsonClassMap.RegisterConventions(conventions, type => type.FullName.StartsWith("MongoDB.BsonUnitTests.Jira.CSharp310Tests", StringComparison.Ordinal));
         }
 
         [Test]

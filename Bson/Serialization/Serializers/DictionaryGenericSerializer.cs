@@ -232,7 +232,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         foreach (object key in dictionary.Keys)
                         {
                             var name = key as string; // check for null and type string at the same time
-                            if (name == null || name.StartsWith("$") || name.Contains("."))
+                            if (name == null || name[0] == '$' || name.IndexOf('.') != -1)
                             {
                                 representation = DictionaryRepresentation.ArrayOfArrays;
                                 break;

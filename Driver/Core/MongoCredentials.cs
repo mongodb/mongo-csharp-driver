@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         public MongoCredentials(string username, string password)
         {
             ValidatePassword(password);
-            if (username.EndsWith("(admin)"))
+            if (username.EndsWith("(admin)", StringComparison.Ordinal))
             {
                 _username = username.Substring(0, username.Length - 7);
                 _password = password;

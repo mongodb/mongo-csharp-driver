@@ -1592,7 +1592,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("name");
             }
             if (name == "" ||
-                name.Contains('\0') ||
+                name.IndexOf('\0') != -1 ||
                 Encoding.UTF8.GetBytes(name).Length > 121)
             {
                 throw new ArgumentException("Invalid collection name", "name");

@@ -1066,7 +1066,7 @@ namespace MongoDB.Bson.IO
                     var secondsString = match.Groups["seconds"].Value;
                     int seconds;
                     double milliseconds;
-                    if (secondsString.Contains("."))
+                    if (secondsString.IndexOf('.') != -1)
                     {
                         var timeSpan = TimeSpan.FromSeconds(double.Parse(secondsString));
                         seconds = timeSpan.Seconds;

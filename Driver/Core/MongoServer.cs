@@ -158,7 +158,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static MongoServer Create(string connectionString)
         {
-            if (connectionString.StartsWith("mongodb://"))
+            if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
             {
                 var url = MongoUrl.Create(connectionString);
                 return Create(url);

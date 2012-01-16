@@ -143,7 +143,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static MongoDatabase Create(string connectionString)
         {
-            if (connectionString.StartsWith("mongodb://"))
+            if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
             {
                 MongoUrl url = MongoUrl.Create(connectionString);
                 return Create(url);
@@ -649,8 +649,8 @@ namespace MongoDB.Driver
             foreach (var @namespace in namespaces.FindAll())
             {
                 string collectionName = @namespace["name"].AsString;
-                if (!collectionName.StartsWith(prefix)) { continue; }
-                if (collectionName.Contains('$')) { continue; }
+                if (!collectionName.StartsWith(prefix, StringComparison.Ordinal)) { continue; }
+                if (collectionName.IndexOf('$') != -1) { continue; }
                 collectionNames.Add(collectionName.Substring(prefix.Length));
             }
             collectionNames.Sort();

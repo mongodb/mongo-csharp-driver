@@ -50,7 +50,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults
             }
             catch (MongoCommandException ex)
             {
-                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed. Response has no ok element (response was "));
+                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed. Response has no ok element (response was ", StringComparison.Ordinal));
             }
         }
 
@@ -148,7 +148,7 @@ namespace MongoDB.DriverOnlineTests.CommandResults
             }
             catch (MongoCommandException ex)
             {
-                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd"));
+                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd", StringComparison.Ordinal));
             }
         }
     }

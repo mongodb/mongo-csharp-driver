@@ -607,14 +607,14 @@ namespace MongoDB.Bson.IO
         {
             if (_checkUpdateDocument)
             {
-                _checkElementNames = !name.StartsWith("$");
+                _checkElementNames = (name[0] != '$');
                 _checkUpdateDocument = false;
                 return;
             }
 
             if (_checkElementNames)
             {
-                if (name.StartsWith("$"))
+                if (name[0] == '$')
                 {
                     // a few element names starting with $ have to be allowed for historical reasons
                     switch (name)
@@ -631,7 +631,7 @@ namespace MongoDB.Bson.IO
                             throw new BsonSerializationException(message);
                     }
                 }
-                if (name.Contains('.'))
+                if (name.IndexOf('.') != -1)
                 {
                     var message = string.Format("Element name '{0}' is not valid because it contains a '.'.", name);
                     throw new BsonSerializationException(message);
@@ -673,10 +673,10 @@ namespace MongoDB.Bson.IO
             string message;
             if (_state == BsonWriterState.Initial || _state == BsonWriterState.ScopeDocument || _state == BsonWriterState.Done)
             {
-                if (!methodName.StartsWith("End") && methodName != "WriteName")
+                if (!methodName.StartsWith("End", StringComparison.Ordinal) && methodName != "WriteName")
                 {
                     var typeName = methodName.Substring(5);
-                    if (typeName.StartsWith("Start"))
+                    if (typeName.StartsWith("Start", StringComparison.Ordinal))
                     {
                         typeName = typeName.Substring(5);
                     }

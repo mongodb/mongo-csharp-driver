@@ -367,37 +367,38 @@ namespace MongoDB.Driver
 
         internal static bool TryParseTimeSpan(string name, string s, out TimeSpan result)
         {
-            if (name != null && s != null)
+            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(s))
             {
                 name = name.ToLower();
                 s = s.ToLower();
+                var end = s.Length - 1;
 
                 var multiplier = 1000;
-                if (name.EndsWith("ms"))
+                if (name.EndsWith("ms", StringComparison.Ordinal))
                 {
                     multiplier = 1;
                 }
-                else if (s.EndsWith("ms"))
+                else if (s.EndsWith("ms", StringComparison.Ordinal))
                 {
                     s = s.Substring(0, s.Length - 2);
                     multiplier = 1;
                 }
-                else if (s.EndsWith("s"))
+                else if (s[end] == 's')
                 {
                     s = s.Substring(0, s.Length - 1);
                     multiplier = 1000;
                 }
-                else if (s.EndsWith("m"))
+                else if (s[end] == 'm')
                 {
                     s = s.Substring(0, s.Length - 1);
                     multiplier = 60 * 1000;
                 }
-                else if (s.EndsWith("h"))
+                else if (s[end] == 'h')
                 {
                     s = s.Substring(0, s.Length - 1);
                     multiplier = 60 * 60 * 1000;
                 }
-                else if (s.Contains(":"))
+                else if (s.IndexOf(':') != -1)
                 {
                     return TimeSpan.TryParse(s, out result);
                 }

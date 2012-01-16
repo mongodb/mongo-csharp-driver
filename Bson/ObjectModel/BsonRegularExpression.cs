@@ -296,19 +296,19 @@ namespace MongoDB.Bson
         public Regex ToRegex()
         {
             var options = RegexOptions.None;
-            if (_options.Contains("i"))
+            if (_options.IndexOf('i') != -1)
             {
                 options |= RegexOptions.IgnoreCase;
             }
-            if (_options.Contains("m"))
+            if (_options.IndexOf('m') != -1)
             {
                 options |= RegexOptions.Multiline;
             }
-            if (_options.Contains("x"))
+            if (_options.IndexOf('x') != -1)
             {
                 options |= RegexOptions.IgnorePatternWhitespace;
             }
-            if (_options.Contains("s"))
+            if (_options.IndexOf('s') != -1)
             {
                 options |= RegexOptions.Singleline;
             }
