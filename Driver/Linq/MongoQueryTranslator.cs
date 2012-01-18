@@ -36,11 +36,12 @@ namespace MongoDB.Driver.Linq
         /// <returns>An instance of MongoLinqQuery.</returns>
         public static TranslatedQuery Translate(MongoCollection collection, Expression expression)
         {
-            expression = Evaluator.PartialEval(expression);
+            expression = PartialEvaluator.Evaluate(expression);
 
             // total hack just to test the initial LINQ framework
             var query = MongoDB.Driver.Builders.Query.EQ("X", 1);
-            return new TranslatedFindQuery(collection, query);
+            var documentType = TypeSystem.GetElementType(expression.Type);
+            return new TranslatedFindQuery(collection, query, documentType);
         }
     }
 }

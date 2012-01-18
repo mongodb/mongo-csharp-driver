@@ -21,9 +21,6 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
-// adapted from Part 1 of Matt Warren's blogs on building a LINQ provider
-// see: http://blogs.msdn.com/b/mattwar/archive/2007/07/30/linq-building-an-iqueryable-provider-part-i.aspx
-
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
@@ -78,7 +75,7 @@ namespace MongoDB.Driver.Linq
         /// <returns></returns>
         public IEnumerator<T> GetEnumerator()
         {
-            return _provider.GetEnumerator<T>(_expression);
+            return ((IEnumerable<T>)_provider.Execute(_expression)).GetEnumerator();
         }
 
         /// <summary>
@@ -93,7 +90,7 @@ namespace MongoDB.Driver.Linq
         // explicit implementation of IEnumerable
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return GetEnumerator();
+            return ((IEnumerable)_provider.Execute(_expression)).GetEnumerator();
         }
 
         // explicit implementation of IQueryable

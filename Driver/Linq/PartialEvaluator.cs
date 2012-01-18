@@ -22,15 +22,12 @@ using System.Threading;
 
 using MongoDB.Driver.Linq;
 
-// taken from Part 3 of Matt Warren's blogs on building a LINQ provider
-// see: http://blogs.msdn.com/b/mattwar/archive/2007/08/01/linq-building-an-iqueryable-provider-part-iii.aspx
-
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
     /// A static class with methods to partially evaluate an Expression.
     /// </summary>
-    public static class Evaluator
+    public static class PartialEvaluator
     {
         /// <summary>
         /// Performs evaluation and replacement of independent sub-trees.
@@ -38,9 +35,9 @@ namespace MongoDB.Driver.Linq
         /// <param name="expression">The root of the expression tree.</param>
         /// <param name="fnCanBeEvaluated">A function that decides whether a given expression node can be part of the local function.</param>
         /// <returns>A new tree with sub-trees evaluated and replaced.</returns>
-        public static Expression PartialEval(Expression expression, Func<Expression, bool> fnCanBeEvaluated)
+        public static Expression Evaluate(Expression expression, Func<Expression, bool> fnCanBeEvaluated)
         {
-            return new SubtreeEvaluator(new Nominator(fnCanBeEvaluated).Nominate(expression)).Eval(expression);
+            return new SubtreeEvaluator(new Nominator(fnCanBeEvaluated).Nominate(expression)).Evaluate(expression);
         }
 
         /// <summary>
@@ -48,9 +45,9 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="expression">The root of the expression tree.</param>
         /// <returns>A new tree with sub-trees evaluated and replaced.</returns>
-        public static Expression PartialEval(Expression expression)
+        public static Expression Evaluate(Expression expression)
         {
-            return PartialEval(expression, Evaluator.CanBeEvaluatedLocally);
+            return Evaluate(expression, PartialEvaluator.CanBeEvaluatedLocally);
         }
 
         private static bool CanBeEvaluatedLocally(Expression expression)
@@ -70,7 +67,7 @@ namespace MongoDB.Driver.Linq
                 _candidates = candidates;
             }
 
-            internal Expression Eval(Expression exp)
+            internal Expression Evaluate(Expression exp)
             {
                 return this.Visit(exp);
             }
@@ -83,12 +80,12 @@ namespace MongoDB.Driver.Linq
                 }
                 if (_candidates.Contains(exp))
                 {
-                    return this.Evaluate(exp);
+                    return this.EvaluateSubtree(exp);
                 }
                 return base.Visit(exp);
             }
 
-            private Expression Evaluate(Expression e)
+            private Expression EvaluateSubtree(Expression e)
             {
                 if (e.NodeType == ExpressionType.Constant)
                 {
@@ -97,52 +94,6 @@ namespace MongoDB.Driver.Linq
                 LambdaExpression lambda = Expression.Lambda(e);
                 Delegate fn = lambda.Compile();
                 return Expression.Constant(fn.DynamicInvoke(null), e.Type);
-            }
-        }
-
-        /// <summary>
-        /// Performs bottom-up analysis to determine which nodes can possibly
-        /// be part of an evaluated sub-tree.
-        /// </summary>
-        class Nominator : ExpressionVisitor
-        {
-            Func<Expression, bool> _fnCanBeEvaluated;
-            HashSet<Expression> _candidates;
-            bool _cannotBeEvaluated;
-
-            internal Nominator(Func<Expression, bool> fnCanBeEvaluated)
-            {
-                _fnCanBeEvaluated = fnCanBeEvaluated;
-            }
-
-            internal HashSet<Expression> Nominate(Expression expression)
-            {
-                _candidates = new HashSet<Expression>();
-                this.Visit(expression);
-                return _candidates;
-            }
-
-            protected override Expression Visit(Expression expression)
-            {
-                if (expression != null)
-                {
-                    bool saveCannotBeEvaluated = _cannotBeEvaluated;
-                    _cannotBeEvaluated = false;
-                    base.Visit(expression);
-                    if (!_cannotBeEvaluated)
-                    {
-                        if (_fnCanBeEvaluated(expression))
-                        {
-                            _candidates.Add(expression);
-                        }
-                        else
-                        {
-                            _cannotBeEvaluated = true;
-                        }
-                    }
-                    _cannotBeEvaluated |= saveCannotBeEvaluated;
-                }
-                return expression;
             }
         }
     }

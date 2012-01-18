@@ -19,9 +19,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-// taken from Part 1 of Matt Warren's blogs on building a LINQ provider
-// see: http://blogs.msdn.com/b/mattwar/archive/2007/07/30/linq-building-an-iqueryable-provider-part-i.aspx
-
 namespace MongoDB.Driver.Linq
 {
     internal static class TypeSystem

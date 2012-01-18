@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Linq
     {
         // private fields
         private IMongoQuery _query;
+        private Type _documentType;
 
         // constructor
         /// <summary>
@@ -36,10 +37,12 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
         /// <param name="query">The query.</param>
-        public TranslatedFindQuery(MongoCollection collection, IMongoQuery query)
+        /// <param name="documentType">The document type.</param>
+        public TranslatedFindQuery(MongoCollection collection, IMongoQuery query, Type documentType)
             : base(collection)
         {
             _query = query;
+            _documentType = documentType;
         }
 
         // public methods
@@ -47,11 +50,11 @@ namespace MongoDB.Driver.Linq
         /// Executes the translated Find query.
         /// </summary>
         /// <returns>The result of executing the translated Find query.</returns>
-        public override IEnumerator<T> GetEnumerator<T>()
+        public override object Execute()
         {
-            var cursor = _collection.FindAs<T>(_query);
+            var cursor = _collection.FindAs(_documentType, _query);
             // TODO: modify the cursor with things like sort order, skip and limit
-            return cursor.GetEnumerator();
+            return cursor;
         }
     }
 }

@@ -50,17 +50,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The result of executing the query.</returns>
         public virtual object Execute()
         {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Gets an enumerator for the results of a query that returns multiple results (overridden by subclasses).
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public virtual IEnumerator<T> GetEnumerator<T>()
-        {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
     }
 }

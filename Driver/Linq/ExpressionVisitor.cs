@@ -21,9 +21,6 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
-// taken from Part 2 of Matt Warren's blogs on building a LINQ provider
-// see: http://blogs.msdn.com/b/mattwar/archive/2007/07/31/linq-building-an-iqueryable-provider-part-ii.aspx
-
 namespace MongoDB.Driver.Linq
 {
     /// <summary>

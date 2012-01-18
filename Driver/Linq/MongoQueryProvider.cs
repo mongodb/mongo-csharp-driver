@@ -21,6 +21,9 @@ using System.Text;
 using System.Threading;
 using System.Reflection;
 
+// for a good blog post on implementing LINQ query providers see Matt Warren's blog posts
+// see: http://blogs.msdn.com/b/mattwar/archive/2008/11/18/linq-links.aspx
+
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
@@ -28,31 +31,8 @@ namespace MongoDB.Driver.Linq
     /// </summary>
     public class MongoQueryProvider : IQueryProvider
     {
-        // private static fields
-        private static Dictionary<Type, Func<MongoQueryProvider, Expression, IQueryable>> __createQueryDelegates = new Dictionary<Type, Func<MongoQueryProvider, Expression, IQueryable>>();
-        private static MethodInfo __createQueryGenericMethodDefinition;
-        private static Dictionary<Type, Func<MongoQueryProvider, Expression, object>> __executeDelegates = new Dictionary<Type, Func<MongoQueryProvider, Expression, object>>();
-        private static MethodInfo __executeGenericMethodDefinition;
-        private static object __staticLock = new object();
-
         // private fields
         private MongoCollection _collection;
-
-        // static constructor
-        static MongoQueryProvider()
-        {
-            foreach (var methodInfo in typeof(MongoQueryProvider).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
-            {
-                if (methodInfo.Name == "CreateQuery" && methodInfo.IsGenericMethodDefinition)
-                {
-                    __createQueryGenericMethodDefinition = methodInfo;
-                }
-                if (methodInfo.Name == "Execute" && methodInfo.IsGenericMethodDefinition)
-                {
-                    __executeGenericMethodDefinition = methodInfo;
-                }
-            }
-        }
 
         // constructors
         /// <summary>
@@ -65,61 +45,6 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentNullException("collection");
             }
             _collection = collection;
-        }
-
-        // private static methods
-        private static Func<MongoQueryProvider, Expression, IQueryable> GetCreateQueryDelegate(Type type)
-        {
-            lock (__staticLock)
-            {
-                Func<MongoQueryProvider, Expression, IQueryable> createQueryDelegate;
-                if (!__createQueryDelegates.TryGetValue(type, out createQueryDelegate))
-                {
-                    var createQueryMethodInfo = __createQueryGenericMethodDefinition.MakeGenericMethod(type);
-
-                    // lambdaExpression = (provider, expression) => (IQueryable) provider.CreateQuery<T>(expression)
-                    var providerParameter = Expression.Parameter(typeof(MongoQueryProvider), "provider");
-                    var expressionParameter = Expression.Parameter(typeof(Expression), "expression");
-                    var lambdaExpression = Expression.Lambda<Func<MongoQueryProvider, Expression, IQueryable>>(
-                        Expression.Convert(
-                            Expression.Call(providerParameter, createQueryMethodInfo, expressionParameter),
-                            typeof(IQueryable)
-                        ),
-                        providerParameter,
-                        expressionParameter
-                    );
-                    createQueryDelegate = lambdaExpression.Compile();
-                    __createQueryDelegates.Add(type, createQueryDelegate);
-                }
-                return createQueryDelegate;
-            }
-        }
-
-        private static Func<MongoQueryProvider, Expression, object> GetExecuteDelegate(Type type)
-        {
-            lock (__staticLock)
-            {
-                Func<MongoQueryProvider, Expression, object> executeDelegate;
-                if (!__executeDelegates.TryGetValue(type, out executeDelegate))
-                {
-                    var executeMethodInfo = __executeGenericMethodDefinition.MakeGenericMethod(type);
-
-                    // lambdaExpression = (provider, expression) => (object) provider.Execute<T>(expression)
-                    var providerParameter = Expression.Parameter(typeof(MongoQueryProvider), "provider");
-                    var expressionParameter = Expression.Parameter(typeof(Expression), "expression");
-                    var lambdaExpression = Expression.Lambda<Func<MongoQueryProvider, Expression, object>>(
-                        Expression.Convert(
-                            Expression.Call(providerParameter, executeMethodInfo, expressionParameter),
-                            typeof(object)
-                        ),
-                        providerParameter,
-                        expressionParameter
-                    );
-                    executeDelegate = lambdaExpression.Compile();
-                    __executeDelegates.Add(type, executeDelegate);
-                }
-                return executeDelegate;
-            }
         }
 
         // public methods
@@ -154,11 +79,11 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("expression");
             }
+            var elementType = TypeSystem.GetElementType(expression.Type);
             try
             {
-                var elementType = TypeSystem.GetElementType(expression.Type);
-                var createQueryDelegate = GetCreateQueryDelegate(elementType);
-                return createQueryDelegate(this, expression);
+                var queryableType = typeof(MongoQueryable<>).MakeGenericType(elementType);
+                return (IQueryable)Activator.CreateInstance(queryableType, new object[] { this, expression });
             }
             catch (TargetInvocationException ex)
             {
@@ -182,8 +107,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentException("Argument expression is not valid.");
             }
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
-            return (TResult)translatedQuery.Execute();
+            return (TResult)Execute(expression);
         }
 
         /// <summary>
@@ -197,36 +121,8 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("expression");
             }
-            try
-            {
-                var resultType = expression.Type;
-                var executeDelegate = GetExecuteDelegate(resultType);
-                return executeDelegate(this, expression);
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        /// <summary>
-        /// Gets an enumerator by executing the query.
-        /// </summary>
-        /// <typeparam name="T">Type element type.</typeparam>
-        /// <param name="expression">The LINQ expression.</param>
-        /// <returns>An enumerator for the results of the query.</returns>
-        public IEnumerator<T> GetEnumerator<T>(Expression expression)
-        {
-            if (expression == null)
-            {
-                throw new ArgumentNullException("expression");
-            }
-            if (!typeof(IEnumerable<T>).IsAssignableFrom(expression.Type))
-            {
-                throw new ArgumentException("Argument expression is not valid.");
-            }
             var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
-            return translatedQuery.GetEnumerator<T>();
+            return translatedQuery.Execute();
         }
 
         /// <summary>
