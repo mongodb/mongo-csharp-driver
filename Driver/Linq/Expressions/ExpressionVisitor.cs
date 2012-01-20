@@ -114,163 +114,6 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Visits a MemberBinding.
-        /// </summary>
-        /// <param name="node">The MemberBinding.</param>
-        /// <returns>The MemberBinding (possibly modified).</returns>
-        protected virtual MemberBinding VisitMemberBinding(MemberBinding node)
-        {
-            switch (node.BindingType)
-            {
-                case MemberBindingType.Assignment:
-                    return this.VisitMemberAssignment((MemberAssignment)node);
-                case MemberBindingType.MemberBinding:
-                    return this.VisitMemberMemberBinding((MemberMemberBinding)node);
-                case MemberBindingType.ListBinding:
-                    return this.VisitMemberListBinding((MemberListBinding)node);
-                default:
-                    throw new Exception(string.Format("Unhandled binding type '{0}'", node.BindingType));
-            }
-        }
-
-        /// <summary>
-        /// Visits an ElementInit.
-        /// </summary>
-        /// <param name="node">The ElementInit.</param>
-        /// <returns>The ElementInit (possibly modified).</returns>
-        protected virtual ElementInit VisitElementInit(ElementInit node)
-        {
-            ReadOnlyCollection<Expression> arguments = this.Visit(node.Arguments);
-            if (arguments != node.Arguments)
-            {
-                return Expression.ElementInit(node.AddMethod, arguments);
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a UnaryExpression.
-        /// </summary>
-        /// <param name="node">The UnaryExpression.</param>
-        /// <returns>The UnaryExpression (possibly modified).</returns>
-        protected virtual Expression VisitUnary(UnaryExpression node)
-        {
-            Expression operand = this.Visit(node.Operand);
-            if (operand != node.Operand)
-            {
-                return Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method);
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a BinaryExpression.
-        /// </summary>
-        /// <param name="node">The BinaryExpression.</param>
-        /// <returns>The BinaryExpression (possibly modified).</returns>
-        protected virtual Expression VisitBinary(BinaryExpression node)
-        {
-            Expression left = this.Visit(node.Left);
-            Expression right = this.Visit(node.Right);
-            Expression conversion = this.Visit(node.Conversion);
-            if (left != node.Left || right != node.Right || conversion != node.Conversion)
-            {
-                if (node.NodeType == ExpressionType.Coalesce && node.Conversion != null)
-                {
-                    return Expression.Coalesce(left, right, conversion as LambdaExpression);
-                }
-                else
-                {
-                    return Expression.MakeBinary(node.NodeType, left, right, node.IsLiftedToNull, node.Method);
-                }
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a TypeBinaryExpression.
-        /// </summary>
-        /// <param name="node">The TypeBinaryExpression.</param>
-        /// <returns>The TypeBinaryExpression (possibly modified).</returns>
-        protected virtual Expression VisitTypeBinary(TypeBinaryExpression node)
-        {
-            Expression expr = this.Visit(node.Expression);
-            if (expr != node.Expression)
-            {
-                return Expression.TypeIs(expr, node.TypeOperand);
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a ConstantExpression.
-        /// </summary>
-        /// <param name="node">The ConstantExpression.</param>
-        /// <returns>The ConstantExpression (possibly modified).</returns>
-        protected virtual Expression VisitConstant(ConstantExpression node)
-        {
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a ConditionalExpression.
-        /// </summary>
-        /// <param name="node">The ConditionalExpression.</param>
-        /// <returns>The ConditionalExpression (possibly modified).</returns>
-        protected virtual Expression VisitConditional(ConditionalExpression node)
-        {
-            Expression test = this.Visit(node.Test);
-            Expression ifTrue = this.Visit(node.IfTrue);
-            Expression ifFalse = this.Visit(node.IfFalse);
-            if (test != node.Test || ifTrue != node.IfTrue || ifFalse != node.IfFalse)
-            {
-                return Expression.Condition(test, ifTrue, ifFalse);
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a ParameterExpression.
-        /// </summary>
-        /// <param name="node">The ParameterExpression.</param>
-        /// <returns>The ParameterExpression (possibly modified).</returns>
-        protected virtual Expression VisitParameter(ParameterExpression node)
-        {
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a MemberExpression.
-        /// </summary>
-        /// <param name="node">The MemberExpression.</param>
-        /// <returns>The MemberExpression (possibly modified).</returns>
-        protected virtual Expression VisitMember(MemberExpression node)
-        {
-            Expression exp = this.Visit(node.Expression);
-            if (exp != node.Expression)
-            {
-                return Expression.MakeMemberAccess(exp, node.Member);
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a MethodCallExpression.
-        /// </summary>
-        /// <param name="node">The MethodCallExpression.</param>
-        /// <returns>The MethodCallExpression (possibly modified).</returns>
-        protected virtual Expression VisitMethodCall(MethodCallExpression node)
-        {
-            Expression obj = this.Visit(node.Object);
-            IEnumerable<Expression> args = this.Visit(node.Arguments);
-            if (obj != node.Object || args != node.Arguments)
-            {
-                return Expression.Call(obj, node.Method, args);
-            }
-            return node;
-        }
-
-        /// <summary>
         /// Visits an Expression list.
         /// </summary>
         /// <param name="nodes">The Expression list.</param>
@@ -303,6 +146,173 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Visits a BinaryExpression.
+        /// </summary>
+        /// <param name="node">The BinaryExpression.</param>
+        /// <returns>The BinaryExpression (possibly modified).</returns>
+        protected virtual Expression VisitBinary(BinaryExpression node)
+        {
+            Expression left = this.Visit(node.Left);
+            Expression right = this.Visit(node.Right);
+            Expression conversion = this.Visit(node.Conversion);
+            if (left != node.Left || right != node.Right || conversion != node.Conversion)
+            {
+                if (node.NodeType == ExpressionType.Coalesce && node.Conversion != null)
+                {
+                    return Expression.Coalesce(left, right, conversion as LambdaExpression);
+                }
+                else
+                {
+                    return Expression.MakeBinary(node.NodeType, left, right, node.IsLiftedToNull, node.Method);
+                }
+            }
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a ConditionalExpression.
+        /// </summary>
+        /// <param name="node">The ConditionalExpression.</param>
+        /// <returns>The ConditionalExpression (possibly modified).</returns>
+        protected virtual Expression VisitConditional(ConditionalExpression node)
+        {
+            Expression test = this.Visit(node.Test);
+            Expression ifTrue = this.Visit(node.IfTrue);
+            Expression ifFalse = this.Visit(node.IfFalse);
+            if (test != node.Test || ifTrue != node.IfTrue || ifFalse != node.IfFalse)
+            {
+                return Expression.Condition(test, ifTrue, ifFalse);
+            }
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a ConstantExpression.
+        /// </summary>
+        /// <param name="node">The ConstantExpression.</param>
+        /// <returns>The ConstantExpression (possibly modified).</returns>
+        protected virtual Expression VisitConstant(ConstantExpression node)
+        {
+            return node;
+        }
+
+        /// <summary>
+        /// Visits an ElementInit.
+        /// </summary>
+        /// <param name="node">The ElementInit.</param>
+        /// <returns>The ElementInit (possibly modified).</returns>
+        protected virtual ElementInit VisitElementInit(ElementInit node)
+        {
+            ReadOnlyCollection<Expression> arguments = this.Visit(node.Arguments);
+            if (arguments != node.Arguments)
+            {
+                return Expression.ElementInit(node.AddMethod, arguments);
+            }
+            return node;
+        }
+
+        // TODO: the .NET Framework 4 version of ExpressionVisitor does not have a method called VisitElementInitializerList
+        // leaving this method for now, though perhaps it could be replaced with Visit(ReadOnlyCollection<Expression>)?
+
+        /// <summary>
+        /// Visits an ElementInit list.
+        /// </summary>
+        /// <param name="nodes">The ElementInit list.</param>
+        /// <returns>The ElementInit list (possibly modified).</returns>
+        protected virtual IEnumerable<ElementInit> VisitElementInitList(
+            ReadOnlyCollection<ElementInit> nodes)
+        {
+            List<ElementInit> list = null;
+            for (int i = 0, n = nodes.Count; i < n; i++)
+            {
+                ElementInit node = this.VisitElementInit(nodes[i]);
+                if (list != null)
+                {
+                    list.Add(node);
+                }
+                else if (node != nodes[i])
+                {
+                    list = new List<ElementInit>(n);
+                    for (int j = 0; j < i; j++)
+                    {
+                        list.Add(nodes[j]);
+                    }
+                    list.Add(node);
+                }
+            }
+            if (list != null)
+            {
+                return list;
+            }
+            return nodes;
+        }
+
+        /// <summary>
+        /// Visits an InvocationExpression.
+        /// </summary>
+        /// <param name="node">The InvocationExpression.</param>
+        /// <returns>The InvocationExpression (possibly modified).</returns>
+        protected virtual Expression VisitInvocation(InvocationExpression node)
+        {
+            IEnumerable<Expression> args = this.Visit(node.Arguments);
+            Expression expr = this.Visit(node.Expression);
+            if (args != node.Arguments || expr != node.Expression)
+            {
+                return Expression.Invoke(expr, args);
+            }
+            return node;
+        }
+
+        // TODO: in .NET Framework 4 VisitLambda takes an Expression<T> instead of Lambda
+        // probably not worthing changing in our version of ExpressionVisitor
+
+        /// <summary>
+        /// Visits a LambdaExpression.
+        /// </summary>
+        /// <param name="node">The LambdaExpression.</param>
+        /// <returns>The LambdaExpression (possibly modified).</returns>
+        protected virtual Expression VisitLambda(LambdaExpression node)
+        {
+            Expression body = this.Visit(node.Body);
+            if (body != node.Body)
+            {
+                return Expression.Lambda(node.Type, body, node.Parameters);
+            }
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a ListInitExpression.
+        /// </summary>
+        /// <param name="node">The ListInitExpression.</param>
+        /// <returns>The ListInitExpression (possibly modified).</returns>
+        protected virtual Expression VisitListInit(ListInitExpression node)
+        {
+            NewExpression n = this.VisitNew(node.NewExpression);
+            IEnumerable<ElementInit> initializers = this.VisitElementInitList(node.Initializers);
+            if (n != node.NewExpression || initializers != node.Initializers)
+            {
+                return Expression.ListInit(n, initializers);
+            }
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a MemberExpression.
+        /// </summary>
+        /// <param name="node">The MemberExpression.</param>
+        /// <returns>The MemberExpression (possibly modified).</returns>
+        protected virtual Expression VisitMember(MemberExpression node)
+        {
+            Expression exp = this.Visit(node.Expression);
+            if (exp != node.Expression)
+            {
+                return Expression.MakeMemberAccess(exp, node.Member);
+            }
+            return node;
+        }
+
+        /// <summary>
         /// Visits a MemberAssignment.
         /// </summary>
         /// <param name="node">The MemberAssignment.</param>
@@ -318,33 +328,23 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Visits a MemberMemberBinding.
+        /// Visits a MemberBinding.
         /// </summary>
-        /// <param name="node">The MemberMemberBinding.</param>
-        /// <returns>The MemberMemberBinding (possibly modified).</returns>
-        protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
+        /// <param name="node">The MemberBinding.</param>
+        /// <returns>The MemberBinding (possibly modified).</returns>
+        protected virtual MemberBinding VisitMemberBinding(MemberBinding node)
         {
-            IEnumerable<MemberBinding> bindings = this.VisitMemberBindingList(node.Bindings);
-            if (bindings != node.Bindings)
+            switch (node.BindingType)
             {
-                return Expression.MemberBind(node.Member, bindings);
+                case MemberBindingType.Assignment:
+                    return this.VisitMemberAssignment((MemberAssignment)node);
+                case MemberBindingType.MemberBinding:
+                    return this.VisitMemberMemberBinding((MemberMemberBinding)node);
+                case MemberBindingType.ListBinding:
+                    return this.VisitMemberListBinding((MemberListBinding)node);
+                default:
+                    throw new Exception(string.Format("Unhandled binding type '{0}'", node.BindingType));
             }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a MemberListBinding.
-        /// </summary>
-        /// <param name="node">The MemberListBinding.</param>
-        /// <returns>The MemberListBinding (possibly modified).</returns>
-        protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding node)
-        {
-            IEnumerable<ElementInit> initializers = this.VisitElementInitializerList(node.Initializers);
-            if (initializers != node.Initializers)
-            {
-                return Expression.ListBind(node.Member, initializers);
-            }
-            return node;
         }
 
         // TODO: the .NET Framework 4 version of ExpressionVisitor does not have a method called VisitMemberBindingList
@@ -382,56 +382,64 @@ namespace MongoDB.Driver.Linq
             return nodes;
         }
 
-        // TODO: the .NET Framework 4 version of ExpressionVisitor does not have a method called VisitElementInitializerList
-        // leaving this method for now, though perhaps it could be replaced with Visit(ReadOnlyCollection<Expression>)?
-
         /// <summary>
-        /// Visits an ElementInit list.
+        /// Visits a MemberInitExpression.
         /// </summary>
-        /// <param name="nodes">The ElementInit list.</param>
-        /// <returns>The ElementInit list (possibly modified).</returns>
-        protected virtual IEnumerable<ElementInit> VisitElementInitializerList(
-            ReadOnlyCollection<ElementInit> nodes)
+        /// <param name="node">The MemberInitExpression.</param>
+        /// <returns>The MemberInitExpression (possibly modified).</returns>
+        protected virtual Expression VisitMemberInit(MemberInitExpression node)
         {
-            List<ElementInit> list = null;
-            for (int i = 0, n = nodes.Count; i < n; i++)
+            NewExpression n = this.VisitNew(node.NewExpression);
+            IEnumerable<MemberBinding> bindings = this.VisitMemberBindingList(node.Bindings);
+            if (n != node.NewExpression || bindings != node.Bindings)
             {
-                ElementInit node = this.VisitElementInit(nodes[i]);
-                if (list != null)
-                {
-                    list.Add(node);
-                }
-                else if (node != nodes[i])
-                {
-                    list = new List<ElementInit>(n);
-                    for (int j = 0; j < i; j++)
-                    {
-                        list.Add(nodes[j]);
-                    }
-                    list.Add(node);
-                }
+                return Expression.MemberInit(n, bindings);
             }
-            if (list != null)
-            {
-                return list;
-            }
-            return nodes;
+            return node;
         }
 
-        // TODO: in .NET Framework 4 VisitLambda takes an Expression<T> instead of Lambda
-        // probably not worthing changing in our version of ExpressionVisitor
+        /// <summary>
+        /// Visits a MemberListBinding.
+        /// </summary>
+        /// <param name="node">The MemberListBinding.</param>
+        /// <returns>The MemberListBinding (possibly modified).</returns>
+        protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding node)
+        {
+            IEnumerable<ElementInit> initializers = this.VisitElementInitList(node.Initializers);
+            if (initializers != node.Initializers)
+            {
+                return Expression.ListBind(node.Member, initializers);
+            }
+            return node;
+        }
 
         /// <summary>
-        /// Visits a LambdaExpression.
+        /// Visits a MemberMemberBinding.
         /// </summary>
-        /// <param name="node">The LambdaExpression.</param>
-        /// <returns>The LambdaExpression (possibly modified).</returns>
-        protected virtual Expression VisitLambda(LambdaExpression node)
+        /// <param name="node">The MemberMemberBinding.</param>
+        /// <returns>The MemberMemberBinding (possibly modified).</returns>
+        protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
         {
-            Expression body = this.Visit(node.Body);
-            if (body != node.Body)
+            IEnumerable<MemberBinding> bindings = this.VisitMemberBindingList(node.Bindings);
+            if (bindings != node.Bindings)
             {
-                return Expression.Lambda(node.Type, body, node.Parameters);
+                return Expression.MemberBind(node.Member, bindings);
+            }
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a MethodCallExpression.
+        /// </summary>
+        /// <param name="node">The MethodCallExpression.</param>
+        /// <returns>The MethodCallExpression (possibly modified).</returns>
+        protected virtual Expression VisitMethodCall(MethodCallExpression node)
+        {
+            Expression obj = this.Visit(node.Object);
+            IEnumerable<Expression> args = this.Visit(node.Arguments);
+            if (obj != node.Object || args != node.Arguments)
+            {
+                return Expression.Call(obj, node.Method, args);
             }
             return node;
         }
@@ -459,38 +467,6 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Visits a MemberInitExpression.
-        /// </summary>
-        /// <param name="node">The MemberInitExpression.</param>
-        /// <returns>The MemberInitExpression (possibly modified).</returns>
-        protected virtual Expression VisitMemberInit(MemberInitExpression node)
-        {
-            NewExpression n = this.VisitNew(node.NewExpression);
-            IEnumerable<MemberBinding> bindings = this.VisitMemberBindingList(node.Bindings);
-            if (n != node.NewExpression || bindings != node.Bindings)
-            {
-                return Expression.MemberInit(n, bindings);
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a ListInitExpression.
-        /// </summary>
-        /// <param name="node">The ListInitExpression.</param>
-        /// <returns>The ListInitExpression (possibly modified).</returns>
-        protected virtual Expression VisitListInit(ListInitExpression node)
-        {
-            NewExpression n = this.VisitNew(node.NewExpression);
-            IEnumerable<ElementInit> initializers = this.VisitElementInitializerList(node.Initializers);
-            if (n != node.NewExpression || initializers != node.Initializers)
-            {
-                return Expression.ListInit(n, initializers);
-            }
-            return node;
-        }
-
-        /// <summary>
         /// Visits a NewArrayExpression.
         /// </summary>
         /// <param name="node">The NewArrayExpression.</param>
@@ -513,17 +489,41 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Visits an InvocationExpression.
+        /// Visits a ParameterExpression.
         /// </summary>
-        /// <param name="node">The InvocationExpression.</param>
-        /// <returns>The InvocationExpression (possibly modified).</returns>
-        protected virtual Expression VisitInvocation(InvocationExpression node)
+        /// <param name="node">The ParameterExpression.</param>
+        /// <returns>The ParameterExpression (possibly modified).</returns>
+        protected virtual Expression VisitParameter(ParameterExpression node)
         {
-            IEnumerable<Expression> args = this.Visit(node.Arguments);
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a TypeBinaryExpression.
+        /// </summary>
+        /// <param name="node">The TypeBinaryExpression.</param>
+        /// <returns>The TypeBinaryExpression (possibly modified).</returns>
+        protected virtual Expression VisitTypeBinary(TypeBinaryExpression node)
+        {
             Expression expr = this.Visit(node.Expression);
-            if (args != node.Arguments || expr != node.Expression)
+            if (expr != node.Expression)
             {
-                return Expression.Invoke(expr, args);
+                return Expression.TypeIs(expr, node.TypeOperand);
+            }
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a UnaryExpression.
+        /// </summary>
+        /// <param name="node">The UnaryExpression.</param>
+        /// <returns>The UnaryExpression (possibly modified).</returns>
+        protected virtual Expression VisitUnary(UnaryExpression node)
+        {
+            Expression operand = this.Visit(node.Operand);
+            if (operand != node.Operand)
+            {
+                return Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method);
             }
             return node;
         }

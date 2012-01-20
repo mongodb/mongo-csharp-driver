@@ -57,33 +57,6 @@ namespace MongoDB.Driver.Linq
 
         // protected methods
         /// <summary>
-        /// Visits an ElementInit node.
-        /// </summary>
-        /// <param name="node">The ElementInit node.</param>
-        /// <returns>The ElementInit node.</returns>
-        protected override ElementInit VisitElementInit(ElementInit node)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Visits a UnaryExpression.
-        /// </summary>
-        /// <param name="node">The UnaryExpression.</param>
-        /// <returns>The UnaryExpression.</returns>
-        protected override Expression VisitUnary(UnaryExpression node)
-        {
-            WriteHeader(node);
-            using (new Indentation(this))
-            {
-                WriteLine("Method={0}", node.Method == null ? "null" : node.Method.Name);
-                WriteLine("Operand:");
-                VisitIndented(node.Operand);
-            }
-            return node;
-        }
-
-        /// <summary>
         /// Visits a BinaryExpression.
         /// </summary>
         /// <param name="node">The BinaryExpression.</param>
@@ -103,11 +76,11 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Visits a TypeBinaryExpression.
+        /// Visits a ConditionalExpression.
         /// </summary>
-        /// <param name="node">The TypeBinaryExpression.</param>
-        /// <returns>The TypeBinaryExpression.</returns>
-        protected override Expression VisitTypeBinary(TypeBinaryExpression node)
+        /// <param name="node">The ConditionalExpression.</param>
+        /// <returns>The ConditionalExpression.</returns>
+        protected override Expression VisitConditional(ConditionalExpression node)
         {
             throw new NotImplementedException();
         }
@@ -128,117 +101,11 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Visits a ConditionalExpression.
+        /// Visits an ElementInit node.
         /// </summary>
-        /// <param name="node">The ConditionalExpression.</param>
-        /// <returns>The ConditionalExpression.</returns>
-        protected override Expression VisitConditional(ConditionalExpression node)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Visits a ParameterExpression.
-        /// </summary>
-        /// <param name="node">The ParameterExpression.</param>
-        /// <returns>The ParameterExpression.</returns>
-        protected override Expression VisitParameter(ParameterExpression node)
-        {
-            WriteHeader(node);
-            using (new Indentation(this))
-            {
-                WriteLine("Name={0}", node.Name);
-                WriteLine("Type={0}", FriendlyClassName(node.Type));
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a MemberExpression.
-        /// </summary>
-        /// <param name="node">The MemberExpression.</param>
-        /// <returns>The MemberExpression.</returns>
-        protected override Expression VisitMember(MemberExpression node)
-        {
-            WriteHeader(node);
-            using (new Indentation(this))
-            {
-                WriteLine("Expression:");
-                VisitIndented(node.Expression);
-                WriteLine("Member={0} {1}", node.Member.MemberType, node.Member.Name);
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a MethodCallExpression.
-        /// </summary>
-        /// <param name="node">The MethodCallExpression.</param>
-        /// <returns>The MethodCallExpression.</returns>
-        protected override Expression VisitMethodCall(MethodCallExpression node)
-        {
-            WriteHeader(node);
-            using (new Indentation(this))
-            {
-                WriteLine("Method={0}", node.Method.Name);
-                WriteLine("Arguments:");
-                using (new Indentation(this))
-                {
-                    foreach (var arg in node.Arguments)
-                    {
-                        Visit(arg);
-                    }
-                }
-            }
-            return node;
-        }
-
-        /// <summary>
-        /// Visits a MemberAssignment.
-        /// </summary>
-        /// <param name="node">The MemberAssignment.</param>
-        /// <returns>The MemberAssignment.</returns>
-        protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Visits a MemberBinding.
-        /// </summary>
-        /// <param name="node">The MemberBinding.</param>
-        /// <returns>The MemberBinding (possibly modified).</returns>
-        protected override MemberBinding VisitMemberBinding(MemberBinding node)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Visits a MemberMemberBinding.
-        /// </summary>
-        /// <param name="node">The MemberMemberBinding.</param>
-        /// <returns>The MemberMemberBinding.</returns>
-        protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Visits a MemberListBinding.
-        /// </summary>
-        /// <param name="node">The MemberListBinding.</param>
-        /// <returns>The MemberListBinding.</returns>
-        protected override MemberListBinding VisitMemberListBinding(MemberListBinding node)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Visits a MemberBinding list.
-        /// </summary>
-        /// <param name="nodes">The MemberBinding list.</param>
-        /// <returns>The MemberBinding list.</returns>
-        protected override IEnumerable<MemberBinding> VisitMemberBindingList(ReadOnlyCollection<MemberBinding> nodes)
+        /// <param name="node">The ElementInit node.</param>
+        /// <returns>The ElementInit node.</returns>
+        protected override ElementInit VisitElementInit(ElementInit node)
         {
             throw new NotImplementedException();
         }
@@ -248,8 +115,18 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="nodes">The ElementInit list.</param>
         /// <returns>The ElementInit list.</returns>
-        protected override IEnumerable<ElementInit> VisitElementInitializerList(
+        protected override IEnumerable<ElementInit> VisitElementInitList(
             ReadOnlyCollection<ElementInit> nodes)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits an InvocationExpression.
+        /// </summary>
+        /// <param name="node">The InvocationExpression.</param>
+        /// <returns>The InvocationExpression.</returns>
+        protected override Expression VisitInvocation(InvocationExpression node)
         {
             throw new NotImplementedException();
         }
@@ -276,6 +153,116 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Visits a ListInitExpression.
+        /// </summary>
+        /// <param name="node">The ListInitExpression.</param>
+        /// <returns>The ListInitExpression.</returns>
+        protected override Expression VisitListInit(ListInitExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits a MemberExpression.
+        /// </summary>
+        /// <param name="node">The MemberExpression.</param>
+        /// <returns>The MemberExpression.</returns>
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            WriteHeader(node);
+            using (new Indentation(this))
+            {
+                WriteLine("Expression:");
+                VisitIndented(node.Expression);
+                WriteLine("Member={0} {1}", node.Member.MemberType, node.Member.Name);
+            }
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a MemberAssignment.
+        /// </summary>
+        /// <param name="node">The MemberAssignment.</param>
+        /// <returns>The MemberAssignment.</returns>
+        protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits a MemberBinding.
+        /// </summary>
+        /// <param name="node">The MemberBinding.</param>
+        /// <returns>The MemberBinding (possibly modified).</returns>
+        protected override MemberBinding VisitMemberBinding(MemberBinding node)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits a MemberBinding list.
+        /// </summary>
+        /// <param name="nodes">The MemberBinding list.</param>
+        /// <returns>The MemberBinding list.</returns>
+        protected override IEnumerable<MemberBinding> VisitMemberBindingList(ReadOnlyCollection<MemberBinding> nodes)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits a MemberInitExpression.
+        /// </summary>
+        /// <param name="node">The MemberInitExpression.</param>
+        /// <returns>The MemberInitExpression.</returns>
+        protected override Expression VisitMemberInit(MemberInitExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits a MemberListBinding.
+        /// </summary>
+        /// <param name="node">The MemberListBinding.</param>
+        /// <returns>The MemberListBinding.</returns>
+        protected override MemberListBinding VisitMemberListBinding(MemberListBinding node)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits a MemberMemberBinding.
+        /// </summary>
+        /// <param name="node">The MemberMemberBinding.</param>
+        /// <returns>The MemberMemberBinding.</returns>
+        protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits a MethodCallExpression.
+        /// </summary>
+        /// <param name="node">The MethodCallExpression.</param>
+        /// <returns>The MethodCallExpression.</returns>
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            WriteHeader(node);
+            using (new Indentation(this))
+            {
+                WriteLine("Method={0}", node.Method.Name);
+                WriteLine("Arguments:");
+                using (new Indentation(this))
+                {
+                    foreach (var arg in node.Arguments)
+                    {
+                        Visit(arg);
+                    }
+                }
+            }
+            return node;
+        }
+
+        /// <summary>
         /// Visits a NewExpression.
         /// </summary>
         /// <param name="node">The NewExpression.</param>
@@ -295,26 +282,6 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Visits a MemberInitExpression.
-        /// </summary>
-        /// <param name="node">The MemberInitExpression.</param>
-        /// <returns>The MemberInitExpression.</returns>
-        protected override Expression VisitMemberInit(MemberInitExpression node)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Visits a ListInitExpression.
-        /// </summary>
-        /// <param name="node">The ListInitExpression.</param>
-        /// <returns>The ListInitExpression.</returns>
-        protected override Expression VisitListInit(ListInitExpression node)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Visits a NewArrayExpression.
         /// </summary>
         /// <param name="node">The NewArrayExpression.</param>
@@ -325,13 +292,46 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Visits an InvocationExpression.
+        /// Visits a ParameterExpression.
         /// </summary>
-        /// <param name="node">The InvocationExpression.</param>
-        /// <returns>The InvocationExpression.</returns>
-        protected override Expression VisitInvocation(InvocationExpression node)
+        /// <param name="node">The ParameterExpression.</param>
+        /// <returns>The ParameterExpression.</returns>
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            WriteHeader(node);
+            using (new Indentation(this))
+            {
+                WriteLine("Name={0}", node.Name);
+                WriteLine("Type={0}", FriendlyClassName(node.Type));
+            }
+            return node;
+        }
+
+        /// <summary>
+        /// Visits a TypeBinaryExpression.
+        /// </summary>
+        /// <param name="node">The TypeBinaryExpression.</param>
+        /// <returns>The TypeBinaryExpression.</returns>
+        protected override Expression VisitTypeBinary(TypeBinaryExpression node)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Visits a UnaryExpression.
+        /// </summary>
+        /// <param name="node">The UnaryExpression.</param>
+        /// <returns>The UnaryExpression.</returns>
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            WriteHeader(node);
+            using (new Indentation(this))
+            {
+                WriteLine("Method={0}", node.Method == null ? "null" : node.Method.Name);
+                WriteLine("Operand:");
+                VisitIndented(node.Operand);
+            }
+            return node;
         }
 
         // private methods
