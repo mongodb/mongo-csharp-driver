@@ -1786,13 +1786,29 @@ namespace MongoDB.BsonUnitTests.Serialization
                 V = new Uri("http://www.cnn.com")
             };
             var json = obj.ToJson();
-            var expected = "{ 'V' : 'http://www.cnn.com/' }".Replace("'", "\"");
+            var expected = "{ 'V' : 'http://www.cnn.com' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+		[Test]
+		public void TestRelative()
+		{
+			var obj = new TestClass
+			{
+				V = new Uri("/relative/page.html", UriKind.RelativeOrAbsolute)
+			};
+			var json = obj.ToJson();
+			var expected = "{ 'V' : '/relative/page.html' }".Replace("'", "\"");
+			Assert.AreEqual(expected, json);
+
+			var bson = obj.ToBson();
+			var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+			Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+		}
 
         [Test]
         public void TestMongoDB()
