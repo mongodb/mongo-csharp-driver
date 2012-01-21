@@ -13,12 +13,12 @@ set ZIPEXE="C:\Program Files\7-Zip\7z.exe"
 set ZIPFILE=%PACKAGES%\CSharpDriver-%VER%.zip
 %ZIPEXE% a %ZIPFILE% ..\License.txt
 %ZIPEXE% a %ZIPFILE% "..\Release Notes v1.3.1.txt"
-%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.dll
-%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.pdb
-%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Bson.xml
-%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.dll
-%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.pdb
-%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Debug\MongoDB.Driver.xml
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Release\MongoDB.Bson.dll
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Release\MongoDB.Bson.pdb
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Release\MongoDB.Bson.xml
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Release\MongoDB.Driver.dll
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Release\MongoDB.Driver.pdb
+%ZIPEXE% a %ZIPFILE% ..\Driver\bin\Release\MongoDB.Driver.xml
 %ZIPEXE% a %ZIPFILE% ..\Help\CSharpDriverDocs.chm
 
 echo Created %PACKAGES%
