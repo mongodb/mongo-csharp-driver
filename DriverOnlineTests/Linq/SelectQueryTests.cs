@@ -80,6 +80,50 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestSkip2()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c).Skip(2);
+
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.IsNull(selectQuery.Where);
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.AreEqual("2", selectQuery.Skip.ToString());
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.AreEqual(3, Consume(query));
+        }
+
+        [Test]
+        public void TestTake2()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c).Take(2);
+
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.IsNull(selectQuery.Where);
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.AreEqual("2", selectQuery.Take.ToString());
+
+            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.AreEqual(2, Consume(query));
+        }
+
+        [Test]
         public void TestWhereXEquals1()
         {
             var query = from c in _collection.AsQueryable<C>()

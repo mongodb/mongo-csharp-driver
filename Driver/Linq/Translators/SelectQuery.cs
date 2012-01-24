@@ -116,7 +116,18 @@ namespace MongoDB.Driver.Linq
         {
             var query = CreateMongoQuery();
             var cursor = _collection.FindAs(_documentType, query);
-            // TODO: modify the cursor with things like sort order, skip and limit
+
+            // TODO: modify the cursor with sort order
+
+            if (_skip != null)
+            {
+                cursor.SetSkip(ToInt32(_skip));
+            }
+
+            if (_take != null)
+            {
+                cursor.SetLimit(ToInt32(_take));
+            }
             return cursor;
         }
 
@@ -212,6 +223,22 @@ namespace MongoDB.Driver.Linq
                 return ((UnaryExpression)expression).Operand;
             }
             return expression;
+        }
+
+        private int ToInt32(Expression expression)
+        {
+            if (expression.Type != typeof(int))
+            {
+                throw new ArgumentOutOfRangeException("expression", "Expected an Expression of Type Int32.");
+            }
+
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression == null)
+            {
+                throw new ArgumentOutOfRangeException("expression", "Expected a ConstantExpression.");
+            }
+
+            return (int) constantExpression.Value;
         }
 
         private void TranslateOrderBy(Expression expression)
