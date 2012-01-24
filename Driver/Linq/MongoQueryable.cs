@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Linq
         /// <returns></returns>
         public override string ToString()
         {
-            return _provider.GetQueryText(_expression);
+            return _expression.ToString();
         }
 
         // explicit implementation of IEnumerable

@@ -38,10 +38,38 @@ namespace MongoDB.Driver.Linq
         {
             expression = PartialEvaluator.Evaluate(expression);
 
-            // total hack just to test the initial LINQ framework
-            var query = MongoDB.Driver.Builders.Query.EQ("X", 1);
-            var documentType = TypeSystem.GetElementType(expression.Type);
-            return new TranslatedFindQuery(collection, query, documentType);
+            // assume for now it's a SelectQuery
+            var documentType = GetDocumentType(expression);
+            var selectQuery = new SelectQuery(collection, documentType);
+            selectQuery.Translate(expression);
+            return selectQuery;
+        }
+
+        // private static methods
+        private static Type GetDocumentType(Expression expression)
+        {
+            // look for the innermost nested constant of type MongoQueryable<T> and return typeof(T)
+            var methodCallExpression = expression as MethodCallExpression;
+            if (methodCallExpression != null)
+            {
+                var firstArgument = methodCallExpression.Arguments[0];
+                var constantExpression = firstArgument as ConstantExpression;
+                if (constantExpression != null)
+                {
+                    var constantType = constantExpression.Type;
+                    if (constantType.IsGenericType)
+                    {
+                        var genericTypeDefinition = constantType.GetGenericTypeDefinition();
+                        if (genericTypeDefinition == typeof(MongoQueryable<>))
+                        {
+                            return constantType.GetGenericArguments()[0];
+                        }
+                    }
+                }
+                return GetDocumentType(firstArgument);
+            }
+
+            throw new ArgumentOutOfRangeException("Unable to find root IQueryable");
         }
     }
 }

@@ -32,15 +32,38 @@ namespace MongoDB.Driver.Linq
         /// The collection being queried.
         /// </summary>
         protected MongoCollection _collection;
+        /// <summary>
+        /// The document type being queried.
+        /// </summary>
+        protected Type _documentType;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the MongoLinqQuery class.
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
-        protected TranslatedQuery(MongoCollection collection)
+        /// <param name="documentType">The document type being queried.</param>
+        protected TranslatedQuery(MongoCollection collection, Type documentType)
         {
             _collection = collection;
+            _documentType = documentType;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the collection being queried.
+        /// </summary>
+        public MongoCollection Collection
+        {
+            get { return _collection; }
+        }
+
+        /// <summary>
+        /// Get the document type being queried.
+        /// </summary>
+        public Type DocumentType
+        {
+            get { return _documentType; }
         }
 
         // public methods

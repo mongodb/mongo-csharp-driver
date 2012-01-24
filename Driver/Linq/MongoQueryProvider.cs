@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("expression");
             }
-            var elementType = TypeSystem.GetElementType(expression.Type);
+            var elementType = TypeHelper.GetElementType(expression.Type);
             try
             {
                 var queryableType = typeof(MongoQueryable<>).MakeGenericType(elementType);
@@ -123,17 +123,6 @@ namespace MongoDB.Driver.Linq
             }
             var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
             return translatedQuery.Execute();
-        }
-
-        /// <summary>
-        /// Gets a string representation of the LINQ expression translated to a MongoDB query.
-        /// </summary>
-        /// <param name="expression">The LINQ expression.</param>
-        /// <returns>A string.</returns>
-        public string GetQueryText(Expression expression)
-        {
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
-            return translatedQuery.ToString();
         }
     }
 }

@@ -39,6 +39,8 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         public ExpressionPrettyPrinter()
         {
+            _sb = new StringBuilder();
+            _indentation = "";
         }
 
         // public methods
@@ -47,11 +49,19 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="node">The Expression to pretty print.</param>
         /// <returns>A string containing the pretty printed Expression.</returns>
-        public string PrettyPrint(Expression node)
+        public static string PrettyPrint(Expression node)
         {
-            _sb = new StringBuilder();
-            _indentation = "";
-            Visit(node);
+            var prettyPrinter = new ExpressionPrettyPrinter();
+            prettyPrinter.Visit(node);
+            return prettyPrinter.ToString();
+        }
+
+        /// <summary>
+        /// Returns the pretty printed string representation of the Expression.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
             return _sb.ToString();
         }
 

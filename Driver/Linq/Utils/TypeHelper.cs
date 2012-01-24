@@ -21,7 +21,7 @@ using System.Threading;
 
 namespace MongoDB.Driver.Linq
 {
-    internal static class TypeSystem
+    internal static class TypeHelper
     {
         internal static Type GetElementType(Type seqType)
         {
