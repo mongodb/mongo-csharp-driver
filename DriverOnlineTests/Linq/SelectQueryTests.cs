@@ -48,13 +48,81 @@ namespace MongoDB.DriverOnlineTests.Linq
             _server.Connect();
             _database = Configuration.TestDatabase;
             _collection = Configuration.GetTestCollection<C>();
-
             _collection.Drop();
-            _collection.Insert(new C { X = 1, Y = 11 });
+
+            // documents inserted deliberately out of order to test sorting
             _collection.Insert(new C { X = 2, Y = 22 });
+            _collection.Insert(new C { X = 1, Y = 11 });
             _collection.Insert(new C { X = 3, Y = 33 });
-            _collection.Insert(new C { X = 4, Y = 44 });
             _collection.Insert(new C { X = 5, Y = 55 });
+            _collection.Insert(new C { X = 4, Y = 44 });
+        }
+
+        [Test]
+        public void TestOrderByAscending()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        orderby c.X
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.IsNull(selectQuery.Where);
+            Assert.AreEqual(1, selectQuery.OrderBy.Count);
+            Assert.AreEqual("c => c.X", selectQuery.OrderBy[0].Key.ToString());
+            Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy[0].Direction);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.IsNull(selectQuery.CreateMongoQuery());
+            var results = query.ToList();
+            Assert.AreEqual(5, results.Count);
+            Assert.AreEqual(1, results.First().X);
+            Assert.AreEqual(5, results.Last().X);
+        }
+
+        [Test]
+        public void TestOrderByDescending()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        orderby c.X descending
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.IsNull(selectQuery.Where);
+            Assert.AreEqual(1, selectQuery.OrderBy.Count);
+            Assert.AreEqual("c => c.X", selectQuery.OrderBy[0].Key.ToString());
+            Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy[0].Direction);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.IsNull(selectQuery.CreateMongoQuery());
+            var results = query.ToList();
+            Assert.AreEqual(5, results.Count);
+            Assert.AreEqual(5, results.First().X);
+            Assert.AreEqual(1, results.Last().X);
+        }
+
+        [Test]
+        public void TestOrderByDuplicateNotAllowed()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        orderby c.X
+                        orderby c.Y
+                        select c;
+
+            Assert.Throws<InvalidOperationException>(() => { MongoQueryTranslator.Translate(_collection, query.Expression); });
         }
 
         [Test]

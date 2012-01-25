@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq
     {
         // private fields
         private LambdaExpression _where;
-        private List<Expression> _orderBy;
+        private List<OrderByClause> _orderBy;
         private LambdaExpression _projection;
         private Expression _skip;
         private Expression _take;
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Gets a list of Expressions that defines the sort order (or null if not specified).
         /// </summary>
-        public ReadOnlyCollection<Expression> OrderBy
+        public ReadOnlyCollection<OrderByClause> OrderBy
         {
             get { return (_orderBy == null) ? null :_orderBy.AsReadOnly(); }
         }
@@ -117,7 +117,18 @@ namespace MongoDB.Driver.Linq
             var query = CreateMongoQuery();
             var cursor = _collection.FindAs(_documentType, query);
 
-            // TODO: modify the cursor with sort order
+            if (_orderBy != null)
+            {
+                var sortBy = new SortByDocument();
+                foreach (var clause in _orderBy)
+                {
+                    var memberExpression = (MemberExpression)clause.Key.Body;
+                    var keyName = memberExpression.Member.Name;
+                    var direction = (clause.Direction == OrderByDirection.Descending) ? -1 : 1;
+                    sortBy.Add(keyName, direction);
+                }
+                cursor.SetSortOrder(sortBy);
+            }
 
             if (_skip != null)
             {
@@ -160,7 +171,8 @@ namespace MongoDB.Driver.Linq
             switch (methodName)
             {
                 case "OrderBy":
-                    TranslateOrderBy(argument);
+                case "OrderByDescending":
+                    TranslateOrderBy(methodCallExpression);
                     return;
                 case "Select":
                     TranslateSelect(argument);
@@ -241,10 +253,19 @@ namespace MongoDB.Driver.Linq
             return (int) constantExpression.Value;
         }
 
-        private void TranslateOrderBy(Expression expression)
+        private void TranslateOrderBy(MethodCallExpression expression)
         {
-            _orderBy = new List<Expression>();
-            _orderBy.Add(StripQuote(expression));
+            if (_orderBy != null)
+            {
+                throw new InvalidOperationException("Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).");
+            }
+
+            var key = (LambdaExpression)StripQuote(expression.Arguments[1]);
+            var direction = (expression.Method.Name == "OrderByDescending") ? OrderByDirection.Descending : OrderByDirection.Ascending;
+            var clause = new OrderByClause(key, direction);
+
+            _orderBy = new List<OrderByClause>();
+            _orderBy.Add(clause);
         }
 
         private void TranslateSelect(Expression expression)

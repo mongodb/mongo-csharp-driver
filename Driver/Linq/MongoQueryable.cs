@@ -78,15 +78,6 @@ namespace MongoDB.Driver.Linq
             return ((IEnumerable<T>)_provider.Execute(_expression)).GetEnumerator();
         }
 
-        /// <summary>
-        /// Gets a string representation of the MongoDB query obtained by translating the LINQ query.
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return _expression.ToString();
-        }
-
         // explicit implementation of IEnumerable
         IEnumerator IEnumerable.GetEnumerator()
         {
