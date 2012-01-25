@@ -183,6 +183,10 @@ namespace MongoDB.Driver.Linq
                 case "Take":
                     TranslateTake(argument);
                     return;
+                case "ThenBy":
+                case "ThenByDescending":
+                    TranslateThenBy(methodCallExpression);
+                    return;
                 case "Where":
                     TranslateWhere(argument);
                     return;
@@ -291,6 +295,20 @@ namespace MongoDB.Driver.Linq
         private void TranslateTake(Expression expression)
         {
             _take = StripQuote(expression);
+        }
+
+        private void TranslateThenBy(MethodCallExpression expression)
+        {
+            if (_orderBy == null)
+            {
+                throw new InvalidOperationException("ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.");
+            }
+
+            var key = (LambdaExpression)StripQuote(expression.Arguments[1]);
+            var direction = (expression.Method.Name == "ThenByDescending") ? OrderByDirection.Descending : OrderByDirection.Ascending;
+            var clause = new OrderByClause(key, direction);
+
+            _orderBy.Add(clause);
         }
 
         private void TranslateWhere(Expression expression)
