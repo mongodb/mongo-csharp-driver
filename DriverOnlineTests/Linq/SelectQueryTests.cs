@@ -246,6 +246,32 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestProjection()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        select c.X;
+
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.IsNull(selectQuery.Where);
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.AreEqual("c => c.X", selectQuery.Projection.ToString());
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.IsNull(selectQuery.CreateMongoQuery());
+
+            var result = query.ToList();
+            Assert.AreEqual(5, result.Count);
+            Assert.AreEqual(2, result.First());
+            Assert.AreEqual(4, result.Last());
+        }
+
+        [Test]
         public void TestSelectAll()
         {
             var query = from c in _collection.AsQueryable<C>()

@@ -139,7 +139,22 @@ namespace MongoDB.Driver.Linq
             {
                 cursor.SetLimit(ToInt32(_take));
             }
-            return cursor;
+
+            if (_projection == null)
+            {
+                return cursor;
+            }
+            else
+            {
+                var lambdaType = _projection.GetType();
+                var delegateType = lambdaType.GetGenericArguments()[0];
+                var sourceType = delegateType.GetGenericArguments()[0];
+                var resultType = delegateType.GetGenericArguments()[1];
+                var projectorType = typeof(Projector<,>).MakeGenericType(sourceType, resultType);
+                var projection = _projection.Compile();
+                var projector = Activator.CreateInstance(projectorType, cursor, projection);
+                return projector;
+            }
         }
 
         /// <summary>

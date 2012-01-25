@@ -186,6 +186,7 @@
     <Compile Include="Linq\Translators\PartialEvaluator.cs" />
     <Compile Include="Linq\Expressions\ExpressionPrettyPrinter.cs" />
     <Compile Include="Linq\Expressions\ExpressionVisitor.cs" />
+    <Compile Include="Linq\Translators\Projector.cs" />
     <Compile Include="Linq\Translators\SelectQuery.cs" />
     <Compile Include="Linq\ExtensionMethods.cs" />
     <Compile Include="Linq\MongoQueryable.cs" />
