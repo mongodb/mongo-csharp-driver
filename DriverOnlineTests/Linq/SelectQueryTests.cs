@@ -143,6 +143,112 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestLastOrDefaultWithManyMatches()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                         select c).LastOrDefault();
+
+            Assert.AreEqual(4, last.X);
+            Assert.AreEqual(44, last.Y);
+        }
+
+        [Test]
+        public void TestLastOrDefaultWithNoMatch()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                         where c.X == 9
+                         select c).LastOrDefault();
+            Assert.IsNull(last);
+        }
+
+        [Test]
+        public void TestLastOrDefaultWithOneMatch()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                         where c.X == 3
+                         select c).LastOrDefault();
+
+            Assert.AreEqual(3, last.X);
+            Assert.AreEqual(33, last.Y);
+        }
+
+        [Test]
+        public void TestLastOrDefaultWithOrderBy()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                        orderby c.X
+                        select c).LastOrDefault();
+
+            Assert.AreEqual(5, last.X);
+            Assert.AreEqual(44, last.Y);
+        }
+
+        [Test]
+        public void TestLastOrDefaultWithTwoMatches()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                         where c.Y == 11
+                         select c).LastOrDefault();
+
+            Assert.AreEqual(1, last.X);
+            Assert.AreEqual(11, last.Y);
+        }
+
+        [Test]
+        public void TestLastWithManyMatches()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                         select c).Last();
+
+            Assert.AreEqual(4, last.X);
+            Assert.AreEqual(44, last.Y);
+        }
+
+        [Test]
+        public void TestLastWithNoMatch()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var last = (from c in _collection.AsQueryable<C>()
+                             where c.X == 9
+                             select c).Last();
+            });
+        }
+
+        [Test]
+        public void TestLastWithOneMatch()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                         where c.X == 3
+                         select c).Last();
+
+            Assert.AreEqual(3, last.X);
+            Assert.AreEqual(33, last.Y);
+        }
+
+        [Test]
+        public void TestLastWithOrderBy()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                        orderby c.X
+                        select c).Last();
+
+            Assert.AreEqual(5, last.X);
+            Assert.AreEqual(44, last.Y);
+        }
+
+        [Test]
+        public void TestLastWithTwoMatches()
+        {
+            var last = (from c in _collection.AsQueryable<C>()
+                         where c.Y == 11
+                         select c).Last();
+
+            Assert.AreEqual(1, last.X);
+            Assert.AreEqual(11, last.Y);
+        }
+
+        [Test]
         public void TestOrderByAscending()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -382,7 +488,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         {
             Assert.Throws<InvalidOperationException>(() =>
             {
-                var first = (from c in _collection.AsQueryable<C>()
+                var single = (from c in _collection.AsQueryable<C>()
                              select c).SingleOrDefault();
             });
         }

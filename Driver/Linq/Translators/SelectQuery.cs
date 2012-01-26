@@ -201,6 +201,10 @@ namespace MongoDB.Driver.Linq
                 case "SingleOrDefault":
                     TranslateFirstOrSingle(methodCallExpression);
                     break;
+                case "Last":
+                case "LastOrDefault":
+                    TranslateLast(methodCallExpression);
+                    break;
                 case "OrderBy":
                 case "OrderByDescending":
                     TranslateOrderBy(methodCallExpression);
@@ -319,6 +323,54 @@ namespace MongoDB.Driver.Linq
                     _take = Expression.Constant(2);
                     _elementSelector = (IEnumerable source) => source.Cast<object>().SingleOrDefault();
                     break;
+            }
+        }
+
+        private void TranslateLast(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.Count != 1)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            if (_elementSelector != null)
+            {
+                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
+                throw new InvalidOperationException(message);
+            }
+
+            // when using OrderBy without Take Last can be much faster by reversing the sort order and using First instead of Last
+            if (_orderBy != null && _take == null)
+            {
+                for (int i = 0; i < _orderBy.Count; i++)
+                {
+                    var clause = _orderBy[i];
+                    var oppositeDirection = (clause.Direction == OrderByDirection.Descending) ? OrderByDirection.Ascending : OrderByDirection.Descending;
+                    _orderBy[i] = new OrderByClause(clause.Key, oppositeDirection);
+                }
+                _take = Expression.Constant(1);
+
+                switch (methodCallExpression.Method.Name)
+                {
+                    case "Last":
+                        _elementSelector = (IEnumerable source) => source.Cast<object>().First();
+                        break;
+                    case "LastOrDefault":
+                        _elementSelector = (IEnumerable source) => source.Cast<object>().FirstOrDefault();
+                        break;
+                }
+            }
+            else
+            {
+                switch (methodCallExpression.Method.Name)
+                {
+                    case "Last":
+                        _elementSelector = (IEnumerable source) => source.Cast<object>().Last();
+                        break;
+                    case "LastOrDefault":
+                        _elementSelector = (IEnumerable source) => source.Cast<object>().LastOrDefault();
+                        break;
+                }
             }
         }
 
