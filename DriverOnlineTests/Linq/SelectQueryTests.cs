@@ -59,6 +59,90 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestElementAtOrDefaultWithManyMatches()
+        {
+            var element = (from c in _collection.AsQueryable<C>()
+                         select c).ElementAtOrDefault(2);
+
+            Assert.AreEqual(3, element.X);
+            Assert.AreEqual(33, element.Y);
+        }
+
+        [Test]
+        public void TestElementAtOrDefaultWithNoMatch()
+        {
+            var element = (from c in _collection.AsQueryable<C>()
+                         where c.X == 9
+                         select c).ElementAtOrDefault(0);
+            Assert.IsNull(element);
+        }
+
+        [Test]
+        public void TestElementAtOrDefaultWithOneMatch()
+        {
+            var element = (from c in _collection.AsQueryable<C>()
+                         where c.X == 3
+                         select c).ElementAtOrDefault(0);
+
+            Assert.AreEqual(3, element.X);
+            Assert.AreEqual(33, element.Y);
+        }
+
+        [Test]
+        public void TestElementAtOrDefaultWithTwoMatches()
+        {
+            var element = (from c in _collection.AsQueryable<C>()
+                         where c.Y == 11
+                         select c).ElementAtOrDefault(1);
+
+            Assert.AreEqual(1, element.X);
+            Assert.AreEqual(11, element.Y);
+        }
+
+        [Test]
+        public void TestElementAtWithManyMatches()
+        {
+            var element = (from c in _collection.AsQueryable<C>()
+                         select c).ElementAt(2);
+
+            Assert.AreEqual(3, element.X);
+            Assert.AreEqual(33, element.Y);
+        }
+
+        [Test]
+        public void TestElementAtWithNoMatch()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var element = (from c in _collection.AsQueryable<C>()
+                             where c.X == 9
+                             select c).ElementAt(0);
+            });
+        }
+
+        [Test]
+        public void TestElementAtWithOneMatch()
+        {
+            var element = (from c in _collection.AsQueryable<C>()
+                         where c.X == 3
+                         select c).ElementAt(0);
+
+            Assert.AreEqual(3, element.X);
+            Assert.AreEqual(33, element.Y);
+        }
+
+        [Test]
+        public void TestElementAtWithTwoMatches()
+        {
+            var element = (from c in _collection.AsQueryable<C>()
+                         where c.Y == 11
+                         select c).ElementAt(1);
+
+            Assert.AreEqual(1, element.X);
+            Assert.AreEqual(11, element.Y);
+        }
+
+        [Test]
         public void TestFirstOrDefaultWithManyMatches()
         {
             var first = (from c in _collection.AsQueryable<C>()

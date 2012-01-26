@@ -195,6 +195,10 @@ namespace MongoDB.Driver.Linq
             var methodName = methodCallExpression.Method.Name;
             switch (methodName)
             {
+                case "ElementAt":
+                case "ElementAtOrDefault":
+                    TranslateElementAt(methodCallExpression);
+                    break;
                 case "First":
                 case "FirstOrDefault":
                 case "Single":
@@ -290,6 +294,35 @@ namespace MongoDB.Driver.Linq
             }
 
             return (int) constantExpression.Value;
+        }
+
+        private void TranslateElementAt(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            if (_elementSelector != null)
+            {
+                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
+                throw new InvalidOperationException(message);
+            }
+
+            // ElementAt can be implemented more efficiently in terms of Skip, Limit and First
+            var index = ToInt32(methodCallExpression.Arguments[1]);
+            _skip = Expression.Constant(index);
+            _take = Expression.Constant(1);
+
+            switch (methodCallExpression.Method.Name)
+            {
+                case "ElementAt":
+                    _elementSelector = (IEnumerable source) => source.Cast<object>().First();
+                    break;
+                case "ElementAtOrDefault":
+                    _elementSelector = (IEnumerable source) => source.Cast<object>().FirstOrDefault();
+                    break;
+            }
         }
 
         private void TranslateFirstOrSingle(MethodCallExpression methodCallExpression)
