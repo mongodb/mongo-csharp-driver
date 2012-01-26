@@ -59,6 +59,90 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestFirstOrDefaultWithManyMatches()
+        {
+            var first = (from c in _collection.AsQueryable<C>()
+                         select c).FirstOrDefault();
+
+            Assert.AreEqual(2, first.X);
+            Assert.AreEqual(11, first.Y);
+        }
+
+        [Test]
+        public void TestFirstOrDefaultWithNoMatch()
+        {
+            var first = (from c in _collection.AsQueryable<C>()
+                         where c.X == 9
+                         select c).FirstOrDefault();
+            Assert.IsNull(first);
+        }
+
+        [Test]
+        public void TestFirstOrDefaultWithOneMatch()
+        {
+            var first = (from c in _collection.AsQueryable<C>()
+                         where c.X == 3
+                         select c).FirstOrDefault();
+
+            Assert.AreEqual(3, first.X);
+            Assert.AreEqual(33, first.Y);
+        }
+
+        [Test]
+        public void TestFirstOrDefaultWithTwoMatches()
+        {
+            var first = (from c in _collection.AsQueryable<C>()
+                         where c.Y == 11
+                         select c).FirstOrDefault();
+
+            Assert.AreEqual(2, first.X);
+            Assert.AreEqual(11, first.Y);
+        }
+
+        [Test]
+        public void TestFirstWithManyMatches()
+        {
+            var first = (from c in _collection.AsQueryable<C>()
+                         select c).First();
+
+            Assert.AreEqual(2, first.X);
+            Assert.AreEqual(11, first.Y);
+        }
+
+        [Test]
+        public void TestFirstWithNoMatch()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var first = (from c in _collection.AsQueryable<C>()
+                             where c.X == 9
+                             select c).First();
+            });
+        }
+
+        [Test]
+        public void TestFirstWithOneMatch()
+        {
+            var first = (from c in _collection.AsQueryable<C>()
+                         where c.X == 3
+                         select c).First();
+
+            Assert.AreEqual(3, first.X);
+            Assert.AreEqual(33, first.Y);
+        }
+
+        [Test]
+        public void TestFirstWithTwoMatches()
+        {
+            var first = (from c in _collection.AsQueryable<C>()
+                         where c.Y == 11
+                         select c).First();
+
+            Assert.AreEqual(2, first.X);
+            Assert.AreEqual(11, first.Y);
+        }
+
+        [Test]
         public void TestOrderByAscending()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -291,6 +375,90 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.IsNull(selectQuery.CreateMongoQuery());
             Assert.AreEqual(5, Consume(query));
+        }
+
+        [Test]
+        public void TestSingleOrDefaultWithManyMatches()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var first = (from c in _collection.AsQueryable<C>()
+                             select c).SingleOrDefault();
+            });
+        }
+
+        [Test]
+        public void TestSingleOrDefaultWithNoMatch()
+        {
+            var single = (from c in _collection.AsQueryable<C>()
+                         where c.X == 9
+                         select c).SingleOrDefault();
+            Assert.IsNull(single);
+        }
+
+        [Test]
+        public void TestSingleOrDefaultWithOneMatch()
+        {
+            var single = (from c in _collection.AsQueryable<C>()
+                         where c.X == 3
+                         select c).SingleOrDefault();
+
+            Assert.AreEqual(3, single.X);
+            Assert.AreEqual(33, single.Y);
+        }
+
+        [Test]
+        public void TestSingleOrDefaultWithTwoMatches()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var single = (from c in _collection.AsQueryable<C>()
+                              where c.Y == 11
+                              select c).SingleOrDefault();
+            });
+        }
+
+        [Test]
+        public void TestSingleWithManyMatches()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var single = (from c in _collection.AsQueryable<C>()
+                              select c).Single();
+            });
+        }
+
+        [Test]
+        public void TestSingleWithNoMatch()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var single = (from c in _collection.AsQueryable<C>()
+                             where c.X == 9
+                             select c).Single();
+            });
+        }
+
+        [Test]
+        public void TestSingleWithOneMatch()
+        {
+            var single = (from c in _collection.AsQueryable<C>()
+                         where c.X == 3
+                         select c).Single();
+
+            Assert.AreEqual(3, single.X);
+            Assert.AreEqual(33, single.Y);
+        }
+
+        [Test]
+        public void TestSingleWithTwoMatches()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var single = (from c in _collection.AsQueryable<C>()
+                              where c.Y == 11
+                              select c).Single();
+            });
         }
 
         [Test]

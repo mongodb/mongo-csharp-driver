@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -37,6 +38,7 @@ namespace MongoDB.Driver.Linq
         private LambdaExpression _projection;
         private Expression _skip;
         private Expression _take;
+        private Func<IEnumerable, object> _elementSelector; // used for First, Last, etc...
 
         // constructors
         /// <summary>
@@ -140,9 +142,10 @@ namespace MongoDB.Driver.Linq
                 cursor.SetLimit(ToInt32(_take));
             }
 
+            IEnumerable enumerable;
             if (_projection == null)
             {
-                return cursor;
+                enumerable = cursor;
             }
             else
             {
@@ -153,7 +156,16 @@ namespace MongoDB.Driver.Linq
                 var projectorType = typeof(Projector<,>).MakeGenericType(sourceType, resultType);
                 var projection = _projection.Compile();
                 var projector = Activator.CreateInstance(projectorType, cursor, projection);
-                return projector;
+                enumerable = (IEnumerable)projector;
+            }
+
+            if (_elementSelector != null)
+            {
+                return _elementSelector(enumerable);
+            }
+            else
+            {
+                return enumerable;
             }
         }
 
@@ -169,14 +181,12 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("expression");
             }
 
-            var arguments = methodCallExpression.Arguments;
-            if (methodCallExpression.Arguments.Count != 2)
+            if (methodCallExpression.Arguments.Count == 0)
             {
                 throw new ArgumentOutOfRangeException("expression");
             }
-            var source = arguments[0];
-            var argument = arguments[1];
 
+            var source = methodCallExpression.Arguments[0];
             if (source is MethodCallExpression)
             {
                 Translate(source);
@@ -185,30 +195,36 @@ namespace MongoDB.Driver.Linq
             var methodName = methodCallExpression.Method.Name;
             switch (methodName)
             {
+                case "First":
+                case "FirstOrDefault":
+                case "Single":
+                case "SingleOrDefault":
+                    TranslateFirstOrSingle(methodCallExpression);
+                    break;
                 case "OrderBy":
                 case "OrderByDescending":
                     TranslateOrderBy(methodCallExpression);
-                    return;
+                    break;
                 case "Select":
-                    TranslateSelect(argument);
-                    return;
+                    TranslateSelect(methodCallExpression);
+                    break;
                 case "Skip":
-                    TranslateSkip(argument);
-                    return;
+                    TranslateSkip(methodCallExpression);
+                    break;
                 case "Take":
-                    TranslateTake(argument);
-                    return;
+                    TranslateTake(methodCallExpression);
+                    break;
                 case "ThenBy":
                 case "ThenByDescending":
                     TranslateThenBy(methodCallExpression);
-                    return;
+                    break;
                 case "Where":
-                    TranslateWhere(argument);
-                    return;
+                    TranslateWhere(methodCallExpression);
+                    break;
+                default:
+                    var message = string.Format("LINQ to Mongo does not support method: {0}", methodName);
+                    throw new InvalidOperationException(message);
             }
-
-            var message = string.Format("LINQ to Mongo does not support method: {0}", methodName);
-            throw new InvalidOperationException(message);
         }
 
         // private methods
@@ -272,24 +288,68 @@ namespace MongoDB.Driver.Linq
             return (int) constantExpression.Value;
         }
 
-        private void TranslateOrderBy(MethodCallExpression expression)
+        private void TranslateFirstOrSingle(MethodCallExpression methodCallExpression)
         {
+            if (methodCallExpression.Arguments.Count != 1)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            if (_elementSelector != null)
+            {
+                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
+                throw new InvalidOperationException(message);
+            }
+
+            switch (methodCallExpression.Method.Name)
+            {
+                case "First":
+                    _take = Expression.Constant(1);
+                    _elementSelector = (IEnumerable source) => source.Cast<object>().First();
+                    break;
+                case "FirstOrDefault":
+                    _take = Expression.Constant(1);
+                    _elementSelector = (IEnumerable source) => source.Cast<object>().FirstOrDefault();
+                    break;
+                case "Single":
+                    _take = Expression.Constant(2);
+                    _elementSelector = (IEnumerable source) => source.Cast<object>().Single();
+                    break;
+                case "SingleOrDefault":
+                    _take = Expression.Constant(2);
+                    _elementSelector = (IEnumerable source) => source.Cast<object>().SingleOrDefault();
+                    break;
+            }
+        }
+
+        private void TranslateOrderBy(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
             if (_orderBy != null)
             {
                 throw new InvalidOperationException("Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).");
             }
 
-            var key = (LambdaExpression)StripQuote(expression.Arguments[1]);
-            var direction = (expression.Method.Name == "OrderByDescending") ? OrderByDirection.Descending : OrderByDirection.Ascending;
+            var key = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+            var direction = (methodCallExpression.Method.Name == "OrderByDescending") ? OrderByDirection.Descending : OrderByDirection.Ascending;
             var clause = new OrderByClause(key, direction);
 
             _orderBy = new List<OrderByClause>();
             _orderBy.Add(clause);
         }
 
-        private void TranslateSelect(Expression expression)
+        private void TranslateSelect(MethodCallExpression methodCallExpression)
         {
-            var lambdaExpression = (LambdaExpression)StripQuote(expression);
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            var lambdaExpression = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
             if (lambdaExpression.Parameters.Count != 1)
             {
                 throw new ArgumentOutOfRangeException("expression");
@@ -302,33 +362,53 @@ namespace MongoDB.Driver.Linq
             _projection = lambdaExpression;
         }
 
-        private void TranslateSkip(Expression expression)
+        private void TranslateSkip(MethodCallExpression methodCallExpression)
         {
-            _skip = StripQuote(expression);
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            _skip = StripQuote(methodCallExpression.Arguments[1]);
         }
 
-        private void TranslateTake(Expression expression)
+        private void TranslateTake(MethodCallExpression methodCallExpression)
         {
-            _take = StripQuote(expression);
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            _take = StripQuote(methodCallExpression.Arguments[1]);
         }
 
-        private void TranslateThenBy(MethodCallExpression expression)
+        private void TranslateThenBy(MethodCallExpression methodCallExpression)
         {
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
             if (_orderBy == null)
             {
                 throw new InvalidOperationException("ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.");
             }
 
-            var key = (LambdaExpression)StripQuote(expression.Arguments[1]);
-            var direction = (expression.Method.Name == "ThenByDescending") ? OrderByDirection.Descending : OrderByDirection.Ascending;
+            var key = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+            var direction = (methodCallExpression.Method.Name == "ThenByDescending") ? OrderByDirection.Descending : OrderByDirection.Ascending;
             var clause = new OrderByClause(key, direction);
 
             _orderBy.Add(clause);
         }
 
-        private void TranslateWhere(Expression expression)
+        private void TranslateWhere(MethodCallExpression methodCallExpression)
         {
-            _where = (LambdaExpression)StripQuote(expression);
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            _where = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
         }
     }
 }
