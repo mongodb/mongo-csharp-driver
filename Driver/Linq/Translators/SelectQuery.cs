@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Linq
                     TranslateWhere(methodCallExpression);
                     break;
                 default:
-                    var message = string.Format("LINQ to Mongo does not support method: {0}", methodName);
+                    var message = string.Format("The {0} query operator is not supported.", methodName);
                     throw new InvalidOperationException(message);
             }
         }
@@ -525,7 +525,22 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            _where = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+            var predicate = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+            if (predicate.Parameters.Count == 2)
+            {
+                var message = "The indexed version of the Where query operator is not supported.";
+                throw new InvalidOperationException(message);
+            }
+
+            if (_where == null)
+            {
+                _where = predicate;
+            }
+            else
+            {
+                // TODO: combine multiple where query operators
+                throw new InvalidOperationException("Multiple Where query operators are not yet supported.");
+            }
         }
     }
 }

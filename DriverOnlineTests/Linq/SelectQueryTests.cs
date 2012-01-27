@@ -37,6 +37,20 @@ namespace MongoDB.DriverOnlineTests.Linq
             public int Y { get; set; }
         }
 
+        // used to test some query operators that have an IEqualityComparer parameter
+        private class CEqualityComparer : IEqualityComparer<C>
+        {
+            public bool Equals(C x, C y)
+            {
+                return x.Id.Equals(y.Id) && x.X.Equals(y.X) && x.Y.Equals(y.Y);
+            }
+
+            public int GetHashCode(C obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
         private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection<C> _collection;
@@ -56,6 +70,62 @@ namespace MongoDB.DriverOnlineTests.Linq
             _collection.Insert(new C { X = 3, Y = 33 });
             _collection.Insert(new C { X = 5, Y = 44 });
             _collection.Insert(new C { X = 4, Y = 44 });
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Aggregate query operator is not supported.")]
+        public void TestAggregate()
+        {
+            var aggregate = (from c in _collection.AsQueryable<C>()
+                             select c).Aggregate((a, b) => null);
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Aggregate query operator is not supported.")]
+        public void TestAggregateWithAccumulator()
+        {
+            var aggregate = (from c in _collection.AsQueryable<C>()
+                             select c).Aggregate<C, int>(0, (a, c) => 0);
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Aggregate query operator is not supported.")]
+        public void TestAggregateWithAccumulatorAndSelector()
+        {
+            var aggregate = (from c in _collection.AsQueryable<C>()
+                             select c).Aggregate<C, int, int>(0, (a, c) => 0, a => a);
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The All query operator is not supported.")]
+        public void TestAll()
+        {
+            var aggregate = (from c in _collection.AsQueryable<C>()
+                             select c).All(c => true);
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Any query operator is not supported.")]
+        public void TestAny()
+        {
+            var aggregate = (from c in _collection.AsQueryable<C>()
+                             select c).Any();
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Any query operator is not supported.")]
+        public void TestAnyWithPredicate()
+        {
+            var aggregate = (from c in _collection.AsQueryable<C>()
+                             select c).Any(c => true);
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Any query operator is not supported.")]
+        public void TestAverage()
+        {
+            var aggregate = (from c in _collection.AsQueryable<C>()
+                             select c).Any(c => true);
         }
 
         [Test]
@@ -84,6 +154,22 @@ namespace MongoDB.DriverOnlineTests.Linq
                          select c).Skip(2).Take(2).Count();
 
             Assert.AreEqual(2, count);
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Distinct query operator is not supported.")]
+        public void TestDistinct()
+        {
+            var query = _collection.AsQueryable<C>().Distinct();
+            query.ToList(); // execute query
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Distinct query operator is not supported.")]
+        public void TestDistinctWithEqualityComparer()
+        {
+            var query = _collection.AsQueryable<C>().Distinct(new CEqualityComparer());
+            query.ToList(); // execute query
         }
 
         [Test]
@@ -730,6 +816,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The SkipWhile query operator is not supported.")]
+        public void TestSkipWhile()
+        {
+            var query = _collection.AsQueryable<C>().SkipWhile(c => true);
+            query.ToList(); // execute query
+        }
+
+        [Test]
         public void TestTake2()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -752,6 +846,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The TakeWhile query operator is not supported.")]
+        public void TestTakeWhile()
+        {
+            var query = _collection.AsQueryable<C>().TakeWhile(c => true);
+            query.ToList(); // execute query
+        }
+
+        [Test]
         public void TestThenByWithMissingOrderBy()
         {
             // not sure this could ever happen in real life without deliberate sabotaging like with this cast
@@ -759,6 +861,14 @@ namespace MongoDB.DriverOnlineTests.Linq
                 .ThenBy(c => c.X);
 
             Assert.Throws<InvalidOperationException>(() => { MongoQueryTranslator.Translate(_collection, query.Expression); });
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The indexed version of the Where query operator is not supported.")]
+        public void TestWhereWithIndex()
+        {
+            var query = _collection.AsQueryable<C>().Where((c, i) => true);
+            query.ToList(); // execute query
         }
 
         [Test]

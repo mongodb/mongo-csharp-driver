@@ -121,8 +121,47 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentNullException("expression");
             }
+
+            expression = PartialEvaluator.Evaluate(expression, CanBeEvaluatedLocally);
             var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
             return translatedQuery.Execute();
+        }
+
+        // private methods
+        private bool CanBeEvaluatedLocally(Expression expression)
+        {
+            // any operation on a query can't be done locally
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression != null)
+            {
+                var query = constantExpression.Value as IQueryable;
+                if (query != null && query.Provider == this)
+                {
+                    return false;
+                }
+            }
+
+            var methodCallExpression = expression as MethodCallExpression;
+            if (methodCallExpression != null)
+            {
+                var declaringType = methodCallExpression.Method.DeclaringType;
+                if (declaringType == typeof(Enumerable) || declaringType == typeof(Queryable))
+                {
+                    return false;
+                }
+            }
+
+            if (expression.NodeType == ExpressionType.Convert && expression.Type == typeof(object))
+            {
+                return true;
+            }
+
+            if (expression.NodeType == ExpressionType.Parameter || expression.NodeType == ExpressionType.Lambda)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

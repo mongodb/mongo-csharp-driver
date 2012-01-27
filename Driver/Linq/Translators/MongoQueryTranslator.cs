@@ -36,8 +36,6 @@ namespace MongoDB.Driver.Linq
         /// <returns>An instance of MongoLinqQuery.</returns>
         public static TranslatedQuery Translate(MongoCollection collection, Expression expression)
         {
-            expression = PartialEvaluator.Evaluate(expression);
-
             // assume for now it's a SelectQuery
             var documentType = GetDocumentType(expression);
             var selectQuery = new SelectQuery(collection, documentType);
