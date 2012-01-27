@@ -59,6 +59,34 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestCountAll()
+        {
+            var count = (from c in _collection.AsQueryable<C>()
+                         select c).Count();
+
+            Assert.AreEqual(5, count);
+        }
+
+        [Test]
+        public void TestCountTwo()
+        {
+            var count = (from c in _collection.AsQueryable<C>()
+                         where c.Y == 11
+                         select c).Count();
+
+            Assert.AreEqual(2, count);
+        }
+
+        [Test]
+        public void TestCountWithSkipAndTake()
+        {
+            var count = (from c in _collection.AsQueryable<C>()
+                         select c).Skip(2).Take(2).Count();
+
+            Assert.AreEqual(2, count);
+        }
+
+        [Test]
         public void TestElementAtOrDefaultWithManyMatches()
         {
             var element = (from c in _collection.AsQueryable<C>()
@@ -330,6 +358,34 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.AreEqual(1, last.X);
             Assert.AreEqual(11, last.Y);
+        }
+
+        [Test]
+        public void TestLongCountAll()
+        {
+            var longCount = (from c in _collection.AsQueryable<C>()
+                         select c).LongCount();
+
+            Assert.AreEqual(5L, longCount);
+        }
+
+        [Test]
+        public void TestLongCountTwo()
+        {
+            var longCount = (from c in _collection.AsQueryable<C>()
+                         where c.Y == 11
+                         select c).LongCount();
+
+            Assert.AreEqual(2L, longCount);
+        }
+
+        [Test]
+        public void TestLongCountWithSkipAndTake()
+        {
+            var longCount = (from c in _collection.AsQueryable<C>()
+                         select c).Skip(2).Take(2).LongCount();
+
+            Assert.AreEqual(2L, longCount);
         }
 
         [Test]

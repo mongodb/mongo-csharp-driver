@@ -195,6 +195,10 @@ namespace MongoDB.Driver.Linq
             var methodName = methodCallExpression.Method.Name;
             switch (methodName)
             {
+                case "Count":
+                case "LongCount":
+                    TranslateCount(methodCallExpression);
+                    break;
                 case "ElementAt":
                 case "ElementAtOrDefault":
                     TranslateElementAt(methodCallExpression);
@@ -294,6 +298,34 @@ namespace MongoDB.Driver.Linq
             }
 
             return (int) constantExpression.Value;
+        }
+
+        private void TranslateCount(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.Count != 1)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            if (_elementSelector != null)
+            {
+                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
+                throw new InvalidOperationException(message);
+            }
+
+            // ignore any projection since we only are interested in the count
+            _projection = null;
+
+            // note: recall that cursor method Size respects Skip and Limit while Count does not
+            switch (methodCallExpression.Method.Name)
+            {
+                case "Count":
+                    _elementSelector = (IEnumerable source) => (int) ((MongoCursor)source).Size();
+                    break;
+                case "LongCount":
+                    _elementSelector = (IEnumerable source) => ((MongoCursor)source).Size();
+                    break;
+            }
         }
 
         private void TranslateElementAt(MethodCallExpression methodCallExpression)
