@@ -467,6 +467,11 @@ namespace MongoDB.Driver.Linq
             }
 
             var lambdaExpression = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+            if (lambdaExpression.Parameters.Count == 2)
+            {
+                var message = "The indexed version of the Select query operator is not supported.";
+                throw new InvalidOperationException(message);
+            }
             if (lambdaExpression.Parameters.Count != 1)
             {
                 throw new ArgumentOutOfRangeException("expression");

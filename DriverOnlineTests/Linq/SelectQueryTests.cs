@@ -51,6 +51,20 @@ namespace MongoDB.DriverOnlineTests.Linq
             }
         }
 
+        // used to test some query operators that have an IEqualityComparer parameter
+        private class Int32EqualityComparer : IEqualityComparer<int>
+        {
+            public bool Equals(int x, int y)
+            {
+                return x == y;
+            }
+
+            public int GetHashCode(int obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
         private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection<C> _collection;
@@ -338,6 +352,22 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.AreEqual(2, first.X);
             Assert.AreEqual(11, first.Y);
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Join query operator is not supported.")]
+        public void TestJoin()
+        {
+            var query = _collection.AsQueryable<C>().Join(_collection.AsQueryable<C>(), c => c.X, c => c.X, (x, y) => x);
+            query.ToList(); // execute query
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The Join query operator is not supported.")]
+        public void TestJoinWithEqualityComparer()
+        {
+            var query = _collection.AsQueryable<C>().Join(_collection.AsQueryable<C>(), c => c.X, c => c.X, (x, y) => x, new Int32EqualityComparer());
+            query.ToList(); // execute query
         }
 
         [Test]
@@ -688,7 +718,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestSelectAll()
+        public void TestSelect()
         {
             var query = from c in _collection.AsQueryable<C>()
                         select c;
@@ -707,6 +737,46 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.IsNull(selectQuery.CreateMongoQuery());
             Assert.AreEqual(5, Consume(query));
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The SelectMany query operator is not supported.")]
+        public void TestSelectMany()
+        {
+            var query = _collection.AsQueryable<C>().SelectMany(c => new C[] { c });
+            query.ToList(); // execute query
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The SelectMany query operator is not supported.")]
+        public void TestSelectManyWithIndex()
+        {
+            var query = _collection.AsQueryable<C>().SelectMany((c, index) => new C[] { c });
+            query.ToList(); // execute query
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The SelectMany query operator is not supported.")]
+        public void TestSelectManyWithIntermediateResults()
+        {
+            var query = _collection.AsQueryable<C>().SelectMany(c => new C[] { c }, (c, i) => i);
+            query.ToList(); // execute query
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The SelectMany query operator is not supported.")]
+        public void TestSelectManyWithIndexAndIntermediateResults()
+        {
+            var query = _collection.AsQueryable<C>().SelectMany((c, index) => new C[] { c }, (c, i) => i);
+            query.ToList(); // execute query
+        }
+
+        [Test]
+        [ExpectedException("System.InvalidOperationException", ExpectedMessage = "The indexed version of the Select query operator is not supported.")]
+        public void TestSelectWithIndex()
+        {
+            var query = _collection.AsQueryable<C>().Select((c, index) => c);
+            query.ToList(); // execute query
         }
 
         [Test]
