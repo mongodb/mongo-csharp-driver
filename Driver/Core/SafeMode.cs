@@ -27,12 +27,12 @@ namespace MongoDB.Driver
     public class SafeMode : IEquatable<SafeMode>
     {
         // private static fields
-        private static SafeMode __false = new SafeMode(false);
-        private static SafeMode __fsyncTrue = new SafeMode(true, true);
-        private static SafeMode __true = new SafeMode(true, false);
-        private static SafeMode __w2 = new SafeMode(true, false, 2);
-        private static SafeMode __w3 = new SafeMode(true, false, 3);
-        private static SafeMode __w4 = new SafeMode(true, false, 4);
+        private static SafeMode __false = new SafeMode(false).Freeze();
+        private static SafeMode __fsyncTrue = new SafeMode(true, true).Freeze();
+        private static SafeMode __true = new SafeMode(true, false).Freeze();
+        private static SafeMode __w2 = new SafeMode(true, false, 2).Freeze();
+        private static SafeMode __w3 = new SafeMode(true, false, 3).Freeze();
+        private static SafeMode __w4 = new SafeMode(true, false, 4).Freeze();
 
         // private fields
         private bool _enabled;

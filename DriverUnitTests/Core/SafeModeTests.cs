@@ -146,5 +146,60 @@ namespace MongoDB.DriverUnitTests
             Assert.IsFalse(n != null);
             Assert.IsFalse(null != n);
         }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeFalseIsFrozen()
+        {
+            var s = SafeMode.False;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeFSyncTrueIsFrozen()
+        {
+            var s = SafeMode.FSyncTrue;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeTrueIsFrozen()
+        {
+            var s = SafeMode.True;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeW2IsFrozen()
+        {
+            var s = SafeMode.W2;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeW3IsFrozen()
+        {
+            var s = SafeMode.W3;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeW4IsFrozen()
+        {
+            var s = SafeMode.W4;
+            s.Enabled = true;
+        }
+
     }
 }
