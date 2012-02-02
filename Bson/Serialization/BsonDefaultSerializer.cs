@@ -124,6 +124,7 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Collection<>), typeof(EnumerableSerializer<>)},
                 { typeof(Dictionary<,>), typeof(DictionarySerializer<,>) },
                 { typeof(HashSet<>), typeof(EnumerableSerializer<>) },
+                { typeof(ISet<>), typeof(EnumerableSerializer<>) },
                 { typeof(ICollection<>), typeof(EnumerableSerializer<>) },
                 { typeof(IDictionary<,>), typeof(DictionarySerializer<,>) },
                 { typeof(IEnumerable<>), typeof(EnumerableSerializer<>) },
