@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -128,6 +129,12 @@ namespace MongoDB.Bson.Serialization
                     throw new FileFormatException(message);
                 }
 
+                var supportsInitialization = obj as ISupportInitialize;
+                if (supportsInitialization != null)
+                {
+                    supportsInitialization.BeginInit();
+                }
+
                 bsonReader.ReadStartDocument();
                 var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.MemberMaps); // make a copy!
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
@@ -182,6 +189,11 @@ namespace MongoDB.Bson.Serialization
                     {
                         memberMap.ApplyDefaultValue(obj);
                     }
+                }
+
+                if (supportsInitialization != null)
+                {
+                    supportsInitialization.EndInit();
                 }
 
                 return obj;

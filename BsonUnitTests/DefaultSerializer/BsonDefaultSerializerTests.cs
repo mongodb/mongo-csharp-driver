@@ -26,6 +26,8 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
+using System.ComponentModel;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.BsonUnitTests.Serialization
 {
@@ -143,6 +145,38 @@ namespace MongoDB.BsonUnitTests.Serialization
             var bson = order.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Order>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        public class InventoryItem : ISupportInitialize
+        {
+            [BsonIgnore]
+            public bool WasBeginInitCalled;
+            [BsonIgnore]
+            public bool WasEndInitCalled;
+
+            public int Price { get; set; }
+
+            public void BeginInit()
+            {
+                WasBeginInitCalled = true;
+            }
+
+            public void EndInit()
+            {
+                WasEndInitCalled = true;
+            }
+        }
+
+        [Test]
+        public void TestSerializeInventoryItem()
+        {
+            var item = new InventoryItem { Price = 42 };
+            var json = item.ToJson();
+
+            var bson = item.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<InventoryItem>(bson);
+            Assert.IsTrue(rehydrated.WasBeginInitCalled);
+            Assert.IsTrue(rehydrated.WasEndInitCalled);
         }
     }
 }
