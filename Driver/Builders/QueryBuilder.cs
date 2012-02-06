@@ -47,6 +47,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList All(string name, BsonArray values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             return new QueryConditionList(name).All(values);
         }
 
@@ -58,6 +66,18 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList All(string name, IEnumerable<BsonValue> values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryConditionList(name).All(values);
         }
 
@@ -69,29 +89,51 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList All(string name, params BsonValue[] values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryConditionList(name).All(values);
         }
 
         /// <summary>
         /// Tests that all the subqueries are true (see $and in newer versions of the server).
         /// </summary>
-        /// <param name="clauses">A list of subqueries.</param>
+        /// <param name="queries">A list of subqueries.</param>
         /// <returns>A query.</returns>
-        public static QueryComplete And(params IMongoQuery[] clauses)
+        public static QueryComplete And(params IMongoQuery[] queries)
         {
-            var query = new BsonDocument();
-            foreach (var clause in clauses)
+            if (queries == null)
             {
-                if (clause != null)
+                throw new ArgumentNullException("queries");
+            }
+            if (queries.Length == 0)
+            {
+                throw new ArgumentOutOfRangeException("queries", "Query.And cannot be called with zero queries.");
+            }
+
+            var queryDocument = new BsonDocument();
+            foreach (var query in queries)
+            {
+                if (query == null)
                 {
-                    foreach (var clauseElement in clause.ToBsonDocument())
-                    {
-                        AddAndClause(query, clauseElement);
-                    }
+                    throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
+                }
+                foreach (var clause in query.ToBsonDocument())
+                {
+                    AddAndClause(queryDocument, clause);
                 }
             }
 
-            return query.ElementCount > 0 ? new QueryComplete(query) : null;
+            return new QueryComplete(queryDocument);
         }
 
         /// <summary>
@@ -102,6 +144,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList ElemMatch(string name, IMongoQuery query)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (query == null)
+            {
+                throw new ArgumentNullException("query");
+            }
             return new QueryConditionList(name).ElemMatch(query);
         }
 
@@ -113,6 +163,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>A query.</returns>
         public static QueryComplete EQ(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryComplete(new BsonDocument(name, value));
         }
 
@@ -124,6 +182,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Exists(string name, bool exists)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).Exists(exists);
         }
 
@@ -135,6 +197,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList GT(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryConditionList(name).GT(value);
         }
 
@@ -146,6 +216,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList GTE(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryConditionList(name).GTE(value);
         }
 
@@ -157,6 +235,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList In(string name, BsonArray values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             return new QueryConditionList(name).In(values);
         }
 
@@ -168,6 +254,18 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList In(string name, IEnumerable<BsonValue> values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryConditionList(name).In(values);
         }
 
@@ -179,6 +277,18 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList In(string name, params BsonValue[] values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryConditionList(name).In(values);
         }
 
@@ -190,6 +300,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList LT(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryConditionList(name).LT(value);
         }
 
@@ -201,6 +319,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList LTE(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryConditionList(name).LTE(value);
         }
 
@@ -212,6 +338,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>A query.</returns>
         public static QueryComplete Matches(string name, BsonRegularExpression regex)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (regex == null)
+            {
+                throw new ArgumentNullException("regex");
+            }
             return new QueryComplete(new BsonDocument(name, regex));
         }
 
@@ -224,6 +358,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Mod(string name, int modulus, int equals)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).Mod(modulus, equals);
         }
 
@@ -235,6 +373,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList NE(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryConditionList(name).NE(value);
         }
 
@@ -247,6 +393,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Near(string name, double x, double y)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).Near(x, y);
         }
 
@@ -260,6 +410,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Near(string name, double x, double y, double maxDistance)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).Near(x, y, maxDistance);
         }
 
@@ -274,6 +428,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Near(string name, double x, double y, double maxDistance, bool spherical)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).Near(x, y, maxDistance, spherical);
         }
 
@@ -284,9 +442,17 @@ namespace MongoDB.Driver.Builders
         /// <returns>A query.</returns>
         public static QueryComplete Nor(params IMongoQuery[] queries)
         {
+            if (queries == null)
+            {
+                throw new ArgumentNullException("queries");
+            }
             var clauses = new BsonArray();
             foreach (var query in queries)
             {
+                if (query == null)
+                {
+                    throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
+                }
                 clauses.Add(query.ToBsonDocument());
             }
             var document = new BsonDocument("$nor", clauses);
@@ -300,6 +466,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryNot Not(string name)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryNot(name);
         }
 
@@ -311,6 +481,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList NotIn(string name, BsonArray values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             return new QueryConditionList(name).NotIn(values);
         }
 
@@ -322,6 +500,18 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList NotIn(string name, IEnumerable<BsonValue> values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryConditionList(name).NotIn(values);
         }
 
@@ -333,6 +523,18 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList NotIn(string name, params BsonValue[] values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryConditionList(name).NotIn(values);
         }
 
@@ -343,23 +545,31 @@ namespace MongoDB.Driver.Builders
         /// <returns>A query.</returns>
         public static QueryComplete Or(params IMongoQuery[] queries)
         {
-            var clauses = new BsonArray();
-            foreach (var query in queries)
+            if (queries == null)
             {
-                if (query != null)
-                {
-                    clauses.Add(query.ToBsonDocument());
-                }
+                throw new ArgumentNullException("queries");
+            }
+            if (queries.Length == 0)
+            {
+                throw new ArgumentOutOfRangeException("queries", "Query.Or cannot be called with zero queries.");
             }
 
-            switch (clauses.Count)
+            var queryArray = new BsonArray();
+            foreach (var query in queries)
             {
-                case 0:
-                    return null;
+                if (query == null)
+                {
+                    throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
+                }
+                queryArray.Add(query.ToBsonDocument());
+            }
+
+            switch (queryArray.Count)
+            {
                 case 1:
-                    return new QueryComplete(clauses[0].AsBsonDocument);
+                    return new QueryComplete(queryArray[0].AsBsonDocument);
                 default:
-                    return new QueryComplete(new BsonDocument("$or", clauses));
+                    return new QueryComplete(new BsonDocument("$or", queryArray));
             }
         }
 
@@ -371,6 +581,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Size(string name, int size)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).Size(size);
         }
 
@@ -382,6 +596,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList Type(string name, BsonType type)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).Type(type);
         }
 
@@ -392,6 +610,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>A query.</returns>
         public static QueryComplete Where(BsonJavaScript javaScript)
         {
+            if (javaScript == null)
+            {
+                throw new ArgumentNullException("javaScript");
+            }
             return new QueryComplete(new BsonDocument("$where", javaScript));
         }
 
@@ -405,6 +627,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList WithinCircle(string name, double centerX, double centerY, double radius)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).WithinCircle(centerX, centerY, radius);
         }
 
@@ -424,6 +650,10 @@ namespace MongoDB.Driver.Builders
             double radius,
             bool spherical)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).WithinCircle(centerX, centerY, radius, spherical);
         }
 
@@ -435,6 +665,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList WithinPolygon(string name, double[,] points)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (points == null)
+            {
+                throw new ArgumentNullException("points");
+            }
             return new QueryConditionList(name).WithinPolygon(points);
         }
 
@@ -454,6 +692,10 @@ namespace MongoDB.Driver.Builders
             double upperRightX,
             double upperRightY)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return new QueryConditionList(name).WithinRectangle(lowerLeftX, lowerLeftY, upperRightX, upperRightY);
         }
 
@@ -608,6 +850,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList All(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             _conditions.Add("$all", values);
             return this;
         }
@@ -619,6 +865,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList All(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$all", new BsonArray(values));
             return this;
         }
@@ -630,6 +884,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList All(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$all", new BsonArray(values));
             return this;
         }
@@ -641,6 +903,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList ElemMatch(IMongoQuery query)
         {
+            if (query == null)
+            {
+                throw new ArgumentNullException("query");
+            }
             _conditions.Add("$elemMatch", query.ToBsonDocument());
             return this;
         }
@@ -663,6 +929,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList GT(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$gt", value);
             return this;
         }
@@ -674,6 +944,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList GTE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$gte", value);
             return this;
         }
@@ -685,6 +959,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList In(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             _conditions.Add("$in", values);
             return this;
         }
@@ -696,6 +974,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList In(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$in", new BsonArray(values));
             return this;
         }
@@ -707,6 +993,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList In(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$in", new BsonArray(values));
             return this;
         }
@@ -718,6 +1012,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList LT(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$lt", value);
             return this;
         }
@@ -729,6 +1027,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList LTE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$lte", value);
             return this;
         }
@@ -752,6 +1054,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$ne", value);
             return this;
         }
@@ -805,6 +1111,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NotIn(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             _conditions.Add("$nin", values);
             return this;
         }
@@ -816,6 +1126,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NotIn(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$nin", new BsonArray(values));
             return this;
         }
@@ -827,6 +1145,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NotIn(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$nin", new BsonArray(values));
             return this;
         }
@@ -887,6 +1213,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList WithinPolygon(double[,] points)
         {
+            if (points == null)
+            {
+                throw new ArgumentNullException("points");
+            }
             if (points.GetLength(1) != 2)
             {
                 var message = string.Format("The second dimension of the points array must be of length 2, not {0}.", points.GetLength(1));
@@ -936,6 +1266,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to test.</param>
         public QueryNot(string name)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             _name = name;
         }
 
@@ -947,6 +1281,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             return new QueryNotConditionList(_name).All(values);
         }
 
@@ -957,6 +1295,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryNotConditionList(_name).All(values);
         }
 
@@ -967,6 +1313,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryNotConditionList(_name).All(values);
         }
 
@@ -977,6 +1331,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList ElemMatch(IMongoQuery query)
         {
+            if (query == null)
+            {
+                throw new ArgumentNullException("query");
+            }
             return new QueryNotConditionList(_name).ElemMatch(query);
         }
 
@@ -997,6 +1355,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList GT(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryNotConditionList(_name).GT(value);
         }
 
@@ -1007,6 +1369,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList GTE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryNotConditionList(_name).GTE(value);
         }
 
@@ -1017,6 +1383,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             return new QueryNotConditionList(_name).In(values);
         }
 
@@ -1027,6 +1397,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryNotConditionList(_name).In(values);
         }
 
@@ -1037,6 +1415,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryNotConditionList(_name).In(values);
         }
 
@@ -1047,6 +1433,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList LT(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryNotConditionList(_name).LT(value);
         }
 
@@ -1057,6 +1447,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList LTE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryNotConditionList(_name).LTE(value);
         }
 
@@ -1078,6 +1472,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return new QueryNotConditionList(_name).NE(value);
         }
 
@@ -1088,6 +1486,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             return new QueryNotConditionList(_name).NotIn(values);
         }
 
@@ -1098,6 +1500,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryNotConditionList(_name).NotIn(values);
         }
 
@@ -1108,6 +1518,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             return new QueryNotConditionList(_name).NotIn(values);
         }
 
@@ -1118,6 +1536,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>A query.</returns>
         public QueryComplete Matches(BsonRegularExpression regex)
         {
+            if (regex == null)
+            {
+                throw new ArgumentNullException("regex");
+            }
             return new QueryComplete(new BsonDocument(_name, new BsonDocument("$not", regex)));
         }
 
@@ -1170,6 +1592,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             _conditions.Add("$all", values);
             return this;
         }
@@ -1181,6 +1607,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$all", new BsonArray(values));
             return this;
         }
@@ -1192,6 +1626,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$all", new BsonArray(values));
             return this;
         }
@@ -1203,6 +1645,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList ElemMatch(IMongoQuery query)
         {
+            if (query == null)
+            {
+                throw new ArgumentNullException("query");
+            }
             _conditions.Add("$elemMatch", query.ToBsonDocument());
             return this;
         }
@@ -1225,6 +1671,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList GT(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$gt", value);
             return this;
         }
@@ -1236,6 +1686,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList GTE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$gte", value);
             return this;
         }
@@ -1247,6 +1701,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             _conditions.Add("$in", values);
             return this;
         }
@@ -1258,6 +1716,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$in", new BsonArray(values));
             return this;
         }
@@ -1269,6 +1735,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$in", new BsonArray(values));
             return this;
         }
@@ -1280,6 +1754,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList LT(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$lt", value);
             return this;
         }
@@ -1291,6 +1769,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList LTE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$lte", value);
             return this;
         }
@@ -1314,6 +1796,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NE(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _conditions.Add("$ne", value);
             return this;
         }
@@ -1325,6 +1811,10 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(BsonArray values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
             _conditions.Add("$nin", values);
             return this;
         }
@@ -1336,6 +1826,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(IEnumerable<BsonValue> values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$nin", new BsonArray(values));
             return this;
         }
@@ -1347,6 +1845,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(params BsonValue[] values)
         {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (values.Contains(null))
+            {
+                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
+            }
             _conditions.Add("$nin", new BsonArray(values));
             return this;
         }

@@ -163,6 +163,10 @@ namespace MongoDB.Bson
         public BsonDocument(string name, BsonValue value)
             : base(BsonType.Document)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             Add(name, value);
         }
 
@@ -272,7 +276,13 @@ namespace MongoDB.Bson
         public BsonValue this[int index]
         {
             get { return _elements[index].Value; }
-            set { _elements[index].Value = value; }
+            set {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _elements[index].Value = value;
+            }
         }
 
         /// <summary>
@@ -285,6 +295,10 @@ namespace MongoDB.Bson
         {
             get
             {
+                if (name == null)
+                {
+                    throw new ArgumentNullException("name");
+                }
                 int index;
                 if (_indexes.TryGetValue(name, out index))
                 {
@@ -306,6 +320,10 @@ namespace MongoDB.Bson
         {
             get
             {
+                if (name == null)
+                {
+                    throw new ArgumentNullException("name");
+                }
                 int index;
                 if (_indexes.TryGetValue(name, out index))
                 {
@@ -319,6 +337,14 @@ namespace MongoDB.Bson
             }
             set
             {
+                if (name == null)
+                {
+                    throw new ArgumentNullException("name");
+                }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 int index;
                 if (_indexes.TryGetValue(name, out index))
                 {
@@ -577,6 +603,10 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Add(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             if (value != null)
             {
                 Add(new BsonElement(name, value));
@@ -593,6 +623,10 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Add(string name, BsonValue value, bool condition)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             if (condition)
             {
                 Add(name, value);
@@ -787,6 +821,10 @@ namespace MongoDB.Bson
         /// <returns>A BsonElement.</returns>
         public BsonElement GetElement(string name)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             int index;
             if (_indexes.TryGetValue(name, out index))
             {
@@ -841,6 +879,10 @@ namespace MongoDB.Bson
         /// <returns>The value of the element.</returns>
         public BsonValue GetValue(string name)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return this[name];
         }
 
@@ -852,6 +894,10 @@ namespace MongoDB.Bson
         /// <returns>The value of the element or the default value if the element is not found.</returns>
         public BsonValue GetValue(string name, BsonValue defaultValue)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             return this[name, defaultValue];
         }
 
@@ -916,6 +962,10 @@ namespace MongoDB.Bson
         /// <param name="name">The name of the element to remove.</param>
         public void Remove(string name)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             if (_indexes.ContainsKey(name))
             {
                 _elements.RemoveAll(e => e.Name == name);
@@ -984,6 +1034,10 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Set(int index, BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             this[index] = value;
             return this;
         }
@@ -996,6 +1050,14 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Set(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             this[name] = value;
             return this;
         }
@@ -1096,7 +1158,7 @@ namespace MongoDB.Bson
         public bool TryGetElement(string name, out BsonElement value)
         {
             int index;
-            if (_indexes.TryGetValue(name, out index))
+            if (name != null && _indexes.TryGetValue(name, out index))
             {
                 value = _elements[index];
                 return true;
@@ -1117,7 +1179,7 @@ namespace MongoDB.Bson
         public bool TryGetValue(string name, out BsonValue value)
         {
             int index;
-            if (_indexes.TryGetValue(name, out index))
+            if (name != null && _indexes.TryGetValue(name, out index))
             {
                 value = _elements[index].Value;
                 return true;

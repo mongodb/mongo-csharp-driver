@@ -33,10 +33,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321
     public class CSharp321Tests
     {
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestNoArgs()
         {
             var query = Query.And();
-            Assert.IsNull(query);
         }
 
         [Test]

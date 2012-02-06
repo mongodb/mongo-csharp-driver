@@ -58,39 +58,37 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "Query.And cannot be called with zero queries.\r\nParameter name: queries")]
         public void TestAndNoArgs()
         {
             var query = Query.And();
-            Assert.AreEqual(null, query);
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestAndNull()
         {
             var query = Query.And(Query.Null);
-            Assert.AreEqual(null, query);
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestAndNullFirst()
         {
             var query = Query.And(
                 Query.Null,
                 Query.EQ("x", 1)
             );
-            var expected = "{ \"x\" : 1 }";
-            Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestAndNullSecond()
         {
             var query = Query.And(
                 Query.EQ("x", 1),
                 Query.Null
             );
-            var expected = "{ \"x\" : 1 }";
-            Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
@@ -344,39 +342,37 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "Query.Or cannot be called with zero queries.\r\nParameter name: queries")]
         public void TestOrNoArgs()
         {
             var query = Query.Or();
-            Assert.AreEqual(null, query);
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestOrNull()
         {
             var query = Query.Or(Query.Null);
-            Assert.AreEqual(null, query);
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestOrNullFirst()
         {
             var query = Query.Or(
                 Query.Null,
                 Query.EQ("x", 1)
             );
-            var expected = "{ \"x\" : 1 }";
-            Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestOrNullSecond()
         {
             var query = Query.Or(
                 Query.EQ("x", 1),
                 Query.Null
             );
-            var expected = "{ \"x\" : 1 }";
-            Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
