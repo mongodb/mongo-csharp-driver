@@ -39,5 +39,20 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(MongoServerState.Disconnected, server.State);
             Assert.IsTrue(expectedSeedList.SequenceEqual(server.Settings.Servers));
         }
+
+        [Test]
+        public void TestGetAllServers()
+        {
+            var snapshot1 = MongoServer.GetAllServers();
+            var server = MongoServer.Create("mongodb://newhostnamethathasnotbeenusedbefore");
+            var snapshot2 = MongoServer.GetAllServers();
+            Assert.AreEqual(snapshot1.Length + 1, snapshot2.Length);
+            Assert.IsFalse(snapshot1.Contains(server));
+            Assert.IsTrue(snapshot2.Contains(server));
+            MongoServer.UnregisterServer(server);
+            var snapshot3 = MongoServer.GetAllServers();
+            Assert.AreEqual(snapshot1.Length, snapshot3.Length);
+            Assert.IsFalse(snapshot3.Contains(server));
+        }
     }
 }

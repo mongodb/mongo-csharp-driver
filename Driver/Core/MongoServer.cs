@@ -184,35 +184,6 @@ namespace MongoDB.Driver
             return Create(url);
         }
 
-        /// <summary>
-        /// Unregisters all servers from the dictionary used by Create to remember which servers have already been created.
-        /// </summary>
-        public static void UnregisterAllServers()
-        {
-            lock (__staticLock)
-            {
-                var serverList = __servers.Values.ToList();
-                foreach (var server in serverList)
-                {
-                    UnregisterServer(server);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Unregisters a server from the dictionary used by Create to remember which servers have already been created.
-        /// </summary>
-        /// <param name="server">The server to unregister.</param>
-        public static void UnregisterServer(MongoServer server)
-        {
-            lock (__staticLock)
-            {
-                try { server.Disconnect(); }
-                catch { } // ignore exceptions
-                __servers.Remove(server._settings);
-            }
-        }
-
         // public static properties
         /// <summary>
         /// Gets or sets the maximum number of instances of MongoServer that will be allowed to be created.
@@ -517,6 +488,49 @@ namespace MongoDB.Driver
         {
             get { return GetDatabase(databaseName, safeMode); }
         }
+
+        // public static methods
+        /// <summary>
+        /// Gets an array containing a snapshot of the set of all servers that have been created so far.
+        /// </summary>
+        /// <returns>An array containing a snapshot of the set of all servers that have been created so far.</returns>
+        public static MongoServer[] GetAllServers()
+        {
+            lock (__staticLock)
+            {
+                return __servers.Values.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Unregisters all servers from the dictionary used by Create to remember which servers have already been created.
+        /// </summary>
+        public static void UnregisterAllServers()
+        {
+            lock (__staticLock)
+            {
+                var serverList = __servers.Values.ToList();
+                foreach (var server in serverList)
+                {
+                    UnregisterServer(server);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Unregisters a server from the dictionary used by Create to remember which servers have already been created.
+        /// </summary>
+        /// <param name="server">The server to unregister.</param>
+        public static void UnregisterServer(MongoServer server)
+        {
+            lock (__staticLock)
+            {
+                try { server.Disconnect(); }
+                catch { } // ignore exceptions
+                __servers.Remove(server._settings);
+            }
+        }
+
 
         // public methods
         /// <summary>
