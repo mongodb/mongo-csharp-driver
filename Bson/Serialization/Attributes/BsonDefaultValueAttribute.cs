@@ -52,6 +52,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <summary>
         /// Gets or sets whether to serialize the default value.
         /// </summary>
+        [Obsolete("SerializeDefaultValue is obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use BsonIgnoreIfDefaultAttribute instead.")]
         public bool SerializeDefaultValue
         {
             get { return _serializeDefaultValue; }

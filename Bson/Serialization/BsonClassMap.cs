@@ -1013,8 +1013,11 @@ namespace MongoDB.Bson.Serialization
             var memberMap = MapMember(memberInfo);
 
             memberMap.SetElementName(_conventions.ElementNameConvention.GetElementName(memberInfo));
+#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when implementing obsolete functionality
             memberMap.SetIgnoreIfNull(_conventions.IgnoreIfNullConvention.IgnoreIfNull(memberInfo));
             memberMap.SetSerializeDefaultValue(_conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberInfo));
+#pragma warning restore 618
+            memberMap.SetIgnoreIfDefault(_conventions.IgnoreIfDefaultConvention.IgnoreIfDefault(memberInfo));
 
             var defaultValue = _conventions.DefaultValueConvention.GetDefaultValue(memberInfo);
             if (defaultValue != null)
@@ -1035,7 +1038,9 @@ namespace MongoDB.Bson.Serialization
                 if (defaultValueAttribute != null)
                 {
                     memberMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
+#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when implementing obsolete functionality
                     memberMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
+#pragma warning restore 618
                 }
 
                 var elementAttribute = attribute as BsonElementAttribute;
@@ -1068,10 +1073,18 @@ namespace MongoDB.Bson.Serialization
                     continue;
                 }
 
+#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when implementing obsolete functionality
                 var ignoreIfNullAttribute = attribute as BsonIgnoreIfNullAttribute;
                 if (ignoreIfNullAttribute != null)
                 {
                     memberMap.SetIgnoreIfNull(true);
+                }
+#pragma warning restore 618
+
+                var ignoreIfDefaultAttribute = attribute as BsonIgnoreIfDefaultAttribute;
+                if (ignoreIfDefaultAttribute != null)
+                {
+                    memberMap.SetIgnoreIfDefault(ignoreIfDefaultAttribute.Value);
                 }
 
                 var requiredAttribute = attribute as BsonRequiredAttribute;

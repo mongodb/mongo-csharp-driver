@@ -31,10 +31,14 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp133
     public class C
     {
         public string S;
+#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when testing obsolete functionality
         [BsonIgnoreIfNull]
         public string I;
         [BsonDefaultValue(null, SerializeDefaultValue = false)] // works the same as [BsonIgnoreIfNull]
         public string D;
+#pragma warning restore 618
+        [BsonIgnoreIfDefault]
+        public DateTime I2;
     }
 
     [TestFixture]
@@ -53,6 +57,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp133
             Assert.IsInstanceOf<C>(rehydrated);
             Assert.IsNull(rehydrated.S);
             Assert.IsNull(rehydrated.I);
+            Assert.AreEqual(DateTime.MinValue, rehydrated.I2);
             Assert.IsNull(rehydrated.D);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
@@ -60,9 +65,10 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp133
         [Test]
         public void TestNotNull()
         {
-            var c = new C { S = "xyz", I = "xyz", D = "xyz" };
+            var date = new DateTime(1980, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var c = new C { S = "xyz", I = "xyz", I2 = date, D = "xyz" };
             var json = c.ToJson();
-            var expected = "{ 'S' : 'xyz', 'I' : 'xyz', 'D' : 'xyz' }".Replace("'", "\"");
+            var expected = ("{ 'S' : 'xyz', 'I' : 'xyz', 'I2' : ISODate('" + date.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ") + "'), 'D' : 'xyz' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -70,6 +76,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp133
             Assert.IsInstanceOf<C>(rehydrated);
             Assert.AreEqual("xyz", rehydrated.S);
             Assert.AreEqual("xyz", rehydrated.I);
+            Assert.AreEqual(date, rehydrated.I2);
             Assert.AreEqual("xyz", rehydrated.D);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
