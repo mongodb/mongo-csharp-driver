@@ -24,6 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Indicates that a field or property should be ignored if its value is null when this class is serialized.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    [Obsolete("BsonIgnoreIfNullAttribute is obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use BsonIgnoreIfDefaultAttribute instead.")]
     public class BsonIgnoreIfNullAttribute : Attribute
     {
     }
