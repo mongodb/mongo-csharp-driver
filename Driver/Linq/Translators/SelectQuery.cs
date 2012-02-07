@@ -302,6 +302,10 @@ namespace MongoDB.Driver.Linq
 
         private void TranslateCount(MethodCallExpression methodCallExpression)
         {
+            if (methodCallExpression.Arguments.Count == 2)
+            {
+                throw new InvalidOperationException("The Count with predicate query operator is not supported.");
+            }
             if (methodCallExpression.Arguments.Count != 1)
             {
                 throw new ArgumentOutOfRangeException("methodCallExpression");
