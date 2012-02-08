@@ -57,6 +57,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         public IIgnoreExtraElementsConvention IgnoreExtraElementsConvention { get; private set; }
 
         /// <summary>
+        /// Gets the ignore if default convention.
+        /// </summary>
+        public IIgnoreIfDefaultConvention IgnoreIfDefaultConvention { get; private set; }
+
+        /// <summary>
         /// Gets the ignore if null convention.
         /// </summary>
         public IIgnoreIfNullConvention IgnoreIfNullConvention { get; private set; }
@@ -69,6 +74,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <summary>
         /// Gets the default value convention.
         /// </summary>
+        [Obsolete("SerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use IgnoreIfDefaultConvention instead.")]
         public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
 
         // public static methods
@@ -85,9 +91,9 @@ namespace MongoDB.Bson.Serialization.Conventions
                 .SetExtraElementsMemberConvention(new NamedExtraElementsMemberConvention("ExtraElements"))
                 .SetIdMemberConvention(new NamedIdMemberConvention("Id", "id", "_id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
+                .SetIgnoreIfDefaultConvention(new NeverIgnoreIfDefaultConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
-                .SetMemberFinderConvention(new PublicMemberFinderConvention())
-                .SetSerializeDefaultValueConvention(new AlwaysSerializeDefaultValueConvention());
+                .SetMemberFinderConvention(new PublicMemberFinderConvention());
         }
 
         // public methods
@@ -121,6 +127,19 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 IgnoreExtraElementsConvention = other.IgnoreExtraElementsConvention;
             }
+#pragma warning disable 618 // SerializeDefaultValueConvention is obsolete
+            if (IgnoreIfDefaultConvention == null && SerializeDefaultValueConvention == null)
+            {
+                if (other.SerializeDefaultValueConvention != null)
+                {
+                    SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
+                }
+                else
+                {
+                    IgnoreIfDefaultConvention = other.IgnoreIfDefaultConvention;
+                }
+            }
+#pragma warning restore 618
             if (IgnoreIfNullConvention == null)
             {
                 IgnoreIfNullConvention = other.IgnoreIfNullConvention;
@@ -128,10 +147,6 @@ namespace MongoDB.Bson.Serialization.Conventions
             if (MemberFinderConvention == null)
             {
                 MemberFinderConvention = other.MemberFinderConvention;
-            }
-            if (SerializeDefaultValueConvention == null)
-            {
-                SerializeDefaultValueConvention = other.SerializeDefaultValueConvention;
             }
         }
 
@@ -202,6 +217,23 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         /// <summary>
+        /// Sets the ignore if default convention.
+        /// </summary>
+        /// <param name="convention">An ignore if default convention.</param>
+        /// <returns>The convention profile.</returns>
+        public ConventionProfile SetIgnoreIfDefaultConvention(IIgnoreIfDefaultConvention convention)
+        {
+#pragma warning disable 618 // SerializeDefaultValueConvention is obsolete
+            if (convention != null && SerializeDefaultValueConvention != null)
+            {
+                throw new InvalidOperationException("IgnoreIfDefaultConvention cannot be set because SerializeDefaultValueConvention is set.");
+            }
+#pragma warning restore 618
+            IgnoreIfDefaultConvention = convention;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the ignore if null convention.
         /// </summary>
         /// <param name="convention">An ignore if null convention.</param>
@@ -228,8 +260,13 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="convention">A serialize default value convention.</param>
         /// <returns>The convention profile.</returns>
+        [Obsolete("SetSerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use SetIgnoreIfDefaultConvention instead.")]
         public ConventionProfile SetSerializeDefaultValueConvention(ISerializeDefaultValueConvention convention)
         {
+            if (convention != null && IgnoreIfDefaultConvention != null)
+            {
+                throw new InvalidOperationException("SerializeDefaultValueConvention cannot be set because IgnoreIfDefaultConvention is set.");
+            }
             SerializeDefaultValueConvention = convention;
             return this;
         }

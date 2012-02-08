@@ -46,9 +46,8 @@ namespace MongoDB.Bson.Serialization
         private IBsonSerializer _serializer;
         private IIdGenerator _idGenerator;
         private bool _isRequired;
-        private bool _hasDefaultValue;
-        private bool _serializeDefaultValue = true;
-        private Func<object, bool> _shouldSerializeMethod = (obj) => true;
+        private Func<object, bool> _shouldSerializeMethod;
+        private bool _ignoreIfDefault;
         private bool _ignoreIfNull;
         private object _defaultValue;
 
@@ -62,6 +61,7 @@ namespace MongoDB.Bson.Serialization
         {
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
+            _defaultValue = GetDefaultValue(_memberType);
             _conventions = conventions;
         }
 
@@ -192,19 +192,12 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets whether this member has a default value.
-        /// </summary>
-        public bool HasDefaultValue
-        {
-            get { return _hasDefaultValue; }
-        }
-
-        /// <summary>
         /// Gets whether the default value should be serialized.
         /// </summary>
+        [Obsolete("SerializeDefaultValue is obsolete and will be removed in a future version of the C# Driver. Please use IgnoreIfDefault instead.")]
         public bool SerializeDefaultValue
         {
-            get { return _serializeDefaultValue; }
+            get { return !_ignoreIfDefault; }
         }
 
         /// <summary>
@@ -213,6 +206,14 @@ namespace MongoDB.Bson.Serialization
         public Func<object, bool> ShouldSerializeMethod
         {
             get { return _shouldSerializeMethod; }
+        }
+
+        /// <summary>
+        /// Gets whether default values should be ignored when serialized.
+        /// </summary>
+        public bool IgnoreIfDefault
+        {
+            get { return _ignoreIfDefault; }
         }
 
         /// <summary>
@@ -238,10 +239,6 @@ namespace MongoDB.Bson.Serialization
         /// <param name="obj">The object.</param>
         public void ApplyDefaultValue(object obj)
         {
-            if (!_hasDefaultValue)
-            {
-                throw new InvalidOperationException("BsonMemberMap has no default value.");
-            }
             this.Setter(obj, _defaultValue);
         }
 
@@ -270,7 +267,6 @@ namespace MongoDB.Bson.Serialization
         public BsonMemberMap SetDefaultValue(object defaultValue)
         {
             _defaultValue = defaultValue;
-            _hasDefaultValue = true;
             return this;
         }
 
@@ -280,10 +276,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="defaultValue">The default value.</param>
         /// <param name="serializeDefaultValue">Whether the default value shoudl be serialized.</param>
         /// <returns>The member map.</returns>
+        [Obsolete("This overload of SetDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetDefaultValue(defaultValue) and SetIgnoreIfDefault instead.")]
         public BsonMemberMap SetDefaultValue(object defaultValue, bool serializeDefaultValue)
         {
             SetDefaultValue(defaultValue);
-            SetSerializeDefaultValue(serializeDefaultValue);
+            SetIgnoreIfDefault(!serializeDefaultValue);
             return this;
         }
 
@@ -310,12 +307,31 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Sets whether default values should be ignored when serialized.
+        /// </summary>
+        /// <param name="ignoreIfDefault">Whether default values should be ignored when serialized.</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap SetIgnoreIfDefault(bool ignoreIfDefault)
+        {
+            if (ignoreIfDefault && _ignoreIfNull)
+            {
+                throw new InvalidOperationException("IgnoreIfDefault and IgnoreIfNull are mutually exclusive. Choose one or the other.");
+            }
+            _ignoreIfDefault = ignoreIfDefault;
+            return this;
+        }
+
+        /// <summary>
         /// Sets whether null values should be ignored when serialized.
         /// </summary>
         /// <param name="ignoreIfNull">Wether null values should be ignored when serialized.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap SetIgnoreIfNull(bool ignoreIfNull)
         {
+            if (ignoreIfNull && _ignoreIfDefault)
+            {
+                throw new InvalidOperationException("IgnoreIfDefault and IgnoreIfNull are mutually exclusive. Choose one or the other.");
+            }
             _ignoreIfNull = ignoreIfNull;
             return this;
         }
@@ -380,9 +396,10 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="serializeDefaultValue">Whether the default value should be serialized.</param>
         /// <returns>The member map.</returns>
+        [Obsolete("SetSerializeDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetIgnoreIfDefault instead.")]
         public BsonMemberMap SetSerializeDefaultValue(bool serializeDefaultValue)
         {
-            _serializeDefaultValue = serializeDefaultValue;
+            _ignoreIfDefault = !serializeDefaultValue;
             return this;
         }
 
@@ -393,18 +410,56 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetShouldSerializeMethod(Func<object, bool> shouldSerializeMethod)
         {
-            if (shouldSerializeMethod != null)
-            {
-                _shouldSerializeMethod = shouldSerializeMethod;
-            }
-            else
-            {
-                _shouldSerializeMethod = (obj) => true;
-            }
+            _shouldSerializeMethod = shouldSerializeMethod;
             return this;
         }
 
+        /// <summary>
+        /// Determines whether a value should be serialized
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>True if the value should be serialized.</returns>
+        public bool ShouldSerialize(object obj, object value)
+        {
+            if (_ignoreIfNull)
+            {
+                if (value == null)
+                {
+                    return false; // don't serialize null
+                }
+            }
+
+            if (_ignoreIfDefault)
+            {
+                if (object.Equals(_defaultValue, value))
+                {
+                    return false; // don't serialize default value
+                }
+            }
+
+            if (_shouldSerializeMethod != null && !_shouldSerializeMethod(obj))
+            {
+                // the _shouldSerializeMethod determined that the member shouldn't be serialized
+                return false;
+            }
+
+            return true;
+        }
+
         // private methods
+        private static object GetDefaultValue(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         private Action<object, object> GetFieldSetter()
         {
             var fieldInfo = (FieldInfo)_memberInfo;

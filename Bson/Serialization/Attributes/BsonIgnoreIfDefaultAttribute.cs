@@ -21,35 +21,35 @@ using System.Text;
 namespace MongoDB.Bson.Serialization.Attributes
 {
     /// <summary>
-    /// Indicates whether a field or property equal to null should be ignored when serializing this class.
+    /// Indicates whether a field or property equal to the default value should be ignored when serializing this class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonIgnoreIfNullAttribute : Attribute
+    public class BsonIgnoreIfDefaultAttribute : Attribute
     {
         // private fields
         private bool _value;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the BsonIgnoreIfNullAttribute class.
+        /// Initializes a new instance of the BsonIgnoreIfDefaultAttribute class.
         /// </summary>
-        public BsonIgnoreIfNullAttribute()
+        public BsonIgnoreIfDefaultAttribute()
         {
             _value = true;
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonIgnoreIfNullAttribute class.
+        /// Initializes a new instance of the BsonIgnoreIfDefaultAttribute class.
         /// </summary>
-        /// <param name="value">Whether a field or property equal to null should be ignored when serializing this class.</param>
-        public BsonIgnoreIfNullAttribute(bool value)
+        /// <param name="value">Whether a field or property equal to the default value should be ignored when serializing this class.</param>
+        public BsonIgnoreIfDefaultAttribute(bool value)
         {
             _value = value;
         }
 
         // public properties
         /// <summary>
-        /// Gets whether a field or property equal to null should be ignored when serializing this class.
+        /// Gets whether a field or property equal to the default value should be ignored when serializing this class.
         /// </summary>
         public bool Value
         {

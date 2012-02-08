@@ -158,6 +158,7 @@ namespace MongoDB.Bson.Serialization
                         if (classMap.ExtraElementsMemberMap != null)
                         {
                             DeserializeExtraElement(bsonReader, obj, elementName, classMap.ExtraElementsMemberMap);
+                            missingElementMemberMaps.Remove(classMap.ExtraElementsMemberMap);
                         }
                         else if (classMap.IgnoreExtraElements)
                         {
@@ -185,10 +186,7 @@ namespace MongoDB.Bson.Serialization
                         throw new FileFormatException(message);
                     }
 
-                    if (memberMap.HasDefaultValue)
-                    {
-                        memberMap.ApplyDefaultValue(obj);
-                    }
+                    memberMap.ApplyDefaultValue(obj);
                 }
 
                 if (supportsInitialization != null)
@@ -396,17 +394,10 @@ namespace MongoDB.Bson.Serialization
         private void SerializeMember(BsonWriter bsonWriter, object obj, BsonMemberMap memberMap)
         {
             var value = memberMap.Getter(obj);
-            if (value == null && memberMap.IgnoreIfNull)
+
+            if (!memberMap.ShouldSerialize(obj, value))
             {
-                return; // don't serialize null value
-            }
-            if (memberMap.HasDefaultValue && !memberMap.SerializeDefaultValue && object.Equals(value, memberMap.DefaultValue))
-            {
-                return; // don't serialize default value
-            }
-            if (!memberMap.ShouldSerializeMethod(obj))
-            {
-                return; // the ShouldSerializeMethod determined that the member shouldn't be serialized
+                return; // don't serialize member
             }
 
             bsonWriter.WriteName(memberMap.ElementName);

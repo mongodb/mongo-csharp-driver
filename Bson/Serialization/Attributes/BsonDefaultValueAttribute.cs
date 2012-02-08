@@ -28,7 +28,8 @@ namespace MongoDB.Bson.Serialization.Attributes
     {
         // private fields
         private object _defaultValue;
-        private bool _serializeDefaultValue = true;
+        private bool _serializeDefaultValue;
+        private bool _serializeDefaultValueWasSet;
 
         // constructors
         /// <summary>
@@ -52,10 +53,22 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <summary>
         /// Gets or sets whether to serialize the default value.
         /// </summary>
+        [Obsolete("SerializeDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use BsonIgnoreIfDefaultAttribute instead.")]
         public bool SerializeDefaultValue
         {
             get { return _serializeDefaultValue; }
-            set { _serializeDefaultValue = value; }
+            set {
+                _serializeDefaultValue = value;
+                _serializeDefaultValueWasSet = true;
+            }
+        }
+
+        /// <summary>
+        /// Gets whether SerializeDefaultValue was set.
+        /// </summary>
+        internal bool SerializeDefaultValueWasSet
+        {
+            get { return _serializeDefaultValueWasSet; }
         }
     }
 }
