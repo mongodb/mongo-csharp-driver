@@ -1417,13 +1417,7 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private methods
-        private MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
-        {
-            var memberName = GetMemberNameFromLambda(memberLambda);
-            return _classType.GetMember(memberName).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
-        }
-
-        private string GetMemberNameFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        private static MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             var body = memberLambda.Body;
             MemberExpression memberExpression;
@@ -1437,9 +1431,23 @@ namespace MongoDB.Bson.Serialization
                     memberExpression = (MemberExpression)convertExpression.Operand;
                     break;
                 default:
-                    throw new BsonSerializationException("Invalid propertyLambda.");
+                    throw new BsonSerializationException("Invalid lambda expression");
             }
-            return memberExpression.Member.Name;
+            var memberInfo = memberExpression.Member;
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Field:
+                case MemberTypes.Property:
+                    break;
+                default:
+                    throw new BsonSerializationException("Invalid lambda expression");
+            }
+            return memberInfo;
+        }
+
+        private static string GetMemberNameFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
+            return GetMemberInfoFromLambda(memberLambda).Name;
         }
     }
 }

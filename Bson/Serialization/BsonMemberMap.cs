@@ -450,14 +450,34 @@ namespace MongoDB.Bson.Serialization
         // private methods
         private static object GetDefaultValue(Type type)
         {
-            if (type.IsValueType)
+            switch (Type.GetTypeCode(type))
             {
-                return Activator.CreateInstance(type);
+                case TypeCode.Empty:
+                case TypeCode.DBNull:
+                case TypeCode.String:
+                    break;
+                case TypeCode.Object:
+                    if (type.IsValueType)
+                    {
+                        return Activator.CreateInstance(type);
+                    }
+                    break;
+                case TypeCode.Boolean: return false;
+                case TypeCode.Char: return '\0';
+                case TypeCode.SByte: return (sbyte)0;
+                case TypeCode.Byte: return (byte)0;
+                case TypeCode.Int16: return (short)0;
+                case TypeCode.UInt16: return (ushort)0;
+                case TypeCode.Int32: return 0;
+                case TypeCode.UInt32: return 0U;
+                case TypeCode.Int64: return 0L;
+                case TypeCode.UInt64: return 0UL;
+                case TypeCode.Single: return 0F;
+                case TypeCode.Double: return 0D;
+                case TypeCode.Decimal: return 0M;
+                case TypeCode.DateTime: return DateTime.MinValue;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         private Action<object, object> GetFieldSetter()
@@ -488,9 +508,9 @@ namespace MongoDB.Bson.Serialization
 
         private Func<object, object> GetGetter()
         {
-            if (_memberInfo is PropertyInfo)
+            var propertyInfo = _memberInfo as PropertyInfo;
+            if (propertyInfo != null)
             {
-                var propertyInfo = (PropertyInfo)_memberInfo;
                 var getMethodInfo = propertyInfo.GetGetMethod(true);
                 if (getMethodInfo == null)
                 {
