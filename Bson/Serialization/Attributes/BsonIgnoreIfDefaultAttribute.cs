@@ -15,44 +15,45 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
-    /// Indicates that a field or property should be ignored if its value is null when this class is serialized.
+    /// Indicates whether a field or property equal to the default value should be ignored when serializing this class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonIgnoreIfDefaultAttribute : Attribute {
-        #region private fields
-        private bool value;
-        #endregion
+    public class BsonIgnoreIfDefaultAttribute : Attribute
+    {
+        // private fields
+        private bool _value;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonIgnoreIfDefaultAttribute class.
         /// </summary>
         public BsonIgnoreIfDefaultAttribute()
         {
-            this.value = true;
+            _value = true;
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonIgnoreIfDefaultAttribute class.
         /// </summary>
-        /// <param name="value">The value.</param>
-        public BsonIgnoreIfDefaultAttribute(
-            bool value
-        ) {
-            this.value = value;
+        /// <param name="value">Whether a field or property equal to the default value should be ignored when serializing this class.</param>
+        public BsonIgnoreIfDefaultAttribute(bool value)
+        {
+            _value = value;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
-        /// Gets the value.
+        /// Gets whether a field or property equal to the default value should be ignored when serializing this class.
         /// </summary>
-        public bool Value {
-            get { return value; }
+        public bool Value
+        {
+            get { return _value; }
         }
-        #endregion
     }
 }

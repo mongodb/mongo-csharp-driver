@@ -21,11 +21,39 @@ using System.Text;
 namespace MongoDB.Bson.Serialization.Attributes
 {
     /// <summary>
-    /// Indicates that a field or property should be ignored if its value is null when this class is serialized.
+    /// Indicates whether a field or property equal to null should be ignored when serializing this class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    [Obsolete("BsonIgnoreIfNullAttribute is obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use BsonIgnoreIfDefaultAttribute instead.")]
     public class BsonIgnoreIfNullAttribute : Attribute
     {
+        // private fields
+        private bool _value;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonIgnoreIfNullAttribute class.
+        /// </summary>
+        public BsonIgnoreIfNullAttribute()
+        {
+            _value = true;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonIgnoreIfNullAttribute class.
+        /// </summary>
+        /// <param name="value">Whether a field or property equal to null should be ignored when serializing this class.</param>
+        public BsonIgnoreIfNullAttribute(bool value)
+        {
+            _value = value;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets whether a field or property equal to null should be ignored when serializing this class.
+        /// </summary>
+        public bool Value
+        {
+            get { return _value; }
+        }
     }
 }

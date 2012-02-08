@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a serialize default value convention.
     /// </summary>
-    [Obsolete("ISerializeDefaultValueConvention is obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use IIgnoreIfDefaultConvention instead.")]
+    [Obsolete("ISerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use IIgnoreIfDefaultConvention instead.")]
     public interface ISerializeDefaultValueConvention
     {
         /// <summary>
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a serialize default value convention where default values are never serialized.
     /// </summary>
-    [Obsolete("NeverSerializeDefaultValueConvention is obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use AlwaysIgnoreIfDefaultConvention instead.")]
+    [Obsolete("NeverSerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use AlwaysIgnoreIfDefaultConvention instead.")]
     public class NeverSerializeDefaultValueConvention : ISerializeDefaultValueConvention
     {
         /// <summary>
@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a serialize default value convention where default values are always serialized.
     /// </summary>
-    [Obsolete("AlwaysSerializeDefaultValueConvention is obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use NeverIgnoreIfDefaultConvention instead.")]
+    [Obsolete("AlwaysSerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use NeverIgnoreIfDefaultConvention instead.")]
     public class AlwaysSerializeDefaultValueConvention : ISerializeDefaultValueConvention
     {
         /// <summary>

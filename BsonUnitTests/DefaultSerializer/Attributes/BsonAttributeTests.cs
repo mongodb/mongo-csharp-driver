@@ -35,12 +35,12 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
         {
             [BsonDefaultValue("default1")]
             public string SerializedDefaultValue1 { get; set; }
-#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when testing obsolete functionality
+#pragma warning disable 618 // SerializeDefaultValue is obsolete
             [BsonDefaultValue("default2", SerializeDefaultValue = true)]
             public string SerializedDefaultValue2 { get; set; }
             [BsonDefaultValue("default3", SerializeDefaultValue = false)]
-#pragma warning restore 618
             public string NotSerializedDefaultValue { get; set; }
+#pragma warning restore 618
             public string NoDefaultValue { get; set; }
 
             [BsonId(IdGenerator = typeof(ObjectIdGenerator))]
@@ -55,10 +55,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             public string IgnoredIfDefault { get; set; }
             public string NotIgnoredIfDefault { get; set; }
 
-#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when testing obsolete functionality
             [BsonIgnoreIfNull]
             public string IgnoredIfNull { get; set; }
-#pragma warning restore 618
             public string NotIgnoredIfNull { get; set; }
 
             [BsonRequired]
@@ -87,37 +85,27 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             Assert.AreEqual(false, classMap.IgnoreExtraElements);
         }
 
-#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when testing obsolete functionality
         [Test]
         public void TestDefaultValue()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var serializedDefaultValue1 = classMap.GetMemberMap("SerializedDefaultValue1");
-            Assert.AreEqual(true, serializedDefaultValue1.HasDefaultValue);
-            Assert.AreEqual(true, serializedDefaultValue1.SerializeDefaultValue);
             Assert.AreEqual(false, serializedDefaultValue1.IgnoreIfDefault);
             Assert.AreEqual("default1", serializedDefaultValue1.DefaultValue);
 
             var serializedDefaultValue2 = classMap.GetMemberMap("SerializedDefaultValue2");
-            Assert.AreEqual(true, serializedDefaultValue2.HasDefaultValue);
-            Assert.AreEqual(true, serializedDefaultValue2.SerializeDefaultValue);
             Assert.AreEqual(false, serializedDefaultValue2.IgnoreIfDefault);
             Assert.AreEqual("default2", serializedDefaultValue2.DefaultValue);
 
             var notSerializedDefaultValue = classMap.GetMemberMap("NotSerializedDefaultValue");
-            Assert.AreEqual(true, notSerializedDefaultValue.HasDefaultValue);
-            Assert.AreEqual(false, notSerializedDefaultValue.SerializeDefaultValue);
-            Assert.AreEqual(false, notSerializedDefaultValue.IgnoreIfDefault);
+            Assert.AreEqual(true, notSerializedDefaultValue.IgnoreIfDefault);
             Assert.AreEqual("default3", notSerializedDefaultValue.DefaultValue);
 
             var noDefaultValue = classMap.GetMemberMap("NoDefaultValue");
-            Assert.AreEqual(false, noDefaultValue.HasDefaultValue);
-            Assert.AreEqual(true, noDefaultValue.SerializeDefaultValue);
             Assert.AreEqual(false, noDefaultValue.IgnoreIfDefault);
             Assert.IsNull(noDefaultValue.DefaultValue);
         }
-#pragma warning restore 618
 
         [Test]
         public void TestId()
@@ -145,7 +133,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             Assert.IsNotNull(notIgnored);
         }
 
-#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when testing obsolete functionality
         [Test]
         public void TestIgnoredIfNull()
         {
@@ -157,7 +144,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             var notIgnoredIfNull = classMap.GetMemberMap("NotIgnoredIfNull");
             Assert.AreEqual(false, notIgnoredIfNull.IgnoreIfNull);
         }
-#pragma warning restore 618
 
         [Test]
         public void TestIgnoredIfDefault()
@@ -169,12 +155,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
 
             var notIgnoredIfDefault = classMap.GetMemberMap("NotIgnoredIfDefault");
             Assert.AreEqual(false, notIgnoredIfDefault.IgnoreIfDefault);
-
-            var ignoredIfNull = classMap.GetMemberMap("IgnoredIfNull");
-            Assert.AreEqual(true, ignoredIfNull.IgnoreIfDefault);
-
-            var notIgnoredIfNull = classMap.GetMemberMap("NotIgnoredIfNull");
-            Assert.AreEqual(false, notIgnoredIfNull.IgnoreIfDefault);
         }
 
         [Test]

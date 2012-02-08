@@ -42,7 +42,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp100
         private class ChildClass : ParentClass
         {
             [DataMember(Order = 1)]
-            [BsonIgnoreIfDefault]
+            [BsonIgnoreIfNull]
             public IList<SomeClass> SomeProperty { get; set; }
         }
 

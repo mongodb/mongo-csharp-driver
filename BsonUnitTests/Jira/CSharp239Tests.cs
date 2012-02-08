@@ -36,9 +36,9 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp239
         public class Tree
         {
             public string Node;
-            [BsonIgnoreIfDefault]
+            [BsonIgnoreIfNull]
             public Tree Left;
-            [BsonIgnoreIfDefault]
+            [BsonIgnoreIfNull]
             public Tree Right;
         }
 

@@ -31,9 +31,9 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp133
     public class C
     {
         public string S;
-#pragma warning disable 618 // disable [ObsoleteAttribute] warnings when testing obsolete functionality
         [BsonIgnoreIfNull]
         public string I;
+#pragma warning disable 618 // SerializeDefaultValue is obsolete
         [BsonDefaultValue(null, SerializeDefaultValue = false)] // works the same as [BsonIgnoreIfNull]
         public string D;
 #pragma warning restore 618
@@ -68,7 +68,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp133
             var date = new DateTime(1980, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             var c = new C { S = "xyz", I = "xyz", I2 = date, D = "xyz" };
             var json = c.ToJson();
-            var expected = ("{ 'S' : 'xyz', 'I' : 'xyz', 'I2' : ISODate('" + date.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ") + "'), 'D' : 'xyz' }").Replace("'", "\"");
+            var expected = ("{ 'S' : 'xyz', 'I' : 'xyz', 'D' : 'xyz', 'I2' : ISODate('" + date.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ") + "') }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
