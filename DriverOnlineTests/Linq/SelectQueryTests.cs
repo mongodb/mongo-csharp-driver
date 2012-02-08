@@ -325,7 +325,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestElementAtWithNoMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -427,7 +427,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestFirstWithNoMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -646,7 +646,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestLastWithNoMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -771,7 +771,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.IsNull(selectQuery.Where);
             Assert.AreEqual(1, selectQuery.OrderBy.Count);
-            Assert.AreEqual("c => c.X", selectQuery.OrderBy[0].Key.ToString());
+            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy[0].Direction);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -799,9 +799,9 @@ namespace MongoDB.DriverOnlineTests.Linq
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.IsNull(selectQuery.Where);
             Assert.AreEqual(2, selectQuery.OrderBy.Count);
-            Assert.AreEqual("c => c.Y", selectQuery.OrderBy[0].Key.ToString());
+            Assert.AreEqual("(C c) => c.Y", ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy[0].Direction);
-            Assert.AreEqual("c => c.X", selectQuery.OrderBy[1].Key.ToString());
+            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy[1].Key));
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy[1].Direction);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -829,9 +829,9 @@ namespace MongoDB.DriverOnlineTests.Linq
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.IsNull(selectQuery.Where);
             Assert.AreEqual(2, selectQuery.OrderBy.Count);
-            Assert.AreEqual("c => c.Y", selectQuery.OrderBy[0].Key.ToString());
+            Assert.AreEqual("(C c) => c.Y", ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy[0].Direction);
-            Assert.AreEqual("c => c.X", selectQuery.OrderBy[1].Key.ToString());
+            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy[1].Key));
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy[1].Direction);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -859,7 +859,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.IsNull(selectQuery.Where);
             Assert.AreEqual(1, selectQuery.OrderBy.Count);
-            Assert.AreEqual("c => c.X", selectQuery.OrderBy[0].Key.ToString());
+            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy[0].Direction);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -887,9 +887,9 @@ namespace MongoDB.DriverOnlineTests.Linq
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.IsNull(selectQuery.Where);
             Assert.AreEqual(2, selectQuery.OrderBy.Count);
-            Assert.AreEqual("c => c.Y", selectQuery.OrderBy[0].Key.ToString());
+            Assert.AreEqual("(C c) => c.Y", ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy[0].Direction);
-            Assert.AreEqual("c => c.X", selectQuery.OrderBy[1].Key.ToString());
+            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy[1].Key));
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy[1].Direction);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -917,9 +917,9 @@ namespace MongoDB.DriverOnlineTests.Linq
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.IsNull(selectQuery.Where);
             Assert.AreEqual(2, selectQuery.OrderBy.Count);
-            Assert.AreEqual("c => c.Y", selectQuery.OrderBy[0].Key.ToString());
+            Assert.AreEqual("(C c) => c.Y", ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy[0].Direction);
-            Assert.AreEqual("c => c.X", selectQuery.OrderBy[1].Key.ToString());
+            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy[1].Key));
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy[1].Direction);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -958,7 +958,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.IsNull(selectQuery.Where);
             Assert.IsNull(selectQuery.OrderBy);
-            Assert.AreEqual("c => c.X", selectQuery.Projection.ToString());
+            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.Projection));
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
@@ -1060,7 +1060,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains more than one element")]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleOrDefaultWithManyMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1088,7 +1088,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains more than one element")]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleOrDefaultWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1097,7 +1097,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains more than one element")]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleWithManyMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1105,7 +1105,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleWithNoMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1125,7 +1125,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains more than one element")]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1148,7 +1148,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Where);
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
-            Assert.AreEqual("2", selectQuery.Skip.ToString());
+            Assert.AreEqual("2", ExpressionFormatter.ToString(selectQuery.Skip));
             Assert.IsNull(selectQuery.Take);
 
             Assert.IsNull(selectQuery.CreateMongoQuery());
@@ -1211,7 +1211,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
-            Assert.AreEqual("2", selectQuery.Take.ToString());
+            Assert.AreEqual("2", ExpressionFormatter.ToString(selectQuery.Take));
 
             Assert.IsNull(selectQuery.CreateMongoQuery());
             Assert.AreEqual(2, Consume(query));
@@ -1277,7 +1277,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("c => (c.X = 1)", selectQuery.Where.ToString());
+            Assert.AreEqual("(C c) => (c.X == 1)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1300,7 +1300,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("c => ((c.X = 1) && (c.Y = 11))", selectQuery.Where.ToString());
+            Assert.AreEqual("(C c) => ((c.X == 1) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1323,7 +1323,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("c => ((c.X = 1) || (c.Y = 33))", selectQuery.Where.ToString());
+            Assert.AreEqual("(C c) => ((c.X == 1) || (c.Y == 33))", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
